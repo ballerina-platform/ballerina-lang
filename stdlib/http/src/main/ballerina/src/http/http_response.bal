@@ -88,7 +88,7 @@ public type Response object {
     #
     # + headerName - The header name
     # + position - Represents the position of the header as an optional parameter
-    # + return - The first header value for the specified header name. An exception is thrown if no header is found. Use
+    # + return - The first header value for the specified header name. Panic if the header is not found. Use
     #            `Response.hasHeader()` beforehand to check the existence of header.
     public function getHeader(string headerName, public mime:HeaderPosition position = mime:LEADING)
                                                                                             returns @tainted string {
@@ -110,7 +110,7 @@ public type Response object {
     #
     # + headerName - The header name
     # + position - Represents the position of the header as an optional parameter
-    # + return - The header values the specified header key maps to. An exception is thrown if no header is found. Use
+    # + return - The header values the specified header key maps to. Panic if the header is not found. Use
     #            `Response.hasHeader()` beforehand to check the existence of header.
     public function getHeaders(string headerName, public mime:HeaderPosition position = mime:LEADING)
                                                                                             returns @tainted string[] {

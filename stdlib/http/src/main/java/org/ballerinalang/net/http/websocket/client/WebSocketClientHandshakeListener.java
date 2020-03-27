@@ -46,8 +46,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
     private final ObjectValue webSocketClient;
     private CountDownLatch countDownLatch;
 
-    public WebSocketClientHandshakeListener(ObjectValue webSocketClient,
-                                            WebSocketService wsService,
+    public WebSocketClientHandshakeListener(ObjectValue webSocketClient, WebSocketService wsService,
                                             WebSocketClientConnectorListener clientConnectorListener,
                                             boolean readyOnConnect, CountDownLatch countDownLatch) {
         this.webSocketClient = webSocketClient;
@@ -60,8 +59,7 @@ public class WebSocketClientHandshakeListener implements ClientHandshakeListener
     @Override
     public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse carbonResponse) {
         //using only one service endpoint in the client as there can be only one connection.
-        webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD,
-                            HttpUtil.createResponseStruct(carbonResponse));
+        webSocketClient.set(WebSocketConstants.CLIENT_RESPONSE_FIELD, HttpUtil.createResponseStruct(carbonResponse));
         ObjectValue webSocketConnector = BallerinaValues.createObjectValue(WebSocketConstants.PROTOCOL_HTTP_PKG_ID,
                                                                            WebSocketConstants.WEBSOCKET_CONNECTOR);
         WebSocketConnectionInfo connectionInfo = WebSocketUtil.getWebSocketOpenConnectionInfo(webSocketConnection,

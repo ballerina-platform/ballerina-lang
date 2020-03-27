@@ -125,7 +125,7 @@ public type Request object {
     # these values is returned.
     #
     # + headerName - The header name
-    # + return - The first header value for the specified header name. An exception is thrown if no header is found. Use
+    # + return - The first header value for the specified header name. Panic if the header is not found. Use
     #            `Request.hasHeader()` beforehand to check the existence of header.
     public function getHeader(string headerName) returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
@@ -135,7 +135,7 @@ public type Request object {
     # Gets all the header values to which the specified header key maps to.
     #
     # + headerName - The header name
-    # + return - The header values the specified header key maps to. An exception is thrown if no header is found. Use
+    # + return - The header values the specified header key maps to. Panic if the header is not found. Use
     #            `Request.hasHeader()` beforehand to check the existence of header.
     public function getHeaders(string headerName) returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
