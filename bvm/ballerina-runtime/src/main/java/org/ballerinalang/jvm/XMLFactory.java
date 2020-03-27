@@ -52,6 +52,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -88,7 +89,6 @@ public class XMLFactory {
      */
     public static XMLValue parse(String xmlStr) {
         try {
-
             if (xmlStr.isEmpty()) {
                 return new XMLSequence();
             }
@@ -315,16 +315,7 @@ public class XMLFactory {
      */
     @Deprecated
     public static XMLValue createXMLText(String content) {
-        // Remove carriage return on windows environments to eliminate additional &#xd; being added
-        content = content.replace("\r\n", "\n");
-
-        // &gt; &lt; and &amp; in XML literal in Ballerina lang maps to >, <, and & in XML infoset.
-        content = content
-                .replace("&gt;", ">")
-                .replace("&lt;", "<")
-                .replace("&amp;", "&");
-
-        return new XMLText(content);
+        return new XMLText(XMLTextUnescape.unescape(content));
     }
 
     /**
@@ -739,5 +730,63 @@ public class XMLFactory {
                         .createOMBuilder(omFactory, STAX_PARSER_CONFIGURATION, new StringReader(xmlFragment))
                         .getDocumentElement()
                 : null;
+    }
+
+
+    /**
+     * Replace xml text escape sequences with appropriate character.
+     *
+     * @since 1.2
+     */
+    public static class XMLTextUnescape {
+        public static String unescape(String str) {
+            return unescape(str.getBytes(StandardCharsets.UTF_8));
+        }
+
+        private static String unescape(byte[] bytes) {
+            byte[] target = new byte[bytes.length];
+            int size = bytes.length;
+            int len = 0;
+
+            for (int i = 0; i < size; i++, len++) {
+                byte b = bytes[i];
+                int i1 = i + 1; // index next to current index
+
+                // Remove carriage return on windows environments to eliminate additional &#xd; being added
+                if (b == '\r' && i1 < size && bytes[i1] == '\n') {
+                    target[len] = '\n';
+                    i += 1;
+                    continue;
+                }
+
+                // &gt; &lt; and &amp; in XML literal in Ballerina lang maps to >, <, and & in XML infoset.
+                if (b == '&') {
+                    int i2 = i + 2; // index next next to current index
+                    int i3 = i + 3; // index next next next current index
+                    if (i3 < size && bytes[i1] == 'g' && bytes[i2] == 't' && bytes[i3] == ';') {
+                        target[len] = '>';
+                        i += 3;
+                        continue;
+                    }
+
+                    if (i3 < size && bytes[i1] == 'l' && bytes[i2] == 't' && bytes[i3] ==  ';') {
+                        target[len] = '<';
+                        i += 3;
+                        continue;
+                    }
+
+                    if (i3 + 1 < size && bytes[i1] == 'a' && bytes[i2] == 'm' && bytes[i3] == 'p'
+                            && bytes[i3 + 1] == ';') {
+                        target[len] = '&';
+                        i += 4;
+                        continue;
+                    }
+                }
+
+                target[len] = b;
+            }
+
+            return new String(target, 0, len);
+        }
     }
 }

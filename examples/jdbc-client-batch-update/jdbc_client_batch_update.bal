@@ -50,7 +50,7 @@ public function main() {
     }
     // A batch of data can be inserted using the `batchUpdate` remote function.
     jdbc:BatchUpdateResult retBatch = testDB->batchUpdate("INSERT INTO student " +
-            "(age,name) VALUES (?,?)", false, true, ...dataBatch);
+            "(age,name) VALUES (?,?)", false, ...dataBatch);
     error? e = retBatch.returnedError;
     if (e is error) {
         io:println("Batch update operation failed:", <string>e.detail()?.message);
@@ -87,7 +87,7 @@ function handleUpdate(jdbc:UpdateResult|jdbc:Error returned, string message) {
 // Select data from the table and print.
 function checkData() {
     var dtReturned = testDB->select("SELECT * FROM student", Student);
-    if (dtReturned is table<Student>) {
+    if (dtReturned is table<record{}>) {
         // Iterating data.
         io:println("Data in students table:");
         foreach var row in dtReturned {

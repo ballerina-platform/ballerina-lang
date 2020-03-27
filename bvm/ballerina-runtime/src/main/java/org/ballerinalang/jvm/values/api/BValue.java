@@ -31,7 +31,5 @@ public interface BValue {
     @Deprecated
     String stringValue();
 
-    BString bStringValue();
-
     BType getType();
 }

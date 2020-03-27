@@ -489,7 +489,7 @@ ReturnParameterDocumentationStart
     ;
 
 DeprecatedDocumentation
-    :   HASH DocumentationSpace HASH DocumentationSpace DEPRECATED -> pushMode(MARKDOWN_DOCUMENTATION)
+    :   HASH DocumentationSpace HASH DocumentationSpace DEPRECATED DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
     ;
 
 // Whitespace and comments
@@ -536,7 +536,7 @@ TripleBacktickStart
 
 fragment
 DocumentationTextCharacter
-    :   ~[`\n ]
+    :   ~[`\n\r ]
     |   '\\' BACKTICK
     ;
 
@@ -549,7 +549,7 @@ DocumentationSpace
     ;
 
 DocumentationEnd
-    :   [\n] -> channel(HIDDEN), popMode
+    :   [\n\r] -> channel(HIDDEN), popMode
     ;
 
 mode MARKDOWN_DOCUMENTATION_PARAM;

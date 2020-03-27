@@ -264,10 +264,6 @@ function testUninitializedVarReferrencing() {
     _ = m.hasKey(s);
     foo(a, s, s);
 
-    // uninitialized var in xml attribute access
-    xml x;
-    _ = x@[s];
-
     // uninitialized var in range expression
     //
     var range = a...a+5;

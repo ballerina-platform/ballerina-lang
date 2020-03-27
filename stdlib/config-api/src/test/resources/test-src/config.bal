@@ -12,7 +12,7 @@ function testContains(string key) returns boolean {
     return config:contains(key);
 }
 
-function testGetAsMap(string key) returns map<any> {
+function testGetAsMap(string key) returns map<anydata> {
     return config:getAsMap(key);
 }
 

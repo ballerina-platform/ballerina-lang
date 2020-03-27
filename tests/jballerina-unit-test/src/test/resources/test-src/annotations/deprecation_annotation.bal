@@ -43,4 +43,13 @@ public function func1() {
 }
 
 public function func2(DummyObject obj, Foo foo, string str = CONST1) {
+    func1();
+}
+
+@deprecated
+public function func3() {
+}
+
+public function func4() {
+    func3();
 }

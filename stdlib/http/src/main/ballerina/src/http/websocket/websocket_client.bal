@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Represents a WebSocket client endpoint.
 public type WebSocketClient client object {
@@ -34,7 +34,8 @@ public type WebSocketClient client object {
 
     # Initializes the client when called.
     #
-    # + c - The `WebSocketClientConfiguration` of the endpoint
+    # + url - URL of the target service
+    # + config - The configurations to be used when initializing the client
     public function __init(string url, public WebSocketClientConfiguration? config = ()) {
         self.url = url;
         self.config = config ?: {};

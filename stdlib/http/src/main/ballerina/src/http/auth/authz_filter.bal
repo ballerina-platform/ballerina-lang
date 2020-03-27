@@ -23,6 +23,10 @@ public type AuthzFilter object {
     public AuthzHandler authzHandler;
     public Scopes? scopes;
 
+    # Initializes the `AuthzFilter` object.
+    #
+    # + authzHandler - `AuthzHandler` instance for handling authorization
+    # + scopes - Array of scopes or array of arrays of scopes
     public function __init(AuthzHandler authzHandler, Scopes? scopes) {
         self.authzHandler = authzHandler;
         self.scopes = scopes;
@@ -56,6 +60,12 @@ public type AuthzFilter object {
         return isAuthzSuccessful(caller, authorized);
     }
 
+    # Filter function implementation, which tries to authorize the response, which is defined to achieve 
+    # object-structural equality.
+    #
+    # + response - `Response` instance
+    # + context - `FilterContext` instance
+    # + return - Set to`true` as the functionality is not implemented
     public function filterResponse(Response response, FilterContext context) returns boolean {
         return true;
     }

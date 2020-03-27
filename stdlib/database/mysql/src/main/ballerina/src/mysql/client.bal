@@ -16,13 +16,24 @@
 
 import ballerina/crypto;
 import ballerina/sql;
-import ballerinax/java;
+import ballerina/java;
 
 # Represents a MySQL database client.
 public type Client client object {
     *sql:Client;
     private boolean clientActive = true;
 
+    # Initialize MySQL Client.
+    #
+    # + host - Hostname of the mysql server to be connected
+    # + user - If the mysql server is secured, the username to be used to connect to the mysql server
+    # + password - The password of provided username of the database
+    # + database - The name fo the database to be connected
+    # + port - Port number of the mysql server to be connected
+    # + options - The Database specific JDBC client properties
+    # + connectionPool - The `sql:ConnectionPool` object to be used within the jdbc client.
+    #                   If there is no connectionPool is provided, the global connection pool will be used and it will
+    #                   be shared by other clients which has same properties
     public function __init(public string host = "localhost",
         public string? user = (), public string? password = (), public string? database = (),
         public int port = 3306, public Options? options = (),
@@ -46,7 +57,7 @@ public type Client client object {
     #             column names of the query result set be used for the record attributes
     # + return - Stream of records in the type of `rowType`
     public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ())
-    returns stream<record{}, sql:Error> {
+    returns @tainted stream<record{}, sql:Error> {
         if (self.clientActive) {
             return nativeQuery(self, java:fromString(sqlQuery), rowType);
         } else {

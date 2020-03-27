@@ -28,13 +28,17 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -152,7 +156,8 @@ public class FunctionGenerator {
         } else if (bLangNode instanceof BLangFunctionTypeNode) {
             BLangFunctionTypeNode funcType = (BLangFunctionTypeNode) bLangNode;
             TestGenerator.TestFunctionGenerator generator = new TestGenerator.TestFunctionGenerator(importsAcceptor,
-                    currentPkgId, funcType);
+                                                                                                    currentPkgId,
+                                                                                                    funcType);
             String[] typeSpace = generator.getTypeSpace();
             String[] nameSpace = generator.getNamesSpace();
             StringJoiner params = new StringJoiner(", ");
@@ -227,6 +232,30 @@ public class FunctionGenerator {
             return "()";
         } else if (bType instanceof BTableType) {
             return "table<record {}>";
+        } else if (bType instanceof BStreamType) {
+            BStreamType streamType = (BStreamType) bType;
+            String constraint = generateTypeDefinition(importsAcceptor, currentPkgId, streamType.constraint);
+            String error = generateTypeDefinition(importsAcceptor, currentPkgId, streamType.error);
+            return "stream<" + constraint + ", " + error + ">";
+        } else if (bType instanceof BRecordType) {
+            BRecordType recordType = (BRecordType) bType;
+            if (recordType.tsymbol != null && recordType.tsymbol.name != null &&
+                    (recordType.tsymbol.name.value.isEmpty() || recordType.tsymbol.name.value.startsWith("$"))) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("record").append(" ").append("{|");
+                for (BField field : recordType.fields) {
+                    sb.append(" ").append(field.type).append(" ").append(field.name)
+                            .append(Symbols.isOptional(field.symbol) ? "?" : "")
+                            .append(";");
+                }
+                if (recordType.sealed) {
+                    sb.append(" ").append("|}");
+                    return sb.toString();
+                }
+                sb.append(" ").append(recordType.restFieldType).append("...").append(";").append(" ").append("|}");
+                return sb.toString();
+            }
+            return recordType.tsymbol.toString();
         }
         return (bType.tsymbol != null) ? generateTypeDefinition(importsAcceptor, currentPkgId, bType.tsymbol) :
                 "any";
@@ -315,9 +344,7 @@ public class FunctionGenerator {
                     list.add(argType + " " + varName);
                     argNames.add(varName);
                 } else if (bLangExpression instanceof BLangInvocation) {
-                    BLangInvocation invocation = (BLangInvocation) bLangExpression;
-                    String functionName = invocation.name.value;
-                    String argType = lookupFunctionReturnType(functionName, parent);
+                    String argType = generateTypeDefinition(importsAcceptor, currentPkgId, bLangExpression);
                     String argName = CommonUtil.generateVariableName(bLangExpression, argNames);
                     list.add(argType + " " + argName);
                     argNames.add(argName);
@@ -335,8 +362,29 @@ public class FunctionGenerator {
     private static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor,
                                                  PackageID currentPkgId, BTypeSymbol tSymbol) {
         if (tSymbol != null) {
+            // Generate function type text
             if (tSymbol instanceof BInvokableTypeSymbol) {
-                return tSymbol.type.toString();
+                BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) tSymbol;
+                StringJoiner params = new StringJoiner(", ");
+                int argCounter = 1;
+                Set<String> argNames = new HashSet<>(); // To avoid name duplications
+                for (BVarSymbol param : invokableTypeSymbol.params) {
+                    BType bType = param.type;
+                    String argName = CommonUtil.generateName(argCounter++, argNames);
+                    String argType = generateTypeDefinition(importsAcceptor, currentPkgId, bType);
+                    params.add(argType + " " + argName);
+                    argNames.add(argName);
+                }
+                BVarSymbol restParam = invokableTypeSymbol.restParam;
+                if (restParam != null && (restParam.type instanceof BArrayType)) {
+                    BArrayType type = (BArrayType) restParam.type;
+                    params.add(generateTypeDefinition(importsAcceptor, type.eType.tsymbol.pkgID, type.eType) + "... "
+                                       + restParam.getName().getValue());
+                }
+                String returnType = (invokableTypeSymbol.returnType != null)
+                        ? generateTypeDefinition(importsAcceptor, currentPkgId, invokableTypeSymbol.returnType)
+                        : "";
+                return "function (" + params.toString() + ")" + (returnType.isEmpty() ? "" : " returns " + returnType);
             } else {
                 String pkgPrefix = CommonUtil.getPackagePrefix(importsAcceptor, currentPkgId, tSymbol.pkgID);
                 return pkgPrefix + tSymbol.name.getValue();

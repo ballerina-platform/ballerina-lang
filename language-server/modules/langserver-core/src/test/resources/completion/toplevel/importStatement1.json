@@ -22,14 +22,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerinax/java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "120",
-      "insertText": "ballerinax/java",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.object",
       "kind": "Module",
       "detail": "Module",
@@ -222,6 +214,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "120",
+      "insertText": "ballerina/java",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/rabbitmq",
       "kind": "Module",
       "detail": "Module",
@@ -326,6 +326,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/mysql",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "120",
+      "insertText": "ballerina/mysql",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/task",
       "kind": "Module",
       "detail": "Module",
@@ -411,6 +419,14 @@
       "detail": "Module",
       "sortText": "120",
       "insertText": "ballerina/socket",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/sql",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "120",
+      "insertText": "ballerina/sql",
       "insertTextFormat": "Snippet"
     }
   ]

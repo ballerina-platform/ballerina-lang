@@ -26,6 +26,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -98,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
@@ -150,7 +152,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchBind
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -1197,27 +1198,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangQueryAction queryAction) {
-        this.loopWithintransactionCheckStack.push(true);
-        boolean statementReturns = this.statementReturns;
-        this.checkStatementExecutionValidity(queryAction);
-        this.loopCount++;
-        analyzeNode(queryAction.doClause, env);
-        this.loopCount--;
-        this.statementReturns = statementReturns;
-        this.resetLastStatement();
-        this.loopWithintransactionCheckStack.pop();
-
-        for (FromClauseNode fromClauseNode : queryAction.fromClauseList) {
-            analyzeNode((BLangFromClause) fromClauseNode, env);
-        }
-
-        for (WhereClauseNode whereClauseNode : queryAction.whereClauseList) {
-            analyzeNode((BLangWhereClause) whereClauseNode, env);
-        }
-    }
-
-    @Override
     public void visit(BLangWhile whileNode) {
         this.loopWithintransactionCheckStack.push(true);
         boolean statementReturns = this.statementReturns;
@@ -2100,6 +2080,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         analyzeExpr(xmlNavigation.expr);
         if (xmlNavigation.childIndex != null) {
+            if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.DESCENDANTS
+                    || xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
+                dlog.error(xmlNavigation.pos, DiagnosticCode.UNSUPPORTED_INDEX_IN_XML_NAVIGATION);
+            }
             analyzeExpr(xmlNavigation.childIndex);
         }
         validateMethodInvocationsInXMLNavigationExpression(xmlNavigation);
@@ -2459,6 +2443,28 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         analyzeNode(queryExpr.selectClause, env);
+    }
+
+    @Override
+    public void visit(BLangQueryAction queryAction) {
+        int fromCount = 0;
+        for (FromClauseNode fromClauseNode : queryAction.fromClauseList) {
+            fromCount++;
+            BLangExpression collection = (BLangExpression) fromClauseNode.getCollection();
+            if (fromCount > 1) {
+                if (TypeTags.STREAM == collection.type.tag) {
+                    this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
+                }
+            }
+            analyzeNode((BLangFromClause) fromClauseNode, env);
+        }
+
+        for (WhereClauseNode whereClauseNode : queryAction.whereClauseList) {
+            analyzeNode((BLangWhereClause) whereClauseNode, env);
+        }
+
+        analyzeNode(queryAction.doClause, env);
+        validateActionParentNode(queryAction.pos, queryAction);
     }
 
     @Override

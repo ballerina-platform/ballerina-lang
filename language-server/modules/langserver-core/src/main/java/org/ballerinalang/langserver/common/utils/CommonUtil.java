@@ -280,7 +280,8 @@ public class CommonUtil {
         if (pkgAliasMap.containsKey(packageID.toString())) {
             // Check if the imported packages contains the particular package with the alias
             aliasComponent = pkgAliasMap.get(packageID.toString());
-        } else if (!currentPkgID.name.value.equals(packageID.name.value)) {
+        } else if (currentPkgID != null && !currentPkgID.name.value.equals(packageID.name.value)
+                && !isLangLib(packageID)) {
             aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
         }
 
@@ -313,7 +314,7 @@ public class CommonUtil {
                 })
                 .findAny();
         // if the particular import statement not available we add the additional text edit to auto import
-        if (!pkgImport.isPresent()) {
+        if (!pkgImport.isPresent() && !isLangLib(packageID)) {
             annotationItem.setAdditionalTextEdits(getAutoImportTextEdits(packageID.orgName.getValue(),
                     packageID.name.getValue(), ctx));
         }
@@ -695,6 +696,11 @@ public class CommonUtil {
 
     private static String getArrayTypeName(BArrayType arrayType, LSContext ctx, boolean doSimplify) {
         return getBTypeName(arrayType.eType, ctx, doSimplify) + "[]";
+    }
+    
+    private static boolean isLangLib(PackageID packageID) {
+        return packageID.getOrgName().getValue().equals("ballerina")
+                && packageID.getName().getValue().startsWith("lang.");
     }
 
     /**
@@ -1104,17 +1110,6 @@ public class CommonUtil {
             }
             return true;
         };
-    }
-
-    /**
-     * Generate variable code.
-     *
-     * @param variableName variable name
-     * @param variableType variable type
-     * @return {@link String}       generated function signature
-     */
-    public static String createVariableDeclaration(String variableName, String variableType) {
-        return variableType + " " + variableName + " = ";
     }
 
     /**

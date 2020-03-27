@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BAssertUtil;
@@ -85,27 +84,9 @@ public class ForeachIterableObjectTest {
 
     }
 
-    @Test(description = "Test Iterable object with custom errors")
-    public void testIterableObjectWithCustomError() {
-        BValue[] values = BRunUtil.invoke(program, "testIterableObjectWithCustomError", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
-    }
-
-    @Test(description = "Test Iterable object with generic errors")
-    public void testIterableObjectWithGenericError1() {
-        BValue[] values = BRunUtil.invoke(program, "testIterableObjectWithGenericError1", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
-    }
-
-    @Test(description = "Test Iterable object with generic errors")
-    public void testIterableObjectWithGenericError2() {
-        BValue[] values = BRunUtil.invoke(program, "testIterableObjectWithGenericError2", new BValue[]{});
-        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
-    }
-
     @Test
     public void testIterableObjectErrors() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 8);
+        Assert.assertEquals(negativeResult.getErrorCount(), 9);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'object { public function next " +
                 "() returns (record {| int value; |}?); }', found 'object { int[] integers; int cursorIndex; public " +
@@ -126,9 +107,10 @@ public class ForeachIterableObjectTest {
                 "signature,  public function __iterator() returns (object { public function next () returns (record " +
                 "{| T value; |}?); });", 237, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|CustomError)" +
-                "'", 244, 9);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'int', found '(int|CustomError)'",
-                247, 9);
-
+                "'", 241, 25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|CustomError)" +
+                "'", 243, 25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|CustomError)" +
+                "'", 246, 25);
     }
 }

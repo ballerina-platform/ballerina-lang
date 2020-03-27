@@ -51,7 +51,7 @@ public const RFC_7234 = "RFC_7234";
 
 # Provides a set of configurations for controlling the caching behaviour of the endpoint.
 #
-# + enabled - Specifies whether HTTP caching is enabled. Caching is enabled by default.
+# + enabled - Specifies whether HTTP caching is enabled. Caching is disabled by default.
 # + isShared - Specifies whether the HTTP caching layer should behave as a public cache or a private cache
 # + capacity - The capacity of the cache
 # + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
@@ -60,7 +60,7 @@ public const RFC_7234 = "RFC_7234";
 #            `CACHE_CONTROL_AND_VALIDATORS`. The default behaviour is to allow caching only when the `cache-control`
 #            header and either the `etag` or `last-modified` header are present.
 public type CacheConfig record {|
-    boolean enabled = true;
+    boolean enabled = false;
     boolean isShared = false;
     int capacity = 8388608; // 8MB
     float evictionFactor = 0.2;
@@ -513,13 +513,13 @@ function invalidateResponses(HttpCache httpCache, Response inboundResponse, stri
         inboundResponse.statusCode >= 200 && inboundResponse.statusCode < 400) {
         cache:Error? result = httpCache.cache.invalidate(getCacheKey(GET, path));
         if (result is cache:Error) {
-            log:printError(function() returns string {
+            log:printDebug(function() returns string {
                 return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
             });
         }
         result = httpCache.cache.invalidate(getCacheKey(HEAD, path));
         if (result is cache:Error) {
-            log:printError(function() returns string {
+            log:printDebug(function() returns string {
                 return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
             });
         }

@@ -1,5 +1,5 @@
 import ballerina/runtime;
-import ballerinax/java;
+import ballerina/java;
 import ballerina/lang.'value;
 
 function testAcceptNothingAndReturnNothing() {

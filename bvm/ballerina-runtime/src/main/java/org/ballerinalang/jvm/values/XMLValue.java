@@ -16,6 +16,7 @@
 
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -27,6 +28,7 @@ import org.ballerinalang.jvm.values.api.BXMLQName;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
+import java.io.OutputStream;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -195,4 +197,20 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
     public abstract XMLValue children(String qname);
 
     public abstract XMLValue getItem(int index);
+
+    @Override
+    public void serialize(OutputStream outputStream) {
+        try {
+            if (outputStream instanceof BallerinaXMLSerializer) {
+                ((BallerinaXMLSerializer) outputStream).write(this);
+            } else {
+                BallerinaXMLSerializer xmlSerializer = new BallerinaXMLSerializer(outputStream);
+                xmlSerializer.write(this);
+                xmlSerializer.flush();
+                xmlSerializer.close();
+            }
+        } catch (Throwable t) {
+            handleXmlException("error occurred during writing the message to the output stream: ", t);
+        }
+    }
 }

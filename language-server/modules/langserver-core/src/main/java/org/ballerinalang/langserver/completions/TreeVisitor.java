@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -591,17 +592,28 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        this.blockOwnerStack.push(transactionNode);
+        SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, symbolEnv);
+        this.blockOwnerStack.push(transactionNode.transactionBody);
         this.isCurrentNodeTransactionStack.push(true);
         this.transactionCount++;
-        this.acceptNode(transactionNode.transactionBody, symbolEnv);
+        this.acceptNode(transactionNode.transactionBody, transactionEnv);
         this.blockOwnerStack.pop();
         this.isCurrentNodeTransactionStack.pop();
         this.transactionCount--;
 
         if (transactionNode.onRetryBody != null) {
-            this.blockOwnerStack.push(transactionNode);
-            this.acceptNode(transactionNode.onRetryBody, symbolEnv);
+            this.blockOwnerStack.push(transactionNode.onRetryBody);
+            this.acceptNode(transactionNode.onRetryBody, transactionEnv);
+            this.blockOwnerStack.pop();
+        }
+        if (transactionNode.committedBody != null) {
+            this.blockOwnerStack.push(transactionNode.committedBody);
+            this.acceptNode(transactionNode.committedBody, transactionEnv);
+            this.blockOwnerStack.pop();
+        }
+        if (transactionNode.abortedBody != null) {
+            this.blockOwnerStack.push(transactionNode.abortedBody);
+            this.acceptNode(transactionNode.abortedBody, transactionEnv);
             this.blockOwnerStack.pop();
         }
     }
@@ -964,6 +976,8 @@ public class TreeVisitor extends LSNodeVisitor {
             lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.TYPE);
         } else if (symbol instanceof AnnotationSymbol) {
             lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.ANNOTATION);
+        } else if (symbol instanceof BConstantSymbol) {
+            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.CONSTANT);
         }
     }
 

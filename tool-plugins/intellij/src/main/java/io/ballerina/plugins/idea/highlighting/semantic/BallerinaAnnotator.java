@@ -107,7 +107,8 @@ public class BallerinaAnnotator implements Annotator {
                     || elementType == BallerinaTypes.XML_LITERAL_END
                     || elementType == BallerinaTypes.XML_ALL_CHAR) {
                 annotateText(element, holder);
-            } else if (elementType == BallerinaTypes.STRING_TEMPLATE_TEXT) {
+            } else if (elementType == BallerinaTypes.STRING_TEMPLATE_TEXT ||
+                    elementType == BallerinaTypes.QUOTED_STRING_LITERAL) {
                 annotateText(element, holder);
                 // Todo - restore after adding xml rules
 //            } else if (elementType == BallerinaTypes.XML_TEMPLATE_TEXT

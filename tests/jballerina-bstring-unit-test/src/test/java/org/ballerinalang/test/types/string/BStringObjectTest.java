@@ -18,25 +18,17 @@
 
 package org.ballerinalang.test.types.string;
 
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.test.util.BRunUtil;
-import org.ballerinalang.test.util.CompileResult;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * Test BString support in Object.
  */
-public class BStringObjectTest {
-    private CompileResult result;
+public class BStringObjectTest extends BStringTestCommons {
 
     @BeforeClass
     public void setup() {
-        System.setProperty(BRunUtil.IS_STRING_VALUE_PROP, "true");
         result = BCompileUtil.compile("test-src/types/string/bstring-object-test.bal");
     }
 
@@ -54,16 +46,4 @@ public class BStringObjectTest {
     public void testObjectSet() {
         testAndAssert("testObjectSet", 8);
     }
-
-    private void testAndAssert(String funcName, int i) {
-        BValue[] returns = BRunUtil.invoke(result, funcName);
-        Assert.assertEquals(returns[0].getClass(), BInteger.class);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), i);
-    }
-
-    @AfterClass
-    public void down() {
-        System.clearProperty(BRunUtil.IS_STRING_VALUE_PROP);
-    }
-
 }
