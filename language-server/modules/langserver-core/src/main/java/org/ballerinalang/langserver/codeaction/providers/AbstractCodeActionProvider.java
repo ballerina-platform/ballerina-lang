@@ -30,6 +30,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents the common class for the default Ballerina Code Action Providers.
@@ -187,12 +188,20 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
             // Check for stop-conditions
             char tailChar = content.charAt(pointer);
             char tailPrevChar = content.charAt(pointer - 1);
+            Optional<Character> tail2ndPrevChar = pointer > 1
+                    ? Optional.of(content.charAt(pointer - 2)) : Optional.empty();
             if (tailChar == '"' && tailPrevChar != '\\') {
                 insideString = !insideString;
             }
             if (!insideString) {
                 if (pendingLParenthesis <= 0) {
-                    if (tailChar == '.' || tailChar == ':') {
+                    boolean isRangeExpr = tail2ndPrevChar.isPresent()
+                            && ((tailChar == '.' || tailChar == '<') && tailPrevChar == '.' &&
+                            tail2ndPrevChar.get() == '.');
+                    if (isRangeExpr) {
+                        pointer -= 2;
+                        count += 2;
+                    } else if ((tailChar == '.') || tailChar == ':') {
                         // Break on field-access or package-prefix
                         count++;
                         break;
