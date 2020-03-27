@@ -32,6 +32,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.HANDLE;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.METHOD_INTEROP_TYPE;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.balType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticMethod;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.primitiveArrayBalType;
 
 /**
  * Class for storing details pertaining to a specific Java method used for Ballerina bridge code generation.
@@ -71,11 +72,14 @@ public class JMethod {
         this.methodName = m.getName();
         this.methodPrefix = m.getDeclaringClass().getSimpleName();
         if (!m.getReturnType().equals(Void.TYPE)) {
-            if (m.getReturnType().isArray()) {
-                this.isArrayReturn = true;
-            }
             this.externalType = balType(m.getReturnType().getSimpleName());
             this.returnType = this.externalType;
+            if (m.getReturnType().isArray()) {
+                this.isArrayReturn = true;
+                if (m.getReturnType().getComponentType().isPrimitive()) {
+                    returnType = primitiveArrayBalType(m.getReturnType().getComponentType().getSimpleName());
+                }
+            }
             if (this.returnType.equals(HANDLE)) {
                 this.objectReturn = true;
                 this.returnType = m.getReturnType().getSimpleName();

@@ -61,12 +61,16 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_EXTENSION;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BOOLEAN;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BOOLEAN_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BYTE;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BYTE_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CHAR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DOUBLE;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.FLOAT;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.FLOAT_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.HANDLE;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.INT;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.INT_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.LONG;
@@ -367,6 +371,30 @@ public class BindgenUtils {
                 return BALLERINA_STRING;
             case JAVA_STRING_ARRAY:
                 return BALLERINA_STRING_ARRAY;
+            default:
+                return HANDLE;
+        }
+    }
+
+    public static String primitiveArrayBalType(String type) {
+
+        switch (type) {
+            case INT:
+                return INT_ARRAY;
+            case FLOAT:
+                return FLOAT_ARRAY;
+            case BOOLEAN:
+                return BOOLEAN_ARRAY;
+            case BYTE:
+                return BYTE_ARRAY;
+            case SHORT:
+                return INT_ARRAY;
+            case CHAR:
+                return INT_ARRAY;
+            case DOUBLE:
+                return FLOAT_ARRAY;
+            case LONG:
+                return INT_ARRAY;
             default:
                 return HANDLE;
         }
