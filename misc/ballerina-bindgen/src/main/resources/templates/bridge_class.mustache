@@ -12,9 +12,10 @@
 public type {{shortClassName}} object {
 
     *JObject;
-    {{#each superClasses}}
-    public {{this}}T _tag{{@index}} = {{this}}T;
-    {{/each}}
+
+    public {{shortClassName}}T _{{shortClassName}} = {{shortClassName}}T;{{#each superClasses}}
+    public {{this}}T _{{this}} = {{this}}T;{{/each}}
+
     public function __init(handle obj) {
         self.jObj = obj;
     }

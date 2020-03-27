@@ -25,6 +25,7 @@ import java.io.PrintStream;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -122,7 +123,9 @@ public class BindingsGenerator {
                 getUpdatedConstantsList(constantsPath, names);
                 notifyExistingDependencies(classNames, dependenciesPath.toFile());
             }
-            writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantsPath.toString(), true);
+            if (!names.isEmpty()) {
+                writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantsPath.toString(), true);
+            }
 
             if (failedClassGens != null) {
                 errStream.print("\n");

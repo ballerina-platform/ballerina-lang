@@ -22,14 +22,12 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.allClasses;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.directJavaClass;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ACCESS_FIELD;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_OBJECT_CLASS_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MUTATE_FIELD;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.handleOverloadedMethods;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isAbstractClass;
@@ -54,8 +52,6 @@ public class JClass {
     private Boolean singleConstructor = false;
     private Boolean singleConstructorError = false;
 
-    private Set<Class> superClassObjects = new HashSet<>();
-
     private List<JField> fieldList = new ArrayList<>();
     private List<JMethod> methodList = new ArrayList<>();
     private List<String> superClasses = new ArrayList<>();
@@ -72,15 +68,12 @@ public class JClass {
         this.packageName = c.getPackage().getName();
 
         Class sClass = c.getSuperclass();
+        allClasses.add(shortClassName);
         while (sClass != null) {
-            String simpleClassName = c.getSimpleName().replace("$", "");
-            if (sClass.getName().equals(JAVA_OBJECT_CLASS_NAME)) {
-                superClasses.add(simpleClassName);
-                allClasses.add(simpleClassName);
-                break;
-            }
+            String simpleClassName = sClass.getSimpleName().replace("$", "");
+            superClasses.add(simpleClassName);
+            allClasses.add(simpleClassName);
             sClass = sClass.getSuperclass();
-            superClassObjects.add(sClass);
         }
         if (c.isInterface()) {
             this.isInterface = true;
@@ -93,14 +86,16 @@ public class JClass {
             populateConstructors(c.getConstructors());
             populateInitFunctions();
             populateMethods(getMethods(c));
+            methodList.sort(Comparator.comparing(JMethod::getParamTypes));
             handleOverloadedMethods(methodList);
+            methodList.sort(Comparator.comparing(JMethod::getJavaMethodName));
             populateFields(c.getFields());
         }
     }
 
     private List<Method> getMethods(Class classObject) {
 
-        Method[] declaredMethods = classObject.getDeclaredMethods();
+        Method[] declaredMethods = classObject.getMethods();
         List<Method> classMethods = new ArrayList<>();
         for (Method m : declaredMethods) {
             if (!m.isSynthetic() && (!m.getName().equals("toString"))) {
