@@ -168,11 +168,24 @@ public class DefinitionUtil {
                 .findFirst()
                 .orElse(null);
 
+        
         if (!(objectNode instanceof BLangTypeDefinition)
                 || !(((BLangTypeDefinition) objectNode).typeNode instanceof BLangObjectTypeNode)) {
             return new ArrayList<>();
         }
-        for (BLangFunction function : ((BLangObjectTypeNode) ((BLangTypeDefinition) objectNode).typeNode).functions) {
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) ((BLangTypeDefinition) objectNode).typeNode;
+        if ("__init".equals(symbolName)) {
+            // Definition is invoked over the new keyword
+            BLangFunction initFunction = objectTypeNode.initFunction;
+            DiagnosticPos pos;
+            if (initFunction.symbol == null) {
+                pos = CommonUtil.toZeroBasedPosition(((BLangTypeDefinition) objectNode).getName().pos);
+                return prepareLocations(pos, ((BLangTypeDefinition) objectNode).symbol, objectTypeNode);
+            }
+            pos = CommonUtil.toZeroBasedPosition(initFunction.getName().pos);
+            return prepareLocations(pos, initFunction.symbol, initFunction);
+        }
+        for (BLangFunction function : objectTypeNode.functions) {
             if (symbolName.equals(function.getName().getValue())) {
                 DiagnosticPos pos = CommonUtil.toZeroBasedPosition(function.name.pos);
                 return prepareLocations(pos, symbol, function);
