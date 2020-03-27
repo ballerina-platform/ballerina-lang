@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
@@ -425,6 +426,12 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                     types.add("var");
                     names.add(variableName);
                 }
+            } else if (bLangNode instanceof BLangBinaryExpr) {
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) bLangNode;
+                variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, binaryExpr.type);
+                String variableName = CommonUtil.generateName(1, nameEntries);
+                types.add(variableType);
+                names.add(variableName);
             } else {
                 String variableName = CommonUtil.generateVariableName(bLangNode.type, nameEntries);
                 types.add(variableType);
