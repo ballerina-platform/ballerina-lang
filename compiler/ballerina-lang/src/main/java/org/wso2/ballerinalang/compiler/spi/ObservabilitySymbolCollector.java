@@ -3,6 +3,7 @@ package org.wso2.ballerinalang.compiler.spi;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 /**
@@ -14,5 +15,5 @@ public interface ObservabilitySymbolCollector {
 
     void process(BLangPackage pkgNode);
 
-    void writeCollectedSymbols(BLangPackage module, Path destination);
+    void writeCollectedSymbols(BLangPackage module, Path destination) throws IOException;
 }

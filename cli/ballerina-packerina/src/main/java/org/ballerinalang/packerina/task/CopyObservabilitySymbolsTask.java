@@ -39,8 +39,6 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Copy collected observability symbol to module jar.
- *
- * @since 1.2.1
  */
 public class CopyObservabilitySymbolsTask implements Task {
 

@@ -83,33 +83,28 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
     }
 
     @Override
-    public void writeCollectedSymbols(BLangPackage module, Path destination) {
+    public void writeCollectedSymbols(BLangPackage module, Path destination) throws IOException {
         Path targetDirPath = destination.resolve(AST);
-        try {
-            if (Files.notExists(targetDirPath)) {
-                Files.createDirectory(targetDirPath);
-            }
-            Set<String> packages = getUserPackages();
+        if (Files.notExists(targetDirPath)) {
+            Files.createDirectory(targetDirPath);
+        }
+        Set<String> packages = getUserPackages();
 
-            JsonObject ast = new JsonObject();
-            for (Map.Entry<String, JsonObject> entry : JsonASTHolder.getInstance()
-                    .getASTMap().entrySet()) {
-                if (packages.contains(entry.getKey())) {
-                    ast.add(entry.getKey(), entry.getValue());
-                }
+        JsonObject ast = new JsonObject();
+        for (Map.Entry<String, JsonObject> entry : JsonASTHolder.getInstance()
+                .getASTMap().entrySet()) {
+            if (packages.contains(entry.getKey())) {
+                ast.add(entry.getKey(), entry.getValue());
             }
+        }
 
-            String astDataString = JsonCanonicalizer.getEncodedString(ast.toString());
-            Files.write(targetDirPath.resolve(AST + JSON), astDataString.getBytes(StandardCharsets.UTF_8));
+        String astDataString = JsonCanonicalizer.getEncodedString(ast.toString());
+        Files.write(targetDirPath.resolve(AST + JSON), astDataString.getBytes(StandardCharsets.UTF_8));
 
-            Properties props = new Properties();
-            props.setProperty(PROGRAM_HASH_KEY, String.valueOf(astDataString.hashCode()));
-            try (OutputStream outputStream = Files.newOutputStream(targetDirPath.resolve(AST_META_FILENAME))) {
-                props.store(outputStream, null);
-            }
-        } catch (IOException e) {
-            // TODO handle errors
-            console.println("Error while generating ASTs." + e.getMessage());
+        Properties props = new Properties();
+        props.setProperty(PROGRAM_HASH_KEY, String.valueOf(astDataString.hashCode()));
+        try (OutputStream outputStream = Files.newOutputStream(targetDirPath.resolve(AST_META_FILENAME))) {
+            props.store(outputStream, null);
         }
     }
 
