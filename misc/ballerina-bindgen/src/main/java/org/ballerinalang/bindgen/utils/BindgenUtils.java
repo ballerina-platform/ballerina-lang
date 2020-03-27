@@ -139,29 +139,34 @@ public class BindgenUtils {
             }
             return object;
         });
-        handlebars.registerHelper("getType", (object, options) -> {
-            if (object.equals("[C") || object.equals("[S") || object.equals("[J")) {
-                return "byte[]|int[]|float[]";
-            } else if (object.equals("[D")) {
-                return "byte[]|float[]";
-            } else if (object.equals("[B")) {
-                return "byte[]";
-            } else if (object.equals("[I")) {
-                return "int[]";
-            } else if (object.equals("[F")) {
-                return "float[]";
-            } else if (object.equals("[Z")) {
-                return "boolean[]";
-            } else {
-                return object;
-            }
-        });
         try {
             return handlebars.compile(templateName);
         } catch (FileNotFoundException e) {
             throw new BindgenException("Code generation template file does not exist. " + e.getMessage(), e);
         } catch (IOException e) {
             throw new BindgenException("IO error while compiling the template file. " + e.getMessage(), e);
+        }
+    }
+
+    public static String getPrimitiveArrayType(String type) {
+
+        switch (type) {
+            case "[C":
+            case "[S":
+            case "[J":
+                return "byte[]|int[]|float[]";
+            case "[D":
+                return "byte[]|float[]";
+            case "[B":
+                return "byte[]";
+            case "[I":
+                return "int[]";
+            case "[F":
+                return "float[]";
+            case "[Z":
+                return "boolean[]";
+            default:
+                return type;
         }
     }
 

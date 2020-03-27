@@ -21,9 +21,11 @@ import java.lang.reflect.Parameter;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.allJavaClasses;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.classListForLooping;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.HANDLE;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.balType;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getPrimitiveArrayType;
 
 /**
  * Class for storing specific parameter details of a Java method used for Ballerina bridge code generation.
@@ -53,19 +55,17 @@ public class JParameter {
             this.isObj = true;
             this.shortTypeName = parameterClass.getSimpleName();
         }
+        this.type = parameterClass.getName();
         if (parameterClass.getName().equals("java.lang.String")) {
-            this.type = parameterClass.getName();
             this.isString = true;
-            this.externalType = "handle";
-            this.shortTypeName = "string";
+            this.externalType = HANDLE;
+            this.shortTypeName = BALLERINA_STRING;
         } else if (parameterClass.getName().equals("[Ljava.lang.String;")) {
-            this.type = parameterClass.getName();
             this.isString = true;
             this.isStringArray = true;
             this.externalType = HANDLE;
             this.shortTypeName = BALLERINA_STRING_ARRAY;
         } else {
-            this.type = parameterClass.getName();
             if (!parameterClass.isPrimitive()) {
                 if (parameterClass.isArray()) {
                     Class component = parameterClass.getComponentType();
@@ -73,11 +73,12 @@ public class JParameter {
                     if (!parameterClass.getComponentType().isPrimitive()) {
                         this.isObjArray = true;
                         this.isObj = false;
-                        String componentType = parameterClass.getComponentType().getName();
-                        if (!allJavaClasses.contains(componentType)) {
-                            classListForLooping.add(componentType);
+                        String componentClass = parameterClass.getComponentType().getName();
+                        if (!allJavaClasses.contains(componentClass)) {
+                            classListForLooping.add(componentClass);
                         }
                     } else {
+                        shortTypeName = getPrimitiveArrayType(type);
                         this.isPrimitiveArray = true;
                     }
 
@@ -98,7 +99,7 @@ public class JParameter {
         this.notLast = false;
     }
 
-    public Boolean isObjArrayParam() {
+    Boolean isObjArrayParam() {
 
         return this.isObjArray;
     }
