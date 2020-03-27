@@ -44,6 +44,6 @@ public class ToString {
     }
 
     public static BString toString_bstring(Strand strand, Object value) {
-        return StringUtils.getBStringValue(value);
+        return org.ballerinalang.jvm.StringUtils.fromString(StringUtils.getStringValue(value));
     }
 }

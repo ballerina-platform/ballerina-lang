@@ -27,7 +27,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -226,11 +225,6 @@ public class MultipartDataSource implements RefValue {
     }
 
     public String stringValue() {
-        return null;
-    }
-
-    @Override
-    public BString bStringValue() {
         return null;
     }
 

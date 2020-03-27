@@ -1157,14 +1157,17 @@ public class JvmInstructionGen {
             this.loadVar(mapLoadIns.keyOp.variableDcl);
 
             if (varRefType.tag == TypeTags.JSON) {
+
                 if (mapLoadIns.optionalFieldAccess) {
-                    this.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+                    this.mv.visitTypeInsn(CHECKCAST, isBString ? B_STRING_VALUE : STRING_VALUE);
                     this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElementOrNil",
-                            String.format("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
+                            String.format("(L%s;L%s;)L%s;", OBJECT, isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT),
+                            false);
                 } else {
-                    this.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+                    this.mv.visitTypeInsn(CHECKCAST, isBString ? B_STRING_VALUE : STRING_VALUE);
                     this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
-                            String.format("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
+                            String.format("(L%s;L%s;)L%s;", OBJECT, isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT),
+                            false);
                 }
             } else {
                 if (mapLoadIns.fillingRead) {
