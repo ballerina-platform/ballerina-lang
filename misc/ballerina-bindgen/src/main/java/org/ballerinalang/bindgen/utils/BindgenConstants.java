@@ -41,7 +41,6 @@ public class BindgenConstants {
     public static final String USER_DIR = "user.dir";
     public static final String UTILS_DIR = "utils";
     public static final String JOBJECT_FILE_NAME = "JObject.bal";
-    public static final String JAVA_OBJECT_CLASS_NAME = "java.lang.Object";
     public static final String CONSTANTS_FILE_NAME = "Constants.bal";
     public static final String ARRAY_UTILS_FILE_NAME = "ArrayUtils.bal";
     public static final String DEPENDENCIES_DIR = "dependencies";
@@ -51,11 +50,15 @@ public class BindgenConstants {
     static final String INT = "int";
     static final String BOOLEAN = "boolean";
     static final String BYTE = "byte";
+    static final String FLOAT_ARRAY = "float[]";
+    static final String INT_ARRAY = "int[]";
+    static final String BOOLEAN_ARRAY = "boolean[]";
+    static final String BYTE_ARRAY = "byte[]";
     static final String SHORT = "short";
     static final String CHAR = "char";
     static final String DOUBLE = "double";
     static final String LONG = "long";
-    static final String JAVA_STRING = "String";
+    public static final String JAVA_STRING = "String";
     static final String JAVA_STRING_ARRAY = "String[]";
     public static final String HANDLE = "handle";
     public static final String BALLERINA_STRING = "string";
