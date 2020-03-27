@@ -12,7 +12,7 @@
 // KIND, either express or implied. See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/java.jdbc;
+import mockclient;
 import ballerina/sql;
 
 type ResultSetTestAlias record {
@@ -55,8 +55,8 @@ type TestTypeData record {
     boolean[] boolean_array;
 };
 
-function testGetPrimitiveTypes(string jdbcURL, string user, string password) returns @tainted record{}|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+function testGetPrimitiveTypes(string url, string user, string password) returns @tainted record{}|error? {
+    mockclient:Client dbClient = check new (url = url, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query("SELECT int_type, long_type, float_type, double_type,"
         + "boolean_type, string_type from DataTable WHERE row_id = 1");
     record {|record {} value;|}? data = check streamData.next();
@@ -66,8 +66,8 @@ function testGetPrimitiveTypes(string jdbcURL, string user, string password) ret
     return value;
 }
 
-function testToJson(string jdbcURL, string user, string password) returns @tainted json|error {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+function testToJson(string url, string user, string password) returns @tainted json|error {
+    mockclient:Client dbClient = check new (url = url, user = user, password = password);
   stream<record{}, error> streamData = dbClient->query("SELECT int_type, long_type, float_type, double_type,"
         + "boolean_type, string_type from DataTable WHERE row_id = 1");
     record {|record {} value;|}? data = check streamData.next();
@@ -78,8 +78,8 @@ function testToJson(string jdbcURL, string user, string password) returns @taint
     return retVal;
 }
 
-function testToJsonComplexTypes(string jdbcURL, string user, string password) returns @tainted record {}|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+function testToJsonComplexTypes(string url, string user, string password) returns @tainted record {}|error? {
+    mockclient:Client dbClient = check new (url = url, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query("SELECT blob_type,clob_type,binary_type from" +
         " ComplexTypes where row_id = 1");
     record {|record {} value;|}? data = check streamData.next();
@@ -89,8 +89,8 @@ function testToJsonComplexTypes(string jdbcURL, string user, string password) re
     return value;
 }
 
-function testComplexTypesNil(string jdbcURL, string user, string password) returns @tainted record {}|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+function testComplexTypesNil(string url, string user, string password) returns @tainted record {}|error? {
+    mockclient:Client dbClient = check new (url = url, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query("SELECT blob_type,clob_type,binary_type from " +
         " ComplexTypes where row_id = 2");
     record {|record {} value;|}? data = check streamData.next();
@@ -100,9 +100,9 @@ function testComplexTypesNil(string jdbcURL, string user, string password) retur
     return value;
 }
 
-function testArrayRetrieval(string jdbcURL, string user, string password)
+function testArrayRetrieval(string url, string user, string password)
 returns @tainted record {}|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    mockclient:Client dbClient = check new (url = url, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query("SELECT int_type, int_array, long_type, long_array, " +
         "float_type, float_array, double_type, boolean_type, string_type, decimal_type, double_array, boolean_array," +
         "string_array from MixTypes where row_id =1");
@@ -113,9 +113,9 @@ returns @tainted record {}|error? {
     return value;
 }
 
-function testComplexWithStructDef(string jdbcURL, string user, string password)
+function testComplexWithStructDef(string url, string user, string password)
 returns @tainted record {}|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    mockclient:Client dbClient = check new (url = url, user = user, password = password);
         stream<record{}, error> streamData = dbClient->query("SELECT int_type, int_array, long_type, long_array, "
         + "float_type, float_array, double_type, boolean_type, string_type, double_array, boolean_array, string_array "
         + "from MixTypes where row_id =1", TestTypeData);
@@ -126,9 +126,9 @@ returns @tainted record {}|error? {
     return value;
 }
 
-function testMultipleRecoredRetrieval(string jdbcURL, string user, string password)
+function testMultipleRecoredRetrieval(string url, string user, string password)
 returns @tainted ResultMap[]|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+    mockclient:Client dbClient = check new (url = url, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query("SELECT int_array, long_array, float_array, boolean_array," +
         "string_array from ArrayTypes", ResultMap);
     ResultMap[] recordMap = [];
@@ -144,8 +144,8 @@ returns @tainted ResultMap[]|error? {
     return recordMap;
 }
 
-function testDateTime(string jdbcURL, string user, string password) returns @tainted record{}|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+function testDateTime(string url, string user, string password) returns @tainted record{}|error? {
+    mockclient:Client dbClient = check new (url = url, user = user, password = password);
     string insertQuery = string `Insert into DateTimeTypes (row_id, date_type, time_type, timestamp_type, datetime_type)
      values (1,'2017-05-23','14:15:23','2017-01-25 16:33:55','2017-01-25 16:33:55')`;
     sql:ExecuteResult? result = check dbClient->execute(insertQuery);
@@ -157,8 +157,8 @@ function testDateTime(string jdbcURL, string user, string password) returns @tai
     return value;
 }
 
-function testColumnAlias(string jdbcURL, string user, string password) returns @tainted ResultSetTestAlias[]|error? {
-    jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
+function testColumnAlias(string url, string user, string password) returns @tainted ResultSetTestAlias[]|error? {
+    mockclient:Client dbClient = check new (url = url, user = user, password = password);
     stream<record{}, error> queryResult = dbClient->query("SELECT dt1.int_type, dt1.long_type, dt1.float_type," +
            "dt1.double_type,dt1.boolean_type, dt1.string_type,dt2.int_type as dt2int_type from DataTable dt1 " +
            "left join DataTableRep dt2 on dt1.row_id = dt2.row_id WHERE dt1.row_id = 1;", ResultSetTestAlias);

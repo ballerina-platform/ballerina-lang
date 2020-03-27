@@ -48,14 +48,12 @@ import java.util.LinkedHashMap;
 public class NumericTypesQueryTest {
     private CompileResult result;
     private static final String DB_NAME = "TEST_SQL_NUMERIC_SELECT";
-    private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIR + DB_NAME;
-    private BValue[] args = {new BString(JDBC_URL), new BString(SQLDBUtils.DB_USER),
-            new BString(SQLDBUtils.DB_PASSWORD)};
+    private static final String URL = SQLDBUtils.URL_PREFIX + DB_NAME;
+    private BValue[] args = {new BString(URL), new BString(SQLDBUtils.DB_USER), new BString(SQLDBUtils.DB_PASSWORD)};
 
     @BeforeClass
     public void setup() throws SQLException {
-        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query", "numerical-query-test.bal"));
-        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
+        result = BCompileUtil.compile(SQLDBUtils.getMockModuleDir(), "query");
         SQLDBUtils.initHsqlDatabase(DB_NAME, SQLDBUtils.getSQLResourceDir("query",
                 "numerical-test-data.sql"));
     }

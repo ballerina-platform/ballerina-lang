@@ -64,31 +64,30 @@ public class SQLDBUtils {
      */
     public static void initHsqlDatabase(String dbName, String sqlFile) throws SQLException {
         String url = SQLDBUtils.URL_PREFIX + dbName;
-        initDatabase(url, DB_USER, DB_PASSWORD, sqlFile);
+        initDatabase(url, sqlFile);
     }
 
     /**
      * Create a DB and initialize with given SQL file.
-     *
      * @param jdbcURL  JDBC URL
-     * @param username Username for the DB
-     * @param password Password to connect to the DB
      * @param sqlFile  SQL statements for initialization.
      */
-    private static void initDatabase(String jdbcURL, String username, String password, String sqlFile)
+    private static void initDatabase(String jdbcURL, String sqlFile)
             throws SQLException {
-        try (Connection connection = DriverManager.getConnection(jdbcURL, username, password);
+        String lastExecQuery = "";
+        try (Connection connection = DriverManager.getConnection(jdbcURL, SQLDBUtils.DB_USER, SQLDBUtils.DB_PASSWORD);
              Statement st = connection.createStatement()) {
             String sql = readFileToString(sqlFile);
             String[] sqlQuery = sql.trim().split("/");
             for (String query : sqlQuery) {
-                st.executeUpdate(query.trim());
+                lastExecQuery = query.trim();
+                st.executeUpdate(lastExecQuery);
             }
             if (!connection.getAutoCommit()) {
                 connection.commit();
             }
         } catch (SQLException e) {
-            throw e;
+            throw new SQLException("Error when executing query:" + lastExecQuery, e);
         }
     }
 
@@ -103,24 +102,6 @@ public class SQLDBUtils {
                     .sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
         } catch (IOException e) {
             log.error("Error while deleting database directory: ", e);
-        }
-    }
-
-    /**
-     * Delete all the files and sub directories which matches given prefix in a given directory.
-     *
-     * @param directory Directory which contains files to delete.
-     * @param affix     Affix for finding the matching files to delete.
-     */
-    public static void deleteFiles(File directory, String affix) {
-        if (!directory.isDirectory()) {
-            return;
-        }
-
-        for (File f : directory.listFiles()) {
-            if (f.getName().startsWith(affix) || f.getName().endsWith(affix)) {
-                deleteDirectory(f);
-            }
         }
     }
 
