@@ -21,7 +21,7 @@ package org.ballerinalang.nats.connection;
 import io.nats.client.Connection;
 import io.nats.client.Consumer;
 import io.nats.client.ErrorListener;
-import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,20 +41,21 @@ public class DefaultErrorListener implements ErrorListener {
     @Override
     public void errorOccurred(Connection conn, String error) {
         String message = "Error in server " + conn.getConnectedUrl() + ". " + error;
-        NatsMetricsUtil.reportConnectionError(conn.getConnectedUrl(), NatsObservabilityConstants.UNKNOWN);
+        NatsMetricsReporter.reportConnectionError(conn.getConnectedUrl(), NatsObservabilityConstants.UNKNOWN);
         LOG.error(message);
     }
 
     @Override
     public void exceptionOccurred(Connection conn, Exception exp) {
         LOG.error("Exception in server " + conn.getConnectedUrl() + exp.getMessage());
-        NatsMetricsUtil.reportConnectionError(conn.getConnectedUrl(), NatsObservabilityConstants.ERROR_TYPE_EXCEPTION);
+        NatsMetricsReporter.reportConnectionError(conn.getConnectedUrl(),
+                                                  NatsObservabilityConstants.ERROR_TYPE_EXCEPTION);
     }
 
     @Override
     public void slowConsumerDetected(Connection conn, Consumer consumer) {
         LOG.error("slow consumer detected in server " + conn.getConnectedUrl() + " | " + consumer.toString());
-        NatsMetricsUtil.reportConnectionError(conn.getConnectedUrl(),
-                                              NatsObservabilityConstants.ERROR_TYPE_SLOW_CONSUMER);
+        NatsMetricsReporter.reportConnectionError(conn.getConnectedUrl(),
+                                                  NatsObservabilityConstants.ERROR_TYPE_SLOW_CONSUMER);
     }
 }

@@ -21,10 +21,13 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.SymbolReferenceFindingVisitor;
+import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -34,11 +37,13 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -75,6 +80,29 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
                         || (zeroBasedPos.sLine == zeroBasedPos.eLine && cursorLine == zeroBasedPos.eLine &&
                         cursorCol <= zeroBasedPos.eCol)
                         || (cursorLine > zeroBasedPos.sLine && cursorLine < zeroBasedPos.eLine));
+    }
+
+    @Override
+    protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
+        Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
+        // Here, tsymbol check has been added in order to support the finite types
+        // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
+        if (bSymbol == null && !this.doNotSkipNullSymbols) {
+            return;
+        }
+        if (symbolAtCursor.isPresent()) {
+            return;
+        }
+        DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(position);
+        bSymbol = (bSymbol instanceof BVarSymbol && ((BVarSymbol) bSymbol).originalSymbol != null)
+                ? ((BVarSymbol) bSymbol).originalSymbol
+                : bSymbol;
+        SymbolReferencesModel.Reference ref = this.getSymbolReference(zeroBasedPos, bSymbol, bLangNode);
+        if (this.cursorLine == zeroBasedPos.sLine && this.cursorCol >= zeroBasedPos.sCol
+                && this.cursorCol <= zeroBasedPos.eCol) {
+            // This is the symbol at current cursor position
+            this.symbolReferences.setReferenceAtCursor(ref);
+        }
     }
 
     @Override
@@ -173,5 +201,13 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
             this.addSymbol(lambdaFunction, lambdaFunction.type.tsymbol, false, lambdaFunction.pos);
         }
         super.visit(lambdaFunction);
+    }
+
+    @Override
+    public void visit(BLangTypeConversionExpr conversionExpr) {
+        if (isWithinNode.test(CommonUtil.toZeroBasedPosition(conversionExpr.pos))) {
+            this.addSymbol(conversionExpr, conversionExpr.type.tsymbol, false, conversionExpr.pos);
+        }
+        super.visit(conversionExpr);
     }
 }
