@@ -33,7 +33,7 @@ public type HttpCache object {
 
     # Creates the HTTP cache.
     #
-    # + config - The configurations for the HTTP cache
+    # + cacheConfig - The configurations for the HTTP cache
     public function __init(CacheConfig cacheConfig) {
         cache:CacheConfig config = {
             capacity: cacheConfig.capacity,
