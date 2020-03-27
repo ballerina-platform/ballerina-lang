@@ -51,6 +51,7 @@ public class BIROptimizer {
     private static final CompilerContext.Key<BIROptimizer> BIR_OPTIMIZER = new CompilerContext.Key<>();
     private RHSTempVarOptimizer rhsTempVarOptimizer;
     private LHSTempVarOptimizer lhsTempVarOptimizer;
+    private BIRLockOptimizer lockOptimizer;
 
     public static BIROptimizer getInstance(CompilerContext context) {
         BIROptimizer birGen = context.get(BIR_OPTIMIZER);
@@ -65,6 +66,7 @@ public class BIROptimizer {
         context.put(BIR_OPTIMIZER, this);
         this.rhsTempVarOptimizer = new RHSTempVarOptimizer();
         this.lhsTempVarOptimizer = new LHSTempVarOptimizer();
+        this.lockOptimizer = new BIRLockOptimizer();
     }
 
     public void optimizePackage(BIRPackage pkg) {
@@ -75,6 +77,7 @@ public class BIROptimizer {
         this.lhsTempVarOptimizer.optimizeNode(pkg, null);
 
         // Optimize lock statements
+        this.lockOptimizer.optimizeNode(pkg);
     }
 
     /**
