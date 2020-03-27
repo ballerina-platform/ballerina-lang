@@ -41,14 +41,14 @@ public type Listener object {
         return startService(self);
     }
 
-    # Stops the registered service. Behaviours of this and the `__immediateStop()` function are similar.
+    # Stops the registered service. Behaviours of this and the __immediateStop() function are similar.
     #
     # + return - Returns an error if an error occurs while stopping the server or returns nil otherwise.
     public function __gracefulStop() returns error? {
         return externStop(self, true);
     }
 
-    # Stops the registered service. Behaviours of this and the `__gracefulStop()` function are similar.
+    # Stops the registered service. Behaviours of this and the __gracefulStop() function are similar.
     #
     # + return - Returns an error if an error occurs while stopping the server or returns nil otherwise
     public function __immediateStop() returns error? {
