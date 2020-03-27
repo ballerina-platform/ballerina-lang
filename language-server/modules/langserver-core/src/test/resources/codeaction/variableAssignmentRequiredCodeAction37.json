@@ -1,21 +1,21 @@
 {
-    "line": 26,
-    "character": 4,
+    "line": 67,
+    "character": 20,
     "expected": {
         "title": "Create Local Variable",
         "edits": [
             {
                 "range": {
                     "start": {
-                        "line": 26,
-                        "character": 4
+                        "line": 67,
+                        "character": 20
                     },
                     "end": {
-                        "line": 26,
-                        "character": 4
+                        "line": 67,
+                        "character": 20
                     }
                 },
-                "newText": "stream<Foo, error> streamResult = "
+                "newText": "int intResult = "
             }
         ]
     }
