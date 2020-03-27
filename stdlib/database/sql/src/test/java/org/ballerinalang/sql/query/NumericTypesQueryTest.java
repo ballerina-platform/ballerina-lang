@@ -35,7 +35,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
-import java.io.File;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
