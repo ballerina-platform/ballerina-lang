@@ -50,7 +50,7 @@ public type AuthzHandler object {
 
     # Tries to authorize the request.
     #
-    # + scopes - Array of scopes or Array of arrays of scopes of the listener or resource or service
+    # + scopes - An array of scopes or an array consisting of arrays of scopes of the listener or resource or service
     # + return - `true` if authorization check is a success, else `false`
     function process(Scopes scopes) returns boolean {
         // since different resources can have different scopes,
