@@ -20,6 +20,8 @@
 # + scopes - Array of scopes
 public type AuthzFilter object {
 
+    *RequestFilter;
+
     public AuthzHandler authzHandler;
     public Scopes? scopes;
 
@@ -54,10 +56,6 @@ public type AuthzFilter object {
             }
         }
         return isAuthzSuccessful(caller, authorized);
-    }
-
-    public function filterResponse(Response response, FilterContext context) returns boolean {
-        return true;
     }
 };
 

@@ -19,6 +19,8 @@
 # + authHandlers - An array of authentication handlers
 public type AuthnFilter object {
 
+    *RequestFilter;
+
     public InboundAuthHandlers authHandlers;
 
     public function __init(InboundAuthHandlers authHandlers) {
@@ -42,10 +44,6 @@ public type AuthnFilter object {
             }
         }
         return isAuthnSuccessful(caller, authenticated);
-    }
-
-    public function filterResponse(Response response, FilterContext context) returns boolean {
-        return true;
     }
 };
 
