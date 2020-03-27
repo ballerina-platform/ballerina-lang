@@ -106,16 +106,14 @@ public class ModuleCoverage {
             this.coveredLines = coveredLines;
             this.missedLines = missedLines;
             setCoveragePercentage(coveredLines, missedLines);
-            /*Removing source code to avoid the syntax issue in test report*/
-            // TODO: uncomment this once npm build is integrated
-            //setSourceCode(moduleName);
+            setSourceCode(moduleName, fileName);
         }
 
         private void setCoveragePercentage(List<Integer> coveredLines, List<Integer> missedLines) {
             this.coveragePercentage = (float) coveredLines.size() / (coveredLines.size() + missedLines.size()) * 100;
         }
 
-        public void setSourceCode(String moduleName, String fileName) {
+        private void setSourceCode(String moduleName, String fileName) {
             Path sourceFile;
             if (TesterinaConstants.DOT.equals(moduleName)) {
                 sourceFile = Paths.get(fileName);
@@ -146,6 +144,10 @@ public class ModuleCoverage {
 
         public List<Integer> getMissedLines() {
             return this.missedLines;
+        }
+
+        public String getName() {
+            return name;
         }
     }
 }
