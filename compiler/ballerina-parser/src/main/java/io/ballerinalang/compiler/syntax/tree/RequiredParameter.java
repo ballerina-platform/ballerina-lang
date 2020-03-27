@@ -78,4 +78,9 @@ public class RequiredParameter extends Parameter {
         }
         return null;
     }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

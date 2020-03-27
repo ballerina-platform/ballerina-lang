@@ -32,6 +32,10 @@ import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STTypeToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
+import io.ballerinalang.compiler.syntax.BLModules;
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.text.TextDocument;
+import io.ballerinalang.compiler.text.TextDocuments;
 import org.testng.Assert;
 
 import java.io.FileReader;
@@ -65,7 +69,7 @@ public class ParserTestUtils {
      * @param assertFilePath File to assert the resulting tree after parsing
      */
     public static void test(Path sourceFilePath, ParserRuleContext context, Path assertFilePath) {
-        String content = getFileContent(sourceFilePath);
+        String content = getSourceText(sourceFilePath);
         test(content, context, assertFilePath);
     }
 
@@ -88,15 +92,30 @@ public class ParserTestUtils {
         assertNode(syntaxTree, assertJson);
     }
 
-    // Private functions
-
-    private static String getFileContent(Path sourceFilePath) {
+    /**
+     * Returns Ballerina source code in the given file as a {@code String}.
+     *
+     * @param sourceFilePath Path to the ballerina file
+     * @return source code as a {@code String}
+     */
+    public static String getSourceText(Path sourceFilePath) {
         try {
-            Path path = RESOURCE_DIRECTORY.resolve(sourceFilePath);
-            return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+            return new String(Files.readAllBytes(RESOURCE_DIRECTORY.resolve(sourceFilePath)),
+                    StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Returns a {@code SyntaxTree} after parsing the give source code path.
+     *
+     * @param sourceFilePath Path to the ballerina file
+     */
+    public static SyntaxTree parseFile(Path sourceFilePath) {
+        String text = getSourceText(sourceFilePath);
+        TextDocument textDocument = TextDocuments.from(text);
+        return BLModules.parse(textDocument);
     }
 
     private static JsonObject readAssertFile(Path filePath) {

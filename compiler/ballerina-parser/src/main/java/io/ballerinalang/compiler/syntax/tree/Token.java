@@ -23,4 +23,9 @@ public class Token extends Node {
     public Token(STNode token, int position, NonTerminalNode parent) {
         super(token, position, parent);
     }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

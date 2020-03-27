@@ -15,27 +15,23 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.parser.test.incremental;
+package io.ballerinalang.compiler.parser.test.visitors;
 
-import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import org.testng.Assert;
-import org.testng.annotations.Test;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
- * Contains module level declarations incremental parsing tests.
+ * An abstract class that contains utilities for {@code SyntaxNodeVisitor} tests.
  *
  * @since 1.3.0
  */
-public class ModuleLevelDeclarationTest extends AbstractIncrementalParserTest {
+public abstract class AbstractVisitorTest {
 
-    @Test
-    public void testVariableNameChange() {
-        SyntaxTree oldTree = parseFile("module_declarations/function_name_old.bal");
-        SyntaxTree newTree = parse(oldTree, "module_declarations/function_name_new.bal");
-        Node[] newNodes = populateNewNodes(oldTree, newTree);
-
-        // TODO This is fragile way to test. Improve
-        Assert.assertEquals(newNodes.length, 6);
+    public static SyntaxTree parseFile(String sourceFilePath) {
+        Path sourcePath = Paths.get("visitors", sourceFilePath);
+        return ParserTestUtils.parseFile(sourcePath);
     }
 }

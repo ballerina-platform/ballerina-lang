@@ -80,4 +80,9 @@ public class FunctionCallNode extends ExpressionTree {
         }
         return null;
     }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
 }

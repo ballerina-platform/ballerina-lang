@@ -17,15 +17,6 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
-
-public class ImportDeclaration extends NonTerminalNode {
-    public ImportDeclaration(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
-    }
-
-    @Override
-    public void accept(SyntaxNodeVisitor visitor) {
-        visitor.visit(this);
-    }
+public class SyntaxNodeRewriter {
+    // TODO find a better class name
 }
