@@ -15,25 +15,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test;
+package io.ballerinalang.compiler.parser.test.syntax.trivia;
+
+import org.testng.annotations.Test;
 
 /**
- * Constants related to the parser.
- * 
- * @since 1.2.0
+ * Test trivia.
  */
-public class ParserTestConstants {
+public class TriviaTest extends AbstractTriviaTest {
 
-    public static final String KIND_FIELD = "kind";
-
-    public static final String CHILDREN_FIELD = "children";
-
-    public static final String VALUE_FIELD = "value";
-
-    public static final String IS_MISSING_FIELD = "isMissing";
-
-    public static final String LEADING_TRIVIA = "leadingTrivia";
-
-    public static final String TRAILING_TRIVIA = "trailingTrivia";
-
+    @Test
+    public void testComments() {
+        test("trivia_source_01.bal", "trivia_assert_01.json");
+    }
 }

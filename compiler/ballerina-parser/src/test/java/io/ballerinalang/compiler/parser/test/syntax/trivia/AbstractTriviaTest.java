@@ -15,25 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test;
+package io.ballerinalang.compiler.parser.test.syntax.trivia;
+
+import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
+import io.ballerinalang.compiler.parser.test.ParserTestUtils;
+
+import java.nio.file.Paths;
 
 /**
- * Constants related to the parser.
- * 
- * @since 1.2.0
+ * Test capturing trivia.
  */
-public class ParserTestConstants {
+public abstract class AbstractTriviaTest {
 
-    public static final String KIND_FIELD = "kind";
-
-    public static final String CHILDREN_FIELD = "children";
-
-    public static final String VALUE_FIELD = "value";
-
-    public static final String IS_MISSING_FIELD = "isMissing";
-
-    public static final String LEADING_TRIVIA = "leadingTrivia";
-
-    public static final String TRAILING_TRIVIA = "trailingTrivia";
-
+    void test(String sourceFilePath, String filePath) {
+        ParserTestUtils.test(Paths.get("trivia", sourceFilePath), ParserRuleContext.COMP_UNIT,
+                Paths.get("trivia", filePath));
+    }
 }

@@ -21,13 +21,19 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
+import io.ballerinalang.compiler.internal.parser.tree.STIdentifier;
+import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
+import io.ballerinalang.compiler.internal.parser.tree.STTypeToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
+import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
+
 import org.testng.Assert;
 
 import java.io.FileReader;
@@ -40,6 +46,8 @@ import java.nio.file.Paths;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.LEADING_TRIVIA;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.TRAILING_TRIVIA;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.VALUE_FIELD;
 
 /**
@@ -59,13 +67,8 @@ public class ParserTestUtils {
      * @param assertFilePath File to assert the resulting tree after parsing
      */
     public static void test(Path sourceFilePath, ParserRuleContext context, Path assertFilePath) {
-        try {
-            String content =
-                    new String(Files.readAllBytes(RESOURCE_DIRECTORY.resolve(sourceFilePath)), StandardCharsets.UTF_8);
-            test(content, context, assertFilePath);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        String content = getFileContent(sourceFilePath);
+        test(content, context, assertFilePath);
     }
 
     /**
@@ -85,6 +88,17 @@ public class ParserTestUtils {
 
         // Validate the tree against the assertion file
         assertNode(syntaxTree, assertJson);
+    }
+
+    // Private functions
+
+    private static String getFileContent(Path sourceFilePath) {
+        try {
+            Path path = RESOURCE_DIRECTORY.resolve(sourceFilePath);
+            return new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static JsonObject readAssertFile(Path filePath) {
@@ -110,7 +124,7 @@ public class ParserTestUtils {
         if (isTerminalNode(node.kind)) {
             assertTerminalNode(json, node);
         } else {
-            assertNonTerminalNode(json, node);
+            assertNonTerminalNode(json, CHILDREN_FIELD, node);
         }
     }
 
@@ -127,19 +141,37 @@ public class ParserTestUtils {
 
     private static void assertTerminalNode(JsonObject json, STNode node) {
         // If this is a terminal node, it has to be a STToken (i.e: lexeme)
-        Assert.assertTrue(node instanceof STToken);
+        if (isTrivia(node.kind)) {
+            Assert.assertTrue(node instanceof SyntaxTrivia);
+        } else {
+            Assert.assertTrue(node instanceof STToken);
+        }
 
         // Validate the token text, if this is not a syntax token.
         // e.g: identifiers, basic-literals, etc.
         if (!isSyntaxToken(node.kind)) {
             String expectedText = json.get(VALUE_FIELD).getAsString();
-            String actualText = node.toString().trim();
+            String actualText = getTokenText(node);
             Assert.assertEquals(actualText, expectedText);
+        }
+
+        if (!ParserTestUtils.isTrivia(node.kind)) {
+            validateTrivia(json, (STToken) node);
         }
     }
 
-    private static void assertNonTerminalNode(JsonObject json, STNode tree) {
-        JsonArray children = json.getAsJsonArray(CHILDREN_FIELD);
+    private static void validateTrivia(JsonObject json, STToken token) {
+        if (json.has(LEADING_TRIVIA)) {
+            assertNonTerminalNode(json, LEADING_TRIVIA, token.leadingTrivia);
+        }
+
+        if (json.has(TRAILING_TRIVIA)) {
+            assertNonTerminalNode(json, TRAILING_TRIVIA, token.trailingTrivia);
+        }
+    }
+
+    private static void assertNonTerminalNode(JsonObject json, String keyInJson, STNode tree) {
+        JsonArray children = json.getAsJsonArray(keyInJson);
         int size = children.size();
         int j = 0;
 
@@ -172,15 +204,49 @@ public class ParserTestUtils {
     }
 
     public static boolean isTerminalNode(SyntaxKind syntaxKind) {
-        return SyntaxKind.IMPORT_DECLARATION.compareTo(syntaxKind) > 0;
+        return SyntaxKind.IMPORT_DECLARATION.compareTo(syntaxKind) > 0 || syntaxKind == SyntaxKind.EOF_TOKEN;
     }
 
     public static boolean isSyntaxToken(SyntaxKind syntaxKind) {
-        return SyntaxKind.IDENTIFIER_TOKEN.compareTo(syntaxKind) > 0;
+        return SyntaxKind.IDENTIFIER_TOKEN.compareTo(syntaxKind) > 0 || syntaxKind == SyntaxKind.EOF_TOKEN;
+    }
+
+    public static boolean isTrivia(SyntaxKind syntaxKind) {
+        switch (syntaxKind) {
+            case WHITESPACE_TRIVIA:
+            case END_OF_LINE_TRIVIA:
+            case COMMENT:
+            case INVALID:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static String getTokenText(STNode token) {
+        switch (token.kind) {
+            case IDENTIFIER_TOKEN:
+                return ((STIdentifier) token).text;
+            case STRING_LITERAL_TOKEN:
+            case NUMERIC_LITERAL_TOKEN:
+                return ((STLiteralValueToken) token).text;
+            case SIMPLE_TYPE:
+                return ((STTypeToken) token).text;
+            case WHITESPACE_TRIVIA:
+            case END_OF_LINE_TRIVIA:
+            case COMMENT:
+            case INVALID:
+                return ((SyntaxTrivia) token).text;
+            default:
+                return token.kind.toString();
+
+        }
     }
 
     private static SyntaxKind getNodeKind(String kind) {
         switch (kind) {
+            case "MODULE_PART":
+                return SyntaxKind.MODULE_PART;
             case "TYPE_DEFINITION":
                 return SyntaxKind.TYPE_DEFINITION;
             case "FUNCTION_DEFINITION":
@@ -351,6 +417,18 @@ public class ParserTestUtils {
                 return SyntaxKind.OBJECT_FIELD;
             case "OBJECT_TYPE_DESCRIPTOR":
                 return SyntaxKind.OBJECT_TYPE_DESCRIPTOR;
+
+            // Trivia
+            case "EOF_TOKEN":
+                return SyntaxKind.EOF_TOKEN;
+            case "END_OF_LINE_TRIVIA":
+                return SyntaxKind.END_OF_LINE_TRIVIA;
+            case "WHITESPACE_TRIVIA":
+                return SyntaxKind.WHITESPACE_TRIVIA;
+            case "COMMENT":
+                return SyntaxKind.COMMENT;
+            case "INVALID":
+                return SyntaxKind.INVALID;
 
             // Unsupported
             default:
