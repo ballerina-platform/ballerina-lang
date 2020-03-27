@@ -550,7 +550,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         return documentedDeprecatedParameterMap;
     }
 
-    public void validateDeprecatedParameters(DocumentableNode documentableNode,
+    private void validateDeprecatedParameters(DocumentableNode documentableNode,
                                              List<BLangSimpleVariable> actualParameters,
                                              BLangSimpleVariable restParam,
                                              DiagnosticCode parameterAlreadyDefined,
@@ -570,21 +570,30 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         }
 
         for (BLangSimpleVariable parameter : actualParameters) {
-            String name = parameter.getName().getValue();
+            validateDeprecatedParameter(documentedDeprecatedParameterMap, parameter);
+        }
 
-            if (!documentedDeprecatedParameterMap.containsKey(name)) {
-                if (Symbols.isFlagOn(parameter.symbol.flags, Flags.DEPRECATED)) {
-                    dlog.error(parameter.pos, DiagnosticCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
-                }
-            } else {
-                if (!Symbols.isFlagOn(parameter.symbol.flags, Flags.DEPRECATED)) {
-                    dlog.error(documentedDeprecatedParameterMap.get(name).pos,
-                            DiagnosticCode.INVALID_DEPRECATION_DOCUMENTATION);
-                }
-                documentedDeprecatedParameterMap.remove(name);
-            }
+        if (restParam != null) {
+            validateDeprecatedParameter(documentedDeprecatedParameterMap, restParam);
         }
 
         documentedDeprecatedParameterMap.forEach((name, node) -> dlog.warning(node.pos, noSuchParameter, name));
+    }
+
+    private void validateDeprecatedParameter(
+            Map<String, BLangMarkdownParameterDocumentation> documentedDeprecatedParameterMap,
+            BLangSimpleVariable parameter) {
+        String name = parameter.getName().value;
+        if (!documentedDeprecatedParameterMap.containsKey(name)) {
+            if (Symbols.isFlagOn(parameter.symbol.flags, Flags.DEPRECATED)) {
+                dlog.error(parameter.pos, DiagnosticCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
+            }
+        } else {
+            if (!Symbols.isFlagOn(parameter.symbol.flags, Flags.DEPRECATED)) {
+                dlog.error(documentedDeprecatedParameterMap.get(name).pos,
+                        DiagnosticCode.INVALID_DEPRECATION_DOCUMENTATION);
+            }
+            documentedDeprecatedParameterMap.remove(name);
+        }
     }
 }
