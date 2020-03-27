@@ -118,7 +118,7 @@ task createBalo(type: CreateBaloTask) {
     }
 
     classpath = project.configurations.baloCreat
-    classpath += files(jar.archivePath)
+//    classpath += files(jar.archivePath)
 
     environment 'BALLERINA_NATIVE_MAP', "./build/classes/java/main/META-INF/this.map.json"
     def balFiles = file("src/main/ballerina/")
