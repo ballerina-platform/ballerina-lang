@@ -174,12 +174,13 @@ public class PackageLoader {
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
         Converter<Path> converter = sourceDirectory.getConverter();
     
-        String ballerinaHome = System.getProperty(ProjectDirConstants.BALLERINA_HOME);
-        Repo systemBirRepo = new BirRepo(Paths.get(ballerinaHome));
+        Path ballerinaHome = Paths.get(System.getProperty(ProjectDirConstants.BALLERINA_HOME));
+        Repo systemBirRepo = new BirRepo(ballerinaHome);
         Repo systemZipRepo = new BinaryRepo(RepoUtils.getLibDir(), compilerPhase);
-        Repo remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()), this.dependencyManifests);
+        Repo remoteRepo = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()),
+                                         this.dependencyManifests, ballerinaHome);
         Repo remoteDryRepo = new RemoteRepo(new URIDryConverter(URI.create(RepoUtils.getRemoteRepoURL()),
-                this.dependencyManifests));
+                this.dependencyManifests), ballerinaHome);
         Repo homeBaloCache = new HomeBaloRepo(this.dependencyManifests);
         Repo homeBirRepo = new HomeBirRepo();
         Repo secondarySystemRepo = new BinaryRepo(RepoUtils.getLibDir(), compilerPhase);

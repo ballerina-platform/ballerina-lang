@@ -2,7 +2,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/test;
 
-@test:Config
+@test:Config {}
 function testFunc() {
 
     //TODO: Enable the following tests once the relative path issue is fixed. Until then the encoder/decoder should be

@@ -61,6 +61,7 @@ public class ExecuteTest {
     @Test
     public void testCreateTable() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testCreateTable", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 0);
@@ -70,6 +71,7 @@ public class ExecuteTest {
     @Test
     public void testInsertTable() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTable", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
@@ -79,6 +81,7 @@ public class ExecuteTest {
     @Test
     public void testInsertTableWithoutGeneratedKeys() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithoutGeneratedKeys", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
@@ -88,6 +91,7 @@ public class ExecuteTest {
     @Test
     public void testInsertTableWithGeneratedKeys() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithGeneratedKeys", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
@@ -98,6 +102,7 @@ public class ExecuteTest {
     public void testInsertAndSelectTableWithGeneratedKeys() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertAndSelectTableWithGeneratedKeys",
                 args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
         BValueArray result = (BValueArray) returnVal[0];
         Assert.assertEquals(result.getValues().length, 2);
@@ -122,6 +127,7 @@ public class ExecuteTest {
     public void testInsertWithAllNilAndSelectTableWithGeneratedKeys() {
         BValue[] returnVal = BRunUtil.invokeFunction(result,
                 "testInsertWithAllNilAndSelectTableWithGeneratedKeys", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
         BValueArray result = (BValueArray) returnVal[0];
         Assert.assertEquals(result.getValues().length, 2);
@@ -144,6 +150,7 @@ public class ExecuteTest {
     @Test
     public void testInsertWithStringAndSelectTable() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertWithStringAndSelectTable", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
         BValueArray result = (BValueArray) returnVal[0];
         Assert.assertEquals(result.getValues().length, 2);
@@ -166,6 +173,7 @@ public class ExecuteTest {
     public void testInsertWithEmptyStringAndSelectTable() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertWithEmptyStringAndSelectTable",
                 args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
         BValueArray result = (BValueArray) returnVal[0];
         Assert.assertEquals(result.getValues().length, 2);
@@ -188,6 +196,7 @@ public class ExecuteTest {
     public void testInsertWithNilStringAndSelectTable() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertWithNilStringAndSelectTable",
                 args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
         BValueArray result = (BValueArray) returnVal[0];
         Assert.assertEquals(result.getValues().length, 2);
@@ -239,6 +248,7 @@ public class ExecuteTest {
     @Test
     public void testUdateData() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testUdateData", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BValueArray);
         BValueArray result = (BValueArray) returnVal[0];
         Assert.assertEquals(result.getValues().length, 2);

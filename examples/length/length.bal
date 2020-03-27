@@ -45,7 +45,7 @@ public function main() {
                   </book>`;
 
     // Print the number of content items in the XML element.
-    length = x1.getChildren().elements().length();
+    length = (x1/<*>).length();
     io:println("XML child elements size: ", length);
 
     // Define a tuple with two members.

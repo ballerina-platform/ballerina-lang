@@ -26,6 +26,9 @@ public type BearerAuthHandler object {
 
     public auth:InboundAuthProvider|auth:OutboundAuthProvider authProvider;
 
+    # Initializes the `BearerAuthHandler` object.
+    #
+    # + authProvider - The `InboundAuthProvider` instance or the `OutboundAuthProvider` instance
     public function __init(auth:InboundAuthProvider|auth:OutboundAuthProvider authProvider) {
         self.authProvider = authProvider;
     }

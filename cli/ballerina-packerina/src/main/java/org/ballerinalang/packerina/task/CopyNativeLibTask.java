@@ -56,6 +56,7 @@ import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DIST_BIR_CACHE_DIR_NAME;
 
 /**
  * Copy native libraries to target/tmp.
@@ -249,7 +250,7 @@ public class CopyNativeLibTask implements Task {
         if (skipCopyLibsFromDist) {
             return;
         }
-        File tomlfile = Paths.get(balHomePath, "bir-cache", id.orgName.value, id.name.value,
+        File tomlfile = Paths.get(balHomePath, DIST_BIR_CACHE_DIR_NAME, id.orgName.value, id.name.value,
                                   version, "Ballerina.toml").toFile();
 
         if (!tomlfile.exists()) {

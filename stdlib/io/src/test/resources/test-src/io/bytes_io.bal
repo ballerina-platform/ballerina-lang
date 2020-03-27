@@ -16,11 +16,10 @@
 
 import ballerina/io;
 
-io:ReadableByteChannel rch = new;
-io:WritableByteChannel wch = new;
+io:ReadableByteChannel? rch = ();
+io:WritableByteChannel? wch = ();
 
 function initReadableChannel(string filePath) returns @tainted io:Error? {
-
     var result = io:openReadableFile(filePath);
     if (result is io:ReadableByteChannel) {
         rch = <@untainted> result;
@@ -34,25 +33,43 @@ function initWritableChannel(string filePath) {
 }
 
 function readBytes(int numberOfBytes) returns @tainted byte[]|io:Error {
-    return rch.read(numberOfBytes);
+    io:ReadableByteChannel? rChannel = rch;
+    if (rChannel is io:ReadableByteChannel) {
+        return rChannel.read(numberOfBytes);
+    } else {
+        io:GenericError e = error(io:GENERIC_ERROR, message = "ReadableByteChannel not initialized");
+        return e;
+    }
 }
 
 function writeBytes(byte[] content, int startOffset) returns int|io:Error {
     int empty = -1;
-    var result = wch.write(content, startOffset);
-    if (result is int) {
-        return result;
+    io:WritableByteChannel? wChannel = wch;
+    if (wChannel is io:WritableByteChannel) {
+        var result = wChannel.write(content, startOffset);
+        if (result is int) {
+            return result;
+        } else {
+            return result;
+        }
     } else {
-        return result;
+       io:GenericError e = error(io:GENERIC_ERROR, message = "WritableByteChannel not initialized");
+       return e;
     }
 }
 
 function closeReadableChannel() {
-    var result = rch.close();
+    io:ReadableByteChannel? rChannel = rch;
+    if rChannel is io:ReadableByteChannel {
+        var result = rChannel.close();
+    }
 }
 
 function closeWritableChannel() {
-    var result = wch.close();
+    io:WritableByteChannel? wChannel = wch;
+    if wChannel is io:WritableByteChannel {
+        var result = wChannel.close();
+    }
 }
 
 function testBase64EncodeByteChannel(io:ReadableByteChannel contentToBeEncoded) returns io:ReadableByteChannel|io:Error {

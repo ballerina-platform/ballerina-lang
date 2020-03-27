@@ -21,9 +21,10 @@ const STRING = "string";
 const INT = "int";
 const FLOAT = "float";
 const BYTE_ARRAY = "byte[]";
-const ANY = "any";
+const AVRO_RECORD = "kafka:AvroRecord";
+const ANY = "anydata";
 
-// Consumer related constants
+// Consumer-related constants.
 
 // Deserializer types
 # In-built Kafka byte array deserializer.

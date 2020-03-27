@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableIterator;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.ByteArrayInputStream;
 import java.sql.Connection;
@@ -106,6 +107,11 @@ public class TableProvider {
     public void insertData(String tableName, MapValueImpl<String, Object> constrainedType) {
         String sqlStmt = TableUtils.generateInsertDataStatement(tableName, constrainedType);
         prepareAndExecuteStatement(sqlStmt, constrainedType);
+    }
+
+    public void insertData_bstring(String tableName, MapValueImpl<BString, Object> constrainedType) {
+        String sqlStmt = TableUtils.generateInsertDataStatement(tableName, constrainedType);
+        prepareAndExecuteStatement_bstring(sqlStmt, constrainedType);
     }
 
     public void deleteData(String tableName, MapValueImpl<String, Object> constrainedType) {
@@ -313,6 +319,20 @@ public class TableProvider {
         try {
             stmt = conn.prepareStatement(queryStatement);
             TableUtils.prepareAndExecuteStatement(stmt, constrainedType);
+        } catch (SQLException e) {
+            throw TableUtils.createTableOperationError(
+                    "error in executing statement : " + queryStatement + " error:" + e.getMessage());
+        } finally {
+            releaseResources(conn, stmt);
+        }
+    }
+    private void prepareAndExecuteStatement_bstring(String queryStatement,
+                                                     MapValueImpl<BString, Object> constrainedType) {
+        PreparedStatement stmt = null;
+        Connection conn = this.getConnection();
+        try {
+            stmt = conn.prepareStatement(queryStatement);
+            TableUtils.prepareAndExecuteStatement_bstring(stmt, constrainedType);
         } catch (SQLException e) {
             throw TableUtils.createTableOperationError(
                     "error in executing statement : " + queryStatement + " error:" + e.getMessage());

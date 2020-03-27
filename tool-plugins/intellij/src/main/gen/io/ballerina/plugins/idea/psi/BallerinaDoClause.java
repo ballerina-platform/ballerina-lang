@@ -26,13 +26,13 @@ public interface BallerinaDoClause extends PsiElement {
   @NotNull
   List<BallerinaStatement> getStatementList();
 
-  @NotNull
-  PsiElement getDo();
-
   @Nullable
   PsiElement getLeftBrace();
 
   @Nullable
   PsiElement getRightBrace();
+
+  @NotNull
+  PsiElement getDo();
 
 }

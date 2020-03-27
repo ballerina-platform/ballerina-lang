@@ -26,7 +26,9 @@ import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.helper.StringHelpers;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
+import com.google.api.AnnotationsProto;
 import com.google.protobuf.DescriptorProtos;
+import com.google.protobuf.ExtensionRegistry;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.builder.components.ClientFile;
@@ -60,6 +62,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SAMPLE_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SKELETON_DIR;
@@ -67,10 +70,13 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_DAT
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GOOGLE_STANDARD_LIB;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_CLIENT;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_PROXY;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_SERVICE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PACKAGE_SEPARATOR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_CLIENT_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_FILE_PREFIX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_PROXY_FILE_PREFIX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_PROXY_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_SERVICE_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_SERVICE_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SERVICE_SKELETON_TEMPLATE_NAME;
@@ -111,8 +117,11 @@ public class BallerinaFileBuilder {
 
     private void computeSourceContent(byte[] descriptor, String mode) throws CodeBuilderException {
         try (InputStream targetStream = new ByteArrayInputStream(descriptor)) {
+            // define extension register and register custom option
+            ExtensionRegistry extensionRegistry = ExtensionRegistry.newInstance();
+            AnnotationsProto.registerAllExtensions(extensionRegistry);
             DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
-                    .parseFrom(targetStream);
+                    .parseFrom(targetStream, extensionRegistry);
 
             if (fileDescriptorSet.getPackage().contains(GOOGLE_STANDARD_LIB)) {
                 return;
@@ -167,12 +176,14 @@ public class BallerinaFileBuilder {
             }
 
             boolean needStubFile = serviceDescriptotList.size() != 1;
+            boolean hasEmptyMessage = false;
             for (DescriptorProtos.ServiceDescriptorProto serviceDescriptor : serviceDescriptotList) {
                 ServiceStub.Builder serviceStubBuilder = ServiceStub.newBuilder(serviceDescriptor.getName());
                 ServiceFile.Builder sampleServiceBuilder = ServiceFile.newBuilder(serviceDescriptor.getName());
                 List<DescriptorProtos.MethodDescriptorProto> methodList = serviceDescriptor.getMethodList();
                 boolean isUnaryContains = false;
-
+                stubFileObject.setMessageMap(messageList.stream().collect(Collectors.toMap(Message::getMessageName,
+                        message -> message)));
                 for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
                     String methodID;
                     if (filePackage != null && !filePackage.isEmpty()) {
@@ -181,29 +192,32 @@ public class BallerinaFileBuilder {
                     } else {
                         methodID = serviceDescriptor.getName() + "/" + methodDescriptorProto.getName();
                     }
-                    Method method = Method.newBuilder(methodID).setMethodDescriptor(methodDescriptorProto).build();
+
+                    Method method = Method.newBuilder(methodID).setMethodDescriptor(methodDescriptorProto).
+                            setMessageMap(stubFileObject.getMessageMap()).build();
                     serviceStubBuilder.addMethod(method);
                     sampleServiceBuilder.addMethod(method);
                     if (MethodDescriptor.MethodType.UNARY.equals(method.getMethodType())) {
                         isUnaryContains = true;
                     }
-                    if (method.containsEmptyType() && !(stubFileObject.isMessageExists(EMPTY_DATA_TYPE))) {
+                    if (method.containsEmptyType() && !(stubFileObject.isMessageExists(EMPTY_DATA_TYPE))
+                            && !hasEmptyMessage) {
                         Message message = Message.newBuilder(EmptyMessage.newBuilder().getDescriptor().toProto())
                                 .build();
                         messageList.add(message);
+                        hasEmptyMessage = true;
                     }
                 }
                 if (isUnaryContains) {
-                    serviceStubBuilder.setType(ServiceStub.StubType.BLOCKING);
-                    stubFileObject.addServiceStub(serviceStubBuilder.build());
+                    stubFileObject.addServiceStub(serviceStubBuilder.build(ServiceStub.StubType.BLOCKING));
                 }
-                serviceStubBuilder.setType(ServiceStub.StubType.NONBLOCKING);
-                stubFileObject.addServiceStub(serviceStubBuilder.build());
+                stubFileObject.addServiceStub(serviceStubBuilder.build(ServiceStub.StubType.NONBLOCKING));
 
                 if (GRPC_SERVICE.equals(mode)) {
                     serviceFile = sampleServiceBuilder.build();
                     if (!needStubFile) {
-                        serviceFile.setMessageList(messageList);
+                        serviceFile.setMessageMap(messageList.stream().collect(Collectors.toMap(Message::getMessageName,
+                                message -> message)));
                         serviceFile.setEnumList(enumList);
                         serviceFile.setDescriptors(descriptors);
                         if (!stubRootDescriptor.isEmpty()) {
@@ -222,26 +236,21 @@ public class BallerinaFileBuilder {
                     writeOutputFile(new ClientFile(serviceDescriptor.getName(), isUnaryContains),
                             DEFAULT_SAMPLE_DIR,
                             SAMPLE_CLIENT_TEMPLATE_NAME, clientFilePath);
-
+                } else if (GRPC_PROXY.equals(mode)) {
+                    String proxyPath = generateOutputFile(this.balOutPath, filename +
+                            SAMPLE_PROXY_FILE_PREFIX);
+                    writeOutputFile(stubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_PROXY_TEMPLATE_NAME, proxyPath);
                 }
             }
-
+            stubFileObject.setEnumList(enumList);
+            stubFileObject.setDescriptors(descriptors);
+            if (!stubRootDescriptor.isEmpty()) {
+                stubFileObject.setRootDescriptor(stubRootDescriptor);
+            }
             if (!GRPC_SERVICE.equals(mode)) {
-                stubFileObject.setMessageList(messageList);
-                stubFileObject.setEnumList(enumList);
-                stubFileObject.setDescriptors(descriptors);
-                if (!stubRootDescriptor.isEmpty()) {
-                    stubFileObject.setRootDescriptor(stubRootDescriptor);
-                }
                 String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
                 writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SKELETON_TEMPLATE_NAME, stubFilePath);
             } else if (needStubFile) {
-                stubFileObject.setMessageList(messageList);
-                stubFileObject.setEnumList(enumList);
-                stubFileObject.setDescriptors(descriptors);
-                if (!stubRootDescriptor.isEmpty()) {
-                    stubFileObject.setRootDescriptor(stubRootDescriptor);
-                }
                 String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
                 writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SERVICE_SKELETON_TEMPLATE_NAME, stubFilePath);
             }
@@ -366,6 +375,12 @@ public class BallerinaFileBuilder {
                 result = null;
             }
             return result;
+        });
+        handlebars.registerHelper("literal", (object, options) -> {
+            if (object instanceof String) {
+                return object;
+            }
+            return "";
         });
         // This is enable nested messages. There won't be any infinite scenarios in nested messages.
         handlebars.infiniteLoops(true);

@@ -20,7 +20,6 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 import java.util.function.Consumer;
@@ -43,11 +42,13 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
 
     final BType type;
     Function<T, R> function;
+    public boolean isConcurrent;
 
     @Deprecated
-    public FPValue(Function<T, R> function, BType type) {
+    public FPValue(Function<T, R> function, BType type, boolean isConcurrent) {
         this.function = function;
         this.type = type;
+        this.isConcurrent = isConcurrent;
     }
 
     public R call(T t) {
@@ -85,11 +86,6 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     @Override
     public String stringValue() {
         return "function " + type;
-    }
-
-    @Override
-    public BString bStringValue() {
-        return null;
     }
 
     @Override

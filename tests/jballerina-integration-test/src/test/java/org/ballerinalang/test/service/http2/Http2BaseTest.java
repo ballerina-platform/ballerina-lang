@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.service.http2;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -25,6 +26,7 @@ import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Base test class for Http integration test cases which starts/stops the http services as ballerina package before
@@ -40,8 +42,15 @@ public class Http2BaseTest extends BaseTest {
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "http2").getAbsolutePath();
+        String keyStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaKeystore.p12").toAbsolutePath()
+                        .toString());
+        String trustStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
+                        .toString());
+        String[] args = new String[] { "--keystore=" + keyStore, "--truststore=" + trustStore };
         serverInstance = new BServerInstance(balServer);
-        serverInstance.startServer(balFile, "http2services", requiredPorts);
+        serverInstance.startServer(balFile, "http2services", null, args, requiredPorts);
     }
 
     @AfterGroups(value = "http2-test", alwaysRun = true)

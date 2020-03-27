@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.model;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -566,6 +567,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      * @since 0.995.0
      */
     public static class FPLoad extends BIRNonTerminator {
+        public SchedulerPolicy schedulerPolicy;
         public Name funcName;
         public PackageID pkgId;
         public List<BIRVariableDcl> params;
@@ -573,8 +575,10 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BType retType;
 
         public FPLoad(DiagnosticPos pos, PackageID pkgId, Name funcName, BIROperand lhsOp,
-                      List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType retType) {
+                      List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType retType,
+                      SchedulerPolicy schedulerPolicy) {
             super(pos, InstructionKind.FP_LOAD);
+            this.schedulerPolicy = schedulerPolicy;
             this.lhsOp = lhsOp;
             this.funcName = funcName;
             this.pkgId = pkgId;

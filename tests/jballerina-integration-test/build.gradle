@@ -66,6 +66,7 @@ dependencies {
     implementation project(':ballerina-jdbc')
     implementation project(':ballerina-transactions')
     implementation project(':protobuf-ballerina')
+    implementation project(':ballerina-packerina')
     implementation project(':ballerina-transactions')
     implementation project(':ballerina-websub')
     implementation project(':ballerina-socket')

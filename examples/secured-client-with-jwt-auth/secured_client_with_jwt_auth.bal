@@ -1,4 +1,5 @@
 import ballerina/http;
+import ballerina/config;
 import ballerina/jwt;
 import ballerina/log;
 
@@ -17,7 +18,8 @@ jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new ({
         keyAlias: "ballerina",
         keyPassword: "ballerina",
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("b7a.home") +
+                  "bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
@@ -32,7 +34,8 @@ http:Client httpEndpoint = new ("https://localhost:9090", {
     },
     secureSocket: {
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("b7a.home") +
+                  "bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }

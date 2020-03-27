@@ -44,11 +44,19 @@ public function selectDescendants(xml x, string... qname) returns xml = external
 #
 # + x - The xml value
 # + attributeName - Attribute name in expanded from
+# + isOptionalAccess - Is this a optoinal access expression or not
 # + return - Attribute value
-public function getAttribute(xml x, string attributeName) returns string|error? = external;
+public function getAttribute(xml x, string attributeName, boolean isOptionalAccess) returns string|error? = external;
 
 # Return name of the element if `x` is a element or nil if element name is not set, else error.
 #
 # + x - The xml value
 # + return - Element name
-public function getElementName(xml x) returns string|error? = external;
+public function getElementNameNilLifting(xml x) returns string|error? = external;
+
+# lift getChildren over sequences
+# equivalent to elements(x).map(getChildren)
+#
+# + x - The xml value
+# + return - children of elements lifted over the sequence
+public function children(xml x) returns xml = external;

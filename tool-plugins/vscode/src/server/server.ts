@@ -87,9 +87,6 @@ export function getOldCliServerOptions(ballerinaCmd: string, experimental: boole
     if (experimental) {
         args.push('--experimental');
     }
-    if (enableStdlibDefinition) {
-        args.push('--stdlib-definition');
-    }
 
     return {
         command: cmd,

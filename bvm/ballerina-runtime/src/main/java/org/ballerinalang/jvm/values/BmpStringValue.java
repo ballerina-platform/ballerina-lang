@@ -25,7 +25,7 @@ package org.ballerinalang.jvm.values;
   *
   * @since 1.0.5
   */
-public class BmpStringValue implements StringValue {
+ public class BmpStringValue implements StringValue {
 
      private final String value;
 
@@ -59,18 +59,29 @@ public class BmpStringValue implements StringValue {
          }
      }
 
-    @Override
-    public String stringValue() {
-        return value;
-    }
+     @Override
+     public String stringValue() {
+         return value;
+     }
 
-    @Override
-    public BString bStringValue() {
-        return null;
-    }
+     @Override
+     public int hashCode() {
+         return value.hashCode();
+     }
 
-    @Override
-    public int hashCode() {
-        return value.hashCode();
-    }
-}
+     @Override
+     public String toString() {
+         return value;
+     }
+
+     @Override
+     public Long indexOf(BString str, int fromIndex) {
+         long index = value.indexOf(str.getValue(), fromIndex);
+         return index >= 0 ? index : null;
+     }
+
+     @Override
+     public BString substring(int beginIndex, int endIndex) {
+         return new BmpStringValue(value.substring(beginIndex, endIndex));
+     }
+ }

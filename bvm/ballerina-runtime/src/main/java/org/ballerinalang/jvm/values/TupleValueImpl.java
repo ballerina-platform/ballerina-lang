@@ -371,11 +371,6 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public BString bStringValue() {
-        return null;
-    }
-
-    @Override
     public BType getType() {
         return this.tupleType;
     }

@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/io;
+import ballerina/lang.'xml as xmllib;
 
 public function main(int i, float f, string s, byte b, boolean bool, json j, xml x, Employee e, string... args) {
     string restArgs = "";
@@ -21,9 +22,11 @@ public function main(int i, float f, string s, byte b, boolean bool, json j, xml
         restArgs += str + " ";
     }
 
+    xmllib:Element elem = <xmllib:Element> x;
+
     io:print("integer: " + i.toString() + ", float: " + f.toString() + ", string: " + s + ", byte: " +
             b.toString() + ", boolean: " + bool.toString() + ", JSON Name Field: " +
-            j.name.toString() + ", XML Element Name: " + x.getElementName() + ", Employee Name Field: " + e.name +
+            j.name.toString() + ", XML Element Name: " + elem.getName() + ", Employee Name Field: " + e.name +
             ", string rest args: " + restArgs);
 }
 
