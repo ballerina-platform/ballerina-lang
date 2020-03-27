@@ -31,6 +31,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -328,6 +329,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
 
         analyzeTypeNode(typeDefinition.typeNode, this.env);
+        typeDefinition.annAttachments.forEach(annotationAttachment -> annotationAttachment.accept(this));
     }
 
     @Override
@@ -354,6 +356,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (isLambda) {
             return;
         }
+
+        validateParams(funcNode);
+
         if (Symbols.isPublic(funcNode.symbol)) {
             funcNode.symbol.params.forEach(symbol -> analyzeExportableTypeRef(funcNode.symbol, symbol.type.tsymbol,
                     true,
@@ -377,6 +382,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.workerActionSystemStack.peek().endWorkerActionStateMachine();
         } finally {
             this.finalizeCurrentWorkerActionSystem();
+        }
+        funcNode.annAttachments.forEach(annotationAttachment -> annotationAttachment.accept(this));
+    }
+
+    private void validateParams(BLangFunction funcNode) {
+        funcNode.requiredParams.forEach(param -> analyzeNode(param, env));
+        if (funcNode.restParam != null) {
+            analyzeNode(funcNode.restParam, env);
         }
     }
 
@@ -1345,6 +1358,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
 
         analyzeTypeNode(varNode.typeNode, this.env);
+        BType varType = varNode.type;
+        if (varType != null) {
+            BTypeSymbol varTypeSymbol = varType.tsymbol;
+            if (varTypeSymbol != null && Symbols.isFlagOn(varTypeSymbol.flags, Flags.DEPRECATED)) {
+                dlog.warning(varNode.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, varNode.typeNode);
+            }
+        }
+
         analyzeExpr(varNode.expr);
 
         if (Objects.isNull(varNode.symbol)) {
@@ -1362,6 +1383,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             // Only global level simpleVarRef, listeners etc.
             analyzeExportableTypeRef(varNode.symbol, varNode.type.tsymbol, false, varNode.pos);
         }
+
+        varNode.annAttachments.forEach(annotationAttachment -> annotationAttachment.accept(this));
     }
 
     private void checkWorkerPeerWorkerUsageInsideWorker(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
@@ -1442,11 +1465,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        /* ignore */
+        annotationNode.annAttachments.forEach(annotationAttachment -> annotationAttachment.accept(this));
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        /* ignore */
+        analyzeExpr(annAttachmentNode.expr);
+        BAnnotationSymbol annotationSymbol = annAttachmentNode.annotationSymbol;
+        if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(annAttachmentNode.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
+        }
     }
 
     public void visit(BLangSimpleVariableDef varDefNode) {
@@ -1932,6 +1959,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     checkWorkerPeerWorkerUsageInsideWorker(varRefExpr.pos, varRefExpr.symbol, this.env);
                 }
         }
+        if (varRefExpr.symbol != null && Symbols.isFlagOn(varRefExpr.symbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(varRefExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, varRefExpr);
+        }
     }
 
     public void visit(BLangRecordVarRef varRefExpr) {
@@ -1948,6 +1978,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         analyzeExpr(fieldAccessExpr.expr);
+        BSymbol symbol = fieldAccessExpr.symbol;
+        if (symbol != null && Symbols.isFlagOn(fieldAccessExpr.symbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(fieldAccessExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, fieldAccessExpr);
+        }
     }
 
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
@@ -1959,6 +1993,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(invocationExpr.expr);
         analyzeExprs(invocationExpr.requiredArgs);
         analyzeExprs(invocationExpr.restArgs);
+
+        if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
+            BSymbol funcSymbol = invocationExpr.symbol;
+            if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
+                dlog.warning(invocationExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, invocationExpr);
+            }
+        }
 
         if (invocationExpr.actionInvocation || invocationExpr.async) {
             if (invocationExpr.actionInvocation || !this.withinLockBlock) {
@@ -2036,6 +2077,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeInit cIExpr) {
         analyzeExprs(cIExpr.argsExpr);
         analyzeExpr(cIExpr.initInvocation);
+        BType type = cIExpr.type;
+        if (cIExpr.userDefinedType != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(cIExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, type);
+        }
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {
@@ -2199,6 +2244,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
         analyzeExpr(conversionExpr.expr);
+        conversionExpr.annAttachments.forEach(annotationAttachment -> annotationAttachment.accept(this));
     }
 
     public void visit(BLangXMLQName xmlQName) {
@@ -2503,6 +2549,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
         analyzeExpr(annotAccessExpr.expr);
+        BAnnotationSymbol annotationSymbol = annotAccessExpr.annotationSymbol;
+        if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(annotAccessExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
+        }
     }
 
     private boolean indirectIntersectionExists(BLangExpression expression, BType testType) {
@@ -2569,6 +2619,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeTypeNode(constant.typeNode, env);
         analyzeNode(constant.expr, env);
         analyzeExportableTypeRef(constant.symbol, constant.symbol.type.tsymbol, false, constant.pos);
+        constant.annAttachments.forEach(annotationAttachment -> annotationAttachment.accept(this));
     }
 
     /**
