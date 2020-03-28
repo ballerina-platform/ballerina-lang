@@ -54,7 +54,7 @@ public class NodeTransformerTest extends AbstractVisitorTest {
     }
 
     /**
-     * An implementation of {@code SyntaxNodeTransformer} that count tokens
+     * An implementation of {@code SyntaxNodeTransformer} that counts tokens
      * in the syntax tree.
      *
      * @since 1.3.0
@@ -98,7 +98,7 @@ public class NodeTransformerTest extends AbstractVisitorTest {
     }
 
     /**
-     * An implementation of {@code SyntaxNodeTransformer} that find the
+     * An implementation of {@code SyntaxNodeTransformer} that finds the
      * deepest token in the syntax tree.
      *
      * @since 1.3.0
