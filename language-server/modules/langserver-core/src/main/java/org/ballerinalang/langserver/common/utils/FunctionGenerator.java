@@ -336,7 +336,7 @@ public class FunctionGenerator {
             int argCounter = 1;
             CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
             for (BLangExpression bLangExpression : bLangInvocation.argExprs) {
-                Set<String> argNames = CommonUtil.getAllNameEntries(bLangExpression, compilerContext);
+                Set<String> argNames = CommonUtil.getAllNameEntries(compilerContext);
                 if (bLangExpression instanceof BLangSimpleVarRef) {
                     BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) bLangExpression;
                     String varName = simpleVarRef.variableName.value;
