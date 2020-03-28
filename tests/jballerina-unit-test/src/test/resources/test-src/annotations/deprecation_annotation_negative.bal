@@ -35,3 +35,122 @@ public type DummyObject object {
 @deprecated
 public function func1() {
 }
+
+# Test function doc
+# + x - first integer
+# + y - second integer
+# + z - third integer
+# + return - Returns the sum
+# # Deprecated parameters
+# + x - deprecated parameter
+# + y - deprecated parameter
+# # Deprecated
+# function is deprecated
+@deprecated
+function add1(@deprecated public int x, @deprecated int y, @deprecated int z) returns int { // Compile error
+    return 5;
+}
+
+# Test function doc
+# + x - first integer
+# + y - second integer
+# + z - third integer
+# + return - Returns the sum
+function add2(@deprecated public int x, @deprecated int y, @deprecated int z) returns int { // Compile error
+    return 4;
+}
+
+# Test function doc
+# + x - first integer
+# + y - second integer
+# + z - third integer
+# + return - Returns the sum
+# # Deprecated parameters
+# + x - deprecated parameter
+# + y - deprecated parameter
+# + z - deprecated parameter        // Compile error
+# # Deprecated
+# function is deprecated
+@deprecated
+function add3(@deprecated public int x, @deprecated int y, public int z) returns int {
+    return 2;
+}
+
+# Test object doc
+# + xxx - This is int
+# # Deprecated parameters
+# + xxx - deprecated
+# # Deprecated
+@deprecated
+type DummyObj object {
+
+    @deprecated
+    public int xxx = 0;
+};
+
+const string CONST3 = "CONST3";
+const string CONST4 = "CONST4";
+
+public type T1 CONST3|CONST4;
+
+# The `OBject1` is a user-defined object.
+#
+# + fieldOne - This is the description of the `DummyObject`'s `fieldOne` field.
+# + fieldTwo - This is the description of the `DummyObject`'s `fieldTwo` field.
+# # Deprecated parameters
+# + fieldOne - deprecated
+# # Deprecated
+@deprecated
+public type Object1 object {
+
+    @deprecated
+    public string fieldOne = "Foo";
+    @deprecated     // Compile error
+    T1 t = CONST3;
+    public string fieldTwo = "";
+};
+
+# The `Object2` is a user-defined object.
+#
+# + fieldOne - first field.
+# + fieldTwo - second field.
+# + t - third field
+# # Deprecated parameters
+# + fieldOne - deprecated
+# + t - deprecated          // Compile error
+public type Object2 object {
+
+    @deprecated
+    public string fieldOne = "Foo";
+    public T1 t = CONST3;
+    public string fieldTwo = "";
+};
+
+# The `Object3` is a user-defined object.
+#
+# + fieldOne - This is the description of the `DummyObject`'s `fieldOne` field.
+# + fieldTwo - This is the description of the `DummyObject`'s `fieldTwo` field.
+public type Object3 object {
+
+    @deprecated             // Compile error
+    public string fieldOne = "Foo";
+    T1 t = CONST3;
+    public string fieldTwo = "";
+};
+
+# Test function doc
+# + x - first integer
+# + y - second integer
+# + z - third integer
+function add4(public int x, public int y, @deprecated int... z) {       // Compiler error
+}
+
+# Test function doc
+# + x - first integer
+# + y - second integer
+# + z - third integer
+# # Deprecated parameters
+# + z - deprecated rest parameter       // Compile error
+function add5(public int x, public int y, int... z) {
+    int n = z[0];
+}

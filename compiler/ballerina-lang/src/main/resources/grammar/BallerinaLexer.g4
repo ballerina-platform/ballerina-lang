@@ -102,6 +102,7 @@ DO          : {inQueryExpression}? 'do' { inQueryExpression = false; } ;
 WHERE       : {inQueryExpression}? 'where' ;
 LET         : 'let' ;
 DEPRECATED  : 'Deprecated';
+DEPRECATED_PARAMETERS  : 'Deprecated parameters';
 
 // Separators
 
@@ -490,6 +491,10 @@ ReturnParameterDocumentationStart
 
 DeprecatedDocumentation
     :   HASH DocumentationSpace HASH DocumentationSpace DEPRECATED DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
+    ;
+
+DeprecatedParametersDocumentation
+    :   HASH DocumentationSpace HASH DocumentationSpace DEPRECATED_PARAMETERS DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
     ;
 
 // Whitespace and comments
