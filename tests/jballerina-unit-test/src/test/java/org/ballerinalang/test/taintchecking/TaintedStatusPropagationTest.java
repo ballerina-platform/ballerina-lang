@@ -622,17 +622,22 @@ public class TaintedStatusPropagationTest {
 
      @Test
      public void testTaintLetExpr() {
-         CompileResult result = BCompileUtil.compile(
-                 "test-src/taintchecking/propagation/let.bal");
+         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/let.bal");
          Assert.assertEquals(result.getDiagnostics().length, 0);
      }
 
      @Test
      public void testTaintLetExprNegative() {
-         CompileResult result = BCompileUtil.compile(
-                 "test-src/taintchecking/propagation/let-negative.bal");
+         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/let-negative.bal");
          Assert.assertEquals(result.getDiagnostics().length, 2);
          BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureIn'", 19, 20);
          BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 22, 20);
      }
+
+    @Test
+    public void testNamedArgToNewExpr() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/named-arg-to-new.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 1);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'username'", 18, 16);
+    }
 }
