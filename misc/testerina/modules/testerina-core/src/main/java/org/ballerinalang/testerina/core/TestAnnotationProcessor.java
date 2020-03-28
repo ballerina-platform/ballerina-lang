@@ -354,7 +354,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             value = parent.packageID.toString();
 
         // If value does NOT contain 'ballerina/' then it could be fully qualified
-        } else if (!value.substring(0, 9).contains(Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value)) {
+        } else if (!value.contains(Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value)) {
 
             // If value is NOT fully qualified, then it is probably a SINGLE module name that needs formatting
             if (!value.contains(Names.ORG_NAME_SEPARATOR.value) && !value.contains(Names.VERSION_SEPARATOR.value)) {
