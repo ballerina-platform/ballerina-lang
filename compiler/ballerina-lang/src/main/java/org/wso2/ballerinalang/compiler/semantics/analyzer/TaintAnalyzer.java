@@ -2262,12 +2262,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      */
     private void analyzeInvocation(BLangInvocation invocationExpr) {
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
-        Map<Integer, TaintRecord> taintTable = invokableSymbol.taintTable;
+        Map<Integer, TaintRecord> origTaintTable = invokableSymbol.taintTable;
         TaintedStatus returnTaintedStatus = TaintedStatus.UNTAINTED;
         List<TaintedStatus> argTaintedStatusList = new ArrayList<>();
 
         // Get tainted status when all parameters are untainted
-        TaintRecord allParamsUntaintedRecord = taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX);
+        TaintRecord allParamsUntaintedRecord = origTaintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX);
         if (allParamsUntaintedRecord != null) {
             if (allParamsUntaintedRecord.taintError != null && allParamsUntaintedRecord.taintError.size() > 0) {
                 // This can occur when there is a error regardless of tainted status of parameters.
@@ -2280,111 +2280,110 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
             }
         }
+
         // Check tainted status of each argument. If argument is tainted, get the taint table when the given parameter
         // is tainted and use it to update "allParamsUntaintedRecord". Do same for all parameters to identify the
         // complete taint outcome of the current function.
-        if (invocationExpr.argExprs != null) {
-            int requiredParamCount = invokableSymbol.params.size();
+        int requiredParamCount = invokableSymbol.params.size();
 
-            int namedArgsCount = (int) invocationExpr.requiredArgs.stream()
-                    .filter(a -> a.getKind() == NodeKind.NAMED_ARGS_EXPR).count();
-            int requiredArgsCount = invocationExpr.requiredArgs.size() - namedArgsCount;
-            int restArgsCount = invocationExpr.restArgs.size();
+        int namedArgsCount = (int) invocationExpr.requiredArgs.stream()
+                .filter(a -> a.getKind() == NodeKind.NAMED_ARGS_EXPR).count();
+        int requiredArgsCount = invocationExpr.requiredArgs.size() - namedArgsCount;
+        int restArgsCount = invocationExpr.restArgs.size();
 
-            List<Integer> paramPositionsOfProvidedArguments =
-                    getParamPositionsOfProvidedArguments(invocationExpr.requiredArgs,
-                            ((BInvokableSymbol) invocationExpr.symbol).params);
+        List<Integer> paramPositionsOfProvidedArguments =
+                getParamPositionsOfProvidedArguments(invocationExpr.requiredArgs,
+                        ((BInvokableSymbol) invocationExpr.symbol).params);
 
-            // How each parameter taint (verb) receiver parameter (the 0th in attached functions)
-            List<TaintedStatus> paramsReceiverTainting = null;
-            // Taint table of attached functions are calculated by considering the receiver as the first (0th) param.
-            // Hence add the receiver to required arg count.
-            if (isTaintAnalyzableAttachedFunction(invocationExpr)) {
-                BVarSymbol receiverSymbol = getMethodReceiverSymbol(invocationExpr.expr);
+        // How each parameter taint (verb) receiver parameter (the 0th in attached functions)
+        List<TaintedStatus> paramsReceiverTainting = null;
+        // Taint table of attached functions are calculated by considering the receiver as the first (0th) param.
+        // Hence add the receiver to required arg count.
+        if (isTaintAnalyzableAttachedFunction(invocationExpr)) {
+            BVarSymbol receiverSymbol = getMethodReceiverSymbol(invocationExpr.expr);
 
-                returnTaintedStatus = analyzeAllArgsUntaintedReceiverTaintedness(
-                        invocationExpr, taintTable, returnTaintedStatus, receiverSymbol);
+            returnTaintedStatus = analyzeAllArgsUntaintedReceiverTaintedness(
+                    invocationExpr, origTaintTable, returnTaintedStatus, receiverSymbol);
 
-                if (stopAnalysis) {
-                    return;
-                }
-
-                // What happens to self (oth param) when each param (excluding 0th) is tainted.
-                paramsReceiverTainting = collectSelfTaintednessForEachTaintedParam(
-                        taintTable, paramPositionsOfProvidedArguments, restArgsCount);
-
-                invokableSymbol.taintTable = duplicateTaintTableSkippingReceiverEntry(taintTable);
-                if (!argTaintedStatusList.isEmpty()) {
-                    argTaintedStatusList.remove(0); // remove self params tainted status from list.
-                }
+            if (stopAnalysis) {
+                return;
             }
 
-            for (int reqArgIndex = 0; reqArgIndex < requiredArgsCount; reqArgIndex++) {
-                BLangExpression argExpr = invocationExpr.requiredArgs.get(reqArgIndex);
-                TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(reqArgIndex, invocationExpr, argExpr,
-                        argTaintedStatusList);
-                if (argumentAnalysisResult == TaintedStatus.IGNORED) {
-                    invokableSymbol.taintTable = taintTable; // restore taint table.
-                    return;
-                } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
-                    returnTaintedStatus = TaintedStatus.TAINTED;
-                }
+            // What happens to self (oth param) when each param (excluding 0th) is tainted.
+            paramsReceiverTainting = collectSelfTaintednessForEachTaintedParam(
+                    origTaintTable, paramPositionsOfProvidedArguments, restArgsCount);
 
-                if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
-                    updateSelfTaintedStatusToTainted(invocationExpr, paramsReceiverTainting, reqArgIndex);
-                }
-                if (stopAnalysis) {
-                    break;
-                }
+            invokableSymbol.taintTable = duplicateTaintTableSkippingReceiverEntry(origTaintTable);
+            if (!argTaintedStatusList.isEmpty()) {
+                argTaintedStatusList.remove(0); // remove self params tainted status from list.
             }
-            for (BLangExpression argExpr : invocationExpr.requiredArgs) {
-                if (argExpr.getKind() != NodeKind.NAMED_ARGS_EXPR) {
-                    continue;
-                }
-
-                String currentNamedArgExprName = ((BLangNamedArgsExpression) argExpr).name.value;
-                // Pick the index of this defaultable parameter in the invokable definition.
-                int paramIndex = findDefaultableParamIndex(invokableSymbol, requiredParamCount,
-                        currentNamedArgExprName);
-                TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(paramIndex, invocationExpr,
-                        argExpr, argTaintedStatusList);
-                if (argumentAnalysisResult == TaintedStatus.IGNORED) {
-                    invokableSymbol.taintTable = taintTable; // restore taint table.
-                    return;
-                } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
-                    returnTaintedStatus = TaintedStatus.TAINTED;
-                }
-                if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
-                    updateSelfTaintedStatusToTainted(invocationExpr, paramsReceiverTainting, paramIndex);
-                }
-                if (stopAnalysis) {
-                    break;
-                }
-            }
-            for (int argIndex = 0; argIndex < restArgsCount; argIndex++) {
-                BLangExpression argExpr = invocationExpr.restArgs.get(argIndex);
-                // Pick the index of the rest parameter in the invokable definition.
-                int paramIndex = requiredParamCount;
-                TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(paramIndex, invocationExpr, argExpr,
-                        argTaintedStatusList);
-                if (argumentAnalysisResult == TaintedStatus.IGNORED) {
-                    invokableSymbol.taintTable = taintTable; // restore taint table.
-                    return;
-                } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
-                    returnTaintedStatus = TaintedStatus.TAINTED;
-                }
-                if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
-                    updateSelfTaintedStatusToTainted(invocationExpr, paramsReceiverTainting, paramIndex);
-                }
-                if (stopAnalysis) {
-                    break;
-                }
-            }
-            updateArgTaintedStatus(invocationExpr, argTaintedStatusList);
-            invokableSymbol.taintTable = taintTable; // restore taint table.
         }
-        // When an invocation like stringValue.trim() happens, if stringValue is tainted, the result should also be
-        // tainted.
+
+        for (int reqArgIndex = 0; reqArgIndex < requiredArgsCount; reqArgIndex++) {
+            BLangExpression argExpr = invocationExpr.requiredArgs.get(reqArgIndex);
+            TaintedStatus argumentTaintReturnValue = analyzeInvocationArgument(reqArgIndex, invocationExpr, argExpr,
+                    argTaintedStatusList);
+            if (argumentTaintReturnValue == TaintedStatus.IGNORED) {
+                invokableSymbol.taintTable = origTaintTable; // restore taint table.
+                return;
+            } else if (argumentTaintReturnValue == TaintedStatus.TAINTED) {
+                returnTaintedStatus = TaintedStatus.TAINTED;
+            }
+
+            if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                updateSelfTaintedStatusToTainted(invocationExpr, paramsReceiverTainting, reqArgIndex);
+            }
+            if (stopAnalysis) {
+                break;
+            }
+        }
+        for (BLangExpression argExpr : invocationExpr.requiredArgs) {
+            if (argExpr.getKind() != NodeKind.NAMED_ARGS_EXPR) {
+                continue;
+            }
+
+            String currentNamedArgExprName = ((BLangNamedArgsExpression) argExpr).name.value;
+            // Pick the index of this defaultable parameter in the invokable definition.
+            int paramIndex = findDefaultableParamIndex(invokableSymbol, requiredParamCount,
+                    currentNamedArgExprName);
+            TaintedStatus argumentTaintReturnValue = analyzeInvocationArgument(paramIndex, invocationExpr,
+                    argExpr, argTaintedStatusList);
+            if (argumentTaintReturnValue == TaintedStatus.IGNORED) {
+                invokableSymbol.taintTable = origTaintTable; // restore taint table.
+                return;
+            } else if (argumentTaintReturnValue == TaintedStatus.TAINTED) {
+                returnTaintedStatus = TaintedStatus.TAINTED;
+            }
+            if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                updateSelfTaintedStatusToTainted(invocationExpr, paramsReceiverTainting, paramIndex);
+            }
+            if (stopAnalysis) {
+                break;
+            }
+        }
+        for (int argIndex = 0; argIndex < restArgsCount; argIndex++) {
+            BLangExpression argExpr = invocationExpr.restArgs.get(argIndex);
+            // Pick the index of the rest parameter in the invokable definition.
+            int paramIndex = requiredParamCount;
+            TaintedStatus argumentTaintReturnValue = analyzeInvocationArgument(paramIndex, invocationExpr, argExpr,
+                    argTaintedStatusList);
+            if (argumentTaintReturnValue == TaintedStatus.IGNORED) {
+                invokableSymbol.taintTable = origTaintTable; // restore taint table.
+                return;
+            } else if (argumentTaintReturnValue == TaintedStatus.TAINTED) {
+                returnTaintedStatus = TaintedStatus.TAINTED;
+            }
+            if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {
+                updateSelfTaintedStatusToTainted(invocationExpr, paramsReceiverTainting, paramIndex);
+            }
+            if (stopAnalysis) {
+                break;
+            }
+        }
+        updateArgTaintedStatus(invocationExpr, argTaintedStatusList);
+        invokableSymbol.taintTable = origTaintTable; // restore taint table.
+
+        // Update receiver tainted status
         if (invocationExpr.expr != null) {
             //TODO: TaintedIf annotation, so that it's possible to define what can taint or untaint the return.
             invocationExpr.expr.accept(this);
@@ -2534,8 +2533,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     private void updateSelfTaintedStatusToTainted(BLangInvocation invocationExpr,
                                                   List<TaintedStatus> paramVsSelfTaintedStatus, int argIndex) {
-        if (paramVsSelfTaintedStatus != null
-                && paramVsSelfTaintedStatus.get(argIndex) == TaintedStatus.TAINTED) {
+        if (paramVsSelfTaintedStatus != null && paramVsSelfTaintedStatus.get(argIndex) == TaintedStatus.TAINTED) {
             visitAssignment(invocationExpr.expr, TaintedStatus.TAINTED, invocationExpr.pos);
         }
     }
@@ -2648,11 +2646,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      * Analyze one invocation argument, determine if the argument expression is tainted, if so consult the taint table
      * of the invokable to check if a taint-error is present.
      *
+     * If argument is tainted and it cause the function to return a tainted value, indicate that via return value.
+     *
      * @param paramIndex index of the parameter for the current argument
      * @param invocationExpr invocation expression relevant to the invocation
      * @param argExpr argument expression being analyzed
      * @param argTaintedStatusList the combined argument tainted status list
-     * @return tainted status of the argument expression
+     * @return tainted status of function due to the argument expression
      */
     private TaintedStatus analyzeInvocationArgument(int paramIndex, BLangInvocation invocationExpr,
                                                     BLangExpression argExpr, List<TaintedStatus> argTaintedStatusList) {
@@ -2671,6 +2671,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 DiagnosticPos argPos = argExpr.pos != null ? argExpr.pos : invocationExpr.pos;
                 addTaintError(argPos, paramSymbol.name.value,
                         DiagnosticCode.TAINTED_VALUE_PASSED_TO_UNTAINTED_PARAMETER);
+                this.stopAnalysis = false;
             } else if (taintRecord.taintError != null && taintRecord.taintError.size() > 0) {
                 // This is when current parameter is derived to be untainted.
                 taintRecord.taintError.forEach(error -> {

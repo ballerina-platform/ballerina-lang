@@ -584,9 +584,10 @@ public class TaintedStatusPropagationTest {
     public void testLangLibFunctionTaintPropagationNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/taintchecking/propagation/lang-lib-function-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 2);
+        Assert.assertEquals(result.getDiagnostics().length, 3);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'p'", 33, 16);
-        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'p'", 39, 16);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'p'", 34, 16);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'p'", 39, 16);
     }
 
     @Test
@@ -639,5 +640,14 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/named-arg-to-new.bal");
         Assert.assertEquals(result.getDiagnostics().length, 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'username'", 18, 16);
+    }
+
+    @Test
+    public void testRestArgs() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/rest-args.bal");
+        Assert.assertEquals(result.getDiagnostics().length, 3);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'rest'", 14, 18);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'arg'", 27, 18);
+        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'argv'", 28, 23);
     }
 }
