@@ -17,15 +17,21 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-
 /**
- * Allows visiting the syntax tree nodes and performing operations without modifying the tree nodes.
+ * The {@code SyntaxNodeVisitor} visits each node in the syntax tree allowing
+ * us to do something at each node.
  * <p>
- * This pattern separates tree nodes from various operations.
+ * This class separates tree nodes from various unrelated operations that needs
+ * to be performed on the syntax tree nodes.
  * <p>
- * {@code SyntaxNodeVisitor} is a abstract class that itself visits the complete tree. Subclasses has the ability
- * to override only the required visit methods.
+ * {@code SyntaxNodeVisitor} is a abstract class that itself visits the complete
+ * tree. Subclasses have the ability to override only the required visit methods.
+ * <p>
+ * There exists a visit method for each node in the Ballerina syntax tree.
+ * These methods return void. If you are looking for a visitor that has visit
+ * methods that returns something, see {@link SyntaxNodeTransformer}.
  *
+ * @see SyntaxNodeTransformer
  * @since 1.3.0
  */
 public abstract class SyntaxNodeVisitor {
@@ -67,6 +73,10 @@ public abstract class SyntaxNodeVisitor {
 
     public void visit(FunctionCallNode functionCallNode) {
         visitSyntaxNode(functionCallNode);
+    }
+
+    public void visit(BracedExpression bracedExpression) {
+        visitSyntaxNode(bracedExpression);
     }
 
     // Tokens
@@ -132,8 +142,8 @@ public abstract class SyntaxNodeVisitor {
 
 
     protected void visitSyntaxNode(Node node) {
+        // TODO Find a better way to check for token
         if (node instanceof Token) {
-            // TODO Find a better way to check
             node.accept(this);
             return;
         }
