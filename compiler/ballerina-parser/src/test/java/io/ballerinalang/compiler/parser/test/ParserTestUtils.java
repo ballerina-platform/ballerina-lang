@@ -100,8 +100,7 @@ public class ParserTestUtils {
      */
     public static String getSourceText(Path sourceFilePath) {
         try {
-            return new String(Files.readAllBytes(RESOURCE_DIRECTORY.resolve(sourceFilePath)),
-                    StandardCharsets.UTF_8);
+            return new String(Files.readAllBytes(RESOURCE_DIRECTORY.resolve(sourceFilePath)), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -167,7 +166,12 @@ public class ParserTestUtils {
         // Validate the token text, if this is not a syntax token.
         // e.g: identifiers, basic-literals, etc.
         if (!isSyntaxToken(node.kind)) {
-            String expectedText = json.get(VALUE_FIELD).getAsString();
+            String expectedText;
+            if (node.kind == SyntaxKind.END_OF_LINE_TRIVIA) {
+                expectedText = System.lineSeparator();
+            } else {
+                expectedText = json.get(VALUE_FIELD).getAsString();
+            }
             String actualText = getTokenText(node);
             Assert.assertEquals(actualText, expectedText);
         }
