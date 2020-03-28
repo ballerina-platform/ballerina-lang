@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/file;
 import ballerina/io;
 
 string filePath = "src/test/resources/test-src/services/nativeimpl/cookie/cookie-test-data/";
