@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -180,8 +179,6 @@ public class TypeParamAnalyzer {
                     }
                 }
                 return false;
-            case TypeTags.TABLE:
-                return containsTypeParam(((BTableType) type).constraint, resolvedTypes);
             case TypeTags.MAP:
                 return containsTypeParam(((BMapType) type).constraint, resolvedTypes);
             case TypeTags.STREAM:
@@ -297,12 +294,6 @@ public class TypeParamAnalyzer {
                 if (actualType.tag == TypeTags.TUPLE) {
                     findTypeParamInTupleForArray((BArrayType) expType, (BTupleType) actualType, env, resolvedTypes,
                                                  result);
-                }
-                return;
-            case TypeTags.TABLE:
-                if (actualType.tag == TypeTags.TABLE) {
-                    findTypeParam(((BTableType) expType).constraint, ((BTableType) actualType).constraint, env,
-                            resolvedTypes, result);
                 }
                 return;
             case TypeTags.MAP:
@@ -530,9 +521,6 @@ public class TypeParamAnalyzer {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) expType).eType;
                 return new BArrayType(getMatchingBoundType(elementType, env, resolvedTypes));
-            case TypeTags.TABLE:
-                return new BTableType(TypeTags.TABLE, getMatchingBoundType((((BTableType) expType)).constraint, env,
-                        resolvedTypes), symTable.tableType.tsymbol);
             case TypeTags.MAP:
                 BType constraint = ((BMapType) expType).constraint;
                 return new BMapType(TypeTags.MAP, getMatchingBoundType(constraint, env, resolvedTypes),

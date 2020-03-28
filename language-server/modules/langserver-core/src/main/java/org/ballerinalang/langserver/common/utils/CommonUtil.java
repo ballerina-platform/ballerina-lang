@@ -73,7 +73,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -742,11 +741,8 @@ public class CommonUtil {
         if (bType instanceof BStreamType) {
             return ((BStreamType) bType).constraint;
         }
-        if (bType instanceof BTypedescType) {
-            return ((BTypedescType) bType).constraint;
-        }
-        return ((BTableType) bType).constraint;
 
+        return ((BTypedescType) bType).constraint;
     }
 
     /**

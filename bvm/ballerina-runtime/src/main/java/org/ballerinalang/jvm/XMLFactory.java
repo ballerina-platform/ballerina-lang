@@ -29,12 +29,10 @@ import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.XMLComment;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLPi;
@@ -45,9 +43,6 @@ import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -62,9 +57,7 @@ import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 
 /**
  * Common utility methods used for XML manipulation.
@@ -209,28 +202,29 @@ public class XMLFactory {
         return new XMLSequence(concatenatedList);
     }
 
-    /**
-     * Converts a {@link org.ballerinalang.jvm.values.TableValue} to {@link XMLValue}.
-     *
-     * @param table {@link org.ballerinalang.jvm.values.TableValue} to convert
-     * @return converted {@link XMLValue}
-     */
-    public static XMLValue tableToXML(TableValue table) {
-        // todo: Implement table to xml (issue #19910)
-
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            XMLStreamWriter streamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
-            TableOMDataSource tableOMDataSource = new TableOMDataSource(table, null, null);
-            tableOMDataSource.serialize(streamWriter);
-            streamWriter.flush();
-            outputStream.flush();
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
-            return parse(inputStream);
-        } catch (IOException | XMLStreamException e) {
-            throw new BallerinaException(e);
-        }
-    }
+    //TODO Table remove - Fix
+//    /**
+//     * Converts a {@link org.ballerinalang.jvm.values.TableValue} to {@link XMLValue}.
+//     *
+//     * @param table {@link org.ballerinalang.jvm.values.TableValue} to convert
+//     * @return converted {@link XMLValue}
+//     */
+//    public static XMLValue tableToXML(TableValue table) {
+//        // todo: Implement table to xml (issue #19910)
+//
+//        try {
+//            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+//            XMLStreamWriter streamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
+//            TableOMDataSource tableOMDataSource = new TableOMDataSource(table, null, null);
+//            tableOMDataSource.serialize(streamWriter);
+//            streamWriter.flush();
+//            outputStream.flush();
+//            ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+//            return parse(inputStream);
+//        } catch (IOException | XMLStreamException e) {
+//            throw new BallerinaException(e);
+//        }
+//    }
 
     /**
      * Create an element type XMLValue.

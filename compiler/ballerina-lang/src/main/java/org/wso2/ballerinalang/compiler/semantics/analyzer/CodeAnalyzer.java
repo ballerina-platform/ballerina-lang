@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -108,7 +107,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -1298,12 +1296,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 break;
-            case TypeTags.TABLE:
-                BTableType tableType = (BTableType) symbol.type;
-                if (tableType.constraint != null) {
-                    checkForExportableType(tableType.constraint.tsymbol, pos);
-                }
-                return;
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) symbol.type;
                 if (streamType.constraint != null) {
@@ -1926,10 +1918,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
             }
         }
-    }
-
-    public void visit(BLangTableLiteral tableLiteral) {
-        /* ignore */
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {

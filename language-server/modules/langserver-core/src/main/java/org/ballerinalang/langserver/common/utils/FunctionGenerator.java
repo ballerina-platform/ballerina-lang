@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -230,8 +229,6 @@ public class FunctionGenerator {
             return "[" + String.join(", ", list) + "]";
         } else if (bType instanceof BNilType) {
             return "()";
-        } else if (bType instanceof BTableType) {
-            return "table<record {}>";
         } else if (bType instanceof BStreamType) {
             BStreamType streamType = (BStreamType) bType;
             String constraint = generateTypeDefinition(importsAcceptor, currentPkgId, streamType.constraint);

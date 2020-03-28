@@ -189,10 +189,6 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BIRNonTerminator.NewTable newTable) {
-        throw new AssertionError();
-    }
-
     public void visit(BIRNonTerminator.NewTypeDesc newTypeDesc) {
         throw new AssertionError();
     }

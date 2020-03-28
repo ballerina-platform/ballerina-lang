@@ -21,7 +21,6 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -53,24 +52,25 @@ public class BAnyTypeSuccessScenariosTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"PropertyName\":\"Value\"}", "Invalid json value returned.");
     }
 
-    @Test(description = "Test any type as a return value with actual table returning")
-    public void testAnyReturnWithTable() {
-        BValue[] returns = BRunUtil.invoke(result, "tableReturnTestAsAny");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BTable.class);
-        BTable table = (BTable) returns[0];
-        Assert.assertEquals(table.stringValue(), "table<Employee> {index: [], primaryKey: [], data: [{id:1, "
-                + "name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
-    }
-
-    @Test(description = "Test any type as a return value with actual table returning")
-    public void testInputAnyAsTable() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "inputAnyAsTableTest");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BTable.class);
-        Assert.assertEquals(returns[0].stringValue(),
-                "table<Employee> {index: [], primaryKey: [], data: [{id:1, name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
-    }
+    //TODO Table remove - Fix
+//    @Test(description = "Test any type as a return value with actual table returning")
+//    public void testAnyReturnWithTable() {
+//        BValue[] returns = BRunUtil.invoke(result, "tableReturnTestAsAny");
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertSame(returns[0].getClass(), BTable.class);
+//        BTable table = (BTable) returns[0];
+//        Assert.assertEquals(table.stringValue(), "table<Employee> {index: [], primaryKey: [], data: [{id:1, "
+//                + "name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
+//    }
+//
+//    @Test(description = "Test any type as a return value with actual table returning")
+//    public void testInputAnyAsTable() {
+//        BValue[] returns = BRunUtil.invokeFunction(result, "inputAnyAsTableTest");
+//        Assert.assertEquals(returns.length, 1);
+//        Assert.assertSame(returns[0].getClass(), BTable.class);
+//        Assert.assertEquals(returns[0].stringValue(),
+//                "table<Employee> {index: [], primaryKey: [], data: [{id:1, name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
+//    }
 
 //TODO fix below scenario - basically need to rewrite the tree in method visit(ReturnStmt returnStmt) in
 // SemanticAnalyser

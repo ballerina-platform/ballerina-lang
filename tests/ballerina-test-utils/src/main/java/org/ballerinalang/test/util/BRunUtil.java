@@ -44,7 +44,6 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.StringValue;
-import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -60,8 +59,6 @@ import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypeDesc;
@@ -80,7 +77,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -1148,26 +1144,6 @@ public class BRunUtil {
                 }
                 bmap.getNativeData().putAll(jvmMap.getNativeDataMap());
                 return bmap;
-            case org.ballerinalang.jvm.types.TypeTags.TABLE_TAG:
-                TableValue jvmTable = (TableValue) value;
-                org.ballerinalang.jvm.types.BTableType jvmTableType =
-                        (org.ballerinalang.jvm.types.BTableType) type;
-                BStructureType constraintType = (BStructureType) getBVMType(jvmTableType.getConstrainedType(),
-                                                                            new Stack<>());
-                BValueArray data = new BValueArray(BTypes.typeMap);
-
-                while (jvmTable.hasNext()) {
-                    BMap dataRow = new BMap(constraintType);
-                    dataRow.getMap()
-                           .putAll(((BMap<String, BValue>) getBVMValue(jvmTable.getNext(), bvmValueMap)).getMap());
-                    data.append(dataRow);
-                }
-
-                jvmTable.close();
-                jvmTable.finalize();
-                bvmValue = new BTable(new BTableType(constraintType), null,
-                        (BValueArray) getBVMValue(jvmTable.getPrimaryKeys()), data);
-                break;
             case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
                 ErrorValue errorValue = (ErrorValue) value;
                 BRefType<?> details = getBVMValue(errorValue.getDetails(), bvmValueMap);
@@ -1308,9 +1284,6 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
                 org.ballerinalang.jvm.types.BMapType mapType = (org.ballerinalang.jvm.types.BMapType) jvmType;
                 return new BMapType(getBVMType(mapType.getConstrainedType(), selfTypeStack));
-            case org.ballerinalang.jvm.types.TypeTags.TABLE_TAG:
-                org.ballerinalang.jvm.types.BTableType tableType = (org.ballerinalang.jvm.types.BTableType) jvmType;
-                return new BTableType(getBVMType(tableType.getConstrainedType(), selfTypeStack));
             case org.ballerinalang.jvm.types.TypeTags.STREAM_TAG:
                 org.ballerinalang.jvm.types.BStreamType streamType = (org.ballerinalang.jvm.types.BStreamType) jvmType;
                 return new BStreamType(getBVMType(streamType.getConstrainedType(), selfTypeStack));
