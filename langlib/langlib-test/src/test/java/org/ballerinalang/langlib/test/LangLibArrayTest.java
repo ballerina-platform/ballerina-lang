@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -388,11 +389,21 @@ public class LangLibArrayTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
-                            "message=cannot change the length of a tuple with '2' mandatory member\\(s\\) to '1'.*")
+          expectedExceptionsMessageRegExp =
+                  "error: \\{ballerina/lang.array\\}InherentTypeViolation " +
+                          "message=cannot change the length of a tuple with '2' mandatory member\\(s\\) to '1'.*")
     public void testTupleSetLengthIllegal() {
         BRunUtil.invoke(compileResult, "testTupleSetLengthIllegal");
         Assert.fail();
+    }
+
+    @Test
+    public void callingLengthModificationFunctionsOnFixedLengthLists() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/arraylib_test_negative.bal");
+        BAssertUtil.validateError(negativeResult, 0, "cannot call 'push' on fixed length array 'int[1]'", 3, 22);
+        BAssertUtil.validateError(negativeResult, 1, "cannot call 'push' on fixed length tuple '[int,int]'", 8, 22);
+        BAssertUtil.validateError(negativeResult, 2, "cannot call 'pop' on fixed length array 'int[1]'", 13, 35);
+        BAssertUtil.validateError(negativeResult, 3, "cannot call 'pop' on fixed length tuple '[int,int]'", 18, 35);
+        Assert.assertEquals(negativeResult.getErrorCount(), 4);
     }
 }

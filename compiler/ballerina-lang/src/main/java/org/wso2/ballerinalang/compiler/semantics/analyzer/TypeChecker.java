@@ -167,7 +167,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -196,6 +195,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private BLangAnonymousModelHelper anonymousModelHelper;
     private SemanticAnalyzer semanticAnalyzer;
     private boolean nonErrorLoggingCheck = false;
+    private Set<String> modifierFunctions = new HashSet<>();
+
 
     private int letCount = 0;
     /**
@@ -229,6 +230,12 @@ public class TypeChecker extends BLangNodeVisitor {
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
+        init();
+    }
+
+    private void init() {
+        this.modifierFunctions.add("push");
+        this.modifierFunctions.add("pop");
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -1821,6 +1828,26 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!langLibMethodExists) {
             dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_TYPE, iExpr.name.value, iExpr.expr.type);
             resultType = symTable.semanticError;
+            return;
+        }
+
+        if (varRefType.tag == TypeTags.ARRAY) {
+            BArrayType arrayType = (BArrayType) varRefType;
+            if (arrayType.state == BArrayState.CLOSED_SEALED && this.modifierFunctions.contains(
+                    iExpr.name.getValue())) {
+                dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_ARRAY_SIZE, iExpr.name.value, arrayType);
+                resultType = symTable.semanticError;
+                return;
+            }
+        }
+
+        if (varRefType.tag == TypeTags.TUPLE) {
+            BTupleType tupleType = (BTupleType) varRefType;
+            if ((tupleType.restType == null) && this.modifierFunctions.contains(iExpr.name.getValue())) {
+                dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_TUPLE_SIZE, iExpr.name.value, tupleType);
+                resultType = symTable.semanticError;
+                return;
+            }
         }
     }
 
