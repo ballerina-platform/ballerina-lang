@@ -154,9 +154,7 @@ public class LangLibValueTest {
                             "varObj=object Student " +
                             "varObj2=Rola from MMV " +
                             "varObjArr=object Student Rola from MMV " +
-                            "varRecord=name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12 " +
-                            "varTable=id=1 age=30 salary=300.5 name=Mary married=true id=2 age=20 salary=300.5 " +
-                            "name=John married=true");
+                            "varRecord=name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12 ");
     }
 
     @Test(dataProvider = "mergeJsonFunctions")
