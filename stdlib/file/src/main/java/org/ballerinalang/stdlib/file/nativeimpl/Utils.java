@@ -173,12 +173,11 @@ public class Utils {
     public static Object getResourceFileInfo(String resourceFile) {
         String[] className = Thread.currentThread().getStackTrace()[5].getClassName().split("\\.");
         String executablePath = TARGET + File.separator + BIN + File.separator + className[1] + JAR;
-        String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1] + File.separator
-                + resourceFile;
+        String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1] +
+                File.separator + resourceFile;
         String path = SRC + File.separator + className[1] + File.separator + RESOURCES + File.separator + resourceFile;
 
-        try {
-            ZipFile zipFile = new ZipFile(executablePath);
+        try (ZipFile zipFile = new ZipFile(executablePath)) {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
@@ -188,8 +187,8 @@ public class Utils {
             }
             return FileUtils.getBallerinaError(FileConstants.FILE_NOT_FOUND_ERROR, "File not found: " + path);
         } catch (IOException e) {
-            log.error("IO error while creating the resource file " + path, e);
-            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, e);
+            return FileUtils.getBallerinaError(FileConstants.UNZIPPING_FILE_ERROR,
+                    "Error unzipping file: " + executablePath);
         }
     }
 
@@ -243,7 +242,7 @@ public class Utils {
     public static Object readDir(String path, long maxDepth) {
         if (path.startsWith(RESOURCE_PREFIX)) {
             String resourcePath = path.replace(RESOURCE_PREFIX, "");
-            return readResourceDir(resourcePath, maxDepth);
+            return readResourceDir(resourcePath);
         }
         File inputFile = Paths.get(path).toAbsolutePath().toFile();
 
@@ -269,27 +268,26 @@ public class Utils {
         }
     }
 
-    public static Object readResourceDir(String resourceFile, long maxDepth) {
+    public static Object readResourceDir(String resourceFile) {
         ArrayList<ObjectValue> list = new ArrayList<>();
         String[] className = Thread.currentThread().getStackTrace()[5].getClassName().split("\\.");
         String executablePath = TARGET + File.separator + BIN + File.separator + className[1] + JAR;
-        String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1] + File.separator
-                + resourceFile;
+        String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1]
+                + File.separator + resourceFile + File.separator;
         String path = SRC + File.separator + className[1] + File.separator + RESOURCES + File.separator + resourceFile;
 
-        try {
-            ZipFile zipFile = new ZipFile(executablePath);
+        try (ZipFile zipFile = new ZipFile(executablePath)) {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry entry = entries.nextElement();
-                if (entry.getName().startsWith(resourcePath)) {
+                if (entry.getName().contains(resourcePath)) {
                     fileInfoType = FileUtils.getFileInfo(entry).getType();
                     list.add(FileUtils.getFileInfo(entry));
                 }
             }
             if (list.size() == 0) {
                 return FileUtils.getBallerinaError(FileConstants.INVALID_OPERATION_ERROR,
-                        "File in path " + path + " is not a directory");
+                        "Directory not found : " + path);
             }
             ObjectValue[] results = new ObjectValue[list.size()];
             for (int i = 0; i < list.size(); i++) {
@@ -297,8 +295,8 @@ public class Utils {
             }
             return new ArrayValueImpl(results, new BArrayType(fileInfoType));
         } catch (IOException e) {
-            log.error("IO error while creating the resource file " + path, e);
-            return FileUtils.getBallerinaError(FileConstants.FILE_SYSTEM_ERROR, e);
+            return FileUtils.getBallerinaError(FileConstants.UNZIPPING_FILE_ERROR,
+                    "Error unzipping file: " + executablePath);
         }
     }
 

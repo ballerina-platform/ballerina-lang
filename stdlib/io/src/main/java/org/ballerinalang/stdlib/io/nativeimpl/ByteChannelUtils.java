@@ -146,10 +146,16 @@ public class ByteChannelUtils extends AbstractNativeChannel {
 
     public static Object openReadableResourceFile(String pathUrl) {
         String[] className = Thread.currentThread().getStackTrace()[5].getClassName().split("\\.");
-        String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1] + File.separator
-                + pathUrl;
+        String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1]
+                + File.separator + pathUrl;
         InputStream resourceAsStream = ByteChannelUtils.class.getClassLoader().getResourceAsStream(resourcePath);
-        ReadableByteChannel readableByteChannel = Channels.newChannel(resourceAsStream);
+
+        ReadableByteChannel readableByteChannel;
+        if (resourceAsStream != null) {
+            readableByteChannel = Channels.newChannel(resourceAsStream);
+        } else {
+            return IOUtils.createError("No such file : " + resourcePath);
+        }
         Channel channel = new BlobIOChannel(new BlobChannel(readableByteChannel));
         return createChannel(channel);
     }

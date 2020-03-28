@@ -50,6 +50,7 @@ public class FileConstants {
     public static final String PERMISSION_ERROR = "{ballerina/file}PermissionError";
     public static final String FILE_SYSTEM_ERROR = "{ballerina/file}FileSystemError";
     public static final String FILE_NOT_FOUND_ERROR = "{ballerina/file}FileNotFoundError";
+    public static final String UNZIPPING_FILE_ERROR = "{ballerina/file}UnzippingFileError";
     static final String ERROR_DETAILS = "Detail";
     static final String ERROR_MESSAGE = "message";
 
