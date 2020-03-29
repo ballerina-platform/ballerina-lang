@@ -1,0 +1,11 @@
+#  To run this sample, navigate to the directory that contains the
+# `.bal` file and execute the `ballerina run` command.
+$ ballerina run mysql_execute_operation.bal
+
+Database created.
+Drop table executed. affectedRowCount=0 lastInsertId=
+Rows affected: 1
+Generated Customer ID: 1
+Updated Row count: 1
+Deleted Row count: 1
+Sample executed successfully!

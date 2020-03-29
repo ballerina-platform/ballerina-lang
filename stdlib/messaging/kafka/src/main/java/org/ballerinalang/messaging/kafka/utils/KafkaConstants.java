@@ -58,12 +58,16 @@ public class KafkaConstants {
     public static final String TRANSACTION_CONTEXT = "TransactionInitiated";
 
     public static final String TOPIC_PARTITION_STRUCT_NAME = "TopicPartition";
+    public static final String AVRO_DATA_RECORD_NAME = "dataRecord";
+    public static final String AVRO_SCHEMA_STRING_NAME = "schemaString";
     public static final String OFFSET_STRUCT_NAME = "PartitionOffset";
 
     public static final String CONSUMER_ERROR = "{ballerina/kafka}ConsumerError";
     public static final String PRODUCER_ERROR = "{ballerina/kafka}ProducerError";
+    public static final String AVRO_ERROR = "{ballerina/kafka}AvroError";
     public static final String DETAIL_RECORD_NAME = "Detail";
 
+    public static final String AVRO_GENERIC_RECORD_NAME = "AvroGenericRecord";
     public static final String CONSUMER_RECORD_STRUCT_NAME = "ConsumerRecord";
     public static final String CONSUMER_STRUCT_NAME = "Consumer";
     public static final String SERVER_CONNECTOR = "serverConnector";
@@ -91,6 +95,7 @@ public class KafkaConstants {
     public static final String ALIAS_PARTITION = "partition";
     public static final String ALIAS_OFFSET = "offset";
     public static final String ALIAS_DURATION = "duration";
+    public static final String ALIAS_VALUE = "value";
 
     // Consumer Configuration.
     public static final String CONSUMER_BOOTSTRAP_SERVERS_CONFIG = "bootstrapServers";
@@ -211,6 +216,7 @@ public class KafkaConstants {
     public static final String STRING_DESERIALIZER = "org.apache.kafka.common.serialization.StringDeserializer";
     public static final String INT_DESERIALIZER = "org.apache.kafka.common.serialization.LongDeserializer";
     public static final String FLOAT_DESERIALIZER = "org.apache.kafka.common.serialization.DoubleDeserializer";
+    public static final String AVRO_DESERIALIZER = "io.confluent.kafka.serializers.KafkaAvroDeserializer";
     public static final String CUSTOM_DESERIALIZER =
             "org.ballerinalang.messaging.kafka.serdes.BallerinaKafkaDeserializer";
 

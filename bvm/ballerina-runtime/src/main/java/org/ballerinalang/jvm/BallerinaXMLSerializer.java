@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
+import com.ctc.wstx.api.WstxOutputProperties;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLComment;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -47,13 +48,22 @@ import javax.xml.stream.XMLStreamWriter;
  * @since 1.2.0
  */
 public class BallerinaXMLSerializer extends OutputStream {
-    private static final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
+    private static final XMLOutputFactory xmlOutputFactory;
     private static final String XMLNS = "xmlns";
     private static final String EMPTY_STR = "";
     public static final String PARSE_XML_OP = "parse xml";
+    public static final String XML = "xml";
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
+
+    static {
+        xmlOutputFactory = XMLOutputFactory.newInstance();
+        if (xmlOutputFactory.getClass().getName().equals("com.ctc.wstx.stax.WstxOutputFactory")) {
+            xmlOutputFactory.setProperty(WstxOutputProperties.P_OUTPUT_VALIDATE_STRUCTURE, false);
+        }
+    }
+
 
 
     public BallerinaXMLSerializer(OutputStream outputStream) {
@@ -300,6 +310,9 @@ public class BallerinaXMLSerializer extends OutputStream {
             if (key.startsWith(XMLItem.XMLNS_URL_PREFIX)) {
                 int closingCurly = key.indexOf('}');
                 String prefix = key.substring(closingCurly + 1);
+                if (prefix.equals(XML)) {
+                    continue;
+                }
                 nsPrefixMap.put(prefix, attributeEntry.getValue());
             } else {
                 attributeMap.put(key, attributeEntry.getValue());
@@ -319,6 +332,8 @@ public class BallerinaXMLSerializer extends OutputStream {
                 nsPrefixMap.remove(prefix);
             }
         }
+
+        nsPrefixMap.remove(XMLNS);
     }
 
     private void writeSeq(XMLSequence xmlValue) {

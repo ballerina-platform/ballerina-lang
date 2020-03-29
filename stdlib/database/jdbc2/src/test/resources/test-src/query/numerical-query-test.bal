@@ -17,7 +17,7 @@ import ballerina/java.jdbc;
 import ballerina/sql;
 
 
-function testQuery(string jdbcURL, string user, string password) returns record {}|error? {
+function testQuery(string jdbcURL, string user, string password) returns @tainted record {}|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, sql:Error> streamData = dbClient->query("SELECT * FROM NumericTypes");
     record {}? returnData = ();
@@ -41,7 +41,7 @@ type NumericType record {
     float real_type;
 };
 
-function testQueryNumericTypeRecord(string jdbcURL, string user, string password) returns NumericType|error? {
+function testQueryNumericTypeRecord(string jdbcURL, string user, string password) returns @tainted NumericType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericType);
     stream<NumericType, sql:Error> streamData = <stream<NumericType, sql:Error>>streamResult;
@@ -66,7 +66,7 @@ type NumericInvalidColumn record {
     float real_type;
 };
 
-function testQueryNumericInvalidColumnRecord(string jdbcURL, string user, string password) returns error? {
+function testQueryNumericInvalidColumnRecord(string jdbcURL, string user, string password) returns @tainted error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericInvalidColumn);
     stream<NumericInvalidColumn, sql:Error> streamData = <stream<NumericInvalidColumn, sql:Error>>streamResult;
@@ -90,7 +90,7 @@ type NumericOptionalType record {
 };
 
 function testQueryNumericOptionalTypeRecord(string jdbcURL, string user, string password)
-returns NumericOptionalType|error? {
+returns @tainted NumericOptionalType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericOptionalType);
     stream<NumericOptionalType, sql:Error> streamData = <stream<NumericOptionalType, sql:Error>>streamResult;
@@ -115,7 +115,7 @@ type NumericUnionType record {
 };
 
 function testQueryNumericUnionTypeRecord(string jdbcURL, string user, string password)
-returns NumericUnionType|error? {
+returns @tainted NumericUnionType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericUnionType);
     stream<NumericUnionType, sql:Error> streamData = <stream<NumericUnionType, sql:Error>>streamResult;
@@ -140,7 +140,7 @@ type NumericStringType record {
 };
 
 function testQueryNumericStringTypeRecord(string jdbcURL, string user, string password)
-returns NumericStringType|error? {
+returns @tainted NumericStringType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericStringType);
     stream<NumericStringType, sql:Error> streamData = <stream<NumericStringType, sql:Error>>streamResult;
@@ -167,7 +167,7 @@ type NumericCustomType record {
 };
 
 function testQueryNumericCustomTypeRecord(string jdbcURL, string user, string password)
-returns NumericCustomType|error? {
+returns @tainted NumericCustomType|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, error> streamResult = dbClient->query("SELECT * FROM NumericTypes", NumericCustomType);
     stream<NumericCustomType, sql:Error> streamData = <stream<NumericCustomType, sql:Error>>streamResult;
@@ -178,7 +178,7 @@ returns NumericCustomType|error? {
     return numericType;
 }
 
-function testQueryFromNullTable(string jdbcURL, string user, string password) returns record {}[]|error? {
+function testQueryFromNullTable(string jdbcURL, string user, string password) returns @tainted record {}[]|error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     stream<record{}, sql:Error> streamData = dbClient->query("SELECT * FROM NumericNullTypes");
     record {}[] returnData = [];

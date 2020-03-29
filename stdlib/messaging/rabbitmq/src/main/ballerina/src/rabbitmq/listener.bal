@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object as lang;
-import ballerinax/java;
+import ballerina/java;
 
 # Ballerina RabbitMQ Message Listener.
 # Provides a listener to consume messages from the RabbitMQ server.
@@ -67,6 +67,9 @@ public type Listener object {
         return detach(self, s);
     }
 
+    # Stops consuming messages through all consumer services by terminating the connection and all its channels.
+    #
+    # + return - Nil or error upon failure to close the `ChannelListener`
     public function __gracefulStop() returns error? {
         return stop(self);
     }

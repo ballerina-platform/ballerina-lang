@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -66,6 +67,7 @@ import static org.objectweb.asm.Opcodes.GETSTATIC;
 import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.I2B;
 import static org.objectweb.asm.Opcodes.I2L;
+import static org.objectweb.asm.Opcodes.I2S;
 import static org.objectweb.asm.Opcodes.IADD;
 import static org.objectweb.asm.Opcodes.IAND;
 import static org.objectweb.asm.Opcodes.IASTORE;
@@ -126,10 +128,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BXML_QNAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JSON_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_STREAM;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_UTILS;
@@ -140,6 +144,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_IN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -203,14 +208,14 @@ public class JvmInstructionGen {
     static void addBoxInsn(MethodVisitor mv, @Nilable BType bType) {
 
         if (bType != null) {
-            generateCast(mv, bType, symbolTable.anyType, false);
+            generateCast(mv, bType, symbolTable.anyType);
         }
     }
 
-    public static void addUnboxInsn(MethodVisitor mv, @Nilable BType bType, boolean useBString /* = false */) {
+    public static void addUnboxInsn(MethodVisitor mv, @Nilable BType bType) {
 
         if (bType != null) {
-            generateCast(mv, symbolTable.anyType, bType, useBString);
+            generateCast(mv, symbolTable.anyType, bType);
         }
     }
 
@@ -255,7 +260,7 @@ public class JvmInstructionGen {
             String varName = varDcl.name.value;
             String className = lookupGlobalVarClassName(moduleName, varName);
 
-            String typeSig = getTypeDesc(bType, false);
+            String typeSig = getTypeDesc(bType);
             mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
             return;
         } else if (varDcl.kind == VarKind.SELF) {
@@ -266,7 +271,7 @@ public class JvmInstructionGen {
             PackageID moduleId = ((BIRGlobalVariableDcl) varDcl).pkgId;
             String pkgName = getPackageName(moduleId.orgName, moduleId.name);
             String className = lookupGlobalVarClassName(pkgName, varName);
-            String typeSig = getTypeDesc(bType, false);
+            String typeSig = getTypeDesc(bType);
             mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
             return;
         }
@@ -297,7 +302,7 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.FUTURE ||
                 bType.tag == TypeTags.OBJECT ||
                 bType.tag == TypeTags.DECIMAL ||
-                bType.tag == TypeTags.XML ||
+                TypeTags.isXMLTypeTag(bType.tag) ||
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
@@ -344,7 +349,7 @@ public class JvmInstructionGen {
         if (varDcl.kind == VarKind.GLOBAL) {
             String varName = varDcl.name.value;
             String className = lookupGlobalVarClassName(currentPackageName, varName);
-            String typeSig = getTypeDesc(bType, false);
+            String typeSig = getTypeDesc(bType);
             mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
             return;
         } else if (varDcl.kind == VarKind.CONSTANT) {
@@ -352,7 +357,7 @@ public class JvmInstructionGen {
             PackageID moduleId = ((BIRGlobalVariableDcl) varDcl).pkgId;
             String pkgName = getPackageName(moduleId.orgName, moduleId.name);
             String className = lookupGlobalVarClassName(pkgName, varName);
-            String typeSig = getTypeDesc(bType, false);
+            String typeSig = getTypeDesc(bType);
             mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
             return;
         }
@@ -381,7 +386,8 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.JSON ||
                 bType.tag == TypeTags.FUTURE ||
                 bType.tag == TypeTags.OBJECT ||
-                bType.tag == TypeTags.XML ||
+                bType.tag == TypeTags.SERVICE ||
+                TypeTags.isXMLTypeTag(bType.tag) ||
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
@@ -796,7 +802,7 @@ public class JvmInstructionGen {
                     String.format("(L%s;L%s;)L%s;", TYPEDESC_VALUE, STRING_VALUE, OBJECT), false);
 
             BType targetType = binaryIns.lhsOp.variableDcl.type;
-            addUnboxInsn(this.mv, targetType, false);
+            addUnboxInsn(this.mv, targetType);
             this.storeToVar(binaryIns.lhsOp.variableDcl);
         }
 
@@ -821,7 +827,7 @@ public class JvmInstructionGen {
                         String.format("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE), false);
             } else if (bType.tag == TypeTags.FLOAT) {
                 this.mv.visitInsn(DADD);
-            } else if (bType.tag == TypeTags.XML) {
+            } else if (TypeTags.isXMLTypeTag(bType.tag)) {
                 this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "concatenate",
                         String.format("(L%s;L%s;)L%s;", XML_VALUE, XML_VALUE, XML_VALUE), false);
             } else {
@@ -909,11 +915,10 @@ public class JvmInstructionGen {
             BType opType1 = binaryIns.rhsOp1.variableDcl.type;
             BType opType2 = binaryIns.rhsOp2.variableDcl.type;
 
-            if (TypeTags.isIntegerTypeTag(opType1.tag) && TypeTags.isIntegerTypeTag(opType2.tag)) {
-                this.loadVar(binaryIns.rhsOp1.variableDcl);
-                this.loadVar(binaryIns.rhsOp2.variableDcl);
-                this.mv.visitInsn(LAND);
-            } else {
+            int opType1Tag = opType1.tag;
+            int opType2Tag = opType2.tag;
+
+            if (opType1Tag == TypeTags.BYTE && opType2Tag == TypeTags.BYTE) {
                 this.loadVar(binaryIns.rhsOp1.variableDcl);
                 generateCheckCastToByte(this.mv, opType1);
 
@@ -921,35 +926,83 @@ public class JvmInstructionGen {
                 generateCheckCastToByte(this.mv, opType2);
 
                 this.mv.visitInsn(IAND);
+            } else {
+                boolean byteResult = false;
+
+                this.loadVar(binaryIns.rhsOp1.variableDcl);
+                if (opType1Tag == TypeTags.BYTE) {
+                    this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+                    byteResult = true;
+                }
+
+                this.loadVar(binaryIns.rhsOp2.variableDcl);
+                if (opType2Tag == TypeTags.BYTE) {
+                    this.mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+                    byteResult = true;
+                }
+
+                this.mv.visitInsn(LAND);
+                if (byteResult) {
+                    generateCheckCastToByte(this.mv, symbolTable.intType);
+                }
             }
+
             this.storeToVar(binaryIns.lhsOp.variableDcl);
         }
 
         void generateBitwiseOrIns(BinaryOp binaryIns) {
 
-            this.loadVar(binaryIns.rhsOp1.variableDcl);
-            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            BType opType1 = binaryIns.rhsOp1.variableDcl.type;
+            BType opType2 = binaryIns.rhsOp2.variableDcl.type;
 
-            BType opType = binaryIns.rhsOp1.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(opType.tag)) {
-                this.mv.visitInsn(LOR);
-            } else {
+            if (opType1.tag == TypeTags.BYTE && opType2.tag == TypeTags.BYTE) {
+                this.loadVar(binaryIns.rhsOp1.variableDcl);
+                this.loadVar(binaryIns.rhsOp2.variableDcl);
                 this.mv.visitInsn(IOR);
+                this.storeToVar(binaryIns.lhsOp.variableDcl);
+                return;
             }
+
+            this.loadVar(binaryIns.rhsOp1.variableDcl);
+            generateCheckCast(this.mv, opType1, symbolTable.intType, this.indexMap);
+
+            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            generateCheckCast(this.mv, opType2, symbolTable.intType, this.indexMap);
+
+            this.mv.visitInsn(LOR);
+
+            if (!TypeTags.isSignedIntegerTypeTag(opType1.tag) && !TypeTags.isSignedIntegerTypeTag(opType2.tag)) {
+                generateIntToUnsignedIntConversion(this.mv, getSmallerUnsignedIntSubType(opType1, opType2));
+            }
+
             this.storeToVar(binaryIns.lhsOp.variableDcl);
         }
 
         void generateBitwiseXorIns(BinaryOp binaryIns) {
 
-            this.loadVar(binaryIns.rhsOp1.variableDcl);
-            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            BType opType1 = binaryIns.rhsOp1.variableDcl.type;
+            BType opType2 = binaryIns.rhsOp2.variableDcl.type;
 
-            BType opType = binaryIns.rhsOp1.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(opType.tag)) {
-                this.mv.visitInsn(LXOR);
-            } else {
+            if (opType1.tag == TypeTags.BYTE && opType2.tag == TypeTags.BYTE) {
+                this.loadVar(binaryIns.rhsOp1.variableDcl);
+                this.loadVar(binaryIns.rhsOp2.variableDcl);
                 this.mv.visitInsn(IXOR);
+                this.storeToVar(binaryIns.lhsOp.variableDcl);
+                return;
             }
+
+            this.loadVar(binaryIns.rhsOp1.variableDcl);
+            generateCheckCast(this.mv, opType1, symbolTable.intType, this.indexMap);
+
+            this.loadVar(binaryIns.rhsOp2.variableDcl);
+            generateCheckCast(this.mv, opType2, symbolTable.intType, this.indexMap);
+
+            this.mv.visitInsn(LXOR);
+
+            if (!TypeTags.isSignedIntegerTypeTag(opType1.tag) && !TypeTags.isSignedIntegerTypeTag(opType2.tag)) {
+                generateIntToUnsignedIntConversion(this.mv, getSmallerUnsignedIntSubType(opType1, opType2));
+            }
+
             this.storeToVar(binaryIns.lhsOp.variableDcl);
         }
 
@@ -979,13 +1032,11 @@ public class JvmInstructionGen {
             this.loadVar(binaryIns.rhsOp1.variableDcl);
             this.loadVar(binaryIns.rhsOp2.variableDcl);
 
-            BType secondOpType = binaryIns.rhsOp2.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
+            if (TypeTags.isIntegerTypeTag(binaryIns.rhsOp2.variableDcl.type.tag)) {
                 this.mv.visitInsn(L2I);
             }
 
-            BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
+            if (TypeTags.isIntegerTypeTag(binaryIns.rhsOp1.variableDcl.type.tag)) {
                 this.mv.visitInsn(LSHR);
             } else {
                 this.mv.visitInsn(ISHR);
@@ -999,13 +1050,11 @@ public class JvmInstructionGen {
             this.loadVar(binaryIns.rhsOp1.variableDcl);
             this.loadVar(binaryIns.rhsOp2.variableDcl);
 
-            BType secondOpType = binaryIns.rhsOp2.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(secondOpType.tag)) {
+            if (TypeTags.isIntegerTypeTag(binaryIns.rhsOp2.variableDcl.type.tag)) {
                 this.mv.visitInsn(L2I);
             }
 
-            BType firstOpType = binaryIns.rhsOp1.variableDcl.type;
-            if (TypeTags.isIntegerTypeTag(firstOpType.tag)) {
+            if (TypeTags.isIntegerTypeTag(binaryIns.rhsOp1.variableDcl.type.tag)) {
                 this.mv.visitInsn(LUSHR);
             } else {
                 this.mv.visitInsn(IUSHR);
@@ -1090,11 +1139,11 @@ public class JvmInstructionGen {
             }
         }
 
-        void generateMapLoadIns(FieldAccess mapLoadIns, boolean useBString) {
+        void generateMapLoadIns(FieldAccess mapLoadIns) {
             // visit map_ref
             this.loadVar(mapLoadIns.rhsOp.variableDcl);
             BType varRefType = mapLoadIns.rhsOp.variableDcl.type;
-            addUnboxInsn(this.mv, varRefType, false);
+            addUnboxInsn(this.mv, varRefType);
 
             // visit key_expr
             this.loadVar(mapLoadIns.keyOp.variableDcl);
@@ -1121,7 +1170,7 @@ public class JvmInstructionGen {
 
             // store in the target reg
             BType targetType = mapLoadIns.lhsOp.variableDcl.type;
-            addUnboxInsn(this.mv, targetType, useBString);
+            addUnboxInsn(this.mv, targetType);
             this.storeToVar(mapLoadIns.lhsOp.variableDcl);
         }
 
@@ -1136,13 +1185,13 @@ public class JvmInstructionGen {
             this.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "get",
                     String.format("(L%s;)L%s;", STRING_VALUE, OBJECT), true);
             BType targetType = objectLoadIns.lhsOp.variableDcl.type;
-            addUnboxInsn(this.mv, targetType, false);
+            addUnboxInsn(this.mv, targetType);
 
             // store in the target reg
             this.storeToVar(objectLoadIns.lhsOp.variableDcl);
         }
 
-        void generateObjectStoreIns(FieldAccess objectStoreIns, boolean useBString) {
+        void generateObjectStoreIns(FieldAccess objectStoreIns) {
             // visit object_ref
             this.loadVar(objectStoreIns.lhsOp.variableDcl);
 
@@ -1156,18 +1205,18 @@ public class JvmInstructionGen {
 
             // invoke set() method
             this.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "set",
-                                    String.format("(L%s;L%s;)V", useBString ? B_STRING_VALUE : STRING_VALUE, OBJECT),
+                                    String.format("(L%s;L%s;)V", isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT),
                                     true);
         }
 
-        void generateStringLoadIns(FieldAccess stringLoadIns, boolean useBString) {
+        void generateStringLoadIns(FieldAccess stringLoadIns) {
             // visit the string
             this.loadVar(stringLoadIns.rhsOp.variableDcl);
 
             // visit the key expr
             this.loadVar(stringLoadIns.keyOp.variableDcl);
 
-            String consVal = useBString ? B_STRING_VALUE : STRING_VALUE;
+            String consVal = isBString ? B_STRING_VALUE : STRING_VALUE;
             // invoke the `getStringAt()` method
             this.mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "getStringAt",
                                     String.format("(L%s;J)L%s;", consVal, consVal), false);
@@ -1176,14 +1225,14 @@ public class JvmInstructionGen {
             this.storeToVar(stringLoadIns.lhsOp.variableDcl);
         }
 
-        void generateArrayNewIns(NewArray inst, boolean useBString) {
+        void generateArrayNewIns(NewArray inst) {
 
             if (inst.type.tag == TypeTags.ARRAY) {
                 this.mv.visitTypeInsn(NEW, ARRAY_VALUE_IMPL);
                 this.mv.visitInsn(DUP);
                 loadType(this.mv, inst.type);
                 this.loadVar(inst.sizeOp.variableDcl);
-                if (useBString) {
+                if (isBString) {
                     this.mv.visitInsn(ICONST_1);
                     this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, "<init>",
                                             String.format("(L%s;JZ)V", ARRAY_TYPE), false);
@@ -1203,7 +1252,7 @@ public class JvmInstructionGen {
             }
         }
 
-        void generateArrayStoreIns(FieldAccess inst, boolean useBString) {
+        void generateArrayStoreIns(FieldAccess inst) {
 
             this.loadVar(inst.lhsOp.variableDcl);
             this.loadVar(inst.keyOp.variableDcl);
@@ -1225,7 +1274,7 @@ public class JvmInstructionGen {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JD)V", true);
             } else if (TypeTags.isStringTypeTag(valueType.tag)) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add",
-                                        String.format("(JL%s;)V", useBString ? B_STRING_VALUE : STRING_VALUE), true);
+                                        String.format("(JL%s;)V", isBString ? B_STRING_VALUE : STRING_VALUE), true);
             } else if (valueType.tag == TypeTags.BOOLEAN) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JZ)V", true);
             } else if (valueType.tag == TypeTags.BYTE) {
@@ -1236,7 +1285,7 @@ public class JvmInstructionGen {
             }
         }
 
-        void generateArrayValueLoad(FieldAccess inst, boolean useBString) {
+        void generateArrayValueLoad(FieldAccess inst) {
 
             this.loadVar(inst.rhsOp.variableDcl);
             this.mv.visitTypeInsn(CHECKCAST, ARRAY_VALUE);
@@ -1252,11 +1301,11 @@ public class JvmInstructionGen {
                     this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue",
                                             String.format("(J)L%s;", OBJECT), true);
                 }
-                addUnboxInsn(this.mv, bType, false);
+                addUnboxInsn(this.mv, bType);
             } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
             } else if (TypeTags.isStringTypeTag(bType.tag)) {
-                if (useBString) {
+                if (isBString) {
                     this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBString",
                                             String.format("(J)L%s;", B_STRING_VALUE), true);
                 } else {
@@ -1282,13 +1331,13 @@ public class JvmInstructionGen {
                 if (targetTypeClass != null) {
                     this.mv.visitTypeInsn(CHECKCAST, targetTypeClass);
                 } else {
-                    addUnboxInsn(this.mv, bType, false);
+                    addUnboxInsn(this.mv, bType);
                 }
             }
             this.storeToVar(inst.lhsOp.variableDcl);
         }
 
-        void generateNewErrorIns(NewError newErrorIns, boolean useBString) {
+        void generateNewErrorIns(NewError newErrorIns) {
 
             this.mv.visitTypeInsn(NEW, ERROR_VALUE);
             this.mv.visitInsn(DUP);
@@ -1298,18 +1347,17 @@ public class JvmInstructionGen {
             this.loadVar(newErrorIns.detailOp.variableDcl);
             this.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, "<init>",
                                     String.format("(L%s;L%s;L%s;)V", BTYPE,
-                                                  useBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), false);
+                                                  isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), false);
             this.storeToVar(newErrorIns.lhsOp.variableDcl);
         }
 
-        void generateCastIns(TypeCast typeCastIns, boolean useBString) {
+        void generateCastIns(TypeCast typeCastIns) {
             // load source value
             this.loadVar(typeCastIns.rhsOp.variableDcl);
             if (typeCastIns.checkTypes) {
-                generateCheckCast(this.mv, typeCastIns.rhsOp.variableDcl.type, typeCastIns.type,
-                                  this.indexMap, useBString);
+                generateCheckCast(this.mv, typeCastIns.rhsOp.variableDcl.type, typeCastIns.type, this.indexMap);
             } else {
-                generateCast(this.mv, typeCastIns.rhsOp.variableDcl.type, typeCastIns.type, false);
+                generateCast(this.mv, typeCastIns.rhsOp.variableDcl.type, typeCastIns.type);
             }
             this.storeToVar(typeCastIns.lhsOp.variableDcl);
         }
@@ -1385,8 +1433,13 @@ public class JvmInstructionGen {
 
             visitInvokeDyn(mv, currentClass, lambdaName, inst.closureMaps.size());
             loadType(this.mv, returnType);
+            if (inst.schedulerPolicy == SchedulerPolicy.ANY) {
+                mv.visitInsn(ICONST_1);
+            } else {
+                mv.visitInsn(ICONST_0);
+            }
             this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
-                    String.format("(L%s;L%s;)V", FUNCTION, BTYPE), false);
+                                    String.format("(L%s;L%s;Z)V", FUNCTION, BTYPE), false);
 
             // Set annotations if available.
             this.mv.visitInsn(DUP);
@@ -1425,25 +1478,25 @@ public class JvmInstructionGen {
             return builder.toString();
         }
 
-        void generateNewXMLElementIns(NewXMLElement newXMLElement, boolean useBString) {
+        void generateNewXMLElementIns(NewXMLElement newXMLElement) {
 
             this.loadVar(newXMLElement.startTagOp.variableDcl);
             this.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
             this.loadVar(newXMLElement.defaultNsURIOp.variableDcl);
             this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
                                     String.format("(L%s;L%s;)L%s;", XML_QNAME,
-                                                  useBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE), false);
+                                                  isBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE), false);
             this.storeToVar(newXMLElement.lhsOp.variableDcl);
         }
 
-        void generateNewXMLQNameIns(NewXMLQName newXMLQName, boolean useBString) {
+        void generateNewXMLQNameIns(NewXMLQName newXMLQName) {
 
             this.mv.visitTypeInsn(NEW, XML_QNAME);
             this.mv.visitInsn(DUP);
             this.loadVar(newXMLQName.localnameOp.variableDcl);
             this.loadVar(newXMLQName.nsURIOp.variableDcl);
             this.loadVar(newXMLQName.prefixOp.variableDcl);
-            String consVal = useBString ? B_STRING_VALUE : STRING_VALUE;
+            String consVal = isBString ? B_STRING_VALUE : STRING_VALUE;
             this.mv.visitMethodInsn(INVOKESPECIAL, XML_QNAME, "<init>",
                                     String.format("(L%s;L%s;L%s;)V", consVal, consVal, consVal), false);
             this.storeToVar(newXMLQName.lhsOp.variableDcl);
@@ -1459,29 +1512,29 @@ public class JvmInstructionGen {
             this.storeToVar(newStringXMLQName.lhsOp.variableDcl);
         }
 
-        void generateNewXMLTextIns(NewXMLText newXMLText, boolean useBString) {
+        void generateNewXMLTextIns(NewXMLText newXMLText) {
 
             this.loadVar(newXMLText.textOp.variableDcl);
             this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLText",
-                                    String.format("(L%s;)L%s;", useBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE),
+                                    String.format("(L%s;)L%s;", isBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE),
                                     false);
             this.storeToVar(newXMLText.lhsOp.variableDcl);
         }
 
-        void generateNewXMLCommentIns(NewXMLComment newXMLComment, boolean useBString) {
+        void generateNewXMLCommentIns(NewXMLComment newXMLComment) {
 
             this.loadVar(newXMLComment.textOp.variableDcl);
             this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLComment",
-                                    String.format("(L%s;)L%s;", useBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE),
+                                    String.format("(L%s;)L%s;", isBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE),
                                     false);
             this.storeToVar(newXMLComment.lhsOp.variableDcl);
         }
 
-        void generateNewXMLProcIns(NewXMLProcIns newXMLPI, boolean useBString) {
+        void generateNewXMLProcIns(NewXMLProcIns newXMLPI) {
 
             this.loadVar(newXMLPI.targetOp.variableDcl);
             this.loadVar(newXMLPI.dataOp.variableDcl);
-            String consVal = useBString ? B_STRING_VALUE : STRING_VALUE;
+            String consVal = isBString ? B_STRING_VALUE : STRING_VALUE;
             this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLProcessingInstruction",
                                     String.format("(L%s;L%s;)L%s;", consVal, consVal, XML_VALUE), false);
             this.storeToVar(newXMLPI.lhsOp.variableDcl);
@@ -1520,7 +1573,7 @@ public class JvmInstructionGen {
             this.storeToVar(xmlAttrStoreIns.lhsOp.variableDcl);
         }
 
-        void generateXMLAttrStoreIns(FieldAccess xmlAttrStoreIns, boolean useBString) {
+        void generateXMLAttrStoreIns(FieldAccess xmlAttrStoreIns) {
             // visit xml_ref
             this.loadVar(xmlAttrStoreIns.lhsOp.variableDcl);
 
@@ -1532,7 +1585,7 @@ public class JvmInstructionGen {
             this.loadVar(xmlAttrStoreIns.rhsOp.variableDcl);
 
             // invoke setAttribute() method
-            String signature = String.format("(L%s;L%s;)V", BXML_QNAME, useBString ? B_STRING_VALUE : STRING_VALUE);
+            String signature = String.format("(L%s;L%s;)V", BXML_QNAME, isBString ? B_STRING_VALUE : STRING_VALUE);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "setAttribute", signature, false);
         }
 
@@ -1626,9 +1679,9 @@ public class JvmInstructionGen {
             generateVarStore(this.mv, varDcl, this.currentPackageName, this.getJVMIndexOfVarRef(varDcl));
         }
 
-        void generateConstantLoadIns(ConstantLoad loadIns, boolean useBString) {
+        void generateConstantLoadIns(ConstantLoad loadIns) {
 
-            loadConstantValue(loadIns.type, loadIns.value, this.mv, useBString);
+            loadConstantValue(loadIns.type, loadIns.value, this.mv);
             this.storeToVar(loadIns.lhsOp.variableDcl);
         }
     }
@@ -1650,7 +1703,7 @@ public class JvmInstructionGen {
         return highSurrogatesArr;
     }
 
-    static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv, boolean useBString) {
+    static void loadConstantValue(BType bType, Object constVal, MethodVisitor mv) {
 
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
@@ -1668,7 +1721,7 @@ public class JvmInstructionGen {
             mv.visitLdcInsn(booleanVal);
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             String val = String.valueOf(constVal);
-            if (useBString) {
+            if (isBString) {
                 int[] highSurrogates = listHighSurrogates(val);
 
                 mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
@@ -1701,5 +1754,45 @@ public class JvmInstructionGen {
             throw new BLangCompilerException("JVM generation is not supported for type : " +
                     String.format("%s", bType));
         }
+    }
+
+    private static void generateIntToUnsignedIntConversion(MethodVisitor mv, BType targetType) {
+        switch (targetType.tag) {
+            case TypeTags.BYTE: // Wouldn't reach here for int atm.
+            case TypeTags.UNSIGNED8_INT:
+                mv.visitInsn(L2I);
+                mv.visitInsn(I2B);
+                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "toUnsignedLong", "(B)J", false);
+                return;
+            case TypeTags.UNSIGNED16_INT:
+                mv.visitInsn(L2I);
+                mv.visitInsn(I2S);
+                mv.visitMethodInsn(INVOKESTATIC, SHORT_VALUE, "toUnsignedLong", "(S)J", false);
+                return;
+            case TypeTags.UNSIGNED32_INT:
+                mv.visitInsn(L2I);
+                mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "toUnsignedLong", "(I)J", false);
+        }
+    }
+
+    private static BType getSmallerUnsignedIntSubType(BType lhsType, BType rhsType) {
+        if (TypeTags.isSignedIntegerTypeTag(lhsType.tag) || TypeTags.isSignedIntegerTypeTag(rhsType.tag)) {
+            throw new BLangCompilerException("expected two unsigned int subtypes, found '" + lhsType + "' and '" +
+                                                     rhsType + "'");
+        }
+
+        if (lhsType.tag == TypeTags.BYTE || rhsType.tag == TypeTags.BYTE) {
+            return symbolTable.unsigned8IntType;
+        }
+
+        if (lhsType.tag == TypeTags.UNSIGNED8_INT || rhsType.tag == TypeTags.UNSIGNED8_INT) {
+            return symbolTable.unsigned8IntType;
+        }
+
+        if (lhsType.tag == TypeTags.UNSIGNED16_INT || rhsType.tag == TypeTags.UNSIGNED16_INT) {
+            return symbolTable.unsigned16IntType;
+        }
+
+        return symbolTable.unsigned32IntType;
     }
 }

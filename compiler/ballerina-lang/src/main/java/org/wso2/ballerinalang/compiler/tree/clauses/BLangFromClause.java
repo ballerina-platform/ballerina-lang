@@ -36,9 +36,8 @@ public class BLangFromClause extends BLangNode implements FromClauseNode {
     public BLangExpression collection;
 
     public VariableDefinitionNode variableDefinitionNode;
-    public BType varType; // T || T|E
+    public BType varType; // T
     public BType resultType; // map<T>
-    public BType errorType; // E
     public BType nillableResultType; // map<T>?
     public boolean isDeclaredWithVar;
 

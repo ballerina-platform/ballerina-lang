@@ -1,8 +1,8 @@
-# Run the following command in Ballerina tools distribution for mock service and stub generation.
+# Execute the below command in the Ballerina tools distribution to generate the mock service.
 $ ballerina grpc --input proto_to_ballerina.proto --mode service --output service
 
-# Run the following command in Ballerina tools distribution for client endpoint and stub generation.
+# Execute the below command in the Ballerina tools distribution to generate the client endpoint and the stub file.
 $ ballerina grpc --input proto_to_ballerina.proto --mode client --output client
 
-# Run the following command in Ballerina tools distribution for stub generation.
+# Execute the below command in the Ballerina tools distribution to generate the stub file.
 $ ballerina grpc --input proto_to_ballerina.proto

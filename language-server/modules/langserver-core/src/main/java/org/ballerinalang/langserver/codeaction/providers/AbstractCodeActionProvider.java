@@ -154,7 +154,15 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
 //            Nested invocations: crypto:hashMd5(str.toBytes())
 //            Field accesses: http:lorry.get_color
 //            String Params: lorry.get_color("test.invoke(\"")
+//            Record literal: {a: 1, b: ""}
+//            Lambda Functions: function() returns int { return 1; };
         String content = diagnosedContent;
+        int len = content.length();
+        len--;
+        // In-line record literal
+        if (content.charAt(0) == '{' && content.charAt(len) == ';' && content.charAt(--len) == '}') {
+            return position;
+        }
         int pendingLParenthesis = 0;
         boolean loop = true;
         boolean insideString = false;

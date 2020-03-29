@@ -970,18 +970,18 @@ public function testXmlWithNamespacesNegative() returns boolean {
     return x1 == x2 || !(x1 != x2) || x2 == x3 && !(x2 != x3);
 }
 
-public function testXmlSequenceAndXmlItemEqualityPositive() returns boolean {
-    xml x1 = xml `<name>Book One</name>`;
-    xml x2 = x1.select("name");
-    return x1 == x2 && !(x1 != x2) && x2 == x1 && !(x2 != x1);
-}
+//public function testXmlSequenceAndXmlItemEqualityPositive() returns boolean {
+//    xml x1 = xml `<name>Book One</name>`;
+//    xml x2 = x1.select("name");
+//    return x1 == x2 && !(x1 != x2) && x2 == x1 && !(x2 != x1);
+//}
 
-public function testXmlSequenceAndXmlItemEqualityNegative() returns boolean {
-    xml x1 = xml `<name>Book One</name>`;
-    xml x2 = xml `<name>Book Two</name>`;
-    xml x3 = x2.select("name");
-    return x1 == x3 || !(x1 != x3) || x3 == x1 || !(x3 != x1);
-}
+//public function testXmlSequenceAndXmlItemEqualityNegative() returns boolean {
+//    xml x1 = xml `<name>Book One</name>`;
+//    xml x2 = xml `<name>Book Two</name>`;
+//    xml x3 = x2.select("name");
+//    return x1 == x3 || !(x1 != x3) || x3 == x1 || !(x3 != x1);
+//}
 
 public function testJsonRecordMapEqualityPositive() returns boolean {
     OpenEmployeeTwo e = { name: "Maryam", "id": 1000 };

@@ -29,6 +29,10 @@ dependencies {
     implementation 'org.slf4j:slf4j-api'
     implementation project(':ballerina-core')
     implementation project(':ballerina-lang')
+    testCompile project(':ballerina-lang:string')
+    testCompile project(':ballerina-lang:value')
+    testCompile project(':ballerina-lang:map')
+    testCompile project(':ballerina-lang:error')
 
     implementation 'com.h2database:h2'
     implementation 'org.testng:testng'
@@ -39,6 +43,10 @@ dependencies {
 
 
     birJar project(path: ':ballerina-lang:string', configuration: 'bStringBirJar')
+    birJar project(path: ':ballerina-lang:value', configuration: 'bStringBirJar')
+    birJar project(path: ':ballerina-lang:map', configuration: 'bStringBirJar')
+    birJar project(path: ':ballerina-lang:error', configuration: 'bStringBirJar')
+    
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
@@ -46,16 +54,18 @@ dependencies {
     baloImplementation project(path: ':ballerina-lang:floatingpoint', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:future', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:integer', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
-    balHome project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
+    
+    balHome project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
+    balHome project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
+    balHome project(path: ':ballerina-lang:map', configuration: 'baloImplementation')
+    balHome project(path: ':ballerina-lang:error', configuration: 'baloImplementation')
 }
 
 description = 'JBallerina - Unit Test Module'

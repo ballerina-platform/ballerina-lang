@@ -42,16 +42,6 @@ function foo() {
     xmlns "http:wso2.com/" as x;
 }
 
-function getAttributesFromNonXml() {
-    map<any> m = {};
-    string? s = m@["foo"];
-}
-
-function updateAttributesMap() {
-    xml x;
-    x@ = "new attributes";
-}
-
 function updateQname() {
     xmlns "http://wso2.com/" as ns0;
     ns0:foo = "{uri}localname";
@@ -62,7 +52,7 @@ function undefinedNamespace() {
     if (true) {
         xmlns "http://wso2.com/" as ns0;
     }
-    string? s = x@[ns0:foo];
+    string|error s = x.ns0:foo;
 }
 
 function defineEmptyNamespace() {

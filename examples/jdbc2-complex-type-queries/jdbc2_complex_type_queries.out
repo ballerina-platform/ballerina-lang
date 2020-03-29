@@ -1,0 +1,23 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and execute the `ballerina run` command.
+$ ballerina run jdbc2_complex_type_queries.bal
+
+------ Query Binary Type -------
+Result 1:
+ROW_ID=1 BLOB_TYPE=119 115 111 50 32 98 97 108 108 101 114 105 110 97 32 98 108 111 98 32 116 101 115 116 46 CLOB_TYPE=very long text BINARY_TYPE=119 115 111 50 32 98 97 108 108 101 114 105 110 97 32 98 105 110 97 114 121 32 116 101 115 116 46
+Result 2:
+row_id=1 blob_type=119 115 111 50 32 98 97 108 108 101 114 105 110 97 32 98 108 111 98 32 116 101 115 116 46 clob_type=very long text binary_type=119 115 111 50 32 98 97 108 108 101 114 105 110 97 32 98 105 110 97 114 121 32 116 101 115 116 46
+------ ********* -------
+------ Query Array Type -------
+Result 1:
+ROW_ID=1 INT_ARRAY=1 2 3 LONG_ARRAY=100000000 200000000 300000000 FLOAT_ARRAY=245.23 5559.49 8796.123 DOUBLE_ARRAY=245.23 5559.49 8796.123 BOOLEAN_ARRAY=true false true STRING_ARRAY=Hello Ballerina
+Result 2:
+row_id=1 int_array=1 2 3 long_array=100000000 200000000 300000000 float_array=245.23 5559.49 8796.123 double_array=245.23 5559.49 8796.123 boolean_array=true false true string_array=Hello Ballerina
+------ ********* -------
+------ Query Date Time Type -------
+Result 1:
+ROW_ID=1 DATE_TYPE=2017-05-23+05:30 TIME_TYPE=19:45:23.000+05:30 TIMESTAMP_TYPE=2017-01-25T22:03:55.000+05:30 DATETIME_TYPE=2017-01-25T22:03:55.000+05:30
+Result 2:
+row_id=1 date_type=2017-05-23+05:30 time_type=51323000 timestamp_type=time=1485362035000 zone=id=UTC offset=0 datetime_type=2017-01-25T22:03:55.000+05:30
+------ ********* -------
+Sample executed successfully!

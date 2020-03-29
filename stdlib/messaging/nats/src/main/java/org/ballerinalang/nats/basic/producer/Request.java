@@ -61,32 +61,33 @@ public class Request {
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
                         ". NATS connection doesn't exist.");
             }
-            String url = natsConnection.getConnectedUrl();
+            NatsMetricsUtil natsMetricsUtil =
+                    (NatsMetricsUtil) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
             byte[] byteContent = convertDataIntoByteArray(data);
             try {
                 Message reply;
                 Future<Message> incoming = natsConnection.request(subject, byteContent);
-                NatsMetricsUtil.reportRequest(url, subject, byteContent.length);
+                natsMetricsUtil.reportRequest(subject, byteContent.length);
                 if (TypeChecker.getType(duration).getTag() == TypeTags.INT_TAG) {
                     reply = incoming.get((Long) duration, TimeUnit.MILLISECONDS);
                 } else {
                     reply = incoming.get();
                 }
                 ArrayValue msgData = new ArrayValueImpl(reply.getData());
-                NatsMetricsUtil.reportResponse(url, subject, reply.getData().length);
+                natsMetricsUtil.reportResponse(subject);
                 ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                         Constants.NATS_MESSAGE_OBJ_NAME, reply.getSubject(), msgData, reply.getReplyTo());
                 msgObj.addNativeData(Constants.NATS_MSG, reply);
                 return msgObj;
             } catch (TimeoutException ex) {
-                NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+                natsMetricsUtil.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
                 return Utils.createNatsError("Request to subject " + subject + " timed out while waiting for a reply");
             } catch (IllegalArgumentException | IllegalStateException | ExecutionException ex) {
-                NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+                natsMetricsUtil.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while requesting message to " +
                         "subject " + subject + ". " + ex.getMessage());
             } catch (InterruptedException ex) {
-                NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+                natsMetricsUtil.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
                 Thread.currentThread().interrupt();
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while requesting message to " +
                         "subject " + subject + ". " + ex.getMessage());

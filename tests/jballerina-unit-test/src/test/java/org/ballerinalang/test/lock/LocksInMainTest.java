@@ -92,7 +92,7 @@ public class LocksInMainTest {
     }
 
 //    TODO:https://github.com/ballerina-platform/ballerina-lang/issues/11305
-    @Test(description = "Tests throwing and error inside lock")
+    @Test(description = "Tests throwing and error inside lock", enabled = false)
     public void testThrowErrorInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
@@ -171,7 +171,7 @@ public class LocksInMainTest {
         assertEquals(returns[1].stringValue(), "worker 2 sets the string after try catch inside lock");
     }
 
-    @Test(description = "Tests lock within lock in workers for boolean and blob")
+    @Test(description = "Tests lock within lock in workers for boolean and blob", enabled = false)
     public void testLockWithinLockInWorkersForBlobAndBoolean() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
@@ -196,7 +196,7 @@ public class LocksInMainTest {
         assertTrue("w1w1w1vw2w2w2v".equals(result) || "w2w2w2v".equals(result));
     }
 
-    @Test(description = "Tests returning inside lock statement")
+    @Test(description = "Tests returning inside lock statement", enabled = false)
     public void testReturnInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 
@@ -224,7 +224,7 @@ public class LocksInMainTest {
 
     }
 
-    @Test(description = "Tests next inside lock statement")
+    @Test(description = "Tests next inside lock statement", enabled = false)
     public void testNextInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");
 

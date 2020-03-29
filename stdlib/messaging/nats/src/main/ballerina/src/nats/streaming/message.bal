@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Represents the message a NATS Streaming Server sends to a subscription service.
 public type StreamingMessage client object {

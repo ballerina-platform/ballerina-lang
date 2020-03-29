@@ -138,10 +138,10 @@ public function getAsBoolean(@untainted string key, boolean defaultValue = false
 #
 # + key - The configuration to be retrieved
 # + return - Configuration value mapped by the key
-public function getAsMap(@untainted string key) returns map<any> {
+public function getAsMap(@untainted string key) returns map<anydata> {
     var value = get(key, MAP);
 
-    if (value is map<any>) {
+    if (value is map<anydata>) {
         return value;
     } else {
         error err = error("Invalid value. Expected a 'map'.");

@@ -1,5 +1,5 @@
 import ballerina/runtime;
-import ballerinax/java;
+import ballerina/java;
 
 int i = 0;
 

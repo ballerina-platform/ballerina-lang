@@ -101,6 +101,7 @@ SELECT      : {inQueryExpression}? 'select' { inQueryExpression = false; } ;
 DO          : {inQueryExpression}? 'do' { inQueryExpression = false; } ;
 WHERE       : {inQueryExpression}? 'where' ;
 LET         : 'let' ;
+DEPRECATED  : 'Deprecated';
 
 // Separators
 
@@ -487,6 +488,10 @@ ReturnParameterDocumentationStart
     :   HASH DocumentationSpace? ADD DocumentationSpace* RETURN DocumentationSpace* SUB DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
     ;
 
+DeprecatedDocumentation
+    :   HASH DocumentationSpace HASH DocumentationSpace DEPRECATED DocumentationSpace* -> pushMode(MARKDOWN_DOCUMENTATION)
+    ;
+
 // Whitespace and comments
 
 WS
@@ -531,7 +536,7 @@ TripleBacktickStart
 
 fragment
 DocumentationTextCharacter
-    :   ~[`\n ]
+    :   ~[`\n\r ]
     |   '\\' BACKTICK
     ;
 
@@ -544,7 +549,7 @@ DocumentationSpace
     ;
 
 DocumentationEnd
-    :   [\n] -> channel(HIDDEN), popMode
+    :   [\n\r] -> channel(HIDDEN), popMode
     ;
 
 mode MARKDOWN_DOCUMENTATION_PARAM;

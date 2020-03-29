@@ -16,13 +16,13 @@
 package org.ballerinalang.langserver.util.definition;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
+import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferenceFindingVisitor;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
@@ -66,8 +66,8 @@ public class DefinitionUtil {
     public static List<Location> getDefinition(LSContext context) throws WorkspaceDocumentException,
             CompilationFailedException, LSStdlibCacheException {
         List<BLangPackage> modules = ReferencesUtil.findCursorTokenAndCompileModules(context, false);
-        ReferencesUtil.fillReferences(modules, context);
-        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        ReferencesUtil.findReferences(modules, context);
+        SymbolReferencesModel referencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
         // If the definition list contains an item after the prepare reference mode, then return it.
         // In this case, definition is in the current compilation unit it self
         if (!referencesModel.getDefinitions().isEmpty()) {
@@ -168,11 +168,24 @@ public class DefinitionUtil {
                 .findFirst()
                 .orElse(null);
 
+        
         if (!(objectNode instanceof BLangTypeDefinition)
                 || !(((BLangTypeDefinition) objectNode).typeNode instanceof BLangObjectTypeNode)) {
             return new ArrayList<>();
         }
-        for (BLangFunction function : ((BLangObjectTypeNode) ((BLangTypeDefinition) objectNode).typeNode).functions) {
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) ((BLangTypeDefinition) objectNode).typeNode;
+        if ("__init".equals(symbolName)) {
+            // Definition is invoked over the new keyword
+            BLangFunction initFunction = objectTypeNode.initFunction;
+            DiagnosticPos pos;
+            if (initFunction.symbol == null) {
+                pos = CommonUtil.toZeroBasedPosition(((BLangTypeDefinition) objectNode).getName().pos);
+                return prepareLocations(pos, ((BLangTypeDefinition) objectNode).symbol, objectTypeNode);
+            }
+            pos = CommonUtil.toZeroBasedPosition(initFunction.getName().pos);
+            return prepareLocations(pos, initFunction.symbol, initFunction);
+        }
+        for (BLangFunction function : objectTypeNode.functions) {
             if (symbolName.equals(function.getName().getValue())) {
                 DiagnosticPos pos = CommonUtil.toZeroBasedPosition(function.name.pos);
                 return prepareLocations(pos, symbol, function);
@@ -218,7 +231,7 @@ public class DefinitionUtil {
             // TODO: Handle XML Namespace Declarations
             case ANNOTATION:
                 BLangAnnotation annotationNode = (BLangAnnotation) topLevelNode;
-                return annotationNode.name.pos;
+                return CommonUtil.toZeroBasedPosition(annotationNode.name.pos);
             default:
                 throw new LSStdlibCacheException("Could not find Position for Node" + topLevelNode.getKind().name());
         }

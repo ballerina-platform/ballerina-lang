@@ -299,6 +299,25 @@ function testRequestVolumeThresholdFailureResponseScenario() returns [http:Respo
     return [responses, errs];
 }
 
+function testInvalidRollingWindowConfiguration() returns error? {
+    var backendClientEP = trap new http:Client("http://localhost:8080", {
+        circuitBreaker: {
+            rollingWindow: {
+                timeWindowInMillis: 2000,
+                bucketSizeInMillis: 3000,
+                requestVolumeThreshold: 0
+            },
+            failureThreshold:0.3,
+            resetTimeInMillis:1000,
+            statusCodes:[400, 404, 500, 502, 503]
+        },
+        timeoutInMillis:2000
+    });
+    if (backendClientEP is error) {
+        return backendClientEP;
+    }
+}
+
 int actualRequestNumber = 0;
 
 public type MockClient client object {

@@ -1,5 +1,5 @@
-import ballerinax/java;
-import ballerinax/java.arrays as jarrays;
+import ballerina/java;
+import ballerina/java.arrays as jarrays;
 
 public function getArrayFromHandle(handle arg) returns any[] {
     int count = jarrays:getLength(arg);
@@ -15,6 +15,17 @@ public function getArrayFromHandle(handle arg) returns any[] {
         }
     }
     return returnArray;
+}
+
+public function getHandleFromObjectArray(JObject[] arg, string className) returns handle|error {
+    handle returnHandle = jarrays:newInstance(check java:getClass(className), arg.length());
+    int count=0;
+    while (count < arg.length()) {
+        JObject jObject = arg[count];
+        jarrays:set(returnHandle, count, jObject.jObj);
+        count+=1;
+    }
+    return returnHandle;
 }
 
 public function getHandleFromArray(anydata[] arg, string className) returns handle|error {

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 import ballerina/cache;
 import ballerina/crypto;
 import ballerina/lang.'object as lang;
@@ -90,22 +90,19 @@ public type Listener object {
     # + c - Configurations for HTTP service endpoints
     public function init(ListenerConfiguration c) {
         self.config = c;
-        var auth = self.config["auth"];
+        ListenerAuth? auth = self.config["auth"];
         if (auth is ListenerAuth) {
             if (auth.mandateSecureSocket) {
-                var secureSocket = self.config.secureSocket;
-                if (secureSocket is ListenerSecureSocket) {
-                    addAuthFilters(self.config);
-                } else {
+                ListenerSecureSocket? secureSocket = self.config.secureSocket;
+                if (secureSocket is ()) {
                     error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
                     panic err;
                 }
-            } else {
-                addAuthFilters(self.config);
             }
+            addAuthFilters(self.config);
         }
         addAttributeFilter(self.config);
-        var err = self.initEndpoint();
+        error? err = self.initEndpoint();
         if (err is error) {
             panic err;
         }
@@ -251,13 +248,15 @@ public type ListenerHttp1Settings record {|
 # + negativeAuthzCache - The `cache:Cache` object for negative authorizations
 # + mandateSecureSocket - Specify whether secure socket configurations are mandatory or not
 # + position - The authn/authz filter position of the filter array. The position values starts from 0 and it is set to 0 implicitly
+# + enableAuthzFilter - Specify whether authz filter engagement is needed or not
 public type ListenerAuth record {|
-    InboundAuthHandler[]|InboundAuthHandler[][] authHandlers;
-    string[]|string[][] scopes?;
+    InboundAuthHandlers authHandlers;
+    Scopes scopes?;
     cache:Cache? positiveAuthzCache = new;
     cache:Cache? negativeAuthzCache = new;
     boolean mandateSecureSocket = true;
     int position = 0;
+    boolean enableAuthzFilter = true;
 |};
 
 # Configures the SSL/TLS options to be used for HTTP service.
@@ -323,19 +322,26 @@ function addAuthFilters(ListenerConfiguration config) {
     // the auth filter position is specified as 0. If there are any filters specified, the authentication and
     // authorization filters should be added into the position specified.
 
-    var auth = config["auth"];
+    ListenerAuth? auth = config["auth"];
     if (auth is ListenerAuth) {
-        InboundAuthHandler[]|InboundAuthHandler[][] authHandlers = auth.authHandlers;
+        InboundAuthHandlers authHandlers = auth.authHandlers;
         AuthnFilter authnFilter = new(authHandlers);
 
-        cache:Cache? positiveAuthzCache = auth.positiveAuthzCache ?: ();
-        cache:Cache? negativeAuthzCache = auth.positiveAuthzCache ?: ();
-        AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
-        var scopes = auth["scopes"];
-        AuthzFilter authzFilter = new(authzHandler, scopes);
+        AuthzFilter? authzFilter = ();
+
+        if (auth.enableAuthzFilter) {
+            cache:Cache? positiveAuthzCache = auth.positiveAuthzCache ?: ();
+            cache:Cache? negativeAuthzCache = auth.positiveAuthzCache ?: ();
+            AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
+            Scopes? scopes = auth["scopes"];
+            authzFilter = new(authzHandler, scopes);
+        }
 
         if (auth.position == 0) {
-            config.filters.unshift(authnFilter, authzFilter);
+            if (auth.enableAuthzFilter) {
+                config.filters.unshift(<AuthzFilter>authzFilter);
+            }
+            config.filters.unshift(authnFilter);
         } else {
             if (auth.position < 0 || auth.position > config.filters.length()) {
                 error err = error("Position of the auth filters should be beteween 0 and length of the filter array.");
@@ -346,7 +352,10 @@ function addAuthFilters(ListenerConfiguration config) {
                 config.filters.push(config.filters.shift());
                 count += 1;
             }
-            config.filters.unshift(authnFilter, authzFilter);
+            if (auth.enableAuthzFilter) {
+                config.filters.unshift(<AuthzFilter>authzFilter);
+            }
+            config.filters.unshift(authnFilter);
             while (count > 0) {
                 config.filters.unshift(config.filters.pop());
                 count -= 1;
@@ -361,7 +370,7 @@ type AttributeFilter object {
     *RequestFilter;
 
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
-        var ctx = runtime:getInvocationContext();
+        runtime:InvocationContext ctx = runtime:getInvocationContext();
         ctx.attributes[SERVICE_NAME] = context.getServiceName();
         ctx.attributes[RESOURCE_NAME] = context.getResourceName();
         ctx.attributes[REQUEST_METHOD] = request.method;

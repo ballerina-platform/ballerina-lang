@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.'xml as xmllib;
 
 final string FREEZE_ERROR_OCCURRED = "error occurred on freeze: ";
 final string FREEZE_SUCCESSFUL = "freeze successful";
@@ -124,7 +125,7 @@ function testIsFrozenOnStructuralTypes() returns [boolean, boolean]|error {
 
     anydata[] a = [1, "hi", 2.0, false, m, (), e];
     [int, string, Employee] t = [1, "Em", e];
-    
+
     json j = { name: "Em", dataType: "json" };
     xml x = xml `<bookItem>The Lost World</bookItem>`;
 
@@ -232,38 +233,11 @@ function testRemovalFromFrozenInnerJson() {
     _ = j4.remove("name");
 }
 
-function testFrozenXmlAppendChildren() {
-    xml x1 = xml `<book>The Lost World</book>`;
-    xml x2 = xml `<author>Doyle</author>`;
-
-    xml x3 = x1.cloneReadOnly();
-    x3.appendChildren(x2);
-}
-
-function testFrozenXmlRemoveChildren() {
-    xml x1 = xml `<book>The Lost World<author>Doyle</author></book>`;
-    xml x2 = x1.cloneReadOnly();
-    x2.removeChildren("author");
-}
-
-function testFrozenXmlRemoveAttribute() {
-    xml x1 = xml `<book attr="one">The Lost World</book>`;
-    xml x2 = x1.cloneReadOnly();
-    x2.removeAttribute("attr");
-}
-
-function testFrozenXmlSetAttributes() {
-    map<anydata> m = { attr1: "one", attr2: "two"};
-    xml x1 = xml `<book>The Lost World</book>`;
-    xml x2 = x1.cloneReadOnly();
-    x2.setAttributes(m);
-}
-
 function testFrozenXmlSetChildren() {
     xml x1 = xml `<book>The Lost World</book>`;
     xml x2 = xml `<author>Doyle</author>`;
 
-    xml x3 = x1.cloneReadOnly();
+    xmllib:Element x3 = <xmllib:Element> x1.cloneReadOnly();
     x3.setChildren(x2);
 }
 
@@ -271,9 +245,10 @@ function testFrozenXmlSetChildrenDeep() {
     xml x1 = xml `<book><name>The Lost World</name><authors></authors></book>`;
     xml x2 = xml `<author>Doyle</author>`;
 
-    xml x3 = x1.cloneReadOnly();
-    xml x4 = x3/<authors>;
-    x4.setChildren(x2);
+    xmllib:Element x3 = <xmllib:Element> x1.cloneReadOnly();
+    xml author = x3.getChildren().strip()[1];
+    xmllib:Element authorEm = <xmllib:Element> author;
+    authorEm.setChildren(x2);
 }
 
 function testFrozenMapUpdate() {

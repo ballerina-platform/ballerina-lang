@@ -44,7 +44,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insert
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.genJMethodForBFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfNonBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextVarId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.BIRFunctionWrapper;
@@ -170,7 +169,8 @@ public class ExternalMethodGen {
 
         String lookupKey;
         String currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
-        String birFuncName = nameOfNonBStringFunc(birFunc.name.value);
+
+        String birFuncName = birFunc.name.value;
 
         if (attachedType == null) {
             lookupKey = currentPackageName + birFuncName;
@@ -213,13 +213,11 @@ public class ExternalMethodGen {
         @Nilable BIRVariableDcl receiver = birFunc.receiver;
         @Nilable BType attachedType = receiver != null ? receiver.type : null;
         String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType, attachedType,
-                false, false);
+                                                    false);
         String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
-                attachedType, false, true);
-        String jMethodVMSig = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType,
-                attachedType, true, false);
-        String jMethodVMSigBString = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType, true,
-                true);
+                                                           attachedType, false);
+        String jMethodVMSig = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType, true);
+        String jMethodVMSigBString = getMethodDesc(jMethodPramTypes, functionTypeDesc.retType, attachedType, true);
 
         return new OldStyleExternalFunctionWrapper(orgName, moduleName, version, birFunc, birModuleClassName,
                 jvmMethodDescription, jvmMethodDescriptionBString, jClassName, jMethodPramTypes, jMethodVMSigBString,
