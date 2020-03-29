@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
@@ -44,6 +43,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -68,9 +68,6 @@ import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE_PRO
  */
 public class GenerateBalo {
 
-    private static Set<String> moduleFilter = new HashSet<>(Lists.of("lang.__internal", "lang.annotations",
-                                                                     "bir", "jvm", "utils", "ldap"));
-
     public static void main(String[] args) throws IOException {
         String isBuiltinFlag = args[0];
         String sourceDir = args[1];
@@ -78,6 +75,7 @@ public class GenerateBalo {
         String libDir = args[3];
         boolean skipReportingWarnings = args.length > 4 && Boolean.parseBoolean(args[4]);
         String jvmTarget = args[5]; //TODO temp fix, remove this - rajith
+        String moduleFilter = args[6];
 
         String originalShouldCompileBalOrg = System.getProperty(COMPILE_BALLERINA_ORG_PROP);
         String originalIsBuiltin = System.getProperty(LOAD_BUILTIN_FROM_SOURCE_PROP);
@@ -91,7 +89,7 @@ public class GenerateBalo {
             boolean reportWarnings = !skipReportingWarnings;
 
             genBalo(targetDir, sourceDir, reportWarnings, Boolean.parseBoolean(jvmTarget),
-                    moduleFilter);
+                    new HashSet<>(Arrays.asList(moduleFilter.split(","))));
         } finally {
             unsetProperty(COMPILE_BALLERINA_ORG_PROP, originalShouldCompileBalOrg);
             unsetProperty(LOAD_BUILTIN_FROM_SOURCE_PROP, originalIsBuiltin);
