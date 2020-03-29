@@ -1065,6 +1065,61 @@ public class FormattingNodeTree {
     }
 
     /**
+     * format Do node.
+     *
+     * @param node {JsonObject} node as json object
+     */
+    public void formatDoNode(JsonObject node) {
+        if (node.has(FormattingConstants.WS) && node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+            JsonArray ws = node.getAsJsonArray(FormattingConstants.WS);
+            String indentation = this.getIndentation(formatConfig, false);
+            String indentationOfParent = this.getParentIndentation(formatConfig);
+            boolean useParentIndentation = formatConfig.get(FormattingConstants.USE_PARENT_INDENTATION).getAsBoolean();
+
+            this.preserveHeight(ws, useParentIndentation ? indentationOfParent : indentation, useParentIndentation);
+
+            boolean isOnNewLine = false;
+            for (JsonElement wsItem : ws) {
+                JsonObject currentWS = wsItem.getAsJsonObject();
+                String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
+                    if (text.equals(Tokens.DO)) {
+                        if (formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt() > 0) {
+                            currentWS.addProperty(FormattingConstants.WS,
+                                    this.getWhiteSpaces(formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt()));
+                        } else if (formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt() > 0) {
+                            currentWS.addProperty(FormattingConstants.WS,
+                                    this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt())
+                                            + indentation);
+                        } else {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        }
+                    } else if (text.equals(Tokens.OPENING_BRACE)) {
+                        currentWS.addProperty(FormattingConstants.WS, FormattingConstants.SINGLE_SPACE);
+                    } else if (text.equals(Tokens.CLOSING_BRACE)) {
+                        if (node.has(FormattingConstants.BODY)
+                                && node.getAsJsonObject(FormattingConstants.BODY)
+                                .getAsJsonArray(FormattingConstants.STATEMENTS).size() > 0) {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.NEW_LINE
+                                    + FormattingConstants.SPACE_TAB
+                                    + (this.getWhiteSpaceCount(indentation) == 0 ? indentationOfParent : indentation));
+                        } else {
+                            currentWS.addProperty(FormattingConstants.WS, FormattingConstants.EMPTY_SPACE);
+                        }
+                    }
+                }
+            }
+
+            if (node.has(FormattingConstants.BODY)) {
+                modifyConstructBody(node.getAsJsonObject(FormattingConstants.BODY),
+                        indentation, indentationOfParent + FormattingConstants.SPACE_TAB,
+                        false);
+            }
+        }
+    }
+
+    /**
      * format documentation parameter node.
      *
      * @param node {JsonObject} node as json object
@@ -1098,6 +1153,46 @@ public class FormattingNodeTree {
                         currentWS.addProperty(FormattingConstants.WS, this.getNewLines(formatConfig
                                 .get(FormattingConstants.NEW_LINE_COUNT).getAsInt()) + indentation);
                     }
+                }
+            }
+        }
+    }
+
+    /**
+     * format Do Action node.
+     *
+     * @param node {JsonObject} node as json object
+     */
+    public void formatDoActionNode(JsonObject node) {
+        if (node.has(FormattingConstants.FORMATTING_CONFIG)) {
+            JsonObject formatConfig = node.getAsJsonObject(FormattingConstants.FORMATTING_CONFIG);
+
+            if (node.has("fromClauseNodes")) {
+                JsonArray fromClauseNodes = node.getAsJsonArray("fromClauseNodes");
+                for (JsonElement fromClauseItem : fromClauseNodes) {
+                    JsonObject fromClause = fromClauseItem.getAsJsonObject();
+                    fromClause.add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
+                }
+            }
+
+            if (node.has("doClauseNode")) {
+                JsonObject selectClauseNode = node.getAsJsonObject("doClauseNode");
+                selectClauseNode.add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
+            }
+
+            if (node.has("whereClauseNode")) {
+                JsonArray whereClauseNodes = node.getAsJsonArray("whereClauseNode");
+                for (JsonElement whereClauseItem : whereClauseNodes) {
+                    JsonObject whereClause = whereClauseItem.getAsJsonObject();
+                    whereClause.add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
+                }
+            }
+
+            if (node.has("letClauseNode")) {
+                JsonArray letClauseNodes = node.getAsJsonArray("letClauseNode");
+                for (JsonElement letClauseItem : letClauseNodes) {
+                    JsonObject letClause = letClauseItem.getAsJsonObject();
+                    letClause.add(FormattingConstants.FORMATTING_CONFIG, formatConfig);
                 }
             }
         }
