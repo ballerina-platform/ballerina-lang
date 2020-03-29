@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -114,5 +115,17 @@ public class BFiniteType extends BType implements FiniteType {
         if (!nullable && value.type.isNullable()) {
             nullable = true;
         }
+    }
+
+    public Set<BType> getUniqueValues() {
+        Set<BType> uniqueType = new HashSet<>();
+        for (BLangExpression expression : this.valueSpace) {
+            if (expression.type.tag != TypeTags.FINITE) {
+                uniqueType.add(expression.type);
+            } else {
+                uniqueType.addAll(((BFiniteType) expression.type).getUniqueValues());
+            }
+        }
+        return uniqueType;
     }
 }
