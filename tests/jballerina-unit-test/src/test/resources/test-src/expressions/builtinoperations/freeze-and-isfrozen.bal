@@ -251,18 +251,18 @@ function testFrozenXmlSetChildrenDeep() {
     authorEm.setChildren(x2);
 }
 
-function testXMLItemsCloneReadOnly() returns [boolean, boolean, boolean, boolean, boolean] {
+function testXMLItemsCloneReadOnly() {
     xml x0 = xmllib:concat(xml `<hello>world</hello>`,
                         xml `<!-- comment text -->`,
                         xml `<?PIT data?>`,
                         xml `<item><child>String Content <sub></sub>More Str</child><child></child></item>`);
 
     xml x1 = x0.cloneReadOnly();
-    return [(x1.<hello>).isReadOnly(),
-            (x1.<hello>/*).isReadOnly(),
-            x1[1].isReadOnly(),
-            x1[2].isReadOnly(),
-            (x1/**/<child>/*)[0].isReadOnly()];
+    assertTrue((x1.<hello>).isReadOnly());
+    assertTrue((x1.<hello>/*).isReadOnly());
+    assertTrue(x1[1].isReadOnly());
+    assertTrue(x1[2].isReadOnly());
+    assertTrue((x1/**/<child>/*)[0].isReadOnly());
 }
 
 function testFrozenMapUpdate() {
@@ -503,3 +503,10 @@ type FreezeAllowedDepartment record {|
     string head;
     (int)...;
 |};
+
+function assertTrue(boolean value) {
+    if !(value) {
+        error e = error("Not True", message = "expected: true, found: " + value.toString());
+        panic e;
+    }
+}
