@@ -417,6 +417,21 @@ function createXMLAutoFilledSealedArray() {
     assertArrayLengthPanic(5, sealedArray);
 }
 
+// const literal broad type filler value
+
+const FOO = 0;
+type Bar FOO | 1;
+function createConstLiteralAutoFilledSealedArray() {
+    Bar a = 1;
+    Bar[5] sealedArray = [a, a];
+    sealedArray[3] = a;
+    assertArrayValuePanic(1, sealedArray, 0);
+    assertArrayValuePanic(1, sealedArray, 1);
+    assertArrayValuePanic(0, sealedArray, 2);
+    assertArrayValuePanic(1, sealedArray, 3);
+    assertArrayLengthPanic(5, sealedArray);
+}
+
 // helper methods
 
 function assertArrayLengthPanic(int expected, any[] arr, string message = "Array length did not match") {

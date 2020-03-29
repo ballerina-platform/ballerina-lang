@@ -129,3 +129,12 @@ type NoFillerObject object {
 
     }
 };
+
+const MyFloatConst = 1.0;
+const MyIntZeroConst = 0;
+
+type unionWithIntFloatConsts MyIntZeroConst | MyFloatConst ;
+
+function createUnionWithIntFloatConstTypesSealedArray() {
+    unionWithIntFloatConsts[2] unionArr = [];
+}

@@ -40,11 +40,11 @@ public class SealedArrayTest {
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/statements/arrays/sealed-array.bal");
-        resultNegative = BCompileUtil.compile("test-src/statements/arrays/sealed-array-negative.bal");
+        compileResult = BCompileUtil.compile("test-src/statements/arrays/sealed_array.bal");
+        resultNegative = BCompileUtil.compile("test-src/statements/arrays/sealed_array_negative.bal");
         listExprNegative = BCompileUtil.compile("test-src/statements/arrays/sealed_array_listexpr_negative.bal");
-        semanticsNegative = BCompileUtil.compile("test-src/statements/arrays/sealed-array-semantics-negative" +
-                ".bal");
+        semanticsNegative = BCompileUtil.compile("test-src/statements/arrays/sealed_array_semantics_negative" +
+                                                         ".bal");
     }
 
     @Test
@@ -198,7 +198,7 @@ public class SealedArrayTest {
 
     @Test()
     public void testNegativeAutoFillSealedArray() {
-        Assert.assertEquals(listExprNegative.getErrorCount(), 12);
+        Assert.assertEquals(listExprNegative.getErrorCount(), 13);
         BAssertUtil.validateError(listExprNegative, 0,
                                   "invalid usage of list constructor: type 'Person[5]' does not have a filler value",
                                   24, 19);
@@ -234,9 +234,13 @@ public class SealedArrayTest {
                                           "value",
                                   118, 34);
         BAssertUtil.validateError(listExprNegative, 10, "incompatible types: expected '(int|NoFillerObject[2])', " +
-                                          "found '[]'", 122, 31);
+                "found '[]'", 122, 31);
         BAssertUtil.validateError(listExprNegative, 11, "incompatible types: expected '" +
                 "(NoFillerObject[3]|NoFillerObject[2])', found '[]'", 124, 45);
+        BAssertUtil.validateError(listExprNegative, 12,
+                                  "invalid usage of list constructor: type '(0|1.0f)[2]' does not have a filler value",
+                                  139, 43);
+
     }
 
     @Test()
@@ -399,5 +403,10 @@ public class SealedArrayTest {
     @Test
     public void testCreateXMLSealedArray() {
         BRunUtil.invoke(compileResult, "createXMLAutoFilledSealedArray");
+    }
+
+    @Test
+    public void createConstLiteralAutoFilledSealedArray() {
+        BRunUtil.invoke(compileResult, "createConstLiteralAutoFilledSealedArray");
     }
 }
