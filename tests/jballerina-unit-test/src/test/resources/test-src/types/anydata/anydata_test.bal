@@ -573,7 +573,7 @@ function testAnydataToMap() {
     }
 }
 
-TODO Table remove - Fix
+// TODO Table remove - Fix
 //function testAnydataToTable() returns table<Employee>? {
 //    table<Employee> t = table {
 //                { key id, name, salary },

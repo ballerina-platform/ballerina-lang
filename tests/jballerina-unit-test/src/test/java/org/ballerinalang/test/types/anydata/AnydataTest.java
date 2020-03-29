@@ -300,9 +300,9 @@ public class AnydataTest {
         assertEquals(returns[5].getType().getTag(), TypeTags.ARRAY_TAG);
         assertEquals(returns[0].stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
         assertEquals(returns[1].stringValue(), "<book>The Lost World</book>");
-        assertEquals(returns[2].stringValue(), "table<Employee> {index: [], primaryKey: [\"id\"], data: [{id:1, " +
-                "name:\"Mary\", salary:300.5}, {id:2, name:\"John\", salary:200.5}, {id:3, name:\"Jim\", " +
-                "salary:330.5}]}");
+//        assertEquals(returns[2].stringValue(), "table<Employee> {index: [], primaryKey: [\"id\"], data: [{id:1, " +
+//                "name:\"Mary\", salary:300.5}, {id:2, name:\"John\", salary:200.5}, {id:3, name:\"Jim\", " +
+//                "salary:330.5}]}");
         assertEquals(returns[2].stringValue(), "{a:15}");
         assertEquals(returns[3].stringValue(), "{ca:15}");
         assertEquals(returns[4].stringValue(), "{\"foo\":{a:15}}");
@@ -331,7 +331,7 @@ public class AnydataTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataToTuple3");
         assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(returns[0].getType().toString(),
-                     "[[int|float|string|boolean|byte|table<any>|json|xml|ClosedFoo|Foo|map<anydata>|anydata" +
+                     "[[int|float|string|boolean|byte|json|xml|ClosedFoo|Foo|map<anydata>|anydata" +
                              "[][],string],int,float]");
         assertEquals(returns[0].stringValue(), "[[[{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
                 "Lost World</book>], \"hello world!\"], 123, 23.45]");

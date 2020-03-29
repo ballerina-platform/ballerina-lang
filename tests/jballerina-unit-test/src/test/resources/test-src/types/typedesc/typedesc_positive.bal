@@ -7,12 +7,12 @@ function testBasicTypes() returns [typedesc<any>, typedesc<any>, typedesc<any>, 
     return [a, b, c, d, e];
 }
 
-function testRefTypes() returns [typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>] {
+function testRefTypes() returns [typedesc<any>, typedesc<any>] {
     typedesc<xml> a = xml;
     typedesc<json> b = json;
-    typedesc<map<any>> c = map<any>;
+    //typedesc<map<any>> c = map<any>;
     //typedesc<table<Employee>> d = table<Employee>;
-    return [a, b, c, d];
+    return [a, b];
 }
 
 function testObjectTypes() returns [typedesc<any>, typedesc<any>] {
