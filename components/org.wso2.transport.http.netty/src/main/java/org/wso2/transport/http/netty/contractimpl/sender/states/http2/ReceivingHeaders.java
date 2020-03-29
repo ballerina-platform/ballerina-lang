@@ -34,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contractimpl.common.states.Http2MessageStateContext;
+import org.wso2.transport.http.netty.contractimpl.common.states.StateUtil;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.contractimpl.sender.http2.OutboundMsgHolder;
@@ -210,7 +211,7 @@ public class ReceivingHeaders implements SenderState {
 
         try {
             HttpConversionUtil.addHttp2ToHttpHeaders(streamId, headers, trailers, version, true, false);
-            responseMessage.getTrailerHeaders().add(trailers);
+            StateUtil.setInboundTrailersToNewMessage(trailers, responseMessage);
         } catch (Http2Exception e) {
             outboundMsgHolder.getResponseFuture().
                     notifyHttpListener(new Exception("Error while setting http headers", e));

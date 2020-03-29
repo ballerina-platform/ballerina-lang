@@ -21,9 +21,11 @@ package org.wso2.transport.http.netty.trailer;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -37,6 +39,7 @@ import org.wso2.transport.http.netty.contract.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contractimpl.common.states.StateUtil;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
@@ -110,6 +113,23 @@ public class ClientReadTrailerHeaderTestCase extends TrailerHeaderTestTemplate {
         assertEquals(response.getTrailerHeaders().get("foo"), "xyz");
         assertEquals(response.getTrailerHeaders().get("bar"), "ballerina");
         assertEquals(response.getTrailerHeaders().get("Max-forwards"), "five");
+    }
+
+    @Test(description = "Test populating inbound trailers to the message")
+    public void testPopulateTrailersToMessage() {
+        DefaultLastHttpContent lastHttpContent = new DefaultLastHttpContent();
+        HttpHeaders trailers = lastHttpContent.trailingHeaders();
+        trailers.add("foo", "xyz");
+        trailers.add("bar", "ballerina");
+        trailers.add("Max-forwards", "five");
+        HttpCarbonMessage outboundResponseMsg = new HttpCarbonMessage(
+                new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
+        StateUtil.setInboundTrailersToNewMessage(trailers, outboundResponseMsg);
+
+        assertEquals(lastHttpContent.trailingHeaders().size(), 0);
+        assertEquals(outboundResponseMsg.getTrailerHeaders().get("foo"), "xyz");
+        assertEquals(outboundResponseMsg.getTrailerHeaders().get("bar"), "ballerina");
+        assertEquals(outboundResponseMsg.getTrailerHeaders().get("Max-forwards"), "five");
     }
 
     @AfterClass
