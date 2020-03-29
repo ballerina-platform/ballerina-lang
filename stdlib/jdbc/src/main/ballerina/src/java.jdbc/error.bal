@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Identifies the issues related to database accessibility, erroneous queries, constraint violations,
+# database resource clean-up, and other similar scenarios.
 public const DATABASE_ERROR_REASON = "{ballerinax/java.jdbc}DatabaseError";
 
 # Represents the properties belonging to a `DatabaseError`.
@@ -60,6 +62,7 @@ public type ApplicationErrorData record {|
 @deprecated
 public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
 
+# Identifies the error originating from application-level causes.
 public const APPLICATION_ERROR_REASON = "{ballerinax/java.jdbc}ApplicationError";
 
 # Represents an error originating from application-level causes.

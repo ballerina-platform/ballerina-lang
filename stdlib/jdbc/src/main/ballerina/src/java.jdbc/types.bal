@@ -171,35 +171,94 @@ TYPE_BOOLEAN|TYPE_TINYINT|TYPE_SMALLINT|TYPE_INTEGER|TYPE_BIGINT|TYPE_NUMERIC|TY
 TYPE_DOUBLE|TYPE_BINARY|TYPE_BLOB|TYPE_LONGVARBINARY|TYPE_VARBINARY|TYPE_CLOB|TYPE_NCLOB|TYPE_DATE|TYPE_TIME|
 TYPE_DATETIME|TYPE_TIMESTAMP|TYPE_ARRAY|TYPE_STRUCT|TYPE_REFCURSOR;
 
+# Small, variable-length character string
 public const TYPE_VARCHAR = "VARCHAR";
+
+# Small, fixed-length character string
 public const TYPE_CHAR = "CHAR";
+
+# Large, variable-length character string
 public const TYPE_LONGVARCHAR = "LONGVARCHAR";
+
+# Small, fixed-length character string with unicode support
 public const TYPE_NCHAR = "NCHAR";
+
+# Large, variable-length character string with Unicode support
 public const TYPE_LONGNVARCHAR = "LONGNVARCHAR";
+
+# Large, variable-length character string with Unicode support
 public const TYPE_NVARCHAR = "NVARCHAR";
+
+# Single bit value that can be zero or one, or nil
 public const TYPE_BIT = "BIT";
+
+# Boolean value either True or false
 public const TYPE_BOOLEAN = "BOOLEAN";
+
+# 8-bit integer value which may be unsigned or signed
 public const TYPE_TINYINT = "TINYINT";
+
+# 16-bit signed integer value which may be unsigned or signed
 public const TYPE_SMALLINT = "SMALLINT";
+
+# 32-bit signed integer value which may be unsigned or signed
 public const TYPE_INTEGER = "INTEGER";
+
+# 64-bit signed integer value which may be unsigned or signed
 public const TYPE_BIGINT = "BIGINT";
+
+# Fixed-precision and scaled decimal values
 public const TYPE_NUMERIC = "NUMERIC";
+
+# Fixed-precision and scaled decimal values
 public const TYPE_DECIMAL = "DECIMAL";
+
+# Single precision floating point number
 public const TYPE_REAL = "REAL";
+
+# Double precision floating point number
 public const TYPE_FLOAT = "FLOAT";
+
+# Double precision floating point number
 public const TYPE_DOUBLE = "DOUBLE";
+
+# Small, fixed-length binary value
 public const TYPE_BINARY = "BINARY";
+
+# Binary Large Object
 public const TYPE_BLOB = "BLOB";
+
+# Large, variable-length binary value
 public const TYPE_LONGVARBINARY = "LONGVARBINARY";
+
+# Small, variable-length binary value
 public const TYPE_VARBINARY = "VARBINARY";
+
+# Character Large Object
 public const TYPE_CLOB = "CLOB";
+
+# Character large objects in multibyte national character set
 public const TYPE_NCLOB = "NCLOB";
+
+# Both DATE and TIME with additional a nanosecond field
 public const TYPE_DATE = "DATE";
+
+# Both DATE and TIME with additional a nanosecond field
 public const TYPE_TIME = "TIME";
+
+# Both DATE and TIME with additional a nanosecond field
 public const TYPE_DATETIME = "DATETIME";
+
+# Both DATE and TIME with additional a nanosecond field
 public const TYPE_TIMESTAMP = "TIMESTAMP";
+
+# Composite data value that consists of zero or more elements of a specified data type
 public const TYPE_ARRAY = "ARRAY";
+
+# User-defined structured type, consists of one or more attributes
 public const TYPE_STRUCT = "STRUCT";
+
+# Cursor value
 public const TYPE_REFCURSOR = "REFCURSOR";
 
 # The direction of the parameter.
@@ -215,8 +274,13 @@ public const TYPE_REFCURSOR = "REFCURSOR";
 @deprecated
 public type Direction DIRECTION_IN|DIRECTION_OUT|DIRECTION_INOUT;
 
+# IN parameters are used to send values to stored procedures
 public const DIRECTION_IN = "IN";
+
+# OUT parameters are used to get values from stored procedures
 public const DIRECTION_OUT = "OUT";
+
+# INOUT parameters are used to send values and get values from stored procedures
 public const DIRECTION_INOUT = "INOUT";
 
 # Represents a parameter for the JDBC Client remote functions when a variable needs to be passed
