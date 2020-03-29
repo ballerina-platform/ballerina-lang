@@ -18,9 +18,11 @@
 
 package org.ballerinalang.langlib.string;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -50,10 +52,23 @@ public class IndexOf {
         StringUtils.checkForNull(value, subString);
         if (startIndx > Integer.MAX_VALUE) {
             throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,
-                                                                                   INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                                                           RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndx);
+                    INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndx);
         }
         long index = value.indexOf(subString, (int) startIndx);
         return index >= 0 ? index : null;
+    }
+
+    public static Object indexOf_bstring(Strand strand, BString bStr, BString subString, long startIndx) {
+
+        if (bStr == null || subString == null) {
+            throw BallerinaErrors.createNullReferenceError();
+        }
+        if (startIndx > Integer.MAX_VALUE) {
+            throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,
+                    INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndx);
+        }
+        return bStr.indexOf(subString, (int) startIndx);
     }
 }

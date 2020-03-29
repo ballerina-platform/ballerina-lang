@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -59,5 +60,10 @@ public class GetAttribute {
             return createError(XML_OPERATION_ERROR, "attribute '" + attrName + "' not found");
         }
         return attrVal;
+    }
+
+    public static Object getAttribute_bstring(Strand strand, XMLValue xmlVal, BString attrName,
+                                              boolean optionalFiledAccess) {
+        return getAttribute(strand, xmlVal, attrName.getValue(), optionalFiledAccess);
     }
 }

@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -45,6 +46,13 @@ public class Add {
     public static Object add(Strand strand, TableValue table, MapValue<String, Object> data) {
         try {
             return table.performAddOperation((MapValueImpl<String, Object>) data);
+        } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
+            return BallerinaErrors.createError(e.getMessage(), "Failed to add data to the table: " + e.getDetail());
+        }
+    }
+    public static Object add_bstring(Strand strand, TableValue table, MapValue<BString, Object> data) {
+        try {
+            return table.performAddOperation_bstring((MapValueImpl<BString, Object>) data);
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
             return BallerinaErrors.createError(e.getMessage(), "Failed to add data to the table: " + e.getDetail());
         }

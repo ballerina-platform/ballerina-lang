@@ -255,7 +255,7 @@ public class FunctionGenerator {
                 sb.append(" ").append(recordType.restFieldType).append("...").append(";").append(" ").append("|}");
                 return sb.toString();
             }
-            return recordType.tsymbol.toString();
+            return generateTypeDefinition(importsAcceptor, currentPkgId, bType.tsymbol);
         }
         return (bType.tsymbol != null) ? generateTypeDefinition(importsAcceptor, currentPkgId, bType.tsymbol) :
                 "any";
@@ -336,7 +336,7 @@ public class FunctionGenerator {
             int argCounter = 1;
             CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
             for (BLangExpression bLangExpression : bLangInvocation.argExprs) {
-                Set<String> argNames = CommonUtil.getAllNameEntries(bLangExpression, compilerContext);
+                Set<String> argNames = CommonUtil.getAllNameEntries(compilerContext);
                 if (bLangExpression instanceof BLangSimpleVarRef) {
                     BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) bLangExpression;
                     String varName = simpleVarRef.variableName.value;
