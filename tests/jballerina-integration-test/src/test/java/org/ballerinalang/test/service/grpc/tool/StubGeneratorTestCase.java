@@ -51,7 +51,6 @@ import static org.testng.Assert.fail;
  */
 public class StubGeneratorTestCase {
 
-    private static final String PACKAGE_NAME = ".";
     private static String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
     private Path resourceDir;
     private Path outputDirPath;
@@ -468,7 +467,7 @@ public class StubGeneratorTestCase {
     @Test(description = "Test case for protobuf any type generation")
     public void testAnyTypeGeneration() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
-        CompileResult compileResult = getStubCompileResult("anydata.proto",
+        CompileResult compileResult = getStubCompileResult("anydata.proto", outputDirPath,
                 "anydata_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 5,
