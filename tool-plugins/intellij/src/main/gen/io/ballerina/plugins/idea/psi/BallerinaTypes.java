@@ -76,6 +76,9 @@ public interface BallerinaTypes {
   IElementType CONTINUE_STATEMENT = new BallerinaCompositeElementType("CONTINUE_STATEMENT");
   IElementType DEFAULTABLE_PARAMETER = new BallerinaCompositeElementType("DEFAULTABLE_PARAMETER");
   IElementType DEFINITION = new BallerinaCompositeElementType("DEFINITION");
+  IElementType DEPRECATED_ANNOTATION_DOCUMENTATION = new BallerinaCompositeElementType("DEPRECATED_ANNOTATION_DOCUMENTATION");
+  IElementType DEPRECATED_ANNOTATION_DOCUMENTATION_LINE = new BallerinaCompositeElementType("DEPRECATED_ANNOTATION_DOCUMENTATION_LINE");
+  IElementType DEPRECATE_ANNOTATION_DESCRIPTION_LIN = new BallerinaCompositeElementType("DEPRECATE_ANNOTATION_DESCRIPTION_LIN");
   IElementType DOCUMENTATION_CONTENT = new BallerinaCompositeElementType("DOCUMENTATION_CONTENT");
   IElementType DOCUMENTATION_LINE = new BallerinaCompositeElementType("DOCUMENTATION_LINE");
   IElementType DOCUMENTATION_REFERENCE = new BallerinaCompositeElementType("DOCUMENTATION_REFERENCE");
@@ -204,7 +207,7 @@ public interface BallerinaTypes {
   IElementType PARAMETER_TYPE_NAME = new BallerinaCompositeElementType("PARAMETER_TYPE_NAME");
   IElementType PARAMETER_TYPE_NAME_LIST = new BallerinaCompositeElementType("PARAMETER_TYPE_NAME_LIST");
   IElementType PEER_WORKER = new BallerinaCompositeElementType("PEER_WORKER");
-  IElementType QUERY_ACTION_STATEMENT = new BallerinaCompositeElementType("QUERY_ACTION_STATEMENT");
+  IElementType QUERY_ACTION_EXPRESSION = new BallerinaCompositeElementType("QUERY_ACTION_EXPRESSION");
   IElementType QUERY_EXPR = new BallerinaCompositeElementType("QUERY_EXPR");
   IElementType QUERY_EXPRESSION = new BallerinaCompositeElementType("QUERY_EXPRESSION");
   IElementType QUERY_PIPELINE = new BallerinaCompositeElementType("QUERY_PIPELINE");
@@ -381,9 +384,11 @@ public interface BallerinaTypes {
   IElementType DECIMAL_INTEGER_LITERAL = new BallerinaTokenType("DECIMAL_INTEGER_LITERAL");
   IElementType DECREMENT = new BallerinaTokenType("--");
   IElementType DEFAULT = new BallerinaTokenType("default");
+  IElementType DEPRECATEANNOTATIONDESCRIPTIONLINE = new BallerinaTokenType("deprecateAnnotationDescriptionLine");
+  IElementType DEPRECATED_DOCUMENTATION = new BallerinaTokenType("DEPRECATED_DOCUMENTATION");
   IElementType DESCRIPTION_SEPARATOR = new BallerinaTokenType("DESCRIPTION_SEPARATOR");
   IElementType DIV = new BallerinaTokenType("/");
-  IElementType DO = new BallerinaTokenType("DO");
+  IElementType DO = new BallerinaTokenType("do");
   IElementType DOCANNOTATION = new BallerinaTokenType("DOCANNOTATION");
   IElementType DOCCONST = new BallerinaTokenType("DOCCONST");
   IElementType DOCFUNCTION = new BallerinaTokenType("DOCFUNCTION");
@@ -486,7 +491,7 @@ public interface BallerinaTypes {
   IElementType RIGHT_CLOSED_RECORD_DELIMITER = new BallerinaTokenType("RIGHT_CLOSED_RECORD_DELIMITER");
   IElementType RIGHT_PARENTHESIS = new BallerinaTokenType(")");
   IElementType SAFE_ASSIGNMENT = new BallerinaTokenType("=?");
-  IElementType SELECT = new BallerinaTokenType("SELECT");
+  IElementType SELECT = new BallerinaTokenType("select");
   IElementType SEMICOLON = new BallerinaTokenType(";");
   IElementType SERVICE = new BallerinaTokenType("service");
   IElementType SINGLE_BACKTICK_CONTENT = new BallerinaTokenType("SINGLE_BACKTICK_CONTENT");
@@ -519,7 +524,7 @@ public interface BallerinaTypes {
   IElementType VAR = new BallerinaTokenType("var");
   IElementType VERSION = new BallerinaTokenType("version");
   IElementType WAIT = new BallerinaTokenType("wait");
-  IElementType WHERE = new BallerinaTokenType("WHERE");
+  IElementType WHERE = new BallerinaTokenType("where");
   IElementType WHILE = new BallerinaTokenType("while");
   IElementType WITH = new BallerinaTokenType("with");
   IElementType WORKER = new BallerinaTokenType("worker");
@@ -684,6 +689,15 @@ public interface BallerinaTypes {
       }
       else if (type == DEFINITION) {
         return new BallerinaDefinitionImpl(node);
+      }
+      else if (type == DEPRECATED_ANNOTATION_DOCUMENTATION) {
+        return new BallerinaDeprecatedAnnotationDocumentationImpl(node);
+      }
+      else if (type == DEPRECATED_ANNOTATION_DOCUMENTATION_LINE) {
+        return new BallerinaDeprecatedAnnotationDocumentationLineImpl(node);
+      }
+      else if (type == DEPRECATE_ANNOTATION_DESCRIPTION_LIN) {
+        return new BallerinaDeprecateAnnotationDescriptionLinImpl(node);
       }
       else if (type == DOCUMENTATION_CONTENT) {
         return new BallerinaDocumentationContentImpl(node);
@@ -1069,8 +1083,8 @@ public interface BallerinaTypes {
       else if (type == PEER_WORKER) {
         return new BallerinaPeerWorkerImpl(node);
       }
-      else if (type == QUERY_ACTION_STATEMENT) {
-        return new BallerinaQueryActionStatementImpl(node);
+      else if (type == QUERY_ACTION_EXPRESSION) {
+        return new BallerinaQueryActionExpressionImpl(node);
       }
       else if (type == QUERY_EXPR) {
         return new BallerinaQueryExprImpl(node);

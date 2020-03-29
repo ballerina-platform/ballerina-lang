@@ -32,11 +32,11 @@ public interface BallerinaFromClause extends PsiElement {
   @Nullable
   BallerinaTypeName getTypeName();
 
-  @NotNull
-  PsiElement getFrom();
-
   @Nullable
   PsiElement getIn();
+
+  @NotNull
+  PsiElement getFrom();
 
   @Nullable
   PsiElement getVar();

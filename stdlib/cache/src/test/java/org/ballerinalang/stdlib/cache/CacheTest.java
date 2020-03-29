@@ -53,7 +53,7 @@ public class CacheTest {
         CommonTestUtils.printDiagnostics(compileResult, log);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testCreateCache() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateCache");
         Assert.assertTrue(returns[0] instanceof BInteger);
@@ -226,7 +226,7 @@ public class CacheTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), expected.length);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testCacheEvictionWithTimer1() {
         BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEvictionWithTimer1", args);
@@ -238,7 +238,7 @@ public class CacheTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), expected.length);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testCacheEvictionWithTimer2() {
         BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(compileResult, "testCacheEvictionWithTimer2", args);

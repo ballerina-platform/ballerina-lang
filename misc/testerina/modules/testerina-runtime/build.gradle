@@ -34,8 +34,8 @@ dependencies {
     dist 'org.ow2.asm:asm-commons:7.2'
     dist 'org.ow2.asm:asm-tree:7.2'
 
-    compile group: 'org.jacoco', name: 'org.jacoco.core', version: '0.8.4'
-    compile group: 'org.jacoco', name: 'org.jacoco.report', version: '0.8.4'
+    compile group: 'org.jacoco', name: 'org.jacoco.core', version: '0.8.5'
+    compile group: 'org.jacoco', name: 'org.jacoco.report', version: '0.8.5'
     compile group: 'org.ow2.asm', name: 'asm', version: '7.2'
     compile group: 'org.ow2.asm', name: 'asm-commons', version: '7.2'
     compile group: 'org.ow2.asm', name: 'asm-tree', version: '7.2'

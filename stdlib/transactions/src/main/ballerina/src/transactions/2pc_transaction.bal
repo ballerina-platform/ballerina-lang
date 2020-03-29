@@ -161,7 +161,7 @@ type TwoPhaseCommitTransaction object {
         future<[(PrepareResult|error)?, Participant]>?[] results = [];
         foreach var participant in self.participants {
             string participantId = participant.participantId;
-            future<[(PrepareResult|error)?, Participant]> f = start participant.prepare(protocol);
+            future<[(PrepareResult|error)?, Participant]> f = @strand{thread:"any"} start participant.prepare(protocol);
             results[results.length()] = f;
         }
         foreach var res in results {
@@ -217,7 +217,7 @@ type TwoPhaseCommitTransaction object {
         NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
         future<(NotifyResult|error)?>?[] results = [];
         foreach var participant in self.participants {
-            future<(NotifyResult|error)?> f = start participant.notify(action, protocolName);
+            future<(NotifyResult|error)?> f = @strand{thread:"any"} start participant.notify(action, protocolName);
             results[results.length()] = f;
 
         }

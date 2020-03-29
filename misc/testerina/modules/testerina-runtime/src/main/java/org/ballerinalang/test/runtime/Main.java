@@ -51,13 +51,19 @@ public class Main {
         Gson gson = new Gson();
         TestSuite response = gson.fromJson(br, TestSuite.class);
         startTestSuit(Paths.get(response.getSourceRootPath()), response, jsonTmpSummaryPath);
-        Runtime.getRuntime().exit(0);
     }
 
     private static void startTestSuit(Path sourceRootPath, TestSuite testSuite, Path jsonTmpSummaryPath)
             throws ClassNotFoundException, IOException {
-        TesterinaUtils.executeTests(sourceRootPath, testSuite);
-        writeStatusToJsonFile(ModuleStatus.getInstance(), jsonTmpSummaryPath);
+        int exitStatus = 0;
+        try {
+            TesterinaUtils.executeTests(sourceRootPath, testSuite);
+        } catch (RuntimeException e) {
+            exitStatus = 1;
+        } finally {
+            writeStatusToJsonFile(ModuleStatus.getInstance(), jsonTmpSummaryPath);
+            Runtime.getRuntime().exit(exitStatus);
+        }
     }
 
     private static void writeStatusToJsonFile(ModuleStatus moduleStatus, Path tmpJsonPath) throws IOException {
