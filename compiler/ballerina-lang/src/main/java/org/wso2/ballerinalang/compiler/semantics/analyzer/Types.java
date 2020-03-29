@@ -492,6 +492,21 @@ public class Types {
             return true;
         }
 
+        if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.XML_TEXT) {
+            return true;
+        }
+
+        if (sourceTag == TypeTags.STRING && targetTag == TypeTags.XML_TEXT) {
+            return true;
+        }
+
+        if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.STRING) {
+            return true;
+        }
+
+        if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.CHAR_STRING) {
+            return true;
+        }
         if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ERROR) {
             return isErrorTypeAssignable((BErrorType) source, (BErrorType) target, unresolvedTypes);
         } else if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ANY) {

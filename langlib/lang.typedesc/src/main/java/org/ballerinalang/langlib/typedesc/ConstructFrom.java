@@ -156,6 +156,10 @@ public class ConstructFrom {
                 newValue = convertArray((ArrayValue) value, targetType, unresolvedValues);
                 break;
             case TypeTags.XML_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TEXT_TAG:
             case TypeTags.ERROR_TAG:
                 newValue = value.copy(new HashMap<Object, Object>());
                 break;

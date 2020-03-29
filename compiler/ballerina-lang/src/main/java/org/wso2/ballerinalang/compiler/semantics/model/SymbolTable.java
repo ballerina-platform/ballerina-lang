@@ -154,7 +154,7 @@ public class SymbolTable {
     public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT);
 
     public final BType xmlType = new BXMLType(TypeTags.XML,
-            BUnionType.create(null, xmlElementType, xmlCommentType, xmlPIType, xmlTextType), null);
+            BUnionType.create(null, xmlElementType, xmlCommentType, xmlPIType, xmlTextType), true,  null);
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;

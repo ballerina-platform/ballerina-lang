@@ -28,19 +28,22 @@ import org.wso2.ballerinalang.compiler.util.Names;
 public class BXMLType extends BBuiltInRefType {
 
     public BType constraint;
+    public boolean defaultConstraint;
 
     public BXMLType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
+        this.defaultConstraint = true;
     }
 
-    public BXMLType(int tag, BType constraint, BTypeSymbol tsymbol) {
+    public BXMLType(int tag, BType constraint, boolean defaultConstraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
+        this.defaultConstraint = defaultConstraint;
     }
 
     @Override
     public String toString() {
-        if (constraint != null) {
+        if (constraint != null && !defaultConstraint) {
             return Names.XML.value + "<" + constraint + ">";
         }
         return Names.XML.value;

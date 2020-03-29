@@ -1030,10 +1030,10 @@ public class SymbolResolver extends BLangNodeVisitor {
                 dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT,
                         symTable.xmlType, constraintType);
             }
-            constrainedType = new BXMLType(TypeTags.XML, constraintType, null);
+            constrainedType = new BXMLType(TypeTags.XML, constraintType, false, null);
         } else {
             checkUnionTypeForXMLSubTypes((BUnionType) constraintType, pos);
-            constrainedType = new BXMLType(TypeTags.XML, constraintType, null);
+            constrainedType = new BXMLType(TypeTags.XML, constraintType, false, null);
         }
         return constrainedType;
     }

@@ -94,8 +94,7 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'xml' cannot be cast to 'json'.*",
-            groups = "brokenOnXMLLangLibChange")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'lang.xml:Text' cannot be cast to 'json'.*")
     public void testJsonCastNegative() {
         BRunUtil.invoke(result, "testJsonCastNegative");
     }

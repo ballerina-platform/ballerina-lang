@@ -217,54 +217,54 @@ public class StampInbuiltFunctionNegativeTest {
 
     //----------------------------- XML NegativeTest cases ------------------------------------------------------
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void stampXMLToRecord() {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToRecord");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'xml' value cannot be converted to 'BookRecord'");
+                            "'lang.xml:Element' value cannot be converted to 'BookRecord'");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void stampXMLToJson() {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToJson");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'xml' value cannot be converted to 'json'");
+                            "'lang.xml:Element' value cannot be converted to 'json'");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void stampXMLToMap() {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToMap");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'xml' value cannot be converted to 'map<anydata>'");
+                            "'lang.xml:Element' value cannot be converted to 'map<anydata>'");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void stampXMLToArray() {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToArray");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'xml' value cannot be converted to 'BookRecord[]'");
+                            "'lang.xml:Element' value cannot be converted to 'BookRecord[]'");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void stampXMLToTuple() {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToTuple");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'xml' value cannot be converted to '[string,string]'");
+                            "'lang.xml:Element' value cannot be converted to '[string,string]'");
     }
 
     //----------------------------- Map NegativeTest cases ------------------------------------------------------
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void stampMapToXML() {
         BValue[] results = BRunUtil.invoke(mapNegativeTestCompileResult, "stampMapToXML");
         BValue error = results[0];
@@ -351,13 +351,13 @@ public class StampInbuiltFunctionNegativeTest {
     
     //----------------------------- Union NegativeTest cases ------------------------------------------------------
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void stampUnionToXML() {
         BValue[] results = BRunUtil.invoke(unionNegativeTestCompileResult, "stampUnionToXML");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'xml' value cannot be converted to 'Employee'");
+                            "'lang.xml:Element' value cannot be converted to 'Employee'");
     }
 
     @Test

@@ -2297,15 +2297,16 @@ public class TypeChecker extends BLangNodeVisitor {
         if (binaryExpr.opKind == OperatorKind.ADD &&
                 (lhsType.tag == TypeTags.XML && TypeTags.isXMLNonSequenceType(rhsType.tag))) {
             actualType = new BXMLType(TypeTags.XML, BUnionType.create(null, ((BXMLType) lhsType).constraint, rhsType),
+                    false,
                     null);
         } else if (binaryExpr.opKind == OperatorKind.ADD &&
                 (rhsType.tag == TypeTags.XML && TypeTags.isXMLNonSequenceType(lhsType.tag))) {
             actualType = new BXMLType(TypeTags.XML, BUnionType.create(null, ((BXMLType) rhsType).constraint, lhsType),
-                    null);
+                    false, null);
         } else if (binaryExpr.opKind == OperatorKind.ADD &&
                 rhsType.tag == TypeTags.XML && lhsType.tag == TypeTags.XML) {
             actualType = new BXMLType(TypeTags.XML, BUnionType.create(null, ((BXMLType) lhsType).constraint,
-                    ((BXMLType) rhsType).constraint), null);
+                    ((BXMLType) rhsType).constraint), false, null);
         } else if (lhsType != symTable.semanticError && rhsType != symTable.semanticError) {
             // Look up operator symbol if both rhs and lhs types aren't error or xml types
             BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
@@ -2655,7 +2656,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // Visit the children
         bLangXMLElementLiteral.modifiedChildren =
                 concatSimilarKindXMLNodes(bLangXMLElementLiteral.children, xmlElementEnv);
-        resultType = types.checkType(bLangXMLElementLiteral, symTable.xmlElementType, expType);
+        resultType = types.checkType(bLangXMLElementLiteral, symTable.xmlType, expType);
     }
 
     private boolean isXmlNamespaceAttribute(BLangXMLAttribute attribute) {
@@ -2667,18 +2668,18 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
         checkStringTemplateExprs(bLangXMLTextLiteral.textFragments, false);
-        resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlTextType, expType);
+        resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlType, expType);
     }
 
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
         checkStringTemplateExprs(bLangXMLCommentLiteral.textFragments, false);
-        resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlCommentType, expType);
+        resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlType, expType);
     }
 
     public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
         checkExpr(bLangXMLProcInsLiteral.target, env, symTable.stringType);
         checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments, false);
-        resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlPIType, expType);
+        resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlType, expType);
     }
 
     public void visit(BLangXMLQuotedString bLangXMLQuotedString) {

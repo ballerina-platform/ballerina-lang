@@ -1694,6 +1694,10 @@ public class TypeChecker {
 
                 return false;
             case TypeTags.XML_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_TEXT_TAG:
+            case TypeTags.XML_PI_TAG:
                 return XMLFactory.isEqual((XMLValue) lhsValue, (XMLValue) rhsValue);
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
