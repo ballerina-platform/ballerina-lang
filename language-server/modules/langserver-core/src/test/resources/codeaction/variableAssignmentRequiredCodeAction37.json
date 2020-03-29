@@ -1,21 +1,21 @@
 {
-    "line": 25,
-    "character": 33,
+    "line": 67,
+    "character": 20,
     "expected": {
         "title": "Create Local Variable",
         "edits": [
             {
                 "range": {
                     "start": {
-                        "line": 25,
-                        "character": 4
+                        "line": 67,
+                        "character": 20
                     },
                     "end": {
-                        "line": 25,
-                        "character": 4
+                        "line": 67,
+                        "character": 20
                     }
                 },
-                "newText": "string printResult \u003d "
+                "newText": "int intResult = "
             }
         ]
     }
