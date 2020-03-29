@@ -11,7 +11,7 @@ function testRefTypes() returns [typedesc<any>, typedesc<any>, typedesc<any>, ty
     typedesc<xml> a = xml;
     typedesc<json> b = json;
     typedesc<map<any>> c = map<any>;
-    typedesc<table<Employee>> d = table<Employee>;
+    //typedesc<table<Employee>> d = table<Employee>;
     return [a, b, c, d];
 }
 
