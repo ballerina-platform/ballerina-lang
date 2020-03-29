@@ -29,7 +29,6 @@ import org.ballerinalang.jvm.values.freeze.Status;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
@@ -139,16 +138,6 @@ public abstract class XMLNonElementItem extends XMLValue {
             return this;
         }
         return new XMLSequence();
-    }
-
-    @Override
-    public Object copy(Map<Object, Object> refs) {
-        return this;
-    }
-
-    @Override
-    public Object frozenCopy(Map<Object, Object> refs) {
-        return this;
     }
 
     @Override
