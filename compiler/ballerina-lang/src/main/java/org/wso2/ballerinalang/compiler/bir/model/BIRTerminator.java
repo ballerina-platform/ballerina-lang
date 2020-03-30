@@ -282,6 +282,8 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
     public static class Unlock extends BIRTerminator {
         public final BIRBasicBlock unlockBB;
 
+        public BIRTerminator.Lock relatedLock;
+
         public Unlock(DiagnosticPos pos, BIRBasicBlock unlockBB) {
             super(pos, InstructionKind.UNLOCK);
             this.unlockBB = unlockBB;
