@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -514,12 +515,19 @@ public class SymbolTable {
 
     private void defineXmlArithmaticOperations() {
         defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType);
-        BType[] xmlSubTypes = {xmlElementType, xmlCommentType, xmlPIType, xmlTextType};
-        for (BType subType : xmlSubTypes) {
+        List<BType> xmlSubTypes = Arrays.asList(xmlElementType, xmlCommentType, xmlPIType, xmlTextType);
+        for (int i = 0; i < xmlSubTypes.size(); i++) {
+            BType subType = xmlSubTypes.get(i);
             defineBinaryOperator(OperatorKind.ADD, subType, subType, subType);
-            defineBinaryOperator(OperatorKind.ADD, xmlType, subType, xmlType);
-            defineBinaryOperator(OperatorKind.ADD, subType, xmlType, xmlType);
+            for (int j = 0; j < xmlSubTypes.size(); j++) {
+                if (i != j) {
+                    BType otherType = xmlSubTypes.get(j);
+                    defineBinaryOperator(OperatorKind.ADD, subType, otherType, xmlType);
+                    defineBinaryOperator(OperatorKind.ADD, otherType, subType, xmlType);
+                }
+            }
         }
+
         defineBinaryOperator(OperatorKind.ADD, xmlType, stringType, xmlType);
         defineBinaryOperator(OperatorKind.ADD, xmlType, charStringType, xmlType);
 

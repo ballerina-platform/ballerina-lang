@@ -70,6 +70,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -832,7 +833,8 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.JSON:
                     return symTable.jsonType;
                 case TypeTags.XML:
-                    return symTable.xmlType;
+                    BType constraintType = readTypeFromCp();
+                    return new BXMLType(TypeTags.XML, constraintType, false, symTable.xmlType.tsymbol);
                 case TypeTags.NIL:
                     return symTable.nilType;
                 case TypeTags.ANYDATA:
