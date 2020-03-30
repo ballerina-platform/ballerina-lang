@@ -236,6 +236,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private void init() {
         this.modifierFunctions.add("push");
         this.modifierFunctions.add("pop");
+        this.modifierFunctions.add("shift");
+        this.modifierFunctions.add("unshift");
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {

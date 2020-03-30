@@ -404,6 +404,10 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, 1, "cannot call 'push' on fixed length tuple '[int,int]'", 8, 22);
         BAssertUtil.validateError(negativeResult, 2, "cannot call 'pop' on fixed length array 'int[1]'", 13, 35);
         BAssertUtil.validateError(negativeResult, 3, "cannot call 'pop' on fixed length tuple '[int,int]'", 18, 35);
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
+        BAssertUtil.validateError(negativeResult, 4, "cannot call 'shift' on fixed length array 'int[1]'", 29, 30);
+        BAssertUtil.validateError(negativeResult, 5, "cannot call 'unshift' on fixed length array 'int[1]'", 34, 22);
+        BAssertUtil.validateError(negativeResult, 6, "cannot call 'shift' on fixed length tuple '[int,int]'", 39, 35);
+        BAssertUtil.validateError(negativeResult, 7, "cannot call 'unshift' on fixed length tuple '[int,int]'", 44, 22);
+        Assert.assertEquals(negativeResult.getErrorCount(), 8);
     }
 }
