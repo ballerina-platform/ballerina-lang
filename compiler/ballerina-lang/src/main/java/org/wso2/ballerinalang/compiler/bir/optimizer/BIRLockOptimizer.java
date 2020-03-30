@@ -107,10 +107,18 @@ public class BIRLockOptimizer extends BIRVisitor {
             BIRTerminator.Lock comparedLock = lockList.get(i);
             Set<BIRNode.BIRGlobalVariableDcl> globalVarSetOfComparedLock = comparedLock.lockVariables;
 
-            if (isSharedLock(currentLock, globalVarSetOfComparedLock)) {
+            if (isSharedLock(currentLock, globalVarSetOfComparedLock)
+                && isNotInSameSet(currentLock, comparedLock)) {
                 populateLockSet(currentSet, comparedLock);
             }
         }
+    }
+
+    private boolean isNotInSameSet(BIRTerminator.Lock currentLock, BIRTerminator.Lock comparedLock) {
+        Integer currentLockId = lockToSetMap.get(currentLock);
+        Integer comparedLockId = lockToSetMap.get(comparedLock);
+
+        return currentLockId != comparedLockId;
     }
 
     private void populateLockSet(List<BIRTerminator.Lock> currentSet, BIRTerminator.Lock comparedLock) {
