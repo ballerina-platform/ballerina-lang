@@ -158,7 +158,6 @@ public class Compiler {
                 // skip the packages that were not loaded properly
                 packages.add(bLangPackage);
             }
-            dlog.resetErrorCount();
         }
 
         // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
@@ -166,6 +165,7 @@ public class Compiler {
             if (pkgNode.symbol != null) {
                 this.compilerDriver.compilePackage(pkgNode);
             }
+            dlog.resetErrorCount();
         }
         return packages;
     }
