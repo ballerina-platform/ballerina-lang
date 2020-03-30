@@ -19,12 +19,7 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Solution;
-import io.ballerinalang.compiler.internal.parser.tree.STCheckExpression;
-import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
-import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
+import io.ballerinalang.compiler.internal.parser.tree.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -1636,6 +1631,8 @@ public class BallerinaParser {
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
                 return parseCallStatementWithCheck();
+            case RETURN_KEYWORD:
+                return parseReturnStatement();
             default:
                 // If the next token in the token stream does not match to any of the statements and
                 // if it is not the end of statement, then try to fix it and continue.
@@ -2953,5 +2950,73 @@ public class BallerinaParser {
             Solution sol = recover(token, ParserRuleContext.CHECKING_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse return statement.
+     * <code>return-stmt := return [ action-or-expr ] ;</code>
+     *
+     * @return Return statement
+     */
+    private STNode parseReturnStatement() {
+        startContext(ParserRuleContext.RETURN_STMT);
+        STNode returnKeyword = parseReturnKeyword();
+        STNode returnRhs = parseReturnStatementRhs(returnKeyword);
+        endContext();
+        return returnRhs;
+    }
+
+    /**
+     * Parse return-keyword.
+     *
+     * @return Return-keyword node
+     */
+    private STNode parseReturnKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.RETURN_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.RETURN_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * <p>
+     * Parse the right hand side of a return statement.
+     * </p>
+     * <code>
+     * return-stmt-rhs := ; |  action-or-expr ;
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseReturnStatementRhs(STNode returnKeyword) {
+        STToken token = peek();
+        return parseReturnStatementRhs(token.kind, returnKeyword);
+    }
+
+    /**
+     * Parse the right hand side of a return statement, given the
+     * next token kind.
+     *
+     * @param tokenKind Next token kind
+     * @return Parsed node
+     */
+    private STNode parseReturnStatementRhs(SyntaxKind tokenKind,STNode returnKeyword) {
+        STNode expr;
+        STNode semicolon;
+
+        switch (tokenKind) {
+            case SEMICOLON_TOKEN:
+                expr = STNodeFactory.createEmptyNode();
+                semicolon = parseSemicolon();
+                break;
+            default:
+                expr = parseExpression();
+                semicolon = parseSemicolon();
+        }
+
+        return STNodeFactory.createReturnStatement(SyntaxKind.RETURN_STATEMENT,returnKeyword, expr, semicolon);
     }
 }

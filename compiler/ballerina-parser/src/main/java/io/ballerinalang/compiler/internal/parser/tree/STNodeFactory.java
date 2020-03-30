@@ -111,6 +111,13 @@ public class STNodeFactory {
         return new STVariableDeclaration(kind, typeName, variableName, equalsToken, initializer, semicolonToken);
     }
 
+    public static STNode createReturnStatement(SyntaxKind kind,
+                                                   STNode typeName,
+                                                   STNode initializer,
+                                                   STNode semicolonToken) {
+        return new STReturnStatement(kind, typeName, initializer, semicolonToken);
+    }
+
     // Expressions
 
     public static STNode createBinaryExpression(SyntaxKind kind,

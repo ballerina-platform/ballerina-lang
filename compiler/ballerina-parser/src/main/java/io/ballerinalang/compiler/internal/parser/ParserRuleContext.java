@@ -79,6 +79,7 @@ public enum ParserRuleContext {
     WHILE_BLOCK("while-block"),
     CALL_STMT("call-statement"),
     CALL_STMT_START("call-statement-start"),
+    RETURN_STMT("return-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -96,6 +97,7 @@ public enum ParserRuleContext {
     IF_KEYWORD("if"),
     ELSE_KEYWORD("else"),
     WHILE_KEYWORD("while"),
+    RETURN_KEYWORD("return"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

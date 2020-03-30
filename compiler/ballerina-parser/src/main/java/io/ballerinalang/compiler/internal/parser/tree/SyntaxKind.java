@@ -103,6 +103,7 @@ public enum SyntaxKind {
     ELSE_BLOCK(1204),
     WHILE_STATEMENT(1205),
     CALL_STATEMENT(1206),
+    RETURN_STATEMENT(1207),
 
     // Expressions
     BINARY_EXPRESSION(1300),
