@@ -6,6 +6,14 @@
   "source": "annotation/source/workerAnnotation1.bal",
   "items": [
     {
+      "label": "strand",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "strand {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "v1",
       "kind": "Property",
       "detail": "Annotation",

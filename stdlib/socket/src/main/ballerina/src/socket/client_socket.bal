@@ -32,6 +32,9 @@ public type Client client object {
     public string? localAddress = ();
     public int id = 0;
 
+    # Initializes the TCP socket client with the given client configuration.
+    #
+    # + clientConfig - This is used to provide the configurations like host, port, and timeout
     public function __init(ClientConfig? clientConfig) {
         if (clientConfig is ClientConfig) {
             self.config = clientConfig;

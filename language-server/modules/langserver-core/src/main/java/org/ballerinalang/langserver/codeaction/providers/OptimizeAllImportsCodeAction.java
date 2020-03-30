@@ -82,6 +82,10 @@ public class OptimizeAllImportsCodeAction extends AbstractCodeActionProvider {
                     String pkgName = matcher.group(1).trim();
                     String version = matcher.groupCount() > 1 && matcher.group(2) != null ? ":" + matcher.group(2) :
                             "";
+                    int aliasIndex = version.indexOf(" as ");
+                    if (aliasIndex > 0) {
+                        version = version.substring(0, aliasIndex);
+                    }
                     toBeRemovedImports.add(new ImmutablePair<>(pkgName, version));
                 }
             }

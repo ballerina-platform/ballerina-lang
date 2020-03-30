@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.string;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -44,5 +45,9 @@ public class ToBytes {
 
         byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
         return new ArrayValueImpl(bytes);
+    }
+
+    public static ArrayValue toBytes_bstring(Strand strand, BString str) {
+        return toBytes(strand, str.getValue());
     }
 }

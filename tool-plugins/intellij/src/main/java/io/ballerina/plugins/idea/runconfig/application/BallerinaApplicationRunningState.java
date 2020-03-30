@@ -29,6 +29,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import io.ballerina.plugins.idea.preloading.BallerinaCmdException;
+import io.ballerina.plugins.idea.configuration.BallerinaProjectSettings;
 import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import io.ballerina.plugins.idea.runconfig.BallerinaRunningState;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
@@ -139,15 +140,15 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             ballerinaExecutor.withParameters("--sourceroot").withParameters(projectRoot)
                     .withParameterString(myConfiguration.getBallerinaToolParams());
 
-            if (BallerinaExperimentalFeatureSettings.getInstance(project).isAllowedExperimental()) {
+            if (BallerinaProjectSettings.getStoredSettings(project).isAllowExperimental()) {
                 ballerinaExecutor.withParameters("--experimental");
             }
 
             // Tries to get the ballerina executable path using the SDK.
             String balSdkPath = BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module);
             // If any sdk is not found and user has chosen to auto detect ballerina home.
-            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaAutoDetectionSettings.getInstance(project).
-                    isAutoDetectionEnabled()) {
+            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaProjectSettings.getStoredSettings(project).
+                    isAutodetect()) {
                 try {
                     balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
                 } catch (BallerinaCmdException e) {
@@ -169,7 +170,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
                 ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
             }
 
-            if (BallerinaExperimentalFeatureSettings.getInstance(project).isAllowedExperimental()) {
+            if (BallerinaProjectSettings.getStoredSettings(project).isAllowExperimental()) {
                 ballerinaExecutor.withParameters("--experimental");
             }
 
@@ -178,8 +179,8 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             // Tries to get the ballerina executable path using the SDK.
             String balSdkPath = BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module);
             // If any sdk is not found and user has chosen to auto detect ballerina home.
-            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaAutoDetectionSettings.getInstance(project)
-                    .isAutoDetectionEnabled()) {
+            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaProjectSettings.getStoredSettings(project)
+                    .isAutodetect()) {
                 try {
                     balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
                 } catch (BallerinaCmdException e) {

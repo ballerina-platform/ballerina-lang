@@ -54,12 +54,14 @@ public class ConnectorInitTest {
     @Test
     public void testConnection1() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testConnection1", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertNull(returnVal[0]);
     }
 
     @Test
     public void testConnection2() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testConnection2", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertNull(returnVal[0]);
     }
 
@@ -73,6 +75,7 @@ public class ConnectorInitTest {
     @Test
     public void testConnectionWithValidDriver() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testConnectionWithValidDriver", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertNull(returnVal[0]);
     }
 
@@ -85,12 +88,14 @@ public class ConnectorInitTest {
     @Test
     public void testConnectionWithDatasourceOptions() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testConnectionWithDatasourceOptions", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertNull(returnVal[0]);
     }
 
     @Test
     public void testConnectionWithDatasourceInvalidProperty() {
-        BValue[] returnVal = BRunUtil.invokeFunction(result, "testConnectionWithDatasourceInvalidProperty", args);
+        BValue[] returnVal = BRunUtil.invokeFunction(result,
+                "testConnectionWithDatasourceInvalidProperty", args);
         Assert.assertTrue(returnVal[0] instanceof BError);
         BError error = (BError) returnVal[0];
         Assert.assertEquals(error.getReason(), SQLDBUtils.SQL_APPLICATION_ERROR_REASON);
@@ -101,7 +106,7 @@ public class ConnectorInitTest {
     @Test
     public void testWithConnectionPool() {
         BValue[] returnVal = BRunUtil.invoke(result, "testWithConnectionPool", args);
-        Assert.assertFalse(returnVal[0] instanceof BError);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         BMap connectionPool = (BMap) returnVal[0];
         Assert.assertEquals(connectionPool.get(Constants.ConnectionPool.MAX_CONNECTION_LIFE_TIME_SECONDS).stringValue()
@@ -112,12 +117,14 @@ public class ConnectorInitTest {
     @Test
     public void testWithSharedConnPool() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testWithSharedConnPool", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertNull(returnVal[0]);
     }
 
     @Test
     public void testWithAllParams() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testWithAllParams", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertNull(returnVal[0]);
     }
 
