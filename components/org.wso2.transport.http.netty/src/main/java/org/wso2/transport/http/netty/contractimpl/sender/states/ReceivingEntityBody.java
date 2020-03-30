@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contractimpl.common.states.SenderReqRespStateManager;
+import org.wso2.transport.http.netty.contractimpl.common.states.StateUtil;
 import org.wso2.transport.http.netty.contractimpl.sender.TargetHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -36,7 +37,6 @@ import static org.wso2.transport.http.netty.contractimpl.common.Util.isKeepAlive
 import static org.wso2.transport.http.netty.contractimpl.common.Util.safelyRemoveHandlers;
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.handleIncompleteInboundMessage;
-import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.setInboundTrailersToNewMessage;
 
 /**
  * State between start and end of inbound response entity body read.
@@ -71,10 +71,11 @@ public class ReceivingEntityBody implements SenderState {
     @Override
     public void readInboundResponseEntityBody(ChannelHandlerContext ctx, HttpContent httpContent,
                                               HttpCarbonMessage inboundResponseMsg) throws Exception {
-        inboundResponseMsg.addHttpContent(httpContent);
 
         if (httpContent instanceof LastHttpContent) {
-            setInboundTrailersToNewMessage(((LastHttpContent) httpContent).trailingHeaders(), inboundResponseMsg);
+            StateUtil.setInboundTrailersToNewMessage(((LastHttpContent) httpContent).trailingHeaders(),
+                                                     inboundResponseMsg);
+            inboundResponseMsg.addHttpContent(httpContent);
             inboundResponseMsg.setLastHttpContentArrived();
             targetHandler.resetInboundMsg();
             safelyRemoveHandlers(targetHandler.getTargetChannel().getChannel().pipeline(), IDLE_STATE_HANDLER);
@@ -84,6 +85,8 @@ public class ReceivingEntityBody implements SenderState {
                 targetHandler.closeChannel(ctx);
             }
             targetHandler.getConnectionManager().returnChannel(targetHandler.getTargetChannel());
+        } else {
+            inboundResponseMsg.addHttpContent(httpContent);
         }
     }
 
