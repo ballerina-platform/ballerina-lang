@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 2,
-    "character": 4
+    "line": 9,
+    "character": 10
   },
-  "source": "function/source/functionPointerAsParameter.bal",
+  "source": "function/source/completionWithinDoClause.bal",
   "items": [
     {
       "label": "xmlns",
@@ -158,11 +158,33 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "worker",
+      "label": "test - typeguard test",
       "kind": "Snippet",
-      "detail": "Snippet",
+      "detail": "Destructure the variable test with typeguard",
       "sortText": "240",
-      "insertText": "worker ${1:name} {\n\t${2}\n}",
+      "insertText": "if (test is error) {\n\t${1}\n} else {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testSimpleQueryAction()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "testSimpleQueryAction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "intList",
+      "kind": "Variable",
+      "detail": "int[]",
+      "sortText": "130",
+      "insertText": "intList",
       "insertTextFormat": "Snippet"
     },
     {
@@ -174,24 +196,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "bar(int a, string b)(float)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int`   \n- `string`   \n  \n**Returns** `float`   \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "bar(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "xml",
       "kind": "Unit",
       "detail": "Xml",
@@ -200,11 +204,27 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "test",
+      "kind": "Variable",
+      "detail": "(()|error)",
+      "sortText": "130",
+      "insertText": "test",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "byte",
       "kind": "Unit",
       "detail": "Byte",
       "sortText": "230",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "count",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "130",
+      "insertText": "count",
       "insertTextFormat": "Snippet"
     },
     {
@@ -249,24 +269,6 @@
       "sortText": "230",
       "insertText": "string",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "foo(int x, function (int,string) returns (float) bar)(float)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` x  \n- `function (int,string) returns (float)` bar  \n  \n**Returns** `float`   \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "foo(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     },
     {
       "label": "error",
@@ -331,6 +333,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "varInsideDo",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "130",
+      "insertText": "varInsideDo",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "any",
       "kind": "Unit",
       "detail": "Any",
@@ -376,14 +386,6 @@
       "detail": "Service",
       "sortText": "230",
       "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "x",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "130",
-      "insertText": "x",
       "insertTextFormat": "Snippet"
     },
     {
