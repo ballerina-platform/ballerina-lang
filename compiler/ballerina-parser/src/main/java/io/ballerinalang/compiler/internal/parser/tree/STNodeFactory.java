@@ -112,10 +112,10 @@ public class STNodeFactory {
     }
 
     public static STNode createReturnStatement(SyntaxKind kind,
-                                                   STNode typeName,
-                                                   STNode initializer,
+                                                   STNode returnKeyword,
+                                                   STNode actionOrExpr,
                                                    STNode semicolonToken) {
-        return new STReturnStatement(kind, typeName, initializer, semicolonToken);
+        return new STReturnStatement(kind, returnKeyword, actionOrExpr, semicolonToken);
     }
 
     // Expressions
