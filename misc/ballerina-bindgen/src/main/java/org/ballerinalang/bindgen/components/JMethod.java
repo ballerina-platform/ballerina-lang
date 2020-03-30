@@ -22,118 +22,117 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.allJavaClasses;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.classListForLooping;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.HANDLE;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.METHOD_INTEROP_TYPE;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.balType;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticMethod;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.primitiveArrayBalType;
 
 /**
  * Class for storing details pertaining to a specific Java method used for Ballerina bridge code generation.
  */
 public class JMethod {
 
-    public String methodName;
-    public Boolean params = true;
+    private boolean isStatic;
+    private boolean params = true;
+    private boolean noParams = true;
+    private boolean hasReturn = false;
+    private boolean objectReturn = false;
+    private boolean objectMethod = false;
+    private boolean reservedWord = false;
+    private boolean isArrayReturn = false;
+    private boolean exceptionTypes = false;
+    private boolean handleException = false;
+    private boolean isStringReturn = false;
+    private boolean hasPrimitiveParam = false;
+    private boolean isStringArrayReturn = false;
 
-    private Boolean isStatic;
-    private Boolean isInstance;
-    private Boolean noParams = true;
-    private Boolean noReturn = true;
-    private Boolean hasReturn = false;
-    private Boolean objectReturn = false;
-    private Boolean reservedWord = false;
-    private Boolean isArrayReturn = false;
-    private Boolean noReservedWord = true;
-    private Boolean exceptionTypes = false;
-    private Boolean handleException = false;
-    private Boolean isStringReturn = false;
-    private Boolean hasPrimitiveParam = false;
-    private Boolean isStringArrayReturn = false;
-
-    private String methodPrefix;
+    private String methodName;
     private String returnType;
-    private String interopType;
     private String externalType;
+    private String shortClassName;
     private String javaMethodName;
+    private String methodClassName;
+    private String interopType = METHOD_INTEROP_TYPE;
 
     private List<JParameter> parameters = new ArrayList<>();
     private StringBuilder paramTypes = new StringBuilder();
 
     JMethod(Method m) {
 
-        this.javaMethodName = m.getName();
-        this.methodName = m.getName();
-        this.methodPrefix = m.getDeclaringClass().getSimpleName();
-        if (!m.getReturnType().equals(Void.TYPE)) {
-            this.externalType = balType(m.getReturnType().getSimpleName());
-            this.returnType = this.externalType;
-            if (m.getReturnType().isArray()) {
-                this.isArrayReturn = true;
-                if (m.getReturnType().getComponentType().isPrimitive()) {
-                    returnType = primitiveArrayBalType(m.getReturnType().getComponentType().getSimpleName());
+        javaMethodName = m.getName();
+        methodName = m.getName();
+        shortClassName = m.getDeclaringClass().getSimpleName();
+        if (m.getDeclaringClass().equals(Object.class)) {
+            methodClassName = m.getDeclaringClass().getName();
+            objectMethod = true;
+        }
+        Class returnTypeClass = m.getReturnType();
+        if (!returnTypeClass.equals(Void.TYPE)) {
+            hasReturn = true;
+            externalType = getBallerinaHandleType(returnTypeClass);
+            returnType = getBallerinaParamType(returnTypeClass);
+            if (returnTypeClass.isArray()) {
+                isArrayReturn = true;
+                if (returnTypeClass.getComponentType().isPrimitive()) {
+                    objectReturn = false;
                 }
-            }
-            if (this.returnType.equals(HANDLE)) {
-                this.objectReturn = true;
-                this.returnType = m.getReturnType().getSimpleName();
-            }
-            if (m.getReturnType().isArray() && m.getReturnType().getComponentType().isPrimitive()) {
-                this.objectReturn = false;
-            }
-            this.hasReturn = true;
-            this.noReturn = false;
-            if (this.returnType.equals(BALLERINA_STRING)) {
-                this.isStringReturn = true;
-                this.externalType = HANDLE;
-            } else if (this.returnType.equals(BALLERINA_STRING_ARRAY)) {
+            } else if (returnTypeClass.isPrimitive()) {
+                objectReturn = false;
+            } else if (returnType.equals(BALLERINA_STRING)) {
+                isStringReturn = true;
+            } else if (returnType.equals(BALLERINA_STRING_ARRAY)) {
                 objectReturn = true;
+                isArrayReturn = true;
                 isStringArrayReturn = true;
-                this.isArrayReturn = true;
-                this.externalType = HANDLE;
+            } else {
+                objectReturn = true;
+            }
+
+        }
+        isStatic = isStaticMethod(m);
+        setParameters(m.getParameters());
+        if (m.getExceptionTypes().length > 0) {
+            exceptionTypes = true;
+            handleException = true;
+        }
+        if (!parameters.isEmpty()) {
+            JParameter lastParam = parameters.get(parameters.size() - 1);
+            lastParam.setHasNext(false);
+        } else {
+            noParams = false;
+        }
+        List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
+        if (reservedWords.contains(methodName)) {
+            reservedWord = true;
+        }
+        if (objectReturn && !allJavaClasses.contains(returnTypeClass.getName())) {
+            if (isArrayReturn) {
+                classListForLooping.add(returnTypeClass.getComponentType().getName());
+            } else {
+                classListForLooping.add(returnTypeClass.getName());
             }
         }
-        this.isInstance = !isStaticMethod(m);
-        this.isStatic = isStaticMethod(m);
-        for (Parameter param : m.getParameters()) {
-            paramTypes.append(param.getType().getSimpleName().toLowerCase());
+    }
+
+    private void setParameters(Parameter[] paramArr) {
+
+        for (Parameter param : paramArr) {
+            paramTypes.append(param.getType().getSimpleName().toLowerCase(Locale.ENGLISH));
             JParameter parameter = new JParameter(param);
-            this.parameters.add(parameter);
-            if (parameter.isPrimitiveArray) {
-                this.hasPrimitiveParam = true;
-                this.exceptionTypes = true;
+            parameters.add(parameter);
+            if (parameter.getIsPrimitiveArray()) {
+                hasPrimitiveParam = true;
+                exceptionTypes = true;
             }
             if (parameter.isObjArrayParam()) {
                 this.exceptionTypes = true;
-            }
-        }
-        if (m.getExceptionTypes().length > 0) {
-            this.exceptionTypes = true;
-            handleException = true;
-        }
-        if (!this.parameters.isEmpty()) {
-            JParameter lastParam = this.parameters.get(this.parameters.size() - 1);
-            lastParam.setLastParam();
-        } else {
-            this.noParams = false;
-        }
-        this.interopType = METHOD_INTEROP_TYPE;
-        List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
-        if (reservedWords.contains(methodName)) {
-            this.reservedWord = true;
-            this.noReservedWord = false;
-        }
-        if (objectReturn && !allJavaClasses.contains(m.getReturnType().getName())) {
-            if (isArrayReturn) {
-                classListForLooping.add(m.getReturnType().getComponentType().getName());
-            } else {
-                classListForLooping.add(m.getReturnType().getName());
             }
         }
     }
@@ -146,5 +145,60 @@ public class JMethod {
     public String getParamTypes() {
 
         return paramTypes.toString();
+    }
+
+    public Boolean getHasReturn() {
+
+        return hasReturn;
+    }
+
+    public Boolean getExceptionTypes() {
+
+        return exceptionTypes;
+    }
+
+    public Boolean getIsStringReturn() {
+
+        return isStringReturn;
+    }
+
+    public Boolean getHasPrimitiveParam() {
+
+        return hasPrimitiveParam;
+    }
+
+    public String getReturnType() {
+
+        return returnType;
+    }
+
+    public void setParams(boolean params) {
+
+        this.params = params;
+    }
+
+    public String getMethodName() {
+
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+
+        this.methodName = methodName;
+    }
+
+    public void setObjectReturn(boolean objectReturn) {
+
+        this.objectReturn = objectReturn;
+    }
+
+    public void setIsArrayReturn(boolean arrayReturn) {
+
+        isArrayReturn = arrayReturn;
+    }
+
+    public void setIsStringArrayReturn(boolean stringArrayReturn) {
+
+        isStringArrayReturn = stringArrayReturn;
     }
 }

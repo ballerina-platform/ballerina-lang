@@ -25,7 +25,6 @@ import java.io.PrintStream;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -36,6 +35,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_UTILS_TEMPL
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_BINDINGS_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_EXTENSION;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BBGEN_CLASS_TEMPLATE_NAME;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BINDINGS_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
@@ -43,11 +43,11 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.DEPENDENCIES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.EMPTY_OBJECT_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_FILE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_TEMPLATE_NAME;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BINDINGS_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.UTILS_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getClassLoader;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getExistingBindings;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getUpdatedConstantsList;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.notifyExistingDependencies;
@@ -64,11 +64,11 @@ public class BindingsGenerator {
     private Path utilsDirPath;
     private Set<String> classPaths = new HashSet<>();
     private Set<String> classNames = new HashSet<>();
+    private static boolean directJavaClass = true;
     private static final PrintStream errStream = System.err;
     private static final PrintStream outStream = System.out;
     private static Path userDir = Paths.get(System.getProperty(USER_DIR));
 
-    public static boolean directJavaClass = true;
     public static Set<String> allClasses = new HashSet<>();
     public static Set<String> classListForLooping = new HashSet<>();
     public static Set<String> allJavaClasses = new HashSet<>();
@@ -107,8 +107,11 @@ public class BindingsGenerator {
             while (!classListForLooping.isEmpty()) {
                 Set<String> newSet = new HashSet<>(classListForLooping);
                 newSet.removeAll(classNames);
+                List existingBindings = getExistingBindings(newSet, modulePath.toFile());
+                newSet.removeAll(existingBindings);
                 allJavaClasses.addAll(newSet);
                 classListForLooping.clear();
+
                 generateBindings(newSet, classLoader, dependenciesPath);
             }
             createDirectory(utilsDirPath.toString());
@@ -135,8 +138,7 @@ public class BindingsGenerator {
                     }
                     String simpleClassName = className.substring(className.lastIndexOf('.') + 1);
                     writeOutputFile(className, DEFAULT_TEMPLATE_DIR, EMPTY_OBJECT_TEMPLATE_NAME,
-                            Paths.get(modulePathString, DEPENDENCIES_DIR,
-                                    simpleClassName + BAL_EXTENSION).toString(), false);
+                            Paths.get(dependenciesPath.toString(),simpleClassName + BAL_EXTENSION).toString(), false);
                 }
             }
             if (classLoader instanceof URLClassLoader) {
@@ -173,9 +175,9 @@ public class BindingsGenerator {
                     Class classInstance = classLoader.loadClass(c);
                     if (classInstance != null && isPublicClass(classInstance)) {
                         JClass jClass = new JClass(classInstance);
-                        String outputFile = Paths.get(modulePath.toString(), jClass.packageName).toString();
+                        String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
                         createDirectory(outputFile);
-                        String filePath = Paths.get(outputFile, jClass.shortClassName + BAL_EXTENSION).toString();
+                        String filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION).toString();
                         writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath, false);
                         outStream.println("\t" + c);
                     }
@@ -186,5 +188,10 @@ public class BindingsGenerator {
                 throw new BindgenException("Error while generating Ballerina bridge code: " + e);
             }
         }
+    }
+
+    public static boolean isDirectJavaClass() {
+
+        return directJavaClass;
     }
 }
