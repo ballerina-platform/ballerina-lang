@@ -67,4 +67,7 @@ function testMultipleSelectClausesWithSimpleVariable() {
                     nameList[nameList.length()] = fullName;
                     10;
                 };
+
+    1 ..< 10;
+    10 ... 20;
 }
