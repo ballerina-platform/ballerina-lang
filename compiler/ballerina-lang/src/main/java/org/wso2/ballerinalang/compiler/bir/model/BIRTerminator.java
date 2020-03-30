@@ -234,6 +234,8 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
 
         public Set<BIRGlobalVariableDcl> lockVariables = new HashSet<>();
 
+        public Integer lockId = -1;
+
         public Lock(DiagnosticPos pos, BIRBasicBlock lockedBB) {
             super(pos, InstructionKind.LOCK);
             this.lockedBB = lockedBB;
