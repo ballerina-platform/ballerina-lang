@@ -65,6 +65,10 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(blockStatement);
     }
 
+    public void visit(ReturnStatement returnStatement) {
+        visitSyntaxNode(returnStatement);
+    }
+
     // Expressions
 
     public void visit(BinaryExpression binaryExpression) {
