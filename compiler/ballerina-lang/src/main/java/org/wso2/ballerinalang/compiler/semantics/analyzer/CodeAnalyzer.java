@@ -395,11 +395,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(funcNode.returnTypeNode, invokableEnv);
         }
         for (BLangSimpleVariable requiredParam : funcNode.requiredParams) {
-            analyzeNode(requiredParam, env);
+            analyzeNode(requiredParam, invokableEnv);
         }
 
         if (funcNode.restParam != null) {
-            analyzeNode(funcNode.restParam, env);
+            analyzeNode(funcNode.restParam, invokableEnv);
         }
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
