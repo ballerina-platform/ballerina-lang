@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -66,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
@@ -893,6 +895,19 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         queryExpr.letClausesList.forEach(this::acceptNode);
         this.acceptNode(queryExpr.selectClause);
         queryExpr.whereClauseList.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangQueryAction queryAction) {
+        queryAction.fromClauseList.forEach(this::acceptNode);
+        queryAction.whereClauseList.forEach(this::acceptNode);
+        queryAction.getLetClauseNode().forEach(this::acceptNode);
+        this.acceptNode(queryAction.doClause);
+    }
+
+    @Override
+    public void visit(BLangDoClause doClause) {
+        this.acceptNode(doClause.body);
     }
 
     @Override
