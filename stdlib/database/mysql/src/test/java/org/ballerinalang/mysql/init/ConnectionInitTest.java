@@ -41,7 +41,7 @@ import java.io.File;
 public class ConnectionInitTest {
     private static final String DB_NAME = "CONNECT_DB";
     private static final String SQL_SCRIPT = SQLDBUtils.SQL_RESOURCE_DIR + File.separator + SQLDBUtils.CONNECTIONS_DIR +
-            File.separator + "connections_test_data.sql";
+            File.separator + "connections-test-data.sql";
     private CompileResult result;
 
     static {
@@ -51,7 +51,7 @@ public class ConnectionInitTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile(SQLDBUtils.getBalFilesDir(SQLDBUtils.CONNECTIONS_DIR,
-                "connection_init_test.bal"));
+                "connection-init-test.bal"));
     }
 
     @Test
