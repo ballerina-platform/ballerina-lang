@@ -229,6 +229,9 @@ dependencies {
     balDoc project(path: ':ballerina-java', configuration: 'balDoc')
     balDoc project(path: ':ballerina-java-arrays', configuration: 'balDoc')
 
+    // testerina modules
+    balDoc project(path: ':testerina:testerina-core', configuration: 'balDoc')
+
     birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 
     staticArtifacts files('COPYRIGHT', 'LICENSE', 'README.md')
