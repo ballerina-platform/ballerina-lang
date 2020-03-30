@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -901,7 +902,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         queryAction.fromClauseList.forEach(this::acceptNode);
         queryAction.whereClauseList.forEach(this::acceptNode);
         queryAction.getLetClauseNode().forEach(this::acceptNode);
-        this.acceptNode(queryAction.doClause.body);
+        this.acceptNode(queryAction.doClause);
+    }
+
+    @Override
+    public void visit(BLangDoClause doClause) {
+        this.acceptNode(doClause.body);
     }
 
     @Override
