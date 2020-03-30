@@ -73,6 +73,8 @@ public class TypeTags {
     public static final int XML_COMMENT = XML_PI + 1;
     public static final int XML_TEXT = XML_COMMENT + 1;
 
+    public static final int EMPTY_TYPE_SET = XML_TEXT + 1;
+
     private TypeTags() {
 
     }
