@@ -119,7 +119,9 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'xml'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'xml\\" +
+                    "<lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
+                    "lang\\.xml:Text\\>'.*")
     public void testXmlCastNegative() {
         BRunUtil.invoke(result, "testXmlCastNegative");
     }
@@ -251,7 +253,9 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'string\\|xml'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'string\\|xml\\" +
+            "<lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
+                    "lang\\.xml:Text\\>'.*")
     public void testFiniteTypeToRefTypeCastNegative() {
         BRunUtil.invoke(result, "testFiniteTypeToRefTypeCastNegative");
     }

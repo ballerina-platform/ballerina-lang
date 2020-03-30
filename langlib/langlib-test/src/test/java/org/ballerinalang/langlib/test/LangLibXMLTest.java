@@ -262,16 +262,16 @@ public class LangLibXMLTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: " +
-                    "'xml\\<Element\\|Comment\\|ProcessingInstruction\\|Text\\>' " +
-                    "cannot be cast to 'xml\\<Comment\\>'.*")
+                    "'xml\\<lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction" +
+                    "\\|lang\\.xml:Text\\>' cannot be cast to 'xml\\<lang\\.xml:Comment\\>.*")
     public void xmlConstraintRuntimeCastInvalid() {
         BRunUtil.invoke(constrainedTest, "xmlConstraintRuntimeCastInvalid");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: " +
-                    "'xml\\<Element\\|Comment\\|ProcessingInstruction\\|Text\\>' cannot " +
-                    "be cast to 'xml\\<Element\\|Text\\>'.*")
+                    "'xml\\<lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction" +
+                    "\\|lang\\.xml:Text\\>' cannot be cast to 'xml\\<lang\\.xml:Element\\|lang\\.xml:Text\\>'.*")
     public void xmlConstraintRuntimeCastUnionInvalid() {
         BRunUtil.invoke(constrainedTest, "xmlConstraintRuntimeCastUnionInvalid");
     }
