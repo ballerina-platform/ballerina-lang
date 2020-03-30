@@ -257,6 +257,12 @@ function testXMLItemsCloneReadOnly() {
                         xml `<?PIT data?>`,
                         xml `<item><child>String Content <sub></sub>More Str</child><child></child></item>`);
 
+    assertFalse((x0.<hello>).isReadOnly());
+    assertTrue((x0.<hello>/*).isReadOnly()); // Sequence containing text item
+    assertFalse(x0[1].isReadOnly());
+    assertFalse(x0[2].isReadOnly());
+    assertTrue((x0/**/<child>/*)[0].isReadOnly()); // Text item
+
     xml x1 = x0.cloneReadOnly();
     assertTrue((x1.<hello>).isReadOnly());
     assertTrue((x1.<hello>/*).isReadOnly());
@@ -506,7 +512,14 @@ type FreezeAllowedDepartment record {|
 
 function assertTrue(boolean value) {
     if !(value) {
-        error e = error("Not True", message = "expected: true, found: " + value.toString());
+        error e = error("AssertionError", message = "expected: true, found: " + value.toString());
+        panic e;
+    }
+}
+
+function assertFalse(boolean value) {
+    if (value) {
+        error e = error("AssertionError", message = "expected: false, found: " + value.toString());
         panic e;
     }
 }
