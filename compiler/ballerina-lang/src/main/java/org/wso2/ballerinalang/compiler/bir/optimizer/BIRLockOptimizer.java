@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Optimize Locks
+ * Optimize Locks.
  *
  * @since 1.2.1
  */
@@ -118,7 +118,12 @@ public class BIRLockOptimizer extends BIRVisitor {
         Integer currentLockId = lockToSetMap.get(currentLock);
         Integer comparedLockId = lockToSetMap.get(comparedLock);
 
-        return currentLockId != comparedLockId;
+        if (currentLockId == null ||
+                comparedLockId == null) {
+            return true;
+        }
+
+        return currentLockId.compareTo(comparedLockId) != 0;
     }
 
     private void populateLockSet(List<BIRTerminator.Lock> currentSet, BIRTerminator.Lock comparedLock) {
