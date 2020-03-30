@@ -1969,7 +1969,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // error and fail the compilation.
             boolean isLambdaFunc = invokableNode.flagSet.contains(Flag.LAMBDA);
             if (paramIndex == ALL_UNTAINTED_TABLE_ENTRY_INDEX
-                    && (topLevelFunctionAllParamsUntaintedAnalysis || entryPointAnalysis || isLambdaFunc)
+                    && (topLevelFunctionAllParamsUntaintedAnalysis || entryPointAnalysis)
                     && (analyzerPhase == AnalyzerPhase.INITIAL_ANALYSIS
                     || analyzerPhase == AnalyzerPhase.BLOCKED_NODE_ANALYSIS
                     || analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS)) {

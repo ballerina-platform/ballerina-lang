@@ -651,10 +651,10 @@ public class TaintedStatusPropagationTest {
         BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'argv'", 28, 23);
     }
 
-    @Test
-    public void testLambdaFunctionBlockedAnalysis() {
-        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/lambda-func.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureParameter'", 5, 36);
-    }
+//    @Test () Disabled on #21823
+//    public void testLambdaFunctionBlockedAnalysis() {
+//        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/lambda-func.bal");
+//        Assert.assertEquals(result.getDiagnostics().length, 1);
+//        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureParameter'", 5, 36);
+//    }
 }
