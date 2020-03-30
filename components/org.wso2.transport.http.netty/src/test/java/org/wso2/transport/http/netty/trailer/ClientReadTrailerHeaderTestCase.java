@@ -40,8 +40,8 @@ import org.wso2.transport.http.netty.contract.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.common.states.StateUtil;
+import org.wso2.transport.http.netty.message.FullHttpMessageListener;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.DefaultHttpConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -49,6 +49,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import static org.testng.Assert.assertEquals;
@@ -104,10 +105,23 @@ public class ClientReadTrailerHeaderTestCase extends TrailerHeaderTestTemplate {
         DefaultHttpConnectorListener listener = new DefaultHttpConnectorListener(latch);
         clientConnector.send(requestMsg).setHttpConnectorListener(listener);
 
-        latch.await(5, TimeUnit.SECONDS);
+        latch.await(30, TimeUnit.SECONDS);
 
         HttpCarbonMessage response = listener.getHttpResponseMessage();
-        TestUtil.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
+        Semaphore executionWaitSem = new Semaphore(0);
+
+        response.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
+            @Override
+            public void onComplete(HttpCarbonMessage httpCarbonMessage) {
+                executionWaitSem.release();
+            }
+
+            @Override
+            public void onError(Exception error) {
+                executionWaitSem.release();
+            }
+        });
+        executionWaitSem.tryAcquire(120, TimeUnit.SECONDS);
 
         assertEquals(response.getHeader("Trailer"), "foo, bar, Max-forwards");
         assertEquals(response.getTrailerHeaders().get("foo"), "xyz");

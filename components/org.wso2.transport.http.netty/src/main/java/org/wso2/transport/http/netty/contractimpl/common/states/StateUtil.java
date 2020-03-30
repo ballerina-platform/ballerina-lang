@@ -149,7 +149,8 @@ public class StateUtil {
 
     /**
      * Populate inboound trailer of the response content to the HttpCarbonMessage and clear the trailer from the
-     * HttpContent.
+     * HttpContent. Make sure dev adds the LHC to the content queue after this method invocation, to avoid concurrent
+     * issues when accesssing trailers. Standard is to access to using HCM API.
      *
      * @param trailers    Represent the inbound trailing header
      * @param responseMsg Represent the newly created response message
