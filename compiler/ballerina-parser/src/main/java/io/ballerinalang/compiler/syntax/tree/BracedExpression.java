@@ -19,32 +19,27 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class AssignmentStatement extends Statement {
-    private Token variableName;
-    private Token equalsToken;
+/**
+ * Represents a braced expression in Ballerina.
+ *
+ * @since 1.3.0
+ */
+public class BracedExpression extends NonTerminalNode {
+    private Token openParen;
     private Node expression;
-    private Token semicolonToken;
+    private Token closeParen;
 
-    public AssignmentStatement(STNode node, int position, NonTerminalNode parent) {
+    public BracedExpression(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
-    public Token variableName() {
-        if (variableName != null) {
-            return variableName;
+    public Token openParen() {
+        if (openParen != null) {
+            return openParen;
         }
 
-        variableName = createToken(0);
-        return variableName;
-    }
-
-    public Token equalsToken() {
-        if (equalsToken != null) {
-            return equalsToken;
-        }
-
-        equalsToken = createToken(1);
-        return equalsToken;
+        openParen = createToken(0);
+        return openParen;
     }
 
     public Node expression() {
@@ -52,30 +47,28 @@ public class AssignmentStatement extends Statement {
             return expression;
         }
 
-        expression = node.childInBucket(2).createFacade(getChildPosition(2), this);
-        childBuckets[2] = expression;
+        expression = node.childInBucket(1).createFacade(getChildPosition(1), this);
+        childBuckets[1] = expression;
         return expression;
     }
 
-    public Token semicolonToken() {
-        if (semicolonToken != null) {
-            return semicolonToken;
+    public Token closeParen() {
+        if (closeParen != null) {
+            return closeParen;
         }
 
-        semicolonToken = createToken(3);
-        return semicolonToken;
+        closeParen = createToken(2);
+        return closeParen;
     }
 
     public Node childInBucket(int bucket) {
         switch (bucket) {
             case 0:
-                return variableName();
+                return openParen();
             case 1:
-                return equalsToken();
-            case 2:
                 return expression();
-            case 3:
-                return semicolonToken();
+            case 2:
+                return closeParen();
         }
         return null;
     }
@@ -86,7 +79,7 @@ public class AssignmentStatement extends Statement {
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
-        return visitor.transform(this);
+    public <T> T apply(SyntaxNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

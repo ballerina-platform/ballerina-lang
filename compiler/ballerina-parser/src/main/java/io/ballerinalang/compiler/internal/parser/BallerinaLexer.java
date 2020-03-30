@@ -257,7 +257,7 @@ public class BallerinaLexer {
      */
     private STNode processTrailingTrivia() {
         List<STNode> triviaList = new ArrayList<>(10);
-        processSyntaxTrivia(triviaList, true);
+        processSyntaxTrivia(triviaList, false);
         return STNodeFactory.createNodeList(triviaList);
     }
 
@@ -287,8 +287,9 @@ public class BallerinaLexer {
                     }
                     return;
                 case LexerTerminals.DIV:
-                    if (reader.peek(2) == LexerTerminals.DIV) {
+                    if (reader.peek(1) == LexerTerminals.DIV) {
                         triviaList.add(processComment());
+                        break;
                     }
                     return;
                 default:
@@ -302,7 +303,7 @@ public class BallerinaLexer {
      * <p>
      * <code>whitespace := 0x9 | 0xC | 0x20</code>
      * 
-     * @return
+     * @return Whitespace trivia
      */
     private STNode processWhitespaces() {
         while (true) {
@@ -372,11 +373,20 @@ public class BallerinaLexer {
      * <br/><br/>AnyCharButNewline := ^ 0xA</code>
      */
     private STNode processComment() {
-        // We reach here after verifying up to peek(2). Hence advance(2).
+        // We reach here after verifying up to 2 code-points ahead. Hence advance(2).
         reader.advance(2);
         int nextToken = peek();
-        while (nextToken != LexerTerminals.NEWLINE && nextToken != LexerTerminals.CARRIAGE_RETURN) {
-            reader.advance();
+        while (!reader.isEOF()) {
+            switch (nextToken) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                    break;
+                default:
+                    reader.advance();
+                    nextToken = peek();
+                    continue;
+            }
+            break;
         }
 
         return STNodeFactory.createSyntaxTrivia(SyntaxKind.COMMENT, getLexeme());
@@ -588,6 +598,10 @@ public class BallerinaLexer {
      * @return <code>true</code>, if the end of an invalid token is reached, <code>false</code> otherwise
      */
     private boolean isEndOfInvalidToken() {
+        if (reader.isEOF()) {
+            return true;
+        }
+
         int currentChar = peek();
         switch (currentChar) {
             case LexerTerminals.NEWLINE:
