@@ -212,5 +212,4 @@ public class GrpcConstants {
 
     //Observability tag keys
     public static final String TAG_KEY_GRPC_ERROR_MESSAGE = "grpc.error_message";
-    public static final String TAG_KEY_GRPC_MESSAGE_CONTENT = "grpc.message_content";
 }
