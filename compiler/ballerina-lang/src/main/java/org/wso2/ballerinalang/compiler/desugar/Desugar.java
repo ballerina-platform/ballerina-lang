@@ -2948,6 +2948,7 @@ public class Desugar extends BLangNodeVisitor {
         blockStmt.addStatement(simpleVariableDef);
 
         BLangUnLockStmt unLockStmt = new BLangUnLockStmt(lockNode.pos);
+        unLockStmt.relatedLock = lockStmt; // Used to find the related lock to unlock.
         blockStmt.addStatement(unLockStmt);
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(lockNode.pos, nillableErrorVarSymbol);
 
