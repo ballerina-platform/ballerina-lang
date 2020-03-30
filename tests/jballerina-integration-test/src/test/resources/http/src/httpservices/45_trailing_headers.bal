@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/io;
 
 listener http:Listener epBackend = new(9257);
 http:Client clientEp = new ("http://localhost:9257");
