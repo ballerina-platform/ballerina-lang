@@ -70,6 +70,7 @@ public class BIRLockOptimizer extends BIRVisitor {
         Integer currentSetIdLocal = lockToSetMap.get(currentLock);
         List<BIRTerminator.Lock> currentSet = setToLockMap.get(currentSetIdLocal);
 
+        // Use the setId of the current one for the other shared locks
         setId = currentSetIdLocal;
         populateLockSet(currentSet, currentLock, lockListIndex);
         setId = previousSetId;
@@ -110,14 +111,18 @@ public class BIRLockOptimizer extends BIRVisitor {
 
             currentSet.addAll(previousSet);
 
+            // Remove the unwanted set since the content has been added to the new set.
+            setToLockMap.remove(comparedLocksSetId);
+
             for (BIRTerminator.Lock lock : previousSet) {
                 lockToSetMap.put(lock, setId);
             }
+        } else {
+            currentSet.add(comparedLock);
         }
 
         // Update the compared lock to the related set.
         lockToSetMap.put(comparedLock, setId);
-        currentSet.add(comparedLock);
     }
 
     private boolean isSharedLock(BIRTerminator.Lock currentLock,
