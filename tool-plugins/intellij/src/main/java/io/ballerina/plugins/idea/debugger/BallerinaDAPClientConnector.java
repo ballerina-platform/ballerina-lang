@@ -19,13 +19,13 @@ package io.ballerina.plugins.idea.debugger;
 import com.google.common.base.Strings;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import io.ballerina.plugins.idea.configuration.BallerinaProjectSettings;
 import io.ballerina.plugins.idea.debugger.client.DAPClient;
 import io.ballerina.plugins.idea.debugger.client.DAPRequestManager;
 import io.ballerina.plugins.idea.debugger.client.connection.BallerinaSocketStreamConnectionProvider;
 import io.ballerina.plugins.idea.debugger.client.connection.BallerinaStreamConnectionProvider;
 import io.ballerina.plugins.idea.preloading.OSUtils;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
-import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.eclipse.lsp4j.debug.Capabilities;
@@ -216,7 +216,7 @@ public class BallerinaDAPClientConnector {
 
             // Checks for the user-configured auto detection settings.
             if (Strings.isNullOrEmpty(balSdkPath) &&
-                    BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
+                    BallerinaProjectSettings.getStoredSettings(project).isAutodetect()) {
                 balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
             }
 
