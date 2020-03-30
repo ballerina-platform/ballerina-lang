@@ -4654,7 +4654,15 @@ public class TypeChecker extends BLangNodeVisitor {
                 return actualType;
             }
 
-            checkExpr(indexExpr, this.env);
+            BType indexExprType = checkExpr(indexExpr, this.env);
+            if (types.isAssignable(indexExprType, symTable.stringType)) {
+                dlog.warning(indexBasedAccessExpr.pos, DiagnosticCode.DEPRECATED_XML_CHILD_ACCESS);
+            } else if (!types.isAssignable(indexExprType, symTable.intType)) {
+                dlog.error(
+                        indexBasedAccessExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.intType, indexExprType);
+                return symTable.semanticError;
+            }
+
             actualType = symTable.xmlType;
             indexBasedAccessExpr.originalType = actualType;
         } else if (varRefType == symTable.semanticError) {
