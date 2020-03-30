@@ -75,11 +75,11 @@ public class LexerTerminals {
 
     // Arithmetic operators
     public static final char EQUAL = '=';
-    public static final char ADD = '+';
-    public static final char SUB = '-';
-    public static final char MUL = '*';
-    public static final char DIV = '/';
-    public static final char MOD = '%';
+    public static final char PLUS = '+';
+    public static final char MINUS = '-';
+    public static final char ASTERISK = '*';
+    public static final char SLASH = '/';
+    public static final char PERCENT = '%';
     public static final char GT = '>';
     public static final char LT = '<';
 
