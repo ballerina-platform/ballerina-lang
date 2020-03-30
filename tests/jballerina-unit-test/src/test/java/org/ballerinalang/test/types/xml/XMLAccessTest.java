@@ -217,8 +217,9 @@ public class XMLAccessTest {
         BAssertUtil.validateError(negativeResult, i++, "cannot update an xml sequence", 5, 5);
         BAssertUtil.validateError(negativeResult, i++, "cannot update an xml sequence", 13, 5);
         BAssertUtil.validateError(negativeResult, i++, "invalid assignment in variable 'x1/*'", 13, 5);
-        BAssertUtil.validateWarning(negativeResult, i++, "xml child access using index expression is deprecated and " +
-                "will be removed in next minor release, please use xml step expressions", 18, 13);
+        BAssertUtil.validateWarning(negativeResult, i++, "xml child access using member access is deprecated and " +
+                "will be removed in the next minor release. xml step expressions can now be used to access children.",
+                                    18, 13);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 19, 13);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 20, 13);
 
