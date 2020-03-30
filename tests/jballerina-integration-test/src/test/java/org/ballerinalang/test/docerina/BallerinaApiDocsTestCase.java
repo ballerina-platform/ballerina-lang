@@ -50,7 +50,8 @@ public class BallerinaApiDocsTestCase extends BaseTest {
     public void testBirCacheModuleDocs() throws BallerinaTestException {
         PrintStream out = System.out;
         List<String> skipModules = new ArrayList<>(
-                Arrays.asList("ldap", "lang.__internal", "lang.annotations", "mysql", "sql", "testobserve"));
+                Arrays.asList("ldap", "lang.__internal", "lang.annotations", "mysql", "sql", "testobserve",
+                        "java.jdbc"));
         Path birCacheBallerinaDir = Paths.get(balServer.getServerHome(), "bir-cache", "ballerina");
         File[] birCacheBalDirFiles = new File(String.valueOf(birCacheBallerinaDir)).listFiles();
 
