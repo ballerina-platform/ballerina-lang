@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -297,8 +298,8 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangXMLElementAccess xmlElementAccess) {
         // check for undeclared namespaces.
         checkXMLNamespacePrefixes(xmlElementAccess.filters);
-        resultType = checkExpr(xmlElementAccess.expr, env, symTable.xmlType);
-        // todo: we may need to add some logic to constrain result type to xml @namedSubType type.
+        checkExpr(xmlElementAccess.expr, env, symTable.xmlType);
+        resultType = new BXMLType(TypeTags.XML, symTable.xmlElementType, false, null);
     }
 
     @Override
@@ -310,8 +311,12 @@ public class TypeChecker extends BLangNodeVisitor {
         if (xmlNavigation.childIndex != null) {
             checkExpr(xmlNavigation.childIndex, env, symTable.intType);
         }
-        resultType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
-        // todo: we may need to add some logic to constrain result type to  @namedSubType type.
+        BType exprType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
+        if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
+            resultType = symTable.xmlType;
+        } else {
+            resultType = new BXMLType(TypeTags.XML, symTable.xmlElementType, false, null);
+        }
     }
 
     private void checkXMLNamespacePrefixes(List<BLangXMLElementFilter> filters) {
@@ -2656,7 +2661,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // Visit the children
         bLangXMLElementLiteral.modifiedChildren =
                 concatSimilarKindXMLNodes(bLangXMLElementLiteral.children, xmlElementEnv);
-        resultType = types.checkType(bLangXMLElementLiteral, symTable.xmlType, expType);
+        resultType = types.checkType(bLangXMLElementLiteral, symTable.xmlElementType, expType);
     }
 
     private boolean isXmlNamespaceAttribute(BLangXMLAttribute attribute) {
@@ -2668,18 +2673,18 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
         checkStringTemplateExprs(bLangXMLTextLiteral.textFragments, false);
-        resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlType, expType);
+        resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlTextType, expType);
     }
 
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
         checkStringTemplateExprs(bLangXMLCommentLiteral.textFragments, false);
-        resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlType, expType);
+        resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlCommentType, expType);
     }
 
     public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
         checkExpr(bLangXMLProcInsLiteral.target, env, symTable.stringType);
         checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments, false);
-        resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlType, expType);
+        resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlPIType, expType);
     }
 
     public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
@@ -4144,7 +4149,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         for (BLangExpression expr : exprs) {
             BType exprType = checkExpr(expr, xmlElementEnv);
-            if (exprType == symTable.xmlType) {
+            if (TypeTags.isXMLTypeTag(exprType.tag)) {
                 if (!tempConcatExpressions.isEmpty()) {
                     newChildren.add(getXMLTextLiteral(tempConcatExpressions));
                     tempConcatExpressions = new ArrayList<>();
@@ -4682,7 +4687,13 @@ public class TypeChecker extends BLangNodeVisitor {
             if (type == symTable.semanticError) {
                 return type;
             }
-            actualType = symTable.xmlType;
+            BXMLType xmlType = ((BXMLType) varRefType);
+            if (xmlType.constraint.tag == TypeTags.UNION) {
+                //TODO: index based expression on union constraint can be improved
+                actualType = varRefType;
+            } else {
+                actualType = ((BXMLType) varRefType).constraint;
+            }
             indexBasedAccessExpr.originalType = actualType;
         } else if (varRefType == symTable.semanticError) {
             indexBasedAccessExpr.indexExpr.type = symTable.semanticError;

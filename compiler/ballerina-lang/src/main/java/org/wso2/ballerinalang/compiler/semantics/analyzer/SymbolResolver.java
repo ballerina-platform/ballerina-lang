@@ -1043,7 +1043,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             if (memberType.tag == TypeTags.UNION) {
                 checkUnionTypeForXMLSubTypes((BUnionType) memberType, pos);
             }
-            if (!TypeTags.isXMLTypeTag(memberType.tag)){
+            if (!TypeTags.isXMLTypeTag(memberType.tag)) {
                 dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT,
                         symTable.xmlType, constraintUnionType);
             }
