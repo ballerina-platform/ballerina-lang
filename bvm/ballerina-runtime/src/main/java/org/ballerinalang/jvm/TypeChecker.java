@@ -731,6 +731,15 @@ public class TypeChecker {
 
     private static boolean checkIsJSONType(BType sourceType, List<TypePair> unresolvedTypes) {
         BJSONType jsonType = (BJSONType) BTypes.typeJSON;
+
+        // If we encounter two types that we are still resolving, then skip it.
+        // This is done to avoid recursive checking of the same type.
+        TypePair pair = new TypePair(sourceType, jsonType);
+        if (unresolvedTypes.contains(pair)) {
+            return true;
+        }
+        unresolvedTypes.add(pair);
+
         switch (sourceType.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
@@ -755,6 +764,18 @@ public class TypeChecker {
                 return isFiniteTypeMatch((BFiniteType) sourceType, jsonType);
             case TypeTags.MAP_TAG:
                 return checkIsType(((BMapType) sourceType).getConstrainedType(), jsonType, unresolvedTypes);
+            case TypeTags.RECORD_TYPE_TAG:
+                BRecordType recordType = (BRecordType) sourceType;
+                for (BField field : recordType.getFields().values()) {
+                    if (!checkIsJSONType(field.type, unresolvedTypes)) {
+                        return false;
+                    }
+                }
+
+                if (!recordType.sealed) {
+                    return checkIsJSONType(recordType.restFieldType, unresolvedTypes);
+                }
+                return true;
             case TypeTags.UNION_TAG:
                 for (BType memberType : ((BUnionType) sourceType).getMemberTypes()) {
                     if (!checkIsJSONType(memberType, unresolvedTypes)) {
