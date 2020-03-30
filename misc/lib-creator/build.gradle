@@ -19,7 +19,7 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 configurations {
     dist {
-        transitive false
+        transitive true
     }
 }
 
@@ -32,19 +32,8 @@ dependencies {
     dist project(':ballerina-lang')
     dist project(':ballerina-tool')
     dist project(':ballerina-packerina')
-    dist project(':ballerina-runtime')
     dist project(':docerina')
-    dist project(':ballerina-cli-module')
-    dist 'com.google.code.gson:gson:2.7'
-    dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
-    dist 'com.moandjiezana.toml:toml4j:0.7.2'
-    dist 'org.apache.commons:commons-lang3:3.8.1'
-    dist 'io.netty:netty-buffer:4.1.39.Final'
-    dist 'io.netty:netty-common:4.1.39.Final'
-    dist 'org.slf4j:slf4j-api:1.7.22'
-    dist 'org.slf4j:slf4j-jdk14:1.7.22'
-    dist 'org.ow2.asm:asm:7.1'
-    dist 'commons-io:commons-io:2.6'
+
 }
 
 description = 'Ballerina - Library creation utility'
@@ -53,5 +42,9 @@ description = 'Ballerina - Library creation utility'
 jar {
     from {
         configurations.dist.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
     }
 }
