@@ -27,9 +27,10 @@ listener grpc:Listener ep8 = new (9098, {
     descMap: getDescriptorMap8()
 }
 service HelloWorld101 on ep8 {
-    resource function hello(grpc:Caller caller, string name, grpc:Headers headers) {
+    resource function hello(grpc:Caller caller, string name, grpc:ServerContext context) {
         io:println("name: " + name);
         string message = "Hello " + name;
+        grpc:Headers headers = context.getContextHeaders();
         if (!headers.exists("x-id")) {
             grpc:Error? err = caller->sendError(grpc:ABORTED, "x-id header is missing");
         } else {

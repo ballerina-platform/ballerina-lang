@@ -22,7 +22,7 @@ import ballerina/grpc;
 service HelloWorld13 on new grpc:Listener(9103) {
 
     resource function hello (grpc:Caller caller, string name,
-                             grpc:Headers headers) returns error? {
+                             grpc:ServerContext context) returns error? {
 
         error err = error("Testing", message = "Details");
         return err;

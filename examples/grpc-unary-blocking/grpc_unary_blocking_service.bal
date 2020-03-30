@@ -5,10 +5,11 @@ import ballerina/log;
 service HelloWorld on new grpc:Listener(9090) {
 
     resource function hello(grpc:Caller caller, string name,
-                             grpc:Headers headers) {
+                             grpc:ServerContext context) {
         log:printInfo("Server received hello from " + name);
         string message = "Hello " + name;
         // Reads custom headers in request message.
+        grpc:Headers headers = context.getContextHeaders();
         string reqHeader = headers.get("client_header_key") ?: "none";
         log:printInfo("Server received header value: " + reqHeader);
 

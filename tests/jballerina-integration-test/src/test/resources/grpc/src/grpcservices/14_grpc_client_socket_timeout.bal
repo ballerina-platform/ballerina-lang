@@ -25,7 +25,7 @@ import ballerina/runtime;
 service HelloWorld14 on new grpc:Listener(9104) {
 
     resource function hello (grpc:Caller caller, string name,
-                             grpc:Headers headers) {
+                             grpc:ServerContext context) {
         string message = "Hello " + name;
         runtime:sleep(2000);
         // Sends response message with headers.

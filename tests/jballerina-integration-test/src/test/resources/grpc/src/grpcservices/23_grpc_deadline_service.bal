@@ -26,12 +26,12 @@ listener grpc:Listener ep23 = new (9113);
 }
 service HealthServer on ep23 {
 
-    resource function registerPatient(grpc:Caller caller, Patient patient, grpc:Headers headers) {
+    resource function registerPatient(grpc:Caller caller, Patient patient, grpc:ServerContext context) {
         log:printInfo("Registration process begins");
         log:printInfo("Received patient information");
         log:printInfo("Patient name: " + patient.name);
 
-        boolean deadlineExceeded = caller->isCancelled(headers);
+        boolean deadlineExceeded = context.isCancelled();
         grpc:Error? result = ();
         if deadlineExceeded {
             result = caller->sendError(grpc:DEADLINE_EXCEEDED, "Service took more that allocated deadline to complete.");
@@ -46,7 +46,7 @@ service HealthServer on ep23 {
             }
         }
     }
-    resource function getPatientInfo(grpc:Caller caller, string patientId, grpc:Headers headers) {
+    resource function getPatientInfo(grpc:Caller caller, string patientId, grpc:ServerContext context) {
         log:printInfo("Information extraction process begins");
         log:printInfo("Patient ID: " + patientId);
         Patient patient = {
@@ -55,7 +55,7 @@ service HealthServer on ep23 {
             disease: "Headache"
         };
 
-        boolean deadlineExceeded = caller->isCancelled(headers);
+        boolean deadlineExceeded = context.isCancelled();
         grpc:Error? result = ();
         if deadlineExceeded {
             result = caller->sendError(grpc:DEADLINE_EXCEEDED, "Service took more that allocated deadline to complete.");
