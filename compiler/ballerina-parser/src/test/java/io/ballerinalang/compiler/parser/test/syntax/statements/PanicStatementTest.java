@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.parser.test.syntax.statements;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing variable declaration statements.
+ * Test parsing panic statements.
  */
 public class PanicStatementTest extends AbstractStatementTest {
 

@@ -2853,9 +2853,9 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse while-keyword.
+     * Parse panic-keyword.
      * 
-     * @return While-keyword node
+     * @return Panic-keyword node
      */
     private STNode parsePanicKeyword() {
         STToken token = peek();
