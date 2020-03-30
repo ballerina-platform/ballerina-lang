@@ -36,6 +36,7 @@ import static org.wso2.transport.http.netty.contractimpl.common.Util.isKeepAlive
 import static org.wso2.transport.http.netty.contractimpl.common.Util.safelyRemoveHandlers;
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.ILLEGAL_STATE_ERROR;
 import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.handleIncompleteInboundMessage;
+import static org.wso2.transport.http.netty.contractimpl.common.states.StateUtil.setInboundTrailersToNewMessage;
 
 /**
  * State between start and end of inbound response entity body read.
@@ -73,7 +74,7 @@ public class ReceivingEntityBody implements SenderState {
         inboundResponseMsg.addHttpContent(httpContent);
 
         if (httpContent instanceof LastHttpContent) {
-            inboundResponseMsg.getTrailerHeaders().add(((LastHttpContent) httpContent).trailingHeaders());
+            setInboundTrailersToNewMessage(((LastHttpContent) httpContent).trailingHeaders(), inboundResponseMsg);
             inboundResponseMsg.setLastHttpContentArrived();
             targetHandler.resetInboundMsg();
             safelyRemoveHandlers(targetHandler.getTargetChannel().getChannel().pipeline(), IDLE_STATE_HANDLER);

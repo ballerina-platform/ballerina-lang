@@ -28,6 +28,7 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -46,6 +47,9 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility functions for states.
@@ -132,11 +136,31 @@ public class StateUtil {
     // netty's API. Dev should use HttpCarbonMessage.getTrailerHeaders() API to manipulate trailer. Otherwise header
     // should be manually added to avoid any trailer miss.
     public static void addTrailerHeaderIfPresent(HttpCarbonMessage outboundResponseMsg) {
-        if (outboundResponseMsg.getTrailerHeaders().isEmpty() || outboundResponseMsg.getHeader(
-                HttpHeaderNames.TRAILER.toString()) != null) {
+        if (outboundResponseMsg.getTrailerHeaders().isEmpty()) {
             return;
         }
-        String trailerHeaderValue = String.join(", ", outboundResponseMsg.getTrailerHeaders().names());
+        List<String> names = new ArrayList<>();
+        for (Map.Entry<String, String> header : outboundResponseMsg.getTrailerHeaders().entries()) {
+            names.add(header.getKey());
+        }
+        String trailerHeaderValue = String.join(", ", names);
         outboundResponseMsg.setHeader(HttpHeaderNames.TRAILER.toString(), trailerHeaderValue);
+    }
+
+    /**
+     * Populate inboound trailer of the response content to the HttpCarbonMessage and clear the trailer from the
+     * HttpContent.
+     *
+     * @param trailers    Represent the inbound trailing header
+     * @param responseMsg Represent the newly created response message
+     */
+    public static void setInboundTrailersToNewMessage(HttpHeaders trailers, HttpCarbonMessage responseMsg) {
+        if (trailers.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<String, String> header : trailers.entries()) {
+            responseMsg.getTrailerHeaders().set(header.getKey(), header.getValue());
+        }
+        trailers.clear();
     }
 }
