@@ -167,7 +167,8 @@ public class LSPUtils {
      * @param project Project instance.
      * @return SDK location path string and a flag which indicates whether the location is auto detected.
      */
-    public static Pair<String, Boolean> getOrDetectBalSdkHome(Project project, boolean verboseMode) throws BallerinaCmdException {
+    public static Pair<String, Boolean> getOrDetectBalSdkHome(Project project, boolean verboseMode)
+            throws BallerinaCmdException {
 
         //If the project does not have a ballerina SDK attached, ballerinaSdkPath will be null.
         BallerinaSdk balSdk = BallerinaSdkUtils.getBallerinaSdkFor(project);
