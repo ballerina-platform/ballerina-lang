@@ -247,4 +247,11 @@ public class LocksInMainTest {
         BAssertUtil.validateError(compileResult, 1, "undefined symbol 'val1'",
                 18, 9);
     }
+
+    @Test(description = "Test for parallel run using locks")
+    public void testParallelRunUsingLocks() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/lock/parallel-run-lock.bal");
+
+        BValue[] returns = BRunUtil.invoke(compileResult, "runParallelUsingLocks");
+    }
 }
