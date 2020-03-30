@@ -79,6 +79,7 @@ public enum ParserRuleContext {
     WHILE_BLOCK("while-block"),
     CALL_STMT("call-statement"),
     CALL_STMT_START("call-statement-start"),
+    PANIC_STMT("panic-statement"),    
 
     // Keywords
     RETURNS_KEYWORD("returns"),

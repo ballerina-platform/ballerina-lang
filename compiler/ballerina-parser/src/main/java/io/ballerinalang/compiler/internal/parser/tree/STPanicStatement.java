@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.PanicStatement;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
@@ -43,6 +44,6 @@ public class STPanicStatement extends STStatement {
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new PanicStatement(this, position, parent);
     }
 }

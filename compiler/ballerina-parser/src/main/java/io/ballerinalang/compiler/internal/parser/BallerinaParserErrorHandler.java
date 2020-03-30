@@ -64,7 +64,7 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] STATEMENTS =
             { ParserRuleContext.ASSIGNMENT_STMT, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK,
-                    ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE };
+                    ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE, ParserRuleContext.PANIC_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -695,7 +695,9 @@ public class BallerinaParserErrorHandler {
                     break;
                 case CALL_STMT_START:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, CALL_STATEMENT);
-
+                case PANIC_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.PANIC_KEYWORD;
+                    break;
                 // productions
                 case COMP_UNIT:
                 case FUNC_DEFINITION:
@@ -1058,6 +1060,7 @@ public class BallerinaParserErrorHandler {
             case IF_BLOCK:
             case BLOCK_STMT:
             case WHILE_BLOCK:
+            case PANIC_STMT:
             case CALL_STMT:
                 // case EXPRESSION:
                 startContext(currentCtx);
@@ -1230,6 +1233,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.EXPRESSION;
             case CALL_STMT:
                 return ParserRuleContext.CALL_STMT_START;
+            case PANIC_STMT:
+                return ParserRuleContext.PANIC_KEYWORD;
+            case PANIC_KEYWORD:
+                return ParserRuleContext.EXPRESSION;            
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
@@ -1484,6 +1491,7 @@ public class BallerinaParserErrorHandler {
             case BLOCK_STMT:
             case WHILE_BLOCK:
             case CALL_STMT:
+            case PANIC_STMT:
                 return true;
             default:
                 return false;

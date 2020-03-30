@@ -546,8 +546,6 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.ELSE_KEYWORD);
             case LexerTerminals.WHILE:
                 return getSyntaxToken(SyntaxKind.WHILE_KEYWORD);
-            case LexerTerminals.PANIC:
-                return getSyntaxToken(SyntaxKind.PANIC_KEYWORD);
             case LexerTerminals.TRUE:
                 return getSyntaxToken(SyntaxKind.TRUE_KEYWORD);
             case LexerTerminals.FALSE:
@@ -556,6 +554,8 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.CHECK_KEYWORD);
             case LexerTerminals.CHECKPANIC:
                 return getSyntaxToken(SyntaxKind.CHECKPANIC_KEYWORD);
+            case LexerTerminals.PANIC:
+                return getSyntaxToken(SyntaxKind.PANIC_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

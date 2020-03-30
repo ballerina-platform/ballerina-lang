@@ -158,10 +158,10 @@ public class BallerinaParser {
                 return parseElseBody();
             case WHILE_KEYWORD:
                 return parseWhileKeyword();
-            case PANIC_KEYWORD:
-                return parsePanicKeyword();
             case BOOLEAN_LITERAL:
                 return parseBooleanLiteral();
+            case PANIC_KEYWORD:
+                return parsePanicKeyword();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -2844,7 +2844,7 @@ public class BallerinaParser {
      * @return Panic statement
      */
     private STNode parsePanicStatement() {
-        startContext(ParserRuleContext.PANIC_KEYWORD);
+        startContext(ParserRuleContext.PANIC_STMT);
         STNode panicKeyword = parsePanicKeyword();
         STNode expression = parseExpression();
         STNode semicolon = parseSemicolon();
