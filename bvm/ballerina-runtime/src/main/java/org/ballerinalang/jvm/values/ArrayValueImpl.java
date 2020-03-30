@@ -70,7 +70,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private double[] floatValues;
     private String[] stringValues;
     private BString[] bStringValues;
-
+    private boolean useBString;
     // ------------------------ Constructors -------------------------------------------------------------------
 
     @Deprecated
@@ -187,6 +187,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Deprecated
     public ArrayValueImpl(BArrayType type, long size, boolean useBString) {
         this.arrayType = type;
+        this.useBString = useBString;
         this.elementType = type.getElementType();
         initArrayValues(this.elementType, useBString);
         if (size != -1) {
@@ -977,10 +978,14 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private void prepareForAdd(long index, Object value, BType sourceType, int currentArraySize) {
         // check types
         if (!TypeChecker.checkIsType(value, sourceType, this.elementType)) {
-            throw BallerinaErrors.createError(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType,
-                            sourceType));
+            String reason = getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
+            String detail = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType,
+                    sourceType);
+            if (useBString) {
+                throw BallerinaErrors.createError(org.ballerinalang.jvm.StringUtils.fromString(reason),
+                        org.ballerinalang.jvm.StringUtils.fromString(detail));
+            }
+            throw BallerinaErrors.createError(reason, detail);
         }
 
         int intIndex = (int) index;

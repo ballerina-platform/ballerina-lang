@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.LinkedList;
@@ -80,12 +79,12 @@ public class BallerinaErrors {
         return new ErrorValue(reason, detailMap);
     }
 
-    public static ErrorValue createError(BString reason, String detail) {
-        MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
+    public static ErrorValue createError(BString reason, BString detail) {
+        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (detail != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, detail);
+            detailMap.put(StringUtils.fromString(ERROR_MESSAGE_FIELD), detail);
         }
-        return new ErrorValue((StringValue) reason, detailMap);
+        return new ErrorValue(reason, detailMap);
     }
 
     @Deprecated
@@ -102,7 +101,7 @@ public class BallerinaErrors {
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);
         }
-        return new ErrorValue(type, (StringValue) reason, detailMap);
+        return new ErrorValue(type, reason, detailMap);
     }
 
     @Deprecated
@@ -111,7 +110,7 @@ public class BallerinaErrors {
     }
 
     public static ErrorValue createError(BString reason, MapValue detailMap) {
-        return new ErrorValue((StringValue) reason, detailMap);
+        return new ErrorValue(reason, detailMap);
     }
 
     public static ErrorValue createError(Throwable error) {
