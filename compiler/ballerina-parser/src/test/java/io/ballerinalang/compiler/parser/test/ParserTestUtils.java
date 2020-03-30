@@ -249,7 +249,8 @@ public class ParserTestUtils {
             case IDENTIFIER_TOKEN:
                 return ((STIdentifier) token).text;
             case STRING_LITERAL_TOKEN:
-            case NUMERIC_LITERAL_TOKEN:
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
                 return ((STLiteralValueToken) token).text;
             case SIMPLE_TYPE:
                 return ((STTypeToken) token).text;
@@ -377,7 +378,7 @@ public class ParserTestUtils {
             case "STRING_LITERAL_TOKEN":
                 return SyntaxKind.STRING_LITERAL_TOKEN;
             case "NUMERIC_LITERAL_TOKEN":
-                return SyntaxKind.NUMERIC_LITERAL_TOKEN;
+                return SyntaxKind.DECIMAL_INTEGER_LITERAL;
             case "FUNCTION_CALL":
                 return SyntaxKind.FUNCTION_CALL;
             case "POSITIONAL_ARG":

@@ -63,6 +63,10 @@ public enum ParserRuleContext {
     OBJECT_TYPE_FIRST_QUALIFIER("object-type-qualifier"),
     OBJECT_TYPE_SECOND_QUALIFIER("object-type-second-qualifier"),
     OBJECT_TYPE_DESCRIPTOR_START("object-type-desc-start"),
+    IMPORT_VERSION("import-version"),
+    SEM_VER("sem-ver"),
+    IMPORT_PREFIX("import-prefix"),
+    IMPORT_ALIAS("import-alias"),
 
     // Statements
     STATEMENT("statement"),
@@ -96,6 +100,9 @@ public enum ParserRuleContext {
     IF_KEYWORD("if"),
     ELSE_KEYWORD("else"),
     WHILE_KEYWORD("while"),
+    IMPORT_KEYWORD("import"),
+    VERSION_KEYWORD("version"),
+    AS_KEYWORD("as"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -113,6 +120,7 @@ public enum ParserRuleContext {
     DOT("."),
     OPEN_BRACKET("["),
     CLOSE_BRACKET("]"),
+    SLASH("/"),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -128,6 +136,7 @@ public enum ParserRuleContext {
     EXPRESSION_RHS("expression-rhs"),
     FUNC_CALL("func-call"),
     EXPRESSION_END("expr-end"),
+    DECIMAL_INTEGER_LITERAL("decimal-int-literal"),
     ;
 
     private String value;

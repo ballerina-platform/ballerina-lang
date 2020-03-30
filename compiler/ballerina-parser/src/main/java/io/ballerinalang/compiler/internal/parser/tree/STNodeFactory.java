@@ -303,4 +303,37 @@ public class STNodeFactory {
     public static STNode createSyntaxTrivia(SyntaxKind kind, String text) {
         return new SyntaxTrivia(kind, text);
     }
+
+    public static STNode createImportDecl(STNode importKeyword,
+                                          STNode orgName,
+                                          STNode moduleName,
+                                          STNode version,
+                                          STNode alias,
+                                          STNode semicolon) {
+        return new STImportDeclaration(importKeyword, orgName, moduleName, version, alias, semicolon);
+    }
+
+    public static STNode createOrgName(STNode identifier, STNode slashToken) {
+        return new STOrgName(identifier, slashToken);
+    }
+
+    public static STNode createModuleName(STNode identifier, STNode moduleNameParts) {
+        return new STModuleName(identifier, moduleNameParts);
+    }
+
+    public static STNode createModuleNamePart(STNode dotToken, STNode identifier) {
+        return new STModuleNamePart(dotToken, identifier);
+    }
+
+    public static STNode createImportVersion(STNode versionKeyword, STNode semVer) {
+        return new STImportVersion(versionKeyword, semVer);
+    }
+
+    public static STNode createVersionPart(STNode leadingDot, STNode versionNumber) {
+        return new STImportVersionPart(leadingDot, versionNumber);
+    }
+
+    public static STNode createImportAlias(STNode asKeyword, STNode importPrefix) {
+        return new STImportAlias(asKeyword, importPrefix);
+    }
 }
