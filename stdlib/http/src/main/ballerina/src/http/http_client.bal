@@ -27,6 +27,11 @@ public type HttpClient client object {
     public ClientConfiguration config = {};
     public string url;
 
+    # Gets invoked to initialize the native `client`. During initialization, the configurations are provided through the
+    # `config`. The `HttpClient` lies inside every type of client in the chain holding the native client connector.
+    #
+    # + url - URL of the target service
+    # + config - The configurations to be used when initializing the `client`
     public function __init(string url, public ClientConfiguration? config = ()) {
         self.config = config ?: {};
         self.url = url;

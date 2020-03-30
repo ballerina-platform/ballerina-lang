@@ -145,7 +145,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * @param position         diagnose message position
      * @return offset position skipping package alias
      */
-    protected static Position offsetInvocation(String diagnosedContent, Position position) {
+    protected static Position offsetPositionToInvocation(String diagnosedContent, Position position) {
 //        Need to capture the correct function invocation position in chain & nested invocations
 //        eg. General Invocations: lorry.get_color()
 //            Chain invocations: lorry.get_color().print(10),
@@ -156,11 +156,21 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
 //            String Params: lorry.get_color("test.invoke(\"")
 //            Record literal: {a: 1, b: ""}
 //            Lambda Functions: function() returns int { return 1; };
-        String content = diagnosedContent;
+//            Type Casts: <int>1.1;
+//            Streaming From Clauses: from var person in personList;
+        String content = diagnosedContent.trim();
         int len = content.length();
         len--;
         // In-line record literal
         if (content.charAt(0) == '{' && content.charAt(len) == ';' && content.charAt(--len) == '}') {
+            return position;
+        }
+        // Type Casting
+        if (content.charAt(0) == '<' && content.charAt(len) == ';') {
+            return position;
+        }
+        // Streaming `from` clause
+        if (content.startsWith("from ")) {
             return position;
         }
         int pendingLParenthesis = 0;

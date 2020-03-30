@@ -36,7 +36,6 @@ import java.util.Optional;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_ERROR_MESSAGE;
-import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_MESSAGE_CONTENT;
 import static org.ballerinalang.net.grpc.MessageUtils.getMappingHttpStatusCode;
 
 /**
@@ -65,11 +64,6 @@ public class FunctionUtils {
             Descriptors.Descriptor inputType = (Descriptors.Descriptor) streamConnection.getNativeData(GrpcConstants
                     .REQUEST_MESSAGE_DEFINITION);
             try {
-                // Add message content to observer context.
-                Optional<ObserverContext> observerContext =
-                        ObserveUtils.getObserverContextOfCurrentFrame(Scheduler.getStrand());
-                observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_GRPC_MESSAGE_CONTENT, responseValue.toString()));
-
                 Message requestMessage = new Message(inputType.getName(), responseValue);
                 requestSender.onNext(requestMessage);
             } catch (Exception e) {

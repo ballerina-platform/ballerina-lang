@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
@@ -121,6 +122,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -666,7 +668,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         if (invocationExpr.getName().getValue().equals(this.tokenName)) {
             // Ex: int test = returnIntFunc() - returnInt() or e.getName() is a BLangInvocation and name is getName
             DiagnosticPos symbolPos = (DiagnosticPos) invocationExpr.getName().getPosition();
-            this.addSymbol(invocationExpr, invocationExpr.symbol, false, symbolPos);
+            if (invocationExpr.symbol != null && invocationExpr.type.tsymbol != null
+                    && invocationExpr.symbol.type.tag == TypeTags.ERROR) {
+                this.addSymbol(invocationExpr, invocationExpr.type.tsymbol, false, symbolPos);
+            } else {
+                this.addSymbol(invocationExpr, invocationExpr.symbol, false, symbolPos);
+            }
         }
         invocationExpr.requiredArgs.forEach(this::acceptNode);
         invocationExpr.argExprs.forEach(this::acceptNode);
@@ -887,6 +894,14 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         queryExpr.letClausesList.forEach(this::acceptNode);
         this.acceptNode(queryExpr.selectClause);
         queryExpr.whereClauseList.forEach(this::acceptNode);
+    }
+
+    @Override
+    public void visit(BLangQueryAction queryAction) {
+        queryAction.fromClauseList.forEach(this::acceptNode);
+        queryAction.whereClauseList.forEach(this::acceptNode);
+        queryAction.getLetClauseNode().forEach(this::acceptNode);
+        this.acceptNode(queryAction.doClause.body);
     }
 
     @Override

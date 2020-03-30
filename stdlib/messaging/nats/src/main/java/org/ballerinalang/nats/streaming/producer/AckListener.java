@@ -21,7 +21,7 @@ import io.nats.streaming.AckHandler;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.nats.Utils;
-import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 
 /**
@@ -29,13 +29,13 @@ import org.ballerinalang.nats.observability.NatsObservabilityConstants;
  */
 public class AckListener implements AckHandler {
     private NonBlockingCallback nonBlockingCallback;
-    private String url;
     private String subject;
+    private NatsMetricsReporter natsMetricsReporter;
 
-    public AckListener(NonBlockingCallback nonBlockingCallback, String url, String subject) {
+    AckListener(NonBlockingCallback nonBlockingCallback, String subject, NatsMetricsReporter natsMetricsReporter) {
         this.nonBlockingCallback = nonBlockingCallback;
-        this.url = url;
         this.subject = subject;
+        this.natsMetricsReporter = natsMetricsReporter;
     }
 
     /**
@@ -43,14 +43,14 @@ public class AckListener implements AckHandler {
      */
     @Override
     public void onAck(String nuid, Exception ex) {
-      if (ex == null) {
-          NatsMetricsUtil.reportAcknowledgement(url, subject);
-          nonBlockingCallback.setReturnValues(nuid);
-      } else {
-          NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_ACKNOWLEDGEMENT);
-          ErrorValue error = Utils.createNatsError(nuid, ex.getMessage());
-          nonBlockingCallback.setReturnValues(error);
-      }
-      nonBlockingCallback.notifySuccess();
+        if (ex == null) {
+            natsMetricsReporter.reportAcknowledgement(subject);
+            nonBlockingCallback.setReturnValues(nuid);
+        } else {
+            natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_ACKNOWLEDGEMENT);
+            ErrorValue error = Utils.createNatsError(nuid, ex.getMessage());
+            nonBlockingCallback.setReturnValues(error);
+        }
+        nonBlockingCallback.notifySuccess();
     }
 }

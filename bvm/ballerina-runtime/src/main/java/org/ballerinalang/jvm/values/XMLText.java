@@ -19,11 +19,9 @@ package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.CharacterDataImpl;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 
 import java.util.NoSuchElementException;
@@ -90,11 +88,6 @@ public class XMLText extends XMLNonElementItem {
             handleXmlException("failed to get xml as string: ", t);
         }
         return STRING_NULL_VALUE;
-    }
-
-    @Override
-    public BString bStringValue() {
-        return StringUtils.fromString(stringValue());
     }
 
     @Override
