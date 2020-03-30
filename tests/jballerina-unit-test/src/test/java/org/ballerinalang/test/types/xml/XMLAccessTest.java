@@ -213,9 +213,15 @@ public class XMLAccessTest {
 
     @Test
     public void testInvalidXMLAccessWithIndex() {
-        BAssertUtil.validateError(negativeResult, 0, "cannot update an xml sequence", 5, 5);
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "cannot update an xml sequence", 5, 5);
+        BAssertUtil.validateError(negativeResult, i++, "cannot update an xml sequence", 13, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid assignment in variable 'x1/*'", 13, 5);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 18, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 19, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 20, 15);
 
-        BAssertUtil.validateError(negativeResult, 1, "cannot update an xml sequence", 13, 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test

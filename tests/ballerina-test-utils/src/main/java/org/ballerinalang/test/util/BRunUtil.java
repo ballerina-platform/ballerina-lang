@@ -651,10 +651,9 @@ public class BRunUtil {
                     ArrayValue arrayValue = (ArrayValue) getJVMValue(elements.getType(), elements);
 
                     List<BXML> list = new ArrayList<>();
-                    for (Object arrayValueValue : arrayValue.getValues()) {
-                        list.add((BXML) arrayValueValue);
+                    for (int i = 0; i < arrayValue.size(); i++) {
+                        list.add((BXML) arrayValue.getRefValue(i));
                     }
-
                     return new XMLSequence(list);
                 }
             case TypeTags.HANDLE_TAG:
@@ -839,6 +838,7 @@ public class BRunUtil {
                             jvmArray.add(i, array.getFloat(i));
                             break;
                         case TypeTags.JSON_TAG:
+                        case TypeTags.XML_TAG:
                             BRefType refValue = array.getRefValue(i);
                             jvmArray.add(i, getJVMValue(refValue.getType(), refValue));
                             break;
@@ -1039,6 +1039,8 @@ public class BRunUtil {
                 return org.ballerinalang.jvm.types.BTypes.typeJSON;
             case TypeTags.HANDLE_TAG:
                 return org.ballerinalang.jvm.types.BTypes.typeHandle;
+            case TypeTags.XML_TAG:
+                return org.ballerinalang.jvm.types.BTypes.typeXML;
             default:
                 throw new RuntimeException("Function argument for type '" + type + "' is not supported");
         }
