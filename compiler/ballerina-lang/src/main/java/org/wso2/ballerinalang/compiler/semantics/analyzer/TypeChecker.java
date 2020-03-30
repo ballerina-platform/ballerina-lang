@@ -295,7 +295,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangXMLElementAccess xmlElementAccess) {
         // check for undeclared namespaces.
         checkXMLNamespacePrefixes(xmlElementAccess.filters);
-        resultType = checkExpr(xmlElementAccess.expr, env, expType);
+        resultType = checkExpr(xmlElementAccess.expr, env, symTable.xmlType);
         // todo: we may need to add some logic to constrain result type to xml @namedSubType type.
     }
 
@@ -2514,6 +2514,12 @@ public class TypeChecker extends BLangNodeVisitor {
         if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             dlog.error(bLangXMLQName.pos, DiagnosticCode.INVALID_NAMESPACE_PREFIX, prefix);
             bLangXMLQName.type = symTable.semanticError;
+            return;
+        }
+
+        // XML attributes without a namespace prefix does not inherit default namespace
+        // https://www.w3.org/TR/xml-names/#defaulting
+        if (bLangXMLQName.prefix.value.isEmpty()) {
             return;
         }
 

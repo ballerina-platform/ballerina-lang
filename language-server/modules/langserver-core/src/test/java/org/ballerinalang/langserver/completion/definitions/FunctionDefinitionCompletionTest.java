@@ -184,6 +184,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"langLibPackageSuggestion2.json", "function"},
                 {"groupedExpressionSuggestion1.json", "function"},
                 {"errorVarDefSuggestion1.json", "function"},
+                {"completionWithinDoClause.json", "function"},
 //                {"statementWithMissingSemiColon1.json", "function"},
 //                {"statementWithMissingSemiColon2.json", "function"},
 //                {"statementWithMissingSemiColon3.json", "function"},

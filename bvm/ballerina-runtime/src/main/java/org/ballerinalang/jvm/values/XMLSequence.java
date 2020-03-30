@@ -179,6 +179,7 @@ public final class XMLSequence extends XMLValue {
     }
 
     @Override
+    @Deprecated
     public void setAttributes(BMap<String, ?> attributes) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {

@@ -41,6 +41,8 @@ public class XMLAccessTest {
     CompileResult navigation;
     CompileResult negativeResult;
     CompileResult navigationNegative;
+    CompileResult navigationFilterNegative;
+
 
     @BeforeClass
     public void setup() {
@@ -49,6 +51,7 @@ public class XMLAccessTest {
         navigation = BCompileUtil.compile("test-src/types/xml/xml-navigation-access.bal");
         negativeResult = BCompileUtil.compile("test-src/types/xml/xml-indexed-access-negative.bal");
         navigationNegative = BCompileUtil.compile("test-src/types/xml/xml-nav-access-negative.bal");
+        navigationFilterNegative = BCompileUtil.compile("test-src/types/xml/xml-nav-access-negative-filter.bal");
     }
 
     @Test
@@ -269,13 +272,22 @@ public class XMLAccessTest {
         String navIndexingMessage = "index operations are not yet supported within XML navigation expressions, " +
                 "use a grouping expression (parenthesis) " +
                 "if you intend to index the result of the navigation expression.";
-        Assert.assertEquals(navigationNegative.getErrorCount(), 7);
-        BAssertUtil.validateError(navigationNegative, 0, methodInvocMessage, 3, 14);
-        BAssertUtil.validateError(navigationNegative, 1, methodInvocMessage, 4, 14);
-        BAssertUtil.validateError(navigationNegative, 2, methodInvocMessage, 5, 14);
-        BAssertUtil.validateError(navigationNegative, 3, methodInvocMessage, 6, 14);
-        BAssertUtil.validateError(navigationNegative, 4, methodInvocMessage, 7, 14);
-        BAssertUtil.validateError(navigationNegative, 5, navIndexingMessage, 8, 14);
-        BAssertUtil.validateError(navigationNegative, 6, navIndexingMessage, 9, 14);
+        int i = 0;
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 3, 14);
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 4, 14);
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 5, 14);
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 6, 14);
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 7, 14);
+        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 8, 14);
+        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 9, 14);
+        Assert.assertEquals(navigationNegative.getErrorCount(), i);
+    }
+
+    @Test void testXMLFilterExpressionsNegative() {
+        BAssertUtil.validateError(navigationFilterNegative, 0,
+                "incompatible types: expected 'xml', found 'any'", 4, 14);
+        BAssertUtil.validateError(navigationFilterNegative, 1,
+                "incompatible types: expected 'xml', found 'int'", 6, 14);
+        Assert.assertEquals(navigationFilterNegative.getErrorCount(), 2);
     }
 }
