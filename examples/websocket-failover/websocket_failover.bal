@@ -18,10 +18,10 @@ service failoverProxyService on new http:Listener(9090) {
         // Defines the webSocket failover client.
         http:WebSocketFailoverClient wsClientEp = new (
         {
-            callbackService: FailoverClientService,
+            callbackService: failoverClientService,
             // Defines a set of targets.
-            targetUrls: [ "ws://localhost:9095/failover/ws", "ws://localhost:9096/failover/ws",
-            "ws://localhost:9094/failover/ws"],
+            targetUrls: [ "ws://localhost:9095/failover/ws",
+            "ws://localhost:9096/failover/ws", "ws://localhost:9094/failover/ws"],
             // Failover interval in milliseconds.
             failoverIntervalInMillis: 2000,
             // When creating the client endpoint, if the `readyOnConnect` flag is set to
@@ -42,7 +42,8 @@ service failoverProxyService on new http:Listener(9090) {
     }
 
     // This resource gets invoked upon receiving a new text frame from a client.
-    resource function onText(http:WebSocketCaller caller, string text, boolean finalFrame) {
+    resource function onText(http:WebSocketCaller caller, string text,
+                             boolean finalFrame) {
 
         http:WebSocketFailoverClient clientEp = getAssociatedClientEndpoint(caller);
         var err = clientEp->pushText(text, finalFrame);
@@ -101,7 +102,8 @@ service failoverClientService = @http:WebSocketServiceConfig {} service {
         log:printError("Unexpected error hense closing the connection", err);
     }
 
-    // This resource gets invoked when a client connection is closed by the remote backend.
+    // This resource gets invoked when a client connection is closed by
+    // the remote backend.
     resource function onClose(http:WebSocketFailoverClient caller, int statusCode,
                                  string reason) {
 
@@ -114,14 +116,16 @@ service failoverClientService = @http:WebSocketServiceConfig {} service {
 };
 
 // Function to retrieve the associated client for a particular caller.
-function getAssociatedClientEndpoint(http:WebSocketCaller ep) returns (http:WebSocketFailoverClient) {
+function getAssociatedClientEndpoint(http:WebSocketCaller ep)
+                returns (http:WebSocketFailoverClient) {
     http:WebSocketFailoverClient wsClient = <http:WebSocketFailoverClient>ep.
     getAttribute(ASSOCIATED_CONNECTION);
     return wsClient;
 }
 
 // Function to retrieve the associated caller for a client.
-function getAssociatedServerEndpoint(http:WebSocketFailoverClient ep) returns (http:WebSocketCaller) {
+function getAssociatedServerEndpoint(http:WebSocketFailoverClient ep)
+                returns (http:WebSocketCaller) {
     http:WebSocketCaller wsEndpoint =<http:WebSocketCaller>ep.
     getAttribute(ASSOCIATED_CONNECTION);
     return wsEndpoint;
