@@ -318,14 +318,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang.table",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "lang.'table;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "log",
       "kind": "Module",
       "detail": "Module",
