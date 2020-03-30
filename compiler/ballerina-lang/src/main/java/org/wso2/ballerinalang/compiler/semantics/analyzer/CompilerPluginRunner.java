@@ -45,10 +45,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -80,7 +81,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private Names names;
     private final Types types;
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
 
     private DiagnosticPos defaultPos;
     private CompilerContext context;
@@ -107,7 +108,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.context = context;
 
         this.pluginList = new ArrayList<>();
@@ -198,6 +199,9 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
     public void visit(BLangConstant constant) {
         /* ignore */
+    }
+
+    public void visit(BLangLetExpression letExpression) {
     }
 
     // private methods
@@ -301,8 +305,8 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             BPackageSymbol symbol = this.packageCache.getSymbol(packageQName);
             if (symbol != null) {
                 SymbolEnv pkgEnv = symTable.pkgEnvMap.get(symbol);
-                final BSymbol listenerSymbol = symResolver.lookupSymbol(pkgEnv, listenerName, SymTag.OBJECT);
-                if (listenerSymbol != symTable.notFoundSymbol) {
+                BSymbol listenerSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, listenerName);
+                if ((listenerSymbol.tag & SymTag.OBJECT) == SymTag.OBJECT) {
                     listenerType = listenerSymbol.type;
                 }
             }

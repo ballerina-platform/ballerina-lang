@@ -17,23 +17,26 @@
   */
  package org.ballerinalang.jvm.values;
 
-import java.util.Arrays;
+ import org.ballerinalang.jvm.StringUtils;
+ import org.ballerinalang.jvm.values.api.BString;
 
-/**
- * Represent ballerina strings containing at least one non basic multilingual plane unicode character.
- *
- * @since 1.0.5
- */
-public class NonBmpStringValue implements StringValue {
+ import java.util.Arrays;
 
-    private final String value;
-    private final int[] surrogates;
+ /**
+  * Represent ballerina strings containing at least one non basic multilingual plane unicode character.
+  *
+  * @since 1.0.5
+  */
+ public class NonBmpStringValue implements StringValue {
+
+     private final String value;
+     private final int[] surrogates;
 
 
-    public NonBmpStringValue(String value, int[] surrogatePairLocations) {
-        this.value = value;
-        surrogates = surrogatePairLocations;
-    }
+     public NonBmpStringValue(String value, int[] surrogatePairLocations) {
+         this.value = value;
+         surrogates = surrogatePairLocations;
+     }
 
     @Override
     public String getValue() {
@@ -65,24 +68,82 @@ public class NonBmpStringValue implements StringValue {
     }
 
     @Override
-    public StringValue concat(StringValue str) {
+    public BString concat(BString str) {
         if (str instanceof NonBmpStringValue) {
             NonBmpStringValue other = (NonBmpStringValue) str;
             int[] both = Arrays.copyOf(surrogates, surrogates.length + other.surrogates.length);
             System.arraycopy(other.surrogates, 0, both, surrogates.length, other.surrogates.length);
             return new NonBmpStringValue(this.value + other.value, both);
+        } else if (str instanceof BmpStringValue) {
+            BmpStringValue other = (BmpStringValue) str;
+            return new NonBmpStringValue(this.value + other.getValue(), surrogates);
         } else {
             throw new RuntimeException("not impl yet");
         }
     }
 
-    @Override
-    public String stringValue() {
-        return value;
-    }
+     @Override
+     public String stringValue() {
+         return value;
+     }
 
-    @Override
-    public int hashCode() {
-        return value.hashCode();
-    }
-}
+     public int[] getSurrogates() {
+         return surrogates.clone();
+     }
+
+     @Override
+     public String toString() {
+         return value;
+     }
+
+     @Override
+     public boolean equals(Object str) {
+         if (str == this) {
+             return true;
+         }
+         if (str instanceof BString) {
+             return ((BString) str).getValue().equals(value);
+         }
+         return false;
+     }
+
+     @Override
+     public int hashCode() {
+         return value.hashCode();
+     }
+
+     @Override
+     public Long indexOf(BString str, int fromIndex) {
+         int offset = getOffset(fromIndex);
+         long index = value.indexOf(str.getValue(), offset);
+         if (index < 0) {
+             return null;
+         }
+         for (int i = 0; i < index; i++) {
+             char c = value.charAt(i);
+             if (Character.isHighSurrogate(c)) {
+                 index--;
+             }
+         }
+         return index;
+     }
+
+     @Override
+     public BString substring(int beginIndex, int endIndex) {
+         int beginOffset = getOffset(beginIndex);
+         int endOffset = getOffset(endIndex);
+         return StringUtils.fromString(value.substring(beginOffset, endOffset));
+     }
+
+     private int getOffset(int fromIndex) {
+         int offset = fromIndex;
+         for (int surrogate : surrogates) {
+             if (surrogate < fromIndex) {
+                 offset++;
+             } else {
+                 break;
+             }
+         }
+         return offset;
+     }
+ }

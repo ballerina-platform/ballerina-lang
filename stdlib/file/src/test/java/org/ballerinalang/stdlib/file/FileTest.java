@@ -59,6 +59,7 @@ public class FileTest {
 
     private CompileResult compileResult;
     private static final String TEMP_DIR = System.getProperty("java.io.tmpdir");
+    private static final String WORKING_DIRECTORY = System.getProperty("user.dir");
     private Path srcFilePath = Paths.get("src", "test", "resources", "data-files", "src-file.txt");
     private Path destFilePath = Paths.get("src", "test", "resources", "data-files", "dest-file.txt");
     private Path srcModifiedFilePath = Paths.get("src", "test", "resources", "data-files", "src-file-modified.txt");
@@ -185,6 +186,7 @@ public class FileTest {
         assertEquals(bvalue.get("name").stringValue(), "src-file.txt");
         assertTrue(((BInteger) bvalue.get("size")).intValue() > 0);
         assertEquals(bvalue.get("dir").stringValue(), "false");
+        assertEquals(bvalue.get("path").stringValue(), WORKING_DIRECTORY + File.separator + srcFilePath);
     }
 
     @Test(description = "Test for retrieving file info from non existence file")

@@ -44,6 +44,7 @@ public class FiniteTypeTest {
 
     @BeforeClass
     public void setup() {
+        BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/finite_type_project", "finiteTypeTest", "foo");
         result = BCompileUtil.compile("test-src/balo/test_balo/types/finite_type_test.bal");
     }

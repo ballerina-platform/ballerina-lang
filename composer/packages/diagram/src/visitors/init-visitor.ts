@@ -1,6 +1,6 @@
 import {
-    Assignment, ASTNode, ASTUtil, Block, ExpressionStatement, Function as BalFunction,
-    Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend
+    Assignment, ASTKindChecker, ASTNode, ASTUtil, Block, BlockFunctionBody,
+    ExpressionStatement, Function as BalFunction, Return, VariableDef, VisibleEndpoint, Visitor, WorkerSend
 } from "@ballerina/ast-model";
 import { EndpointViewState, FunctionViewState, StmntViewState, ViewState } from "../view-model";
 import { BlockViewState } from "../view-model/block";
@@ -18,6 +18,29 @@ function initStatement(node: ASTNode) {
     }
 }
 
+function beginVisitBlock(node: Block, parent: ASTNode) {
+    if (!node.viewState) {
+        node.viewState = new BlockViewState();
+    }
+    node.parent = parent;
+    if (!node.parent) {
+        return;
+    }
+    if (node.VisibleEndpoints) {
+        envEndpoints = [...envEndpoints, ...node.VisibleEndpoints];
+    }
+}
+
+function endVisitBlock(node: Block, parent: ASTNode) {
+    if (!node.parent) {
+        return;
+    }
+    if (node.VisibleEndpoints) {
+        const parentsVisibleEndpoints = node.VisibleEndpoints;
+        envEndpoints = envEndpoints.filter((ep) => (!parentsVisibleEndpoints.includes(ep)));
+    }
+}
+
 export const visitor: Visitor = {
 
     beginVisitASTNode(node: ASTNode) {
@@ -26,27 +49,20 @@ export const visitor: Visitor = {
         }
     },
 
+    beginVisitBlockFunctionBody(node: BlockFunctionBody, parent: ASTNode) {
+        beginVisitBlock(node, parent);
+    },
+
     beginVisitBlock(node: Block, parent: ASTNode) {
-        if (!node.viewState) {
-            node.viewState = new BlockViewState();
-        }
-        node.parent = parent;
-        if (!node.parent) {
-            return;
-        }
-        if (node.VisibleEndpoints) {
-            envEndpoints = [...envEndpoints, ...node.VisibleEndpoints];
-        }
+        beginVisitBlock(node, parent);
+    },
+
+    endVisitBlockFunctionBody(node: BlockFunctionBody, parent: ASTNode) {
+        endVisitBlock(node, parent);
     },
 
     endVisitBlock(node: Block, parent: ASTNode) {
-        if (!node.parent) {
-            return;
-        }
-        if (node.VisibleEndpoints) {
-            const parentsVisibleEndpoints = node.VisibleEndpoints;
-            envEndpoints = envEndpoints.filter((ep) => (!parentsVisibleEndpoints.includes(ep)));
-        }
+        endVisitBlock(node, parent);
     },
 
     beginVisitFunction(node: BalFunction) {
@@ -54,18 +70,19 @@ export const visitor: Visitor = {
             const viewState = new FunctionViewState();
             node.viewState = viewState;
         }
-        if (node.body) {
-            if (node.body.VisibleEndpoints) {
-                visibleEPsInCurrentFunc = [...node.body.VisibleEndpoints, ...visibleEPsInCurrentFunc];
+        if (node.body && ASTKindChecker.isBlockFunctionBody(node.body)) {
+            const blockBody = node.body as BlockFunctionBody;
+            if (blockBody.VisibleEndpoints) {
+                visibleEPsInCurrentFunc = [...blockBody.VisibleEndpoints, ...visibleEPsInCurrentFunc];
             }
-            node.body.statements.forEach((statement, index) => {
+            blockBody.statements.forEach((statement, index) => {
                 // Hide All worker nodes.
                 if (ASTUtil.isWorker(statement)) {
                     if (!statement.viewState) {
                         statement.viewState = new WorkerViewState();
                     }
                     statement.viewState.hidden = true;
-                    const nextStmt = node.body!.statements[index + 1];
+                    const nextStmt = blockBody.statements[index + 1];
                     if (nextStmt) {
                         if (!nextStmt.viewState) {
                             nextStmt.viewState = new ViewState();
@@ -75,8 +92,8 @@ export const visitor: Visitor = {
                 }
             });
             // fix go to source position of caller EP
-            if (node.resource && node.body.VisibleEndpoints) {
-                const callerEP = node.body.VisibleEndpoints.find((vEP) => vEP.caller);
+            if (node.resource && blockBody.VisibleEndpoints) {
+                const callerEP = blockBody.VisibleEndpoints.find((vEP) => vEP.caller);
                 if (callerEP) {
                     // update position to match caller definition (which is the first param)
                     callerEP.position = node.parameters[0].position;

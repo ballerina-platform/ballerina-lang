@@ -87,8 +87,8 @@ function name4() {
     };
 
     string? s =
-    p
-    ?.
-    address
+        p
+        ?.
+        address
     ;
 }

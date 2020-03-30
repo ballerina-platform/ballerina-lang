@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.command.testgen;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.command.testgen.renderer.BLangPkgBasedRendererOutput;
 import org.ballerinalang.langserver.command.testgen.renderer.RendererOutput;
@@ -78,7 +77,7 @@ public class TestGenerator {
      * Creates a test file for a given BLangPackage in source file path.
      *
      * @param documentManager   document manager
-     * @param bLangNodePair     A pair of {@link BLangNode} and fallback node
+     * @param bLangNode     A pair of {@link BLangNode} and fallback node
      * @param focusLineAcceptor focus line acceptor
      * @param builtSourceFile   built {@link BLangPackage} source file
      * @param pkgRelativePath   package relative path
@@ -87,11 +86,11 @@ public class TestGenerator {
      * @throws TestGeneratorException when test case generation fails
      */
     public static List<TextEdit> generate(WorkspaceDocumentManager documentManager,
-                                          Pair<BLangNode, Object> bLangNodePair,
+                                          BLangNode bLangNode,
                                           BiConsumer<Integer, Integer> focusLineAcceptor,
                                           BLangPackage builtSourceFile, String pkgRelativePath,
                                           File testFile) throws TestGeneratorException {
-        RootTemplate template = getRootTemplate(pkgRelativePath, bLangNodePair, builtSourceFile, focusLineAcceptor);
+        RootTemplate template = getRootTemplate(pkgRelativePath, bLangNode, builtSourceFile, focusLineAcceptor);
         RendererOutput rendererOutput = getRendererOutput(documentManager, testFile, focusLineAcceptor);
         template.render(rendererOutput);
         return rendererOutput.getRenderedTextEdits();
@@ -135,15 +134,11 @@ public class TestGenerator {
         return fileTemplate;
     }
 
-    private static RootTemplate getRootTemplate(String fileName, Pair<BLangNode, Object> nodes,
+    private static RootTemplate getRootTemplate(String fileName, BLangNode bLangNode,
                                                 BLangPackage builtTestFile,
                                                 BiConsumer<Integer, Integer> focusLineAcceptor)
             throws TestGeneratorException {
-
-        BLangNode bLangNode = nodes.getLeft();
-        Object otherNode = nodes.getRight();
-
-        if (bLangNode == null && otherNode == null) {
+        if (bLangNode == null) {
             throw new TestGeneratorException("Target test construct not found!");
         }
 

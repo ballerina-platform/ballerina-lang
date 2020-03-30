@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 3,
+    "character": 46
+  },
+  "source": "testablepackage/source/testProject2/src/module1/main.bal",
+  "items": [
+    {
+      "label": "TestObject()",
+      "kind": "Function",
+      "detail": "Function",
+      "sortText": "120",
+      "insertText": "TestObject();",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

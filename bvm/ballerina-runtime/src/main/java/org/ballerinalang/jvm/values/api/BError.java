@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.jvm.values.api;
 
-import org.ballerinalang.jvm.values.StringValue;
 
 import java.io.PrintWriter;
 
@@ -37,7 +36,7 @@ public abstract class BError extends RuntimeException implements BRefValue {
         super(reason);
     }
 
-    public BError(StringValue reason) {
+    public BError(BString reason) {
         super(reason.getValue());
     }
     /**

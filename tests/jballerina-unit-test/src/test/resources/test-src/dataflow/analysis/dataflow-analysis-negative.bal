@@ -264,10 +264,6 @@ function testUninitializedVarReferrencing() {
     _ = m.hasKey(s);
     foo(a, s, s);
 
-    // uninitialized var in xml attribute access
-    xml x;
-    _ = x@[s];
-
     // uninitialized var in range expression
     //
     var range = a...a+5;
@@ -720,4 +716,9 @@ function testUninitializedVarWithWhile2() {
         break;
     }
     int j = a; // variable 'a' is not initialized
+}
+
+function testUninitializedVarWithLet() {
+   int i;
+   int b = let int x = 4 + i in 2 * x * i;
 }

@@ -12,10 +12,10 @@ function getReadableRecordChannel(string filePath, string encoding,
     io:ReadableByteChannel byteChannel = check io:openReadableFile(filePath);
     // Creates a readable character channel
     // from the readable byte channel to read the content as text.
-    io:ReadableCharacterChannel characterChannel = new(byteChannel, encoding);
+    io:ReadableCharacterChannel characterChannel = new (byteChannel, encoding);
     // Converts the readable character channel to a readable record channel
     // to read the content as records.
-    io:ReadableTextRecordChannel delimitedRecordChannel = new(characterChannel,
+    io:ReadableTextRecordChannel delimitedRecordChannel = new (characterChannel,
                                                               rs = rs,
                                                               fs = fs);
     return delimitedRecordChannel;
@@ -32,7 +32,7 @@ function getWritableRecordChannel(string filePath, string encoding, string rs,
     io:WritableByteChannel byteChannel = check io:openWritableFile(filePath);
     // Creates a writable character channel
     // from the writable byte channel to read the content as text.
-    io:WritableCharacterChannel characterChannel = new(byteChannel, encoding);
+    io:WritableCharacterChannel characterChannel = new (byteChannel, encoding);
     // Converts the writable character channel to a writable record channel
     // to read the content as records.
     io:WritableTextRecordChannel delimitedRecordChannel = new(characterChannel,

@@ -58,12 +58,16 @@ public class ImportModuleExecutor implements LSCommandExecutor {
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
         for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
-            if (((JsonObject) arg).get(ARG_KEY).getAsString().equals(CommandConstants.ARG_KEY_DOC_URI)) {
-                documentUri = ((JsonObject) arg).get(ARG_VALUE).getAsString();
-                textDocumentIdentifier.setUri(documentUri);
-                context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
-            } else if (((JsonObject) arg).get(ARG_KEY).getAsString().equals(CommandConstants.ARG_KEY_MODULE_NAME)) {
-                context.put(ExecuteCommandKeys.PKG_NAME_KEY, ((JsonObject) arg).get(ARG_VALUE).getAsString());
+            switch (((JsonObject) arg).get(ARG_KEY).getAsString()) {
+                case CommandConstants.ARG_KEY_DOC_URI:
+                    documentUri = ((JsonObject) arg).get(ARG_VALUE).getAsString();
+                    textDocumentIdentifier.setUri(documentUri);
+                    context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+                    break;
+                case CommandConstants.ARG_KEY_MODULE_NAME:
+                    context.put(ExecuteCommandKeys.PKG_NAME_KEY, ((JsonObject) arg).get(ARG_VALUE).getAsString());
+                    break;
+                default:
             }
         }
 

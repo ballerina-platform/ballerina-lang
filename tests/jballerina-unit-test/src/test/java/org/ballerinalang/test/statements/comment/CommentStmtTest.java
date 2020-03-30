@@ -22,6 +22,7 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 
@@ -45,12 +46,13 @@ public class CommentStmtTest {
     @Test
     public void commentsTest() {
         Assert.assertEquals(result.getErrorCount(), 0);
-        List<BLangStatement> statements = compiledPackage.functions.get(0).body.getStatements();
+        List<BLangStatement> statements = ((BLangBlockFunctionBody) compiledPackage.functions.get(0).body)
+                .getStatements();
         Assert.assertNotNull(statements, "statements not found");
         //since return statement is added at desugar phase, expected statement count is 8
         Assert.assertEquals(statements.size(), 8, "statement count mismatched");
-        
-        statements = compiledPackage.functions.get(1).body.getStatements();
+
+        statements = ((BLangBlockFunctionBody) compiledPackage.functions.get(1).body).getStatements();
         Assert.assertNotNull(statements, "statements not found");
         Assert.assertEquals(statements.size(), 3, "statement count mismatched");
     }

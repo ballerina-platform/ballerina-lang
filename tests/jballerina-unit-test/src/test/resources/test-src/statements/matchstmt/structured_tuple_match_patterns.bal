@@ -80,18 +80,18 @@ function foo1([string, int] | [float, boolean] | [float, string, boolean] | floa
 
 
 function testStructuredMatchPatternComplex1() returns string[] {
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a1 = 66.6;
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a2 = ["Hello", 34];
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a3 = [66.6, ["Test", [true, 456]]];
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a4 = [5.6, ["Ballerina", false]];
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a5 = ["Bal", 543, 67.8];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a1 = 66.6;
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a2 = ["Hello", 34];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a3 = [66.6, ["Test", [true, 456]]];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a4 = [5.6, ["Ballerina", false]];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a5 = ["Bal", 543, new(4)];
 
     string[] result = [bar1(a1), bar1(a2), bar1(a3), bar1(a4), bar1(a5)];
 
     return result;
 }
 
-function bar1([string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a) returns string {
+function bar1([string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a) returns string {
     match a {
         var [f, [s, [b, i]]] => {
             return "Matched with four vars : " + io:sprintf("%s", f) + ", " + io:sprintf("%s", s) +
@@ -112,18 +112,18 @@ function bar1([string, int] | [float, [string, boolean]] | [float, [string, [boo
 
 
 function testStructuredMatchPatternComplex2() returns string[] {
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a1 = 66.6;
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a2 = ["Hello", 34];
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a3 = [66.6, ["Test", [true, 456]]];
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a4 = [5.6, ["Ballerina", false]];
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a5 = ["Bal", 543, 67.8];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a1 = 66.6;
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a2 = ["Hello", 34];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a3 = [66.6, ["Test", [true, 456]]];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a4 = [5.6, ["Ballerina", false]];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a5 = ["Bal", 543, new(4)];
 
     string[] result = [baz1(a1), baz1(a2), baz1(a3), baz1(a4), baz1(a5)];
 
     return result;
 }
 
-function baz1([string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a) returns string {
+function baz1([string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a) returns string {
     match a {
         var [s, [i, b]] => {
             return "Matched with three vars : " + io:sprintf("%s", s) + ", " +
@@ -157,11 +157,11 @@ function bar2(any a) returns string {
 }
 
 function testStructuredMatchPatternComplex3() returns string[] {
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a1 = 66.6;
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a2 = ["Hello", 34];
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a3 = [66.6, ["Test", [true, 456]]];
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a4 = [5.6, ["Ballerina", false]];
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a5 = ["Bal", 543, 67.8];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a1 = 66.6;
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a2 = ["Hello", 34];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a3 = [66.6, ["Test", [true, 456]]];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a4 = [5.6, ["Ballerina", false]];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a5 = ["Bal", 543, new(4)];
 
     string[] result = [bar2(a1), bar2(a2), bar2(a3), bar2(a4), bar2(a5)];
 
@@ -183,11 +183,11 @@ function baz2(any a) returns string {
 }
 
 function testStructuredMatchPatternComplex4() returns string[] {
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a1 = 66.6;
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a2 = ["Hello", 34];
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a3 = [66.6, ["Test", [true, 456]]];
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a4 = [5.6, ["Ballerina", false]];
-    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, float] a5 = ["Bal", 543, 67.8];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a1 = 66.6;
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a2 = ["Hello", 34];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a3 = [66.6, ["Test", [true, 456]]];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a4 = [5.6, ["Ballerina", false]];
+    [string, int] | [float, [string, boolean]] | [float, [string, [boolean, int]]] | float | [string, int, NoFillerObject] a5 = ["Bal", 543, new(2)];
 
     string[] result = [baz2(a1), baz2(a2), baz2(a3), baz2(a4), baz2(a5)];
 
@@ -199,7 +199,8 @@ function testStructuredMatchPatternWithTypeGuard1() returns string[] {
     [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | int | float a1 = ["Hello", 45];
     [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | int | float a2 = [4.5, true];
     [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | int | float a3 = [false, 4];
-    [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | int | float a4 = [455, true];
+    [int, boolean] ib = [455, true];
+    [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | int | float a4 = ib;
     [string, int] | [float, boolean] | [boolean, int] | [int, boolean] | float a5 = 5.6;
 
     string[] result = [foo3(a1), foo3(a2), foo3(a3), foo3(a4), foo3(a5)];
@@ -435,3 +436,11 @@ function foo8(any x) returns string {
         }
     }
 }
+
+type NoFillerObject object {
+    int i;
+
+    function __init(int i) {
+        self.i = i;
+    }
+};

@@ -40,9 +40,9 @@ public class AnydataNegativeTest {
         assertEquals(result.getErrorCount(), 31);
 
         // Invalid literal assignments to `anydata`
-        validateError(result, index++, "invalid usage of record literal with type 'anydata'", 36, 20);
-        validateError(result, index++, "invalid usage of record literal with type 'anydata'", 37, 21);
-        validateError(result, index++, "invalid usage of record literal with type 'anydata'", 38, 20);
+        validateError(result, index++, "ambiguous type '(anydata|map<int>)'", 36, 29);
+        validateError(result, index++, "ambiguous type '(anydata|map<(int|float)>)'", 37, 36);
+        validateError(result, index++, "ambiguous type '(map<json>|anydata)'", 38, 30);
 
         // Invalid map assignments to `anydata`
         validateError(result, index++, "incompatible types: expected 'anydata', found 'map'", 54, 10);

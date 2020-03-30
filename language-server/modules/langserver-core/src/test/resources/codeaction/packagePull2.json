@@ -1,0 +1,22 @@
+{
+  "range": {
+    "start": {
+      "line": 2,
+      "character": 10
+    },
+    "end": {
+      "line": 2,
+      "character": 10
+    }
+  },
+  "expected": {
+    "title":"Pull from Ballerina Central",
+    "command":"PULL_MODULE",
+    "arguments":[
+      {
+        "argumentK": "module",
+        "argumentV": "org/unpulled_package:1.1.1"
+      }
+    ]
+  }
+}

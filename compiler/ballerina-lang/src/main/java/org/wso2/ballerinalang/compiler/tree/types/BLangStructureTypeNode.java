@@ -38,6 +38,7 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     public List<BLangSimpleVariable> fields;
     public BLangFunction initFunction;
     public boolean isAnonymous;
+    public boolean isLocal;
     public boolean isFieldAnalyseRequired;
     public List<BLangType> typeRefs;
     public BSymbol symbol;
@@ -74,6 +75,16 @@ public abstract class BLangStructureTypeNode extends BLangType implements Struct
     @Override
     public NodeKind getKind() {
         return NodeKind.RECORD_TYPE;
+    }
+
+    @Override
+    public boolean getIsAnonymous() {
+        return this.isAnonymous;
+    }
+
+    @Override
+    public boolean getIsLocal() {
+        return this.isLocal;
     }
 
     @Override

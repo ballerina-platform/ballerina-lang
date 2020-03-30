@@ -1,4 +1,4 @@
-import ballerina/lang.'int as ints;
+import ballerina/lang.'int;
 import ballerinax/java.jdbc;
 
 // The `@untainted` annotation can be used with the parameters of user-defined functions. This allow users to restrict
@@ -11,14 +11,13 @@ type Student record {
     string firstname;
 };
 
-
 public function main(string... args) {
     jdbc:Client customerDBEP = new ({
         url: "jdbc:mysql://localhost:3306/testdb",
         username: "root",
         password: "root",
-        poolOptions: { maximumPoolSize: 5 },
-        dbOptions: { useSSL: false }
+        poolOptions: {maximumPoolSize: 5},
+        dbOptions: {useSSL: false}
     });
 
     // Sensitive parameters of functions that are built-in to Ballerina are decorated with the `@untainted` annotation.
@@ -29,15 +28,14 @@ public function main(string... args) {
     //
     // This line results in a compile error because the query is appended with a user-provided argument.
     var result = customerDBEP->
-    select("SELECT firstname FROM student WHERE registration_id = " +
-            args[0], ());
-    table<record { string firstname; }> dataTable;
+                               select("SELECT firstname FROM student WHERE" +
+                                      " registration_id = " + args[0], ());
+
     if (result is error) {
-        error e = <error> result;
-        panic e;
-    } else {
-        dataTable = result;
+        panic result;
     }
+
+    table<Student> dataTable = <table<Student>>result;
 
     // This line results in a compiler error because a user-provided argument is passed to a sensitive parameter.
     userDefinedSecureOperation(args[0]);
@@ -45,7 +43,7 @@ public function main(string... args) {
     if (isInteger(args[0])) {
         // After performing necessary validations and/or escaping, we can use type cast expression with @untainted annotation
         // to mark the proceeding value as `trusted` and pass it to a sensitive parameter.
-        userDefinedSecureOperation(<@untainted> args[0]);
+        userDefinedSecureOperation(<@untainted>args[0]);
     } else {
         error err = error("Validation error: ID should be an integer");
         panic err;
@@ -89,7 +87,7 @@ function sanitizeAndReturnUntainted(string input) returns @untainted string {
 }
 
 function isInteger(string input) returns boolean {
-    var intVal = ints:fromString(input);
+    var intVal = 'int:fromString(input);
     if (intVal is error) {
         return false;
     } else {

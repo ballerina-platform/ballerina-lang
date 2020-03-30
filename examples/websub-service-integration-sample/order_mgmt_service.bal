@@ -4,7 +4,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/websub;
 
-listener http:Listener httpListener = new(9090);
+listener http:Listener httpListener = new (9090);
 
 // The topic against which the publisher will publish updates and the subscribers
 // need to subscribe to, to receive notifications when an order is placed.
@@ -37,7 +37,7 @@ service orderMgt on httpListener {
         response.statusCode = 202;
         var result = caller->respond(response);
         if (result is error) {
-           log:printError("Error responding on ordering", result);
+            log:printError("Error responding on ordering", result);
         }
     }
 
@@ -50,14 +50,14 @@ service orderMgt on httpListener {
         var orderReq = req.getJsonPayload();
         if (orderReq is json) {
             string orderId = orderReq.Order.ID.toString();
-            orderMap[orderId] = <@untainted> orderReq;
+            orderMap[orderId] = <@untainted>orderReq;
 
             // Creates the response message indicating successful order creation.
             http:Response response = new;
             response.statusCode = 202;
             var result = caller->respond(response);
             if (result is error) {
-               log:printError("Error responding on ordering", result);
+                log:printError("Error responding on ordering", result);
             }
 
             // Publishes the update to the Hub to notify the subscribers.
@@ -90,7 +90,7 @@ function startHubAndRegisterTopic() returns websub:Hub {
                             ? hubStartUpResult.startedUpHub : hubStartUpResult;
     }
 
-    websub:Hub internalHub = <websub:Hub> hubVar;
+    websub:Hub internalHub = <websub:Hub>hubVar;
     var result = internalHub.registerTopic(ORDER_TOPIC);
     if (result is error) {
         log:printError("Error registering topic", result);

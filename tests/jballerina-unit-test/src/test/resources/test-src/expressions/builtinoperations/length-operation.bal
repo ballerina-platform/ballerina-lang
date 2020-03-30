@@ -174,10 +174,11 @@ function lengthOfSingleXmlElement() returns (int) {
 function lengthOfMultipleXmlElements() returns (int) {
     xml x1 = xml `<book>The Lost World</book>`;
     xml x2 = xml `Hello, world!`;
-    xml x3 = xml `<!--I am a comment-->`;
-    xml x4 = xml `<?target data?>`;
-    xml x5 = x1 + x2 + x3 + x4;
-    int length = x5.length();
+    xml x3 = xml `-Other txt-`;
+    xml x4 = xml `<!--I am a comment-->`;
+    xml x5 = xml `<?target data?>`;
+    xml x6 = x1 + x2 + x3 + x4 + x5;
+    int length = x6.length();
     return length;
 }
 
@@ -217,12 +218,12 @@ function accessLengthOfNullTuple() returns (int) {
     return length;
 }
 
-function accessLengthOfNullXML() returns (int) {
-    xml t =  xml `a`;
-    xml x = t.*;
-    int length = x.length();
-    return length;
-}
+//function accessLengthOfNullXML() returns (int) {
+//    xml t =  xml `a`;
+//    xml x = t/*;
+//    int length = x.length();
+//    return length;
+//}
 
 function stringLengthAccessTestCase() returns (int) {
     string name = "Waruna";

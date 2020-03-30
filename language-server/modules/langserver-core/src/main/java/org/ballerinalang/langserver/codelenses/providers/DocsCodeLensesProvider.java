@@ -17,15 +17,15 @@ package org.ballerinalang.langserver.codelenses.providers;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.langserver.client.config.BallerinaClientConfigHolder;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
-import org.ballerinalang.langserver.command.CommandUtil.CommandArgument;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
 import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codelenses.CodeLensesProviderKeys;
 import org.ballerinalang.langserver.commons.codelenses.LSCodeLensesProviderException;
+import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -57,7 +57,7 @@ import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.g
 public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
     public DocsCodeLensesProvider() {
         super("docs.CodeLenses");
-        BallerinaClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
+        LSClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
             isEnabled = newConfig.getCodeLens().getDocs().isEnabled();
         });
     }

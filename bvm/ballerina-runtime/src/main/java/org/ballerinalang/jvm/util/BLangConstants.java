@@ -53,7 +53,8 @@ public class BLangConstants {
     public static final String DOT = ".";
     public static final String ORG_NAME_SEPARATOR = "/";
     public static final String VERSION_SEPARATOR = ":";
-    
+    public static final String UNDERSCORE = "_";
+
 
     public static final String BLANG_SRC_FILE_EXT = "bal";
     public static final String BLANG_SRC_FILE_SUFFIX = "." + BLANG_SRC_FILE_EXT;
@@ -107,6 +108,7 @@ public class BLangConstants {
     public static final String TABLE_LANG_LIB = "lang.table";
     public static final String INT_LANG_LIB = "lang.int";
     public static final String FLOAT_LANG_LIB = "lang.float";
+    public static final String BOOLEAN_LANG_LIB = "lang.boolean";
 
     // Zero value for string
     public static final String STRING_NULL_VALUE = null;
@@ -116,6 +118,15 @@ public class BLangConstants {
 
     public static final Integer BBYTE_MIN_VALUE = 0;
     public static final Integer BBYTE_MAX_VALUE = 255;
+    public static final Integer SIGNED32_MAX_VALUE = 2147483647;
+    public static final Integer SIGNED32_MIN_VALUE = -2147483648;
+    public static final Integer SIGNED16_MAX_VALUE = 32767;
+    public static final Integer SIGNED16_MIN_VALUE = -32768;
+    public static final Integer SIGNED8_MAX_VALUE = 127;
+    public static final Integer SIGNED8_MIN_VALUE = -128;
+    public static final Long UNSIGNED32_MAX_VALUE = 4294967295L;
+    public static final Integer UNSIGNED16_MAX_VALUE = 65535;
+    public static final Integer UNSIGNED8_MAX_VALUE = 255;
     public static final double BINT_MAX_VALUE_DOUBLE_RANGE_MAX = 9223372036854775807.5;
     public static final double BINT_MIN_VALUE_DOUBLE_RANGE_MIN = -9223372036854775807.6;
     public static final BigDecimal BINT_MAX_VALUE_BIG_DECIMAL_RANGE_MAX = new BigDecimal("9223372036854775807.5",

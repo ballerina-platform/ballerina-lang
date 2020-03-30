@@ -19,6 +19,7 @@ package org.ballerinalang.net.grpc.proto;
 
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.ServiceNode;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.net.grpc.config.ServiceConfiguration;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -65,12 +66,16 @@ public class ServiceDefinitionValidator {
     private static boolean validateAnnotation(ServiceNode serviceNode, DiagnosticLog dlog) {
         List<AnnotationAttachmentNode> annotations =
                 (List<AnnotationAttachmentNode>) serviceNode.getAnnotationAttachments();
-        List<BLangRecordLiteral.BLangRecordKeyValue> annVals = new ArrayList<>();
+        List<BLangRecordLiteral.BLangRecordKeyValueField> annVals = new ArrayList<>();
         int count = 0;
         for (AnnotationAttachmentNode annotation : annotations) {
             if (annotation.getAnnotationName().getValue().equals(ANN_SERVICE_CONFIG)) {
                 if (annotation.getExpression() != null) {
-                    annVals = ((BLangRecordLiteral) annotation.getExpression()).keyValuePairs;
+                    for (RecordLiteralNode.RecordField field :
+                            ((BLangRecordLiteral) annotation.getExpression()).fields) {
+                        annVals.add((BLangRecordLiteral.BLangRecordKeyValueField) field);
+                    }
+
                     count++;
                 }
             }
@@ -82,7 +87,7 @@ public class ServiceDefinitionValidator {
         } else if (count == 1) {
             boolean isNameExists = false;
             boolean clientStreaming = false;
-            for (BLangRecordLiteral.BLangRecordKeyValue keyValue : annVals) {
+            for (BLangRecordLiteral.BLangRecordKeyValueField keyValue : annVals) {
                 switch (((BLangSimpleVarRef) (keyValue.key).expr).variableName.getValue()) {
                     case "name":
                         isNameExists = true;

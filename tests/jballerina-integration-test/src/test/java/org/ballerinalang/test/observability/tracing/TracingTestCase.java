@@ -51,13 +51,14 @@ public class TracingTestCase extends BaseTest {
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
             "resources" + File.separator + "observability" + File.separator + "tracing" + File.separator;
     private static final String TEST_NATIVES_JAR = "observability-test-natives.jar";
-    private static final String TEST_OBSERVE_JAR = "testobserve.jar";
+    private static final String TEST_OBSERVE_JAR = "ballerina.testobserve.jar";
 
     private static final String DEST_FUNCTIONS_JAR = File.separator + "bre" + File.separator + "lib"
             + File.separator + TEST_NATIVES_JAR;
 
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     private void setup() throws Exception {
+        // Don't use 9898 port here. It is used in metrics test cases.
         int[] requiredPorts = new int[]{9090, 9091, 9092, 9093};
         serverInstance = new BServerInstance(balServer);
 

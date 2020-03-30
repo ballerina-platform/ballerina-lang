@@ -1,5 +1,6 @@
-import { ASTUtil, Function as BallerinaFunction,
-    NodePosition, VariableDef, VisibleEndpoint } from "@ballerina/ast-model";
+import { ASTKindChecker, ASTUtil,
+    BlockFunctionBody, Function as BallerinaFunction, NodePosition, VariableDef,
+    VisibleEndpoint } from "@ballerina/ast-model";
 import * as React from "react";
 import { DiagramConfig } from "../../config/default";
 import { DiagramUtils } from "../../diagram/diagram-utils";
@@ -37,13 +38,18 @@ export const ExpandedFunction: React.SFC<ExpandedFunctionProps> = ({ model, docU
                 if (!model.body) {
                     return null;
                 }
+                if (!ASTKindChecker.isBlockFunctionBody(model.body)) {
+                    return null;
+                }
+
+                const blockBody = model.body as BlockFunctionBody;
 
                 const onClickClose = () => {
                     onClose();
                     context.update();
                 };
 
-                const workers = model.body.statements.filter((statement) => ASTUtil.isWorker(statement));
+                const workers = blockBody.statements.filter((statement) => ASTUtil.isWorker(statement));
 
                 const lifeLine = {
                     x1: expandedFnBbox.x,

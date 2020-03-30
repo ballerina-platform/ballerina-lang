@@ -22,16 +22,18 @@ function name() {
     string nameTest = rec.name;
 
     Cities cities = {
-        cities: [{
-            name: "London",
-            lat: "51.5073219",
-            lng: "-0.1276474"
-        }]
+        cities: [
+            {
+                name: "London",
+                lat: "51.5073219",
+                lng: "-0.1276474"
+            }
+        ]
     };
 
-    json | error payload = json.constructFrom(cities);
+    json|error payload = json.constructFrom(cities);
     string nameTest1 = rec.name.indexOf("mar");
-    json | error payload1 = json.constructFrom(cities).toJsonString();
+    json|error payload1 = json.constructFrom(cities).toJsonString();
 
     string str = "";
     foreach int i in 0 ..< 5 {
@@ -39,6 +41,6 @@ function name() {
     }
 
     if (payload is json) {
-        map<anydata> | error sd = map<anydata>.constructFrom(payload);
+        map<anydata>|error sd = map<anydata>.constructFrom(payload);
     }
 }

@@ -16,10 +16,10 @@ const int I = 125;
 // Constants of the `map` type can be defined as well. The constraint of these constant maps should be either a simple type
 // or another map type, which should eventually have a simple type constraint. `var` cannot be used to declare
 // constant maps. Therefore, the correct type should be present when declaring the constant.
-const map<string> data = {  "user": "Ballerina", "ID": "1234" };
+const map<string> data = {"user": "Ballerina", "ID": "1234"};
 
 // Constant with nested map literals.
-const map<map<string>> complexData = { "data": data, "data2": { "user": "WSO2" }};
+const map<map<string>> complexData = {"data": data, "data2": {"user": "WSO2"}};
 
 public function main() {
     // This is identical to the code line `ACTION get = "GET";`.

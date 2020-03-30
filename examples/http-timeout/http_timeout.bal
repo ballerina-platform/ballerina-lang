@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
 
-http:Client backendClientEP = new("http://localhost:8080", {
+http:Client backendClientEP = new ("http://localhost:8080", {
     // Timeout configuration.
     timeoutInMillis: 10000
 
@@ -34,7 +34,7 @@ service timeoutService on new http:Listener(9090) {
         } else {
             http:Response response = new;
             response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
-            string errorMessage = <string> backendResponse.detail()?.message;
+            string errorMessage = <string>backendResponse.detail()?.message;
             string expectedMessage = "Idle timeout triggered before " +
                 "initiating inbound response";
             if (errorMessage == expectedMessage) {
@@ -68,7 +68,7 @@ service helloWorld on new http:Listener(8080) {
 
         var result = caller->respond("Hello World!!!");
         if (result is error) {
-           log:printError("Error sending response from mock service", result);
+            log:printError("Error sending response from mock service", result);
         }
     }
 }

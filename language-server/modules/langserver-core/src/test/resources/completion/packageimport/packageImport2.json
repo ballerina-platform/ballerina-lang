@@ -654,17 +654,6 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "AuthzCacheConfig",
-            "kind": "Class",
-            "detail": "Record",
-            "documentation": {
-                "left": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
-            },
-            "sortText": "221",
-            "insertText": "AuthzCacheConfig",
-            "insertTextFormat": "Snippet"
-        },
-        {
             "label": "WebSocketClientEndpointConfig",
             "kind": "Class",
             "detail": "Record",

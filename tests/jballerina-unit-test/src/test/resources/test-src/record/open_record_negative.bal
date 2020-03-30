@@ -8,12 +8,13 @@ function invalidRestField() {
     Person p = { name: "John", age: 20, "height": 6, "employed": false, "city": "Colombo" };
 }
 
-type PersonA record {
+type PersonA record {|
     string name = "";
     int age = 0;
-};
+    anydata|json...;
+|};
 
-function emptyRecordForAnyRestField() {
+function ambiguousEmptyRecordForRestField() {
     PersonA p = { name:"John", "misc": {} };
 }
 

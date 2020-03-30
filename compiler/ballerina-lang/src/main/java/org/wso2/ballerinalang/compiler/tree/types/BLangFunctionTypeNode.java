@@ -45,6 +45,11 @@ public class BLangFunctionTypeNode extends BLangType implements FunctionTypeNode
     public boolean returnsKeywordExists = false;
 
     @Override
+    public BLangVariable getRestParam() {
+        return this.restParam;
+    }
+
+    @Override
     public List<BLangVariable> getParams() {
         return this.params;
     }

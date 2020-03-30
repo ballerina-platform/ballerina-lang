@@ -42,9 +42,11 @@
             <class name="org.ballerinalang.langlib.test.LangLibRecordTest" />
             <class name="org.ballerinalang.langlib.test.LangLibTypedescTest" />
             <class name="org.ballerinalang.langlib.test.LangLibXMLTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibBooleanTest" />
             <class name="org.ballerinalang.langlib.test.LangLibErrorTest" />
             <class name="org.ballerinalang.langlib.test.LangLibNegativeTest" />
             <class name="org.ballerinalang.langlib.test.LangLibStreamTest" />
+            <class name="org.ballerinalang.langlib.test.LangLibSubTypeTest" />
 
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorBindingPatternsTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachJSONTests"/>

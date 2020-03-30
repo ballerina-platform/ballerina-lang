@@ -48,6 +48,7 @@ public class GlobalVarFunctionInBaloTest {
 
     @BeforeClass
     public void setup() throws IOException {
+        BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
         result = BCompileUtil.compile("test-src/balo/test_balo/globalvar/test_global_var_function.bal");
     }

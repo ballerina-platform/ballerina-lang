@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 0,
+    "character": 32
+  },
+  "source": "toplevel/source/topLevelTypeDesc3.bal",
+  "items": [
+    {
+      "label": "object",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "object ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

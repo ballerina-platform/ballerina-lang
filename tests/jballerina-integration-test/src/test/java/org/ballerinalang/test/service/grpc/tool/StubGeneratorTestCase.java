@@ -19,6 +19,7 @@ package org.ballerinalang.test.service.grpc.tool;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.packerina.cmd.CommandUtil;
 import org.ballerinalang.protobuf.cmd.GrpcCmd;
 import org.ballerinalang.protobuf.cmd.OSDetector;
 import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
@@ -41,6 +42,7 @@ import java.nio.file.Paths;
 
 import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.TMP_DIRECTORY_PATH;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 import static org.testng.Assert.fail;
 
@@ -53,12 +55,18 @@ public class StubGeneratorTestCase {
     private static String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
     private Path resourceDir;
     private Path outputDirPath;
+    private Path proxyServiceDirPath;
 
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
         resourceDir = Paths.get("src", "test", "resources", "grpc", "src", "tool").toAbsolutePath();
         outputDirPath = Paths.get(TMP_DIRECTORY_PATH, "grpc");
+        BalFileGenerationUtils.delete(outputDirPath.toFile());
+        Path projectDirPath = Paths.get(TMP_DIRECTORY_PATH, "grpc", "proxyservice");
+        Files.createDirectories(projectDirPath);
+        CommandUtil.initProject(projectDirPath);
+        proxyServiceDirPath = Paths.get(TMP_DIRECTORY_PATH, "grpc", "proxyservice");
     }
 
     @Test
@@ -83,13 +91,13 @@ public class StubGeneratorTestCase {
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithDependency.proto",
                 "helloWorldWithDependency_pb.bal");
-        assertEquals(compileResult.getDiagnostics().length, 8);
+        assertEquals(compileResult.getDiagnostics().length, 10);
         assertEquals(compileResult.getDiagnostics()[0].toString(),
                      "ERROR: .::helloWorldWithDependency_pb.bal:15:34:: unknown type 'HelloRequest'");
         assertEquals(compileResult.getDiagnostics()[1].toString(),
                      "ERROR: .::helloWorldWithDependency_pb.bal:15:90:: unknown type 'HelloResponse'");
         assertEquals(compileResult.getDiagnostics()[5].toString(),
-                     "ERROR: .::helloWorldWithDependency_pb.bal:33:18:: unknown type 'ByeResponse'");
+                     "ERROR: .::helloWorldWithDependency_pb.bal:26:86:: unknown type 'ByeResponse'");
     }
 
     @Test(description = "Test service stub generation for service definition with enum messages")
@@ -130,6 +138,16 @@ public class StubGeneratorTestCase {
                 "helloWorldWithNestedMessage_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
+                "Expected type definitions not found in compile results.");
+    }
+
+    @Test(description = "Test stub generation for with nested maps with same name")
+    public void testUnaryHelloWorldWithMaps() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getStubCompileResult("helloWorldWithMap.proto",
+                "helloWorldWithMap_pb.bal");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
     }
 
@@ -320,9 +338,9 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getStubCompileResult("oneof_field_service.proto",
                 "oneof_field_service_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 30,
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 8,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 32,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 35,
                 "Expected functions not found in compile results.");
         validatePublicAttachedFunctions(compileResult);
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
@@ -333,6 +351,156 @@ public class StubGeneratorTestCase {
                 "Expected imports not found in compile results.");
     }
 
+    @Test(description = "Test gateway proxy with only path and query parameters")
+    public void testHelloWorldGateway() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("helloWorldGateway.proto",
+                "helloWorldGateway");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 8,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 21,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 2);
+    }
+
+    @Test(description = "Test gateway proxy including mapping from the body")
+    public void testHelloWorldGatewayWithBody() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithBody.proto",
+                "helloWorldGatewayWithBody");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 22,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 2);
+    }
+
+    @Test(description = "Test gateway proxy with primitive type input")
+    public void testHelloWorldGatewayWithPrimitiveInput() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithPrimitiveInput.proto",
+                "helloWorldGatewayWithPrimitiveInput");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 17,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 2);
+    }
+
+    @Test(description = "Test gateway proxy with a repeated field in the input")
+    public void testHelloWorldGatewayWithRepeatedField() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithRepeatedField.proto",
+                "helloWorldGatewayWithRepeatedField");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 22,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 2);
+    }
+
+    @Test(description = "Test gateway proxy without a http method definition")
+    public void testHelloWorldGatewayWithoutPath() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithoutPath.proto",
+                "helloWorldGatewayWithoutPath");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 14,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 0);
+    }
+
+    @Test(description = "Test case for protobuf any type generation")
+    public void testAnyTypeGeneration() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getStubCompileResult("anydata.proto",
+                "anydata_pb.bal");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 5,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 9,
+                "Expected functions not found in compile results.");
+        validatePublicAttachedFunctions(compileResult);
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
+                "Expected constants not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 1,
+                "Expected imports not found in compile results.");
+    }
+
+    @Test(description = "Test case checks creation of only the service file, in the service mode, with single service")
+    public void testServiceFileGenWithoutStub() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
+        GrpcCmd grpcCommand = (GrpcCmd) grpcCmd.newInstance();
+        Path tempDirPath = outputDirPath.resolve("service");
+        Path protoPath = Paths.get("helloWorld.proto");
+        Path protoRoot = resourceDir.resolve(protoPath);
+        grpcCommand.setBalOutPath(tempDirPath.toAbsolutePath().toString());
+        grpcCommand.setProtoPath(protoRoot.toAbsolutePath().toString());
+        grpcCommand.setMode("service");
+        grpcCommand.execute();
+        Path sampleServiceFile = Paths.get(TMP_DIRECTORY_PATH, "grpc", "service", "helloWorld_sample_service.bal");
+
+        // This file should not be created when --mode service enabled with one service
+        Path sampleStubFile = Paths.get(TMP_DIRECTORY_PATH, "grpc", "service", "helloWorld_pb.bal");
+
+        assertTrue(Files.exists(sampleServiceFile));
+        assertFalse(Files.exists(sampleStubFile));
+
+        CompileResult compileResult = BCompileUtil.compileOnly(sampleServiceFile.toString());
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
+                "Expected constants count not found." +
+                        ((BLangPackage) compileResult.getAST()).constants.size()
+        );
+        assertEquals(((BLangPackage) compileResult.getAST()).services.size(), 1,
+                "Expected services count not found. " +
+                        ((BLangPackage) compileResult.getAST()).services.size()
+        );
+        assertEquals(((BLangPackage) compileResult.getAST()).getTypeDefinitions().size(), 6,
+                "Expected type definitions count not found." +
+                        ((BLangPackage) compileResult.getAST()).getTypeDefinitions().size()
+        );
+    }
+
     private void validatePublicAttachedFunctions(CompileResult compileResult) {
         for (BLangFunction function : ((BLangPackage) compileResult.getAST()).functions) {
             if (function.attachedFunction) {
@@ -340,6 +508,16 @@ public class StubGeneratorTestCase {
                         " not public");
             }
         }
+    }
+
+    private void validateAttachedResources(CompileResult compileResult, int resourceCount) {
+        int attachedResourceCount = 0;
+        for (BLangFunction function : ((BLangPackage) compileResult.getAST()).functions) {
+            if (function.attachedFunction && function.getFlags().contains(Flag.RESOURCE)) {
+                attachedResourceCount += 1;
+            }
+        }
+        assertEquals(attachedResourceCount, resourceCount);
     }
 
     private void validateEnumNode(CompileResult compileResult) {
@@ -376,10 +554,22 @@ public class StubGeneratorTestCase {
         return BCompileUtil.compile(outputFilePath.toString());
     }
 
+    private CompileResult getProxyCompileResult(String protoFilename, String testName)
+            throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+        Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
+        GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
+        Path protoFilePath = resourceDir.resolve(protoFilename);
+        grpcCmd1.setProtoPath(protoFilePath.toAbsolutePath().toString());
+        grpcCmd1.setMode("proxy");
+        Path proxyOutputDirPath = proxyServiceDirPath.resolve("src/" + testName);
+        grpcCmd1.setBalOutPath(proxyOutputDirPath.toAbsolutePath().toString());
+        grpcCmd1.execute();
+        return BCompileUtil.compile(proxyServiceDirPath, testName, false, true);
+    }
+
     @AfterClass
     public void clean() {
         BalFileGenerationUtils.delete(new File(TMP_DIRECTORY_PATH, protoExeName));
         BalFileGenerationUtils.delete(outputDirPath.toFile());
     }
-
 }

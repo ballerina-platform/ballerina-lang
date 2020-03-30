@@ -20,7 +20,7 @@ public function main() {
     Person p1 = new;
     io:println(p1.age);
 
-    Person p2 = new();
+    Person p2 = new ();
     io:println(p2.age);
 
     // This type of initialization is useful when you cannot determine the type of the object to be

@@ -1,4 +1,4 @@
-import ballerinax/java;
+import ballerina/java;
 
 // Test a function that accepts a Ballerina boolean for a Java boolean
 public function testCreateBoxedBooleanFromBBoolean(boolean value) returns handle {

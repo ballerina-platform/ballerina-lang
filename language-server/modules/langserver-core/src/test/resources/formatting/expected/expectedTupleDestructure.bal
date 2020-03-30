@@ -32,13 +32,13 @@ function tupleDestructureTest3() returns [int, int[]] {
     int a;
     int[] b;
     [
-    a
-    ,
-    ...
-    b
+        a
+        ,
+        ...
+        b
     ]
     =
-    x
+        x
     ;
     return [a, b];
 }

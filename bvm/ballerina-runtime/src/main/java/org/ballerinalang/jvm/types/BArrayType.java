@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
@@ -36,6 +37,7 @@ public class BArrayType extends BType {
     private BType elementType;
     private int dimensions = 1;
     private int size = -1;
+    private boolean hasFillerValue;
     private ArrayState state = ArrayState.UNSEALED;
 
     public BArrayType(BType elementType) {
@@ -44,6 +46,7 @@ public class BArrayType extends BType {
         if (elementType instanceof BArrayType) {
             dimensions = ((BArrayType) elementType).getDimensions() + 1;
         }
+        hasFillerValue = TypeChecker.hasFillerValue(this.elementType);
     }
 
     public BArrayType(BType elemType, int size) {
@@ -56,6 +59,7 @@ public class BArrayType extends BType {
             state = ArrayState.CLOSED_SEALED;
             this.size = size;
         }
+        hasFillerValue = TypeChecker.hasFillerValue(this.elementType);
     }
 
     public BType getElementType() {
@@ -134,6 +138,10 @@ public class BArrayType extends BType {
 
     public int getSize() {
         return size;
+    }
+
+    public boolean hasFillerValue() {
+        return hasFillerValue;
     }
 
     public ArrayState getState() {

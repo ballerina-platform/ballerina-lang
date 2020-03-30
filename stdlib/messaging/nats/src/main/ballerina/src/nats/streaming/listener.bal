@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object as lang;
-import ballerinax/java;
+import ballerina/java;
 
 # Represents the NATS Streaming Server connection, to which a subscription service should be bound to in order to receive messages
 # of the corresponding subscription.
@@ -23,7 +23,7 @@ public type StreamingListener object {
 
     *lang:Listener;
 
-    private Connection? connection;
+    private Connection connection;
     private string clusterId;
     private string? clientId;
     private StreamingConfig? streamingConfig;
@@ -65,11 +65,7 @@ public type StreamingListener object {
     }
 
     function close() returns error? {
-        if (self.connection is Connection) {
-            Connection? natsConnection = self.connection;
-            self.connection = ();
-            return streamingListenerClose(self, natsConnection);
-        }
+        return streamingListenerClose(self, self.connection);
     }
 };
 
@@ -78,13 +74,13 @@ function streamingListenerInit(StreamingListener lis) =
     class: "org.ballerinalang.nats.streaming.consumer.Init"
 } external;
 
-function streamingSubscribe(StreamingListener streamingClient, Connection? conn,
+function streamingSubscribe(StreamingListener streamingClient, Connection conn,
                             handle clusterId, string? clientId, StreamingConfig? streamingConfig) =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.consumer.Subscribe"
 } external;
 
-function streamingAttach(StreamingListener lis, service serviceType, Connection? conn) =
+function streamingAttach(StreamingListener lis, service serviceType, Connection conn) =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.consumer.Attach"
 } external;
@@ -94,7 +90,7 @@ function streamingDetach(StreamingListener lis, service serviceType) =
     class: "org.ballerinalang.nats.streaming.consumer.Detach"
 } external;
 
-function streamingListenerClose(StreamingListener lis,  Connection? natsConnection) returns error? =
+function streamingListenerClose(StreamingListener lis,  Connection natsConnection) returns error? =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.consumer.Close"
 } external;

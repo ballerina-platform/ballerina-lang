@@ -51,14 +51,14 @@ public class SetChildren {
 
     private static final String OPERATION = "set children to xml element";
 
-    public static void setChildren(Strand strand, XMLValue<?> xml, Object children) {
+    public static void setChildren(Strand strand, XMLValue xml, Object children) {
         if (!IsElement.isElement(strand, xml)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR, "setChildren", "element");
         }
 
         BType childrenType = TypeChecker.getType(children);
         if (childrenType.getTag() == TypeTags.STRING_TAG) {
-            XMLValue<?> xmlText = XMLFactory.createXMLText((String) children);
+            XMLValue xmlText = XMLFactory.createXMLText((String) children);
             children = xmlText;
         } else if (childrenType.getTag() != TypeTags.XML_TAG) {
             BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
@@ -68,7 +68,7 @@ public class SetChildren {
         }
 
         try {
-            xml.setChildren((XMLValue<?>) children);
+            xml.setChildren((XMLValue) children);
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
         }

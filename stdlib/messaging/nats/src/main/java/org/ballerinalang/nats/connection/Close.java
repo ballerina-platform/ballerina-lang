@@ -20,8 +20,6 @@ package org.ballerinalang.nats.connection;
 
 import io.nats.client.Connection;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 import org.slf4j.Logger;
@@ -40,9 +38,9 @@ public class Close {
     private static final Logger LOG = LoggerFactory.getLogger(Close.class);
     private static PrintStream console = System.out;
 
-    public static Object externClose(ObjectValue connectionObject, Object forceful) {
+    public static Object externClose(ObjectValue connectionObject, boolean forceful) {
         int clientCount = ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).get();
-        if (clientCount == 0 || isForceShutdown(forceful)) {
+        if (clientCount == 0 || forceful) {
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
             try {
                 if (natsConnection != null) {
@@ -63,9 +61,5 @@ public class Close {
             connectionObject.addNativeData(Constants.CLOSING, true);
         }
         return null;
-    }
-
-    private static boolean isForceShutdown(Object forceful) {
-        return (TypeChecker.getType(forceful).getTag() == TypeTags.BOOLEAN_TAG && (Boolean) forceful);
     }
 }

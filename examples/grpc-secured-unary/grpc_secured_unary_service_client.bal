@@ -1,13 +1,14 @@
-// This is the client implementation for the secured connection (HTTPS) scenario.
+// This is the client implementation of the secured connection (HTTPS) scenario.
+import ballerina/config;
 import ballerina/grpc;
 import ballerina/io;
 
 public function main() {
     // Client endpoint configuration with SSL configurations.
-    HelloWorldBlockingClient helloWorldBlockingEp = new("https://localhost:9090", {
+    HelloWorldBlockingClient helloWorldBlockingEp = new ("https://localhost:9090", {
             secureSocket: {
                 trustStore: {
-                    path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                    path: config:getAsString("b7a.home") + "/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 }
             }
@@ -17,7 +18,7 @@ public function main() {
     var unionResp = helloWorldBlockingEp->hello("WSO2");
     if (unionResp is grpc:Error) {
         io:println("Error from Connector: " + unionResp.reason() + " - "
-                                         + <string> unionResp.detail()["message"]);
+                                         + <string>unionResp.detail()["message"]);
     } else {
         string result;
         [result, _] = unionResp;

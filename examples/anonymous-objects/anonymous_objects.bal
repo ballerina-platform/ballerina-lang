@@ -28,7 +28,7 @@ public function main() {
     Person john = {
         name: "John Doe",
         age: 25,
-        address: new("Colombo", "Sri Lanka")
+        address: new ("Colombo", "Sri Lanka")
     };
     io:println(john.address.city);
 
@@ -47,8 +47,8 @@ public function main() {
         public function value() returns string {
             return self.city + ", " + self.country;
         }
-    } adr = new("London", "UK");
+    } adr = new ("London", "UK");
 
-    Person jane = { name: "Jane Doe", age: 20, address: adr };
+    Person jane = {name: "Jane Doe", age: 20, address: adr};
     io:println(jane.address.country);
 }

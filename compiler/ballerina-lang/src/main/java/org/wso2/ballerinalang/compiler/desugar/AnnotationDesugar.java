@@ -18,11 +18,14 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -35,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -43,7 +47,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -57,12 +63,15 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -93,6 +102,7 @@ public class AnnotationDesugar {
     public static final String DEFAULTABLE_REC = "ArgsData";
     public static final String ARG_NAMES = "args";
     private static final String DOT = ".";
+    private static final String FIELD = "$field$";
     private static final String PARAM = "$param$";
     private static final String RETURNS = "$returns$";
     private BLangSimpleVariable annotationMap;
@@ -142,19 +152,30 @@ public class AnnotationDesugar {
     }
 
     void defineStatementAnnotations(List<BLangAnnotationAttachment> attachments, DiagnosticPos pos, PackageID pkgID,
-                                    BSymbol owner) {
-        BLangFunction function = defineFunction(pos, pkgID,
-                owner);
+                                    BSymbol owner, SymbolEnv env) {
+        BLangFunction function = defineFunction(pos, pkgID, owner);
         BLangRecordLiteral mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
-        addAnnotsToLiteral(attachments, mapLiteral, function);
+        addAnnotsToLiteral(attachments, mapLiteral, function, env);
     }
 
     private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
+            if (typeDef.isBuiltinTypeDef) {
+                continue;
+            }
             PackageID pkgID = typeDef.symbol.pkgID;
             BSymbol owner = typeDef.symbol.owner;
 
-            BLangLambdaFunction lambdaFunction = defineAnnotations(typeDef, typeDef.pos, pkgNode, env, pkgID, owner);
+            BLangType typeNode = typeDef.typeNode;
+            SymbolEnv typeEnv = SymbolEnv.createTypeEnv(typeNode, initFunction.symbol.scope, env);
+            BLangLambdaFunction lambdaFunction;
+
+            if (typeNode.getKind() == NodeKind.RECORD_TYPE || typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                lambdaFunction = defineAnnotations(typeDef, pkgNode, typeEnv, pkgID, owner);
+            } else {
+                lambdaFunction = defineAnnotations(typeDef, typeDef.pos, pkgNode, typeEnv, pkgID, owner);
+            }
+
             if (lambdaFunction != null) {
                 addInvocationToGlobalAnnotMap(typeDef.name.value, lambdaFunction, initFunction.body);
             }
@@ -162,26 +183,29 @@ public class AnnotationDesugar {
     }
 
     private void defineServiceAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
+        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.body;
         for (BLangService service : pkgNode.services) {
-            BLangLambdaFunction lambdaFunction = defineAnnotations(service, service.pos, pkgNode, env,
-                                                                   service.symbol.pkgID, service.symbol.owner);
+            SymbolEnv funcEnv = SymbolEnv.createServiceEnv(service, initFunction.symbol.scope, env);
+            BLangLambdaFunction lambdaFunction = defineAnnotations(service, service.pos, pkgNode,
+                                                                   funcEnv, service.symbol.pkgID, service.symbol.owner);
             if (lambdaFunction != null) {
                 // Add the lambda in a temporary block.
                 BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
-                target.pos = initFunction.body.pos;
+                target.pos = initFnBody.pos;
 
                 addLambdaToGlobalAnnotMap(service.serviceTypeDefinition.name.value, lambdaFunction, target);
 
                 // Add the annotation assignment to immediately before the service init.
-                int index = calculateIndex(initFunction.body.stmts, service);
+                int index = calculateIndex(initFnBody.stmts, service);
                 for (BLangStatement stmt : target.stmts) {
-                    initFunction.body.stmts.add(index++, stmt);
+                    initFnBody.stmts.add(index++, stmt);
                 }
             }
         }
     }
 
     private void defineFunctionAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
+        BLangBlockFunctionBody initFnBody = (BLangBlockFunctionBody) initFunction.body;
         BLangFunction[] functions = pkgNode.functions.toArray(new BLangFunction[pkgNode.functions.size()]);
         for (BLangFunction function : functions) {
             PackageID pkgID = function.symbol.pkgID;
@@ -190,25 +214,62 @@ public class AnnotationDesugar {
                 addVarArgsAnnotation(function);
             }
 
+            if (function.flagSet.contains(Flag.WORKER)) {
+                attachSchedulerPolicy(function);
+            }
+
             BLangLambdaFunction lambdaFunction = defineAnnotations(function, pkgNode, env, pkgID, owner);
             if (lambdaFunction != null) {
                 // Add the lambda/invocation in a temporary block.
                 BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
-                target.pos = initFunction.body.pos;
+                target.pos = initFnBody.pos;
                 String identifier = function.attachedFunction ? function.symbol.name.value : function.name.value;
 
                 int index;
                 if (function.attachedFunction && function.receiver.type instanceof BServiceType) {
                     addLambdaToGlobalAnnotMap(identifier, lambdaFunction, target);
-                    index = calculateIndex(initFunction.body.stmts, function.receiver.type.tsymbol);
+                    index = calculateIndex(initFnBody.stmts, function.receiver.type.tsymbol);
                 } else {
                     addInvocationToGlobalAnnotMap(identifier, lambdaFunction, target);
-                    index = initFunction.body.stmts.size();
+                    index = initFnBody.stmts.size();
                 }
 
                 // Add the annotation assignment for resources to immediately before the service init.
                 for (BLangStatement stmt : target.stmts) {
-                    initFunction.body.stmts.add(index++, stmt);
+                    initFnBody.stmts.add(index++, stmt);
+                }
+            }
+        }
+    }
+
+    private void attachSchedulerPolicy(BLangFunction function) {
+        for (BLangAnnotationAttachment annotation : function.annAttachments) {
+            if (!annotation.annotationName.value.equals("strand")) {
+                continue;
+            }
+            List<RecordLiteralNode.RecordField> fields = ((BLangRecordLiteral) annotation.expr).fields;
+            for (RecordLiteralNode.RecordField field : fields) {
+                if (field.getKind() != NodeKind.RECORD_LITERAL_KEY_VALUE) {
+                    continue;
+                }
+                BLangRecordLiteral.BLangRecordKeyValueField keyValue =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                BLangExpression expr = keyValue.key.expr;
+                if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                    continue;
+                }
+                BLangIdentifier variableName = ((BLangSimpleVarRef) expr).variableName;
+                if (!variableName.value.equals("thread")) {
+                    continue;
+                }
+                if (keyValue.valueExpr.getKind() != NodeKind.LITERAL) {
+                    continue;
+                }
+                Object value = ((BLangLiteral) keyValue.valueExpr).value;
+
+                if ("any".equals(value)) {
+                    function.symbol.schedulerPolicy = SchedulerPolicy.ANY;
+                    return;
                 }
             }
         }
@@ -233,13 +294,53 @@ public class AnnotationDesugar {
 
         BLangFunction function = defineFunction(pos, pkgID, owner);
         BLangRecordLiteral mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
-        addAnnotsToLiteral(annAttachments, mapLiteral, function);
+        addAnnotsToLiteral(annAttachments, mapLiteral, function, env);
 
-        if (mapLiteral.keyValuePairs.isEmpty()) {
+        if (mapLiteral.fields.isEmpty()) {
             return null;
         }
 
         return addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
+    }
+
+    private BLangLambdaFunction defineAnnotations(BLangTypeDefinition typeDef, BLangPackage pkgNode, SymbolEnv env,
+                                                  PackageID pkgID, BSymbol owner) {
+        BLangFunction function = null;
+        BLangRecordLiteral mapLiteral = null;
+        BLangLambdaFunction lambdaFunction = null;
+
+        boolean annotFunctionDefined = false;
+
+        if (!typeDef.annAttachments.isEmpty()) {
+            function = defineFunction(typeDef.pos, pkgID, owner);
+            mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
+            addAnnotsToLiteral(typeDef.annAttachments, mapLiteral, function, env);
+            annotFunctionDefined = true;
+        }
+
+        for (BLangSimpleVariable field : ((BLangStructureTypeNode) typeDef.typeNode).fields) {
+            BLangLambdaFunction paramAnnotLambda = defineAnnotations(field.annAttachments, field.pos, pkgNode, env,
+                                                                     pkgID, owner);
+            if (paramAnnotLambda != null) {
+                if (!annotFunctionDefined) {
+                    function = defineFunction(typeDef.pos, pkgID, owner);
+                    mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
+                    annotFunctionDefined = true;
+                }
+
+                addInvocationToLiteral(mapLiteral, FIELD + DOT + field.name.value,
+                                       field.annAttachments.get(0).pos, paramAnnotLambda);
+            }
+        }
+
+        if (annotFunctionDefined) {
+            if (mapLiteral.fields.isEmpty()) {
+                return null;
+            }
+            lambdaFunction = addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
+        }
+
+        return lambdaFunction;
     }
 
     private BLangLambdaFunction defineAnnotations(BLangFunction bLangFunction, BLangPackage pkgNode, SymbolEnv env,
@@ -249,16 +350,17 @@ public class AnnotationDesugar {
         BLangLambdaFunction lambdaFunction = null;
 
         boolean annotFunctionDefined = false;
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(bLangFunction, bLangFunction.symbol.scope, env);
 
         if (!bLangFunction.annAttachments.isEmpty()) {
             function = defineFunction(bLangFunction.pos, pkgID, owner);
             mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
-            addAnnotsToLiteral(bLangFunction.annAttachments, mapLiteral, function);
+            addAnnotsToLiteral(bLangFunction.annAttachments, mapLiteral, function, funcEnv);
             annotFunctionDefined = true;
         }
 
-        for (BLangSimpleVariable param : bLangFunction.getParameters()) {
-            BLangLambdaFunction paramAnnotLambda = defineAnnotations(param.annAttachments, param.pos, pkgNode, env,
+        for (BLangSimpleVariable param : getParams(bLangFunction)) {
+            BLangLambdaFunction paramAnnotLambda = defineAnnotations(param.annAttachments, param.pos, pkgNode, funcEnv,
                                                                      pkgID, owner);
             if (paramAnnotLambda != null) {
                 if (!annotFunctionDefined) {
@@ -281,7 +383,7 @@ public class AnnotationDesugar {
 
             BLangFunction retFunction = defineFunction(bLangFunction.pos, pkgID, owner);
             BLangRecordLiteral retMapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
-            addAnnotsToLiteral(bLangFunction.returnTypeAnnAttachments, retMapLiteral, retFunction);
+            addAnnotsToLiteral(bLangFunction.returnTypeAnnAttachments, retMapLiteral, retFunction, funcEnv);
             BLangLambdaFunction returnAnnotLambda = addReturnAndDefineLambda(retFunction, retMapLiteral, pkgNode,
                                                                              env, pkgID, owner);
             addInvocationToLiteral(mapLiteral, RETURNS, bLangFunction.returnTypeAnnAttachments.get(0).pos,
@@ -289,7 +391,7 @@ public class AnnotationDesugar {
         }
 
         if (annotFunctionDefined) {
-            if (mapLiteral.keyValuePairs.isEmpty()) {
+            if (mapLiteral.fields.isEmpty()) {
                 return null;
             }
             lambdaFunction = addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
@@ -307,7 +409,7 @@ public class AnnotationDesugar {
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         mainFunc.addAnnotationAttachment(annoAttachment);
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(mainFunc.symbol.getEnclosingSymbol());
-        BSymbol annSymbol = symResolver.lookupSymbol(pkgEnv, names.fromString(DEFAULTABLE_ANN), SymTag.ANNOTATION);
+        BSymbol annSymbol = symResolver.lookupSymbolInAnnotationSpace(pkgEnv, names.fromString(DEFAULTABLE_ANN));
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
@@ -325,16 +427,16 @@ public class AnnotationDesugar {
         annoAttachment.attachPoints.add(AttachPoint.Point.FUNCTION);
         literalNode.pos = pos;
         BStructureTypeSymbol bStructSymbol = null;
-        BSymbol annTypeSymbol = symResolver.lookupSymbol(pkgEnv, names.fromString(DEFAULTABLE_REC), SymTag.STRUCT);
+        BSymbol annTypeSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(DEFAULTABLE_REC));
         if (annTypeSymbol instanceof BStructureTypeSymbol) {
             bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
             literalNode.type = bStructSymbol.type;
         }
 
         //Add Root Descriptor
-        BLangRecordLiteral.BLangRecordKeyValue descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
+        BLangRecordLiteral.BLangRecordKeyValueField descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField)
                 TreeBuilder.createRecordKeyValue();
-        literalNode.keyValuePairs.add(descriptorKeyValue);
+        literalNode.fields.add(descriptorKeyValue);
 
         BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         keyLiteral.value = ARG_NAMES;
@@ -389,7 +491,7 @@ public class AnnotationDesugar {
         function.returnTypeNode = anyMapType;
         function.returnTypeNode.type = symTable.mapType;
 
-        function.body = ASTBuilderUtil.createBlockStmt(pos, new ArrayList<>());
+        function.body = ASTBuilderUtil.createBlockFunctionBody(pos, new ArrayList<>());
 
         BInvokableSymbol functionSymbol = new BInvokableSymbol(SymTag.INVOKABLE, Flags.asMask(function.flagSet),
                                                                new Name(funcName), pkgID, function.type, owner);
@@ -405,12 +507,13 @@ public class AnnotationDesugar {
     private BLangLambdaFunction addReturnAndDefineLambda(BLangFunction function, BLangRecordLiteral mapLiteral,
                                                          BLangPackage pkgNode, SymbolEnv env, PackageID pkgID,
                                                          BSymbol owner) {
-        BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos, function.body);
+        BLangReturn returnStmt = ASTBuilderUtil.createReturnStmt(function.pos,
+                                                                 (BLangBlockFunctionBody) function.body);
         returnStmt.expr = mapLiteral;
 
         BInvokableSymbol lambdaFunctionSymbol = createInvokableSymbol(function, pkgID, owner);
         BLangLambdaFunction lambdaFunction = desugar.createLambdaFunction(function, lambdaFunctionSymbol);
-        lambdaFunction.cachedEnv = env.createClone();
+        lambdaFunction.capturedClosureEnv = env.createClone();
 
         pkgNode.functions.add(function);
         pkgNode.topLevelNodes.add(function);
@@ -419,12 +522,12 @@ public class AnnotationDesugar {
     }
 
     private void addAnnotsToLiteral(List<BLangAnnotationAttachment> nodeAttachments, BLangRecordLiteral mapLiteral,
-                                    BLangFunction function) {
+                                    BLangFunction function, SymbolEnv env) {
         Map<BAnnotationSymbol, List<BLangAnnotationAttachment>> attachments = new HashMap<>();
 
         for (AnnotationAttachmentNode attachment : nodeAttachments) {
             BLangAnnotationAttachment annotationAttachment = (BLangAnnotationAttachment) attachment;
-            desugar.visit(annotationAttachment);
+            desugar.rewrite(annotationAttachment, env);
 
             BAnnotationSymbol annotationSymbol = annotationAttachment.annotationSymbol;
             if (attachments.containsKey(annotationSymbol)) {
@@ -568,6 +671,13 @@ public class AnnotationDesugar {
                                      getInvocation(lambdaFunction));
     }
 
+    private void addInvocationToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
+                                               BLangFunctionBody target) {
+        // create: $annotation_data["identifier"] = $annot_func$.call();
+        addAnnotValueAssignmentToMap(annotationMap, identifier, (BLangBlockFunctionBody) target,
+                                     getInvocation(lambdaFunction));
+    }
+
     private void addLambdaToGlobalAnnotMap(String identifier, BLangLambdaFunction lambdaFunction,
                                            BLangBlockStmt target) {
         // create: $annotation_data["identifier"] = $annot_func$;
@@ -579,26 +689,37 @@ public class AnnotationDesugar {
     private void addInvocationToLiteral(BLangRecordLiteral recordLiteral, String identifier,
                                         DiagnosticPos pos, BLangLambdaFunction lambdaFunction) {
         BLangInvocation annotFuncInvocation = getInvocation(lambdaFunction);
-        recordLiteral.keyValuePairs.add(ASTBuilderUtil.createBLangRecordKeyValue(
+        recordLiteral.fields.add(ASTBuilderUtil.createBLangRecordKeyValue(
                 ASTBuilderUtil.createLiteral(pos, symTable.stringType, identifier), annotFuncInvocation));
     }
 
-    private void addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier, BLangBlockStmt target,
+    private void addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier,
+                                              BlockNode target, DiagnosticPos targetPos,
                                               BLangExpression expression) {
-        BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(target.pos, target);
+        BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(targetPos, target);
         assignmentStmt.expr = expression;
 
         BLangIndexBasedAccess indexAccessNode = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
-        indexAccessNode.pos = target.pos;
-        indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(target.pos, symTable.stringType, identifier);
-        indexAccessNode.expr = ASTBuilderUtil.createVariableRef(target.pos, mapVar.symbol);
+        indexAccessNode.pos = targetPos;
+        indexAccessNode.indexExpr = ASTBuilderUtil.createLiteral(targetPos, symTable.stringType, identifier);
+        indexAccessNode.expr = ASTBuilderUtil.createVariableRef(targetPos, mapVar.symbol);
         indexAccessNode.type = ((BMapType) mapVar.type).constraint;
         assignmentStmt.varRef = indexAccessNode;
     }
 
+    private void addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier,
+                                              BLangBlockFunctionBody target, BLangExpression expression) {
+        addAnnotValueAssignmentToMap(mapVar, identifier, target, target.pos, expression);
+    }
+
+    private void addAnnotValueAssignmentToMap(BLangSimpleVariable mapVar, String identifier,
+                                              BLangBlockStmt target, BLangExpression expression) {
+        addAnnotValueAssignmentToMap(mapVar, identifier, target, target.pos, expression);
+    }
+
     private void addAnnotValueToLiteral(BLangRecordLiteral recordLiteral, String identifier,
                                         BLangExpression expression, DiagnosticPos pos) {
-        recordLiteral.keyValuePairs.add(ASTBuilderUtil.createBLangRecordKeyValue(
+        recordLiteral.fields.add(ASTBuilderUtil.createBLangRecordKeyValue(
                 ASTBuilderUtil.createLiteral(pos, symTable.stringType, identifier), expression));
     }
 
@@ -634,5 +755,15 @@ public class AnnotationDesugar {
             }
         }
         return statements.size();
+    }
+
+    private List<BLangSimpleVariable> getParams(BLangFunction function) {
+        List<BLangSimpleVariable> params = new ArrayList<>(function.getParameters());
+
+        if (function.restParam != null) {
+            params.add(function.restParam);
+        }
+
+        return params;
     }
 }

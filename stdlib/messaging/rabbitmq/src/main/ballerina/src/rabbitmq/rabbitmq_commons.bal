@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/crypto;
-import ballerinax/java;
+import ballerina/java;
 
 handle JAVA_NULL = java:createNull();
 

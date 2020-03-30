@@ -212,3 +212,110 @@ annotation    Annot    v6    on  parameter  ;
           return 1;
       }
   };
+
+  service serTwo2 = @v8 {
+           foo: "v82"
+     }    service {
+
+       @v5 {
+              val: "542"
+          }
+          resource function res(@v6 {
+                      foo: "v642"
+         }
+    int intVal) returns
+           @v7 {
+                       bar:"vfg"
+                  }
+                     int {
+              return 1;
+          }
+      };
+
+ service serTwo3 = @v8 {
+         foo: "v82"
+     } service {
+
+         @v5 {
+             val: "542"
+         }
+         resource function res(@v6 {
+                 foo: "v642"
+         } record {
+                    int b = 0;
+               } intVal) returns
+                 @v7 {
+                   bar: "vfg"
+          }     record{
+                    int a = 0;
+         } {
+             return {};
+         }
+     };
+
+ service serTwo4 = @v8 {
+         foo: "v82"
+     } service {
+
+         @v5 {
+             val: "542"
+         }
+         resource function res(@v6 {
+                 foo: "v642"
+          }
+          record {
+                    int b = 0;
+                } intVal) returns
+            @v7 {
+                  bar: "vfg"
+               }
+                 record{
+                    int a = 0;
+          } {
+             return {};
+         }
+     };
+
+ service serTwo5 = @v8 {
+         foo: "v82"
+     } service {
+
+         @v5 {
+             val: "542"
+         }
+         resource function res(@v6 {
+                 foo: "v642"
+             }
+          object {
+                    int b = 0;
+                } intVal) returns
+          @v7 {
+                    bar: "vfg"
+                }
+         object {
+                    int a = 0;
+                } {
+           return new;
+         }
+     };
+
+ service serTwo6 = @v8 {
+         foo: "v82"
+     } service {
+
+         @v5 {
+             val: "542"
+         }
+         resource function res(@v6 {
+                 foo: "v642"
+          }      object {
+                    int b = 0;
+                 } intVal) returns
+             @v7 {
+                    bar: "vfg"
+          }     object {
+            int a = 0;
+               } {
+              return new;
+         }
+     };

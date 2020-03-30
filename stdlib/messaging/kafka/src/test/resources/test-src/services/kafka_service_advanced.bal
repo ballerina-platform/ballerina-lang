@@ -18,24 +18,24 @@ import ballerina/kafka;
 
 string topic = "advanced-service-test";
 
-kafka:ConsumerConfig consumerConfigs = {
+kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:14110",
     groupId: "advanced-service-test-group",
     clientId: "advanced-service-consumer",
     offsetReset: "earliest",
     topics: [topic],
     autoCommit:false,
-    valueDeserializer: kafka:DES_INT
+    valueDeserializerType: kafka:DES_INT
 };
 
 listener kafka:Consumer kafkaConsumer = new(consumerConfigs);
 
-kafka:ProducerConfig producerConfigs = {
+kafka:ProducerConfiguration producerConfigs = {
     bootstrapServers: "localhost:14110",
     clientId: "advanced-service-producer",
     acks: kafka:ACKS_ALL,
     retryCount: 3,
-    valueSerializer: kafka:SER_INT
+    valueSerializerType: kafka:SER_INT
 };
 
 kafka:Producer kafkaProducer = new(producerConfigs);

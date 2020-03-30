@@ -42,7 +42,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class GetTarget {
 
-    public static String getTarget(Strand strand, XMLValue<?> xmlValue) {
+    public static String getTarget(Strand strand, XMLValue xmlValue) {
         if (!IsProcessingInstruction.isProcessingInstruction(strand, xmlValue)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR,
                     "getTarget", "processing instruction");

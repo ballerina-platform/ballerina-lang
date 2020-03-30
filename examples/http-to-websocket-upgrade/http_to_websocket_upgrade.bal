@@ -16,17 +16,17 @@ service httpService on new http:Listener(9090) {
         http:Response resp = new;
         var payload = req.getTextPayload();
         if (payload is error) {
-            log:printError("Error sending message", err = payload);
+            log:printError("Error sending message", payload);
             resp.setPayload("Error in payload");
             resp.statusCode = 500;
         } else {
             io:println(payload);
-            resp.setPayload(string `HTTP POST received: ${<@untainted> payload}`);
+            resp.setPayload(string `HTTP POST received: ${<@untainted>payload}`);
         }
 
         var err = caller->respond(resp);
         if (err is error) {
-            log:printError("Error in responding", err = err);
+            log:printError("Error in responding", err);
         }
     }
 
@@ -34,8 +34,8 @@ service httpService on new http:Listener(9090) {
     // Here you have access to the `http:Request` and to the query and path params where applicable.
     @http:ResourceConfig {
         webSocketUpgrade: {
-                upgradePath: "/ws",
-                upgradeService: wsService
+            upgradePath: "/ws",
+            upgradeService: wsService
         }
     }
     resource function upgrader(http:Caller caller, http:Request req) {
@@ -60,7 +60,7 @@ service wsService = @http:WebSocketServiceConfig {subProtocols: ["xml, json"]
         io:println(text);
         var err = caller->pushText(text);
         if (err is error) {
-            log:printError("Error sending message", err = err);
+            log:printError("Error sending message", err);
         }
     }
 

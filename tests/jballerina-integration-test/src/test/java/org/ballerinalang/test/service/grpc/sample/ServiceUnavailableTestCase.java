@@ -40,7 +40,7 @@ public class ServiceUnavailableTestCase extends GrpcBaseTest {
 
     @BeforeClass
     private void setup() throws Exception {
-        Utils.checkPortAvailability(9110);
+        Utils.checkPortAvailability(9106);
         TestUtils.prepareBalo(this);
     }
 

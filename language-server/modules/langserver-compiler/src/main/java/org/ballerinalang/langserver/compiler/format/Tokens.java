@@ -48,6 +48,7 @@ public class Tokens {
     public static final String ADD = "+";
     public static final String DIV = "/";
     public static final String AT = "@";
+    public static final String PIPE = "|";
 
     // Keywords.
     public static final String VAR = "var";
@@ -105,4 +106,9 @@ public class Tokens {
     public static final String XML_LITERAL_START = "xml `";
     public static final String COMMITTED = "committed";
     public static final String ABORTED = "aborted";
+    public static final String LET = "let";
+    public static final String FROM = "from";
+    public static final String SELECT = "select";
+    public static final String WHERE = "where";
+    public static final String DO = "do";
 }

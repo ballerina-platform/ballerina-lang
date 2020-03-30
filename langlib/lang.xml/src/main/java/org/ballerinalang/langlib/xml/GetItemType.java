@@ -41,7 +41,7 @@ public class GetItemType {
 
     private static final String OPERATION = "get xml item type";
 
-    public static Object getItemType(Strand strand, XMLValue<?> xml) {
+    public static Object getItemType(Strand strand, XMLValue xml) {
         try {
             return xml.getItemType();
         } catch (Throwable e) {

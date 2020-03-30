@@ -48,6 +48,8 @@ public class BalGenConstants {
     public static final String SAMPLE_FILE_PREFIX = "_sample_client.bal";
 
     public static final String SAMPLE_SERVICE_FILE_PREFIX = "_sample_service.bal";
+
+    public static final String SAMPLE_PROXY_FILE_PREFIX = "_gateway_pb.bal";
     
     public static final String EMPTY_STRING = "";
     
@@ -66,16 +68,40 @@ public class BalGenConstants {
     public static final String DEFAULT_SKELETON_DIR = DEFAULT_TEMPLATE_DIR + RESOURCE_SEPARATOR + "skeleton";
     
     public static final String DEFAULT_SAMPLE_DIR = DEFAULT_TEMPLATE_DIR + RESOURCE_SEPARATOR + "skeleton";
-    
+
     public static final String SKELETON_TEMPLATE_NAME = "stub_file";
+
+    public static final String SERVICE_SKELETON_TEMPLATE_NAME = "service_stub_file";
 
     public static final String GRPC_CLIENT = "client";
 
     public static final String GRPC_SERVICE = "service";
+
+    public static final String GRPC_PROXY = "proxy";
     
     public static final String SAMPLE_CLIENT_TEMPLATE_NAME = "client_sample";
 
     public static final String SAMPLE_SERVICE_TEMPLATE_NAME = "service_sample";
 
+    public static final String SAMPLE_PROXY_TEMPLATE_NAME = "proxy_sample";
+
     public static final String GOOGLE_STANDARD_LIB = "google.protobuf";
+
+    public static final String HTTP_PATTERN_NOT_SET = "PATTERN_NOT_SET";
+
+    public static final String INITIAL_PARENT_PREFIX = "new";
+
+    public static final String QUERY_PARAMETER = "query";
+
+    public static final String PATH_PARAMETER = "path";
+
+    public static final String MESSAGE_PARAMETER = "message";
+
+    public static final String BODY_PARAMETER = "body";
+
+    public static final String PRIMITIVE_FIELD_NAME = "value";
+
+    public static final String PATH_PARAMETER_PATTERN_REGEX = "(?<=\\{)([^}]+)(?=})";
+
+    public static final int PARENT_SPLITTING_INDEX = 1;
 }

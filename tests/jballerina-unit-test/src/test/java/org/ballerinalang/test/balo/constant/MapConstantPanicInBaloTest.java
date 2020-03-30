@@ -34,6 +34,7 @@ public class MapConstantPanicInBaloTest {
 
     @BeforeClass
     public void setup() {
+        BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
         compileResult = BCompileUtil.compile("test-src/balo/test_balo/constant/map-literal-constant-panic.bal");
     }

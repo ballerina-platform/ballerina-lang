@@ -61,3 +61,9 @@ function functionWithParams(Foo param1, Foo param2 = {x: 12, y: "Hello"}, Foo...
     
     return testVar1;
 }
+
+function intToString(int convertField) returns string => convertField.toHexString();
+
+function testExprBodyFunction() {
+    string val = intToString(1234);
+}

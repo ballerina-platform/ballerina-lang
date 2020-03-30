@@ -104,7 +104,7 @@ public class MatchStructuredTuplePatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "two vars : Hello, 34");
         Assert.assertEquals(results.getString(++i), msg + "four vars : 66.6, Test, 456, true");
         Assert.assertEquals(results.getString(++i), msg + "three vars : 5.6, Ballerina, false");
-        Assert.assertEquals(results.getString(++i), msg + "single var : Bal 543 67.8");
+        Assert.assertEquals(results.getString(++i), msg + "single var : Bal 543 object NoFillerObject");
     }
 
     @Test(description = "Test structured pattern match statement complex 2")
@@ -137,7 +137,7 @@ public class MatchStructuredTuplePatternsTest {
         Assert.assertEquals(results.getString(++i), msg + "two vars : Hello, 34");
         Assert.assertEquals(results.getString(++i), msg + "four vars : 66.6, Test, 456, true");
         Assert.assertEquals(results.getString(++i), msg + "three vars : 5.6, Ballerina, false");
-        Assert.assertEquals(results.getString(++i), msg + "single var : Bal 543 67.8");
+        Assert.assertEquals(results.getString(++i), msg + "single var : Bal 543 object NoFillerObject");
     }
 
 

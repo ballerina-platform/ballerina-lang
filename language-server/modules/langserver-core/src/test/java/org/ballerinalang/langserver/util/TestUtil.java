@@ -26,12 +26,18 @@ import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSCompilerCache;
+import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightingParams;
+import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -61,6 +67,7 @@ import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseError;
 import org.eclipse.lsp4j.jsonrpc.messages.ResponseMessage;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -69,7 +76,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -283,6 +292,7 @@ public class TestUtil {
      */
     public static String getCodeActionResponse(Endpoint serviceEndpoint, String filePath, Range range,
                                                CodeActionContext context) {
+        LSCompilerCache.clearAll();
         TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
         CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
         CompletableFuture result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
@@ -482,5 +492,22 @@ public class TestUtil {
         }
 
         return GSON.toJson(jsonrpcResponse).replace("\r\n", "\n").replace("\\r\\n", "\\n");
+    }
+
+    public static List<Diagnostic> compileAndGetDiagnostics(Path sourcePath) throws CompilationFailedException {
+        WorkspaceDocumentManagerImpl documentManager = WorkspaceDocumentManagerImpl.getInstance();
+        LSContext context = new DocumentServiceOperationContext
+                .ServiceOperationContextBuilder(LSContextOperation.DIAGNOSTICS)
+                .withCommonParams(null, sourcePath.toUri().toString(), documentManager)
+                .build();
+
+        LSModuleCompiler.getBLangPackage(context, documentManager, null, true, true);
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+        if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
+            diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
+        }
+
+        return diagnostics;
     }
 }

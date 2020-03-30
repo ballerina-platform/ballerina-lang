@@ -1,6 +1,6 @@
+import ballerina/http;
 import ballerina/io;
 import ballerina/log;
-import ballerina/http;
 
 string ping = "ping";
 byte[] pingData = ping.toBytes();

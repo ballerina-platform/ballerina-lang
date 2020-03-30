@@ -41,7 +41,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 public class ForEach {
 
-    public static void forEach(Strand strand, XMLValue<?> x, FPValue<Object, Object> func) {
+    public static void forEach(Strand strand, XMLValue x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
             func.call(new Object[]{strand, x, true});
             return;

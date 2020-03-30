@@ -48,8 +48,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Responsible for serializing BIR instructions and operands.
@@ -111,12 +109,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRTerminator.Lock lock) {
         writePosition(lock.pos);
         buf.writeByte(lock.kind.getValue());
-        addCpAndWriteString(lock.globalVar.name.value);
-
-        int pkgIndex = addPkgCPEntry(lock.globalVar.pkgId);
-        buf.writeInt(pkgIndex);
-
-        writeType(lock.globalVar.type);
 
         addCpAndWriteString(lock.lockedBB.id.value);
     }
@@ -133,24 +125,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRTerminator.Unlock unlock) {
         writePosition(unlock.pos);
         buf.writeByte(unlock.kind.getValue());
-        buf.writeInt(unlock.globalVars.size());
-        for (BIRNode.BIRGlobalVariableDcl globalVar : unlock.globalVars) {
-            addCpAndWriteString(globalVar.name.value);
-
-            int pkgIndex = addPkgCPEntry(globalVar.pkgId);
-            buf.writeInt(pkgIndex);
-
-            writeType(globalVar.type);
-        }
-        buf.writeInt(unlock.fieldLocks.size());
-        for (Map.Entry<BIROperand, Set<String>> entry : unlock.fieldLocks.entrySet()) {
-            // TODO properly use operand instead of variablDcl.name here
-            addCpAndWriteString(entry.getKey().variableDcl.name.value);
-            buf.writeInt(entry.getValue().size());
-            for (String field : entry.getValue()) {
-                addCpAndWriteString(field);
-            }
-        }
         addCpAndWriteString(unlock.unlockBB.id.value);
     }
 
@@ -321,6 +295,12 @@ public class BIRInstructionWriter extends BIRVisitor {
         BType type = birConstantLoad.type;
         switch (type.tag) {
             case TypeTags.INT:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
                 buf.writeInt(cp.addCPEntry(new IntegerCPEntry((Long) birConstantLoad.value)));
                 break;
             case TypeTags.BYTE:
@@ -333,6 +313,7 @@ public class BIRInstructionWriter extends BIRVisitor {
                 buf.writeBoolean((Boolean) birConstantLoad.value);
                 break;
             case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
             case TypeTags.DECIMAL:
                 buf.writeInt(cp.addCPEntry(new StringCPEntry(birConstantLoad.value.toString())));
                 break;
@@ -344,7 +325,7 @@ public class BIRInstructionWriter extends BIRVisitor {
             case TypeTags.NIL:
                 break;
             default:
-                throw new IllegalStateException("unsupported constant type: " + type.getDesc());
+                throw new IllegalStateException("unsupported constant type: " + type);
         }
     }
 
@@ -386,7 +367,7 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(BIRNonTerminator.FieldAccess birFieldAccess) {
         writePosition(birFieldAccess.pos);
         buf.writeByte(birFieldAccess.kind.getValue());
-        if (birFieldAccess.kind == InstructionKind.MAP_LOAD) {
+        if (birFieldAccess.kind == InstructionKind.MAP_LOAD || birFieldAccess.kind == InstructionKind.ARRAY_LOAD) {
             buf.writeBoolean(birFieldAccess.optionalFieldAccess);
             buf.writeBoolean(birFieldAccess.fillingRead);
         }
@@ -499,7 +480,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(newXMLElement.kind.getValue());
         newXMLElement.lhsOp.accept(this);
         newXMLElement.startTagOp.accept(this);
-        newXMLElement.endTagOp.accept(this);
         newXMLElement.defaultNsURIOp.accept(this);
     }
 

@@ -33,7 +33,7 @@ public function main() {
         // This is the first remote function to participate in the transaction. It inserts
         // the customer name to the first DB and gets the generated key.
         ret = testDB1->update("INSERT INTO CUSTOMER(NAME) " +
-                               "VALUES ('Anne')");
+                              "VALUES ('Anne')");
         int key = -1;
         if (ret is jdbc:UpdateResult) {
             int count = ret.updatedRowCount;
@@ -42,13 +42,13 @@ public function main() {
             io:println("Generated key: ", key);
         } else {
             io:println("Insert to student table failed: ",
-                        <string>ret.detail()?.message);
+                       <string>ret.detail()?.message);
         }
 
         // This is the second remote function to participate in the transaction. It inserts the
         // salary info to the second DB along with the key generated in the first DB.
         ret = testDB2->update("INSERT INTO SALARY (ID, VALUE) VALUES (?, ?)",
-                                    key, 2500);
+                              key, 2500);
         handleUpdate(ret, "Insert to SALARY table");
     } onretry {
         io:println("Retrying transaction");

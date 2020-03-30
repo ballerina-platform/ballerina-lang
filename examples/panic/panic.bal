@@ -7,7 +7,7 @@ type Record record {
 
 function readRecord(Record? value) {
     if (value is Record) {
-         io:println("Record ID: ", value.id, ", value: ", value.name);
+        io:println("Record ID: ", value.id, ", value: ", value.name);
     } else {
         // Panics if `value` is `()`.
         error err = error("Record is nil");

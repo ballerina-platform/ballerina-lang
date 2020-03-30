@@ -444,4 +444,14 @@ public class FunctionSignatureTest {
         tuple.add(4, (Object) e);
         return tuple;
     }
+
+    @Test(description = "Test1: function signature which has a function typed param with only rest param")
+    public void testFunctionWithFunctionTypedParamWithOnlyRestParam1() {
+        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithRest1");
+    }
+
+    @Test(description = "Test2: function signature which has a function typed param with only rest param")
+    public void testFunctionWithFunctionTypedParamWithOnlyRestParam2() {
+        BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithRest2");
+    }
 }

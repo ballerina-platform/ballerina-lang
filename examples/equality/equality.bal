@@ -9,7 +9,7 @@ type Person record {
     string name;
 };
 
-final Employee globalEmployee = { name: "John", id: 2102 };
+final Employee globalEmployee = {name: "John", id: 2102};
 
 public function main() {
     // The `==` and `!=` are used with the values of compatible `anydata|error` types and serves as deep value equality checks.
@@ -31,12 +31,12 @@ public function main() {
     isNotEqual = t1 != t3;
     io:println(t1, " != ", t3, " is ", isNotEqual);
 
-    Employee e1 = { name: "Jane", id: 1100 };
-    Employee e2 = { name: "Jane", id: 1100 };
+    Employee e1 = {name: "Jane", id: 1100};
+    Employee e2 = {name: "Jane", id: 1100};
     isNotEqual = e1 != e2;
     io:println(e1, " != ", e2, " is ", isNotEqual);
 
-    Employee e3 = { name: "Anne", id: 1100 };
+    Employee e3 = {name: "Anne", id: 1100};
     isEqual = e1 == e3;
     io:println(e1, " == ", e3, " is ", isEqual);
 
@@ -46,7 +46,7 @@ public function main() {
     boolean isRefEqual = e4 === e5;
     io:println("e4 === e5 is ", isRefEqual);
 
-    e4 = { name: "John", id: 2102 };
+    e4 = {name: "John", id: 2102};
     boolean isNotRefEqual = e4 !== e5;
     io:println("e4 !== e5 is ", isNotRefEqual);
 

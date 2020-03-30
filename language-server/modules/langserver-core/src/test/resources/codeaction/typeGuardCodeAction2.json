@@ -3,18 +3,20 @@
     "character": 6,
     "expected": {
         "title": "Type Guard 'getBar'",
-        "edit": {
-            "range": {
-                "start": {
-                    "line": 4,
-                    "character": 4
+        "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 4,
+                        "character": 4
+                    },
+                    "end": {
+                        "line": 4,
+                        "character": 13
+                    }
                 },
-                "end": {
-                    "line": 4,
-                    "character": 13
-                }
-            },
-            "newText": "if (getBar() is error) {\n\n    }"
-        }
+                "newText": "if (getBar() is error) {\n\n    }"
+            }
+        ]
     }
 }

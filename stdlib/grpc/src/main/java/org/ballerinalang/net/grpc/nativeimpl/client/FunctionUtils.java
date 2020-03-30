@@ -22,9 +22,9 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.observability.ObserveUtils;
-import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.State;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -55,7 +55,6 @@ import org.wso2.transport.http.netty.message.HttpConnectorUtil;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.BLOCKING_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_CONNECTOR;
@@ -68,7 +67,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_MESSAGE_DEFINITIO
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.GrpcConstants.STREAMING_CLIENT;
-import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_MESSAGE_CONTENT;
 import static org.ballerinalang.net.grpc.GrpcUtil.getConnectionManager;
 import static org.ballerinalang.net.grpc.GrpcUtil.populatePoolingConfig;
 import static org.ballerinalang.net.grpc.GrpcUtil.populateSenderConfigurations;
@@ -235,9 +233,6 @@ public class FunctionUtils extends AbstractExecute {
         }
 
         if (connectionStub instanceof BlockingStub) {
-            Optional<ObserverContext> observerContext =
-                    ObserveUtils.getObserverContextOfCurrentFrame(Scheduler.getStrand());
-            observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_GRPC_MESSAGE_CONTENT, payloadBValue.toString()));
             Message requestMsg = new Message(methodDescriptor.getInputType().getName(), payloadBValue);
             // Update request headers when request headers exists in the context.
             HttpHeaders headers = null;
@@ -248,11 +243,12 @@ public class FunctionUtils extends AbstractExecute {
                 requestMsg.setHeaders(headers);
             }
             BlockingStub blockingStub = (BlockingStub) connectionStub;
+            DataContext dataContext = null;
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
 
-                    DataContext dataContext = new DataContext(Scheduler.getStrand(),
+                    dataContext = new DataContext(Scheduler.getStrand(),
                             new NonBlockingCallback(Scheduler.getStrand()));
                     blockingStub.executeUnary(requestMsg, methodDescriptors.get(methodName), dataContext);
                 } else {
@@ -260,6 +256,9 @@ public class FunctionUtils extends AbstractExecute {
                             methodType.name() + " not supported");
                 }
             } catch (Exception e) {
+                if (dataContext != null) {
+                    unBlockStrand(dataContext.getStrand());
+                }
                 return notifyErrorReply(INTERNAL, "gRPC Client Connector Error :" + e.getMessage());
             }
         } else {
@@ -267,6 +266,13 @@ public class FunctionUtils extends AbstractExecute {
                     "type not supported");
         }
         return null;
+    }
+
+    // Please refer #18763. This should be done through a JBallerina API which provides the capability
+    // of high level strand state handling - There is no such API ATM.
+    private static void unBlockStrand(Strand strand) {
+        strand.setState(State.RUNNABLE);
+        strand.blockedOnExtern = false;
     }
 
     /**
@@ -313,9 +319,6 @@ public class FunctionUtils extends AbstractExecute {
 
         if (connectionStub instanceof NonBlockingStub) {
             Message requestMsg = new Message(methodDescriptor.getInputType().getName(), payload);
-            Optional<ObserverContext> observerContext =
-                    ObserveUtils.getObserverContextOfCurrentFrame(Scheduler.getStrand());
-            observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_GRPC_MESSAGE_CONTENT, payload.toString()));
             // Update request headers when request headers exists in the context.
             HttpHeaders headers = null;
             if (headerValues != null && (TypeChecker.getType(headerValues).getTag() == TypeTags.OBJECT_TYPE_TAG)) {

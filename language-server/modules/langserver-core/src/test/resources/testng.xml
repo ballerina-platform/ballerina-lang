@@ -19,8 +19,8 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="composer-workspace-service-test-suite">
-    <test name="composer-workspace-service-tests" preserve-order="true" parallel="false">
+<suite name="language-server-core-test-suite">
+    <test name="language-server-core-tests" preserve-order="true" parallel="false">
         <groups>
             <run>
                 <exclude name="broken"/>

@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.services.nativeimpl.response;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.util.internal.StringUtil;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
@@ -137,11 +136,15 @@ public class ResponseNativeFunctionNegativeTest {
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", new Object[]{ inResponse });
         Assert.assertNotNull(returnVals[0]);
-        Assert.assertEquals(((BError) returnVals[0]).getDetails().stringValue(), "{message:\"Error occurred while " +
-                "retrieving the xml payload from the response\", cause:{ballerina/mime}ParsingEntityBodyFailed " +
-                "{message:\"Error occurred while extracting xml data from entity\", cause:Unexpected character 'b'" +
-                " (code 98) in prolog; expected '<'" + StringUtil.NEWLINE +
-                " at [row,col {unknown-source}]: [1,1] {}}}");
+        String errorMessage = ((BError) returnVals[0]).getDetails().stringValue();
+        String expectedErrorMessagePattern =
+                "\\{message:\"Error occurred while retrieving the xml payload from the response\", " +
+                        "cause:\\{ballerina\\/mime\\}ParsingEntityBodyFailed " +
+                        "\\{message:\"Error occurred while extracting xml data from entity\", " +
+                        "cause:failed to create xml: Unexpected character 'b' \\(code 98\\) in prolog; expected '<'" +
+                        "(\n|\r\n)" +
+                        " at \\[row,col \\{unknown-source}]: \\[1,1] \\{\\}\\}\\}";
+        Assert.assertTrue(errorMessage.matches(expectedErrorMessagePattern));
     }
 
     @Test(description = "Test getEntity method on a response without a entity")

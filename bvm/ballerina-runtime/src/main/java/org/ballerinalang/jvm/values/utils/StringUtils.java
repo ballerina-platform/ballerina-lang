@@ -28,7 +28,7 @@ import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.StringValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * This class contains the methods that deals with Strings.
@@ -51,8 +51,8 @@ public class StringUtils {
         BType type = TypeChecker.getType(value);
 
         //TODO: bstring - change to type tag check
-        if (value instanceof StringValue) {
-            return ((StringValue) value).getValue();
+        if (value instanceof BString) {
+            return ((BString) value).getValue();
         }
 
         if (type.getTag() < TypeTags.JSON_TAG) {
@@ -91,6 +91,7 @@ public class StringUtils {
 
     /**
      * Returns the json string value of Ballerina values.
+     *
      * @param value The value on which the function is invoked
      * @return Json String value of the value
      */
@@ -117,5 +118,8 @@ public class StringUtils {
 
         RefValue refValue = (RefValue) value;
         return refValue.stringValue();
+    }
+
+    private StringUtils() {
     }
 }

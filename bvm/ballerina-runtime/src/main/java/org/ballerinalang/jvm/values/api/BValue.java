@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.types.BType;
  */
 public interface BValue {
 
+    @Deprecated
     String stringValue();
 
     BType getType();

@@ -1,0 +1,22 @@
+{
+    "line": 4,
+    "character": 1,
+    "expected": {
+        "title": "Optimize All Imports",
+        "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 3,
+                        "character": 0
+                    },
+                    "end": {
+                        "line": 6,
+                        "character": 35
+                    }
+                },
+                "newText": "import ballerina/io;\nimport wso2/twitter version 1.1.0;\n"
+            }
+        ]
+    }
+}

@@ -22,7 +22,7 @@ import ballerina/log;
 import ballerina/mime;
 import ballerina/stringutils;
 
-import ballerinax/java;
+import ballerina/java;
 
 # Intent verification request parameter 'hub.challenge' representing the challenge that needs to be echoed by
 # susbscribers to verify intent.
@@ -540,6 +540,17 @@ public type Hub object {
     public string publishUrl;
     private http:Listener hubHttpListener;
 
+    # The initialization method for the Hub. Users of the `ballerina/websub` module must use the
+    # function `startHub()` to initialize a `websub:Hub` object.
+    #
+    # + subscriptionUrl - The URL for subscription changes
+    # + publishUrl - The URL for publishing and topic registration
+    # + hubHttpListener - The `http:Listener` to which the hub service should be attached
+    #
+    # # Deprecated
+    # Users of the `ballerina/websub` module must use the function `startHub()` to initialize a `websub:Hub`
+    # object instead of directly calling the initializer method.
+    @deprecated
     public function __init(string subscriptionUrl, string publishUrl, http:Listener hubHttpListener) {
          self.subscriptionUrl = subscriptionUrl;
          self.publishUrl = publishUrl;

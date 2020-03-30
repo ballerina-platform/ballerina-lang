@@ -7,7 +7,7 @@ int total = 0;
 public function main() {
 
     //Client endpoint configuration.
-    ChatClient chatEp = new("http://localhost:9090");
+    ChatClient chatEp = new ("http://localhost:9090");
 
     grpc:StreamingClient ep;
     // Executes unary non-blocking call registering server message listener.
@@ -15,7 +15,7 @@ public function main() {
 
     if (res is grpc:Error) {
         io:println("Error from Connector: " + res.reason() + " - "
-                                  + <string> res.detail()["message"]);
+                                  + <string>res.detail()["message"]);
         return;
     } else {
         io:println("Initialized connection sucessfully.");
@@ -23,12 +23,12 @@ public function main() {
     }
 
     // Sends multiple messages to the server.
-    ChatMessage mes = { name: "Sam", message: "Hi " };
+    ChatMessage mes = {name: "Sam", message: "Hi "};
     grpc:Error? connErr = ep->send(mes);
 
     if (connErr is grpc:Error) {
         io:println("Error from Connector: " + connErr.reason() + " - "
-                               + <string> connErr.detail()["message"]);
+                               + <string>connErr.detail()["message"]);
     }
     runtime:sleep(6000);
 
@@ -50,7 +50,7 @@ service ChatMessageListener = service {
     // Resource registered to receive server error messages.
     resource function onError(error err) {
         io:println("Error reported from server: " + err.reason() + " - "
-                                  + <string> err.detail()["message"]);
+                                  + <string>err.detail()["message"]);
     }
 
     // Resource registered to receive server completed message.

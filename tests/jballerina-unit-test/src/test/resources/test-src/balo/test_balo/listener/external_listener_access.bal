@@ -9,6 +9,10 @@ service sample2 on bee:ep {
     }
 }
 
+service sample3 on bee:ep1 {
+    resource function foo(string b) {}
+}
+
 public function getStartAndAttachCount() returns string {
     return bee:getStartAndAttachCount();
 }

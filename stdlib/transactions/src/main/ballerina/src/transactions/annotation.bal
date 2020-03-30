@@ -18,7 +18,7 @@
 #
 # + oncommit - Function to execute when transaction committed.
 # + onabort - Function to execute when transaction aborted.
-type TransactionParticipantConfig record {|
+public type TransactionParticipantConfig record {|
     function (string) oncommit?;
     function (string) onabort?;
 |};

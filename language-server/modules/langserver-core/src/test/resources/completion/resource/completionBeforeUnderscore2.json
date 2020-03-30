@@ -120,13 +120,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getHeader(string headerName, (leading|trailing) position)(string)",
+      "label": "getHeader(string headerName)(string)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nReturns the value of the specified header. If the specified header key maps to multiple values, the first of\nthese values is returned.\n  \n**Params**  \n- `string` headerName: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)  \n  \n**Returns** `string`   \n- The first header value for the specified header name. An exception is thrown if no header is found. Use  \n           `Request.hasHeader()` beforehand to check the existence of header.  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nReturns the value of the specified header. If the specified header key maps to multiple values, the first of\nthese values is returned.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `string`   \n- The first header value for the specified header name. An exception is thrown if no header is found. Use  \n           `Request.hasHeader()` beforehand to check the existence of header.  \n  \n"
         }
       },
       "sortText": "120",
@@ -156,13 +156,13 @@
       }
     },
     {
-      "label": "setHeader(string headerName, string headerValue, (leading|trailing) position)",
+      "label": "setHeader(string headerName, string headerValue)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the request. If a mapping already exists for the specified header key, the existing\nheader value is replaced with the specified header value.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)"
+          "value": "**Package:** _ballerina/http_  \n  \nSets the specified header to the request. If a mapping already exists for the specified header key, the existing\nheader value is replaced with the specified header value.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value"
         }
       },
       "sortText": "120",
@@ -334,22 +334,18 @@
       }
     },
     {
-      "label": "removeAllHeaders((leading|trailing) position)",
+      "label": "removeAllHeaders()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nRemoves all the headers from the request.\n  \n**Params**  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)"
+          "value": "**Package:** _ballerina/http_  \n  \nRemoves all the headers from the request.  \n"
         }
       },
       "sortText": "120",
-      "insertText": "removeAllHeaders(${1});",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "removeAllHeaders();",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "method",
@@ -360,13 +356,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "addHeader(string headerName, string headerValue, (leading|trailing) position)",
+      "label": "addHeader(string headerName, string headerValue)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nAdds the specified header to the request. Existing header values are not replaced.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)"
+          "value": "**Package:** _ballerina/http_  \n  \nAdds the specified header to the request. Existing header values are not replaced.\n  \n**Params**  \n- `string` headerName: The header name  \n- `string` headerValue: The header value"
         }
       },
       "sortText": "120",
@@ -418,13 +414,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "hasHeader(string headerName, (leading|trailing) position)(boolean)",
+      "label": "hasHeader(string headerName)(boolean)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nChecks whether the requested header key exists in the header map.\n  \n**Params**  \n- `string` headerName: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)  \n  \n**Returns** `boolean`   \n- Returns true if the specified header key exists  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nChecks whether the requested header key exists in the header map.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `boolean`   \n- Returns true if the specified header key exists  \n  \n"
         }
       },
       "sortText": "120",
@@ -462,13 +458,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "removeHeader(string key, (leading|trailing) position)",
+      "label": "removeHeader(string key)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nRemoves the specified header from the request.\n  \n**Params**  \n- `string` key: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)"
+          "value": "**Package:** _ballerina/http_  \n  \nRemoves the specified header from the request.\n  \n**Params**  \n- `string` key: The header name"
         }
       },
       "sortText": "120",
@@ -498,13 +494,13 @@
       }
     },
     {
-      "label": "getQueryParams()(map<string[]>)",
+      "label": "getQueryParams()(map\u003cstring[]\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the query parameters of the request as a map consisting of a string array.\n  \n  \n  \n**Returns** `map<string[]>`   \n- String array map of the query params  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets the query parameters of the request as a map consisting of a string array.\n  \n  \n  \n**Returns** `map\u003cstring[]\u003e`   \n- String array map of the query params  \n  \n"
         }
       },
       "sortText": "120",
@@ -512,31 +508,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getHeaderNames((leading|trailing) position)(string[])",
+      "label": "getHeaderNames()(string[])",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets all the names of the headers of the request.\n  \n**Params**  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)  \n  \n**Returns** `string[]`   \n- An array of all the header names  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets all the names of the headers of the request.\n  \n  \n  \n**Returns** `string[]`   \n- An array of all the header names  \n  \n"
         }
       },
       "sortText": "120",
-      "insertText": "getHeaderNames(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "getHeaderNames()",
+      "insertTextFormat": "Snippet"
     },
     {
-      "label": "getMatrixParams(string path)(map<any>)",
+      "label": "getMatrixParams(string path)(map\u003cany\u003e)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the matrix parameters of the request.\n  \n**Params**  \n- `string` path: Path to the location of matrix parameters  \n  \n**Returns** `map<any>`   \n- A map of matrix parameters which can be found for the given path  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets the matrix parameters of the request.\n  \n**Params**  \n- `string` path: Path to the location of matrix parameters  \n  \n**Returns** `map\u003cany\u003e`   \n- A map of matrix parameters which can be found for the given path  \n  \n"
         }
       },
       "sortText": "120",
@@ -576,13 +568,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getFormParams()((map<string>|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
+      "label": "getFormParams()((map\u003cstring\u003e|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the form parameters from the HTTP request as a `map` when content type is application/x-www-form-urlencoded.\n  \n  \n  \n**Returns** `(map<string>|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The map of form params or `http:ClientError` in case of errors  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets the form parameters from the HTTP request as a `map` when content type is application/x-www-form-urlencoded.\n  \n  \n  \n**Returns** `(map\u003cstring\u003e|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The map of form params or `http:ClientError` in case of errors  \n  \n"
         }
       },
       "sortText": "120",
@@ -596,7 +588,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value_  \n  \nPerforms a minimal conversion of a value to a string.\nThe conversion is minimal in particular in the sense\nthat the conversion applied to a value that is already\na string does nothing.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe result of `toString(v)` is as follows:  \n  \n- if `v` is a string, then returns `v`  \n- if `v` is `()`, then returns an empty string  \n- if `v` is boolean, then the string `true` or `false`  \n- if `v` is an int, then return `v` represented as a decimal string  \n- if `v` is a float or decimal, then return `v` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `v`;  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `v` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `v` is a map, then returns key=value for each member separated by a space character  \n- if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)  \n- if `v` is table, TBD  \n- if `v` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `v` is an object, then  \n    - if `v` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `v`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `v` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `==` operator).  \n  \n"
+          "value": "**Package:** _ballerina/lang.value_  \n  \nPerforms a minimal conversion of a value to a string.\nThe conversion is minimal in particular in the sense\nthat the conversion applied to a value that is already\na string does nothing.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe result of `toString(v)` is as follows:  \n  \n- if `v` is a string, then returns `v`  \n- if `v` is `()`, then returns an empty string  \n- if `v` is boolean, then the string `true` or `false`  \n- if `v` is an int, then return `v` represented as a decimal string  \n- if `v` is a float or decimal, then return `v` represented as a decimal string,  \n  with a decimal point only if necessary, but without any suffix indicating the type of `v`;  \n  return `NaN`, `Infinity` for positive infinity, and `-Infinity` for negative infinity  \n- if `v` is a list, then returns the results toString on each member of the list  \n  separated by a space character  \n- if `v` is a map, then returns key\u003dvalue for each member separated by a space character  \n- if `v` is xml, then returns `v` in XML format (as if it occurred within an XML element)  \n- if `v` is table, TBD  \n- if `v` is an error, then a string consisting of the following in order  \n    1. the string `error`  \n    2. a space character  \n    3. the reason string  \n    4. if the detail record is non-empty  \n        1. a space character  \n        2. the result of calling toString on the detail record  \n- if `v` is an object, then  \n    - if `v` provides a `toString` method with a string return type and no required methods,  \n      then the result of calling that method on `v`  \n    - otherwise, `object` followed by some implementation-dependent string  \n- if `v` is any other behavioral type, then the identifier for the behavioral type  \n  (`function`, `future`, `service`, `typedesc` or `handle`)  \n  followed by some implementation-dependent string  \n  \nNote that `toString` may produce the same string for two Ballerina values  \nthat are not equal (in the sense of the `\u003d\u003d` operator).  \n  \n"
         }
       },
       "sortText": "120",
@@ -604,13 +596,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getHeaders(string headerName, (leading|trailing) position)(string[])",
+      "label": "getHeaders(string headerName)(string[])",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets all the header values to which the specified header key maps to.\n  \n**Params**  \n- `string` headerName: The header name  \n- `(leading|trailing)` position: Represents the position of the header as an optional parameter(Defaultable)  \n  \n**Returns** `string[]`   \n- The header values the specified header key maps to. An exception is thrown if no header is found. Use  \n           `Request.hasHeader()` beforehand to check the existence of header.  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets all the header values to which the specified header key maps to.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `string[]`   \n- The header values the specified header key maps to. An exception is thrown if no header is found. Use  \n           `Request.hasHeader()` beforehand to check the existence of header.  \n  \n"
         }
       },
       "sortText": "120",
@@ -638,6 +630,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    }
+      }
   ]
 }

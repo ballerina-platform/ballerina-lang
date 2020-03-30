@@ -18,7 +18,6 @@
 package org.ballerinalang.net.grpc.builder.components;
 
 import com.google.protobuf.DescriptorProtos;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Arrays;
@@ -73,19 +72,27 @@ public class Field {
         private DescriptorProtos.FieldDescriptorProto fieldDescriptor;
 
         public Field build() {
-            String fieldType = FIELD_TYPE_MAP.get(fieldDescriptor.getType()) != null ? FIELD_TYPE_MAP.get
-                    (fieldDescriptor.getType()) : fieldDescriptor.getTypeName();
+            String fieldType = fieldDescriptor.getTypeName();
+            String fieldDefaultValue = null;
+            if (CUSTOM_FIELD_TYPE_MAP.get(fieldDescriptor.getTypeName()) != null) {
+                fieldType = CUSTOM_FIELD_TYPE_MAP.get(fieldDescriptor.getTypeName());
+                fieldDefaultValue = CUSTOM_DEFAULT_VALUE_MAP.get(fieldDescriptor.getTypeName());
+            } else if (FIELD_TYPE_MAP.get(fieldDescriptor.getType()) != null) {
+                fieldType = FIELD_TYPE_MAP.get(fieldDescriptor.getType());
+                fieldDefaultValue = FIELD_DEFAULT_VALUE_MAP.get(fieldDescriptor.getType());
+            }
+
             if (fieldType.startsWith(DOT)) {
                 String[] fieldTypeArray = fieldType.split(REGEX_DOT_SEPERATOR);
                 fieldType = fieldTypeArray[fieldTypeArray.length - 1];
             }
-            String fieldDefaultValue = FIELD_DEFAULT_VALUE_MAP.get(fieldDescriptor.getType());
+
             String fieldLabel = FIELD_LABEL_MAP.get(fieldDescriptor.getLabel());
             if (fieldDescriptor.getLabel() == DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED) {
                 fieldDefaultValue = fieldLabel;
             }
             String fieldName = fieldDescriptor.getName();
-            if (Arrays.stream(BallerinaLexer.ruleNames).anyMatch(fieldName::equalsIgnoreCase) || Names.ERROR.value
+            if (Arrays.stream(RESERVED_LITERAL_NAMES).anyMatch(fieldName::equalsIgnoreCase) || Names.ERROR.value
                     .equalsIgnoreCase(fieldName)) {
                 fieldName = "'" + fieldName;
             }
@@ -98,8 +105,10 @@ public class Field {
     }
 
     private static final Map<DescriptorProtos.FieldDescriptorProto.Type, String> FIELD_TYPE_MAP;
+    private static final Map<String, String> CUSTOM_FIELD_TYPE_MAP;
     private static final Map<DescriptorProtos.FieldDescriptorProto.Label, String> FIELD_LABEL_MAP;
     private static final Map<DescriptorProtos.FieldDescriptorProto.Type, String> FIELD_DEFAULT_VALUE_MAP;
+    private static final Map<String, String> CUSTOM_DEFAULT_VALUE_MAP;
 
     static {
         FIELD_TYPE_MAP = new HashMap<>();
@@ -119,6 +128,9 @@ public class Field {
         FIELD_TYPE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING, "string");
         FIELD_TYPE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES, "byte[]");
 
+        CUSTOM_FIELD_TYPE_MAP = new HashMap<>();
+        CUSTOM_FIELD_TYPE_MAP.put(".google.protobuf.Any", "anydata");
+
         FIELD_DEFAULT_VALUE_MAP = new HashMap<>();
         FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE, "0.0");
         FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT, "0.0");
@@ -136,9 +148,25 @@ public class Field {
         FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING, "");
         FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES, "[]");
 
+        CUSTOM_DEFAULT_VALUE_MAP = new HashMap<>();
+        CUSTOM_DEFAULT_VALUE_MAP.put(".google.protobuf.Any", "()");
+
         FIELD_LABEL_MAP = new HashMap<>();
         FIELD_LABEL_MAP.put(DescriptorProtos.FieldDescriptorProto.Label.LABEL_OPTIONAL, null);
         FIELD_LABEL_MAP.put(DescriptorProtos.FieldDescriptorProto.Label.LABEL_REQUIRED, null);
         FIELD_LABEL_MAP.put(DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED, "[]");
     }
+
+    private static final String[] RESERVED_LITERAL_NAMES = {
+            "import", "as", "public", "private", "external", "final", "service", "resource", "function", "object",
+            "record", "annotation", "parameter", "transformer", "worker", "listener", "remote", "xmlns", "returns",
+            "version", "channel", "abstract", "client", "const", "typeof", "source", "from", "on", "group", "by",
+            "having", "order", "where", "followed", "for", "window", "every", "within", "snapshot", "inner", "outer",
+            "right", "left", "full", "unidirectional", "forever", "limit", "ascending", "descending", "int", "byte",
+            "float", "decimal", "boolean", "string", "error", "map", "json", "xml", "table", "stream", "any",
+            "typedesc", "type", "future", "anydata", "handle", "var", "new", "__init", "if", "match", "else",
+            "foreach", "while", "continue", "break", "fork", "join", "some", "all", "try", "catch", "finally", "throw",
+            "panic", "trap", "return", "transaction", "abort", "retry", "onretry", "retries", "committed", "aborted",
+            "with", "in", "lock", "untaint", "start", "but", "check", "checkpanic", "primarykey", "is", "flush",
+            "wait", "default"};
 }

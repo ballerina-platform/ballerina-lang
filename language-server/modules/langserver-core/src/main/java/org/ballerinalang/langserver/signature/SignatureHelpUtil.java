@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -70,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.lang.reflect.Field;
 import java.net.URI;
@@ -236,12 +238,14 @@ public class SignatureHelpUtil {
         if (topLevelNodes.isEmpty()) {
             return Optional.empty();
         }
-        BLangStatement evalStatement = ((BLangFunction) topLevelNodes.get(0)).getBody().stmts.get(0);
+        BLangStatement evalStatement = ((BLangBlockFunctionBody) ((BLangFunction) topLevelNodes.get(0)).body)
+                .stmts.get(0);
 
         // Handle object new constructor
         if (evalStatement instanceof BLangExpressionStmt
                 && ((BLangExpressionStmt) evalStatement).expr instanceof BLangTypeInit && topLevelNodes.size() >= 2) {
-            BLangStatement stmt = ((BLangFunction) topLevelNodes.get(1)).getBody().stmts.get(0);
+            BLangStatement stmt = ((BLangBlockFunctionBody) ((BLangFunction) topLevelNodes.get(1)).body)
+                    .stmts.get(0);
             if (stmt instanceof BLangSimpleVariableDef) {
                 BLangSimpleVariableDef varDef = (BLangSimpleVariableDef) stmt;
                 if (varDef.var.typeNode instanceof BLangUserDefinedType) {
@@ -252,8 +256,10 @@ public class SignatureHelpUtil {
             } else if (stmt instanceof BLangExpressionStmt &&
                     ((BLangExpressionStmt) stmt).expr instanceof BLangTypeInit) {
                 BLangTypeInit bLangTypeInit = (BLangTypeInit) ((BLangExpressionStmt) stmt).expr;
-                return Optional.of(addPackagePrefix(bLangTypeInit.userDefinedType.pkgAlias, context,
-                                                    bLangTypeInit.userDefinedType.typeName + INIT_SYMBOL));
+                if (bLangTypeInit.type.tag != TypeTags.STREAM) {
+                    BLangUserDefinedType type = (BLangUserDefinedType) bLangTypeInit.userDefinedType;
+                    return Optional.of(addPackagePrefix(type.pkgAlias, context, type.typeName + INIT_SYMBOL));
+                }
             }
         }
 

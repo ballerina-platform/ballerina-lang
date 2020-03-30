@@ -62,7 +62,7 @@ function callBusinessService() returns boolean {
     var result = participantEP->post("", req);
     log:printInfo("Got response from bizservice");
     if (result is error) {
-        log:printError("Error when calling the backend: ", err = result);
+        log:printError("Error when calling the backend: ", result);
         return false;
     } else {
         return result.statusCode == http:STATUS_OK;

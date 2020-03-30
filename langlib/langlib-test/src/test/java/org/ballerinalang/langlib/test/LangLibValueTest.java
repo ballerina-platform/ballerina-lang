@@ -165,6 +165,12 @@ public class LangLibValueTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
+    @Test()
+    public void xmlSequenceFragmentToString() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "xmlSequenceFragmentToString");
+        Assert.assertEquals((returns[0]).stringValue(), "<def>DEF</def><ghi>1</ghi>");
+    }
+
     @DataProvider(name = "mergeJsonFunctions")
     public Object[][] mergeJsonFunctions() {
         return new Object[][] {

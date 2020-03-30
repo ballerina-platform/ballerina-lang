@@ -13,7 +13,7 @@ Employee employee1 = {name: "John", intern: true};
 function basicTupleAssignment() returns string {
     [int, string, boolean...] t = [1, "s", true, true];
     [int, string,
-    boolean...] t1 = [2, "s", true];
+        boolean...] t1 = [2, "s", true];
     [int, string, boolean...] t2 = [3, "s"];
     return t.toString() + " " + t1.toString() + " " + t2.toString();
 }
@@ -23,17 +23,17 @@ function tupleAssignmentWithNilRestDescriptor() returns string {
     [int, string, ()...] t1 = [1, "s", ()];
     [int, string, ()...] t2 = [1, "s", (), ()];
     [(
-    ()
-    |
-    ())...] t3 = [(), ()];
+        ()
+        |
+        ())...] t3 = [(), ()];
     return t.toString() + " " + t1.toString() + " " + t2.toString() + " " + t3.toString();
 }
 
 function tupleAssignmentWithOnlyRestDescriptor() returns string {
     [int...] t = [1, 2];
     [
-    string
-    ...] t1 = ["s", "s"];
+        string
+        ...] t1 = ["s", "s"];
     [()...] t2 = [(), ()];
     return t.toString() + " " + t1.toString() + " " + t2.toString();
 }

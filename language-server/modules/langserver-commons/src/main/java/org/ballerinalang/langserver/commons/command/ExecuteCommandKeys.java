@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.commons.command;
 
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.services.LanguageClient;
@@ -43,6 +44,8 @@ public class ExecuteCommandKeys {
     public static final LSContext.Key<LanguageClient> LANGUAGE_CLIENT_KEY = new LSContext.Key<>();
 
     public static final LSContext.Key<String> PKG_NAME_KEY = new LSContext.Key<>();
+
+    public static final LSContext.Key<LSClientCapabilities> LS_CLIENT_CAPABILITIES_KEY = new LSContext.Key<>();
 
     private ExecuteCommandKeys() {
     }

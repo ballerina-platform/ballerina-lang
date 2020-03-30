@@ -10,19 +10,18 @@ public function main() {
     string message = "";
     string subject = io:readln("Subject : ");
 
-    nats:Connection conn = new("nats://localhost:4222");
+    nats:Connection conn = new;
 
-    nats:StreamingProducer publisher = new(conn);
+    nats:StreamingProducer publisher = new (conn);
 
     while (message != ESCAPE) {
         message = io:readln("Message : ");
         if (message != ESCAPE) {
             // Produces a message to the specified subject.
-            var result = publisher->publish(subject, <@untainted> message);
+            var result = publisher->publish(subject, <@untainted>message);
             if (result is nats:Error) {
                 error e = result;
-                log:printError("Error occurred while closing the connection",
-                                                                        err = e);
+                log:printError("Error occurred while closing the connection", e);
             } else {
                 log:printInfo("GUID " + result
                                         + " received for the produced message.");
@@ -33,6 +32,6 @@ public function main() {
     var result = conn.close();
     if (result is error) {
         error e = result;
-        log:printError("Error occurred while closing the connection", err = e);
+        log:printError("Error occurred while closing the connection", e);
     }
 }

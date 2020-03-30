@@ -26,7 +26,7 @@ public function main() {
     io:println("Publishing update to remote Hub");
     var publishResponse =
         websubHubClientEP->publishUpdate("http://websubpubtopic.com",
-                                { "action": "publish", "mode": "remote-hub" });
+                                {"action": "publish", "mode": "remote-hub"});
     if (publishResponse is error) {
         io:println("Error notifying hub: " +
                                     <string>publishResponse.detail()?.message);

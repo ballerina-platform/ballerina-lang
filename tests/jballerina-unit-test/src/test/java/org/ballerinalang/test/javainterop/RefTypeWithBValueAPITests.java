@@ -49,6 +49,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import javax.xml.namespace.QName;
+
 /**
  * Test cases for java interop with ballerina ref types.
  *
@@ -435,7 +437,7 @@ public class RefTypeWithBValueAPITests {
     }
 
     public static org.ballerinalang.jvm.values.api.BXML getXML() {
-        return new XMLItem("<hello/>");
+        return new XMLItem(new QName("hello"));
     }
 
     public static String getStringFromXML(org.ballerinalang.jvm.values.api.BXML x) {

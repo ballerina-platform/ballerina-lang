@@ -110,4 +110,29 @@ public class ShadowingTest {
         assertEquals(returns[0].stringValue(), "<ns:greeting xmlns:ns=\"http://sample.com/wso2/a3\">Hello " +
                 "World!</ns:greeting>");
     }
+
+    @Test(description = "Shadow the type name in side function.")
+    public void testTypeNameAsVariable1() {
+        BRunUtil.invoke(result, "testTypeNameAsVariable1");
+    }
+
+    @Test(description = "Shadow the type name in side function.")
+    public void testTypeNameAsVariable2() {
+        BRunUtil.invoke(result, "testTypeNameAsVariable2");
+    }
+
+    @Test(description = "Shadow the type name in side function.")
+    public void testTypeNameAsVariable3() {
+        BRunUtil.invoke(result, "testTypeNameAsVariable3");
+    }
+
+    @Test(description = "Shadow the type name in side function.")
+    public void testTypeNameAsVariable4() {
+        BRunUtil.invoke(result, "testTypeNameAsVariable4");
+    }
+
+    @Test(description = "Shadow the type name in side function.")
+    public void testTypeNameAsVariable5() {
+        BRunUtil.invoke(result, "testTypeNameAsVariable5");
+    }
 }

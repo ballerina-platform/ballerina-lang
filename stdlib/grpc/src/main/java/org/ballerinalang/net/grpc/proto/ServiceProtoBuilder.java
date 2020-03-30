@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -176,8 +175,8 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         BLangAnnotationAttachment annoAttachment = (BLangAnnotationAttachment) TreeBuilder.createAnnotAttachmentNode();
         serviceNode.addAnnotationAttachment(annoAttachment);
         final SymbolEnv pkgEnv = symTable.pkgEnvMap.get(service.symbol.getEnclosingSymbol());
-        BSymbol annSymbol = symResolver.lookupSymbolInPackage(service.pos, pkgEnv, names.fromString
-                (PROTOCOL_PACKAGE_GRPC), names.fromString(ANN_SERVICE_DESCRIPTOR), SymTag.ANNOTATION);
+        BSymbol annSymbol = symResolver.lookupAnnotationSpaceSymbolInPackage(service.pos, pkgEnv, names.fromString
+                (PROTOCOL_PACKAGE_GRPC), names.fromString(ANN_SERVICE_DESCRIPTOR));
         if (annSymbol instanceof BAnnotationSymbol) {
             annoAttachment.annotationSymbol = (BAnnotationSymbol) annSymbol;
         }
@@ -194,17 +193,17 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         annoAttachment.attachPoints.add(AttachPoint.Point.SERVICE);
         literalNode.pos = pos;
         BStructureTypeSymbol bStructSymbol = null;
-        BSymbol annTypeSymbol = symResolver.lookupSymbolInPackage(service.pos, pkgEnv, names.fromString
-                (PROTOCOL_PACKAGE_GRPC), names.fromString(ANN_RECORD_DESCRIPTOR_DATA), SymTag.STRUCT);
+        BSymbol annTypeSymbol = symResolver.lookupMainSpaceSymbolInPackage(service.pos, pkgEnv, names.fromString
+                (PROTOCOL_PACKAGE_GRPC), names.fromString(ANN_RECORD_DESCRIPTOR_DATA));
         if (annTypeSymbol instanceof BStructureTypeSymbol) {
             bStructSymbol = (BStructureTypeSymbol) annTypeSymbol;
             literalNode.type = bStructSymbol.type;
         }
 
         //Add Root Descriptor
-        BLangRecordLiteral.BLangRecordKeyValue descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValue)
+        BLangRecordLiteral.BLangRecordKeyValueField descriptorKeyValue = (BLangRecordLiteral.BLangRecordKeyValueField)
                 TreeBuilder.createRecordKeyValue();
-        literalNode.keyValuePairs.add(descriptorKeyValue);
+        literalNode.fields.add(descriptorKeyValue);
 
         BLangLiteral keyLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         keyLiteral.value = ANN_FIELD_DESCRIPTOR;
@@ -232,7 +231,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
         }
 
         //Add Descriptor Map
-        BSymbol mapVarSymbol = symResolver.lookupSymbol(pkgEnv, names.fromString(DESCRIPTOR_MAP), SymTag.FUNCTION);
+        BSymbol mapVarSymbol = symResolver.lookupSymbolInMainSpace(pkgEnv, names.fromString(DESCRIPTOR_MAP));
         if (mapVarSymbol == null || mapVarSymbol.type.tag == TypeTags.NONE) {
             return;
         }
@@ -253,9 +252,9 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
             functionRef.pkgAlias = funcPkgAlias;
         }
 
-        BLangRecordLiteral.BLangRecordKeyValue mapKeyValue = (BLangRecordLiteral.BLangRecordKeyValue) TreeBuilder
-                .createRecordKeyValue();
-        literalNode.keyValuePairs.add(mapKeyValue);
+        BLangRecordLiteral.BLangRecordKeyValueField mapKeyValue =
+                (BLangRecordLiteral.BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
+        literalNode.fields.add(mapKeyValue);
 
         BLangSimpleVarRef mapKeyLiteral = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         BLangIdentifier keyName = (BLangIdentifier) TreeBuilder.createIdentifierNode();

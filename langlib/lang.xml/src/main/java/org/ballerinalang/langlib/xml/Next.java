@@ -19,10 +19,9 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -31,7 +30,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-
 
 /**
  * Native implementation of lang.xml.XMLIterator:next().
@@ -56,9 +54,23 @@ public class Next {
 
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
-            BFunctionType nextFuncType = m.getType().getAttachedFunctions()[0].type;
-            BRecordType recordType = (BRecordType) ((BUnionType) nextFuncType.retType).getMemberTypes().get(0);
-            return BallerinaValues.createRecord(new MapValueImpl<>(recordType), xmlValue);
+            return BallerinaValues.createRecord(new MapValueImpl<>(BTypes.xmlItrNextReturnType), xmlValue);
+        }
+
+        return null;
+    }
+
+    public static Object next_bstring(Strand strand, ObjectValue m) {
+        IteratorValue xmlIterator = (IteratorValue) m.getNativeData("&iterator&");
+
+        if (xmlIterator == null) {
+            xmlIterator = ((XMLValue) m.get(StringUtils.fromString("m"))).getIterator();
+            m.addNativeData("&iterator&", xmlIterator);
+        }
+
+        if (xmlIterator.hasNext()) {
+            Object xmlValue = xmlIterator.next();
+            return BallerinaValues.createRecord_bstring(new MapValueImpl<>(BTypes.xmlItrNextReturnType), xmlValue);
         }
 
         return null;

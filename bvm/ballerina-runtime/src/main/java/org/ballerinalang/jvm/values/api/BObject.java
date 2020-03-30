@@ -41,7 +41,10 @@ public interface BObject extends BRefValue {
     @Deprecated
     Object get(String fieldName);
 
+    @Deprecated
     Object get(StringValue fieldName);
+
+    Object get(BString fieldName);
 
     long getIntValue(String fieldName);
 
@@ -66,5 +69,5 @@ public interface BObject extends BRefValue {
     @Deprecated
     void set(String fieldName, Object value);
 
-    void set(StringValue fieldName, Object value);
+    void set(BString fieldName, Object value);
 }

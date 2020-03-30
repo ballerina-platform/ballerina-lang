@@ -15,14 +15,17 @@
   *  specific language governing permissions and limitations
   *  under the License.
   */
+
 package org.ballerinalang.jvm.values;
 
-/**
+ import org.ballerinalang.jvm.values.api.BString;
+
+ /**
   * Represent ballerina strings containing only unicode basic multilingual plane characters.
   *
   * @since 1.0.5
   */
-public class BmpStringValue implements StringValue {
+ public class BmpStringValue implements StringValue {
 
      private final String value;
 
@@ -46,21 +49,39 @@ public class BmpStringValue implements StringValue {
      }
 
      @Override
-     public StringValue concat(StringValue str) {
+     public BString concat(BString str) {
          if (str instanceof BmpStringValue) {
              return new BmpStringValue(this.value + ((BmpStringValue) str).value);
+         } else if (str instanceof NonBmpStringValue) {
+             return new NonBmpStringValue(this.value + str.getValue(), ((NonBmpStringValue) str).getSurrogates());
          } else {
              throw new RuntimeException("not impl yet");
          }
      }
 
-    @Override
-    public String stringValue() {
-        return value;
-    }
+     @Override
+     public String stringValue() {
+         return value;
+     }
 
-    @Override
-    public int hashCode() {
-        return value.hashCode();
-    }
-}
+     @Override
+     public int hashCode() {
+         return value.hashCode();
+     }
+
+     @Override
+     public String toString() {
+         return value;
+     }
+
+     @Override
+     public Long indexOf(BString str, int fromIndex) {
+         long index = value.indexOf(str.getValue(), fromIndex);
+         return index >= 0 ? index : null;
+     }
+
+     @Override
+     public BString substring(int beginIndex, int endIndex) {
+         return new BmpStringValue(value.substring(beginIndex, endIndex));
+     }
+ }

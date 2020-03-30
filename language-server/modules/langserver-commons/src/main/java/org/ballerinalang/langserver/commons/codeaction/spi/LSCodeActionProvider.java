@@ -31,12 +31,26 @@ public interface LSCodeActionProvider {
     /**
      * Returns the list of code actions based on node type or diagnostics.
      *
-     * @param nodeType    code action node type
-     * @param lsContext   language server context
-     * @param diagnostics diagnostics list
+     * @param nodeType           code action node type
+     * @param lsContext          language server context
+     * @param allDiagnostics     diagnostics list of the module
      * @return list of Code Actions
      */
-    List<CodeAction> getCodeActions(CodeActionNodeType nodeType, LSContext lsContext, List<Diagnostic> diagnostics);
+    List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                    List<Diagnostic> allDiagnostics);
+
+    /**
+     * Returns the list of code actions based on node type or diagnostics.
+     *
+     * @param nodeType           code action node type
+     * @param lsContext          language server context
+     * @param diagnosticsOfRange diagnostics list of the cursor range
+     * @param allDiagnostics     diagnostics list of the module
+     * @return list of Code Actions
+     */
+    List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
+                                             List<Diagnostic> diagnosticsOfRange,
+                                             List<Diagnostic> allDiagnostics);
 
     /**
      * Returns True of node type based code actions are supported.

@@ -5,8 +5,8 @@ import ballerina/log;
 //In this example, it is set to `CHUNKING_NEVER`, which means that chunking never happens irrespective of how it is specified
 //in the request. When chunking is set to `CHUNKING_AUTO`, chunking is done as specified in the request.
 
-http:Client clientEndpoint = new("http://localhost:9090",
-                                 { http1Settings : { chunking: http:CHUNKING_NEVER }});
+http:Client clientEndpoint = new ("http://localhost:9090",
+                                  {http1Settings: {chunking: http:CHUNKING_NEVER}});
 
 service chunkingSample on new http:Listener(9092) {
 
@@ -16,20 +16,20 @@ service chunkingSample on new http:Listener(9092) {
     resource function invokeEndpoint(http:Caller caller, http:Request req) {
         //Create a new outbound request and set the payload.
         http:Request newReq = new;
-        newReq.setPayload({ "name": "Ballerina" });
+        newReq.setPayload({"name": "Ballerina"});
         var clientResponse = clientEndpoint->post("/echo/", newReq);
         if (clientResponse is http:Response) {
             var result = caller->respond(clientResponse);
             if (result is error) {
-               log:printError("Error sending response", err = result);
+                log:printError("Error sending response", result);
             }
         } else {
             http:Response errorResponse = new;
-            json msg = { "error": "An error occurred while invoking the service." };
+            json msg = {"error": "An error occurred while invoking the service."};
             errorResponse.setPayload(msg);
             var response = caller->respond(errorResponse);
             if (response is error) {
-               log:printError("Error sending response", err = response);
+                log:printError("Error sending response", response);
             }
         }
     }
@@ -65,7 +65,7 @@ service echo on new http:Listener(9090) {
 
         if (!validationErrorFound) {
             // Since there is no validation error, mark the `value` as trusted data and set it to the response.
-            res.setPayload({ "Outbound request content": <@untainted> value });
+            res.setPayload({"Outbound request content": <@untainted>value});
         }
         var result = caller->respond(res);
         if (result is error) {

@@ -39,7 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class CreateComment {
 
-    public static XMLValue<?> createComment(Strand strand, String string) {
+    public static XMLValue createComment(Strand strand, String string) {
         return XMLFactory.createXMLComment(string);
     }
 }

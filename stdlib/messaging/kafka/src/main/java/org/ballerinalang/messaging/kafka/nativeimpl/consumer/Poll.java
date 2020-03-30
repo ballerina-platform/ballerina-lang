@@ -36,9 +36,11 @@ import org.ballerinalang.messaging.kafka.observability.KafkaTracingUtil;
 
 import java.time.Duration;
 
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_TOPIC;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_VALUE;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_KEY_DESERIALIZER_CONFIG;
-import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.getConsumerRecord;
@@ -61,8 +63,8 @@ public class Poll {
         KafkaTracingUtil.traceResourceInvocation(strand, consumerObject);
         NonBlockingCallback callback = new NonBlockingCallback(strand);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
-        String keyType = consumerObject.getStringValue(CONSUMER_KEY_DESERIALIZER_CONFIG);
-        String valueType = consumerObject.getStringValue(CONSUMER_VALUE_DESERIALIZER_CONFIG);
+        String keyType = consumerObject.getStringValue(CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG);
+        String valueType = consumerObject.getStringValue(CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG);
         Duration duration = Duration.ofMillis(timeout);
         BArray consumerRecordsArray = BValueCreator.createArrayValue(new BArrayType(getConsumerRecord().getType()));
         try {
@@ -72,8 +74,8 @@ public class Poll {
                     MapValue<String, Object> recordValue = populateConsumerRecord((ConsumerRecord) record, keyType,
                                                                                   valueType);
                     consumerRecordsArray.append(recordValue);
-                    KafkaMetricsUtil.reportConsume(consumerObject, recordValue.getStringValue("topic"),
-                                                   recordValue.getArrayValue("value").size());
+                    KafkaMetricsUtil.reportConsume(consumerObject, recordValue.getStringValue(ALIAS_TOPIC),
+                                                   recordValue.get(ALIAS_VALUE));
                 }
             }
             callback.setReturnValues(consumerRecordsArray);

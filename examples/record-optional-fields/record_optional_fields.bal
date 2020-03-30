@@ -18,7 +18,7 @@ type Person record {
 public function main() {
     // The required fields `fname` and `gender` are not given default values in the record type descriptor.
     // Therefore, values must be specified for `fname` and `gender` when creating the record.
-    Person john = { fname: "John", gender: "male" };
+    Person john = {fname: "John", gender: "male"};
 
     // The `age` field is not present in the record since it is an optional field.
     io:println("Person with the non-defaultable required field set: ", john);
@@ -37,7 +37,7 @@ public function main() {
     io:println("Age after setting: ", age);
 
     // Create a `Person`-typed value specifying a value for the defaultable field `lname`.
-    Person jane = { fname: "Jane", lname: "Doe", gender: "female" };
+    Person jane = {fname: "Jane", lname: "Doe", gender: "female"};
 
     // Field values provided when creating a record takes highest precedence.
     io:println("Person with values assigned to required fields: ", jane);

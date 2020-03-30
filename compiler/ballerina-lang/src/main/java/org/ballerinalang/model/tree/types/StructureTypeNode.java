@@ -27,6 +27,10 @@ import java.util.List;
  * @since 0.971.0
  */
 public interface StructureTypeNode extends ReferenceTypeNode {
+
+    boolean getIsAnonymous();
+
+    boolean getIsLocal();
     
     List<? extends SimpleVariableNode> getFields();
 

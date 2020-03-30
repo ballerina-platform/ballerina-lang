@@ -51,6 +51,9 @@ public class DataBindingTest {
     @BeforeClass
     public void setup() {
         CompileResult result = BCompileUtil.compile("test-src/services/dispatching/data-binding-test.bal");
+        if (result.getErrorCount() > 0) {
+            Assert.fail("Compilation errors");
+        }
     }
 
     @Test(description = "Test data binding with string payload")
@@ -203,7 +206,8 @@ public class DataBindingTest {
     }
 
     @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".*data binding failed: error Unexpected character 'n'.*")
+            expectedExceptionsMessageRegExp =
+                    ".*data binding failed: error failed to create xml: Unexpected character 'n'.*")
     public void testDataBindingIncompatibleXMLPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body4", "POST", "name':'WSO2', 'team':'ballerina");

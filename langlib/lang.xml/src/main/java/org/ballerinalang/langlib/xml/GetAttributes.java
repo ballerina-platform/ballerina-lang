@@ -42,7 +42,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class GetAttributes {
 
     @SuppressWarnings("unchecked")
-    public static MapValue<String, String> getAttributes(Strand strand, XMLValue<?> xmlVal) {
+    public static MapValue<String, String> getAttributes(Strand strand, XMLValue xmlVal) {
         if (!IsElement.isElement(strand, xmlVal)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR,
                     "getAttributes", "element");

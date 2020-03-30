@@ -21,7 +21,8 @@ public function main() {
         released: "08 Jan 2016",
         writer: {
             fname: "Michael",
-            lname: "Punke", age: 30
+            lname: "Punke",
+            age: 30
         }
     };
     // This example shows how you can convert a record to a JSON object.

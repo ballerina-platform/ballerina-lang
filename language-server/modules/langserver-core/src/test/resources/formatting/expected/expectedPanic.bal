@@ -20,7 +20,7 @@ function divide(int a, int b) returns int {
 }
 
 public function main() {
-    int | error result = trap divide(1, 0);
+    int|error result = trap divide(1, 0);
 
     if (result is int) {
         io:println("int result: " + result);
@@ -34,7 +34,7 @@ function throwError(error err) {
     panic err;
 }
 
-function throwError2(int | error a) {
+function throwError2(int|error a) {
     int b = 0;
     if (a is int) {
         b += a;
@@ -52,7 +52,7 @@ public function main3(string... args) {
     panic
     error
     (
-    "Player has to be initialized"
+        "Player has to be initialized"
     )
     ;
 }

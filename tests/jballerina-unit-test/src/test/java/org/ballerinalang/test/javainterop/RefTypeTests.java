@@ -24,7 +24,6 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.HandleValue;
-import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -49,6 +48,8 @@ import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 /**
  * Test cases for java interop with ballerina ref types.
@@ -323,7 +324,7 @@ public class RefTypeTests {
     // static methods
 
     public static XMLValue getXML() {
-        return new XMLItem("<hello/>");
+        return new XMLItem(new QName("hello"));
     }
 
     public static String getStringFromXML(XMLValue x) {
@@ -388,7 +389,7 @@ public class RefTypeTests {
         return new HandleValue(m);
     }
 
-    public static StringValue useHandle(HandleValue h) {
+    public static org.ballerinalang.jvm.values.api.BString useHandle(HandleValue h) {
         Map<String, String> m = (Map<String, String>) h.getValue();
         return StringUtils.fromString(m.get("name"));
     }

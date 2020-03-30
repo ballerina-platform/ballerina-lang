@@ -73,3 +73,10 @@ function test10 () {
     var x = <Foo> bar;
     string result1 = x + ex;
 }
+
+function test11 () {
+    int X = 10;
+    X x = 4;
+    var V = 1 | 2 | 3 | 4 ;
+    V v = 7;
+}
