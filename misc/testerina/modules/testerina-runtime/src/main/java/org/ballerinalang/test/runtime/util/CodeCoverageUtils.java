@@ -18,8 +18,10 @@
 package org.ballerinalang.test.runtime.util;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,6 +29,9 @@ import java.nio.file.StandardCopyOption;
 import java.util.Enumeration;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
 
 /**
  * Class containing utility methods required to generate the coverage report.
@@ -118,5 +123,41 @@ public class CodeCoverageUtils {
             }
         }
         Files.deleteIfExists(dir.toPath());
+    }
+
+    /**
+     * Extracts the testerina report zip from resources to a given destination.
+     *
+     * @param source zip stream
+     * @param target target directory
+     * @throws IOException if extraction failed
+     */
+    public static void unzipReportResources(InputStream source, File target) throws IOException {
+        final ZipInputStream zipStream = new ZipInputStream(source);
+        ZipEntry nextEntry;
+        while ((nextEntry = zipStream.getNextEntry()) != null) {
+            final String name = nextEntry.getName();
+            // only extract files
+            if (!name.endsWith("/")) {
+                final File nextFile = new File(target, name);
+
+                // create directories
+                final File parent = nextFile.getParentFile();
+                if (parent != null) {
+                    Files.createDirectories(parent.toPath());
+                }
+
+                // write file
+                try (OutputStream targetStream = new FileOutputStream(nextFile)) {
+                    final int bufferSize = 4 * 1024;
+                    final byte[] buffer = new byte[bufferSize];
+
+                    int nextCount;
+                    while ((nextCount = zipStream.read(buffer)) >= 0) {
+                        targetStream.write(buffer, 0, nextCount);
+                    }
+                }
+            }
+        }
     }
 }

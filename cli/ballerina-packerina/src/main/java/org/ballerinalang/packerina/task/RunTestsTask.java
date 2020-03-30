@@ -42,8 +42,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
@@ -58,7 +56,9 @@ import java.util.List;
 
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.HTML_RESOURCE_FILE;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DIR_NAME;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TEST_RUNTIME_JAR_PREFIX;
@@ -272,34 +272,24 @@ public class RunTestsTask implements Task {
             throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
         }
 
-        File htmlFile = new File(jsonPath.resolve(RESULTS_HTML_FILE).toString());
         String content;
+        try {
+            CodeCoverageUtils.unzipReportResources(getClass().getClassLoader().getResourceAsStream(REPORT_ZIP_NAME),
+                    jsonPath.resolve(REPORT_DIR_NAME).toFile());
 
-        try (InputStream in = getClass().getClassLoader().getResourceAsStream(HTML_RESOURCE_FILE)) {
-                content = readFromInputStream(in);
-                content = content.replaceAll("__data__", json.replace("\\", "\\\\"));
+            content = new String(Files.readAllBytes(jsonPath.resolve(REPORT_DIR_NAME).resolve(RESULTS_HTML_FILE)),
+                    StandardCharsets.UTF_8);
+            content = content.replaceAll(REPORT_DATA_PLACEHOLDER, json.replace("\\", "\\\\"));
         } catch (IOException e) {
-            throw LauncherUtils.createLauncherException("couldn't read content from the html file : " + e.toString());
+            throw LauncherUtils.createLauncherException("error occurred while preparing test report: " + e.toString());
         }
+        File htmlFile = new File(jsonPath.resolve(REPORT_DIR_NAME).resolve(RESULTS_HTML_FILE).toString());
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8)) {
             writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
             out.println("\tView the test report at: " + FILE_PROTOCOL + htmlFile.getAbsolutePath());
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
         }
-    }
-
-    private String readFromInputStream(InputStream inputStream)
-            throws IOException {
-        StringBuilder resultStringBuilder = new StringBuilder();
-        try (BufferedReader br
-                     = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                resultStringBuilder.append(line).append("\n");
-            }
-        }
-        return resultStringBuilder.toString();
     }
 
     private int runTestSuit(Path jsonPath, BuildContext buildContext, HashSet<Path> testDependencies,
