@@ -61,7 +61,6 @@ public class ParseHeader {
             contentTuple.add(0, (Object) value);
             contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
             return contentTuple;
-
         } catch (Exception ex) {
             String errMsg = ex instanceof ErrorValue ? PARSER_ERROR + ex.toString() : PARSER_ERROR + ex.getMessage();
             return HttpUtil.createHttpError(GENERIC_CLIENT_ERROR.getReason(), GENERIC_CLIENT_ERROR.getErrorName(),

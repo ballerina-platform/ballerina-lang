@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.exception.ApplicationError;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
@@ -62,6 +63,12 @@ import java.util.TimeZone;
  * @since 1.2.0
  */
 class Utils {
+
+    private static final BArrayType stringArrayType = new BArrayType(BTypes.typeString);
+    private static final BArrayType booleanArrayType = new BArrayType(BTypes.typeBoolean);
+    private static final BArrayType intArrayType = new BArrayType(BTypes.typeInt);
+    private static final BArrayType floatArrayType = new BArrayType(BTypes.typeFloat);
+    private static final BArrayType decimalArrayType = new BArrayType(BTypes.typeDecimal);
 
     public static void closeResources(ResultSet resultSet, Statement statement, Connection connection) {
         if (resultSet != null) {
@@ -112,43 +119,43 @@ class Utils {
     private static ArrayValue createAndPopulatePrimitiveValueArray(Object firstNonNullElement, Object[] dataArray) {
         int length = dataArray.length;
         if (firstNonNullElement instanceof String) {
-            ArrayValue stringDataArray = new ArrayValueImpl(new BArrayType(BTypes.typeString));
+            ArrayValue stringDataArray = (ArrayValue) BValueCreator.createArrayValue(stringArrayType);
             for (int i = 0; i < length; i++) {
                 stringDataArray.add(i, (String) dataArray[i]);
             }
             return stringDataArray;
         } else if (firstNonNullElement instanceof Boolean) {
-            ArrayValue boolDataArray = new ArrayValueImpl(new BArrayType(BTypes.typeBoolean));
+            ArrayValue boolDataArray = (ArrayValue) BValueCreator.createArrayValue(booleanArrayType);
             for (int i = 0; i < length; i++) {
                 boolDataArray.add(i, ((Boolean) dataArray[i]).booleanValue());
             }
             return boolDataArray;
         } else if (firstNonNullElement instanceof Integer) {
-            ArrayValue intDataArray = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
+            ArrayValue intDataArray = (ArrayValue) BValueCreator.createArrayValue(intArrayType);
             for (int i = 0; i < length; i++) {
                 intDataArray.add(i, ((Integer) dataArray[i]).intValue());
             }
             return intDataArray;
         } else if (firstNonNullElement instanceof Long) {
-            ArrayValue longDataArray = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
+            ArrayValue longDataArray = (ArrayValue) BValueCreator.createArrayValue(intArrayType);
             for (int i = 0; i < length; i++) {
                 longDataArray.add(i, ((Long) dataArray[i]).longValue());
             }
             return longDataArray;
         } else if (firstNonNullElement instanceof Float) {
-            ArrayValue floatDataArray = new ArrayValueImpl(new BArrayType(BTypes.typeFloat));
+            ArrayValue floatDataArray = (ArrayValue) BValueCreator.createArrayValue(floatArrayType);
             for (int i = 0; i < length; i++) {
                 floatDataArray.add(i, ((Float) dataArray[i]).floatValue());
             }
             return floatDataArray;
         } else if (firstNonNullElement instanceof Double) {
-            ArrayValue doubleDataArray = new ArrayValueImpl(new BArrayType(BTypes.typeFloat));
+            ArrayValue doubleDataArray = (ArrayValue) BValueCreator.createArrayValue(floatArrayType);
             for (int i = 0; i < dataArray.length; i++) {
                 doubleDataArray.add(i, ((Double) dataArray[i]).doubleValue());
             }
             return doubleDataArray;
         } else if ((firstNonNullElement instanceof BigDecimal)) {
-            ArrayValue decimalDataArray = new ArrayValueImpl(new BArrayType(BTypes.typeDecimal));
+            ArrayValue decimalDataArray = (ArrayValue) BValueCreator.createArrayValue(decimalArrayType);
             for (int i = 0; i < dataArray.length; i++) {
                 decimalDataArray.add(i, new DecimalValue((BigDecimal) dataArray[i]));
             }
