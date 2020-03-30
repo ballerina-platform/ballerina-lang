@@ -62,13 +62,17 @@ public class MessageUtils {
         return BallerinaValues.createObjectValue(PROTOCOL_GRPC_PKG_ID, "Headers");
     }
 
+    public static ObjectValue getServerContextObject() {
+        return BallerinaValues.createObjectValue(PROTOCOL_GRPC_PKG_ID, "ServerContext");
+    }
+
     static boolean headersRequired(AttachedFunction function) {
         if (function == null || function.getParameterType() == null) {
             throw new RuntimeException("Invalid resource input arguments");
         }
         boolean headersRequired = false;
         for (BType paramType : function.getParameterType()) {
-            if (paramType != null && "Headers".equals(paramType.getName()) &&
+            if (paramType != null && "ServerContext".equals(paramType.getName()) &&
                     paramType.getPackage() != null && PROTOCOL_PACKAGE_GRPC.equals(paramType.getPackage().getName())) {
                 headersRequired = true;
                 break;

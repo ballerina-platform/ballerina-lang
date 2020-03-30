@@ -45,6 +45,7 @@ import java.util.Map;
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ID;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.MessageUtils.getHeaderObject;
+import static org.ballerinalang.net.grpc.MessageUtils.getServerContextObject;
 
 /**
  * Interface to initiate processing of incoming remote calls.
@@ -172,14 +173,17 @@ public abstract class ServerCallHandler {
         paramValues[3] = true;
 
         ObjectValue headerStruct = null;
-
+        ObjectValue serverContextStruct = null;
         if (resource.isHeaderRequired()) {
             headerStruct = getHeaderObject();
             headerStruct.addNativeData(MESSAGE_HEADERS, error.getHeaders());
+
+            serverContextStruct = getServerContextObject();
+            serverContextStruct.set("headers", headerStruct);
         }
 
         if (headerStruct != null && signatureParams.size() == 3) {
-            paramValues[4] = headerStruct;
+            paramValues[4] = serverContextStruct;
             paramValues[5] = true;
         }
 
@@ -211,9 +215,13 @@ public abstract class ServerCallHandler {
         paramValues[1] = true;
 
         ObjectValue headerStruct = null;
+        ObjectValue serverContextStruct = null;
         if (resource.isHeaderRequired()) {
             headerStruct = getHeaderObject();
             headerStruct.addNativeData(MESSAGE_HEADERS, request.getHeaders());
+
+            serverContextStruct = getServerContextObject();
+            serverContextStruct.set("headers", headerStruct);
         }
         Object requestParam = request != null ? request.getbMessage() : null;
         if (requestParam != null) {
@@ -221,7 +229,7 @@ public abstract class ServerCallHandler {
             paramValues[3] = true;
         }
         if (headerStruct != null && signatureParams.size() == 3) {
-            paramValues[4] = headerStruct;
+            paramValues[4] = serverContextStruct;
             paramValues[5] = true;
         }
         return paramValues;
