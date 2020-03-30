@@ -3705,17 +3705,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         BVarSymbol restParam = invokableTypeSymbol.restParam;
 
-        if (i < nonRestArgs.size()) {
-            // We reach here for `i >= nonRestParams.size()`.
-            if (restParam == null) {
-                dlog.error(nonRestArgs.get(i).pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
-                return symTable.semanticError;
-            }
-            for (int j = nonRestArgs.size() - 1; j >= i; j--) {
-                iExpr.restArgs.add(0, nonRestArgs.get(i));
-            }
-        }
-
+        boolean errored = false;
 
         if (!requiredParams.isEmpty() && vararg == null) {
             // Log errors if any required parameters are not given as positional/named args and there is
@@ -3724,13 +3714,23 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(iExpr.pos, DiagnosticCode.MISSING_REQUIRED_PARAMETER, requiredParam.name,
                            iExpr.name.value);
             }
+            errored = true;
+        }
+
+        if (restParam == null && (vararg != null || !iExpr.restArgs.isEmpty())) {
+            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
+            errored = true;
+        }
+
+        if (errored) {
             return symTable.semanticError;
         }
 
         BType restType = restParam == null ? null : restParam.type;
 
         if (nonRestArgs.size() < nonRestParams.size() && vararg != null) {
-            // We only reach here if there are no named args and there is a vararg.
+            // We only reach here if there are no named args and there is a vararg, and part of the non-rest params
+            // are provided via the vararg.
             // Create a new tuple type as the expected rest param type with expected required/defaultable param types
             // as members.
             List<BType> tupleMemberTypes = new ArrayList<>();
@@ -3769,7 +3769,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BType elementType = ((BArrayType) restType).eType;
 
             for (BLangExpression restArg : iExpr.restArgs) {
-                checkTypeParamExpr(restArg, this.env, restType, true);
+                checkTypeParamExpr(restArg, this.env, elementType, true);
             }
 
             checkTypeParamExpr(vararg, this.env, restType, iExpr.langLibInvocation);
