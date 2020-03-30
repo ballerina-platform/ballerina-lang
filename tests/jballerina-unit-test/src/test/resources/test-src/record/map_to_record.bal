@@ -184,25 +184,8 @@ function assert(anydata expected, anydata actual) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
         typedesc<anydata> actT = typeof actual;
-        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+        string detail = "expected [" + expected.toString() + "] of type [" + expT.toString()
                             + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-        panic error(reason);
-    }
-}
-
-function assertSameRef(anydata expected, anydata actual) {
-    if (expected !== actual) {
-        typedesc<anydata> expT = typeof expected;
-        typedesc<anydata> actT = typeof actual;
-        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
-                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-        panic error(reason);
-    }
-}
-
-function assertTrue(boolean result, string condition) {
-    if (!result) {
-        string reason = "condition [" + condition + "] evaluated to 'false'";
-        panic error(reason);
+        panic error("{AssertionError}", message = detail);
     }
 }

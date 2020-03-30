@@ -633,8 +633,8 @@ public class Types {
         }
 
         for (BField field : targetRecType.fields) {
-            if (!Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) ||
-                    !isAssignable(targetRecType.restFieldType, field.type)) {
+            if (!(Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                    isAssignable(sourceMapType.constraint, field.type))) {
                 return false;
             }
         }
