@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class PanicStatement extends Statement {
-    private Node panicKeyword;
+    private Token panicKeyword;
     private Node expression;
     private Token semicolonToken;
 
@@ -28,13 +28,12 @@ public class PanicStatement extends Statement {
         super(node, position, parent);
     }
 
-    public Node panicKeyword() {
+    public Token panicKeyword() {
         if (panicKeyword != null) {
             return panicKeyword;
         }
 
-        panicKeyword = node.childInBucket(0).createFacade(getChildPosition(0), this);
-        childBuckets[0] = panicKeyword;        
+        panicKeyword = createToken(0);
         return panicKeyword;
     }
 
