@@ -24,7 +24,7 @@ import java.util.LinkedList;
 /**
  * Represents attributes in deprecated parameters documentation.
  *
- * @since 1.2.0
+ * @since 1.2.1
  */
 public interface MarkDownDocumentationDeprecatedParametersAttributeNode extends ExpressionNode {
 

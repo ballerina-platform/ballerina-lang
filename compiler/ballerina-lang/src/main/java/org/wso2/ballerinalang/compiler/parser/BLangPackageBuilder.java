@@ -2792,7 +2792,7 @@ public class BLangPackageBuilder {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation =
                 (BLangMarkDownDeprecatedParametersDocumentation)
-                        TreeBuilder.createMarkDeprecatedParametersAttributeNode();
+                        TreeBuilder.createMarkDownDeprecatedParametersAttributeNode();
         deprecatedParametersDocumentation.pos = pos;
         deprecatedParametersDocumentation.addWS(ws);
         deprecatedParametersDocumentation.addDeprecatedParametersLine(description);

@@ -26,7 +26,7 @@ import java.util.LinkedList;
 /**
  * Represents deprecated parameters documentation node.
  *
- * @since 1.2.0
+ * @since 1.2.1
  */
 public class BLangMarkDownDeprecatedParametersDocumentation extends BLangExpression
         implements MarkDownDocumentationDeprecatedParametersAttributeNode {
@@ -64,6 +64,6 @@ public class BLangMarkDownDeprecatedParametersDocumentation extends BLangExpress
 
     @Override
     public NodeKind getKind() {
-        return null;
+        return NodeKind.DOCUMENTATION_DEPRECATED_PARAMETERS;
     }
 }

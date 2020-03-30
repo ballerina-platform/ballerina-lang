@@ -331,7 +331,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
 
         analyzeTypeNode(typeDefinition.typeNode, this.env);
-        typeDefinition.annAttachments.forEach(annotationAttachment -> annotationAttachment.accept(this));
+        typeDefinition.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     @Override
@@ -385,7 +385,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         } finally {
             this.finalizeCurrentWorkerActionSystem();
         }
-        funcNode.annAttachments.forEach(annotationAttachment -> annotationAttachment.accept(this));
+        funcNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     private void validateParams(BLangFunction funcNode) {
@@ -1392,7 +1392,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeExportableTypeRef(varNode.symbol, varNode.type.tsymbol, false, varNode.pos);
         }
 
-        varNode.annAttachments.forEach(annotationAttachment -> annotationAttachment.accept(this));
+        varNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     private void checkWorkerPeerWorkerUsageInsideWorker(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
@@ -1473,7 +1473,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        annotationNode.annAttachments.forEach(annotationAttachment -> annotationAttachment.accept(this));
+        annotationNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
@@ -2255,7 +2255,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
         analyzeExpr(conversionExpr.expr);
-        conversionExpr.annAttachments.forEach(annotationAttachment -> annotationAttachment.accept(this));
+        conversionExpr.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     public void visit(BLangXMLQName xmlQName) {
@@ -2630,7 +2630,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeTypeNode(constant.typeNode, env);
         analyzeNode(constant.expr, env);
         analyzeExportableTypeRef(constant.symbol, constant.symbol.type.tsymbol, false, constant.pos);
-        constant.annAttachments.forEach(annotationAttachment -> annotationAttachment.accept(this));
+        constant.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     /**
