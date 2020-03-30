@@ -103,6 +103,8 @@ public class BLangLock extends BLangStatement implements LockNode {
      */
     public static class BLangUnLockStmt extends BLangLock {
 
+        public BLangLockStmt relatedLock;
+
         public BLangUnLockStmt(DiagnosticPos pos) {
             this.pos = pos;
         }
