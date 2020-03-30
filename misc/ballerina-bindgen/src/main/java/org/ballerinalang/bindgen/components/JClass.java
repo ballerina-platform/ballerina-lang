@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.bindgen.components;
 
-import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -28,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.allClasses;
-import static org.ballerinalang.bindgen.command.BindingsGenerator.directJavaClass;
+import static org.ballerinalang.bindgen.command.BindingsGenerator.isDirectJavaClass;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ACCESS_FIELD;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MUTATE_FIELD;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.handleOverloadedMethods;
@@ -42,25 +41,20 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicMethod;
  */
 public class JClass {
 
-    public String shortClassName;
-    public String packageName;
-
     private String prefix;
     private String className;
+    private String packageName;
+    private String shortClassName;
 
-    private Boolean isInterface = false;
-    private Boolean directClass = false;
-    private Boolean isAbstractClass = false;
-    private Boolean singleConstructor = false;
-    private Boolean singleConstructorError = false;
+    private boolean isInterface = false;
+    private boolean directClass = false;
+    private boolean isAbstractClass = false;
 
+    private Set<String> superClasses = new HashSet<>();
     private List<JField> fieldList = new ArrayList<>();
     private List<JMethod> methodList = new ArrayList<>();
-    private Set<String> superClasses = new HashSet<>();
     private List<JConstructor> constructorList = new ArrayList<>();
     private List<JConstructor> initFunctionList = new ArrayList<>();
-
-    private static final PrintStream errStream = System.err;
 
     public JClass(Class c) {
 
@@ -68,9 +62,12 @@ public class JClass {
         this.prefix = this.className.replace(".", "_").replace("$", "_");
         this.shortClassName = c.getSimpleName();
         this.packageName = c.getPackage().getName();
-
         Class sClass = c.getSuperclass();
         allClasses.add(shortClassName);
+        if (c.isInterface()) {
+            allClasses.add(Object.class.getSimpleName());
+            superClasses.add(Object.class.getSimpleName());
+        }
         populateImplementedInterfaces(c.getInterfaces());
         while (sClass != null) {
             populateImplementedInterfaces(sClass.getInterfaces());
@@ -85,8 +82,11 @@ public class JClass {
             this.isAbstractClass = true;
         }
 
-        if (directJavaClass) {
+        if (isDirectJavaClass()) {
             this.directClass = true;
+            if (isInterface) {
+                populateMethods(getMethods(Object.class));
+            }
             populateConstructors(c.getConstructors());
             populateInitFunctions();
             populateMethods(getMethods(c));
@@ -127,8 +127,8 @@ public class JClass {
             JConstructor newCons = null;
             try {
                 newCons = (JConstructor) constructor.clone();
-            } catch (CloneNotSupportedException e) {
-                errStream.println(e);
+            } catch (CloneNotSupportedException ignore) {
+
             }
             if (newCons != null) {
                 newCons.setExternalFunctionName(constructor.constructorName);
@@ -168,5 +168,15 @@ public class JClass {
                 populateImplementedInterfaces(interfaceClass.getInterfaces());
             }
         }
+    }
+
+    public String getShortClassName() {
+
+        return shortClassName;
+    }
+
+    public String getPackageName() {
+
+        return packageName;
     }
 }

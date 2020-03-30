@@ -23,9 +23,11 @@ import java.lang.reflect.Field;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ACCESS_FIELD;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ACCESS_FIELD_INTEROP_TYPE;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MUTATE_FIELD;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MUTATE_FIELD_INTEROP_TYPE;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.balType;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticField;
 
 /**
@@ -34,23 +36,42 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticField;
 public class JField {
 
     private String fieldName;
-    private String returnType;
+    private String fieldType;
     private String interopType;
+    private String externalType;
     private String fieldMethodName;
 
-    private Boolean isStatic;
-    private Boolean isSetter = false;
-    private Boolean hasReturn = false;
+    private boolean isArray;
+    private boolean isStatic;
+    private boolean isString;
+    private boolean isObject = false;
+    private boolean isSetter = false;
+    private JParameter fieldObj;
 
-    JField(Field f, String fieldKind) {
+    JField(Field field, String fieldKind) {
 
-        this.returnType = balType(f.getType().getSimpleName());
-        this.isStatic = isStaticField(f);
-        this.fieldName = f.getName();
+        Class type = field.getType();
+        fieldType = getBallerinaParamType(type);
+        externalType = getBallerinaHandleType(type);
+        if (!type.isPrimitive() || !type.equals(String.class)) {
+            isObject = true;
+        }
+        if (fieldType.equals(BALLERINA_STRING)) {
+            isString = true;
+        }
+        if (type.isArray()) {
+            isArray = true;
+            if (!type.getComponentType().isPrimitive()) {
+                isObject = false;
+            }
+        }
+        fieldObj = new JParameter(field.getType());
+        fieldObj.setHasNext(false);
+        this.isStatic = isStaticField(field);
+        this.fieldName = field.getName();
         if (fieldKind.equals(ACCESS_FIELD)) {
             this.fieldMethodName = "get" + StringUtils.capitalize(this.fieldName);
             interopType = ACCESS_FIELD_INTEROP_TYPE;
-            this.hasReturn = true;
         } else if (fieldKind.equals(MUTATE_FIELD)) {
             this.fieldMethodName = "set" + StringUtils.capitalize(this.fieldName);
             interopType = MUTATE_FIELD_INTEROP_TYPE;

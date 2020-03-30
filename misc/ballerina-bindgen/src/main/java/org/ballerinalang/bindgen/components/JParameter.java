@@ -23,8 +23,8 @@ import static org.ballerinalang.bindgen.command.BindingsGenerator.allJavaClasses
 import static org.ballerinalang.bindgen.command.BindingsGenerator.classListForLooping;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.HANDLE;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.balType;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getPrimitiveArrayType;
 
 /**
@@ -39,31 +39,25 @@ public class JParameter {
     private String fieldName;
 
     private Boolean isObj = false;
-    private Boolean notLast = true;
+    private Boolean hasNext = true;
     private Boolean isString = false;
     private Boolean isObjArray = false;
     private Boolean isStringArray = false;
+    private Boolean isPrimitiveArray = false;
 
-    Boolean isPrimitiveArray = false;
+    JParameter(Class parameterClass) {
 
-    JParameter(Parameter parameter) {
-
-        Class parameterClass = parameter.getType();
-        if (parameterClass.isPrimitive()) {
-            this.shortTypeName = balType(parameterClass.getSimpleName());
-        } else {
-            this.isObj = true;
-            this.shortTypeName = parameterClass.getSimpleName();
+        type = parameterClass.getName();
+        shortTypeName = getBallerinaParamType(parameterClass);
+        if (!parameterClass.isPrimitive()) {
+            isObj = true;
         }
-        this.type = parameterClass.getName();
         if (parameterClass.getName().equals("java.lang.String")) {
             this.isString = true;
-            this.externalType = HANDLE;
             this.shortTypeName = BALLERINA_STRING;
         } else if (parameterClass.getName().equals("[Ljava.lang.String;")) {
             this.isString = true;
             this.isStringArray = true;
-            this.externalType = HANDLE;
             this.shortTypeName = BALLERINA_STRING_ARRAY;
         } else {
             if (!parameterClass.isPrimitive()) {
@@ -89,18 +83,60 @@ public class JParameter {
                     }
                 }
             }
-            this.externalType = balType(parameterClass.getSimpleName());
         }
-        this.fieldName = parameter.getName();
+        this.externalType = getBallerinaHandleType(parameterClass);
+        fieldName = "arg";
     }
 
-    void setLastParam() {
+    JParameter(Parameter parameter) {
 
-        this.notLast = false;
+        this(parameter.getType());
+        this.fieldName = parameter.getName();
+
+    }
+
+    void setHasNext(boolean hasNext) {
+
+        this.hasNext = hasNext;
     }
 
     Boolean isObjArrayParam() {
 
         return this.isObjArray;
+    }
+
+    public String getComponentType() {
+
+        return componentType;
+    }
+
+    public String getFieldName() {
+
+        return fieldName;
+    }
+
+    public Boolean getIsObj() {
+
+        return isObj;
+    }
+
+    public Boolean getIsString() {
+
+        return isString;
+    }
+
+    public Boolean getIsObjArray() {
+
+        return isObjArray;
+    }
+
+    public Boolean getIsPrimitiveArray() {
+
+        return isPrimitiveArray;
+    }
+
+    public Boolean getHasNext() {
+
+        return hasNext;
     }
 }

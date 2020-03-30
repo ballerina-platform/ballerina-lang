@@ -35,8 +35,8 @@ public class JConstructor implements Cloneable {
     private String shortClassName;
     private String initObjectName;
     private String externalFunctionName;
-    public Boolean exceptionTypes = false;
-    private Boolean handleException = false;
+    private boolean exceptionTypes = false;
+    private boolean handleException = false;
     private List<JParameter> parameters = new ArrayList<>();
 
     JConstructor(Constructor c) {
@@ -51,7 +51,7 @@ public class JConstructor implements Cloneable {
         }
         if (!parameters.isEmpty()) {
             JParameter lastParam = parameters.get(parameters.size() - 1);
-            lastParam.setLastParam();
+            lastParam.setHasNext(false);
         }
         if (c.getExceptionTypes().length > 0) {
             this.exceptionTypes = true;
