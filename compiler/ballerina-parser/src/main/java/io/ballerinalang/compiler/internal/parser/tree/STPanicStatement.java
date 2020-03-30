@@ -30,7 +30,7 @@ public class STPanicStatement extends STStatement {
     STPanicStatement(STNode panicKeyword,
                      STNode expression,
                      STNode semicolonToken) {
-        super(SyntaxKind.PANIC_KEYWORD);
+        super(SyntaxKind.PANIC_STATEMENT);
         this.panicKeyword = panicKeyword;
         this.expression = expression;
         this.semicolonToken = semicolonToken;
