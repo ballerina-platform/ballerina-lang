@@ -115,19 +115,19 @@ public class BallerinaLexer {
             case LexerTerminals.EQUAL:
                 token = processEqualOperator();
                 break;
-            case LexerTerminals.ADD:
+            case LexerTerminals.PLUS:
                 token = getSyntaxToken(SyntaxKind.PLUS_TOKEN);
                 break;
-            case LexerTerminals.SUB:
+            case LexerTerminals.MINUS:
                 token = getSyntaxToken(SyntaxKind.MINUS_TOKEN);
                 break;
-            case LexerTerminals.MUL:
+            case LexerTerminals.ASTERISK:
                 token = getSyntaxToken(SyntaxKind.ASTERISK_TOKEN);
                 break;
-            case LexerTerminals.DIV:
+            case LexerTerminals.SLASH:
                 token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
                 break;
-            case LexerTerminals.MOD:
+            case LexerTerminals.PERCENT:
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
                 break;
             case LexerTerminals.LT:
@@ -286,8 +286,8 @@ public class BallerinaLexer {
                         break;
                     }
                     return;
-                case LexerTerminals.DIV:
-                    if (reader.peek(1) == LexerTerminals.DIV) {
+                case LexerTerminals.SLASH:
+                    if (reader.peek(1) == LexerTerminals.SLASH) {
                         triviaList.add(processComment());
                         break;
                     }
