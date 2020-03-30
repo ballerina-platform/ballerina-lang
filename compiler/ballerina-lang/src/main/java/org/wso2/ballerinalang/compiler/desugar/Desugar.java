@@ -2796,7 +2796,7 @@ public class Desugar extends BLangNodeVisitor {
         return blockNode;
     }
 
-    private BInvokableSymbol getIterableObjectIteratorInvokableSymbol(BVarSymbol collectionSymbol) {
+    public BInvokableSymbol getIterableObjectIteratorInvokableSymbol(BVarSymbol collectionSymbol) {
         BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) collectionSymbol.type.tsymbol;
         // We know for sure at this point, the object symbol should have the __iterator method
         BAttachedFunction iteratorFunc = null;
