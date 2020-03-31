@@ -20,19 +20,14 @@ package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-
 
 /**
  * Native implementation of lang.map.MapIterator:next().
@@ -49,17 +44,16 @@ public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue m) {
         IteratorValue mapIterator = (IteratorValue) m.getNativeData("&iterator&");
-
+        MapValueImpl mapValue = (MapValueImpl) m.getMapValue("m");
         if (mapIterator == null) {
-            mapIterator = ((MapValue) m.get("m")).getIterator();
+            mapIterator = mapValue.getIterator();
             m.addNativeData("&iterator&", mapIterator);
         }
 
         if (mapIterator.hasNext()) {
             ArrayValue keyValueTuple = (ArrayValue) mapIterator.next();
-            BFunctionType nextFuncType = m.getType().getAttachedFunctions()[0].type;
-            BRecordType recordType = (BRecordType) ((BUnionType) nextFuncType.retType).getMemberTypes().get(0);
-            return BallerinaValues.createRecord(new MapValueImpl<>(recordType), keyValueTuple.get(1));
+            return BallerinaValues.createRecord(new MapValueImpl<>(mapValue.getIteratorNextReturnType()),
+                    keyValueTuple.get(1));
         }
 
         return null;

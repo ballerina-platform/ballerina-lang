@@ -20,6 +20,7 @@ import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.LSGlobalContext;
 import org.ballerinalang.langserver.LSGlobalContextKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -61,6 +62,10 @@ public class BallerinaProjectServiceImpl implements BallerinaProjectService {
         return CompletableFuture.supplyAsync(() -> {
             ModulesResponse reply = new ModulesResponse();
             String sourceRoot = request.getSourceRoot();
+            if (CommonUtil.isCachedExternalSource(sourceRoot)) {
+                reply.setParseSuccess(false);
+                return reply;
+            }
             try {
                 LSContext astContext = new ProjectServiceOperationContext
                         .ProjectServiceContextBuilder(LSContextOperation.PROJ_MODULES)

@@ -65,7 +65,7 @@ public class CreateExecutableTask implements Task {
                     try (ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(new BufferedOutputStream(
                             new FileOutputStream(String.valueOf(executablePath))))) {
                         assembleExecutable(jarFromCachePath,
-                                buildContext.moduleDependencyPathMap.get(module.packageID).platformLibs, outStream);
+                                buildContext.moduleDependencyPathMap.get(module.packageID).moduleLibs, outStream);
                     } catch (IOException e) {
                         throw createLauncherException("unable to extract the uber jar :" + e.getMessage());
                     }

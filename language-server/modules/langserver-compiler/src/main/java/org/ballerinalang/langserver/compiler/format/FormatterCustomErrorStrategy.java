@@ -66,7 +66,7 @@ public class FormatterCustomErrorStrategy extends BallerinaParserErrorStrategy {
         ParserRuleContext context = parser.getContext();
         // Note: Here we forcefully set the exception to null, in order to avoid the callable unit body being null at
         // the run time
-        if (context instanceof BallerinaParser.CallableUnitBodyContext) {
+        if (context instanceof BallerinaParser.BlockFunctionBodyContext) {
             listener.unsetErrorState();
             return;
         } else if (context instanceof BallerinaParser.SimpleVariableReferenceContext

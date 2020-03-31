@@ -9,7 +9,7 @@ int count = 0;
     moduleName: "ballerina/log",
     functionName: "printInfo"
 }
-public function mockLogInfo(string | (function() returns (string)) msg) {
+public function mockLogInfo(string|(function() returns (string)) msg) {
     if (msg is string) {
         lock {
             outputs[count] = msg;

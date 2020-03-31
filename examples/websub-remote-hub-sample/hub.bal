@@ -1,6 +1,6 @@
 // The Main program, which brings up the Ballerina WebSub Hub.
-import ballerina/io;
 import ballerina/http;
+import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
 
@@ -12,17 +12,19 @@ public function main() {
 
     websub:Hub webSubHub;
     var result = websub:startHub(new http:Listener(9191), "/websub", "/hub",
-                                    hubConfiguration = {
-                                        remotePublish : {
-                                            enabled : true
-                                        }});
+        hubConfiguration = {
+            remotePublish: {
+                enabled: true
+            }
+        }
+    );
 
     if (result is websub:Hub) {
         webSubHub = result;
     } else if (result is websub:HubStartedUpError) {
         webSubHub = result.startedUpHub;
     } else {
-        io:println("Hub start error:" + <string> result.detail()?.message);
+        io:println("Hub start error:" + <string>result.detail()?.message);
         return;
     }
 

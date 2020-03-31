@@ -20,7 +20,7 @@ import ballerina/lang.'string as strings;
 
 string topic = "test-topic-ssl";
 
-kafka:ProducerConfig producerConfigs = {
+kafka:ProducerConfiguration producerConfigs = {
     bootstrapServers: "localhost:14111",
     clientId:"ssl-producer",
     acks: kafka:ACKS_ALL,
@@ -45,7 +45,7 @@ kafka:ProducerConfig producerConfigs = {
 
 kafka:Producer kafkaProducer = new(producerConfigs);
 
-kafka:ProducerConfig producerNegativeConfigs = {
+kafka:ProducerConfiguration producerNegativeConfigs = {
     bootstrapServers: "localhost:14111",
     clientId:"ssl-producer-negative",
     acks: kafka:ACKS_ALL,
@@ -55,7 +55,7 @@ kafka:ProducerConfig producerNegativeConfigs = {
 
 kafka:Producer negativeProducer = new (producerNegativeConfigs);
 
-kafka:ConsumerConfig consumerConfig = {
+kafka:ConsumerConfiguration consumerConfig = {
     bootstrapServers:"localhost:14111",
     groupId:"test-group",
     clientId: "ssl-consumer",

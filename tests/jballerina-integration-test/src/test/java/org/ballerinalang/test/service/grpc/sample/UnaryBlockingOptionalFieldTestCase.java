@@ -34,7 +34,7 @@ import java.nio.file.Paths;
  * Test class for optional message field for gRPC unary service with blocking client.
  */
 @Test(groups = "grpc-test")
-public class UnaryBlockingOptionalFieldTestCase {
+public class UnaryBlockingOptionalFieldTestCase extends GrpcBaseTest {
 
     private CompileResult result;
 

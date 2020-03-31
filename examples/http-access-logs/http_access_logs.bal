@@ -14,7 +14,7 @@ service helloService on new http:Listener(9095) {
         var result = caller->respond("Successful");
         // Log the `error` in case of a failure.
         if (result is error) {
-            log:printError("Error occurred while responding", err = result);
+            log:printError("Error occurred while responding", result);
         }
     }
 }

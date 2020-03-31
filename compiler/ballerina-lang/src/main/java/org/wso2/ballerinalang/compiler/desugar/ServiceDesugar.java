@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -26,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -84,14 +86,16 @@ public class ServiceDesugar {
         this.httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
     }
 
-    void rewriteListeners(List<BLangSimpleVariable> variables, SymbolEnv env) {
+    void rewriteListeners(List<BLangSimpleVariable> variables, SymbolEnv env, BLangFunction startFunction,
+                          BLangFunction stopFunction) {
         variables.stream().filter(varNode -> Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER))
-                .forEach(varNode -> rewriteListener(varNode, env));
+                .forEach(varNode -> rewriteListener(varNode, env, startFunction, stopFunction));
     }
 
-    private void rewriteListener(BLangSimpleVariable variable, SymbolEnv env) {
-        rewriteListenerLifeCycleFunction(env.enclPkg.startFunction, variable, env, START_METHOD);
-        rewriteListenerLifeCycleFunction(env.enclPkg.stopFunction, variable, env, GRACEFUL_STOP);
+    private void rewriteListener(BLangSimpleVariable variable, SymbolEnv env, BLangFunction startFunction,
+                                 BLangFunction stopFunction) {
+        rewriteListenerLifeCycleFunction(startFunction, variable, env, START_METHOD);
+        rewriteListenerLifeCycleFunction(stopFunction, variable, env, GRACEFUL_STOP);
     }
 
     private void rewriteListenerLifeCycleFunction(BLangFunction lifeCycleFunction, BLangSimpleVariable variable,
@@ -114,11 +118,7 @@ public class ServiceDesugar {
 
         // Create method invocation
         addMethodInvocation(pos, varRef, methodInvocationSymbol, Collections.emptyList(), Collections.emptyList(),
-                lifeCycleFunction.body);
-    }
-
-    void rewriteServiceAttachments(BLangBlockStmt serviceAttachments, SymbolEnv env) {
-        ASTBuilderUtil.appendStatements(serviceAttachments, env.enclPkg.initFunction.body);
+                            (BLangBlockFunctionBody) lifeCycleFunction.body);
     }
 
     BLangBlockStmt rewriteServiceVariables(List<BLangService> services, SymbolEnv env) {
@@ -178,7 +178,7 @@ public class ServiceDesugar {
 
     private void addMethodInvocation(DiagnosticPos pos, BLangSimpleVarRef varRef, BInvokableSymbol methodRefSymbol,
                                      List<BLangExpression> args, List<BLangNamedArgsExpression> namedArgs,
-                                     BLangBlockStmt body) {
+                                     BlockNode body) {
         // Create method invocation
         final BLangInvocation methodInvocation =
                 ASTBuilderUtil.createInvocationExprForMethod(pos, methodRefSymbol, args, symResolver);

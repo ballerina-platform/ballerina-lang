@@ -109,6 +109,16 @@ public class StringUtils {
         return String.valueOf(s.charAt((int) index));
     }
 
+    public static BString getStringAt(BString s, long index) {
+        if (index < 0 || index >= s.length()) {
+            throw BallerinaErrors.createError(getModulePrefixedReason(STRING_LANG_LIB,
+                                                                      INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
+                                              "string index out of range: index: " + index + ", size: " + s.length());
+        }
+
+        return StringUtils.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));
+    }
+
     public static BString fromString(String s) {
         List<Integer> highSurrogates = null;
         for (int i = 0; i < s.length(); i++) {

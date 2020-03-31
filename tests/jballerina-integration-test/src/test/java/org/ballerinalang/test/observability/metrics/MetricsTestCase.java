@@ -68,7 +68,7 @@ public class MetricsTestCase extends BaseTest {
         List<String> args = new ArrayList<>();
         args.add("--" + ObservabilityConstants.CONFIG_METRICS_ENABLED + "=true");
         args.add("--" + CONFIG_TABLE_METRICS + ".statistic.percentiles=0.5, 0.75, 0.98, 0.99, 0.999");
-        serverInstance.startServer(balFile, null, args.toArray(new String[args.size()]), new int[] { 9090 });
+        serverInstance.startServer(balFile, null, args.toArray(new String[args.size()]), new int[] { 9898 });
         addMetrics();
     }
 
@@ -76,13 +76,13 @@ public class MetricsTestCase extends BaseTest {
     public void testMetrics() throws Exception {
         // Test Service
         await().atMost(20, TimeUnit.SECONDS)
-                .ignoreExceptions().until(() -> HttpClientRequest.doGet("http://localhost:9090/test")
+                .ignoreExceptions().until(() -> HttpClientRequest.doGet("http://localhost:9898/test")
                 .getData().equals("productId=1 productName=WSO2-IAM productId=3 productName=WSO2-EI"));
 
         // Send some requests
         int i = 0;
         while (i < 5) {
-            HttpClientRequest.doGet("http://localhost:9090/test");
+            HttpClientRequest.doGet("http://localhost:9898/test");
             i++;
         }
 
@@ -119,8 +119,8 @@ public class MetricsTestCase extends BaseTest {
         final Pattern regexNumber = Pattern.compile("[-+]?\\d*\\.?\\d+([eE][-+]?\\d+)?");
         expectedMetrics.put("ballerina_http_Caller_response_time_seconds_value" +
                 "{action=\"respond\",http_status_code=\"200\",}", regexNumber);
-        expectedMetrics.put("http_response_time_seconds_value{protocol=\"http\",http_url=\"/test\"," +
-                "service=\"metricsTest_0\",resource=\"getProduct\",http_method=\"GET\",}", regexNumber);
+        expectedMetrics.put("http_response_time_seconds_value{service=\"metricsTest\"," +
+                "protocol=\"http\",http_url=\"/test\",resource=\"getProduct\",http_method=\"GET\",}", regexNumber);
         expectedMetrics.put("ballerinax_java_jdbc_Client_response_time_seconds_value{" +
                 "action=\"select\",db_instance=\"h2\",db_type=\"sql\",peer_address=\"" +
                 "jdbc:h2:file:../../tempdb/TEST_DB\",db_statement=\"SELECT * FROM Products\",}", regexNumber);

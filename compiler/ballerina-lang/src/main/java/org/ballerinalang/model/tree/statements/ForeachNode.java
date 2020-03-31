@@ -33,9 +33,9 @@ public interface ForeachNode extends StatementNode {
 
     void setCollection(ExpressionNode collection);
 
-    BlockNode getBody();
+    BlockStatementNode getBody();
 
-    void setBody(BlockNode body);
+    void setBody(BlockStatementNode body);
 
     boolean setDeclaredWithVar();
 

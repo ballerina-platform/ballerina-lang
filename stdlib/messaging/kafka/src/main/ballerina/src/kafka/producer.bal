@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/system;
-import ballerinax/java;
+import ballerina/java;
 
 # Struct which represents Kafka Producer configuration.
 #
@@ -28,10 +28,16 @@ import ballerinax/java;
 # + partitionerClass - Partitioner class to be used to select partition to which the message is sent.
 # + interceptorClasses - Interceptor classes to be used before sending records.
 # + transactionalId - Transactional ID to be used in transactional delivery.
-# + keySerializer - Serializer used for the Kafka record key. This can be either `kafka:SerializerType` or an
+# + keySerializerType - Serializer used for the Kafka record key. This can be either `kafka:SerializerType` or a
 #       user-defined serializer.
-# + valueSerializer - Serializer used for the Kafka record value. This can be either `kafka:SerializerType` or an
+# + valueSerializerType - Serializer used for the Kafka record value. This can be either `kafka:SerializerType` or a
 #       user-defined serializer.
+# + keySerializer - Custom serializer object to serialize kafka keys. This should be implement the `kafka:Serializer`
+#       object.
+# + valueSerializer - Custom serializer object to serialize kafka values. This should be implement the
+#       `kafka:Serializer` object.
+# + schemaRegistryUrl - Avro schema registry url. Use this field to specify schema registry url, if Avro serializer
+#       is used.
 # + bufferMemory - Total bytes of memory the producer can use to buffer records.
 # + retryCount - Number of retries to resend a record.
 # + batchSize - Number of records to be batched for a single request. Use 0 for no batching.
@@ -52,72 +58,60 @@ import ballerinax/java;
 # + transactionTimeoutInMillis - Timeout for transaction status update from the producer.
 # + enableIdempotence - Exactly one copy of each message is written in the stream when enabled.
 # + secureSocket - Configurations related to SSL/TLS.
-public type ProducerConfig record {|
-    string? bootstrapServers = ();
-    Producer_Acks acks = ACKS_SINGLE;
-    string? compressionType = ();
-    string? clientId = ();
-    string? metricsRecordingLevel = ();
-    string? metricReporterClasses = ();
-    string? partitionerClass = ();
-    string? interceptorClasses = ();
-    string? transactionalId = ();
-    SerializerType valueSerializer = SER_BYTE_ARRAY;
-    SerializerType keySerializer = SER_BYTE_ARRAY;
+public type ProducerConfiguration record {|
+    string bootstrapServers;
+    ProducerAcks acks = ACKS_SINGLE;
+    CompressionType compressionType = COMPRESSION_NONE;
+    string clientId?;
+    string metricsRecordingLevel?;
+    string metricReporterClasses?;
+    string partitionerClass?;
+    string interceptorClasses?;
+    string transactionalId?;
 
-    int bufferMemory = -1;
-    int retryCount = -1;
-    int batchSize = -1;
-    int linger = -1;
-    int sendBuffer = -1;
-    int receiveBuffer = -1;
-    int maxRequestSize = -1;
-    int reconnectBackoffTimeInMillis = -1;
-    int reconnectBackoffMaxTimeInMillis = -1;
-    int retryBackoffTimeInMillis = -1;
-    int maxBlock = -1;
-    int requestTimeoutInMillis = -1;
-    int metadataMaxAgeInMillis = -1;
-    int metricsSampleWindowInMillis = -1;
-    int metricsNumSamples = -1;
-    int maxInFlightRequestsPerConnection = -1;
-    int connectionsMaxIdleTimeInMillis = -1;
-    int transactionTimeoutInMillis = -1;
+    SerializerType valueSerializerType = SER_BYTE_ARRAY;
+    SerializerType keySerializerType = SER_BYTE_ARRAY;
+    Serializer valueSerializer?;
+    Serializer keySerializer?;
+    string schemaRegistryUrl?;
+
+    int bufferMemory?;
+    int retryCount?;
+    int batchSize?;
+    int linger?;
+    int sendBuffer?;
+    int receiveBuffer?;
+    int maxRequestSize?;
+    int reconnectBackoffTimeInMillis?;
+    int reconnectBackoffMaxTimeInMillis?;
+    int retryBackoffTimeInMillis?;
+    int maxBlock?;
+    int requestTimeoutInMillis?;
+    int metadataMaxAgeInMillis?;
+    int metricsSampleWindowInMillis?;
+    int metricsNumSamples?;
+    int maxInFlightRequestsPerConnection?;
+    int connectionsMaxIdleTimeInMillis?;
+    int transactionTimeoutInMillis?;
 
     boolean enableIdempotence = false;
 
     SecureSocket secureSocket?;
 |};
 
-# Producer acknowledgement type 'all'. This will gurantee that the record will not be lost as long as at least one
-# in-sync replica is alive.
-public const ACKS_ALL = "all";
-
-# Producer acknowledgement type '0'. If the acknowledgement type set to this, the producer will not wait for any
-# acknowledgement from the server.
-public const ACKS_NONE = "0";
-
-# Producer acknowledgement type '1'. If the acknowledgement type set to this, the leader will write the record to its
-# local log but will respond without awaiting full acknowledgement from all followers.
-public const ACKS_SINGLE = "1";
+public type AvroRecord record {|
+    string schemaString;
+    anydata dataRecord;
+|};
 
 # Kafka producer acknowledgement type.
-public type Producer_Acks ACKS_ALL|ACKS_NONE|ACKS_SINGLE;
-
-# In-built Kafka Byte Array serializer.
-public const SER_BYTE_ARRAY = "BYTE_ARRAY";
-
-# In-built Kafka string serializer.
-public const SER_STRING = "STRING";
-
-# In-built Kafka int serializer.
-public const SER_INT = "INT";
-
-# In-built Kafka float serializer.
-public const SER_FLOAT = "FLOAT";
+public type ProducerAcks ACKS_ALL|ACKS_NONE|ACKS_SINGLE;
 
 # Kafka in-built serializer type.
-public type SerializerType SER_BYTE_ARRAY|SER_STRING|SER_INT|SER_FLOAT;
+public type SerializerType SER_BYTE_ARRAY|SER_STRING|SER_INT|SER_FLOAT|SER_AVRO|SER_CUSTOM;
+
+# kafka compression type to compress the messages
+public type CompressionType COMPRESSION_NONE|COMPRESSION_GZIP|COMPRESSION_SNAPPY|COMPRESSION_LZ4|COMPRESSION_ZSTD;
 
 # Represent a Kafka producer endpoint.
 #
@@ -125,29 +119,55 @@ public type SerializerType SER_BYTE_ARRAY|SER_STRING|SER_INT|SER_FLOAT;
 # + producerConfig - Used to store configurations related to a Kafka connection.
 public type Producer client object {
 
-    public ProducerConfig? producerConfig = ();
-    private string keySerializer;
-    private string valueSerializer;
+    public ProducerConfiguration? producerConfig = ();
+    private string keySerializerType;
+    private string valueSerializerType;
+    private Serializer? keySerializer = ();
+    private Serializer? valueSerializer = ();
 
     # Creates a new Kafka `Producer`.
     #
     # + config - Configurations related to initializing a Kafka `Producer`.
-    public function __init(ProducerConfig config) {
+    public function __init(ProducerConfiguration config) {
         self.producerConfig = config;
-        self.keySerializer = config.keySerializer;
-        self.valueSerializer = config.valueSerializer;
-        var result = self.init(config);
-        if (result is error) {
-            panic result;
-        }
-    }
+        self.keySerializerType = config.keySerializerType;
+        self.valueSerializerType = config.valueSerializerType;
 
-    # Initialize the producer endpoint. Panics if the initialization fails.
-    #
-    # + config - Configurations related to the endpoint.
-    # + return - `kafka:ProducerError` if fails to initiate the `kafka:Producer`, nil otherwise.
-    function init(ProducerConfig config) returns error? {
-        return producerInit(self, config);
+        if (self.keySerializerType == SER_CUSTOM) {
+            var keySerializerObject = config?.keySerializer;
+            if (keySerializerObject is ()) {
+                panic error(PRODUCER_ERROR, message = "Invalid keySerializer config: Please Provide a " +
+                            "valid custom serializer for the keySerializer");
+            } else {
+                self.keySerializer = keySerializerObject;
+            }
+        }
+        if (self.keySerializerType == SER_AVRO) {
+            panic error(PRODUCER_ERROR, message = "Key serialization using Avro is not yet supported.");
+            //var schemaRegistryUrl = config.schemaRegistryUrl;
+            //if (schemaRegistryUrl is ()) {
+            //    panic error(PRODUCER_ERROR, message = "Missing schema registry URL for the Avro serializer. Please " +
+            //                "provide 'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.");
+            //}
+        }
+
+        if (self.valueSerializerType == SER_CUSTOM) {
+            var valueSerializerObject = config?.valueSerializer;
+            if (valueSerializerObject is ()) {
+                panic error(PRODUCER_ERROR, message = "Invalid valueSerializer config: Please Provide a " +
+                            "valid custom serializer for the valueSerializer");
+            } else {
+                self.valueSerializer = valueSerializerObject;
+            }
+        }
+        if (self.valueSerializerType == SER_AVRO) {
+            var schemaRegistryUrl = config?.schemaRegistryUrl;
+            if (schemaRegistryUrl is ()) {
+                panic error(PRODUCER_ERROR, message = "Missing schema registry URL for the Avro serializer. Please " +
+                            "provide 'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.");
+            }
+        }
+        checkpanic producerInit(self);
     }
 
     public string connectorId = system:uuid();
@@ -199,172 +219,265 @@ public type Producer client object {
     # + partition - Partition to which the record should be sent.
     # + timestamp - Timestamp of the record, in milliseconds since epoch.
     # + return - Returns `kafka:ProducerError` if send action fails to send data, nil otherwise.
-    public remote function send(Data value, string topic, public Data? key = (), public int? partition = (),
+    public remote function send(anydata value, string topic, public anydata? key = (), public int? partition = (),
         public int? timestamp = ()) returns ProducerError? {
         handle topicHandle = java:fromString(topic);
         // Handle string values
-        if (self.valueSerializer == SER_STRING) {
+        if (self.valueSerializerType == SER_STRING) {
             if (value is string) {
                 handle valueHandle = java:fromString(value);
-                return sendStringValues(self, valueHandle, topicHandle, key, partition, timestamp, self.keySerializer);
-            } else {
-                panic getValueTypeMismatchError("string");
+                return sendStringValues(self, valueHandle, topicHandle, key, partition, timestamp,
+                                        self.keySerializerType);
             }
+            panic getValueTypeMismatchError(STRING);
         }
         // Handle int values
-        if (self.valueSerializer == SER_INT) {
+        if (self.valueSerializerType == SER_INT) {
             if (value is int) {
-                return sendIntValues(self, value, topicHandle, key, partition, timestamp, self.keySerializer);
+                return sendIntValues(self, value, topicHandle, key, partition, timestamp, self.keySerializerType);
             }
-            panic getValueTypeMismatchError("int");
+            panic getValueTypeMismatchError(INT);
         }
         // Handle float values
-        if (self.valueSerializer == SER_FLOAT) {
+        if (self.valueSerializerType == SER_FLOAT) {
             if (value is float) {
-                return sendFloatValues(self, value, topicHandle, key, partition, timestamp, self.keySerializer);
+                return sendFloatValues(self, value, topicHandle, key, partition, timestamp, self.keySerializerType);
             }
-            panic getValueTypeMismatchError("float");
+            panic getValueTypeMismatchError(FLOAT);
         }
         // Handle byte[] values
-        if (self.valueSerializer == SER_BYTE_ARRAY) {
+        if (self.valueSerializerType == SER_BYTE_ARRAY) {
             if (value is byte[]) {
-                return sendByteArrayValues(self, value, topicHandle, key, partition, timestamp, self.keySerializer);
+                return sendByteArrayValues(self, value, topicHandle, key, partition, timestamp, self.keySerializerType);
             }
-            panic getValueTypeMismatchError("byte[]");
+            panic getValueTypeMismatchError(BYTE_ARRAY);
+        }
+        // Handle Avro serializer.
+        if (self.valueSerializerType == SER_AVRO) {
+            if (value is AvroRecord) {
+                return sendAvroValues(self, value, topicHandle, key, partition, timestamp, self.keySerializerType);
+            }
+            panic getValueTypeMismatchError(AVRO_RECORD);
+        }
+        // Handle custom values
+        if (self.valueSerializerType == SER_CUSTOM) {
+            return sendCustomValues(self, value, topicHandle, key, partition, timestamp, self.keySerializerType);
         }
         panic createProducerError("Invalid value serializer configuration");
     }
 };
 
-function sendStringValues(Producer producer, handle value, handle topic, Data? key, int? partition, int? timestamp,
-    string keySerializer) returns ProducerError? {
+function sendStringValues(Producer producer, handle value, handle topic, anydata? key, int? partition, int? timestamp,
+    string keySerializerType) returns ProducerError? {
     if (key is ()) {
         return producerSendString(producer, value, topic, partition, timestamp);
     }
-    if (keySerializer == SER_STRING) {
+    if (keySerializerType == SER_STRING) {
         if (key is string) {
             handle keyHandle = java:fromString(key);
             return producerSendStringString(producer, value, topic, keyHandle, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("string");
+        panic getKeyTypeMismatchError(STRING);
     }
-    if (keySerializer == SER_INT) {
+    if (keySerializerType == SER_INT) {
         if (key is int) {
             return producerSendStringInt(producer, value, topic, key, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("int");
+        panic getKeyTypeMismatchError(INT);
     }
-    if (keySerializer == SER_FLOAT) {
+    if (keySerializerType == SER_FLOAT) {
         if (key is float) {
             return producerSendStringFloat(producer, value, topic, key, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("float");
+        panic getKeyTypeMismatchError(FLOAT);
     }
-    if (keySerializer == SER_BYTE_ARRAY) {
+    if (keySerializerType == SER_BYTE_ARRAY) {
         if (key is byte[]) {
             return producerSendStringByteArray(producer, value, topic, key, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("byte[]");
+        panic getKeyTypeMismatchError(BYTE_ARRAY);
+    }
+    if (keySerializerType == SER_CUSTOM) {
+        return producerSendStringAny(producer, value, topic, key, partition, timestamp);
     }
 }
 
-function sendIntValues(Producer producer, int value, handle topic, Data? key, int? partition, int? timestamp,
-    string keySerializer) returns ProducerError? {
+function sendIntValues(Producer producer, int value, handle topic, anydata? key, int? partition, int? timestamp,
+    string keySerializerType) returns ProducerError? {
     if (key is ()) {
         return producerSendInt(producer, value, topic, partition, timestamp);
     }
-    if (keySerializer == SER_STRING) {
+    if (keySerializerType == SER_STRING) {
         if (key is string) {
             handle keyHandle = java:fromString(key);
             return producerSendIntString(producer, value, topic, keyHandle, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("string");
+        panic getKeyTypeMismatchError(STRING);
     }
-    if (keySerializer == SER_INT) {
+    if (keySerializerType == SER_INT) {
         if (key is int) {
             return producerSendIntInt(producer, value, topic, key, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("int");
+        panic getKeyTypeMismatchError(INT);
     }
-    if (keySerializer == SER_FLOAT) {
+    if (keySerializerType == SER_FLOAT) {
         if (key is float) {
             return producerSendIntFloat(producer, value, topic, key, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("float");
+        panic getKeyTypeMismatchError(FLOAT);
     }
-    if (keySerializer == SER_BYTE_ARRAY) {
+    if (keySerializerType == SER_BYTE_ARRAY) {
         if (key is byte[]) {
             return producerSendIntByteArray(producer, value, topic, key, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("byte[]");
+        panic getKeyTypeMismatchError(BYTE_ARRAY);
+    }
+    if (keySerializerType == SER_CUSTOM) {
+        return producerSendIntAny(producer, value, topic, key, partition, timestamp);
     }
 }
 
-function sendFloatValues(Producer producer, float value, handle topic, Data? key, int? partition, int? timestamp,
-    string keySerializer) returns ProducerError? {
+function sendFloatValues(Producer producer, float value, handle topic, anydata? key, int? partition, int? timestamp,
+    string keySerializerType) returns ProducerError? {
     if (key is ()) {
         return producerSendFloat(producer, value, topic, partition, timestamp);
     }
-    if (keySerializer == SER_STRING) {
+    if (keySerializerType == SER_STRING) {
         if (key is string) {
             handle keyHandle = java:fromString(key);
             return producerSendFloatString(producer, value, topic, keyHandle, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("string");
+        panic getKeyTypeMismatchError(STRING);
     }
-    if (keySerializer == SER_INT) {
+    if (keySerializerType == SER_INT) {
         if (key is int) {
             return producerSendFloatInt(producer, value, topic, key, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("int");
+        panic getKeyTypeMismatchError(INT);
     }
-    if (keySerializer == SER_FLOAT) {
+    if (keySerializerType == SER_FLOAT) {
         if (key is float) {
             return producerSendFloatFloat(producer, value, topic, key, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("float");
+        panic getKeyTypeMismatchError(FLOAT);
     }
-    if (keySerializer == SER_BYTE_ARRAY) {
+    if (keySerializerType == SER_BYTE_ARRAY) {
         if (key is byte[]) {
             return producerSendFloatByteArray(producer, value, topic, key, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("byte[]");
+        panic getKeyTypeMismatchError(BYTE_ARRAY);
+    }
+    if (keySerializerType == SER_CUSTOM) {
+        return producerSendFloatAny(producer, value, topic, key, partition, timestamp);
     }
 }
 
-function sendByteArrayValues(Producer producer, byte[] value, handle topic, Data? key, int? partition, int? timestamp,
-    string keySerializer) returns ProducerError? {
+function sendByteArrayValues(Producer producer, byte[] value, handle topic, anydata? key, int? partition,
+    int? timestamp, string keySerializerType) returns ProducerError? {
     if (key is ()) {
         return producerSendByteArray(producer, value, topic, partition, timestamp);
     }
-    if (keySerializer == SER_STRING) {
+    if (keySerializerType == SER_STRING) {
         if (key is string) {
             handle keyHandle = java:fromString(key);
             return producerSendByteArrayString(producer, value, topic, keyHandle, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("string");
+        panic getKeyTypeMismatchError(STRING);
     }
-    if (keySerializer == SER_INT) {
+    if (keySerializerType == SER_INT) {
         if (key is int) {
             return producerSendByteArrayInt(producer, value, topic, key, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("int");
+        panic getKeyTypeMismatchError(INT);
     }
-    if (keySerializer == SER_FLOAT) {
+    if (keySerializerType == SER_FLOAT) {
         if (key is float) {
             return producerSendByteArrayFloat(producer, value, topic, key, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("float");
+        panic getKeyTypeMismatchError(FLOAT);
     }
-    if (keySerializer == SER_BYTE_ARRAY) {
+    if (keySerializerType == SER_BYTE_ARRAY) {
         if (key is byte[]) {
             return producerSendByteArrayByteArray(producer, value, topic, key, partition, timestamp);
         }
-        panic getKeyTypeMismatchError("byte[]");
+        panic getKeyTypeMismatchError(BYTE_ARRAY);
+    }
+    if (keySerializerType == SER_CUSTOM) {
+        return producerSendByteArrayAny(producer, value, topic, key, partition, timestamp);
     }
 }
 
-function producerInit(Producer producer, ProducerConfig config) returns error? =
+function sendAvroValues(Producer producer, AvroRecord value, handle topic, anydata? key, int? partition, int? timestamp,
+    string keySerializerType) returns ProducerError? {
+    if (key is ()) {
+        return producerSendAvro(producer, value, topic, partition, timestamp);
+    }
+    if (keySerializerType == SER_STRING) {
+        if (key is string) {
+            handle keyHandle = java:fromString(key);
+            return producerSendAvroString(producer, value, topic, keyHandle, partition, timestamp);
+        }
+        panic getKeyTypeMismatchError(STRING);
+    }
+    if (keySerializerType == SER_INT) {
+        if (key is int) {
+            return producerSendAvroInt(producer, value, topic, key, partition, timestamp);
+        }
+        panic getKeyTypeMismatchError(INT);
+    }
+    if (keySerializerType == SER_FLOAT) {
+        if (key is float) {
+            return producerSendAvroFloat(producer, value, topic, key, partition, timestamp);
+        }
+        panic getKeyTypeMismatchError(FLOAT);
+    }
+    if (keySerializerType == SER_BYTE_ARRAY) {
+        if (key is byte[]) {
+            return producerSendAvroByteArray(producer, value, topic, key, partition, timestamp);
+        }
+        panic getKeyTypeMismatchError(BYTE_ARRAY);
+    }
+    if (keySerializerType == SER_CUSTOM) {
+        return producerSendAvroAny(producer, value, topic, key, partition, timestamp);
+    }
+}
+
+function sendCustomValues(Producer producer, anydata value, handle topic, anydata? key, int? partition, int? timestamp,
+    string keySerializerType) returns ProducerError? {
+    if (key is ()) {
+        return producerSendAny(producer, value, topic, partition, timestamp);
+    }
+    if (keySerializerType == SER_STRING) {
+        if (key is string) {
+            handle keyHandle = java:fromString(key);
+            return producerSendAnyString(producer, value, topic, keyHandle, partition, timestamp);
+        }
+        panic getKeyTypeMismatchError(STRING);
+    }
+    if (keySerializerType == SER_INT) {
+        if (key is int) {
+            return producerSendAnyInt(producer, value, topic, key, partition, timestamp);
+        }
+        panic getKeyTypeMismatchError(INT);
+    }
+    if (keySerializerType == SER_FLOAT) {
+        if (key is float) {
+            return producerSendAnyFloat(producer, value, topic, key, partition, timestamp);
+        }
+        panic getKeyTypeMismatchError(FLOAT);
+    }
+    if (keySerializerType == SER_BYTE_ARRAY) {
+        if (key is byte[]) {
+            return producerSendAnyByteArray(producer, value, topic, key, partition, timestamp);
+        }
+        panic getKeyTypeMismatchError(BYTE_ARRAY);
+    }
+    if (keySerializerType == SER_CUSTOM) {
+        return producerSendAnyAny(producer, value, topic, key, partition, timestamp);
+    }
+}
+
+function producerInit(Producer producer) returns error? =
 @java:Method {
     name: "init",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.ProducerActions"
@@ -453,6 +566,15 @@ function producerSendStringByteArray(Producer producer, handle value, handle top
                 "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
 } external;
 
+function producerSendStringAny(Producer producer, handle value, handle topic, anydata key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyKeys",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.String", "java.lang.String", "java.lang.Object",
+                 "java.lang.Object", "java.lang.Object"]
+} external;
+
 // Send int values with different types of keys
 function producerSendInt(Producer producer, int value, handle topic, int? partition = (), int? timestamp = ())
 returns ProducerError? =
@@ -497,6 +619,15 @@ function producerSendIntByteArray(Producer producer, int value, handle topic, by
     class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.Send",
     paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "long", "java.lang.String",
                 "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
+} external;
+
+function producerSendIntAny(Producer producer, int value, handle topic, anydata key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyKeys",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "long", "java.lang.String", "java.lang.Object",
+                 "java.lang.Object", "java.lang.Object"]
 } external;
 
 // Send float values with different types of keys
@@ -545,6 +676,15 @@ function producerSendFloatByteArray(Producer producer, float value, handle topic
                 "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
 } external;
 
+function producerSendFloatAny(Producer producer, float value, handle topic, anydata key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyKeys",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "double", "java.lang.String", "java.lang.Object",
+                 "java.lang.Object", "java.lang.Object"]
+} external;
+
 // Send byte[] values with different types of keys
 function producerSendByteArray(Producer producer, byte[] value, handle topic, int? partition = (), int? timestamp = ())
 returns ProducerError? =
@@ -589,4 +729,123 @@ function producerSendByteArrayByteArray(Producer producer, byte[] value, handle 
     class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.Send",
     paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.ArrayValue",
                 "java.lang.String", "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
+} external;
+
+function producerSendByteArrayAny(Producer producer, byte[] value, handle topic, anydata key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyKeys",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.ArrayValue",
+                "java.lang.String", "java.lang.Object", "java.lang.Object", "java.lang.Object"]
+} external;
+
+// Sends Avro values with different types of keys
+function producerSendAvro(Producer producer, AvroRecord value, handle topic, int? partition = (), int? timestamp = ())
+returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAvroValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.MapValue",
+                 "java.lang.String", "java.lang.Object", "java.lang.Object"]
+} external;
+
+function producerSendAvroString(Producer producer, AvroRecord value, handle topic, handle key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAvroValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.MapValue",
+                 "java.lang.String", "java.lang.String", "java.lang.Object", "java.lang.Object"]
+} external;
+
+function producerSendAvroInt(Producer producer, AvroRecord value, handle topic, int key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAvroValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.MapValue",
+                 "java.lang.String", "long", "java.lang.Object", "java.lang.Object"]
+} external;
+
+function producerSendAvroFloat(Producer producer, AvroRecord value, handle topic, float key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAvroValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.MapValue",
+                 "java.lang.String", "double", "java.lang.Object", "java.lang.Object"]
+} external;
+
+function producerSendAvroByteArray(Producer producer, AvroRecord value, handle topic, byte[] key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAvroValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.MapValue",
+                 "java.lang.String", "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
+} external;
+
+function producerSendAvroAny(Producer producer, AvroRecord value, handle topic, any key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "sendAvroAny",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAvroValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "org.ballerinalang.jvm.values.MapValue",
+                 "java.lang.String", "java.lang.Object", "java.lang.Object", "java.lang.Object"]
+} external;
+
+// Send custom type values with different types of keys
+function producerSendAny(Producer producer, anydata value, handle topic, int? partition = (), int? timestamp = ())
+returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "java.lang.Object",
+                 "java.lang.Object"]
+} external;
+
+function producerSendAnyString(Producer producer, anydata value, handle topic, handle key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "java.lang.String",
+                 "java.lang.Object", "java.lang.Object"]
+} external;
+
+function producerSendAnyInt(Producer producer, anydata value, handle topic, int key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "long",
+                 "java.lang.Object", "java.lang.Object"]
+} external;
+
+function producerSendAnyFloat(Producer producer, anydata value, handle topic, float key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "double",
+                 "java.lang.Object", "java.lang.Object"]
+} external;
+
+function producerSendAnyByteArray(Producer producer, anydata value, handle topic, byte[] key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "send",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyValues",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String",
+                 "org.ballerinalang.jvm.values.ArrayValue", "java.lang.Object", "java.lang.Object"]
+} external;
+
+function producerSendAnyAny(Producer producer, anydata value, handle topic, any key, int? partition = (),
+    int? timestamp = ()) returns ProducerError? =
+@java:Method {
+    name: "sendAnyAny",
+    class: "org.ballerinalang.messaging.kafka.nativeimpl.producer.SendAnyKeys",
+    paramTypes: ["org.ballerinalang.jvm.values.ObjectValue", "java.lang.Object", "java.lang.String", "java.lang.Object",
+                 "java.lang.Object", "java.lang.Object"]
 } external;

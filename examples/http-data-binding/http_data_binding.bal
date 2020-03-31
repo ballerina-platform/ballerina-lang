@@ -7,7 +7,7 @@ type Student record {
     map<any> Marks;
 };
 
-@http:ServiceConfig{}
+@http:ServiceConfig {}
 service hello on new http:Listener(9090) {
 
     //The `body` annotation represents the entity body of the inbound request.
@@ -21,14 +21,14 @@ service hello on new http:Listener(9090) {
         var details = orderDetails.Details;
         http:Response res = new;
         if (details is json) {
-            res.setPayload(<@untainted> details);
+            res.setPayload(<@untainted>details);
         } else {
             res.statusCode = 400;
             res.setPayload("Order Details unavailable");
         }
         var result = caller->respond(res);
         if (result is error) {
-           log:printError(result.reason(), err = result);
+            log:printError(result.reason(), result);
         }
     }
 
@@ -42,11 +42,11 @@ service hello on new http:Listener(9090) {
         //Accesses the XML content.
         xml city = store.selectDescendants("{http://www.test.com}city");
         http:Response res = new;
-        res.setPayload(<@untainted> city);
+        res.setPayload(<@untainted>city);
 
         var result = caller->respond(res);
         if (result is error) {
-           log:printError(result.reason(), err = result);
+            log:printError(result.reason(), result);
         }
     }
 
@@ -60,15 +60,15 @@ service hello on new http:Listener(9090) {
     resource function bindStruct(http:Caller caller, http:Request req,
                                  Student student) {
         //Accesses the fields of the `Student` record.
-        string name = <@untainted> student.Name;
-        int grade = <@untainted> student.Grade;
-        string english = <@untained> <string> student.Marks["English"];
+        string name = <@untainted>student.Name;
+        int grade = <@untainted>student.Grade;
+        string english = <@untained string>student.Marks["English"];
         http:Response res = new;
-        res.setPayload({ Name: name, Grade: grade, English: english });
+        res.setPayload({Name: name, Grade: grade, English: english});
 
         var result = caller->respond(res);
         if (result is error) {
-           log:printError(result.reason(), err = result);
+            log:printError(result.reason(), result);
         }
     }
 }

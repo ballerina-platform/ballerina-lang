@@ -17,7 +17,7 @@ public function main() {
     }
 
     // The type test can be used to find the runtime type of union type variables.
-    Student alex = { name : "Alex" };
+    Student alex = {name : "Alex"};
     Student|Person|Vehicle x = alex;
 
     // Type of `x` is `Student`. Therefore, the `if` check will pass.
@@ -27,7 +27,7 @@ public function main() {
         io:println("Alex is not a student");
     }
 
-    // Type of `x` is `Student`. However, it is structurally equivalent to `Person`. 
+    // Type of `x` is `Student`. However, it is structurally equivalent to `Person`.
     // Therefore, the `if` check will pass.
     if (x is Person) {
         io:println("Alex is a person");
@@ -64,9 +64,9 @@ type Vehicle record {
 
 function foo(string t) returns any {
     if (t == "student") {
-        return <Student>{ name: "Alex" };
-    } else if (t == "vehicle"){
-        return <Vehicle>{ brand: "Honda" };
+        return <Student>{name: "Alex"};
+    } else if (t == "vehicle") {
+        return <Vehicle>{brand: "Honda"};
     }
     return "invalid type";
 }

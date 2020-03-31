@@ -40,7 +40,7 @@ public class GetElementName {
 
     private static final String OPERATION = "get element name in xml";
 
-    public static String getElementName(Strand strand, XMLValue<?> xml) {
+    public static String getElementName(Strand strand, XMLValue xml) {
         try {
             return xml.getElementName();
         } catch (Throwable e) {

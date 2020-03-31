@@ -31,17 +31,17 @@ type Person2 object {
 
     public function test1() returns error? {
         return self.
-        start();
+            start();
     }
 
     public function test2() returns error? {
         return self.
-        test1();
+            test1();
     }
 
     public function getName() returns string {
         return self.
-        name;
+            name;
     }
 };
 
@@ -53,25 +53,41 @@ type Person3 object {
 
     public function test1() returns error? {
         return
-        self
-        .
-        start()
+            self
+            .
+            start()
         ;
     }
 
     public function test2() returns error? {
         return
-        self
-        .
-        test1()
+            self
+            .
+            test1()
         ;
     }
 
     public function getName() returns string {
         return
-        self
-        .
-        name
+            self
+            .
+            name
         ;
     }
 };
+
+function invocation2() {
+    string s5 = ",".'join("hello", "ballerina");
+}
+
+function invocation3() {
+    string s5 =
+        ","
+        .
+        'join
+        (
+            "hello"
+            ,
+            "ballerina"
+        );
+}

@@ -16,6 +16,8 @@
 
 xmlns "http://sample.com/wso2/a1" as ns;
 
+const ASSERTION_ERROR_REASON = "AssertionError";
+
 int name = 10;
 
 type Person record {
@@ -114,4 +116,71 @@ function testNamespaces2(boolean x) returns xml {
         xmlns "http://sample.com/wso2/a3" as ns;
         return xml `<ns:greeting>Hello World!</ns:greeting>`;
     }
+}
+
+function testTypeNameAsVariable1() {
+    any Employee = "Smith"; // name of the object 'Employee'
+
+    if (Employee is string && Employee == "Smith") {
+        return;
+    }
+    var t = typeof Employee;
+    panic error(ASSERTION_ERROR_REASON, message = "expected 'string', found '" + t.toString() + "'");
+}
+
+function testTypeNameAsVariable2() {
+    any Person = "Smith"; // name of the record 'Person'
+
+    if (Person is string && Person == "Smith") {
+        return;
+    }
+    var t = typeof Person;
+    panic error(ASSERTION_ERROR_REASON, message = "expected 'string', found '" + t.toString() + "'");
+}
+
+function testTypeNameAsVariable3() {
+    any temp = "Temp var";
+    if (temp is string) {
+        any Person = "Jack"; // name of the record 'Person'
+
+        if (Person is string && Person == "Jack") {
+            return;
+        }
+        var t = typeof Person;
+        panic error(ASSERTION_ERROR_REASON, message = "expected 'string', found '" + t.toString() + "'");
+    }
+}
+
+function testTypeNameAsVariable4() {
+    foreach var i in 1...2 {
+        any Person = "Jack"; // name of the record 'Person'
+
+        if (Person is string && Person == "Jack") {
+            return;
+        }
+        var t = typeof Person;
+        panic error(ASSERTION_ERROR_REASON, message = "expected 'string', found '" + t.toString() + "'");
+    }
+}
+
+type Person1 record {
+    int id = 0;
+};
+
+type Student object {
+    string Student = "Smith";
+
+    public function getName() returns string {
+         return self.Student;
+    }
+};
+
+function testTypeNameAsVariable5() {
+    Student s = new;
+    any name = s.getName();
+    if (name is string && name == "Smith") {
+        return;
+    }
+    var t = typeof name;
+    panic error(ASSERTION_ERROR_REASON, message = "expected 'string', found '" + t.toString() + "'");
 }

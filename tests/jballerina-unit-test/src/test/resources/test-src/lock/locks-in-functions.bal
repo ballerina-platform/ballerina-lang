@@ -15,7 +15,6 @@ function lockWithinLock() returns [int, string] {
         lockWithinLockString1 = "sample value";
         lock {
             lockWithinLockString1 = "second sample value";
-            int ret = makeAsync();
             lockWithinLockInt1 = 99;
             lock {
                 lockWithinLockInt1 = 90;

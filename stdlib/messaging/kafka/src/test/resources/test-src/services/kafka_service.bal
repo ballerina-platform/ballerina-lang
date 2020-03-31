@@ -19,7 +19,7 @@ import ballerina/kafka;
 
 string topic = "service-test";
 
-kafka:ConsumerConfig consumerConfigs = {
+kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:14110",
     groupId: "service-test-group",
     clientId: "service-consumer",

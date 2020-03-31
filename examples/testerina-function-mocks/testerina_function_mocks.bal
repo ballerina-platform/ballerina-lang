@@ -15,7 +15,7 @@ public function mockIntAdd(int a, int b) returns int {
 }
 
 // This is the test function.
-@test:Config{}
+@test:Config {}
 function testAssertIntEquals() {
     int answer = 0;
     answer = intAdd(5, 3);

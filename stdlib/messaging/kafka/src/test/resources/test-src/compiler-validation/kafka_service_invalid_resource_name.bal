@@ -18,7 +18,7 @@ import ballerina/kafka;
 
 string topic = "service-invalid-resource-name-test";
 
-kafka:ConsumerConfig consumerConfigs = {
+kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:9094",
     groupId: "service-invalid-resource-name-test-group",
     clientId: "service-invalid-resource-name-consumer",

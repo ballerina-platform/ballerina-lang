@@ -17,15 +17,15 @@ public function main() {
         k -> w3;
 
         () send2 =
-        i
-        ->>
-        w2
+            i
+            ->>
+            w2
         ;
 
         () send3 =
-        i
-        ->>
-        default
+            i
+            ->>
+            default
         ;
 
         () send4 = i ->> default;
@@ -34,11 +34,11 @@ public function main() {
         error? flushResult2 = flush;
 
         error? flushResult3 =
-        flush
-        w2
+            flush
+            w2
         ;
         error? flushResult4 =
-        flush
+            flush
         ;
     }
 

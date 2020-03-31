@@ -3,18 +3,20 @@
   "character": 3,
   "expected": {
     "title": "Create Local Variable",
-    "edit": {
-      "range": {
-        "start": {
-          "line": 20,
-          "character": 3
+    "edits": [
+      {
+        "range": {
+          "start": {
+            "line": 20,
+            "character": 3
+          },
+          "end": {
+            "line": 20,
+            "character": 3
+          }
         },
-        "end": {
-          "line": 20,
-          "character": 3
-        }
-      },
-      "newText": "int twoIntegers = "
-    }
+        "newText": "int twoIntegers = "
+      }
+    ]
   }
 }

@@ -590,3 +590,59 @@ function waitInReturn() returns any {
 
     return wait {w1, w2};
 }
+
+function testPanicWorkerInsideLock() {
+    lock {
+        panicWorkerInsideLock();
+    }
+}
+
+function panicWorkerInsideLock() {
+    worker w1 {
+        int i = 5;
+    }
+}
+
+function testPanicWorkerInsideLockWithDepth3() {
+    lock {
+        testPanicWorkerInsideLockWithDepth2();
+    }
+}
+
+function testPanicWorkerInsideLockWithDepth2() {
+    testPanicWorkerInsideLockWithDepth1();
+}
+
+function testPanicWorkerInsideLockWithDepth1() {
+    worker w1 {
+        int i = 5;
+    }
+}
+
+function testPanicStartInsideLock() {
+    lock {
+        panicStartInsideLock();
+    }
+}
+
+function panicStartInsideLock() {
+    _ = start testStartFunction();
+}
+
+function testPanicStartInsideLockWithDepth3() {
+    lock {
+        testPanicStartInsideLockWithDepth2();
+    }
+}
+
+function testPanicStartInsideLockWithDepth2() {
+    testPanicStartInsideLockWithDepth1();
+}
+
+function testPanicStartInsideLockWithDepth1() {
+    _ = start testStartFunction();
+}
+
+function testStartFunction() {
+    int i = 4;
+}

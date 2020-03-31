@@ -55,12 +55,17 @@ public class HttpDispatcher {
             Map<String, HttpService> servicesOnInterface;
             List<String> sortedServiceURIs;
             String hostName = inboundReqMsg.getHeader(HttpHeaderNames.HOST.toString());
+
             if (hostName != null && servicesRegistry.getServicesMapHolder(hostName) != null) {
                 servicesOnInterface = servicesRegistry.getServicesByHost(hostName);
                 sortedServiceURIs = servicesRegistry.getSortedServiceURIsByHost(hostName);
-            } else {
+            } else if (servicesRegistry.getServicesMapHolder(DEFAULT_HOST) != null) {
                 servicesOnInterface = servicesRegistry.getServicesByHost(DEFAULT_HOST);
                 sortedServiceURIs = servicesRegistry.getSortedServiceURIsByHost(DEFAULT_HOST);
+            } else {
+                inboundReqMsg.setHttpStatusCode(404);
+                String localAddress = inboundReqMsg.getProperty(HttpConstants.LOCAL_ADDRESS).toString();
+                throw new BallerinaConnectorException("no service has registered for listener : " + localAddress);
             }
 
             String rawUri = (String) inboundReqMsg.getProperty(HttpConstants.TO);

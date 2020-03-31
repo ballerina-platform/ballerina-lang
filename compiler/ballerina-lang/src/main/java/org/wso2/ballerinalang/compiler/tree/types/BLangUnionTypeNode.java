@@ -34,7 +34,15 @@ import java.util.StringJoiner;
  */
 public class BLangUnionTypeNode extends BLangType implements UnionTypeNode {
 
-    public List<BLangType> memberTypeNodes = new ArrayList<>();
+    public List<BLangType> memberTypeNodes;
+
+    public BLangUnionTypeNode() {
+        this.memberTypeNodes = new ArrayList<>();
+    }
+
+    public BLangUnionTypeNode(List<BLangType> memberTypeNodes) {
+        this.memberTypeNodes = memberTypeNodes;
+    }
 
     @Override
     public List<BLangType> getMemberTypeNodes() {

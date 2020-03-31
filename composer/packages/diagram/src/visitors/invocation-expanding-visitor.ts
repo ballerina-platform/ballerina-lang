@@ -1,6 +1,6 @@
 import {
-    Assignment, ASTKindChecker, ASTNode, ASTUtil, Block, ExpressionStatement,
-    Function as BalFunction, Invocation, VariableDef, VisibleEndpoint, Visitor
+    Assignment, ASTKindChecker, ASTNode, ASTUtil, Block, BlockFunctionBody,
+    ExpressionStatement, Function as BalFunction, Invocation, VariableDef, VisibleEndpoint, Visitor
 } from "@ballerina/ast-model";
 import { ProjectAST } from "@ballerina/lang-service";
 import _ from "lodash";
@@ -27,22 +27,26 @@ function handleEndpointParams(expandContext: ExpandContext) {
 
     const params = expandedFunction.parameters;
 
-    if (expandedFunction.body && expandedFunction.body.VisibleEndpoints) {
-        expandedFunction.body.VisibleEndpoints.forEach((ep) => {
-            // Find of one of the visible endpoints is actually a parameter to the function
-            params.forEach((p, i) => {
-                if (ASTKindChecker.isVariable(p)) {
-                    if (p.name.value === ep.name) {
-                        // visible endpoint is a parameter
-                        const arg = invocation.argumentExpressions[i];
-                        if (ASTKindChecker.isSimpleVariableRef(arg)) {
-                            // This parameter actually refers to an endpoint with name in arg.variableName
-                            (ep.viewState as EndpointViewState).actualEpName = arg.variableName.value;
+    if (expandedFunction.body
+        && ASTKindChecker.isBlockFunctionBody(expandedFunction.body)) {
+        const blockBody = expandedFunction.body as BlockFunctionBody;
+        if (blockBody.VisibleEndpoints) {
+            blockBody.VisibleEndpoints.forEach((ep) => {
+                // Find of one of the visible endpoints is actually a parameter to the function
+                params.forEach((p, i) => {
+                    if (ASTKindChecker.isVariable(p)) {
+                        if (p.name.value === ep.name) {
+                            // visible endpoint is a parameter
+                            const arg = invocation.argumentExpressions[i];
+                            if (ASTKindChecker.isSimpleVariableRef(arg)) {
+                                // This parameter actually refers to an endpoint with name in arg.variableName
+                                (ep.viewState as EndpointViewState).actualEpName = arg.variableName.value;
+                            }
                         }
                     }
-                }
+                });
             });
-        });
+        }
     }
 }
 
@@ -172,24 +176,41 @@ export function getReachedInvocationDepth() {
     return reachedInvocationDepth;
 }
 
+function beginVisitBlock(node: Block, parent: ASTNode) {
+    if (!node.parent) {
+        return;
+    }
+    if (node.VisibleEndpoints) {
+        envEndpoints = [...envEndpoints, ...node.VisibleEndpoints];
+    }
+}
+
+function endVisitBlock(node: Block, parent: ASTNode) {
+    if (!node.parent) {
+        return;
+    }
+    if (node.VisibleEndpoints) {
+        const visibleEndpoints = node.VisibleEndpoints;
+        envEndpoints = envEndpoints.filter((ep) => (!visibleEndpoints.includes(ep)));
+    }
+}
+
 export const visitor: Visitor = {
-    beginVisitBlock(node: Block) {
-        if (!node.parent) {
-            return;
-        }
-        if (node.VisibleEndpoints) {
-            envEndpoints = [...envEndpoints, ...node.VisibleEndpoints];
-        }
+
+    beginVisitBlockFunctionBody(node: BlockFunctionBody, parent: ASTNode) {
+        beginVisitBlock(node, parent);
+    },
+
+    beginVisitBlock(node: Block, parent: ASTNode) {
+        beginVisitBlock(node, parent);
+    },
+
+    endVisitBlockFunctionBody(node: BlockFunctionBody, parent: ASTNode) {
+        endVisitBlock(node, parent);
     },
 
     endVisitBlock(node: Block, parent: ASTNode) {
-        if (!node.parent) {
-            return;
-        }
-        if (node.VisibleEndpoints) {
-            const visibleEndpoints = node.VisibleEndpoints;
-            envEndpoints = envEndpoints.filter((ep) => (!visibleEndpoints.includes(ep)));
-        }
+        endVisitBlock(node, parent);
     },
 
     beginVisitFunction(node: BalFunction) {

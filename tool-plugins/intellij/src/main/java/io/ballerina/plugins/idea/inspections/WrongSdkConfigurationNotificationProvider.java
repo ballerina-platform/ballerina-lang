@@ -133,7 +133,7 @@ public class WrongSdkConfigurationNotificationProvider extends EditorNotificatio
                     }
                 });
 
-        if (!BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+        if (!BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
             panel.createActionLabel("Enable ballerina home auto detection",
                     () -> {
                         ShowSettingsUtil.getInstance().editConfigurable(project,

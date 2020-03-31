@@ -1,13 +1,10 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run xml_attributes.bal
-<ns0:book xmlns:ns0="http://ballerina.com/aa" ns0:status="available" count="5"></ns0:book>
-available
+<ns0:book xmlns:ns0="http://ballerina.com/aa" ns0:status="available" count="5"/>
 available
 5
-5
+true
+{http://www.w3.org/2000/xmlns/}ns0=http://ballerina.com/aa {http://ballerina.com/aa}status=available count=5
+available
 Not Available
-{http://www.w3.org/2000/xmlns/}ns0=http://ballerina.com/aa {http://ballerina.com/aa}status=Not Available count=5
-{http://www.w3.org/2000/xmlns/}ns0=http://ballerina.com/aa {http://ballerina.com/aa}status=Not Available count=5
-5
-

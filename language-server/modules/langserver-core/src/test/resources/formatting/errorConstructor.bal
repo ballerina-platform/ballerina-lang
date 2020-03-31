@@ -6,7 +6,7 @@ type AccountNotFoundErrorData record {
 
 type AccountNotFoundError error<string, AccountNotFoundErrorData>;
 
-function getAccountBalance1(int accountID) returns (int | AccountNotFoundError) {
+function getAccountBalance1(int accountID) returns (int  |  AccountNotFoundError) {
     if (accountID < 100) {
         AccountNotFoundError accountNotFoundError =   error  (   "Account with ID: "+ accountID + " is not found"  ,{
         accountID: <string>accountID } );
@@ -16,7 +16,7 @@ function getAccountBalance1(int accountID) returns (int | AccountNotFoundError) 
     }
 }
 
-function getAccountBalance2(int accountID) returns (int | AccountNotFoundError) {
+function getAccountBalance2(int accountID) returns (int|  AccountNotFoundError) {
     if (accountID < 100) {
         AccountNotFoundError accountNotFoundError =error  (   "Account with ID: "+ accountID + " is not found" ,
         {
@@ -27,7 +27,7 @@ function getAccountBalance2(int accountID) returns (int | AccountNotFoundError) 
     }
 }
 
-function getAccountBalance3(int accountID) returns (int | AccountNotFoundError) {
+function getAccountBalance3(int accountID) returns (int  |AccountNotFoundError) {
     if (accountID < 100) {
         AccountNotFoundError accountNotFoundError =
                 error

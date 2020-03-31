@@ -50,7 +50,7 @@ public class BallerinaAutoDetectionSettings implements PersistentStateComponent<
         XmlSerializerUtil.copyBean(state, this);
     }
 
-    public boolean getIsAutoDetectionEnabled() {
+    public boolean isAutoDetectionEnabled() {
         return autoDetectBalHome;
     }
 

@@ -1,6 +1,6 @@
 import ballerina/http;
 
-function testBasicCheckpanic1(int testNumber) returns int|float {
+function testBasicCheckpanic1(int testNumber) returns int | float {
     match testNumber {
         1 => {int i =    checkpanic    getGenericError();}
         2 => {int i =
@@ -80,36 +80,36 @@ service serviceName5 on new http:Listener(9090) {
     }
 }
 
-function getGenericError() returns int|error {
+function getGenericError() returns int | error {
     error e = error("Generic Error");
     return e;
 }
 
-function getGenericErrorWithDetail() returns int|error {
+function getGenericErrorWithDetail() returns   int | error {
     error e = error("Generic Error" , fatal  =  true ,   message  =   "Something Went Wrong" );
     return e;
 }
 
-function getGenericErrorWithMultiUnion() returns int|boolean|error {
+function getGenericErrorWithMultiUnion() returns int | boolean | error {
     error e = error("Generic Error");
     return e;
 }
 
-function getFloat() returns int|float|error {
+function getFloat() returns   int |float| error {
     float f = 2.2;
     return f;
 }
 
-function returnBallerinaPanicError() returns int|error {
+function returnBallerinaPanicError() returns  int |error  {
     int[2] arr = [1, 2];
     int[] oArr = arr;
-    int|error ret = trap oArr[4];
+    int  |  error ret = trap oArr[4];
     return ret;
 }
 
 public type MyError error<string, record   {| string message?;error cause?  ;   string... ;|}>;
 
-function getCustomError() returns int|MyError {
+function getCustomError() returns int   |   MyError {
     MyError e = error("My Error"  ,   message="error" );
     return e;
 }

@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -37,7 +38,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class HasKey {
 
+    @Deprecated
     public static boolean hasKey(Strand strand, MapValue<?, ?> m, String k) {
+        return m.containsKey(k);
+    }
+
+    public static boolean hasKey_bstring(Strand strand, MapValue<?, ?> m, BString k) {
         return m.containsKey(k);
     }
 }

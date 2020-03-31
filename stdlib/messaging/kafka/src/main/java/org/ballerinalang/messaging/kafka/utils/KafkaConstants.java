@@ -36,8 +36,7 @@ public class KafkaConstants {
     public static final String BLOCK_SEPARATOR = ":";
     public static final String ARRAY_INDICATOR = "[]";
     public static final String KAFKA_PACKAGE_NAME = "kafka";
-    public static final String ORG_NAME = "ballerina";
-    public static final String VERSION = "0.0.0";
+    private static final String VERSION = "1.1.0";
 
     public static final String FULL_PACKAGE_NAME = KAFKA_PACKAGE_NAME + BLOCK_SEPARATOR + VERSION;
     public static final String KAFKA_PROTOCOL_PACKAGE = BALLERINA_PACKAGE_PREFIX + KAFKA_PACKAGE_NAME;
@@ -59,17 +58,22 @@ public class KafkaConstants {
     public static final String TRANSACTION_CONTEXT = "TransactionInitiated";
 
     public static final String TOPIC_PARTITION_STRUCT_NAME = "TopicPartition";
+    public static final String AVRO_DATA_RECORD_NAME = "dataRecord";
+    public static final String AVRO_SCHEMA_STRING_NAME = "schemaString";
     public static final String OFFSET_STRUCT_NAME = "PartitionOffset";
 
     public static final String CONSUMER_ERROR = "{ballerina/kafka}ConsumerError";
     public static final String PRODUCER_ERROR = "{ballerina/kafka}ProducerError";
+    public static final String AVRO_ERROR = "{ballerina/kafka}AvroError";
     public static final String DETAIL_RECORD_NAME = "Detail";
 
+    public static final String AVRO_GENERIC_RECORD_NAME = "AvroGenericRecord";
     public static final String CONSUMER_RECORD_STRUCT_NAME = "ConsumerRecord";
     public static final String CONSUMER_STRUCT_NAME = "Consumer";
     public static final String SERVER_CONNECTOR = "serverConnector";
 
     public static final String CONSUMER_CONFIG_FIELD_NAME = "consumerConfig";
+    public static final String PRODUCER_CONFIG_FIELD_NAME = "producerConfig";
 
     public static final String PARAMETER_CONSUMER_NAME = KAFKA_PROTOCOL_PACKAGE + BLOCK_SEPARATOR
             + CONSUMER_STRUCT_NAME;
@@ -102,8 +106,12 @@ public class KafkaConstants {
     public static final String CONSUMER_CLIENT_ID_CONFIG = "clientId";
     public static final String CONSUMER_INTERCEPTOR_CLASSES_CONFIG = "interceptorClasses";
     public static final String CONSUMER_ISOLATION_LEVEL_CONFIG = "isolationLevel";
+    public static final String CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG = "keyDeserializerType";
+    public static final String CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG = "valueDeserializerType";
     public static final String CONSUMER_KEY_DESERIALIZER_CONFIG = "keyDeserializer";
     public static final String CONSUMER_VALUE_DESERIALIZER_CONFIG = "valueDeserializer";
+    public static final String BALLERINA_STRAND = "ballerina.strand";
+    public static final String CONSUMER_SCHEMA_REGISTRY_URL = "schemaRegistryUrl";
 
     public static final String CONSUMER_SESSION_TIMEOUT_MS_CONFIG = "sessionTimeoutInMillis";
     public static final String CONSUMER_HEARTBEAT_INTERVAL_MS_CONFIG = "heartBeatIntervalInMillis";
@@ -139,8 +147,11 @@ public class KafkaConstants {
     public static final String PRODUCER_PARTITIONER_CLASS_CONFIG = "partitionerClass";
     public static final String PRODUCER_INTERCEPTOR_CLASSES_CONFIG = "interceptorClasses";
     public static final String PRODUCER_TRANSACTIONAL_ID_CONFIG = "transactionalId";
+    public static final String PRODUCER_KEY_SERIALIZER_TYPE_CONFIG = "keySerializerType";
+    public static final String PRODUCER_VALUE_SERIALIZER_TYPE_CONFIG = "valueSerializerType";
     public static final String PRODUCER_KEY_SERIALIZER_CONFIG = "keySerializer";
     public static final String PRODUCER_VALUE_SERIALIZER_CONFIG = "valueSerializer";
+    public static final String PRODUCER_SCHEMA_REGISTRY_URL = "schemaRegistryUrl";
     public static final String PRODUCER_BUFFER_MEMORY_CONFIG = "bufferMemory";
     public static final String PRODUCER_RETRIES_CONFIG = "retryCount";
     public static final String PRODUCER_BATCH_SIZE_CONFIG = "batchSize";
@@ -187,6 +198,8 @@ public class KafkaConstants {
     public static final String SERDES_STRING = "STRING";
     public static final String SERDES_INT = "INT";
     public static final String SERDES_FLOAT = "FLOAT";
+    public static final String SERDES_AVRO = "AVRO";
+    public static final String SERDES_CUSTOM = "CUSTOM";
 
     // Default class names
     // Serializers
@@ -194,12 +207,22 @@ public class KafkaConstants {
     public static final String STRING_SERIALIZER = "org.apache.kafka.common.serialization.StringSerializer";
     public static final String INT_SERIALIZER = "org.apache.kafka.common.serialization.LongSerializer";
     public static final String FLOAT_SERIALIZER = "org.apache.kafka.common.serialization.DoubleSerializer";
+    public static final String AVRO_SERIALIZER = "io.confluent.kafka.serializers.KafkaAvroSerializer";
+    public static final String CUSTOM_SERIALIZER = "org.ballerinalang.messaging.kafka.serdes.BallerinaKafkaSerializer";
 
     // Deserializers
     public static final String BYTE_ARRAY_DESERIALIZER = "org.apache.kafka.common.serialization.ByteArrayDeserializer";
     public static final String STRING_DESERIALIZER = "org.apache.kafka.common.serialization.StringDeserializer";
     public static final String INT_DESERIALIZER = "org.apache.kafka.common.serialization.LongDeserializer";
     public static final String FLOAT_DESERIALIZER = "org.apache.kafka.common.serialization.DoubleDeserializer";
+    public static final String AVRO_DESERIALIZER = "io.confluent.kafka.serializers.KafkaAvroDeserializer";
+    public static final String CUSTOM_DESERIALIZER =
+            "org.ballerinalang.messaging.kafka.serdes.BallerinaKafkaDeserializer";
+
+    // Serializer / Deserializer function names
+    public static final String FUNCTION_SERIALIZE = "serialize";
+    public static final String FUNCTION_DESERIALIZE = "deserialize";
+    public static final String FUNCTION_CLOSE = "close";
 
     // Warning suppression
     public static final String UNCHECKED = "unchecked";
@@ -207,4 +230,6 @@ public class KafkaConstants {
     //Properties constants
     public static final String BOOTSTRAP_SERVERS = "bootstrap.servers";
     public static final String CLIENT_ID = "client.id";
+    public static final String SCHEMA_REGISTRY_URL = "schema.registry.url";
+    public static final String SPECIFIC_AVRO_READER = "specific.avro.reader";
 }

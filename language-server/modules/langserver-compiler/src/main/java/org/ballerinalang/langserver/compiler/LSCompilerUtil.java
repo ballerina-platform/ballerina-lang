@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.common.CustomErrorStrategyFactory;
+import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProgramDirectory;
 import org.ballerinalang.langserver.compiler.workspace.repository.LangServerFSProjectDirectory;
 import org.ballerinalang.model.elements.PackageID;
@@ -38,7 +39,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -67,8 +68,6 @@ public class LSCompilerUtil {
     private static final Logger logger = LoggerFactory.getLogger(LSCompilerUtil.class);
 
     public static final String UNTITLED_BAL = "untitled.bal";
-    
-    public static final boolean EXPERIMENTAL_FEATURES_ENABLED;
 
     private static Path untitledProjectPath;
 
@@ -83,8 +82,7 @@ public class LSCompilerUtil {
         } catch (IOException e) {
             logger.error("Unable to create the empty stream.");
         }
-        String experimental = System.getProperty("experimental");
-        EXPERIMENTAL_FEATURES_ENABLED = Boolean.parseBoolean(experimental);
+
         // Here we will create a tmp directory as the untitled project repo.
         File untitledDir = com.google.common.io.Files.createTempDir();
         untitledProjectPath = untitledDir.toPath();
@@ -121,15 +119,13 @@ public class LSCompilerUtil {
         context.put(PackageRepository.class, packageRepository);
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(EXPERIMENTAL_FEATURES_ENABLED));
+        boolean isExperimentalEnabled = LSClientConfigHolder.getInstance().getConfig().isAllowExperimental();
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(isExperimentalEnabled));
 
         if (null == compilerPhase) {
             throw new AssertionError("Compiler Phase can not be null.");
         }
-        String phase = compilerPhase.toString().equals(CompilerPhase.COMPILER_PLUGIN.toString()) ? "annotationProcess"
-                : compilerPhase.toString();
-
-        options.put(COMPILER_PHASE, phase);
+        options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.TRUE.toString());
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
@@ -231,7 +227,7 @@ public class LSCompilerUtil {
             compilerContext.put(DefaultErrorStrategy.class,
                                 CustomErrorStrategyFactory.getCustomErrorStrategy(customErrorStrategy, context));
         }
-        BLangDiagnosticLog.getInstance(compilerContext).errorCount = 0;
+        BLangDiagnosticLogHelper.getInstance(compilerContext).resetErrorCount();
         Compiler compiler = Compiler.getInstance(compilerContext);
         compiler.setOutStream(emptyPrintStream);
         return compiler;
@@ -365,8 +361,11 @@ public class LSCompilerUtil {
         }
     }
 
-    static class EmptyPrintStream extends PrintStream {
-        EmptyPrintStream() throws UnsupportedEncodingException {
+    /**
+     * Represents an empty print stream to avoid writing to the standard print stream.
+     */
+    public static class EmptyPrintStream extends PrintStream {
+        public EmptyPrintStream() throws UnsupportedEncodingException {
             super(new OutputStream() {
                 @Override
                 public void write(int b) {

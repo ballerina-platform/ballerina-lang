@@ -55,8 +55,9 @@ public function main() returns @tainted error? {
     // Reads the `.CSV` file as a `table`.
     io:println("Reading  " + srcFileName + " as a table");
     var tblResult = rCsvChannel2.getTable(Employee);
-    if (tblResult is table<Employee>) {
-        foreach var rec in tblResult {
+    if (tblResult is table<record {}>) {
+        table<Employee> empTable = <table<Employee>> tblResult;
+        foreach var rec in empTable {
             io:println(rec);
         }
     } else {
@@ -80,11 +81,11 @@ public function main() returns @tainted error? {
 
 // Creates a `table` and adds some data.
 function createTableAndAddData() returns table<Employee> {
-    table<Employee> employeeTable = table{};
+    table<Employee> employeeTable = table {};
     Employee[] employees = [];
-    employees[0] = { id: "1", name: "Allen", salary: 300000.0 };
-    employees[1] = { id: "2", name: "Wallace", salary: 200000.0 };
-    employees[2] = { id: "3", name: "Sheldon", salary: 1000000.0 };
+    employees[0] = {id: "1", name: "Allen", salary: 300000.0};
+    employees[1] = {id: "2", name: "Wallace", salary: 200000.0};
+    employees[2] = {id: "3", name: "Sheldon", salary: 1000000.0};
     foreach var employee in employees {
         var result = employeeTable.add(employee);
         if (result is error) {

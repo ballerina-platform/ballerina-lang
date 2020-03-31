@@ -18,8 +18,10 @@ package org.ballerinalang.langserver.codeaction;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
+import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Diagnostic;
+import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,29 +35,49 @@ import java.util.Map;
 public class CodeActionRouter {
 
     /**
-     * @param nodeType    code action node type
-     * @param context     ls context
-     * @param diagnostics list of diagnostics
+     * Returns a list of supported code actions.
+     *
+     * @param nodeType           code action node type
+     * @param context            ls context
+     * @param diagnosticsOfRange list of diagnostics of the cursor range
+     * @param allDiagnostics     list of all diagnostics
      * @return list of code actions
      */
     public static List<CodeAction> getBallerinaCodeActions(CodeActionNodeType nodeType, LSContext context,
-                                                    List<Diagnostic> diagnostics) {
+                                                           List<Diagnostic> diagnosticsOfRange,
+                                                           List<Diagnostic> allDiagnostics) {
         List<CodeAction> codeActions = new ArrayList<>();
         CodeActionProvidersHolder codeActionProvidersHolder = CodeActionProvidersHolder.getInstance();
         if (nodeType != null) {
             Map<CodeActionNodeType, List<LSCodeActionProvider>> nodeBasedProviders =
                     codeActionProvidersHolder.getNodeBasedProviders();
             if (nodeBasedProviders.containsKey(nodeType)) {
-                nodeBasedProviders.get(nodeType).forEach(ballerinaCodeAction -> {
-                    codeActions.addAll(ballerinaCodeAction.getCodeActions(nodeType, context, null));
+                nodeBasedProviders.get(nodeType).forEach(provider -> {
+                    try {
+                        List<CodeAction> codeActionList = provider.getNodeBasedCodeActions(nodeType, context,
+                                                                                           allDiagnostics);
+                        if (codeActionList != null) {
+                            codeActions.addAll(codeActionList);
+                        }
+                    } catch (Exception e) {
+                        String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
+                        LSClientLogger.logError(msg, e, null, (Position) null);
+                    }
                 });
             }
         }
-        if (diagnostics != null && diagnostics.size() > 0) {
-            codeActionProvidersHolder.getDiagnosticsBasedProviders().forEach(ballerinaCodeAction -> {
-                List<CodeAction> codeActionList = ballerinaCodeAction.getCodeActions(nodeType, context, diagnostics);
-                if (codeActionList != null) {
-                    codeActions.addAll(codeActionList);
+        if (diagnosticsOfRange != null && diagnosticsOfRange.size() > 0) {
+            codeActionProvidersHolder.getDiagnosticsBasedProviders().forEach(provider -> {
+                try {
+                    List<CodeAction> codeActionList = provider.getDiagBasedCodeActions(nodeType, context,
+                                                                                       diagnosticsOfRange,
+                                                                                       allDiagnostics);
+                    if (codeActionList != null) {
+                        codeActions.addAll(codeActionList);
+                    }
+                } catch (Exception e) {
+                    String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
+                    LSClientLogger.logError(msg, e, null, (Position) null);
                 }
             });
         }

@@ -38,3 +38,27 @@ function testArrayToTupleAssignment4() returns [string, string[]] {
 j] = x;
     return [i, j];
 }
+
+function tupleVariableTest1() {
+        [  boolean,float  ][   a1  ,   a2 ]  =  [ true ,  0.4 ] ;
+}
+
+function tupleVariableTest2() {
+       [
+  boolean
+       ,
+ float
+         ]
+  [
+        a1
+  ,
+        a2
+   ]
+        =
+   [
+ true
+ ,
+ 0.4
+]
+;
+}

@@ -24,7 +24,8 @@ import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.XMLItem;
+import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BMap;
@@ -526,7 +527,8 @@ public class ResponseNativeFunctionSuccessTest {
 
     @Test
     public void testSetXmlPayload() {
-        OMNode omNode = (OMNode) XMLFactory.parse("<name>Ballerina</name>").value();
+        OMNode omNode = (OMNode)
+                ((XMLSequence) XMLFactory.parse("<name>Ballerina</name>")).getChildrenList().get(0).value();
         BXMLItem value = new BXMLItem(omNode);
         BValue[] inputArg = {value};
         BValue[] returnVals = BRunUtil.invoke(result, "testSetXmlPayload", inputArg);
@@ -536,7 +538,7 @@ public class ResponseNativeFunctionSuccessTest {
         BMap<String, BValue> entity =
                 (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(RESPONSE_ENTITY_FIELD);
         Object xmlValue = TestEntityUtils.getMessageDataSource(entity);
-        Assert.assertEquals(((XMLItem) xmlValue).getTextValue(), "Ballerina", "Payload is not set properly");
+        Assert.assertEquals(((XMLValue) xmlValue).getTextValue(), "Ballerina", "Payload is not set properly");
     }
 
     @Test

@@ -17,10 +17,12 @@
   */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BFutureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.api.BFuture;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
 import java.util.Map;
@@ -70,7 +72,12 @@ import java.util.StringJoiner;
          return "future " + sj.toString();
      }
 
-     @Override
+    @Override
+    public BString bStringValue() {
+        return StringUtils.fromString(stringValue());
+    }
+
+    @Override
      public BType getType() {
          return this.type;
      }

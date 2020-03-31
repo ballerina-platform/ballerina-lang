@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.statements;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.statements.BlockNode;
+import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -31,7 +31,7 @@ import java.util.StringJoiner;
 /**
  * @since 0.94
  */
-public class BLangBlockStmt extends BLangStatement implements BlockNode {
+public class BLangBlockStmt extends BLangStatement implements BlockStatementNode {
 
     public List<BLangStatement> stmts;
 

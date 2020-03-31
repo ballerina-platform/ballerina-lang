@@ -17,8 +17,10 @@
 */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXMLQName;
 
 import java.util.Map;
@@ -57,12 +59,28 @@ public final class XMLQName implements RefValue, BXMLQName {
     public XMLQName(String qNameStr) {
         int parenEndIndex = qNameStr.indexOf('}');
         if (qNameStr.startsWith("{") && parenEndIndex > 0) {
-            localName = qNameStr.substring(parenEndIndex + 1, qNameStr.length());
+            localName = qNameStr.substring(parenEndIndex + 1);
             uri = qNameStr.substring(1, parenEndIndex);
         } else {
             localName = qNameStr;
             uri = null;
         }
+    }
+
+    @Deprecated
+    public XMLQName(BString localName, BString uri, BString prefix) {
+        this.localName = localName.getValue();
+        if (uri != null) {
+            this.uri = uri.getValue();
+        }
+        if (prefix != null) {
+            this.prefix = prefix.getValue();
+        }
+    }
+
+    @Deprecated
+    public XMLQName(BString qNameStrVal) {
+        this(qNameStrVal.getValue());
     }
 
     @Override
@@ -76,6 +94,11 @@ public final class XMLQName implements RefValue, BXMLQName {
     }
 
     @Override
+    public BString bStringValue() {
+        return StringUtils.fromString(stringValue());
+    }
+
+    @Override
     public BType getType() {
         return BTypes.typeXMLAttributes;
     }
@@ -86,7 +109,7 @@ public final class XMLQName implements RefValue, BXMLQName {
             return false;
         }
 
-        return ((XMLQName) obj).toString().equals(localName);
+        return obj.toString().equals(localName);
     }
 
     @Override

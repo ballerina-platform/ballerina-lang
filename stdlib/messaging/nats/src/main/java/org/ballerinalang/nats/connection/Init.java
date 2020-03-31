@@ -22,6 +22,7 @@ import io.nats.client.Connection;
 import io.nats.client.ErrorListener;
 import io.nats.client.Nats;
 import io.nats.client.Options;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
@@ -66,61 +67,54 @@ public class Init {
     private static final String NO_ECHO = "noEcho";
     private static final String ENABLE_ERROR_LISTENER = "enableErrorListener";
 
-    public static void externInit(ObjectValue connectionObject, String urlString, MapValue connectionConfig) {
+    public static void externInit(ObjectValue connectionObject, ArrayValueImpl urlString, MapValue connectionConfig) {
         Options.Builder opts = new Options.Builder();
-
-        // Add server endpoint urls.
-        String[] serverUrls;
-        if (urlString != null && urlString.contains(SERVER_URL_SEPARATOR)) {
-            serverUrls = urlString.split(SERVER_URL_SEPARATOR);
-        } else {
-            serverUrls = new String[]{urlString};
-        }
-        opts.servers(serverUrls);
-
-        // Add connection name.
-        opts.connectionName(connectionConfig.getStringValue(CONNECTION_NAME));
-
-        // Add max reconnect.
-        opts.maxReconnects(Math.toIntExact(connectionConfig.getIntValue(MAX_RECONNECT)));
-
-        // Add reconnect wait.
-        opts.reconnectWait(Duration.ofSeconds(connectionConfig.getIntValue(RECONNECT_WAIT)));
-
-        // Add connection timeout.
-        opts.connectionTimeout(Duration.ofSeconds(connectionConfig.getIntValue(CONNECTION_TIMEOUT)));
-
-        // Add ping interval.
-        opts.pingInterval(Duration.ofMinutes(connectionConfig.getIntValue(PING_INTERVAL)));
-
-        // Add max ping out.
-        opts.maxPingsOut(Math.toIntExact(connectionConfig.getIntValue(MAX_PINGS_OUT)));
-
-        // Add inbox prefix.
-        opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX));
-
-        List<ObjectValue> serviceList = Collections.synchronizedList(new ArrayList<>());
-        // Add NATS connection listener.
-        opts.connectionListener(new DefaultConnectionListener());
-
-        // Add NATS error listener.
-        if (connectionConfig.getBooleanValue(ENABLE_ERROR_LISTENER)) {
-            ErrorListener errorListener = new DefaultErrorListener();
-            opts.errorListener(errorListener);
-        }
-
-        // Add noEcho.
-        if (connectionConfig.getBooleanValue(NO_ECHO)) {
-            opts.noEcho();
-        }
-
-        MapValue secureSocket = connectionConfig.getMapValue(Constants.CONNECTION_CONFIG_SECURE_SOCKET);
-        if (secureSocket != null) {
-            SSLContext sslContext = getSSLContext(secureSocket);
-            opts.sslContext(sslContext);
-        }
-
         try {
+            String[] serverUrls = urlString.getStringArray();
+            opts.servers(serverUrls);
+
+            // Add connection name.
+            opts.connectionName(connectionConfig.getStringValue(CONNECTION_NAME));
+
+            // Add max reconnect.
+            opts.maxReconnects(Math.toIntExact(connectionConfig.getIntValue(MAX_RECONNECT)));
+
+            // Add reconnect wait.
+            opts.reconnectWait(Duration.ofSeconds(connectionConfig.getIntValue(RECONNECT_WAIT)));
+
+            // Add connection timeout.
+            opts.connectionTimeout(Duration.ofSeconds(connectionConfig.getIntValue(CONNECTION_TIMEOUT)));
+
+            // Add ping interval.
+            opts.pingInterval(Duration.ofMinutes(connectionConfig.getIntValue(PING_INTERVAL)));
+
+            // Add max ping out.
+            opts.maxPingsOut(Math.toIntExact(connectionConfig.getIntValue(MAX_PINGS_OUT)));
+
+            // Add inbox prefix.
+            opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX));
+
+            List<ObjectValue> serviceList = Collections.synchronizedList(new ArrayList<>());
+            // Add NATS connection listener.
+            opts.connectionListener(new DefaultConnectionListener());
+
+            // Add NATS error listener.
+            if (connectionConfig.getBooleanValue(ENABLE_ERROR_LISTENER)) {
+                ErrorListener errorListener = new DefaultErrorListener();
+                opts.errorListener(errorListener);
+            }
+
+            // Add noEcho.
+            if (connectionConfig.getBooleanValue(NO_ECHO)) {
+                opts.noEcho();
+            }
+
+            MapValue secureSocket = connectionConfig.getMapValue(Constants.CONNECTION_CONFIG_SECURE_SOCKET);
+            if (secureSocket != null) {
+                SSLContext sslContext = getSSLContext(secureSocket);
+                opts.sslContext(sslContext);
+            }
+
             Connection natsConnection = Nats.connect(opts.build());
             connectionObject.addNativeData(Constants.NATS_CONNECTION, natsConnection);
             connectionObject.addNativeData(Constants.CONNECTED_CLIENTS, new AtomicInteger(0));
@@ -131,6 +125,10 @@ public class Init {
             String errorMsg = "Error while setting up a connection. " +
                     (e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
             throw Utils.createNatsError(errorMsg);
+        } catch (IllegalArgumentException e) {
+            NatsMetricsUtil.reportError(NatsObservabilityConstants.CONTEXT_CONNECTION,
+                                        NatsObservabilityConstants.ERROR_TYPE_CONNECTION);
+            throw Utils.createNatsError(e.getMessage());
         }
     }
 

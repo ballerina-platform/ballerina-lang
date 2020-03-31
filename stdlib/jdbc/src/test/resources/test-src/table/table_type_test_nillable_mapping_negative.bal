@@ -209,7 +209,7 @@ function testAssignNilToNonNillableTimeStamp(string jdbcURL) returns @tainted st
     return testAssignNilToNonNillableField("timestamp_type", NonNillableTimeStamp, jdbcURL);
 }
 
-function testAssignNilToNonNillableField(string field, typedesc<record {}> recordType, string jdbcURL) returns
+function testAssignNilToNonNillableField(string 'field, typedesc<record {}> recordType, string jdbcURL) returns
     @tainted string {
     jdbc:Client testDB = new ({
         url: jdbcURL,
@@ -219,14 +219,14 @@ function testAssignNilToNonNillableField(string field, typedesc<record {}> recor
     });
     string dbTable;
     int rowId;
-    if (field == "blob_type") {
+    if ('field == "blob_type") {
         dbTable = "DataTypeTableNillableBlob";
         rowId = 4;
     } else {
         dbTable = "DataTypeTableNillable";
         rowId = 2;
     }
-    var dt = testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", recordType, rowId);
+    var dt = testDB->select("SELECT " + 'field + " from " + dbTable + " where row_id=?", recordType, rowId);
     string errorMessage = "";
     if (dt is table<record {}>) {
         while (dt.hasNext()) {
@@ -467,7 +467,7 @@ function testAssignInvalidUnionArray2(string jdbcURL) returns @tainted string {
     return message;
 }
 
-function testAssignToInvalidUnionField(string field, string jdbcURL) returns @tainted string {
+function testAssignToInvalidUnionField(string 'field, string jdbcURL) returns @tainted string {
     jdbc:Client testDB = new ({
         url: jdbcURL,
         username: "SA",
@@ -478,7 +478,7 @@ function testAssignToInvalidUnionField(string field, string jdbcURL) returns @ta
     string dbTable;
     int rowId;
 
-    if (field == "blob_type") {
+    if ('field == "blob_type") {
         dbTable = "DataTypeTableNillableBlob";
         rowId = 3;
     } else {
@@ -486,7 +486,7 @@ function testAssignToInvalidUnionField(string field, string jdbcURL) returns @ta
         rowId = 1;
     }
 
-    var dt = testDB->select("SELECT " + field + " from " + dbTable + " where row_id=?", InvalidUnion, rowId);
+    var dt = testDB->select("SELECT " + 'field + " from " + dbTable + " where row_id=?", InvalidUnion, rowId);
     string errorMessage = "";
     if (dt is table<InvalidUnion>) {
         while (dt.hasNext()) {

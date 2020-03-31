@@ -21,9 +21,7 @@ package org.ballerinalang.langlib.string;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.types.BFunctionType;
-import org.ballerinalang.jvm.types.BRecordType;
-import org.ballerinalang.jvm.types.BUnionType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
@@ -56,7 +54,8 @@ public class Next {
     public static Object next(Strand strand, ObjectValue m) {
         StringCharacterIterator stringCharacterIterator = (StringCharacterIterator) m.getNativeData("&iterator&");
         if (stringCharacterIterator == null) {
-            String s = USE_BSTRING ? ((BString) m.get(StringUtils.fromString("m"))).getValue() : (String) m.get("m");
+            String s = USE_BSTRING ? ((BString) m.get(StringUtils.fromString("m"))).getValue() :
+                    m.getStringValue("m");
             stringCharacterIterator = new StringCharacterIterator(s);
             m.addNativeData("&iterator&", stringCharacterIterator);
         }
@@ -64,11 +63,9 @@ public class Next {
         if (stringCharacterIterator.current() != CharacterIterator.DONE) {
             char character = stringCharacterIterator.current();
             stringCharacterIterator.next();
-            BFunctionType nextFuncType = m.getType().getAttachedFunctions()[0].type;
-            BRecordType recordType = (BRecordType) ((BUnionType) nextFuncType.retType).getMemberTypes().get(0);
             Object charAsStr = USE_BSTRING ? StringUtils.fromString(String.valueOf(character)) :
                                String.valueOf(character);
-            return BallerinaValues.createRecord(new MapValueImpl<>(recordType), charAsStr);
+            return BallerinaValues.createRecord(new MapValueImpl<>(BTypes.stringItrNextReturnType), charAsStr);
         }
 
         return null;

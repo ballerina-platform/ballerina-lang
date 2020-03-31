@@ -16,23 +16,25 @@
 package io.ballerina.plugins.idea.extensions.client;
 
 import com.intellij.openapi.diagnostic.Logger;
-import io.ballerina.plugins.idea.settings.debuglogs.LangServerDebugLogsSettings;
+import io.ballerina.plugins.idea.notifiers.BallerinaLSLogNotifier;
+import io.ballerina.plugins.idea.settings.langserverlogs.LangServerLogsSettings;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.wso2.lsp4intellij.client.ClientContext;
 import org.wso2.lsp4intellij.client.DefaultLanguageClient;
-
-import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_DEBUG_LOG_PREFIX;
 
 /**
  * Extended LSP client implementation for ballerina.
  */
 public class BallerinaLanguageClient extends DefaultLanguageClient {
 
+    private final ClientContext context;
     private static final Logger LOGGER = Logger.getInstance(BallerinaLanguageClient.class);
+    private static final BallerinaLSLogNotifier logNotifier = new BallerinaLSLogNotifier();
 
     public BallerinaLanguageClient(ClientContext context) {
         super(context);
+        this.context = context;
     }
 
     @Override
@@ -40,19 +42,18 @@ public class BallerinaLanguageClient extends DefaultLanguageClient {
         String message = messageParams.getMessage();
         MessageType msgType = messageParams.getType();
 
-        if (msgType == MessageType.Error) {
-            LOGGER.error(messageParams);
-        } else if (msgType == MessageType.Warning) {
-            LOGGER.warn(message);
-        } else if (msgType == MessageType.Info) {
-            LOGGER.info(message);
-        } else if (msgType == MessageType.Log &&
-                LangServerDebugLogsSettings.getInstance().getIsLangServerDebugLogsEnabled()) {
-            // We are using info logs here since there is no programmatic way to add debug logs to idea logs and
-            // therefore user will have to enable it separately.
-            LOGGER.info(BALLERINA_LS_DEBUG_LOG_PREFIX + message);
-        } else {
-            LOGGER.warn("Unknown message type for " + message);
+        // Todo - Revisit after the language server logger implementation is fixed with proper message types.
+        LangServerLogsSettings logSettings = LangServerLogsSettings.getInstance(context.getProject());
+        if (msgType == MessageType.Error && logSettings.isLangServerDebugLogsEnabled()) {
+            logNotifier.showMessage(context.getProject(), message, com.intellij.openapi.ui.MessageType.ERROR);
+        } else if (msgType == MessageType.Warning && logSettings.isLangServerDebugLogsEnabled()) {
+            logNotifier.showMessage(context.getProject(), message, com.intellij.openapi.ui.MessageType.WARNING);
+        } else if (msgType == MessageType.Info && logSettings.isLangServerTraceLogsEnabled()) {
+            logNotifier.showMessage(context.getProject(), message, com.intellij.openapi.ui.MessageType.INFO);
+        } else if (msgType == MessageType.Log && logSettings.isLangServerDebugLogsEnabled()) {
+            logNotifier.showMessage(context.getProject(), message, com.intellij.openapi.ui.MessageType.INFO);
+        } else if (msgType == null) {
+            LOGGER.warn("unknown message type for " + message);
         }
     }
 }

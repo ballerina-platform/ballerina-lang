@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "defObjectTypeDef1.bal"
+  },
+  "position": {
+    "line": 6,
+    "character": 25
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 137,
+          "character": 27
+        },
+        "end": {
+          "line": 137,
+          "character": 30
+        }
+      },
+      "uri": "src/ballerina_http_0.0.0/client_endpoint.bal"
+    }
+  ]
+}

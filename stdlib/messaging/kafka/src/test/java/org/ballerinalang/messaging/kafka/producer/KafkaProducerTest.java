@@ -117,9 +117,9 @@ public class KafkaProducerTest {
         BValue[] returnBValues = BRunUtil.invoke(result, "funcTestPartitionInfoRetrieval", inputBValues);
         Assert.assertEquals(returnBValues.length, 2);
         Assert.assertEquals(((BMap) returnBValues[0]).get("topic").stringValue(), topic1);
-        Assert.assertEquals(((BByte) ((BMap) returnBValues[0]).get("partition")).intValue(), 1);
+        Assert.assertEquals(((BByte) ((BMap) returnBValues[0]).get("partition")).intValue(), 0);
         Assert.assertEquals(((BMap) returnBValues[1]).get("topic").stringValue(), topic1);
-        Assert.assertEquals(((BByte) ((BMap) returnBValues[1]).get("partition")).intValue(), 0);
+        Assert.assertEquals(((BByte) ((BMap) returnBValues[1]).get("partition")).intValue(), 1);
 
         inputBValues = new BValue[]{new BString(topic2)};
         returnBValues = BRunUtil.invoke(result, "funcTestPartitionInfoRetrieval", inputBValues);

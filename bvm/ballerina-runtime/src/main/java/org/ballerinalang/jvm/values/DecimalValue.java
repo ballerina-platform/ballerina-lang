@@ -20,10 +20,12 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.DecimalValueKind;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.api.BDecimal;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -228,6 +230,11 @@ public class DecimalValue implements SimpleValue, BDecimal {
             return this.valueKind.getValue();
         }
         return value.toString();
+    }
+
+    @Override
+    public BString bStringValue() {
+        return StringUtils.fromString(stringValue());
     }
 
     /**

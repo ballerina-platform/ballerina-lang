@@ -67,9 +67,8 @@ public class ResourceContextHolder {
         if (ann == null) {
             throw new ClientGeneratorException("Incomplete resource configuration found");
         }
-        BLangRecordLiteral bLiteral = ((BLangRecordLiteral) ((BLangAnnotationAttachment) ann).getExpression());
-        List<BLangRecordLiteral.BLangRecordKeyValue> list = bLiteral.getKeyValuePairs();
-        Map<String, String[]> attrs = GeneratorUtils.getKeyValuePairAsMap(list);
+        Map<String, String[]> attrs = GeneratorUtils.getKeyValuePairAsMap(
+                ((BLangRecordLiteral) ((BLangAnnotationAttachment) ann).getExpression()).getFields());
 
         if (attrs.get(GeneratorConstants.ATTR_METHODS) != null) {
 

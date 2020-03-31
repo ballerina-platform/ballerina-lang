@@ -17,8 +17,8 @@
 */
 package org.ballerinalang.model.tree;
 
-import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 
 import java.util.List;
 
@@ -41,15 +41,13 @@ public interface InvokableNode extends AnnotatableNode, DocumentableNode {
 
     List<? extends AnnotationAttachmentNode> getReturnTypeAnnotationAttachments();
 
-    List<? extends AnnotationAttachmentNode> getExternalAnnotationAttachments();
-
     void addReturnTypeAnnotationAttachment(AnnotationAttachmentNode annAttachment);
 
-    void addExternalAnnotationAttachment(AnnotationAttachmentNode annAttachment);
+    BLangFunctionBody getBody();
 
-    BlockNode getBody();
-    
-    void setBody(BlockNode body);
+    void setBody(FunctionBodyNode body);
+
+    boolean hasBody();
 
     void addWorker(WorkerNode worker);
 

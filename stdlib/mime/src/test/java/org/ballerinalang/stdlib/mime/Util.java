@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.mime;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BType;
@@ -37,7 +36,6 @@ import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXMLItem;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,11 +182,10 @@ public class Util {
      * @return A ballerina struct that represent a body part
      */
     public static ObjectValue getXmlBodyPart() {
-        OMNode omNode = (OMNode) XMLFactory.parse("<name>Ballerina</name>").value();
-        BXMLItem xmlContent = new BXMLItem(omNode);
+        XMLValue xmlNode = XMLFactory.parse("<name>Ballerina</name>");
         ObjectValue bodyPart = createEntityObject();
         EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
-                xmlContent.stringValue().getBytes(StandardCharsets.UTF_8)));
+                xmlNode.stringValue().getBytes(StandardCharsets.UTF_8)));
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(byteChannel));
         MimeUtil.setContentType(createMediaTypeObject(), bodyPart, APPLICATION_XML);
         return bodyPart;

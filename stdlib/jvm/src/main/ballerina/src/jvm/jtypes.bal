@@ -34,12 +34,6 @@ public const JNO_TYPE_KIND = "no";
 public type JTypeKind JBYTE_KIND | JCHAR_KIND | JSHORT_KIND | JINT_KIND | JLONG_KIND | JFLOAT_KIND
                                 | JDOUBLE_KIND | JBOOLEAN_KIND | JVOID_KIND | JARRAY_KIND | JREF_KIND | JNO_TYPE_KIND;
 
-public type JType record {|
-    bir:PLATFORM_TYPE_NAME typeName = bir:PLATFORM_TYPE_NAME;
-    JTypeKind jTypeKind;
-    anydata...;
-|};
-
 public type JByte record {|
     bir:PLATFORM_TYPE_NAME typeName = bir:PLATFORM_TYPE_NAME;
     JBYTE_KIND jTypeKind = JBYTE_KIND;

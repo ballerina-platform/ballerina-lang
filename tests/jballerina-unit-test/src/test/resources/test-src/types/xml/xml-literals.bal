@@ -57,7 +57,7 @@ function testElementLiteralWithTemplateChildren() returns [xml, xml] {
     xml x2 = xml `<lname>Doe</lname>`;
     
     xml x3 = xml `<root>hello ${v2} good morning ${x1} ${x2}. Have a nice day!<foo>123</foo><bar></bar></root>`;
-    xml x4 = x3.*;
+    xml x4 = x3/*;
     return [x3, x4];
 }
 
@@ -131,6 +131,7 @@ function testXMLLiteralWithEscapeSequence() returns [xml, string[], int, any[]] 
 
     any[] elements = [];
     i = 0;
+    // There are not 'xml elements' in x1
     foreach var e in x1.elements() {
         elements[i] = e;
         i += 1;

@@ -51,6 +51,7 @@ public class ProjectDirConstants {
     public static final String RESOURCE_DIR_NAME = "resources";
     public static final String TEST_DIR_NAME = "tests";
     public static final String CACHES_DIR_NAME = "caches";
+    public static final String DIST_BIR_CACHE_DIR_NAME = "bir-cache";
     public static final String BALLERINA_CENTRAL_DIR_NAME = "central.ballerina.io";
     public static final String USER_REPO_OBJ_DIRNAME = "obj";
     public static final String USER_REPO_BIR_DIRNAME = "bir";
@@ -91,6 +92,8 @@ public class ProjectDirConstants {
     public static final String BALO_CACHE_DIR_NAME = "balo_cache";
     public static final String BIR_CACHE_DIR_NAME = "bir_cache";
     public static final String JAR_CACHE_DIR_NAME = "jar_cache";
+    public static final String JSON_CACHE_DIR_NAME = "json_cache";
 
     public static final String BLANG_PKG_DEFAULT_VERSION = "0.0.0";
+
 }

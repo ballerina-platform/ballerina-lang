@@ -13,7 +13,7 @@ service contentBasedRouting on new http:Listener(9090) {
     }
     resource function cbrResource(http:Caller outboundEP, http:Request req) {
         // Define the attributes associated with the client endpoint here.
-        http:Client locationEP = new("http://www.mocky.io");
+        http:Client locationEP = new ("http://www.mocky.io");
 
         // Get the `json` payload from the request message.
         var jsonMsg = req.getJsonPayload();
@@ -41,7 +41,7 @@ service contentBasedRouting on new http:Listener(9090) {
                 if (clientResponse is http:Response) {
                     var result = outboundEP->respond(clientResponse);
                     if (result is error) {
-                       log:printError("Error sending response", err = result);
+                        log:printError("Error sending response", result);
                     }
                 } else {
                     http:Response res = new;
@@ -49,27 +49,27 @@ service contentBasedRouting on new http:Listener(9090) {
                     res.setPayload(<string>clientResponse.detail()?.message);
                     var result = outboundEP->respond(res);
                     if (result is error) {
-                       log:printError("Error sending response", err = result);
+                        log:printError("Error sending response", result);
                     }
                 }
             } else {
                 http:Response res = new;
                 res.statusCode = 500;
-                res.setPayload(<@untainted> <string>nameString.detail()?.message);
+                res.setPayload(<@untainted string>nameString.detail()?.message);
 
                 var result = outboundEP->respond(res);
                 if (result is error) {
-                   log:printError("Error sending response", err = result);
+                    log:printError("Error sending response", result);
                 }
             }
         } else {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(<@untainted> <string>jsonMsg.detail()?.message);
+            res.setPayload(<@untainted string>jsonMsg.detail()?.message);
 
             var result = outboundEP->respond(res);
             if (result is error) {
-               log:printError("Error sending response", err = result);
+                log:printError("Error sending response", result);
             }
         }
     }

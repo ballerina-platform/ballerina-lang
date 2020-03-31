@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType.NarrowedTypes;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -312,6 +313,9 @@ public class TypeNarrower extends BLangNodeVisitor {
         SymbolEnv targetEnv = SymbolEnv.createTypeNarrowedEnv(targetNode, env);
         if (targetNode.getKind() == NodeKind.BLOCK) {
             ((BLangBlockStmt) targetNode).scope = targetEnv.scope;
+        }
+        if (targetNode.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
+            ((BLangBlockFunctionBody) targetNode).scope = targetEnv.scope;
         }
 
         return targetEnv;

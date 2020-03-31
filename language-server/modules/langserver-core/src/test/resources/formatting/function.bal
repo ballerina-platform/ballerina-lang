@@ -77,3 +77,13 @@ function foo() returns int {
          start
     foo();
   }
+
+  function toEmployee1(Person p) returns Employee=>{
+          name :  p . fname  +  " "  +  p . lname  +  " "  +  x . toString()
+  };
+
+  function toEmployee2(Person p) returns Employee
+         =>
+       {
+  name :  p . fname  + " "  +  p.lname + " " + x.toString()
+   } ;

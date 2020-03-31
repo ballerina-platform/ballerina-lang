@@ -153,3 +153,51 @@ function testGetFromFrozenArray() returns int {
 
     return -1;
 }
+
+type Age object {
+    public int age;
+    public function __init(int age) {
+    	 self.age = age;
+    }
+};
+
+function testObjectDynamicArrayFilling() {
+    Age[] y = [];
+    y[0] = new(5);
+    y[1] = new(5);
+    assertArrayLengthPanic(2, y);
+}
+
+type AbstractPersonObject abstract object {
+    public string fName;
+    public string lName;
+    function getFullName() returns string;
+};
+
+type Employee object {
+    *AbstractPersonObject;
+    function __init(string fname, string lname) {
+        self.fName = fname;
+        self.lName = lname;
+    }
+    function getFullName() returns string {
+        return self.fName + " " + self.lName;
+    }
+};
+
+function createAbstractObjectEmptyArray() {
+    AbstractPersonObject[5][] y = [];
+    AbstractPersonObject e1 = new Employee("John", "Doe");
+    y[0] = [e1];
+    AbstractPersonObject[][5] r = [];
+    r[0] = [e1, e1, e1, e1, e1];
+    assertArrayLengthPanic(5, r[0]);
+    assertArrayLengthPanic(1, y[0]);
+}
+
+function assertArrayLengthPanic(int expected, any[] arr, string message = "Array length did not match") {
+    int actual = arr.length();
+    if (expected != actual) {
+        panic error(message + " Expected : " + expected.toString() + " Actual : " + actual.toString());
+    }
+}

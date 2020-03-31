@@ -42,9 +42,17 @@ function emitStartObservationInvocation(jvm:MethodVisitor mv, int strandIndex, s
 
 function cleanUpServiceName(string serviceName) returns string {
     string finalString = serviceName;
-    if (stringutils:contains(serviceName, "$$service$")) {
-        finalString = stringutils:replace(serviceName, "$$service$", "_");
+
+    final string serviceIdentifier = "$$service$";
+    if (stringutils:contains(serviceName, serviceIdentifier)) {
+        if (stringutils:contains(serviceName, "$anonService$")) {
+            finalString = stringutils:replace(serviceName, serviceIdentifier, "_");
+        } else {
+            int lastIndex = stringutils:lastIndexOf(finalString, serviceIdentifier);
+            finalString = finalString.substring(0, lastIndex);
+        }
     }
+
     return finalString;
 }
 

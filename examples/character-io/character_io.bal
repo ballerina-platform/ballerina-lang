@@ -20,7 +20,7 @@ function process(io:ReadableCharacterChannel sc,
 function closeRc(io:ReadableCharacterChannel ch) {
     var cr = ch.close();
     if (cr is error) {
-        log:printError("Error occurred while closing the channel: ", err = cr);
+        log:printError("Error occurred while closing the channel: ", cr);
     }
 }
 
@@ -28,7 +28,7 @@ function closeRc(io:ReadableCharacterChannel ch) {
 function closeWc(io:WritableCharacterChannel ch) {
     var cr = ch.close();
     if (cr is error) {
-        log:printError("Error occurred while closing the channel: ", err = cr);
+        log:printError("Error occurred while closing the channel: ", cr);
     }
 }
 
@@ -39,7 +39,7 @@ public function main() returns @tainted error? {
     io:ReadableByteChannel readableFieldResult =
                                 check io:openReadableFile("./files/sample.txt");
     io:ReadableCharacterChannel sourceChannel =
-                                new(readableFieldResult, "UTF-8");
+                                new (readableFieldResult, "UTF-8");
 
     // This example creates the <BALLERINA_LANG>/examples/character-io/files/sampleResponse.txt
     // destination file and writes the text "Hello my name is Ballerina!!"".  
@@ -47,12 +47,12 @@ public function main() returns @tainted error? {
     io:WritableByteChannel writableFileResult =
                 check io:openWritableFile("./files/sampleResponse.txt");
     io:WritableCharacterChannel destinationChannel =
-                                new(writableFileResult, "UTF-8");
+                                new (writableFileResult, "UTF-8");
     io:println("Started to process the file.");
     // Processes the given `string`.
     var result = process(sourceChannel, destinationChannel);
     if (result is error) {
-        log:printError("error occurred while processing chars ", err = result);
+        log:printError("error occurred while processing chars ", result);
     } else {
         io:println("File processing complete.");
     }

@@ -43,6 +43,7 @@ public class DocumentationTest {
 
     @BeforeClass
     public void setup() {
+        BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_documentation", "testDocOrg", "test");
         result = BCompileUtil.compile("test-src/balo/test_balo/documentation/test_documentation.bal");
     }

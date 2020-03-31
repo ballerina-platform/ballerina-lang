@@ -39,7 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class IsText {
 
-    public static boolean isText(Strand strand, XMLValue<?> xmlValue) {
+    public static boolean isText(Strand strand, XMLValue xmlValue) {
         return xmlValue.getNodeType() == XMLNodeType.TEXT;
     }
 }

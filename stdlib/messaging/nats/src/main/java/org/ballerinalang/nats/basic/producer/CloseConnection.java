@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
+import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsUtil;
 import org.ballerinalang.nats.observability.NatsTracingUtil;
 
@@ -41,7 +42,7 @@ public class CloseConnection {
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
             ((AtomicInteger) connectionObject.getNativeData(Constants.CONNECTED_CLIENTS)).decrementAndGet();
-            NatsMetricsUtil.reportProducerClose(connectionObject.getStringValue(Constants.URL));
+            NatsMetricsUtil.reportProducerClose(Utils.getCommaSeparatedUrl(connectionObject));
         }
     }
 }

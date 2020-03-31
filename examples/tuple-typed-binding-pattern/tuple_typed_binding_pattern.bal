@@ -16,7 +16,7 @@ public function main() {
     [[string, int], float] [[b1, b2], b3] = [["Ballerina", 4], 6.7];
     io:println("Tuple variable : ", b1, " ", b2, " ", b3);
 
-    [[string, int], [boolean, float]] [[c1, c2],[c3, c4]] =
+    [[string, int], [boolean, float]] [[c1, c2], [c3, c4]] =
                                               [["Ballerina", 34], [true, 6.7]];
     io:println("Tuple variable : ", c1, " ", c2, " ", c3, " ", c4);
 

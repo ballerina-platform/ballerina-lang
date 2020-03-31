@@ -30,7 +30,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.JAVA_C
  * @since 1.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerinax", packageName = "java",
+        orgName = "ballerina", packageName = "java",
         functionName = "getClass"
 )
 public class JavaUtils {

@@ -25,6 +25,8 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.State;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -248,11 +250,12 @@ public class FunctionUtils extends AbstractExecute {
                 requestMsg.setHeaders(headers);
             }
             BlockingStub blockingStub = (BlockingStub) connectionStub;
+            DataContext dataContext = null;
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
 
-                    DataContext dataContext = new DataContext(Scheduler.getStrand(),
+                    dataContext = new DataContext(Scheduler.getStrand(),
                             new NonBlockingCallback(Scheduler.getStrand()));
                     blockingStub.executeUnary(requestMsg, methodDescriptors.get(methodName), dataContext);
                 } else {
@@ -260,6 +263,9 @@ public class FunctionUtils extends AbstractExecute {
                             methodType.name() + " not supported");
                 }
             } catch (Exception e) {
+                if (dataContext != null) {
+                    unBlockStrand(dataContext.getStrand());
+                }
                 return notifyErrorReply(INTERNAL, "gRPC Client Connector Error :" + e.getMessage());
             }
         } else {
@@ -267,6 +273,13 @@ public class FunctionUtils extends AbstractExecute {
                     "type not supported");
         }
         return null;
+    }
+
+    // Please refer #18763. This should be done through a JBallerina API which provides the capability
+    // of high level strand state handling - There is no such API ATM.
+    private static void unBlockStrand(Strand strand) {
+        strand.setState(State.RUNNABLE);
+        strand.blockedOnExtern = false;
     }
 
     /**

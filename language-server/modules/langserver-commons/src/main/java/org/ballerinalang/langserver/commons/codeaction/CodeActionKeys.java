@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.commons.codeaction;
 
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
 import java.util.List;
@@ -28,15 +28,11 @@ import java.util.List;
  */
 public class CodeActionKeys {
 
-    public static final LSContext.Key<WorkspaceDocumentManager> DOCUMENT_MANAGER_KEY = new LSContext.Key<>();
-
-    public static final LSContext.Key<String> FILE_URI_KEY = new LSContext.Key<>();
-
     public static final LSContext.Key<Position> POSITION_START_KEY = new LSContext.Key<>();
 
     public static final LSContext.Key<List<Object>> COMMAND_ARGUMENTS_KEY = new LSContext.Key<>();
 
-    public static final LSContext.Key<String> PKG_NAME_KEY = new LSContext.Key<>();
+    public static final LSContext.Key<List<Diagnostic>> DIAGNOSTICS_KEY = new LSContext.Key<>();
 
     private CodeActionKeys() {
     }

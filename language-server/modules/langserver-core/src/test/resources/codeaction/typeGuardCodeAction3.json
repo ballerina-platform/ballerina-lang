@@ -3,7 +3,7 @@
     "character": 6,
     "expected": {
         "title": "Type Guard 'update_apple'",
-        "edit": {
+        "edits": [{
             "range": {
                 "start": {
                     "line": 5,
@@ -15,6 +15,6 @@
                 }
             },
             "newText": "if (update_apple() is int) {\n\n    } else {\n\n    }"
-        }
+        }]
     }
 }

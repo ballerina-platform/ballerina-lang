@@ -254,7 +254,7 @@ public class LengthOperationTest {
         Assert.assertSame(returns[0].getClass(), BInteger.class);
 
         int actual = (int) ((BInteger) returns[0]).intValue();
-        int expected = 16;
+        int expected = 4;
         Assert.assertEquals(actual, expected);
     }
 
@@ -315,7 +315,7 @@ public class LengthOperationTest {
         BRunUtil.invoke(result, "accessLengthOfNullTuple", args);
     }
 
-    @Test(description = "Test length of xml when it is null.")
+    @Test(description = "Test length of xml when it is null.", groups = "brokenOnXMLLangLibChange")
     public void testXMLLengthOfNull() {
         BValue[] args = new BValue[0];
         BRunUtil.invoke(result, "accessLengthOfNullXML", args);

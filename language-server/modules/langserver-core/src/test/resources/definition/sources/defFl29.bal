@@ -72,3 +72,15 @@ public function testFunction(string args) {
 public type ErrorTypeDesc1 error<REASON_CONST, TestDetail>;
 
 public const string REASON_CONST = "REASON_CONST_VAL";
+
+function testGotoDefVariableAsField(string field1) {
+    TestRecord1 testRec = {
+        field2: 0,
+        field1
+    };
+}
+
+type TestRecord1 record {
+     string field1;
+     int field2;
+};

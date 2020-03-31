@@ -36,6 +36,8 @@ import javax.xml.stream.XMLStreamWriter;
  *
  * @since 0.8.0
  */
+// TODO: Temporally re-using this class to convert Table to XML.
+// We need to move to a streaming converter.
 public class TableOMDataSource extends AbstractPushOMDataSource {
 
     private static final String XSI_NAMESPACE = "http://www.w3.org/2001/XMLSchema-instance";

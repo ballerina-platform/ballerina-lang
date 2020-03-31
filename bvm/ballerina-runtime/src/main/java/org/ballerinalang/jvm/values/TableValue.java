@@ -20,6 +20,8 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.ColumnDefinition;
 import org.ballerinalang.jvm.DataIterator;
+import org.ballerinalang.jvm.IteratorUtils;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TableProvider;
 import org.ballerinalang.jvm.TableUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -32,6 +34,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BTable;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -65,6 +68,7 @@ public class TableValue implements RefValue, BTable {
     private boolean tableClosed;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private BType type;
+    private BType iteratorNextReturnType;
 
     @Deprecated
     public TableValue() {
@@ -127,6 +131,21 @@ public class TableValue implements RefValue, BTable {
         }
     }
 
+    @Deprecated
+    public TableValue(BType type, ArrayValue keyColumns, ArrayValue dataRows, boolean isBString) {
+        //Create table with given constraints.
+        BType constrainedType = ((BTableType) type).getConstrainedType();
+        this.tableProvider = TableProvider.getInstance();
+        this.tableName = tableProvider.createTable(constrainedType, keyColumns);
+        this.constraintType = (BStructureType) constrainedType;
+        this.type = new BTableType(constraintType);
+        this.primaryKeys = keyColumns;
+        //Insert initial data
+        if (dataRows != null) {
+            insertInitialData_bstring(dataRows);
+        }
+    }
+
     @Override
     public String toString() {
         return stringValue();
@@ -139,6 +158,11 @@ public class TableValue implements RefValue, BTable {
      */
     public String stringValue() {
         return createStringValueDataEntry();
+    }
+
+    @Override
+    public BString bStringValue() {
+        return StringUtils.fromString(stringValue());
     }
 
     private String createStringValueDataEntry() {
@@ -268,6 +292,15 @@ public class TableValue implements RefValue, BTable {
                             + " cannot be added to a table with type:" + this.constraintType.getName());
         }
         tableProvider.insertData(tableName, data);
+        reset();
+    }
+    public void addData_bstring(MapValueImpl<BString, Object> data) {
+        if (data.getType() != this.constraintType) {
+            throw BallerinaErrors.createError(BallerinaErrorReasons.TABLE_OPERATION_ERROR,
+                    "incompatible types: record of type:" + data.getType().getName()
+                            + " cannot be added to a table with type:" + this.constraintType.getName());
+        }
+        tableProvider.insertData_bstring(tableName, data);
         reset();
     }
 
@@ -472,7 +505,12 @@ public class TableValue implements RefValue, BTable {
             addData((MapValueImpl<String, Object>) data.getRefValue(i));
         }
     }
-
+    private void insertInitialData_bstring(ArrayValue data) {
+        int count = data.size();
+        for (int i = 0; i < count; i++) {
+            addData_bstring((MapValueImpl<BString, Object>) data.getRefValue(i));
+        }
+    }
     /**
      * Returns a flag indicating whether this table is an in-memory one.
      * TODO: This is a hack to get the table to JSON conversion works
@@ -541,5 +579,13 @@ public class TableValue implements RefValue, BTable {
     @Override
     public void freezeDirect() {
         this.freezeStatus.setFrozen();
+    }
+
+    public BType getIteratorNextReturnType() {
+        if (iteratorNextReturnType == null) {
+            iteratorNextReturnType = IteratorUtils.createIteratorNextReturnType(constraintType);
+        }
+
+        return iteratorNextReturnType;
     }
 }

@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Length {
 
-    public static long length(Strand strand, XMLValue<?> xml) {
+    public static long length(Strand strand, XMLValue xml) {
         return xml.size();
     }
 }

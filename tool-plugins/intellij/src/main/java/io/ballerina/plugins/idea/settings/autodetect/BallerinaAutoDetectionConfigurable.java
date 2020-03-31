@@ -37,13 +37,15 @@ import javax.swing.JPanel;
  */
 public class BallerinaAutoDetectionConfigurable implements SearchableConfigurable {
 
+    private Project project;
     private JCheckBox myAutoDetectionCb;
     private final BallerinaAutoDetectionSettings myBalHomeAutoDetectionSettings;
     private final boolean myIsDialog;
 
     public BallerinaAutoDetectionConfigurable(@NotNull Project project, boolean dialogMode) {
         myBalHomeAutoDetectionSettings = BallerinaAutoDetectionSettings.getInstance(project);
-        myIsDialog = dialogMode;
+        this.project = project;
+        this.myIsDialog = dialogMode;
     }
 
     @Nullable
@@ -51,7 +53,7 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
     public JComponent createComponent() {
 
         FormBuilder builder = FormBuilder.createFormBuilder();
-        myAutoDetectionCb = new JCheckBox("Auto-Detect Ballerina Home");
+        myAutoDetectionCb = new JCheckBox("Auto-detect ballerina SDK location");
         builder.addComponent(myAutoDetectionCb);
         JPanel result = new JPanel(new BorderLayout());
         result.add(builder.getPanel(), BorderLayout.NORTH);
@@ -63,24 +65,24 @@ public class BallerinaAutoDetectionConfigurable implements SearchableConfigurabl
 
     @Override
     public boolean isModified() {
-        return myBalHomeAutoDetectionSettings.getIsAutoDetectionEnabled() != myAutoDetectionCb.isSelected();
+        return myBalHomeAutoDetectionSettings.isAutoDetectionEnabled() != myAutoDetectionCb.isSelected();
     }
 
     @Override
     public void apply() {
         myBalHomeAutoDetectionSettings.setIsAutoDetectionEnabled(myAutoDetectionCb.isSelected());
-        BallerinaSdkUtils.showRestartDialog(null);
+        BallerinaSdkUtils.showRestartDialog(project);
     }
 
     @Override
     public void reset() {
-        myAutoDetectionCb.setSelected(myBalHomeAutoDetectionSettings.getIsAutoDetectionEnabled());
+        myAutoDetectionCb.setSelected(myBalHomeAutoDetectionSettings.isAutoDetectionEnabled());
     }
 
     @NotNull
     @Override
     public String getId() {
-        return "ballerina.home.autodetect";
+        return "ballerina.autodetect";
     }
 
     @Nullable

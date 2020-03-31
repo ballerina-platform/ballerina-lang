@@ -1,3 +1,4 @@
+import ballerina/config;
 import ballerina/http;
 import ballerina/log;
 
@@ -7,13 +8,13 @@ import ballerina/log;
 http:ListenerConfiguration helloWorldEPConfig = {
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("b7a.home") + "bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
 };
 
-listener http:Listener helloWorldEP = new(9095, config = helloWorldEPConfig);
+listener http:Listener helloWorldEP = new (9095, config = helloWorldEPConfig);
 
 @http:ServiceConfig {
     basePath: "/hello"
@@ -28,7 +29,7 @@ service helloWorld on helloWorldEP {
         // Send the response back to the `caller`.
         var result = caller->respond("Hello World!");
         if (result is error) {
-           log:printError("Failed to respond", err = result);
+            log:printError("Failed to respond", result);
         }
     }
 }

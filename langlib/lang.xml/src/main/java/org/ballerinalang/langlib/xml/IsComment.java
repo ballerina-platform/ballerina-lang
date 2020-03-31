@@ -39,7 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class IsComment {
 
-    public static boolean isComment(Strand strand, XMLValue<?> xmlValue) {
+    public static boolean isComment(Strand strand, XMLValue xmlValue) {
         return xmlValue.getNodeType() == XMLNodeType.COMMENT;
     }
 }

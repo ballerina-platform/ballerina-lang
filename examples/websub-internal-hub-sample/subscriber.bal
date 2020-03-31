@@ -29,7 +29,7 @@ service websubSubscriber on websubEP {
         } else {
             log:printWarn("Intent verification denied for subscription request");
         }
-        var result = caller->respond(<@untainted> response);
+        var result = caller->respond(<@untainted>response);
 
         if (result is error) {
             log:printError("Error responding to intent verification request",
@@ -43,7 +43,7 @@ service websubSubscriber on websubEP {
         if (payload is string) {
             log:printInfo("WebSub Notification Received: " + payload);
         } else {
-            log:printError("Error retrieving payload as string", err = payload);
+            log:printError("Error retrieving payload as string", payload);
         }
     }
 }

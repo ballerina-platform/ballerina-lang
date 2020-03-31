@@ -17,6 +17,7 @@
 import ballerina/lang.'string as strings;
 
 string str = "Hello Ballerina!";
+string str1 = "Hello Hello Ballerina!";
 
 function testToLower() returns string {
     return str.toLowerAscii();
@@ -62,6 +63,20 @@ function testIndexOf(string substr) returns int? {
     return str.indexOf(substr);
 }
 
+function testLastIndexOf() {
+    int? i1 = str1.lastIndexOf("Hello");
+    if (<int>i1 != 6) {
+        error err = error("Index of the last occurrence of 'Hello' should equal 6");
+        panic err;
+    }
+
+    int? i2 = str1.lastIndexOf("Invalid");
+    if (i2 != ()) {
+        error err = error("Index of the last occurrence of 'Invalid' should be nil");
+        panic err;
+    }
+}
+
 function testEndsWith(string substr) returns boolean {
     return str.endsWith(substr);
 }
@@ -99,4 +114,22 @@ function testSubstringOutRange() returns string {
 function testSubstring(string s, int si, int ei) returns error|string {
     error|string sub = trap s.substring(si, ei);
     return sub;
+}
+
+function testEqualsIgnoreCaseAscii() {
+    [string, string, boolean][] data = [
+                    ["aBCdeFg", "aBCdeFg", true],
+                    ["aBCdeFg", "abcdefg", true],
+                    ["aBCdeFg", "abcdefh", false],
+                    ["Duල්Viන්", "duල්viන්", true],
+                    ["Duන්Viල්", "duල්viන්", false]
+                ];
+    int i = 0;
+    while (i < 5) {
+        boolean result = strings:equalsIgnoreCaseAscii(data[i][0], data[i][1]);
+        if (result != data[i][2]) {
+            panic error("AssertionError", message = "Expected '" + data[i][2].toString() + "' but found '" + result.toString() + "'");
+        }
+        i = i + 1;
+    }
 }

@@ -49,7 +49,7 @@ public class SerializeComplexXmlTestCase extends HttpBaseTest {
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString()),
                             TestConstant.CONTENT_TYPE_XML, "Content-Type mismatched");
-        Assert.assertTrue(isEqual(parse(response.getData()), parse(getInputStream()).elements()),
+        Assert.assertTrue(isEqual(parse(response.getData()), parse(getInputStream())),
                           "Message content mismatched");
     }
 

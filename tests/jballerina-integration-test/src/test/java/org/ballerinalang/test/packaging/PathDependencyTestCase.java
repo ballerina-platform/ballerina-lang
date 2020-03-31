@@ -42,6 +42,7 @@ import java.util.stream.Stream;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
+import static org.ballerinalang.test.packaging.ModulePushTestCase.REPO_TO_CENTRAL_SUCCESS_MSG;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
@@ -114,7 +115,8 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case2: Test path between 2 projects where 3 modules are involved and imported as a chain.")
+    @Test(description = "Case2: Test path between 2 projects where 3 modules are " +
+            "involved and imported as a chain.")
     public void testBaloPathCase2() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case2");
         // Build bee module of TestProject1
@@ -198,7 +200,7 @@ public class PathDependencyTestCase extends BaseTest {
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test()
-    public void testBaloPathCase4() throws BallerinaTestException, IOException {
+    public void testBaloPathCase4() throws BallerinaTestException, IOException, InterruptedException {
         Path caseResources = tempTestResources.resolve("case4");
         // Build bee module of TestProject1
         //// change module name
@@ -217,11 +219,11 @@ public class PathDependencyTestCase extends BaseTest {
         beeModuleBuildLeecher.waitForText(5000);
     
         // Push bee module of TestProject1
-        String beePushMsg = orgName + "/" + beeModuleName + ":1.2.0 [project repo -> central]";
-        LogLeecher beePushLeecher = new LogLeecher(beePushMsg);
+        String beePushMsg = orgName + "/" + beeModuleName + ":1.2.0" + REPO_TO_CENTRAL_SUCCESS_MSG;
+        LogLeecher beePushLeecher = new LogLeecher(beePushMsg, LogLeecher.LeecherType.INFO);
         balClient.runMain("push", new String[]{"--all"}, envVariables, new String[]{},
                 new LogLeecher[]{beePushLeecher}, caseResources.resolve("TestProject1").toString());
-        beePushLeecher.waitForText(5000);
+        beePushLeecher.waitForText(12000);
     
         
         // Build fee module of TestProject2
@@ -243,6 +245,7 @@ public class PathDependencyTestCase extends BaseTest {
                                        + BLANG_COMPILED_PKG_BINARY_EXT;
     
         String feeBaloFilePath = "target" + File.separator + "balo" + File.separator + feeModuleBaloFileName;
+
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
@@ -252,7 +255,7 @@ public class PathDependencyTestCase extends BaseTest {
         });
     
         // Push fee module of TestProject2
-        String feePushMsg = orgName + "/" + feeModuleName + ":2.0.0 [project repo -> central]";
+        String feePushMsg = orgName + "/" + feeModuleName + ":2.0.0" + REPO_TO_CENTRAL_SUCCESS_MSG;
         LogLeecher feePushLeecher = new LogLeecher(feePushMsg);
         balClient.runMain("push", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{feePushLeecher}, caseResources.resolve("TestProject2").toString());
@@ -267,8 +270,8 @@ public class PathDependencyTestCase extends BaseTest {
         Files.write(jeeBalPath, replaced);
     
         String jeeModuleBaloFileName = "jee" + BLANG_COMPILED_JAR_EXT;
-    
         String jeeExecutableFilePath = "target" + File.separator + "bin" + File.separator + jeeModuleBaloFileName;
+
         given().with().pollInterval(Duration.TEN_SECONDS).and()
                 .with().pollDelay(Duration.FIVE_SECONDS)
                 .await().atMost(120, SECONDS).until(() -> {
@@ -524,6 +527,34 @@ public class PathDependencyTestCase extends BaseTest {
     }
 
     /**
+     * Case10: Build and run TestProject1 which imports module with "ballerina" org name via balo path.
+     *
+     * @throws BallerinaTestException Error when executing the commands.
+     */
+    @Test(description = "Case10: Test build and run project which imports module with \"ballerina\" org name via" +
+            " balo path.")
+    public void testBaloPathCase10() throws BallerinaTestException {
+        Path caseResources = tempTestResources.resolve("case10");
+        String printBarLog = "Bar";
+        String buildLog = "target/bin/mod1.jar";
+        LogLeecher testLogeecher = new LogLeecher(printBarLog);
+        LogLeecher buildLogLeecher = new LogLeecher(buildLog);
+
+        // Build TestProject1 with tests
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
+                          new LogLeecher[]{testLogeecher, buildLogLeecher},
+                          caseResources.resolve("TestProject1").toString());
+        testLogeecher.waitForText(5000);
+        buildLogLeecher.waitForText(5000);
+
+        // Run TestProject1
+        LogLeecher runLogLeecher = new LogLeecher(printBarLog);
+        balClient.runMain("run", new String[]{"mod1"}, envVariables, new String[]{},
+                          new LogLeecher[]{runLogLeecher}, caseResources.resolve("TestProject1").toString());
+        runLogLeecher.waitForText(5000);
+    }
+
+    /**
      * Build TestProject1. TestProject1 will fail as the given platform dependency does not have a valid path.
      *
      * @throws BallerinaTestException Error when executing the commands.
@@ -562,6 +593,12 @@ public class PathDependencyTestCase extends BaseTest {
         buildLogLeecher = new LogLeecher(msg);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{}, new LogLeecher[]{buildLogLeecher},
                 caseResources.toString());
+        buildLogLeecher.waitForText(10000);
+
+        // Test ballerina test command with single module which has dependencies.
+        buildLogLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"bar"}, envVariables, new String[]{}, new LogLeecher[]{buildLogLeecher},
+                          caseResources.toString());
         buildLogLeecher.waitForText(10000);
     }
 

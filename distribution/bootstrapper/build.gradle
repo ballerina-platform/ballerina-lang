@@ -48,12 +48,9 @@ dependencies {
     pack0 group: 'org.ballerinalang', name: 'jballerina-tools', version: project.bootstrappedOn, ext: 'zip'
 
     pack2bir project(path: ':ballerina-bir-old', configuration: 'oldBir')
-    pack2bir project(path: ':ballerina-bir-old', configuration: 'nativeMap')
 
     pack3bir project(path: ':ballerina-bir-old', configuration: 'oldBir')
-    pack3bir project(path: ':ballerina-bir-old', configuration: 'nativeMap')
     pack3bir project(path: ':ballerina-jvm-old', configuration: 'oldBir')
-    pack3bir project(path: ':ballerina-jvm-old', configuration: 'nativeMap')
 
     pack4birJar project(path: ':ballerina-backend-jvm-old', configuration: 'oldBirJar')
     pack4native project(path: ':ballerina-backend-jvm-old', configuration: 'default')

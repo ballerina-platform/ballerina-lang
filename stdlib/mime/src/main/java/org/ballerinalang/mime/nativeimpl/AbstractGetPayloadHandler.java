@@ -53,8 +53,8 @@ public abstract class AbstractGetPayloadHandler {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractGetPayloadHandler.class);
 
-    static void constructNonBlockingDataSource(NonBlockingCallback callback, ObjectValue entity,
-                                               SourceType sourceType) {
+    public static void constructNonBlockingDataSource(NonBlockingCallback callback, ObjectValue entity,
+                                                      SourceType sourceType) {
         HttpCarbonMessage inboundMessage = extractTransportMessageFromEntity(entity);
         inboundMessage.getFullHttpCarbonMessage().addListener(new FullHttpMessageListener() {
             @Override
@@ -106,7 +106,7 @@ public abstract class AbstractGetPayloadHandler {
     }
 
     static Object createParsingEntityBodyFailedErrorAndNotify(NonBlockingCallback callback, String errMsg,
-            ErrorValue errorValue) {
+                                                              ErrorValue errorValue) {
         ErrorValue error = MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, errMsg, errorValue);
         return returnErrorValue(callback, error);
     }
@@ -139,14 +139,14 @@ public abstract class AbstractGetPayloadHandler {
     }
 
     private static void updateDataSourceAndNotify(NonBlockingCallback callback, ObjectValue entityObj,
-                                          Object result) {
+                                                  Object result) {
         updateDataSource(entityObj, result);
         setReturnValuesAndNotify(callback, result);
     }
 
 
     private static void updateJsonDataSourceAndNotify(NonBlockingCallback callback, ObjectValue entityObj,
-                                              Object result) {
+                                                      Object result) {
         updateJsonDataSource(entityObj, result);
         setReturnValuesAndNotify(callback, result);
     }
@@ -160,7 +160,10 @@ public abstract class AbstractGetPayloadHandler {
         }
     }
 
-    enum SourceType {
+    /**
+     * Type of content to construct the data source.
+     */
+    public enum SourceType {
         JSON,
         XML,
         TEXT,

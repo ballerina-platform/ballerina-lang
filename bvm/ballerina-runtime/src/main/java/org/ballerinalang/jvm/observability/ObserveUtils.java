@@ -33,11 +33,8 @@ import java.util.function.Supplier;
 
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_CONNECTOR;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 import static org.ballerinalang.jvm.observability.tracer.TraceConstants.KEY_SPAN;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_KEY_SPAN_KIND;
-import static org.ballerinalang.jvm.observability.tracer.TraceConstants.TAG_SPAN_KIND_SERVER;
 
 /**
  * Util class used for observability.
@@ -146,25 +143,11 @@ public class ObserveUtils {
         }
 
         ObserverContext observerCtx = strand.observerContext;
-        // If parent context is null, create a new context and start it as a server.
-        if (observerCtx == null) {
-            observerCtx = new ObserverContext();
-            observerCtx.addTag(TAG_KEY_SPAN_KIND, TAG_SPAN_KIND_SERVER);
-            observerCtx.setServiceName(UNKNOWN_SERVICE);
-            observerCtx.setConnectorName(UNKNOWN_CONNECTOR);
-            observerCtx.setResourceName(UNKNOWN_CONNECTOR);
-            observerCtx.setServer();
-            observerCtx.setStarted();
-            for (BallerinaObserver observer : observers) {
-                observer.startServerObservation(observerCtx);
-            }
-        }
 
         ObserverContext newObContext = new ObserverContext();
         newObContext.setParent(observerCtx);
         newObContext.setStarted();
-
-        newObContext.setServiceName(observerCtx.getServiceName());
+        newObContext.setServiceName(observerCtx == null ? UNKNOWN_SERVICE : observerCtx.getServiceName());
         newObContext.setConnectorName(connectorName);
         newObContext.setActionName(actionName);
         strand.observerContext = newObContext;

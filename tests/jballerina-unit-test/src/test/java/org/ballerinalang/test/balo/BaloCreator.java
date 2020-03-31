@@ -27,6 +27,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -35,6 +38,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.HOME_REPO_DEFAULT_DIRNAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAR_CACHE_DIR_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_DIR;
 
 /**
@@ -54,11 +58,12 @@ public class BaloCreator {
      * @param orgName Organization name
      * @throws IOException If any error occurred while reading the source files
      */
-    private static void create(Path projectPath, String packageId, String orgName) throws IOException {
+    private static void create(Path projectPath, String packageId, String orgName, String version) throws IOException {
         String buildFolder = Paths.get(System.getProperty(USER_DIR))
                 .relativize(Paths.get(System.getProperty(BALLERINA_HOME))).toString();
         Path baloPath = Paths.get(USER_REPO_DEFAULT_DIRNAME);
         projectPath = TEST_RESOURCES_SOURCE_PATH.resolve(projectPath);
+        Path jarCachePath = Paths.get(buildFolder, BALLERINA_HOME_LIB, JAR_CACHE_DIR_NAME);
 
         // Clear any old balos
         // clearing from .ballerina will remove the .ballerina file as well. Therefore start clearing from
@@ -66,11 +71,39 @@ public class BaloCreator {
         BFileUtil.delete(projectPath.resolve(baloPath).resolve(DOT_BALLERINA_REPO_DIR_NAME));
 
         // compile and create the balo
-        compileWithTestsAndWrite(projectPath, packageId, buildFolder + "/" + BALLERINA_HOME_LIB + "/");
+        CompileResult compileResult = compileWithTestsAndWrite(projectPath, packageId, buildFolder +
+                "/" + BALLERINA_HOME_LIB + "/");
 
         // copy the balo to the temp-ballerina-home/libs/
         BFileUtil.delete(Paths.get(buildFolder, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, packageId));
         BFileUtil.copy(projectPath.resolve(baloPath), Paths.get(buildFolder, BALLERINA_HOME_LIB));
+
+        if (compileResult.getClassLoader() == null) {
+            return;
+        }
+
+        if (!Files.exists(jarCachePath)) {
+            Files.createDirectories(jarCachePath);
+        }
+        version = version.replaceAll("\\.", "_");
+        String jarNamePrefix = orgName.concat("_").concat(packageId).concat("_").concat(version);
+
+        for (URL classPathEntry : compileResult.getClassLoader().getURLs()) {
+
+            if (classPathEntry.getPath().contains(JAR_CACHE_DIR_NAME)) {
+                continue;
+            }
+
+            try {
+                Path sourcePath = Paths.get(classPathEntry.toURI());
+                Path targetPath = Paths.get(jarCachePath.toString(),
+                        jarNamePrefix.concat("_").concat(sourcePath.getFileName().toString()));
+
+                BFileUtil.copy(sourcePath, targetPath);
+            } catch (URISyntaxException e) {
+                //ignore
+            }
+        }
     }
 
     /**
@@ -82,9 +115,34 @@ public class BaloCreator {
      */
     public static void createAndSetupBalo(String projectRoot, String orgName, String pkgName) {
         try {
-            create(Paths.get(projectRoot), pkgName, orgName);
+            create(Paths.get(projectRoot), pkgName, orgName, "0.0.0");
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Helper method to create balo from the source and setup the repository.
+     *
+     * @param projectRoot   root folder location.
+     * @param orgName       org name.
+     * @param pkgName       package name.
+     * @param version       package version.
+     */
+    public static void createAndSetupBalo(String projectRoot, String orgName, String pkgName, String version) {
+        try {
+            create(Paths.get(projectRoot), pkgName, orgName, version);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void cleanCacheDirectories() {
+        Path buildPath = Paths.get(System.getProperty(USER_DIR))
+                .relativize(Paths.get(System.getProperty(BALLERINA_HOME)));
+        Path jarCachePath = Paths.get(buildPath.toString(), BALLERINA_HOME_LIB, JAR_CACHE_DIR_NAME);
+        if (jarCachePath.toFile().exists()) {
+            BFileUtil.delete(jarCachePath);
         }
     }
 
@@ -109,12 +167,12 @@ public class BaloCreator {
         BFileUtil.delete(Paths.get(projectPath.toString(), HOME_REPO_DEFAULT_DIRNAME, DOT_BALLERINA_REPO_DIR_NAME));
     }
 
-    public static void compileWithTestsAndWrite(Path sourceRootPath, String packageName, String targetPath) {
+    public static CompileResult compileWithTestsAndWrite(Path sourceRootPath, String packageName, String targetPath) {
         CompilerContext context = new CompilerContext();
         context.put(SourceDirectory.class, new FileSystemProjectDirectory(sourceRootPath));
 
-        CompileResult compileResult = BCompileUtil
-                .compileOnJBallerina(context, sourceRootPath.toString(), packageName, false, true);
+        CompileResult compileResult = BCompileUtil.compileOnJBallerina(context, sourceRootPath.toString(),
+                packageName, false, true);
 
         if (compileResult.getErrorCount() > 0) {
             throw new RuntimeException(compileResult.toString());
@@ -123,6 +181,8 @@ public class BaloCreator {
         BLangPackage bLangPackage = (BLangPackage) compileResult.getAST();
         Compiler compiler = Compiler.getInstance(context);
         compiler.write(bLangPackage, targetPath);
+
+        return compileResult;
     }
         
 }

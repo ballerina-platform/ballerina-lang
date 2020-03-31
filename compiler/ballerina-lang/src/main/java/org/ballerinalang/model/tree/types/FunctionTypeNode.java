@@ -18,6 +18,7 @@
 package org.ballerinalang.model.tree.types;
 
 import org.ballerinalang.model.tree.VariableNode;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 
 import java.util.List;
 
@@ -27,6 +28,8 @@ import java.util.List;
  * @since 0.94
  */
 public interface FunctionTypeNode extends ReferenceTypeNode {
+
+    BLangVariable getRestParam();
 
     List<? extends VariableNode> getParams();
 

@@ -39,7 +39,7 @@ function deserialize(io:ReadableByteChannel byteChannel) returns Person {
     if (strResult is string) {
         person.name = strResult;
     } else {
-        log:printError("Error occurred while reading name", err = strResult);
+        log:printError("Error occurred while reading name", strResult);
     }
     //Reads a 16-bit-signed integer.
     var int16Result = dc.readInt16();
@@ -77,14 +77,18 @@ function writeRecordToFile(Person p, string path) returns error? {
 }
 
 //Reads the serialized record from the file.
-function readRecordFromFile(string path) returns @tainted Person | error {
+function readRecordFromFile(string path) returns @tainted Person|error {
     io:ReadableByteChannel rc = check io:openReadableFile(path);
     return deserialize(rc);
 }
 
 public function main() returns error? {
-    Person wPerson = { name: "Ballerina", age: 21,
-                       income: 1543.12, isMarried: true };
+    Person wPerson = {
+        name: "Ballerina",
+        age: 21,
+        income: 1543.12,
+        isMarried: true
+    };
     //Writes the record to a file.
     check writeRecordToFile(wPerson, "./files/person.bin");
     io:println("Person record successfully written to file");

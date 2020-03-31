@@ -16,7 +16,7 @@
 
 import ballerina/kafka;
 
-kafka:ConsumerConfig consumerConfig = {
+kafka:ConsumerConfiguration consumerConfig = {
     bootstrapServers: "localhost:14107",
     groupId: "test-group",
     clientId: "basic-consumer",
@@ -24,16 +24,9 @@ kafka:ConsumerConfig consumerConfig = {
     topics: ["test"]
 };
 
-kafka:ConsumerConfig consumerConfigNegative = {};
-kafka:Consumer negativeConsumer = new (consumerConfigNegative);
-
 function funcKafkaConnect() returns kafka:Consumer {
     kafka:Consumer consumer= new(consumerConfig);
     return consumer;
-}
-
-function funcKafkaConnectNegative() returns error? {
-    return negativeConsumer->connect();
 }
 
 function funcKafkaClose() returns boolean {

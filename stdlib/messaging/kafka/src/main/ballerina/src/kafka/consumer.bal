@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object;
-import ballerinax/java;
+import ballerina/java;
 
 # Configuration related to consumer endpoint.
 #
@@ -30,8 +30,14 @@ import ballerinax/java;
 # + isolationLevel - Transactional message reading method. Use "read_committed" to read the committed messages
 #       only in transactional mode when poll() is called. Use "read_uncommitted" to read all the messages,
 #       even the aborted ones.
-# + keyDeserializer - Deserializer used for the Kafka record key. This should be a `kafka:DeserializerType`
-# + valueDeserializer - Deserializer used for the Kafka record value. This should be a `kafka:DeserializerType`
+# + keyDeserializerType - Deserializer used for the Kafka record key. This should be a `kafka:DeserializerType`
+# + valueDeserializerType - Deserializer used for the Kafka record value. This should be a `kafka:DeserializerType`
+# + keyDeserializer - Custom deserializer object to deserialize kafka keys. This should be implement the
+#       `kafka:Deserializer` object.
+# + valueDeserializer - Custom deserializer object to deserialize kafka values. This should implement the
+#       `kafka:Deserializer` object.
+# + schemaRegistryUrl - Avro schema registry url. Use this field to specify schema registry url, if Avro serializer
+#       is used.
 # + topics - Topics to be subscribed by the consumer.
 # + properties - Additional properties if required.
 # + sessionTimeoutInMillis - Timeout used to detect consumer failures when heartbeat threshold is reached.
@@ -58,49 +64,55 @@ import ballerinax/java;
 # + concurrentConsumers - Number of concurrent consumers.
 # + defaultApiTimeoutInMillis - Default API timeout value for APIs with duration.
 # + autoCommit - Enables auto committing offsets.
-# + checkCRCS - Check the CRC32 of the records consumed.
+# + checkCRCS - Check the CRC32 of the records consumed. This ensures that no on-the-wire or on-disk corruption to
+#       the messages occurred. This may add some overhead, and might needed set to `false` if an extreme performance is
+#       required.
 # + excludeInternalTopics - Whether records from internal topics should be exposed to the consumer.
 # + decoupleProcessing - Decouples processing.
 # + secureSocket - Configurations related to SSL/TLS.
-public type ConsumerConfig record {|
-    string? bootstrapServers = ();
-    string? groupId = ();
-    string? offsetReset = ();
-    string? partitionAssignmentStrategy = ();
-    string? metricsRecordingLevel = ();
-    string? metricsReporterClasses = ();
-    string? clientId = ();
-    string? interceptorClasses = ();
-    string? isolationLevel = ();
-    DeserializerType keyDeserializer = DES_BYTE_ARRAY;
-    DeserializerType valueDeserializer = DES_BYTE_ARRAY;
+public type ConsumerConfiguration record {|
+    string bootstrapServers;
+    string groupId?;
+    string offsetReset?;
+    string partitionAssignmentStrategy?;
+    string metricsRecordingLevel?;
+    string metricsReporterClasses?;
+    string clientId?;
+    string interceptorClasses?;
+    IsolationLevel isolationLevel?;
 
-    string[]? topics = ();
-    string[]? properties = ();
+    DeserializerType keyDeserializerType = DES_BYTE_ARRAY;
+    DeserializerType valueDeserializerType = DES_BYTE_ARRAY;
+    Deserializer keyDeserializer?;
+    Deserializer valueDeserializer?;
+    string schemaRegistryUrl?;
 
-    int sessionTimeoutInMillis = -1;
-    int heartBeatIntervalInMillis = -1;
-    int metadataMaxAgeInMillis = -1;
-    int autoCommitIntervalInMillis = -1;
-    int maxPartitionFetchBytes = -1;
-    int sendBuffer = -1;
-    int receiveBuffer = -1;
-    int fetchMinBytes = -1;
-    int fetchMaxBytes = -1;
-    int fetchMaxWaitTimeInMillis = -1;
-    int reconnectBackoffTimeMaxInMillis = -1;
-    int retryBackoffInMillis = -1;
-    int metricsSampleWindowInMillis = -1;
-    int metricsNumSamples = -1;
-    int requestTimeoutInMillis = -1;
-    int connectionMaxIdleTimeInMillis = -1;
-    int maxPollRecords = -1;
-    int maxPollInterval = -1;
-    int reconnectBackoffTimeInMillis = -1;
-    int pollingTimeoutInMillis = -1;
-    int pollingIntervalInMillis = -1;
-    int concurrentConsumers = -1;
-    int defaultApiTimeoutInMillis = 30000;
+    string[] topics?;
+    string[] properties?;
+
+    int sessionTimeoutInMillis?;
+    int heartBeatIntervalInMillis?;
+    int metadataMaxAgeInMillis?;
+    int autoCommitIntervalInMillis?;
+    int maxPartitionFetchBytes?;
+    int sendBuffer?;
+    int receiveBuffer?;
+    int fetchMinBytes?;
+    int fetchMaxBytes?;
+    int fetchMaxWaitTimeInMillis?;
+    int reconnectBackoffTimeMaxInMillis?;
+    int retryBackoffInMillis?;
+    int metricsSampleWindowInMillis?;
+    int metricsNumSamples?;
+    int requestTimeoutInMillis?;
+    int connectionMaxIdleTimeInMillis?;
+    int maxPollRecords?;
+    int maxPollInterval?;
+    int reconnectBackoffTimeInMillis?;
+    int pollingTimeoutInMillis?;
+    int pollingIntervalInMillis?;
+    int concurrentConsumers?;
+    int defaultApiTimeoutInMillis?;
 
     boolean autoCommit = true;
     boolean checkCRCS = true;
@@ -119,28 +131,24 @@ public type ConsumerConfig record {|
 # + timestamp - Timestamp of the record, in milliseconds since epoch.
 # + topic - Topic to which the record belongs to.
 public type ConsumerRecord record {|
-    Data key;
-    Data value;
+    anydata key;
+    anydata value;
     int offset;
     int partition;
     int timestamp;
     string topic;
 |};
 
-# In-built Kafka byte array deserializer.
-public const DES_BYTE_ARRAY = "BYTE_ARRAY";
-
-# In-built Kafka string deserializer.
-public const DES_STRING = "STRING";
-
-# In-built Kafka int deserializer.
-public const DES_INT = "INT";
-
-# In-built Kafka float deserializer.
-public const DES_FLOAT = "FLOAT";
+# Represents a generic Avro record. This is the type of the value returned from an Avro deserializer consumer.
+public type AvroGenericRecord record {
+    // Left blank intentionally.
+};
 
 # Kafka in-built deserializer type.
-public type DeserializerType DES_BYTE_ARRAY|DES_STRING|DES_INT|DES_FLOAT;
+public type DeserializerType DES_BYTE_ARRAY|DES_STRING|DES_INT|DES_FLOAT|DES_AVRO|DES_CUSTOM;
+
+# Kafka consumer isolation level type.
+public type IsolationLevel ISOLATION_COMMITTED|ISOLATION_UNCOMMITTED;
 
 # Represent a Kafka consumer endpoint.
 #
@@ -148,56 +156,101 @@ public type DeserializerType DES_BYTE_ARRAY|DES_STRING|DES_INT|DES_FLOAT;
 public type Consumer client object {
     *'object:Listener;
 
-    public ConsumerConfig? consumerConfig = ();
-    private string keyDeserializer;
-    private string valueDeserializer;
+    public ConsumerConfiguration? consumerConfig = ();
+    private string keyDeserializerType;
+    private string valueDeserializerType;
+    private Deserializer? keyDeserializer = ();
+    private Deserializer? valueDeserializer = ();
 
     # Creates a new Kafka `Consumer`.
     #
     # + config - Configurations related to consumer endpoint.
-    public function __init (ConsumerConfig config) {
+    public function __init (ConsumerConfiguration config) {
         self.consumerConfig = config;
-        self.keyDeserializer = config.keyDeserializer;
-        self.valueDeserializer = config.valueDeserializer;
-        var initResult = self.init(config);
-        if (initResult is error) {
-            panic initResult;
+        self.keyDeserializerType = config.keyDeserializerType;
+        self.valueDeserializerType = config.valueDeserializerType;
+
+        if (self.keyDeserializerType == DES_CUSTOM) {
+            var keyDeserializerObject = config?.keyDeserializer;
+            if (keyDeserializerObject is ()) {
+                panic error(CONSUMER_ERROR, message = "Invalid keyDeserializer config: Please Provide a " +
+                                        "valid custom deserializer for the keyDeserializer");
+            } else {
+                self.keyDeserializer = keyDeserializerObject;
+            }
         }
+        if (self.keyDeserializerType == DES_AVRO) {
+            panic error(CONSUMER_ERROR, message = "Key deserialization using Avro is not yet supported.");
+            //var schemaRegistryUrl = config.schemaRegistryUrl;
+            //if (schemaRegistryUrl is ()) {
+            //    panic error(PRODUCER_ERROR, message = "Missing schema registry URL for the Avro serializer. Please " +
+            //                "provide 'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.");
+            //}
+        }
+
+        if (self.valueDeserializerType == DES_CUSTOM) {
+            var valueDeserializerObject = config?.valueDeserializer;
+            if (valueDeserializerObject is ()) {
+                panic error(CONSUMER_ERROR, message = "Invalid valueDeserializer config: Please Provide a" +
+                                        " valid custom deserializer for the valueDeserializer");
+            } else {
+                self.valueDeserializer = valueDeserializerObject;
+            }
+        }
+        if (self.valueDeserializerType == DES_AVRO) {
+            var schemaRegistryUrl = config?.schemaRegistryUrl;
+            if (schemaRegistryUrl is ()) {
+                panic error(CONSUMER_ERROR, message = "Missing schema registry URL for the Avro deserializer. Please " +
+                            "provide 'schemaRegistryUrl' configuration in 'kafka:ConsumerConfiguration'.");
+            }
+        }
+
+        checkpanic self.init(config);
     }
 
+    # Starts the registered service.
+    #
+    # + return - An `error` if encounters an error while starting the server, returns nil otherwise.
     public function __start() returns error? {
         return start(self);
     }
 
+    # Stops the kafka listener.
+    #
+    # + return - An `error` if an error occurred during the listener stopping process
     public function __gracefulStop() returns error? {
-        return ();
+        return stop(self);
     }
 
+    # Stops the kafka listener.
+    #
+    # + return - An `error` if an error occurred during the listener stopping process
     public function __immediateStop() returns error? {
         return stop(self);
     }
 
+    # Gets called every time a service attaches itself to this listener.
+    #
+    # + s - The type of the service to be registered.
+    # + name - Name of the service.
+    # + return - An `error` if encounters an error while attaching the service, returns nil otherwise.
     public function __attach(service s, string? name = ()) returns error? {
         return register(self, s, name);
     }
 
+    # Detaches a consumer service from the listener.
+    #
+    # + s - The service to be detached
+    # + return - An `error` if an error occurred during detaching a service or `nil`
     public function __detach(service s) returns error? {
     }
 
-    function init(ConsumerConfig config) returns ConsumerError? {
-        if (config.bootstrapServers is string) {
-            var result = self->connect();
-            if (result is error) {
-                panic result;
-            }
-        }
+    function init(ConsumerConfiguration config) returns ConsumerError? {
+        checkpanic self->connect();
 
-        string[]? topics = config.topics;
+        string[]? topics = config?.topics;
         if (topics is string[]){
-            var result = self->subscribe(topics);
-            if (result is error) {
-                panic result;
-            }
+            checkpanic self->subscribe(topics);
         }
         return;
     }

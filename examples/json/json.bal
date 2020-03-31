@@ -21,7 +21,7 @@ public function main() {
     json j5 = null;
 
     // Creates a JSON Object. This is equivalent to a `map<json>`.
-    json j6 = { name: "apple", color: "red", price: j2 };
+    json j6 = {name: "apple", color: "red", price: j2};
     io:println(j6);
 
     // The `.toJsonString()` defined for `json` values returns a `string` that
@@ -29,7 +29,7 @@ public function main() {
     io:println(j6.toJsonString());
 
     // Create a JSON Array. This is equivalent to a `json[]`.
-    json j7 = [1, false, null, "foo", { first: "John", last: "Pala" }];
+    json j7 = [1, false, null, "foo", {first: "John", last: "Pala"}];
     io:println(j7.toJsonString());
 
     // The `.mergeJson()` method can be used to merge two `json` values.
@@ -43,8 +43,8 @@ public function main() {
     // if an entry is not present in the first by the same key, the entry
     // is added to the first mapping. If there is already a field by the same
     // key in the first mapping, `.mergeJson()` is called recursively.
-    json j9 = { name: "Anne", age: null, marks: { math: 90, language: 95 } };
-    json j10 = { name: (), age: 20, marks: { physics: 85 } };
+    json j9 = {name: "Anne", age: null, marks: {math: 90, language: 95}};
+    json j10 = {name: (), age: 20, marks: {physics: 85}};
     json j11 = checkpanic j9.mergeJson(j10);
     io:println(j11.toJsonString());
 

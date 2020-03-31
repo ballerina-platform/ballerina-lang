@@ -87,7 +87,7 @@ public class BallerinaDiagramUtils {
 
         // Checks for the user-configured auto detection settings.
         if (Strings.isNullOrEmpty(balSdkPath)
-                && BallerinaAutoDetectionSettings.getInstance(project).getIsAutoDetectionEnabled()) {
+                && BallerinaAutoDetectionSettings.getInstance(project).isAutoDetectionEnabled()) {
             balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
         }
 

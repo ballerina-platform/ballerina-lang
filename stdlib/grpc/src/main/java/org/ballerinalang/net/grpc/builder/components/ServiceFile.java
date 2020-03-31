@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * Service file definition bean class.
  */
-public class ServiceFile {
+public class ServiceFile extends AbstractStub {
     private boolean bidiStreaming;
     private boolean clientStreaming;
     private boolean unary;

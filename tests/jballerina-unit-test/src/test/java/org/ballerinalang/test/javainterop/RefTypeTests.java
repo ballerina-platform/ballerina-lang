@@ -49,6 +49,8 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
+
 /**
  * Test cases for java interop with ballerina ref types.
  *
@@ -322,7 +324,7 @@ public class RefTypeTests {
     // static methods
 
     public static XMLValue getXML() {
-        return new XMLItem("<hello/>");
+        return new XMLItem(new QName("hello"));
     }
 
     public static String getStringFromXML(XMLValue x) {

@@ -28,9 +28,9 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 public interface WhileNode extends StatementNode {
     ExpressionNode getCondition();
 
-    BlockNode getBody();
+    BlockStatementNode getBody();
 
     void setCondition(ExpressionNode condition);
 
-    void setBody(BlockNode body);
+    void setBody(BlockStatementNode body);
 }

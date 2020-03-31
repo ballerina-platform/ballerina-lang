@@ -270,7 +270,7 @@ elif [[ $1 == "run" ]] && [[ $2 == *.jar ]]; then # if 1st arg is "run" and 2nd 
         -XX:HeapDumpPath="$BALLERINA_HOME/heap-dump.hprof" \
         $JAVA_OPTS \
         -classpath "$BALLERINA_CLASSPATH" \
-        -Dballerina.home=$BALLERINA_HOME \
+        -Dballerina.home="$BALLERINA_HOME" \
         -Dballerina.version=${project.version} \
         -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" \
         -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \
@@ -288,7 +288,7 @@ else
         -XX:HeapDumpPath="$BALLERINA_HOME/heap-dump.hprof" \
         $JAVA_OPTS \
         -classpath "$BALLERINA_CLASSPATH" \
-        -Dballerina.home=$BALLERINA_HOME \
+        -Dballerina.home="$BALLERINA_HOME" \
         -Dballerina.version=${project.version} \
         -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" \
         -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \

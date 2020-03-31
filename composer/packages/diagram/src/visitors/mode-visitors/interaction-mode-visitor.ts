@@ -1,5 +1,6 @@
-import { Assignment, ASTNode, ASTUtil, Block, ExpressionStatement, Function as BalFunction,
-    Invocation, Match, Return, Service, TypeDefinition, VariableDef, Visitor, WorkerSend } from "@ballerina/ast-model";
+import { Assignment, ASTNode, ASTUtil, Block, BlockFunctionBody, ExpressionStatement,
+    Function as BalFunction, Invocation, Match, Return, Service, TypeDefinition, VariableDef, Visitor,
+    WorkerSend } from "@ballerina/ast-model";
 import * as _ from "lodash";
 
 import { FunctionViewState, StmntViewState, ViewState } from "../../view-model/index";
@@ -12,6 +13,33 @@ const currentState: {
 } = {
     blocks: [],
 };
+
+function beginVisitBlock(node: Block) {
+    if (!node.parent) {
+        return;
+    }
+    node.viewState.hidden = true;
+    // if (node.parent.viewState.hidden !== false) {
+    //     // if its already set to false that means its already checked for visibility
+    //     node.parent.viewState.hidden = true;
+    // }
+    currentState.blocks.push(node.parent);
+    currentState.currentBlock = node.parent;
+}
+
+function endVisitBlock(node: Block) {
+    const visitedNode = currentState.blocks.pop();
+    if (visitedNode && !visitedNode.viewState.hidden) {
+        node.viewState.hidden = false;
+    }
+    const { blocks } = currentState;
+    currentState.currentBlock = blocks.length > 0 ? blocks[blocks.length - 1] : undefined;
+
+    // If a child block is visible then the parent block should also be visible
+    if (visitedNode && !visitedNode.viewState.hidden && currentState.currentBlock) {
+        currentState.currentBlock.viewState.hidden = false;
+    }
+}
 
 export const visitor: Visitor = {
     beginVisitASTNode(node: ASTNode) {
@@ -49,31 +77,20 @@ export const visitor: Visitor = {
         }
     },
 
-    beginVisitBlock(node: Block) {
-        if (!node.parent) {
-            return;
-        }
-        node.viewState.hidden = true;
-        // if (node.parent.viewState.hidden !== false) {
-        //     // if its already set to false that means its already checked for visibility
-        //     node.parent.viewState.hidden = true;
-        // }
-        currentState.blocks.push(node.parent);
-        currentState.currentBlock = node.parent;
+    beginVisitBlockFunctionBody(node: BlockFunctionBody, parent: ASTNode) {
+        beginVisitBlock(node);
     },
 
-    endVisitBlock(node: Block) {
-        const visitedNode = currentState.blocks.pop();
-        if (visitedNode && !visitedNode.viewState.hidden) {
-            node.viewState.hidden = false;
-        }
-        const { blocks } = currentState;
-        currentState.currentBlock = blocks.length > 0 ? blocks[blocks.length - 1] : undefined;
+    beginVisitBlock(node: Block, parent: ASTNode) {
+        beginVisitBlock(node);
+    },
 
-        // If a child block is visible then the parent block should also be visible
-        if (visitedNode && !visitedNode.viewState.hidden && currentState.currentBlock) {
-            currentState.currentBlock.viewState.hidden = false;
-        }
+    endVisitBlockFunctionBody(node: BlockFunctionBody, parent: ASTNode) {
+        endVisitBlock(node);
+    },
+
+    endVisitBlock(node: Block, parent: ASTNode) {
+        endVisitBlock(node);
     },
 
     beginVisitVariableDef(node: VariableDef) {

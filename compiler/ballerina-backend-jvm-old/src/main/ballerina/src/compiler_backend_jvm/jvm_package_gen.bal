@@ -212,7 +212,6 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
             foreach var globalVar in module.globalVars {
                 if (globalVar is bir:GlobalVariableDcl) {
                     generatePackageVariable(globalVar, cw);
-                    generateLockForVariable(globalVar, cw);
                 }
             }
 
@@ -231,7 +230,8 @@ public function generatePackage(bir:ModuleID moduleId, @tainted JarFile jarFile,
                 generateLambdaForPackageInits(cw, module, mainClass, moduleClass, dependentModuleArray);
                 jarFile.manifestEntries["Main-Class"] = moduleClass;
             }
-            generateStaticInitializer(module.globalVars, cw, moduleClass, serviceEPAvailable);
+            generateLockForVariable(cw);
+            generateStaticInitializer(cw, moduleClass, serviceEPAvailable);
             generateCreateTypesMethod(cw, module.typeDefs);
             generateModuleInitializer(cw, module);
             generateExecutionStopMethod(cw, typeOwnerClass, module, dependentModuleArray);
@@ -275,32 +275,28 @@ function generatePackageVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWrite
     generateField(cw, bType, varName, true);
 }
 
-function generateLockForVariable(bir:GlobalVariableDcl globalVar, jvm:ClassWriter cw) {
-    string lockClass = "L" + LOCK_VALUE + ";";
+function generateLockForVariable(jvm:ClassWriter cw) {
+    string lockStoreClass = "L" + LOCK_STORE + ";";
     jvm:FieldVisitor fv;
-    fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, computeLockName(globalVar), lockClass);
+    fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "LOCK_STORE", lockStoreClass);
     fv.visitEnd();
 }
 
-function generateStaticInitializer(bir:GlobalVariableDcl?[] globalVars, jvm:ClassWriter cw, string className,
+function generateStaticInitializer(jvm:ClassWriter cw, string className,
                                     boolean serviceEPAvailable) {
-    jvm:MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", (), ());
+   jvm:MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", (), ());
 
-    string lockClass = "L" + LOCK_VALUE + ";";
-    foreach var globalVar in globalVars {
-        if (globalVar is bir:GlobalVariableDcl) {
-            mv.visitTypeInsn(NEW, LOCK_VALUE);
-            mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
-            mv.visitFieldInsn(PUTSTATIC, className, computeLockName(globalVar), lockClass);
-        }
-    }
+   string lockStoreClass = "L" + LOCK_STORE + ";";
+   mv.visitTypeInsn(NEW, LOCK_STORE);
+   mv.visitInsn(DUP);
+   mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, "<init>", "()V", false);
+   mv.visitFieldInsn(PUTSTATIC, className, "LOCK_STORE", lockStoreClass);
 
-    setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
+   setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
 
-    mv.visitInsn(RETURN);
-    mv.visitMaxs(0, 0);
-    mv.visitEnd();
+   mv.visitInsn(RETURN);
+   mv.visitMaxs(0, 0);
+   mv.visitEnd();
 }
 
 function setServiceEPAvailableField(jvm:ClassWriter cw, jvm:MethodVisitor mv, boolean serviceEPAvailable,
@@ -446,6 +442,8 @@ function generateClassNameMappings(bir:Package module, string pkgName, string in
             globalVarClassNames[pkgName + globalVar.name.value] = initClass;
         }
     }
+
+    globalVarClassNames[pkgName + "LOCK_STORE"] = initClass;
     // filter out functions.
     bir:Function?[] functions = module.functions;
     if (functions.length() > 0) {
@@ -678,6 +676,11 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
     bir:ImportModule langTypedescModule = {modOrg : {value:"ballerina"},
                                          modName : {value:"lang.typedesc"},
                                          modVersion : {value:""}};
+
+    bir:ImportModule langBooleanModule = {modOrg : {value:"ballerina"},
+                                         modName : {value:"lang.boolean"},
+                                         modVersion : {value:""}};
+
     module.importModules[module.importModules.length()] = langArrayModule;
     module.importModules[module.importModules.length()] = langDecimalModule;
     module.importModules[module.importModules.length()] = langErrorModule;
@@ -692,6 +695,7 @@ function addBuiltinImports(bir:ModuleID moduleId, bir:Package module) {
     module.importModules[module.importModules.length()] = langValueModule;
     module.importModules[module.importModules.length()] = langXmlModule;
     module.importModules[module.importModules.length()] = langTypedescModule;
+    module.importModules[module.importModules.length()] = langBooleanModule;
 }
 
 function isSameModule(bir:ModuleID moduleId, bir:ImportModule importModule) returns boolean {

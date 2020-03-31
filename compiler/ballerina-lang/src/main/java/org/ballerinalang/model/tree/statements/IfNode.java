@@ -25,13 +25,13 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 public interface IfNode extends StatementNode {
     ExpressionNode getCondition();
 
-    BlockNode getBody();
+    BlockStatementNode getBody();
 
     StatementNode getElseStatement();
     
     void setCondition(ExpressionNode condition);
 
-    void setBody(BlockNode body);
+    void setBody(BlockStatementNode body);
 
     void setElseStatement(StatementNode elseStatement);
 }

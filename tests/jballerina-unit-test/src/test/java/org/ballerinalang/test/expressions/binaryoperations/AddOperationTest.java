@@ -20,7 +20,6 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -143,22 +142,22 @@ public class AddOperationTest {
     @Test(description = "Test xml xml add expression")
     public void testXmlXmlAddExpr() {
         BValue[] returns = BRunUtil.invoke(result, "xmlXmlAdd");
-        Assert.assertEquals(((BXMLSequence) returns[0]).size(), 6);
-        Assert.assertEquals(((BXMLSequence) returns[0]).stringValue(), "abcdef");
+        Assert.assertEquals((returns[0]).size(), 1);
+        Assert.assertEquals((returns[0]).stringValue(), "abcdef");
     }
 
     @Test(description = "Test xml string add expression")
     public void testXmlStringAddExpr() {
         BValue[] returns = BRunUtil.invoke(result, "xmlStringAdd");
-        Assert.assertEquals(((BXMLSequence) returns[0]).size(), 6);
-        Assert.assertEquals(((BXMLSequence) returns[0]).stringValue(), "abcdef");
+        Assert.assertEquals((returns[0]).size(), 1);
+        Assert.assertEquals((returns[0]).stringValue(), "abcdef");
     }
 
     @Test(description = "Test string xml add expression")
     public void testStringXmlAddExpr() {
-BValue[] returns = BRunUtil.invoke(result, "stringXmlAdd");
-        Assert.assertEquals(((BXMLSequence) returns[0]).size(), 6);
-        Assert.assertEquals(((BXMLSequence) returns[0]).stringValue(), "defabc");
+        BValue[] returns = BRunUtil.invoke(result, "stringXmlAdd");
+        Assert.assertEquals((returns[0]).size(), 1);
+        Assert.assertEquals((returns[0]).stringValue(), "defabc");
     }
 
     @Test(description = "Test binary statement with errors")

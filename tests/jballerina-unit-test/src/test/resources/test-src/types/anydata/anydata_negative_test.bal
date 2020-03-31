@@ -33,9 +33,9 @@ type ValueType int|float|string|boolean|byte;
 type DataType ValueType|table<any>|json|xml|Bar|map<anydata>|anydata[]|();
 
 function testInvalidAssignmentsWithLiterals() {
-    anydata adrl = {a: 15};
-    anydata adcrl = {ca: 30};
-    anydata adjl = { name: "apple", color: "red", price: 40 };
+    anydata|map<int> adrl = {a: 15};
+    anydata|map<int|float> adcrl = {ca: 30};
+    map<json>|anydata adjl = { name: "apple", color: "red", price: 40 };
     // TODO: Enable the below scenario after https://github.com/ballerina-platform/ballerina-lang/issues/10914 is fixed
     // anydata adtl = table {
     //                        { primarykey id, name, salary },

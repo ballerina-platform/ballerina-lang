@@ -22,16 +22,12 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
-import org.wso2.ballerinalang.util.Lists;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -172,36 +168,6 @@ public class Symbols {
         return new BXMLNSSymbol(name, nsURI, pkgID, owner);
     }
 
-    public static BCastOperatorSymbol createCastOperatorSymbol(final BType sourceType,
-                                                               final BType targetType,
-                                                               final BType errorType,
-                                                               boolean implicit,
-                                                               boolean safe,
-                                                               PackageID pkgID,
-                                                               BSymbol owner) {
-        List<BType> paramTypes = Lists.of(sourceType, targetType);
-        BType retType;
-        if (safe) {
-            retType = targetType;
-        } else if (targetType.tag == TypeTags.UNION && targetType instanceof BUnionType) {
-            BUnionType unionType = (BUnionType) targetType;
-            unionType.add(errorType);
-            retType = unionType;
-        } else {
-            retType = BUnionType.create(null, targetType, errorType);
-        }
-
-        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
-        return new BCastOperatorSymbol(pkgID, opType, sourceType, owner, implicit, safe);
-    }
-
-    public static BCastOperatorSymbol createUnboxValueTypeOpSymbol(BType sourceType, BType targetType) {
-
-        List<BType> paramTypes = Lists.of(sourceType, targetType);
-        BInvokableType opType = new BInvokableType(paramTypes, targetType, null);
-        return new BCastOperatorSymbol(null, opType, sourceType, null, false, true);
-    }
-
     public static String getAttachedFuncSymbolName(String typeName, String funcName) {
         return typeName + Names.DOT.value + funcName;
     }
@@ -232,11 +198,5 @@ public class Symbols {
 
     public static boolean isFunctionDeclaration(BSymbol sym) {
         return (sym.flags & Flags.INTERFACE) == Flags.INTERFACE;
-    }
-
-    public static BTypeSymbol createScopeSymbol(Name name, PackageID pkgID, BType type, BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SCOPE, 0, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.SCOPE;
-        return typeSymbol;
     }
 }

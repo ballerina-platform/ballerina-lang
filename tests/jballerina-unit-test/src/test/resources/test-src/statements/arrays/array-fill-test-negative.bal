@@ -91,11 +91,6 @@ function testIllegalTwoDimensionalArrayInsertion() returns (int|string|boolean)[
     return x;
 }
 
-function testTwoDimensionalSealedArrayFill() {
-    int[][2] x = [];
-    x[1] = [1, 3];
-}
-
 type Rec record {
     int i;
 };

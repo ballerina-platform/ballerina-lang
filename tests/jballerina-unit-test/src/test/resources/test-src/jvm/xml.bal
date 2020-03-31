@@ -13,17 +13,17 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.'xml as xmllib;
 
 xml globalXML = xml `<test><name>ballerina</name></test>`;
 
-function testXML() returns [xml, any, any, xml, xml, xml] {
+function testXML() returns [xml, map<string>, (string|error), xml] {
     xmlns "http://wso2.com/" as ns0;
 
-    xml x = xml `<ns0:foo a="hello world" xmlns:ns1="http://ballerinalang.org/"><ns1:bar1>hello1</ns1:bar1><bar2>hello2</bar2></ns0:foo>`;
-
-    x@[ns0:b] = "active";
-    xml x2 = x["{http://ballerinalang.org/}bar1"];
-    return [x, x@, x@[ns0:b], x.*, x2, x2[0]];
+    xmllib:Element x = <xmllib:Element> xml `<ns0:foo a="hello world" xmlns:ns1="http://ballerinalang.org/"><ns1:bar1>hello1</ns1:bar1><bar2>hello2</bar2></ns0:foo>`;
+    map<string> attrMap = x.getAttributes();
+    attrMap[ns0:b] = "active";
+    return [x, x.getAttributes(), x.ns0:b, x/*];
 }
 
 function testFieldBasedAccess() returns [xml, xml, xml, xml, xml, xml] {
@@ -31,12 +31,12 @@ function testFieldBasedAccess() returns [xml, xml, xml, xml, xml, xml] {
     xml x2 = xml `<name2><fname><foo>5</foo><bar>6</bar></fname><lname2><foo>7</foo><bar>8</bar></lname2></name2>`;
     xml x3 = x1 + x2 + xml `<foo>apple</foo>`;
 
-    xml x4 = x3.*;
-    xml x5 = x1["fname"];
-    xml x6 = x3.fname.foo[1];
-    xml x7 = x3.fname[1].foo;
-    xml x8 = x3.*.bar[1];
-    xml x9 = x3.*.*;
+    xml x4 = x3/*;
+    xml x5 = x1/<fname>;
+    xml x6 = x3/<fname>/<foo>[1];
+    xml x7 = x3/<fname>[1]/<foo>;
+    xml x8 = x3/*.<bar>[1];
+    xml x9 = x3/*/*;
 
     return [x4, x5, x6, x7, x8, x9];
 }

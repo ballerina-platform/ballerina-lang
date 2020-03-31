@@ -27,7 +27,6 @@ function accessInvalidIndexOfSealedArrayUsingKeyword() returns string {
 }
 
 function initializeInvalidSizedSealedArray() {
-    boolean[4] sealedArray1 = [true, true, false];
     boolean[4] sealedArray2 = [true, true, false, false, true];
 }
 
@@ -76,7 +75,6 @@ function unionTestInvalidOrderedMatch(boolean | int[] | float[4] | float[] x) re
 }
 
 function invalidJSONArrays() {
-    json[4] x1 = [1, true];
     json[4] x2 = [1, 1.5, true, false, "abc"];
     json[4] x3 = [1, 1.5, true, false];
     x3[3] = 12;

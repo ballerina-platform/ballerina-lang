@@ -1,0 +1,22 @@
+{
+    "line": 25,
+    "character": 33,
+    "expected": {
+        "title": "Create Local Variable",
+        "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 25,
+                        "character": 4
+                    },
+                    "end": {
+                        "line": 25,
+                        "character": 4
+                    }
+                },
+                "newText": "string print \u003d "
+            }
+        ]
+    }
+}

@@ -48,6 +48,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CO
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_GROUP_ID_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_CONSUMER;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.NATIVE_PRODUCER;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_CONFIG_FIELD_NAME;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TRANSACTION_CONTEXT;
 import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.createKafkaError;
@@ -68,10 +69,10 @@ public class ProducerActions {
      * Initializes the ballerina kafka producer.
      *
      * @param producerObject Kafka producer object from ballerina.
-     * @param configs        Configuration map for the ballerina kafka producer.
      * @return {@code ErrorValue}, if there's any error, null otherwise.
      */
-    public static Object init(ObjectValue producerObject, MapValue<String, Object> configs) {
+    public static Object init(ObjectValue producerObject) {
+        MapValue<String, Object> configs = producerObject.getMapValue(PRODUCER_CONFIG_FIELD_NAME);
         Properties producerProperties = processKafkaProducerConfig(configs);
         try {
             if (Objects.nonNull(producerProperties.get(ProducerConfig.TRANSACTIONAL_ID_CONFIG))) {

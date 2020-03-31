@@ -1,7 +1,7 @@
 import ballerina/io;
-import ballerina/lang.'decimal as decimals;
-import ballerina/lang.'float as floats;
-import ballerina/lang.'int as ints;
+import ballerina/lang.'decimal;
+import ballerina/lang.'float;
+import ballerina/lang.'int;
 
 type Person record {
     string name;
@@ -16,7 +16,7 @@ type Employee record {
 
 // This function attempts to convert an `anydata` record `Employee` to an `anydata` record `Person`.
 function convertEmployeeToPerson(Employee emp) {
-    // Attempts to create a new value of the type `Person` from the `Employee`-typed `emp` value without changing 
+    // Attempts to create a new value of the type `Person` from the `Employee`-typed `emp` value without changing
     // the inherent type of `emp`.
     Person|error res = Person.constructFrom(emp);
     if (res is Person) {
@@ -48,34 +48,34 @@ function createNumericValues() {
     string s3 = "12.3";
     string s4 = "8";
 
-    // The `fromString()` method in the ballerina/lang.int module returns the integer value represented by a
+    // The `fromString()` method in the `ballerina/lang.int` module returns the integer value represented by a
     // given string if there is a valid representation, else returns an `error`.
-    int|error res1 = ints:fromString(s1);
+    int|error res1 = 'int:fromString(s1);
     if (res1 is int) {
         io:println("int value: ", res1);
     } else {
         io:println("error: ", res1.detail());
     }
 
-    res1 = ints:fromString(s2);
+    res1 = 'int:fromString(s2);
     if (res1 is int) {
         io:println("int value: ", res1);
     } else {
         io:println("error: ", res1.detail());
     }
 
-    // The `fromString()` method in the ballerina/lang.float module returns the float value represented by a given
+    // The `fromString()` method in the `ballerina/lang.float` module returns the float value represented by a given
     // string if there is a valid representation, else returns an `error`.
-    float|error res2 = floats:fromString(s3);
+    float|error res2 = 'float:fromString(s3);
     if (res2 is float) {
         io:println("float value: ", res2);
     } else {
         io:println("error: ", res2.detail());
     }
 
-    // The `fromString()` method in the ballerina/lang.decimal module returns the decimal value represented by a given
+    // The `fromString()` method in the `ballerina/lang.decimal` module returns the decimal value represented by a given
     // string if there is a valid representation, else returns an `error`.
-    decimal|error res3 = decimals:fromString(s4);
+    decimal|error res3 = 'decimal:fromString(s4);
     if (res3 is decimal) {
         io:println("decimal value: ", res3);
     } else {
@@ -85,17 +85,17 @@ function createNumericValues() {
 
 public function main() {
     // Attempts to convert an `anydata`-typed record to another `anydata`-typed record.
-    Employee emp = { name: "Jack Sparrow", age: 54, empNo: 100 };
+    Employee emp = {name: "Jack Sparrow", age: 54, empNo: 100};
     convertEmployeeToPerson(emp);
 
     // Attempts to convert an `anydata` constrained map to an `anydata`-typed record.
     // This conversion would be successful since all the expected elements are present.
-    map<anydata> m = { name: "Hector Barbossa", age: 54, empNo: 100 };
+    map<anydata> m = {name: "Hector Barbossa", age: 54, empNo: 100};
     convertAnydataMapToPerson(m);
 
     // This conversion would not be successful since all the required elements are not
     // present in the map.
-    map<anydata> n = { name: "Elizabeth Swann" };
+    map<anydata> n = {name: "Elizabeth Swann"};
     convertAnydataMapToPerson(n);
 
     // Attempts to convert strings to numeric types.

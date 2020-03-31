@@ -19,24 +19,13 @@ package org.ballerinalang.net.grpc.builder.components;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 
 /**
  * Client Stub File definition bean class.
  *
  * @since 0.982.0
  */
-public class StubFile {
-    private String rootDescriptor;
-    private Set<Descriptor> descriptors = new TreeSet<>((descriptor1, descriptor2) -> {
-        if (descriptor1.getKey().equalsIgnoreCase(descriptor2.getKey())) {
-            return 0;
-        }
-        return 1;
-    });
-    private List<Message> messageList = new ArrayList<>();
-    private List<EnumMessage> enumList = new ArrayList<>();
+public class StubFile extends AbstractStub {
     private List<ServiceStub> stubList = new ArrayList<>();
     private String fileName;
     
@@ -46,49 +35,6 @@ public class StubFile {
 
     public String getFileName() {
         return fileName;
-    }
-
-    public String getRootDescriptor() {
-        return rootDescriptor;
-    }
-
-    public void setRootDescriptor(String rootDescriptor) {
-        this.rootDescriptor = rootDescriptor;
-    }
-
-    public void addDescriptor(Descriptor descriptor) {
-        descriptors.add(descriptor);
-    }
-    public Set<Descriptor> getDescriptors() {
-        return descriptors;
-    }
-
-    public void addMessage(Message message) {
-        messageList.add(message);
-    }
-
-    public boolean messageExists(String messageName) {
-        if (messageName == null) {
-            return false;
-        }
-        for (Message message : messageList) {
-            if (messageName.equals(message.getMessageName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public List<Message> getMessageList() {
-        return messageList;
-    }
-
-    public void addEnumMessage(EnumMessage message) {
-        enumList.add(message);
-    }
-
-    public List<EnumMessage> getEnumList() {
-        return enumList;
     }
 
     public void addServiceStub(ServiceStub serviceStub) {

@@ -6,7 +6,7 @@ import ballerina/observe;
 //Create a gauge as a global variable in the service with optional field description,
 //and default statistics configurations = { timeWindow: 600000, buckets: 5,
 // percentiles: [0.33, 0.5, 0.66, 0.99] }.
-observe:Gauge globalGauge = new("global_gauge", "Global gauge defined");
+observe:Gauge globalGauge = new ("global_gauge", "Global gauge defined");
 
 // Make sure you start the service with the '--b7a.observability.enabled=true' property or with metrics enabled.
 @http:ServiceConfig {
@@ -26,7 +26,7 @@ service onlineStoreService on new http:Listener(9090) {
 
 
         //Create a gauge with simply a name, and default statistics configurations.
-        observe:Gauge localGauge = new("local_operations");
+        observe:Gauge localGauge = new ("local_operations");
         //Increment the local gauge by default value 1.0.
         localGauge.increment();
         //Increment the value of the gauge by 20.
@@ -40,9 +40,9 @@ service onlineStoreService on new http:Listener(9090) {
 
 
         //Create a gauge with optional fields description, and tags defined.
-        observe:Gauge registeredGaugeWithTags = new("registered_gauge_with_tags",
+        observe:Gauge registeredGaugeWithTags = new ("registered_gauge_with_tags",
             "RegisteredGauge",
-            { property: "gaugeProperty", gaugeType: "RegisterType" });
+            {property: "gaugeProperty", gaugeType: "RegisterType"});
 
         //Register the gauge instance, therefore it is stored in the global registry and can be reported to the
         //metrics server such as Prometheus. Additionally, this operation will register to the global registry for the
@@ -52,7 +52,7 @@ service onlineStoreService on new http:Listener(9090) {
         //counter instance.
         error? result = registeredGaugeWithTags.register();
         if (result is error) {
-            log:printError("Error in registering gauge", err = result);
+            log:printError("Error in registering gauge", result);
         }
 
         //Set the value of the gauge with the new value.
@@ -66,17 +66,20 @@ service onlineStoreService on new http:Listener(9090) {
 
         //Create a gauge with statistics disabled by passing empty statistics config array.
         observe:StatisticConfig[] statsConfigs = [];
-        observe:Gauge gaugeWithNoStats = new("gauge_with_no_stats",
+        observe:Gauge gaugeWithNoStats = new ("gauge_with_no_stats",
                                         "Some description", (), statsConfigs);
         gaugeWithNoStats.setValue(100);
         printGauge(gaugeWithNoStats);
 
 
         //Create gauge with custom statistics config.
-        observe:StatisticConfig config = { timeWindow: 30000,
-                    percentiles: [0.33, 0.5, 0.9, 0.99], buckets: 3 };
+        observe:StatisticConfig config = {
+            timeWindow: 30000,
+            percentiles: [0.33, 0.5, 0.9, 0.99],
+            buckets: 3
+        };
         statsConfigs[0] = config;
-        observe:Gauge gaugeWithCustomStats = new("gauge_with_custom_stats",
+        observe:Gauge gaugeWithCustomStats = new ("gauge_with_custom_stats",
                                         "Some description", (), statsConfigs);
         int i = 1;
         while (i < 6) {
@@ -97,7 +100,7 @@ service onlineStoreService on new http:Listener(9090) {
         result = caller->respond(res);
 
         if (result is error) {
-            log:printError("Error sending response", err = result);
+            log:printError("Error sending response", result);
         }
     }
 }

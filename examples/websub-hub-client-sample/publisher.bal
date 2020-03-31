@@ -1,7 +1,7 @@
 // The Ballerina WebSub Publisher brings up the internal Ballerina Hub,
 // registers a topic at the hub, and publishes updates to the topic.
-import ballerina/io;
 import ballerina/http;
+import ballerina/io;
 import ballerina/runtime;
 import ballerina/websub;
 
@@ -16,7 +16,7 @@ public function main() {
     } else if (result is websub:HubStartedUpError) {
         webSubHub = result.startedUpHub;
     } else {
-        io:println("Hub start error:" + <string> result.detail()?.message);
+        io:println("Hub start error:" + <string>result.detail()?.message);
         return;
     }
     // Registers a topic at the hub.
@@ -34,7 +34,7 @@ public function main() {
 
     // Publishes directly to the internal Ballerina Hub.
     var publishResponse = webSubHub.publishUpdate("http://websubpubtopic.com",
-                            { "action": "publish", "mode": "internal-hub" });
+                            {"action": "publish", "mode": "internal-hub"});
     if (publishResponse is error) {
         io:println("Error notifying hub: " +
                                     <string>publishResponse.detail()?.message);
@@ -47,7 +47,7 @@ public function main() {
 
     // Publishes directly to the internal Ballerina Hub.
     publishResponse = webSubHub.publishUpdate("http://websubpubtopic.com",
-                            { "action": "publish", "mode": "internal-hub" });
+                            {"action": "publish", "mode": "internal-hub"});
     if (publishResponse is error) {
         io:println("Error notifying hub: " +
                                     <string>publishResponse.detail()?.message);

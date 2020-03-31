@@ -104,3 +104,37 @@ function testNestedLambdaFunctions() returns string {
 function testFuncParams(string param) {
     string param = "This is invalid";
 }
+
+type Person record {
+    string name = "Smith";
+};
+string Person = "Smith"; // This variable name equals type name 'Person'
+
+function testTypeNameAsVariableInSameScope1() {
+}
+
+const Student = "Anne";
+type Student object { // This type name equals const name 'Student'
+    int studentId = 0;
+};
+
+function testTypeNameAsVariableInSameScope2() {
+}
+
+const Person1 = "Person";
+const Person2 = "Person";
+type Person Person1 | Person2; // This type name equals const name 'Person'
+
+type Vehicle object {
+    string name = "Car";
+};
+
+function testTypeNameAsVariableInDifferentScope1() {
+    string Vehicle = "Van";
+    Vehicle vehicle = new;
+}
+
+string returnVal = "Return value";
+
+function testVarAsReturnType() returns returnVal {
+}
