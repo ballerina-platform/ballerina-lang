@@ -84,7 +84,7 @@ class ProjectReport extends Component<{data: TestData, updateState: Function}> {
                             </td>]
                         }
                         return <tr id={module.name}>
-                        <td><a onClick={() => this.props.updateState("module", index)}>{module.name}</a></td>
+                        <td><span className="link" onClick={() => this.props.updateState("module", index)}>{module.name}</span></td>
                         <td>{module.totalTests}</td>
                         <td>{module.passed}</td>
                         <td>{module.failed}</td>

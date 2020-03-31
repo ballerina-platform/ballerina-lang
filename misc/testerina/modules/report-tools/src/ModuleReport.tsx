@@ -66,7 +66,7 @@ class ModuleStatusSummary extends Component<{ module: ModuleStatus}> {
                 <tbody>
                     {data.tests.map(function(test, index) {
                     let failure_reason = null
-                    if (test.status == "FAILURE") {
+                    if (test.status === "FAILURE") {
                         failure_reason =<tr className={test.status}><td className="small" colSpan={2}>{test.failureMessage}</td></tr>
                         
                     }

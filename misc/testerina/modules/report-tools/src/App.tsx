@@ -66,7 +66,6 @@ class App extends Component {
 
     let isCoverageAvailable = testData.moduleCoverage.length > 0
     let statusIcon
-    let statusReport = null
     if (testData.failed > 0) {
       statusIcon = <FailedIcon className="icon failed-icon" />
     } else if (testData.passed > 0) {
