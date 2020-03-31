@@ -21,7 +21,6 @@ import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Act
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Solution;
 import io.ballerinalang.compiler.internal.parser.tree.STCheckExpression;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
-import io.ballerinalang.compiler.internal.parser.tree.STModuleNamePart;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
@@ -316,9 +315,14 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseImportDecl() {
+        startContext(ParserRuleContext.IMPORT_DECL);
         STNode importKeyword = parseImportKeyword();
-        STNode identifier = parseIdentifier();
-        return parseImportDecl(importKeyword, identifier);
+        STNode identifier = parseIdentifier(ParserRuleContext.IMPORT_ORG_OR_MODULE_NAME);
+
+        STToken token = peek();
+        STNode importDecl = parseImportDecl(token.kind, importKeyword, identifier);
+        endContext();
+        return importDecl;
     }
 
     /**
@@ -341,12 +345,12 @@ public class BallerinaParser {
      * 
      * @return Parsed node
      */
-    private STNode parseIdentifier() {
+    private STNode parseIdentifier(ParserRuleContext currentCtx) {
         STToken token = peek();
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, null);
+            Solution sol = recover(token, currentCtx);
             return sol.recoveredNode;
         }
     }
@@ -354,35 +358,54 @@ public class BallerinaParser {
     /**
      * Parse dot or slash token.
      * 
+     * @param tokenKind
      * @return Parsed node
      */
-    private STNode parseImportDecl(STNode importKeyword, STNode identifier) {
-        STToken token = peek();
+    private STNode parseImportDecl(SyntaxKind tokenKind, STNode importKeyword, STNode identifier) {
         STNode orgName;
         STNode moduleName;
-        switch (token.kind) {
-            case DOT_TOKEN:
-                orgName = STNodeFactory.createEmptyNode();
-                moduleName = parseModuleName(identifier);
-                break;
+        STNode version;
+        STNode alias;
+
+        switch (tokenKind) {
             case SLASH_TOKEN:
                 STNode slash = parseSlashToken();
                 orgName = STNodeFactory.createOrgName(identifier, slash);
                 moduleName = parseModuleName();
+                version = parseVersion();
+                alias = parseImportPrefixDecl();
                 break;
+            case DOT_TOKEN:
             case VERSION_KEYWORD:
+                orgName = STNodeFactory.createEmptyNode();
+                moduleName = parseModuleName(tokenKind, identifier);
+                version = parseVersion();
+                alias = parseImportPrefixDecl();
+                break;
             case AS_KEYWORD:
+                orgName = STNodeFactory.createEmptyNode();
+                moduleName = parseModuleName(tokenKind, identifier);
+                version = STNodeFactory.createEmptyNode();
+                alias = parseImportPrefixDecl();
+                break;
             case SEMICOLON_TOKEN:
                 orgName = STNodeFactory.createEmptyNode();
-                moduleName = identifier;
+                moduleName = parseModuleName(tokenKind, identifier);
+                version = STNodeFactory.createEmptyNode();
+                alias = STNodeFactory.createEmptyNode();
                 break;
             default:
-                Solution solution = recover(peek(), null, importKeyword, identifier);
-                return solution.recoveredNode;
+                Solution solution = recover(peek(), ParserRuleContext.IMPORT_DECL_RHS, importKeyword, identifier);
+
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseImportDecl(solution.tokenKind, importKeyword, identifier);
         }
 
-        STNode version = parseVersion();
-        STNode alias = parseAlias();
         STNode semicolon = parseSemicolon();
         return STNodeFactory.createImportDecl(importKeyword, orgName, moduleName, version, alias, semicolon);
     }
@@ -412,28 +435,31 @@ public class BallerinaParser {
     }
 
     private STNode parseModuleName() {
-        STNode moduleNameStart = parseIdentifier();
-        return parseModuleName(moduleNameStart);
+        STNode moduleNameStart = parseIdentifier(ParserRuleContext.IMPORT_MODULE_NAME);
+        return parseModuleName(peek().kind, moduleNameStart);
     }
 
     /**
+     * Parse import module name, given the module name start identifier.
+     * 
      * @param moduleNameStart Starting identifier of the module name
-     * @return
+     * @return Parsed node
      */
-    private STNode parseModuleName(STNode moduleNameStart) {
+    private STNode parseModuleName(SyntaxKind nextTokenKind, STNode moduleNameStart) {
         List<STNode> moduleNameParts = new ArrayList<>();
+        moduleNameParts.add(moduleNameStart);
+
         STNode identifier;
         STNode dotToken;
-        STNode nextToken = peek();
-        while (!isEndOfImportModuleName(nextToken.kind)) {
-            dotToken = parseDotToken(nextToken.kind);
-            identifier = parseIdentifier();
+        while (!isEndOfImportModuleName(nextTokenKind)) {
+            dotToken = parseDotToken();
+            identifier = parseIdentifier(ParserRuleContext.IMPORT_MODULE_NAME);
             STNode moduleNamePart = STNodeFactory.createModuleNamePart(dotToken, identifier);
             moduleNameParts.add(moduleNamePart);
-            nextToken = peek();
+            nextTokenKind = peek().kind;
         }
 
-        return STNodeFactory.createModuleName(moduleNameStart, STNodeFactory.createNodeList(moduleNameParts));
+        return STNodeFactory.createNodeList(moduleNameParts);
     }
 
     private boolean isEndOfImportModuleName(SyntaxKind nextTokenKind) {
@@ -454,6 +480,7 @@ public class BallerinaParser {
             case TYPE_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CONST_KEYWORD:
+            case EOF_TOKEN:
                 return true;
             default:
                 return false;
@@ -480,7 +507,7 @@ public class BallerinaParser {
                 }
 
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.IMPORT_VERSION);
+                Solution solution = recover(token, ParserRuleContext.IMPORT_VERSION_DECL);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -575,7 +602,7 @@ public class BallerinaParser {
                 return STNodeFactory.createVersionPart(leadingDot, versionNumber);
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.IMPORT_VERSION);
+                Solution solution = recover(token, ParserRuleContext.IMPORT_SUB_VERSION);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -588,12 +615,12 @@ public class BallerinaParser {
         }
     }
 
-    private STNode parseAlias() {
+    private STNode parseImportPrefixDecl() {
         STToken token = peek();
-        return parseAlias(token.kind);
+        return parseImportPrefixDecl(token.kind);
     }
 
-    private STNode parseAlias(SyntaxKind nextTokenKind) {
+    private STNode parseImportPrefixDecl(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case AS_KEYWORD:
                 STNode asKeyword = parseAsKeyword();
@@ -607,7 +634,7 @@ public class BallerinaParser {
                 }
 
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.IMPORT_ALIAS);
+                Solution solution = recover(token, ParserRuleContext.IMPORT_PREFIX_DECL);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch

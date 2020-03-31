@@ -98,7 +98,7 @@ public class TokenReader extends AbstractTokenReader {
     }
 
     /**
-     * Switch the mode of the lexer to the given mode.
+     * Switch the mode of the token reader to the given mode.
      * 
      * @param mode Mode to switch on to
      */
@@ -107,7 +107,7 @@ public class TokenReader extends AbstractTokenReader {
     }
 
     /**
-     * Switch the mode of the lexer to {@link ParserMode#DEFAULT}
+     * Switch the mode of the token reader to {@link ParserMode#DEFAULT}.
      */
     public void resetMode() {
         this.lexer.resetMode();

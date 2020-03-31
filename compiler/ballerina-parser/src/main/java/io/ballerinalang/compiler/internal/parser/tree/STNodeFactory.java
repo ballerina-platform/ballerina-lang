@@ -317,10 +317,6 @@ public class STNodeFactory {
         return new STOrgName(identifier, slashToken);
     }
 
-    public static STNode createModuleName(STNode identifier, STNode moduleNameParts) {
-        return new STModuleName(identifier, moduleNameParts);
-    }
-
     public static STNode createModuleNamePart(STNode dotToken, STNode identifier) {
         return new STModuleNamePart(dotToken, identifier);
     }

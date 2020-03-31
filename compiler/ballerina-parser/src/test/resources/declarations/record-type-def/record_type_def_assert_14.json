@@ -60,7 +60,7 @@
                                                     "kind": "EQUAL_TOKEN"
                                                 },
                                                 {
-                                                    "kind": "NUMERIC_LITERAL_TOKEN",
+                                                    "kind": "DECIMAL_INTEGER_LITERAL",
                                                     "value": "0"
                                                 },
                                                 {
@@ -130,7 +130,7 @@
                                                                             "kind": "EQUAL_TOKEN"
                                                                         },
                                                                         {
-                                                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                                                            "kind": "DECIMAL_INTEGER_LITERAL",
                                                                             "value": "50"
                                                                         },
                                                                         {

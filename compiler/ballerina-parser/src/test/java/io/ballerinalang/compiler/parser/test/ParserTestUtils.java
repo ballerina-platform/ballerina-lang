@@ -273,6 +273,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_DEFINITION;
             case "FUNCTION_DEFINITION":
                 return SyntaxKind.FUNCTION_DEFINITION;
+            case "IMPORT_DECLARATION":
+                return SyntaxKind.IMPORT_DECLARATION;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -311,6 +313,12 @@ public class ParserTestUtils {
                 return SyntaxKind.CHECK_KEYWORD;
             case "CHECKPANIC_KEYWORD":
                 return SyntaxKind.CHECKPANIC_KEYWORD;
+            case "IMPORT_KEYWORD":
+                return SyntaxKind.IMPORT_KEYWORD;
+            case "VERSION_KEYWORD":
+                return SyntaxKind.VERSION_KEYWORD;
+            case "AS_KEYWORD":
+                return SyntaxKind.AS_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -377,8 +385,14 @@ public class ParserTestUtils {
                 return SyntaxKind.BINARY_EXPRESSION;
             case "STRING_LITERAL_TOKEN":
                 return SyntaxKind.STRING_LITERAL_TOKEN;
-            case "NUMERIC_LITERAL_TOKEN":
+            case "DECIMAL_INTEGER_LITERAL":
                 return SyntaxKind.DECIMAL_INTEGER_LITERAL;
+            case "HEX_INTEGER_LITERAL":
+                return SyntaxKind.HEX_INTEGER_LITERAL;
+            case "DECIMAL_FLOATING_POINT_LITERAL":
+                return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
+            case "HEX_FLOATING_POINT_LITERAL":
+                return SyntaxKind.HEX_FLOATING_POINT_LITERAL;
             case "FUNCTION_CALL":
                 return SyntaxKind.FUNCTION_CALL;
             case "POSITIONAL_ARG":
@@ -439,6 +453,18 @@ public class ParserTestUtils {
                 return SyntaxKind.OBJECT_FIELD;
             case "OBJECT_TYPE_DESCRIPTOR":
                 return SyntaxKind.OBJECT_TYPE_DESCRIPTOR;
+            case "ORG_NAME":
+                return SyntaxKind.ORG_NAME;
+            case "MODULE_NAME":
+                return SyntaxKind.MODULE_NAME;
+            case "MODULE_NAME_PART":
+                return SyntaxKind.MODULE_NAME_PART;
+            case "IMPORT_VERSION":
+                return SyntaxKind.IMPORT_VERSION;
+            case "VERSION_PART":
+                return SyntaxKind.VERSION_PART;
+            case "IMPORT_ALIAS":
+                return SyntaxKind.IMPORT_ALIAS;
 
             // Trivia
             case "EOF_TOKEN":

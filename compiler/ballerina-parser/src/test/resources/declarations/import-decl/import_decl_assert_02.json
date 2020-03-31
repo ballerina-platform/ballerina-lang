@@ -1,0 +1,44 @@
+{
+    "kind": "IMPORT_DECLARATION",
+    "children": [
+        {
+            "kind": "IMPORT_KEYWORD"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "foo"
+                },
+                {
+                    "kind": "MODULE_NAME_PART",
+                    "children": [
+                        {
+                            "kind": "DOT_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "bar"
+                        }
+                    ]
+                },
+                {
+                    "kind": "MODULE_NAME_PART",
+                    "children": [
+                        {
+                            "kind": "DOT_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "baz"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}

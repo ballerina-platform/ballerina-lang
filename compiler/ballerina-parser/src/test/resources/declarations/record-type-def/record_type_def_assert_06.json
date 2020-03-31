@@ -72,7 +72,7 @@
                                     "kind": "BINARY_EXPRESSION",
                                     "children": [
                                         {
-                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
                                             "value": "0"
                                         },
                                         {

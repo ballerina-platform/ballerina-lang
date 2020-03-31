@@ -64,7 +64,7 @@ public class BallerinaLexer {
     }
 
     /**
-     * Switch the mode of the lexer to {@link ParserMode#DEFAULT}
+     * Switch the mode of the lexer to {@link ParserMode#DEFAULT}.
      */
     public void resetMode() {
         this.mode = ParserMode.DEFAULT;
