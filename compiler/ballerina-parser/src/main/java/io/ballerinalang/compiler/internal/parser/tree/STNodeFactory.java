@@ -303,4 +303,8 @@ public class STNodeFactory {
     public static STNode createSyntaxTrivia(SyntaxKind kind, String text) {
         return new SyntaxTrivia(kind, text);
     }
+
+    public static STNode createContinueStatement(STNode continueKeyword, STNode semicolonToken) {
+        return new STContinueStatement(continueKeyword,semicolonToken);
+    }
 }

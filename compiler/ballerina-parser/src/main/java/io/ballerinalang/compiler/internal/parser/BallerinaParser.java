@@ -1636,6 +1636,8 @@ public class BallerinaParser {
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
                 return parseCallStatementWithCheck();
+            case CONTINUE_KEYWORD:
+                return parseContinueStatement();
             default:
                 // If the next token in the token stream does not match to any of the statements and
                 // if it is not the end of statement, then try to fix it and continue.
@@ -2951,6 +2953,35 @@ public class BallerinaParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.CHECKING_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse Continue statement.
+     * <code>continue-stmt := continue ; </code>
+     *
+     * @return Continue statement
+     */
+    private STNode parseContinueStatement() {
+        startContext(ParserRuleContext.CONTINUE_STATEMENT);
+        STNode continueKeyword = parseContinueKeyword();
+        STNode semicolon = parseSemicolon();
+        endContext();
+        return STNodeFactory.createContinueStatement(continueKeyword, semicolon);
+    }
+
+    /**
+     * Parse Continue-keyword.
+     *
+     * @return Continue-keyword node
+     */
+    private STNode parseContinueKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.CONTINUE_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.CONTINUE_KEYWORD);
             return sol.recoveredNode;
         }
     }

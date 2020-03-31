@@ -48,6 +48,7 @@ public enum SyntaxKind {
     WHILE_KEYWORD(207, "while"),
     CHECK_KEYWORD(208, "check"),
     CHECKPANIC_KEYWORD(209, "checkpanic"),
+    CONTINUE_KEYWORD(212,"continue"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -103,6 +104,7 @@ public enum SyntaxKind {
     ELSE_BLOCK(1204),
     WHILE_STATEMENT(1205),
     CALL_STATEMENT(1206),
+    CONTINUE_STATEMENT(1209),
 
     // Expressions
     BINARY_EXPRESSION(1300),
