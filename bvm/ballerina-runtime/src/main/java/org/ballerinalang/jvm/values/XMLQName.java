@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BString;
@@ -91,11 +90,6 @@ public final class XMLQName implements RefValue, BXMLQName {
     @Override
     public String stringValue() {
         return (uri == null || uri.isEmpty()) ? localName : '{' + uri + '}' + localName;
-    }
-
-    @Override
-    public BString bStringValue() {
-        return StringUtils.fromString(stringValue());
     }
 
     @Override

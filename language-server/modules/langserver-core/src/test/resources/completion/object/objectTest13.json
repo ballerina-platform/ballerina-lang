@@ -160,26 +160,6 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "InboundAuthHandlers",
-            "detail": "Union",
-            "documentation": {
-                "left": "Represents inbound auth handler patterns."
-            },
-            "sortText": "110",
-            "insertText": "InboundAuthHandlers",
-            "insertTextFormat": "Snippet"
-        },
-        {
-            "label": "Scopes",
-            "detail": "Union",
-            "documentation": {
-                "left": "Represents scopes patterns."
-            },
-            "sortText": "110",
-            "insertText": "Scopes",
-            "insertTextFormat": "Snippet"
-        },
-        {
             "label": "CredentialBearer",
             "detail": "Union",
             "documentation": {
@@ -345,7 +325,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
+                "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
             },
             "sortText": "180",
             "insertText": "FollowRedirects",
@@ -441,7 +421,7 @@
             "kind": "Interface",
             "detail": "Object",
             "documentation": {
-                "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+                "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
             },
             "sortText": "190",
             "insertText": "HttpFuture",
