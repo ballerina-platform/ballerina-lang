@@ -66,7 +66,7 @@ public class CommandConstants {
     public static final String ARG_KEY_MESSAGE = "message";
 
     // Command Titles
-    public static final String IMPORT_MODULE_TITLE = "Import Module ";
+    public static final String IMPORT_MODULE_TITLE = "Import Module '%s'";
 
     public static final String CREATE_VARIABLE_TITLE = "Create Local Variable";
 
