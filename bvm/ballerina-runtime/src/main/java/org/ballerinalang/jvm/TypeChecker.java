@@ -539,9 +539,17 @@ public class TypeChecker {
         return ((AnnotatableType) describingType).getAnnotation(annotTag);
     }
 
+    public static Object getAnnotValue(TypedescValue typedescValue, BString annotTag) {
+        BType describingType = typedescValue.getDescribingType();
+        if (!(describingType instanceof AnnotatableType)) {
+            return null;
+        }
+        return ((AnnotatableType) describingType).getAnnotation_bstring(annotTag);
+    }
+
     /**
      * Check whether a given type is equivalent to a target type.
-     * 
+     *
      * @param sourceType type to check
      * @param targetType type to compare with
      * @return flag indicating the the equivalence of the two types

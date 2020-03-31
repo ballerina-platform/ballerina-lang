@@ -39,6 +39,7 @@
             <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.types.anydata.*"/>
             <package name="org.ballerinalang.test.types.bytetype.*"/>
+            <package name="org.ballerinalang.test.types.constant.*"/>
             <package name="org.ballerinalang.test.types.string.*"/>
             <package name="org.ballerinalang.test.types.xml.*"/>
         </packages>

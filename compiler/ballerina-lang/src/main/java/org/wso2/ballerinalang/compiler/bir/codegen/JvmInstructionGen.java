@@ -796,7 +796,8 @@ public class JvmInstructionGen {
             this.loadVar(binaryIns.rhsOp1.variableDcl);
             this.loadVar(binaryIns.rhsOp2.variableDcl);
             this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "getAnnotValue",
-                    String.format("(L%s;L%s;)L%s;", TYPEDESC_VALUE, STRING_VALUE, OBJECT), false);
+                    String.format("(L%s;L%s;)L%s;", TYPEDESC_VALUE, isBString ? B_STRING_VALUE : STRING_VALUE,
+                            OBJECT), false);
 
             BType targetType = binaryIns.lhsOp.variableDcl.type;
             addUnboxInsn(this.mv, targetType);
