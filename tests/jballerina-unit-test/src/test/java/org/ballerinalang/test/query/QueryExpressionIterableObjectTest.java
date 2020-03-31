@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.query;
 
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -79,5 +80,13 @@ public class QueryExpressionIterableObjectTest {
         Assert.assertEquals(arr.getInt(i++), 21);
         Assert.assertEquals(arr.getInt(i), 90);
 
+    }
+
+    @Test
+    public void testIterableWithError() {
+        BValue[] returnValues = BRunUtil.invoke(program, "testIterableWithError");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(returnValues[0] instanceof BError, "Expected BErrorType type value");
     }
 }

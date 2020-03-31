@@ -2842,24 +2842,22 @@ public class TypeChecker extends BLangNodeVisitor {
 
         Map<Boolean, List<BType>> resultTypeMap = types.getAllTypes(targetType).stream()
                 .collect(Collectors.groupingBy(memberType -> (types.isAssignable(memberType, symTable.errorType) ||
-                        (types.isAssignable(memberType, symTable.errorType)))));
+                        (types.isAssignable(memberType, symTable.nilType)))));
         for (BType type : resultTypeMap.get(false)) {
-            if (type.tag != symTable.nilType.tag) {
-                BType selectType;
-                switch (type.tag) {
-                    case TypeTags.ARRAY:
-                        selectType = checkExpr(selectExp, env, ((BArrayType) type).eType);
-                        enclosedTypeTag = TypeTags.ARRAY;
-                        break;
-                    case TypeTags.STREAM:
-                        selectType = checkExpr(selectExp, env, ((BStreamType) type).constraint);
-                        break;
-                    default:
-                        selectType = checkExpr(selectExp, env, type);
-                }
-                if (selectType != symTable.semanticError) {
-                    assignableSelectTypes.add(selectType);
-                }
+            BType selectType;
+            switch (type.tag) {
+                case TypeTags.ARRAY:
+                    selectType = checkExpr(selectExp, env, ((BArrayType) type).eType);
+                    enclosedTypeTag = TypeTags.ARRAY;
+                    break;
+                case TypeTags.STREAM:
+                    selectType = checkExpr(selectExp, env, ((BStreamType) type).constraint);
+                    break;
+                default:
+                    selectType = checkExpr(selectExp, env, type);
+            }
+            if (selectType != symTable.semanticError) {
+                assignableSelectTypes.add(selectType);
             }
         }
 
