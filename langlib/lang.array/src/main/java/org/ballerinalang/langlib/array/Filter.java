@@ -28,8 +28,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
-
 /**
  * Native implementation of lang.array:filter(Type[], function).
  *
@@ -52,7 +50,7 @@ public class Filter {
         for (int i = 0, j = 0; i < size; i++) {
             val = arr.get(i);
             if (func.apply(new Object[]{strand, arr.get(i), true})) {
-                add(newArr, elemTypeTag, j++, val);
+                newArr.add(j++, val);
             }
         }
 
