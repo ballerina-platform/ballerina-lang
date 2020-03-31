@@ -75,6 +75,10 @@ public class STNodeFactory {
         return new STWhileStatement(whileKeyword, condition, whileBody);
     }
 
+    public static STNode createPanicStatement(STNode panicKeyword, STNode expression, STNode semicolonToken) {
+        return new STPanicStatement(panicKeyword, expression, semicolonToken);
+    }
+
     public static STNode createBlockStatement(STNode openBraceToken, STNode statements, STNode closeBraceToken) {
         return new STBlockStatement(openBraceToken, statements, closeBraceToken);
     }

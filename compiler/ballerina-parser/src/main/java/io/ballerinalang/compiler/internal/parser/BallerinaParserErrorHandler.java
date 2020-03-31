@@ -62,9 +62,9 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] FUNC_BODIES =
             { ParserRuleContext.FUNC_BODY_BLOCK, ParserRuleContext.EXTERNAL_FUNC_BODY };
 
-    private static final ParserRuleContext[] STATEMENTS =
-            { ParserRuleContext.ASSIGNMENT_STMT, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK,
-                    ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE };
+    private static final ParserRuleContext[] STATEMENTS = { ParserRuleContext.ASSIGNMENT_STMT,
+            ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK, ParserRuleContext.WHILE_BLOCK,
+            ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE, ParserRuleContext.PANIC_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -718,6 +718,9 @@ public class BallerinaParserErrorHandler {
                     break;
                 case CALL_STMT_START:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, CALL_STATEMENT);
+                case PANIC_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.PANIC_KEYWORD;
+                    break;
                 case AS_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.AS_KEYWORD;
                     break;
@@ -1121,6 +1124,7 @@ public class BallerinaParserErrorHandler {
             case IF_BLOCK:
             case BLOCK_STMT:
             case WHILE_BLOCK:
+            case PANIC_STMT:
             case CALL_STMT:
             case IMPORT_DECL:
                 // case EXPRESSION:
@@ -1294,6 +1298,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.EXPRESSION;
             case CALL_STMT:
                 return ParserRuleContext.CALL_STMT_START;
+            case PANIC_STMT:
+                return ParserRuleContext.PANIC_KEYWORD;
+            case PANIC_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
             case FUNC_CALL:
                 return ParserRuleContext.IMPORT_PREFIX;
             case IMPORT_KEYWORD:
@@ -1604,6 +1612,7 @@ public class BallerinaParserErrorHandler {
             case BLOCK_STMT:
             case WHILE_BLOCK:
             case CALL_STMT:
+            case PANIC_STMT:
                 return true;
             default:
                 return false;

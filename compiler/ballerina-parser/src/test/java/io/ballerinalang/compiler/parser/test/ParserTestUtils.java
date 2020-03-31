@@ -313,6 +313,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CHECK_KEYWORD;
             case "CHECKPANIC_KEYWORD":
                 return SyntaxKind.CHECKPANIC_KEYWORD;
+            case "PANIC_KEYWORD":
+                return SyntaxKind.PANIC_KEYWORD;
             case "IMPORT_KEYWORD":
                 return SyntaxKind.IMPORT_KEYWORD;
             case "VERSION_KEYWORD":
@@ -427,6 +429,8 @@ public class ParserTestUtils {
                 return SyntaxKind.WHILE_STATEMENT;
             case "CALL_STATEMENT":
                 return SyntaxKind.CALL_STATEMENT;
+            case "PANIC_STATEMENT":
+                return SyntaxKind.PANIC_STATEMENT;
 
             // Others
             case "SIMPLE_TYPE":
