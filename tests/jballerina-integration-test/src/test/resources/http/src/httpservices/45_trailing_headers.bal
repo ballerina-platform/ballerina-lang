@@ -41,8 +41,11 @@ service initiator on new http:Listener(9256) {
                 secondTrailer = responseFromBackend.getHeader("baz", position = "trailing");
             }
 
+            int headerCount = responseFromBackend.getHeaderNames(position = "trailing").length();
+
             http:Response newResponse = new;
-            newResponse.setJsonPayload({ foo: <@untainted> firstTrailer, baz: <@untainted> secondTrailer });
+            newResponse.setJsonPayload({ foo: <@untainted> firstTrailer, baz: <@untainted> secondTrailer, count:
+                                        <@untainted> headerCount });
             newResponse.setHeader("response-trailer", trailerHeaderValue);
             var resultSentToClient = caller->respond(<@untainted> newResponse);
         } else {
@@ -73,6 +76,7 @@ service chunkingBackend on epBackend {
         var result = caller->respond(response);
     }
 }
+
 @http:ServiceConfig {
     chunking: http:CHUNKING_NEVER
 }
@@ -87,3 +91,30 @@ service nonChunkingBackend on epBackend {
         var result = caller->respond(response);
     }
 }
+
+@http:ServiceConfig {
+    chunking: http:CHUNKING_ALWAYS
+}
+service passthroughsvc on epBackend {
+    resource function forward(http:Caller caller, http:Request request) {
+        var responseFromBackend = clientEp->forward("/chunkingBackend/echo", request);
+        if (responseFromBackend is http:Response) {
+            var resultSentToClient = caller->respond(<@untainted> responseFromBackend);
+        } else {
+            var resultSentToClient = caller->respond("No response from backend");
+        }
+    }
+
+    resource function buildPayload(http:Caller caller, http:Request request) {
+        var responseFromBackend = clientEp->forward("/chunkingBackend/echo", request);
+        if (responseFromBackend is http:Response) {
+            var textPayload = responseFromBackend.getTextPayload();
+            responseFromBackend.setHeader("baz", "this trailer will get replaced", position = "trailing");
+            responseFromBackend.setHeader("barr", "this is a new trailer", position = "trailing");
+            var resultSentToClient = caller->respond(<@untainted> responseFromBackend);
+        } else {
+            var resultSentToClient = caller->respond("No response from backend");
+        }
+    }
+}
+

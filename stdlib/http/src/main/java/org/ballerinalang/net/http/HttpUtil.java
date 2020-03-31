@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -297,6 +298,11 @@ public class HttpUtil {
                     entityObj.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
                             new EntityBodyChannel(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream())));
                 } else {
+                    entityObj.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
+                }
+            } else {
+                if (HttpHeaderValues.CHUNKED.toString().equals(
+                        httpCarbonMessage.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()))) {
                     entityObj.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
                 }
             }
