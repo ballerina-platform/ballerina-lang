@@ -25,6 +25,3 @@ function testFunction1() {
     };
     addrMap.delete("city"); // Compile error
 }
-
-
-
