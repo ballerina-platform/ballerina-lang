@@ -20,7 +20,9 @@ package org.ballerinalang.test.object;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 
 /**
  * Test cases for code analysis in Object types.
@@ -32,6 +34,23 @@ public class ObjectFunctionCodeAnalysisTest {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/structs/object-function-code-analysis-negative.bal");
         BAssertUtil.validateError(compileResult, 0, "this function must return a result", 5, 3);
+    }
+
+    @Test
+    public void testObjectFunctionParamParentValidation() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/structs/object-function-code-analysis.bal");
+        BLangFunction function = (BLangFunction) compileResult.getAST().getFunctions().stream().findFirst().get();
+        function.requiredParams.removeIf(parameter -> parameter.parent != null);
+        Assert.assertEquals(function.requiredParams.size(), 0);
+    }
+
+    @Test
+    public void testObjectFunctionRestParamParentValidation() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/structs/object-function-code-analysis.bal");
+        BLangFunction function = (BLangFunction) compileResult.getAST().getFunctions().stream().findFirst().get();
+        Assert.assertTrue(function.restParam.parent != null);
     }
 
 }
