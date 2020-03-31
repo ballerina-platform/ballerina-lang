@@ -2833,8 +2833,7 @@ public class TypeChecker extends BLangNodeVisitor {
             whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, selectClause, parentEnv);
         }
 
-        BType lhsType = expType.tag == TypeTags.NONE ? collectionNode.type : expType;
-        BType actualType = findAssignableType(whereEnv, selectClause.expression,  collectionNode.type, lhsType);
+        BType actualType = findAssignableType(whereEnv, selectClause.expression,  collectionNode.type, expType);
         if (actualType != symTable.semanticError) {
             resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
         } else {
@@ -2844,23 +2843,21 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType findAssignableType(SymbolEnv env, BLangExpression selectExp, BType collectionType, BType targetType) {
         List<BType> assignableSelectTypes = new ArrayList<>();
-
+        int enclosedTypeTag = targetType.tag == TypeTags.NONE ? collectionType.tag : expType.tag;
         BType actualType = symTable.semanticError;
-        int enclosedTypeTag = TypeTags.NONE;
-        Map<Boolean, List<BType>> resultTypeMap = types.getAllTypes(targetType).stream()
-                .collect(Collectors.groupingBy(memberType -> types.isAssignable(memberType, symTable.errorType)));
 
+        Map<Boolean, List<BType>> resultTypeMap = types.getAllTypes(targetType).stream()
+                .collect(Collectors.groupingBy(memberType -> (types.isAssignable(memberType, symTable.errorType) ||
+                        (types.isAssignable(memberType, symTable.errorType)))));
         for (BType type : resultTypeMap.get(false)) {
             if (type.tag != symTable.nilType.tag) {
                 BType selectType;
                 switch (type.tag) {
                     case TypeTags.ARRAY:
                         selectType = checkExpr(selectExp, env, ((BArrayType) type).eType);
-                        enclosedTypeTag = TypeTags.ARRAY;
                         break;
                     case TypeTags.STREAM:
                         selectType = checkExpr(selectExp, env, ((BStreamType) type).constraint);
-                        enclosedTypeTag = TypeTags.ARRAY;
                         break;
                     default:
                         selectType = checkExpr(selectExp, env, type);
@@ -2873,7 +2870,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (assignableSelectTypes.size() == 1) {
             actualType = assignableSelectTypes.get(0);
-            if (targetType.tag == TypeTags.ARRAY || enclosedTypeTag == TypeTags.ARRAY) {
+            if (enclosedTypeTag == TypeTags.ARRAY) {
                 actualType = new BArrayType(assignableSelectTypes.get(0));
             }
         } else if (assignableSelectTypes.size() > 1) {
