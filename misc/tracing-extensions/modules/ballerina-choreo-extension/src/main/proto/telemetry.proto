@@ -3,10 +3,8 @@ syntax = "proto3";
 option java_package = "org.ballerinalang.observe.trace.extension.choreo.gen";
 
 import "google/protobuf/empty.proto";
-import "google/protobuf/wrappers.proto";
 
 service Telemetry {
-
     rpc publishMetrics (MetricsPublishRequest)
     		returns (google.protobuf.Empty);
 
@@ -15,9 +13,10 @@ service Telemetry {
 }
 
 message MetricsPublishRequest {
-    string observabilityId = 1;  // ID received in the handshake
-    string instanceId = 2;
-    repeated Metric metrics = 3;
+    repeated Metric metrics = 1;
+    string observabilityId = 2;  // ID received in the handshake
+    string instanceId = 3;
+    string appId = 4;
 }
 
 message Metric {
@@ -28,9 +27,10 @@ message Metric {
 }
 
 message TracesPublishRequest {
-    string observabilityId = 1;  // ID received in the handshake
-    string instanceId = 2;
-    repeated TraceSpan spans = 3;
+    repeated TraceSpan spans = 1;
+    string observabilityId = 2;  // ID received in the handshake
+    string instanceId = 3;
+    string appId = 4;
 }
 
 message TraceSpan {

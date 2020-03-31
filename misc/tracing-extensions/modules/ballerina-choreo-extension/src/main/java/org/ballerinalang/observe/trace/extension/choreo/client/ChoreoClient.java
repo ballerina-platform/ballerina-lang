@@ -40,6 +40,7 @@ public class ChoreoClient implements AutoCloseable {
 
     private String id;      // ID received from the handshake
     private String instanceId;
+    private String appId;
     private ManagedChannel channel;
     private HandshakeGrpc.HandshakeBlockingStub handshakeClient;
     private TelemetryGrpc.TelemetryBlockingStub telemetryClient;
@@ -65,6 +66,7 @@ public class ChoreoClient implements AutoCloseable {
                 .build();
         HandshakeResponse handshakeResponse = handshakeClient.handshake(handshakeRequest);
         this.id = handshakeResponse.getObservabilityId();
+        this.appId = appId;
         boolean sendProgramJson = handshakeResponse.getSendProgramJson();
 
         if (sendProgramJson) {
@@ -96,6 +98,7 @@ public class ChoreoClient implements AutoCloseable {
         }
         telemetryClient.publishMetrics(requestBuilder.setObservabilityId(id)
                 .setInstanceId(instanceId)
+                .setAppId(appId)
                 .build());
     }
 
@@ -123,6 +126,7 @@ public class ChoreoClient implements AutoCloseable {
         }
         telemetryClient.publishTraces(requestBuilder.setObservabilityId(id)
                 .setInstanceId(instanceId)
+                .setAppId(appId)
                 .build());
     }
 
