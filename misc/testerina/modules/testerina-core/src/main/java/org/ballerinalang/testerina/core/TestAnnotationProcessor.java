@@ -39,9 +39,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -71,10 +73,12 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String DEPENDS_ON_FUNCTIONS = "dependsOn";
     private static final String MODULE = "moduleName";
     private static final String FUNCTION = "functionName";
+    private static final String OBJECT = "objectName";
     private static final String GROUP_ANNOTATION_NAME = "groups";
     private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
     private static final String TEST_ENABLE_ANNOTATION_NAME = "enable";
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
+    private static final String MOCK_OBJECT_DELIMITER = ":";
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
     private boolean enabled = true;
@@ -140,7 +144,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             } else if (AFTER_EACH_ANNOTATION_NAME.equals(annotationName)) {
                 suite.addAfterEachFunction(functionName);
             } else if (MOCK_ANNOTATION_NAME.equals(annotationName)) {
-                String[] vals = new String[2];
+                String[] vals = new String[3];
                 // TODO: when default values are supported in annotation struct we can remove this
                 vals[0] = packageName;
                 if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
@@ -169,6 +173,8 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                             vals[0] = value;
                         } else if (FUNCTION.equals(name)) {
                             vals[1] = value;
+                        } else if (OBJECT.equals(name)) {
+                            vals[2] = value;
                         }
                     });
                     
@@ -186,9 +192,10 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                                 "could not find module specified ");
                     }
 
-                    BType functionToMockType = getFunctionType(packageEnvironmentMap, functionToMockID, vals[1]);
+                    BType functionToMockType = getFunctionType(packageEnvironmentMap, functionToMockID,
+                            vals[1], vals[2]);
                     BType mockFunctionType = getFunctionType(packageEnvironmentMap, parent.packageID,
-                            ((BLangFunction) functionNode).name.toString());
+                            ((BLangFunction) functionNode).name.toString(), null);
 
                     if (functionToMockType != null && mockFunctionType != null) {
                         if (!typeChecker.isAssignable(mockFunctionType, functionToMockType)) {
@@ -201,11 +208,21 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                                 "could not find functions in module");
                     }
 
-                    //Creating a bLangTestablePackage to add a mock function
-                    BLangTestablePackage bLangTestablePackage =
-                            (BLangTestablePackage) ((BLangFunction) functionNode).parent;
-                    bLangTestablePackage.addMockFunction(vals[0] + MOCK_ANNOTATION_DELIMITER + vals[1],
-                            functionName);
+                    if (vals[2] != null) {
+                        //Creating a bLangTestablePackage to add a mock function
+                        BLangTestablePackage bLangTestablePackage =
+                                (BLangTestablePackage) ((BLangFunction) functionNode).parent;
+                        bLangTestablePackage.addMockFunction(vals[0]
+                                        + MOCK_OBJECT_DELIMITER + vals[2]
+                                        + MOCK_ANNOTATION_DELIMITER + vals[1], functionName);
+                    } else {
+                        //Creating a bLangTestablePackage to add a mock function
+                        BLangTestablePackage bLangTestablePackage =
+                                (BLangTestablePackage) ((BLangFunction) functionNode).parent;
+                        bLangTestablePackage.addMockFunction(vals[0] + MOCK_ANNOTATION_DELIMITER + vals[1],
+                                functionName);
+                    }
+
                 }
             } else if (TEST_ANNOTATION_NAME.equals(annotationName)) {
                 Test test = new Test();
@@ -312,16 +329,41 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
      * @param pkgEnvMap map of BPackageSymbol and its respective SymbolEnv
      * @param packageID Fully qualified package ID of the respective function
      * @param functionName Name of the function
+     * @param objectName Name of the object
      * @return Function type if found, null if not found
      */
-    private BType getFunctionType(Map<BPackageSymbol, SymbolEnv> pkgEnvMap, PackageID packageID, String functionName) {
+    private BType getFunctionType(Map<BPackageSymbol, SymbolEnv> pkgEnvMap, PackageID packageID, String functionName,
+                                  String objectName) {
         // Symbol resolver, Pass the acquired package Symbol from package cache
         for (Map.Entry<BPackageSymbol, SymbolEnv> entry : pkgEnvMap.entrySet()) {
             // Multiple packages may be present with same name, so all entries must be checked
             if (entry.getKey().pkgID.equals(packageID)) {
-                BSymbol symbol = symbolResolver.lookupSymbolInMainSpace(entry.getValue(), new Name(functionName));
-                if (!symbol.getType().toString().equals("other")) {
-                    return symbol.getType();
+                SymbolEnv entrySymbolEnv = entry.getValue();
+
+                // If the object name is specified then you have to exclusively check the entrySymbolEnv for the enclPkg
+                if (objectName != null) {
+                    BLangPackage enclPkg = entrySymbolEnv.enclPkg;
+                    List<BLangTypeDefinition> typeDefinitionList = enclPkg.getTypeDefinitions();
+
+                    // Look thru all the existing definitions for objectName
+                    for (BLangTypeDefinition objectBlangType : typeDefinitionList) {
+                        // If the correct type definition is found, we need to look thru its list of function
+                        if (objectBlangType.getName().toString().equals(objectName)) {
+                            List<BLangFunction> objectMethods =
+                                    ((BLangObjectTypeNode) objectBlangType.typeNode).getFunctions();
+                            // Check every method for the matching function name
+                            for (BLangFunction objectMethod : objectMethods) {
+                                if (objectMethod.getName().toString().equals(functionName)) {
+                                    return objectMethod.symbol.type;
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    BSymbol symbol = symbolResolver.lookupSymbolInMainSpace(entrySymbolEnv, new Name(functionName));
+                    if (!symbol.getType().toString().equals("other")) {
+                        return symbol.getType();
+                    }
                 }
             }
         }
@@ -354,7 +396,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             value = parent.packageID.toString();
 
         // If value does NOT contain 'ballerina/' then it could be fully qualified
-        } else if (!value.substring(0, 9).contains(Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value)) {
+        } else if (!value.contains(Names.BALLERINA_ORG.value + Names.ORG_NAME_SEPARATOR.value)) {
 
             // If value is NOT fully qualified, then it is probably a SINGLE module name that needs formatting
             if (!value.contains(Names.ORG_NAME_SEPARATOR.value) && !value.contains(Names.VERSION_SEPARATOR.value)) {
