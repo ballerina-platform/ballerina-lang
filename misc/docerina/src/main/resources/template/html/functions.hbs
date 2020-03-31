@@ -62,8 +62,13 @@
                     {{#each functions}}
                         <tbody>
                             <tr>
-                                <td width="30%" ><a class="functions" href="#{{name}}">{{name}}</a></td>
-                                <td width="70%">{{{ description }}}</td>
+                                {{#if isDeprecated}}
+                                    <td width="40%">@deprecated <a class="functions" href="#{{name}}">{{name}}</a></td>
+                                    <td width="60%">{{{ description }}}</td>
+                                {{else}}
+                                    <td width="40%"><a class="functions" href="#{{name}}">{{name}}</a></td>
+                                    <td width="60%">{{{ description }}}</td>
+                                {{/if}}
                             </tr>
                         </tbody>
                     {{/each}}

@@ -57,7 +57,13 @@
                 {{else}}
                     <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a>
                 {{/if}} :
-                <span class="objects">{{ object.name }}</span>
+                <span class="objects">
+                    {{#if object.isDeprecated}}
+                        @deprecated {{ object.name }}
+                    {{else}}
+                        {{ object.name }}
+                    {{/if}}
+                </span>
             </h1>
             <p>{{{ object.description }}}</p>
 

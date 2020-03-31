@@ -62,8 +62,13 @@
                     {{#each types}}
                         <div class="params-listing">
                             <ul>
-                                <li id="{{ name }}"><b>{{ name }}</b><span class="type">  {{{ unionTypeSummary
-                                        memberTypes }}}</span></li>
+                                {{#if isDeprecated}}
+                                    <li id="{{ name }}">@deprecated <b>{{ name }}</b><span class="type">
+                                        {{{ unionTypeSummary memberTypes }}}</span></li>
+                                {{else}}
+                                    <li id="{{ name }}"><b>{{ name }}</b><span class="type">  {{{ unionTypeSummary
+                                            memberTypes }}}</span></li>
+                                {{/if}}
                                 <li>
                                     {{{ description }}}
                                 </li>
@@ -73,7 +78,13 @@
                     {{#each module.finiteTypes }}
                         <div class="params-listing">
                             <ul>
-                                <li id="{{ name }}"><b>{{ name }}</b><span class="type">  {{{ pipeJoin valueSpace }}}</span></li>
+                                {{#if isDeprecated}}
+                                    <li id="{{ name }}">@deprecated <b>{{ name }}</b><span class="type">
+                                        {{{ pipeJoin valueSpace }}}</span></li>
+                                {{else}}
+                                    <li id="{{ name }}"><b>{{ name }}</b><span class="type">
+                                        {{{ pipeJoin valueSpace }}}</span></li>
+                                {{/if}}
                                 <li>
                                     {{{ description }}}
                                 </li>

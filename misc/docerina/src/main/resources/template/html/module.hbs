@@ -51,9 +51,15 @@
                 <table>
                     {{#each module.records}}
                         <tr>
-                            <td class="module-title truncate records" id="{{name}}" title="{{name}}">
-                                <a class="records"
-                                   href="records/{{name}}.html">{{name}}</a></td>
+                            {{#if isDeprecated}}
+                                <td class="module-title truncate records" id="{{name}}" title="{{name}}">
+                                    @deprecated <a class="records" href="records/{{name}}.html">{{name}}</a>
+                                </td>
+                            {{else}}
+                                <td class="module-title truncate records" id="{{name}}" title="{{name}}">
+                                    <a class="records" href="records/{{name}}.html">{{name}}</a>
+                                </td>
+                            {{/if}}
                             <td class="module-desc">{{{ description }}}</td>
                         </tr>
                     {{/each}}
@@ -72,12 +78,15 @@
                 <table>
                     {{#each module.objects}}
                         <tr>
-                            <td class="module-title truncate objects" id="{{name}}" title="{{name}}">
-                                <a class="objects"
-                                   href="objects/{{name}}.html">
-                                    {{name}}
-                                </a>
-                            </td>
+                            {{#if isDeprecated}}
+                                <td class="module-title truncate objects" id="{{name}}" title="{{name}}">
+                                    @deprecated <a class="objects" href="objects/{{name}}.html">{{name}}</a>
+                                </td>
+                            {{else}}
+                                <td class="module-title truncate objects" id="{{name}}" title="{{name}}">
+                                    <a class="objects" href="objects/{{name}}.html">{{name}}</a>
+                                </td>
+                            {{/if}}
                             <td class="module-desc">{{{ description }}}</td>
                         </tr>
                     {{/each}}
@@ -139,8 +148,13 @@
                 <table>
                     {{#each module.functions}}
                         <tr>
-                            <td class="module-title truncate functions" id="{{name}}" title="{{name}}"><a
-                                    class="functions" href="functions.html#{{name}}">{{name}}</a></td>
+                            {{#if isDeprecated}}
+                                <td class="module-title truncate functions" id="{{name}}" title="{{name}}">
+                                    @deprecated <a class="functions" href="functions.html#{{name}}">{{name}}</a></td>
+                            {{else}}
+                                <td class="module-title truncate functions" id="{{name}}" title="{{name}}"><a
+                                        class="functions" href="functions.html#{{name}}">{{name}}</a></td>
+                            {{/if}}
                             <td class="module-desc">{{{ description }}}</td>
                         </tr>
                     {{/each}}
@@ -160,8 +174,13 @@
                 <table>
                     {{#each module.constants}}
                         <tr>
-                            <td class="module-title truncate constant" id="{{name}}" title="{{name}}"><a
-                                    class="constant" href="constants.html#{{name}}">{{name}}</a></td>
+                            {{#if isDeprecated}}
+                                <td class="module-title truncate constant" id="{{name}}" title="{{name}}">
+                                    @deprecated <a class="constant" href="constants.html#{{name}}">{{name}}</a></td>
+                            {{else}}
+                                <td class="module-title truncate constant" id="{{name}}" title="{{name}}"><a
+                                        class="constant" href="constants.html#{{name}}">{{name}}</a></td>
+                            {{/if}}
                             <td class="module-desc">{{{ description }}}</td>
                         </tr>
                     {{/each}}
@@ -201,9 +220,15 @@
                 <table>
                     {{#each module.unionTypes}}
                         <tr>
-                            <td class="module-title truncate types" id="{{name}}" title="{{name}}">
-                                <a class="types" href="types.html#{{name}}">{{name}}</a>
-                            </td>
+                            {{#if isDeprecated}}
+                                <td class="module-title truncate types" id="{{name}}" title="{{name}}">
+                                    @deprecated <a class="types" href="types.html#{{name}}">{{name}}</a>
+                                </td>
+                            {{else}}
+                                <td class="module-title truncate types" id="{{name}}" title="{{name}}">
+                                    <a class="types" href="types.html#{{name}}">{{name}}</a>
+                                </td>
+                            {{/if}}
                             <td class="module-desc">{{{ description }}}</td>
                         </tr>
                     {{/each}}
@@ -222,9 +247,15 @@
                 <table>
                     {{#each module.errors}}
                         <tr>
-                            <td class="module-title truncate errors" id="{{name}}" title="{{name}}">
-                                <a class="errors" href="errors.html#{{name}}">{{name}}</a>
-                            </td>
+                            {{#if isDeprecated}}
+                                <td class="module-title truncate errors" id="{{name}}" title="{{name}}">
+                                    @deprecated <a class="errors" href="errors.html#{{name}}">{{name}}</a>
+                                </td>
+                            {{else}}
+                                <td class="module-title truncate errors" id="{{name}}" title="{{name}}">
+                                    <a class="errors" href="errors.html#{{name}}">{{name}}</a>
+                                </td>
+                            {{/if}}
                             <td class="module-desc">{{{ description }}}</td>
                         </tr>
                     {{/each}}

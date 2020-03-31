@@ -3,7 +3,11 @@
              <a class="url-link" href="#{{name}}">
                 <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
             </a>
-            <h2> {{name}} </h2>
+            {{#if isDeprecated}}
+                @deprecated <h2> {{name}} </h2>
+            {{else}}
+                <h2> {{name}} </h2>
+            {{/if}}
         {{#if returnParameters }}
         <span class="method-types">
             <p>({{{ paramSummary parameters }}})</p>

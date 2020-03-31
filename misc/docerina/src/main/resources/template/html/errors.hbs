@@ -61,7 +61,11 @@
                     {{#each errors}}
                         <div class="params-listing">
                             <ul>
-                                <li> <b>{{ name }} </b><span class="type">{{#if detailType }}{{{ typeName detailType }}}{{/if}}</span> {{ attachmentPoints }}</li>
+                                {{#if isDeprecated}}
+                                    <li>@deprecated <b>{{ name }} </b><span class="type">{{#if detailType }}{{{ typeName detailType }}}{{/if}}</span> {{ attachmentPoints }}</li>
+                                {{else}}
+                                    <li><b>{{ name }} </b><span class="type">{{#if detailType }}{{{ typeName detailType }}}{{/if}}</span> {{ attachmentPoints }}</li>
+                                {{/if}}
                                 <li>
                                     {{{ description }}}
                                 </li>
