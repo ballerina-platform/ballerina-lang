@@ -2287,8 +2287,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         // complete taint outcome of the current function.
         int requiredParamCount = invokableSymbol.params.size();
 
-        int namedArgsCount = (int) invocationExpr.requiredArgs.stream()
-                .filter(a -> a.getKind() == NodeKind.NAMED_ARGS_EXPR).count();
+        int namedArgsCount = countNamedArgs(invocationExpr);
         int requiredArgsCount = invocationExpr.requiredArgs.size() - namedArgsCount;
         int restArgsCount = invocationExpr.restArgs.size();
 
@@ -2395,6 +2394,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             }
         }
         getCurrentAnalysisState().taintedStatus = returnTaintedStatus;
+    }
+
+    private int countNamedArgs(BLangInvocation invocationExpr) {
+        int namedArgsCount = 0;
+        for (BLangExpression arg : invocationExpr.requiredArgs) {
+            if (arg.getKind() == NodeKind.NAMED_ARGS_EXPR) {
+                namedArgsCount++;
+            }
+        }
+        return namedArgsCount;
     }
 
     private List<Integer> getParamPositionsOfProvidedArguments(List<BLangExpression> args, List<BVarSymbol> params) {
