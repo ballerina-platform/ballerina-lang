@@ -23,10 +23,10 @@ import java.util.List;
  */
 public class Record extends Construct {
 
-    public List<DefaultableVarible> fields  = new ArrayList<>();
+    public List<DefaultableVariable> fields  = new ArrayList<>();
 
-    public Record(String name, String description, List<DefaultableVarible> fields) {
-        super(name, description);
+    public Record(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields) {
+        super(name, description, isDeprecated);
         this.fields = fields;
     }
 }
