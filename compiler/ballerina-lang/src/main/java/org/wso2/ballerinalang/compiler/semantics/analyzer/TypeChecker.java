@@ -1734,7 +1734,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkObjectFunctionInvocationExpr(iExpr, (BObjectType) varRefType);
                 break;
             case TypeTags.RECORD:
-                checkFieldFunctionPointer(iExpr);
+                checkFieldFunctionPointer(iExpr, this.env);
                 break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
@@ -1766,11 +1766,11 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean checkFieldFunctionPointer(BLangInvocation iExpr) {
-        BLangExpression invocationExpr = iExpr.expr;
+    private boolean checkFieldFunctionPointer(BLangInvocation iExpr, SymbolEnv env) {
+        BType type = checkExpr(iExpr.expr, env);
+
         BLangIdentifier invocationIdentifier = iExpr.name;
 
-        BType type = checkExpr(invocationExpr, this.env);
         if (type == symTable.semanticError) {
             return false;
         }
