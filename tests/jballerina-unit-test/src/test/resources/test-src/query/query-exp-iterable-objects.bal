@@ -59,3 +59,37 @@ public function testNestedIterableObject() returns int[] {
 
     return integers;
 }
+
+type IterableWithError object {
+    public function __iterator() returns abstract object {
+
+        public function next() returns record {|int value;|}|error?;
+    } {
+        object {
+            int[] integers = [12, 34, 56, 34, 78];
+            int cursorIndex = 0;
+            public function next() returns record {|int value;|}|error? {
+                self.cursorIndex += 1;
+                if (self.cursorIndex == 3) {
+                    return error("Custom error thrown.");
+                }
+                else if (self.cursorIndex <= 5) {
+                    return {
+                        value: self.integers[self.cursorIndex - 1]
+                    };
+                } else {
+                    return ();
+                }
+            }
+        } sample = new;
+        return sample;
+    }
+};
+
+public function testIterableWithError() returns int[]|error {
+    IterableWithError p = new IterableWithError();
+    int[]|error integers = from var item in p
+                     select item;
+
+    return integers;
+}
