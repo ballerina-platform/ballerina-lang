@@ -190,3 +190,12 @@ public function func5() {
 function add3(public int x, public int y, @deprecated int... z) {
     int n = z[0];
 }
+
+public function typeReturn() returns Foo { // Compile warning because 'Foo' is deprecated
+    Foo f = CONST2;
+    return f;
+}
+
+public function getType() {
+    Foo f = typeReturn();
+}

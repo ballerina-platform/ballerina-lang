@@ -1366,13 +1366,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
 
         analyzeTypeNode(varNode.typeNode, this.env);
-        BType varType = varNode.type;
-        if (varType != null) {
-            BTypeSymbol varTypeSymbol = varType.tsymbol;
-            if (varTypeSymbol != null && Symbols.isFlagOn(varTypeSymbol.flags, Flags.DEPRECATED)) {
-                dlog.warning(varNode.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, varNode.typeNode);
-            }
-        }
 
         analyzeExpr(varNode.expr);
 
@@ -2395,7 +2388,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangUserDefinedType userDefinedType) {
-        /* Ignore */
+        BTypeSymbol typeSymbol = userDefinedType.type.tsymbol;
+        if (typeSymbol != null && Symbols.isFlagOn(typeSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(userDefinedType.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, userDefinedType);
+        }
     }
 
     public void visit(BLangTupleTypeNode tupleTypeNode) {
