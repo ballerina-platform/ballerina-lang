@@ -31,7 +31,6 @@ import java.util.LinkedList;
 public class BLangMarkDownDeprecatedParametersDocumentation extends BLangExpression
         implements MarkDownDocumentationDeprecatedParametersAttributeNode {
 
-    public String deprecationLine;
     public boolean isCorrectDeprecationLine = false;
     public LinkedList<BLangMarkdownParameterDocumentation> parameters;
 
@@ -50,9 +49,8 @@ public class BLangMarkDownDeprecatedParametersDocumentation extends BLangExpress
     }
 
     @Override
-    public void addDeprecatedParametersLine(String text) {
-        deprecationLine = text;
-        if (deprecationLine.equals("# # Deprecated parameters")) {
+    public void setCorrectDeprecationLine(String text) {
+        if (text.equals("# # Deprecated parameters")) {
             isCorrectDeprecationLine = true;
         }
     }

@@ -32,5 +32,5 @@ public interface MarkDownDocumentationDeprecatedParametersAttributeNode extends 
 
     public LinkedList<BLangMarkdownParameterDocumentation> getParameters();
 
-    void addDeprecatedParametersLine(String text);
+    void setCorrectDeprecationLine(String text);
 }

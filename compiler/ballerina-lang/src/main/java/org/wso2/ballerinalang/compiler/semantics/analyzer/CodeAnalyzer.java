@@ -389,7 +389,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateParams(BLangFunction funcNode) {
-        funcNode.requiredParams.forEach(param -> analyzeNode(param, env));
+        for (BLangSimpleVariable parameter : funcNode.requiredParams) {
+            analyzeNode(parameter, env);
+        }
         if (funcNode.restParam != null) {
             analyzeNode(funcNode.restParam, env);
         }
