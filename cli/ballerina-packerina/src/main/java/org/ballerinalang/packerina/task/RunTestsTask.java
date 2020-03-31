@@ -78,10 +78,13 @@ public class RunTestsTask implements Task {
     private Path testJarPath;
     TestReport testReport;
 
-    public RunTestsTask(boolean coverage, String[] args) {
+    public RunTestsTask(boolean report, boolean coverage, String[] args) {
         this.coverage = coverage;
         this.args = args;
-        testReport = new TestReport();
+        this.report = report;
+        if (report || coverage) {
+            testReport = new TestReport();
+        }
     }
 
     public RunTestsTask(boolean report, boolean coverage, String[] args, List<String> groupList,
@@ -97,7 +100,10 @@ public class RunTestsTask implements Task {
             testerinaRegistry.setGroups(groupList);
             testerinaRegistry.setShouldIncludeGroups(true);
         }
-        testReport = new TestReport();
+
+        if (report || coverage) {
+            testReport = new TestReport();
+        }
     }
 
     @Override
@@ -118,15 +124,6 @@ public class RunTestsTask implements Task {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         List<BLangPackage> moduleBirMap = buildContext.getModules();
 
-        // Set projectName in test report
-        String projectName;
-        if (buildContext.get(BuildContextField.SOURCE_CONTEXT) instanceof SingleFileContext) {
-            SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
-            projectName = singleFileContext.getBalFile().toFile().getName();
-        } else {
-            projectName = sourceRootPath.toFile().getName();
-        }
-        testReport.setProjectName(projectName);
         int result = 0;
 
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
@@ -153,6 +150,15 @@ public class RunTestsTask implements Task {
             }
 
             if (report || coverage) {
+                // Set projectName in test report
+                String projectName;
+                if (buildContext.get(BuildContextField.SOURCE_CONTEXT) instanceof SingleFileContext) {
+                    SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                    projectName = singleFileContext.getBalFile().toFile().getName();
+                } else {
+                    projectName = sourceRootPath.toFile().getName();
+                }
+                testReport.setProjectName(projectName);
                 Path statusJsonPath = jsonPath.resolve(TesterinaConstants.STATUS_FILE);
                 try {
                     ModuleStatus moduleStatus = loadModuleStatusFromFile(statusJsonPath);

@@ -153,14 +153,15 @@ header {
 .table thead {
     border-bottom: 1px solid rgba(112, 112, 112, 0.1);
 }
-.table, .table td a {
+.table, .table td span.link {
     color: #707070;
 }
+
 .table td, .table th {
     padding: 1.5rem 1.2rem;
     word-break: break-word;
 }
-.table td a {
+.table td span.link {
     cursor: pointer;
     border-bottom: 1px dashed #707070;
 }

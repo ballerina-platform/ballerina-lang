@@ -17,7 +17,7 @@ class ModuleCoverageSummary extends Component<{ module: ModuleCoverage, modIndex
                 <tbody>
                 {data.sourceFiles.map((sourceFile, index) => {
                     return <tr id={sourceFile.name}>
-                        <td><a onClick={() => this.props.updateState("coverage", this.props.modIndex, index)}>{sourceFile.name}</a></td>
+                        <td><span className="link" onClick={() => this.props.updateState("coverage", this.props.modIndex, index)}>{sourceFile.name}</span></td>
                         <td>{sourceFile.coveredLines.length}</td>
                         <td>{sourceFile.missedLines.length}</td>
                         <td>
