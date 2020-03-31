@@ -136,6 +136,11 @@ public class FuncInvocationExprTest {
     }
 
     @Test
+    public void testInvocationWithArgVarargMix() {
+        BRunUtil.invoke(funcInvocationExpResult, "testInvocationWithArgVarargMix");
+    }
+
+    @Test
     public void testFunctionCallNegativeCases() {
         int i = 0;
         validateError(funcInvocationNegative, i++, "incompatible types: expected 'int', found 'string'", 3, 16);
@@ -177,8 +182,8 @@ public class FuncInvocationExprTest {
         validateError(methodInvocationNegative, i++, "incompatible types: expected 'string', found 'int'", 32, 12);
         validateError(methodInvocationNegative, i++, "incompatible types: expected '[float,boolean...]', found '[int," +
                 "boolean,boolean]'", 32, 18);
-        validateError(methodInvocationNegative, i++, "incompatible types: expected '[string,float,boolean...]', found " +
-                "'[float,string...]'", 34, 15);
+        validateError(methodInvocationNegative, i++, "incompatible types: expected '[string,float,boolean...]', " +
+                "found '[float,string...]'", 34, 15);
         validateError(methodInvocationNegative, i++, "rest argument not allowed after named arguments", 42, 22);
         validateError(methodInvocationNegative, i++, "incompatible types: expected '[float,boolean...]', found " +
                 "'boolean[]'", 44, 26);

@@ -3717,7 +3717,9 @@ public class TypeChecker extends BLangNodeVisitor {
             errored = true;
         }
 
-        if (restParam == null && (vararg != null || !iExpr.restArgs.isEmpty())) {
+        if (restParam == null &&
+                (!iExpr.restArgs.isEmpty() ||
+                         (vararg != null && valueProvidedParams.size() == nonRestParams.size()))) {
             dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
             errored = true;
         }
