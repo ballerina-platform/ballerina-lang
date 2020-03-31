@@ -828,7 +828,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Inferred failover configurations passed into the failover client.\n"
+                "left": "Represents the inferred failover configurations passed into the failover client.\n"
             },
             "sortText": "180",
             "insertText": "FailoverInferredConfig",

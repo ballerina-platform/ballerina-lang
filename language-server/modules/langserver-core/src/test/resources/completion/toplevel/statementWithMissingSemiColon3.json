@@ -152,7 +152,7 @@
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                    "value": "Indicates that the client is only accepting responses whose freshness lifetime >= current age + min-fresh."
+                    "value": "Indicates that the client is only accepting responses whose freshness lifetime \u003e\u003d current age + min-fresh."
                 }
             },
             "sortText": "120",
@@ -2390,7 +2390,7 @@
             "documentation": {
                 "left": "Represents inbound auth handler patterns."
             },
-            "sortText": "110",
+            "sortText": "120",
             "insertText": "InboundAuthHandlers",
             "insertTextFormat": "Snippet"
         },
@@ -2400,7 +2400,7 @@
             "documentation": {
                 "left": "Represents scopes patterns."
             },
-            "sortText": "110",
+            "sortText": "120",
             "insertText": "Scopes",
             "insertTextFormat": "Snippet"
         },
@@ -2540,7 +2540,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
+                "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
             },
             "sortText": "120",
             "insertText": "FollowRedirects",
@@ -2628,7 +2628,7 @@
             "kind": "Interface",
             "detail": "Object",
             "documentation": {
-                "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+                "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
             },
             "sortText": "120",
             "insertText": "HttpFuture",
@@ -3349,7 +3349,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Inferred failover configurations passed into the failover client.\n"
+                "left": "Represents the inferred failover configurations passed into the failover client.\n"
             },
             "sortText": "120",
             "insertText": "FailoverInferredConfig",
@@ -3652,7 +3652,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Configurations for the WebSocket client endpoint.\n"
+                "left": "Configuration for the WebSocket client endpoint.\n"
             },
             "sortText": "120",
             "insertText": "WebSocketClientConfiguration",
@@ -3758,28 +3758,6 @@
             "insertTextFormat": "Snippet"
         },
         {
-            "label": "WebSocketFailoverClient",
-            "kind": "Interface",
-            "detail": "Object",
-            "documentation": {
-                "left": "A WebSocket client endpoint, which provides failover support for multiple WebSocket targets."
-            },
-            "sortText": "120",
-            "insertText": "WebSocketFailoverClient",
-            "insertTextFormat": "Snippet"
-        },
-        {
-            "label": "WebSocketFailoverClientConfiguration",
-            "kind": "Struct",
-            "detail": "Record",
-            "documentation": {
-                "left": "Configurations for the WebSocket client endpoint.\n"
-            },
-            "sortText": "120",
-            "insertText": "WebSocketFailoverClientConfiguration",
-            "insertTextFormat": "Snippet"
-        },
-        {
             "label": "BasicAuthHandler",
             "kind": "Interface",
             "detail": "Object",
@@ -3882,13 +3860,13 @@
             }
         },
         {
-            "label": "parseHeader(string headerValue)(([string,map<any>]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
+            "label": "parseHeader(string headerValue)(([string,map\u003cany\u003e]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError))",
             "kind": "Function",
             "detail": "Function",
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                    "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map<any>]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- Returns a tuple containing the value and its parameter map  \n  \n"
+                    "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map\u003cany\u003e]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- Returns a tuple containing the value and its parameter map  \n  \n"
                 }
             },
             "sortText": "120",

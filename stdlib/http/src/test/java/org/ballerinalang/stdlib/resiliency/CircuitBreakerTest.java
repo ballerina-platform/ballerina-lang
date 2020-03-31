@@ -90,18 +90,17 @@ public class CircuitBreakerTest {
                 BMap<String, BValue> err = (BMap<String, BValue>) ((BError) errs.getRefValue(i)).getDetails();
                 String errMsg = err.get(ERROR_MESSAGE_FIELD_NAME).stringValue();
                 Assert.assertTrue(errMsg != null && errMsg.startsWith(CB_ERROR_MSG),
-                        "Invalid error message from circuit breaker.");
+                                  "Invalid error message from circuit breaker.");
             }
         }
     }
 
     /**
-     * Test case scenario:
-     * - Initially the circuit is healthy and functioning normally.
-     * - Backend service becomes unavailable and eventually, the failure threshold is exceeded.
-     * - Requests afterwards are immediately failed, with a 503 response.
-     * - After the reset timeout expires, the circuit goes to HALF_OPEN state and a trial request is sent.
-     * - The backend service is not available and therefore, the request fails again and the circuit goes back to OPEN.
+     * Test case scenario: - Initially the circuit is healthy and functioning normally. - Backend service becomes
+     * unavailable and eventually, the failure threshold is exceeded. - Requests afterwards are immediately failed, with
+     * a 503 response. - After the reset timeout expires, the circuit goes to HALF_OPEN state and a trial request is
+     * sent. - The backend service is not available and therefore, the request fails again and the circuit goes back to
+     * OPEN.
      */
     @Test
     public void testTrialRunFailure() {
@@ -128,20 +127,17 @@ public class CircuitBreakerTest {
                 BMap<String, BValue> err = (BMap<String, BValue>) ((BError) errs.getRefValue(i)).getDetails();
                 String msg = err.get(ERROR_MESSAGE_FIELD_NAME).stringValue();
                 Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
-                        "Invalid error message from circuit breaker.");
+                                  "Invalid error message from circuit breaker.");
             }
         }
     }
 
     /**
-     * Test case scenario:
-     * - Initially the circuit is healthy and functioning normally.
-     * - Backend service respond with HTTP status code configured to consider as failures responses.
-     * eventually the failure threshold is exceeded.
-     * - Requests afterwards are immediately failed, with a 503 response.
-     * - After the reset timeout expires, the circuit goes to HALF_OPEN state and a trial request is sent.
-     * - The backend service is not available and therefore, the request fails again and the
-     * circuit goes back to OPEN.
+     * Test case scenario: - Initially the circuit is healthy and functioning normally. - Backend service respond with
+     * HTTP status code configured to consider as failures responses. eventually the failure threshold is exceeded. -
+     * Requests afterwards are immediately failed, with a 503 response. - After the reset timeout expires, the circuit
+     * goes to HALF_OPEN state and a trial request is sent. - The backend service is not available and therefore, the
+     * request fails again and the circuit goes back to OPEN.
      */
     @Test(description = "Test case for Circuit Breaker HTTP status codes.")
     public void testHttpStatusCodeFailure() {
@@ -157,10 +153,8 @@ public class CircuitBreakerTest {
     }
 
     /**
-     * Test case scenario:
-     * - Initially the circuit is healthy and functioning normally.
-     * - during the middle of execution circuit will be force fully opened.
-     * - Afterward requests should immediately fail.
+     * Test case scenario: - Initially the circuit is healthy and functioning normally. - during the middle of execution
+     * circuit will be force fully opened. - Afterward requests should immediately fail.
      */
     @Test(description = "Verify the functionality of circuit breaker force open implementation")
     public void testCBForceOpenScenario() {
@@ -176,11 +170,9 @@ public class CircuitBreakerTest {
     }
 
     /**
-     * Test case scenario:
-     * - Initially the circuit is healthy and functioning normally.
-     * - Backend service becomes unavailable and eventually, the failure threshold is exceeded.
-     * - After that circuit will be force fully closed.
-     * - Afterward success responses should received.
+     * Test case scenario: - Initially the circuit is healthy and functioning normally. - Backend service becomes
+     * unavailable and eventually, the failure threshold is exceeded. - After that circuit will be force fully closed. -
+     * Afterward success responses should received.
      */
     @Test(description = "Verify the functionality of circuit breaker force close implementation")
     public void testCBForceCloseScenario() {
@@ -199,9 +191,8 @@ public class CircuitBreakerTest {
     }
 
     /**
-     * Test case scenario:
-     * - Circuit Breaker configured with requestVolumeThreshold.
-     * - Circuit Breaker shouldn't interact with circuit state until the configured threshold exceeded.
+     * Test case scenario: - Circuit Breaker configured with requestVolumeThreshold. - Circuit Breaker shouldn't
+     * interact with circuit state until the configured threshold exceeded.
      */
     @Test(description = "Verify the functionality of circuit breaker request volume threshold implementation")
     public void testCBRequestVolumeThresholdSuccessResponseScenario() {
@@ -220,9 +211,8 @@ public class CircuitBreakerTest {
     }
 
     /**
-     * Test case scenario:
-     * - Circuit Breaker configured with requestVolumeThreshold.
-     * - Circuit Breaker shouldn't interact with circuit state until the configured threshold exceeded.
+     * Test case scenario: - Circuit Breaker configured with requestVolumeThreshold. - Circuit Breaker shouldn't
+     * interact with circuit state until the configured threshold exceeded.
      */
     @Test(description = "Verify the functionality of circuit breaker request volume threshold implementation")
     public void testCBRequestVolumeThresholdFailureResponseScenario() {
@@ -252,6 +242,18 @@ public class CircuitBreakerTest {
                 StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream()), value);
     }
 
+    @Test(description = "Test invalid RollingWindow configuration check")
+    public void testInvalidRollingWindowConfig() {
+        String expectedMessage =
+                "Circuit breaker 'timeWindowInMillis' value should be greater than the 'bucketSizeInMillis' value.";
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testInvalidRollingWindowConfiguration");
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertTrue(returnValues[0] instanceof BError);
+        String receivedErrorMessage = ((BMap) ((BError) returnValues[0]).getDetails()).getMap().get("message")
+                .toString();
+        Assert.assertEquals(receivedErrorMessage, expectedMessage);
+    }
+
     private void validateCBResponses(BValueArray responses, BValueArray errors,
                                      int index, int[] expectedStatusCodes) {
         for (int i = 0; i < responses.size(); i++) {
@@ -269,7 +271,7 @@ public class CircuitBreakerTest {
                 String msg = err.get(ERROR_MESSAGE_FIELD_NAME).stringValue();
 
                 Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
-                        "Invalid error message from circuit breaker.");
+                                  "Invalid error message from circuit breaker.");
             }
         }
     }

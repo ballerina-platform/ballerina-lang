@@ -23,5 +23,8 @@ public type Detail record {
     error cause?;
 };
 
+# Represents the reason for the RabbitMQ module related errors.
 public const RABBITMQ_ERROR = "{ballerina/rabbitmq}Error";
+
+# Represents the RabbitMQ module related errors.
 public type Error error<RABBITMQ_ERROR, Detail>;

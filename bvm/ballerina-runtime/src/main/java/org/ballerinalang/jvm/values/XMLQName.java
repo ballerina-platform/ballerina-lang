@@ -105,7 +105,7 @@ public final class XMLQName implements RefValue, BXMLQName {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof XMLQName)) {
+        if (!(obj instanceof XMLQName)) {
             return false;
         }
 

@@ -47,7 +47,7 @@ public class ConnectionPoolTest {
     private static final String DB_NAME1 = "TEST_SQL_CONN_POOL_1";
     private static final String DB_NAME2 = "TEST_SQL_CONN_POOL_2";
     private static final String SQL_SCRIPT = SQLDBUtils.SQL_RESOURCE_DIR + File.separator + SQLDBUtils.POOL_DIR +
-            File.separator + "connection_pool_test_data.sql";
+            File.separator + "connection-pool-test-data.sql";
     private static final String CONNECTION_TIMEOUT_ERROR_STRING =
             "Connection is not available, request timed out after";
 
