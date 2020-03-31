@@ -62,7 +62,7 @@ public type ApplicationErrorData record {|
 @deprecated
 public type DatabaseError error<DATABASE_ERROR_REASON, DatabaseErrorData>;
 
-# Identifies the error originating from application-level causes.
+# Identifies the errors originating from application-level causes.
 public const APPLICATION_ERROR_REASON = "{ballerinax/java.jdbc}ApplicationError";
 
 # Represents an error originating from application-level causes.

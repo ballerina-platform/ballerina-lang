@@ -28,7 +28,7 @@ public type Client client object {
 
     # Gets called when the JDBC client is instantiated.
     #
-    # c - Client configuration for JDBC client
+    # c - Client configuration for the JDBC client
     public function __init(ClientConfiguration c) {
         createClient(self, c, globalPoolConfigContainer.getGlobalPoolConfig());
     }
