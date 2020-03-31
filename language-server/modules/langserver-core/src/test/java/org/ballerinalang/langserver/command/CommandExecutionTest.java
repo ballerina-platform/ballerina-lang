@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.command.executors.AddDocumentationExecutor;
 import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecutor;
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
-import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
@@ -85,22 +84,6 @@ public class CommandExecutionTest {
     @BeforeClass
     public void init() throws Exception {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
-    }
-
-    @Test(dataProvider = "package-import-data-provider")
-    public void testImportPackageCommand(String config, String source) {
-        LSContextManager.getInstance().clearAllContexts();
-        String configJsonPath = "command" + File.separator + config;
-        Path sourcePath = sourcesPath.resolve("source").resolve(source);
-        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        JsonObject expected = configJsonObject.get("expected").getAsJsonObject();
-        List<Object> args = Arrays.asList(
-                new CommandArgument("module", configJsonObject.get("module").getAsString()),
-                new CommandArgument("doc.uri", sourcePath.toUri().toString()));
-        JsonObject responseJson = getCommandResponse(args, ImportModuleExecutor.COMMAND);
-        responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
-                .forEach(element -> element.getAsJsonObject().remove("textDocument"));
-        Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
     @Test(dataProvider = "add-doc-data-provider")
@@ -300,15 +283,6 @@ public class CommandExecutionTest {
         }
         // Clear old test file
         Files.deleteIfExists(testFilePath);
-    }
-
-    @DataProvider(name = "package-import-data-provider")
-    public Object[][] addImportDataProvider() {
-        log.info("Test workspace/executeCommand for command {}", ImportModuleExecutor.COMMAND);
-        return new Object[][] {
-                {"importPackage1.json", "importPackage1.bal"},
-                {"importPackage2.json", "importPackage2.bal"},
-        };
     }
 
     @DataProvider(name = "add-doc-data-provider")
