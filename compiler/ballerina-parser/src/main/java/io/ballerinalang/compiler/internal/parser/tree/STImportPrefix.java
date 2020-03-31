@@ -17,27 +17,29 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.ImportPrefix;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 /**
  * @since 1.3.0
  */
-public class STModuleNamePart extends STNode {
-    public final STNode dotToken;
-    public final STNode identifier;
+public class STImportPrefix extends STNode {
 
-    STModuleNamePart(STNode dotToken, STNode identifier) {
-        super(SyntaxKind.MODULE_NAME_PART);
-        this.dotToken = dotToken;
-        this.identifier = identifier;
+    public final STNode asKeyword;
+    public final STNode prefix;
+
+    STImportPrefix(STNode asKeyword, STNode importPrefix) {
+        super(SyntaxKind.IMPORT_PREFIX);
+        this.asKeyword = asKeyword;
+        this.prefix = importPrefix;
 
         this.bucketCount = 2;
         this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(dotToken, 0);
-        this.addChildNode(identifier, 1);
+        this.addChildNode(asKeyword, 0);
+        this.addChildNode(importPrefix, 1);
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new ImportPrefix(this, position, parent);
     }
 }

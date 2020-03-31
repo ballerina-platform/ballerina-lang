@@ -5,7 +5,7 @@
             "kind": "IMPORT_KEYWORD"
         },
         {
-            "kind": "ORG_NAME",
+            "kind": "IMPORT_ORG_NAME",
             "children": [
                 {
                     "kind": "IDENTIFIER_TOKEN",
@@ -25,7 +25,7 @@
                     "value": "b"
                 },
                 {
-                    "kind": "MODULE_NAME_PART",
+                    "kind": "SUB_MODULE_NAME",
                     "children": [
                         {
                             "kind": "DOT_TOKEN",
@@ -38,7 +38,7 @@
                     ]
                 },
                 {
-                    "kind": "MODULE_NAME_PART",
+                    "kind": "SUB_MODULE_NAME",
                     "children": [
                         {
                             "kind": "DOT_TOKEN",
@@ -51,7 +51,7 @@
                     ]
                 },
                 {
-                    "kind": "MODULE_NAME_PART",
+                    "kind": "SUB_MODULE_NAME",
                     "children": [
                         {
                             "kind": "DOT_TOKEN",
@@ -64,7 +64,7 @@
                     ]
                 },
                 {
-                    "kind": "MODULE_NAME_PART",
+                    "kind": "SUB_MODULE_NAME",
                     "children": [
                         {
                             "kind": "DOT_TOKEN",

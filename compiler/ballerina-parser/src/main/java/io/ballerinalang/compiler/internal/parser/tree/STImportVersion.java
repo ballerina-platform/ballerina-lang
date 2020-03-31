@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.ImportVersion;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 /**
@@ -25,20 +26,20 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 public class STImportVersion extends STNode {
 
     public final STNode versionKeyword;
-    public final STNode semVer;
+    public final STNode versionNumber;
 
-    STImportVersion(STNode versionKeyword, STNode semVer) {
+    STImportVersion(STNode versionKeyword, STNode versionNumber) {
         super(SyntaxKind.IMPORT_VERSION);
         this.versionKeyword = versionKeyword;
-        this.semVer = semVer;
+        this.versionNumber = versionNumber;
 
         this.bucketCount = 2;
         this.childBuckets = new STNode[this.bucketCount];
         this.addChildNode(versionKeyword, 0);
-        this.addChildNode(semVer, 1);
+        this.addChildNode(versionNumber, 1);
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new ImportVersion(this, position, parent);
     }
 }

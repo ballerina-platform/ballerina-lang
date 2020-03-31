@@ -457,18 +457,18 @@ public class ParserTestUtils {
                 return SyntaxKind.OBJECT_FIELD;
             case "OBJECT_TYPE_DESCRIPTOR":
                 return SyntaxKind.OBJECT_TYPE_DESCRIPTOR;
-            case "ORG_NAME":
-                return SyntaxKind.ORG_NAME;
+            case "IMPORT_ORG_NAME":
+                return SyntaxKind.IMPORT_ORG_NAME;
             case "MODULE_NAME":
                 return SyntaxKind.MODULE_NAME;
-            case "MODULE_NAME_PART":
-                return SyntaxKind.MODULE_NAME_PART;
+            case "SUB_MODULE_NAME":
+                return SyntaxKind.SUB_MODULE_NAME;
             case "IMPORT_VERSION":
                 return SyntaxKind.IMPORT_VERSION;
-            case "VERSION_PART":
-                return SyntaxKind.VERSION_PART;
-            case "IMPORT_ALIAS":
-                return SyntaxKind.IMPORT_ALIAS;
+            case "IMPORT_SUB_VERSION":
+                return SyntaxKind.IMPORT_SUB_VERSION;
+            case "IMPORT_PREFIX":
+                return SyntaxKind.IMPORT_PREFIX;
 
             // Trivia
             case "EOF_TOKEN":

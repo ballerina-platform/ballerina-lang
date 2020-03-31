@@ -318,22 +318,22 @@ public class STNodeFactory {
     }
 
     public static STNode createOrgName(STNode identifier, STNode slashToken) {
-        return new STOrgName(identifier, slashToken);
+        return new STImportOrgName(identifier, slashToken);
     }
 
     public static STNode createModuleNamePart(STNode dotToken, STNode identifier) {
-        return new STModuleNamePart(dotToken, identifier);
+        return new STSubModuleName(dotToken, identifier);
     }
 
-    public static STNode createImportVersion(STNode versionKeyword, STNode semVer) {
-        return new STImportVersion(versionKeyword, semVer);
+    public static STNode createImportVersion(STNode versionKeyword, STNode versionNumber) {
+        return new STImportVersion(versionKeyword, versionNumber);
     }
 
     public static STNode createVersionPart(STNode leadingDot, STNode versionNumber) {
-        return new STImportVersionPart(leadingDot, versionNumber);
+        return new STImportSubVersion(leadingDot, versionNumber);
     }
 
-    public static STNode createImportAlias(STNode asKeyword, STNode importPrefix) {
-        return new STImportAlias(asKeyword, importPrefix);
+    public static STNode createImportPrefix(STNode asKeyword, STNode prefix) {
+        return new STImportPrefix(asKeyword, prefix);
     }
 }

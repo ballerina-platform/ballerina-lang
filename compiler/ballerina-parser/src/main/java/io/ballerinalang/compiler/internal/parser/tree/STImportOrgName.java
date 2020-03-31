@@ -17,28 +17,28 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.ImportOrgName;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 /**
  * @since 1.3.0
  */
-public class STImportVersionPart extends STNode {
+public class STImportOrgName extends STNode {
+    public final STNode orgName;
+    public final STNode slashToken;
 
-    public final STNode leadingDot;
-    public final STNode versionNumber;
-
-    STImportVersionPart(STNode leadingDot, STNode versionNumber) {
-        super(SyntaxKind.VERSION_PART);
-        this.leadingDot = leadingDot;
-        this.versionNumber = versionNumber;
+    STImportOrgName(STNode identifier, STNode slashToken) {
+        super(SyntaxKind.IMPORT_ORG_NAME);
+        this.orgName = identifier;
+        this.slashToken = slashToken;
 
         this.bucketCount = 2;
         this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingDot, 0);
-        this.addChildNode(versionNumber, 1);
+        this.addChildNode(identifier, 0);
+        this.addChildNode(slashToken, 1);
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new ImportOrgName(this, position, parent);
     }
 }

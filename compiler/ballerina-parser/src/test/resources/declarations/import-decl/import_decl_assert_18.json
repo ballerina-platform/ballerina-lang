@@ -12,7 +12,7 @@
                     "value": "a"
                 },
                 {
-                    "kind": "MODULE_NAME_PART",
+                    "kind": "SUB_MODULE_NAME",
                     "children": [
                         {
                             "kind": "DOT_TOKEN"
@@ -24,7 +24,7 @@
                     ]
                 },
                 {
-                    "kind": "MODULE_NAME_PART",
+                    "kind": "SUB_MODULE_NAME",
                     "children": [
                         {
                             "kind": "DOT_TOKEN"

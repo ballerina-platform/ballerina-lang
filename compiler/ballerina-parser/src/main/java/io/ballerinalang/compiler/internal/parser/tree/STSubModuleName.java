@@ -18,26 +18,27 @@
 package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SubModuleName;
 
 /**
  * @since 1.3.0
  */
-public class STOrgName extends STNode {
-    public final STNode identifier;
-    public final STNode slashToken;
+public class STSubModuleName extends STNode {
+    public final STNode leadingDot;
+    public final STNode moduleName;
 
-    STOrgName(STNode identifier, STNode slashToken) {
-        super(SyntaxKind.ORG_NAME);
-        this.identifier = identifier;
-        this.slashToken = slashToken;
+    STSubModuleName(STNode dotToken, STNode identifier) {
+        super(SyntaxKind.SUB_MODULE_NAME);
+        this.leadingDot = dotToken;
+        this.moduleName = identifier;
 
         this.bucketCount = 2;
         this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(identifier, 0);
-        this.addChildNode(slashToken, 1);
+        this.addChildNode(dotToken, 0);
+        this.addChildNode(identifier, 1);
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new SubModuleName(this, position, parent);
     }
 }

@@ -31,7 +31,7 @@
             ]
         },
         {
-            "kind": "IMPORT_ALIAS",
+            "kind": "IMPORT_PREFIX",
             "children": [
                 {
                     "kind": "AS_KEYWORD"

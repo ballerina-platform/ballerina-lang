@@ -17,28 +17,29 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.ImportSubVersion;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 /**
  * @since 1.3.0
  */
-public class STImportAlias extends STNode {
+public class STImportSubVersion extends STNode {
 
-    public final STNode asKeyword;
-    public final STNode importPrefix;
+    public final STNode leadingDot;
+    public final STNode versionNumber;
 
-    STImportAlias(STNode asKeyword, STNode importPrefix) {
-        super(SyntaxKind.IMPORT_ALIAS);
-        this.asKeyword = asKeyword;
-        this.importPrefix = importPrefix;
+    STImportSubVersion(STNode leadingDot, STNode versionNumber) {
+        super(SyntaxKind.IMPORT_SUB_VERSION);
+        this.leadingDot = leadingDot;
+        this.versionNumber = versionNumber;
 
         this.bucketCount = 2;
         this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(asKeyword, 0);
-        this.addChildNode(importPrefix, 1);
+        this.addChildNode(leadingDot, 0);
+        this.addChildNode(versionNumber, 1);
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new ImportSubVersion(this, position, parent);
     }
 }

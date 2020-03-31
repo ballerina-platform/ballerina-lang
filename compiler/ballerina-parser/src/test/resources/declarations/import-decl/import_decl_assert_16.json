@@ -28,7 +28,7 @@
                             "value": "5"
                         },
                         {
-                            "kind": "VERSION_PART",
+                            "kind": "IMPORT_SUB_VERSION",
                             "children": [
                                 {
                                     "kind": "DOT_TOKEN"
@@ -40,7 +40,7 @@
                             ]
                         },
                         {
-                            "kind": "VERSION_PART",
+                            "kind": "IMPORT_SUB_VERSION",
                             "children": [
                                 {
                                     "kind": "DOT_TOKEN"

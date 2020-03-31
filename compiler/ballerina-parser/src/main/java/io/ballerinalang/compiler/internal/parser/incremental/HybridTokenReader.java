@@ -64,11 +64,9 @@ public class HybridTokenReader extends AbstractTokenReader {
 
     @Override
     public void switchMode(ParserMode mode) {
-        // TODO
     }
 
     @Override
     public void resetMode() {
-        // TODO
     }
 }

@@ -574,8 +574,8 @@ public class BallerinaParser {
         switch (nextTokenKind) {
             case VERSION_KEYWORD:
                 STNode versionKeyword = parseVersionKeywrod();
-                STNode semVer = parseVersionNumber();
-                return STNodeFactory.createImportVersion(versionKeyword, semVer);
+                STNode versionNumber = parseVersionNumber();
+                return STNodeFactory.createImportVersion(versionKeyword, versionNumber);
             case AS_KEYWORD:
             case SEMICOLON_TOKEN:
                 return STNodeFactory.createEmptyNode();
@@ -752,8 +752,8 @@ public class BallerinaParser {
         switch (nextTokenKind) {
             case AS_KEYWORD:
                 STNode asKeyword = parseAsKeyword();
-                STNode importPrefix = parseImportPrefix();
-                return STNodeFactory.createImportAlias(asKeyword, importPrefix);
+                STNode prefix = parseImportPrefix();
+                return STNodeFactory.createImportPrefix(asKeyword, prefix);
             case SEMICOLON_TOKEN:
                 return STNodeFactory.createEmptyNode();
             default:

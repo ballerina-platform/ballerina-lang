@@ -17,11 +17,11 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.ImportDeclaration;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 /**
- * 
  * @since 1.3.0
  */
 public class STImportDeclaration extends STNode {
@@ -30,14 +30,14 @@ public class STImportDeclaration extends STNode {
     public final STNode orgName;
     public final STNode moduleName;
     public final STNode version;
-    public final STNode alias;
+    public final STNode prefix;
     public final STNode semicolon;
 
     STImportDeclaration(STNode importKeyword,
                         STNode orgName,
                         STNode moduleName,
                         STNode version,
-                        STNode alias,
+                        STNode prefix,
                         STNode semicolon) {
 
         super(SyntaxKind.IMPORT_DECLARATION);
@@ -45,7 +45,7 @@ public class STImportDeclaration extends STNode {
         this.orgName = orgName;
         this.moduleName = moduleName;
         this.version = version;
-        this.alias = alias;
+        this.prefix = prefix;
         this.semicolon = semicolon;
 
         this.bucketCount = 6;
@@ -54,12 +54,12 @@ public class STImportDeclaration extends STNode {
         this.addChildNode(orgName, 1);
         this.addChildNode(moduleName, 2);
         this.addChildNode(version, 3);
-        this.addChildNode(alias, 4);
+        this.addChildNode(prefix, 4);
         this.addChildNode(semicolon, 5);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new ImportDeclaration(this, position, parent);
     }
 }
