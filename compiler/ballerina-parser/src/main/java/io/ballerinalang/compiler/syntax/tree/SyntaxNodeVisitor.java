@@ -64,6 +64,10 @@ public abstract class SyntaxNodeVisitor {
     public void visit(BlockStatement blockStatement) {
         visitSyntaxNode(blockStatement);
     }
+    
+    public void visit(PanicStatement panicStatement) {
+        visitSyntaxNode(panicStatement);
+    }
 
     // Expressions
 

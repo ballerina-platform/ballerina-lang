@@ -40,6 +40,7 @@ public class LexerTerminals {
     public static final String IF = "if";
     public static final String ELSE = "else";
     public static final String WHILE = "while";
+    public static final String PANIC = "panic";
     public static final String TRUE = "true";
     public static final String FALSE = "false";
     public static final String CHECK = "check";
