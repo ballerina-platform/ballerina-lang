@@ -2861,6 +2861,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     break;
                 default:
                     selectType = checkExpr(selectExp, env, type);
+                    enclosedTypeTag = TypeTags.ARRAY;
             }
             if (selectType != symTable.semanticError) {
                 assignableSelectTypes.add(selectType);
@@ -2874,6 +2875,9 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         } else if (assignableSelectTypes.size() > 1) {
             dlog.error(selectExp.pos, DiagnosticCode.AMBIGUOUS_TYPES, assignableSelectTypes);
+            return actualType;
+        } else {
+            return actualType;
         }
 
         BType nextMethodReturnType = null;
