@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.balo.documentation;
 
+import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -102,6 +103,20 @@ public class DocumentationTest {
         Assert.assertNotNull(isMaleFuncSymbol.markdownDocumentation.returnValueDescription);
         Assert.assertEquals(isMaleFuncSymbol.markdownDocumentation.returnValueDescription
                 .replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING), "True if male");
+    }
+
+    @Test(description = "Test doc attachments in annotations")
+    public void testAnnotationDoc() {
+        PackageNode packageNode = result.getAST();
+        BPackageSymbol symbol = ((BLangPackage) packageNode).symbol;
+
+        BPackageSymbol testOrgPackage = (BPackageSymbol) symbol.scope.lookup(new Name("test")).symbol;
+        BSymbol annotationSymbol = testOrgPackage.scope.lookup(new Name("Test")).symbol;
+
+        MarkdownDocAttachment markdownDocumentation = annotationSymbol.markdownDocumentation;
+
+        Assert.assertNotNull(annotationSymbol.markdownDocumentation);
+        Assert.assertEquals(markdownDocumentation.description, "Documentation for Test annotation");
     }
 
     @AfterClass
