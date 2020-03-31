@@ -84,9 +84,6 @@ public class JClass {
 
         if (isDirectJavaClass()) {
             this.directClass = true;
-            if (isInterface) {
-                populateMethods(getMethods(Object.class));
-            }
             populateConstructors(c.getConstructors());
             populateInitFunctions();
             populateMethods(getMethods(c));
