@@ -43,6 +43,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-jsonutils')
     implementation project(':ballerina-xmlutils')
+    implementation project(':docerina')
 
     implementation 'com.h2database:h2'
     implementation 'org.testng:testng'

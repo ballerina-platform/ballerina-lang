@@ -278,7 +278,7 @@ public class Generator {
             if (param.getFlags().contains(Flag.PUBLIC)) {
                 String name = param.getName().value;
                 String desc = fieldAnnotation(node, param);
-                desc = desc.isEmpty() ? findDescFromList(name, documentation) : desc;
+                desc = desc.isEmpty() ? findDescFromList(name, documentation, param) : desc;
 
                 String defaultValue = EMPTY_STRING;
                 if (null != param.getInitialExpression()) {
@@ -292,17 +292,24 @@ public class Generator {
         return fields;
     }
 
-    private static String findDescFromList(String name, BLangMarkdownDocumentation documentation) {
+    private static String findDescFromList(String name, BLangMarkdownDocumentation documentation,
+            BLangSimpleVariable param) {
         if (documentation == null) {
             return EMPTY_STRING;
         }
-        Map<String, BLangMarkdownParameterDocumentation> parameterDocumentations =
-                documentation.getParameterDocumentations();
+        Map<String, BLangMarkdownParameterDocumentation> parameterDocumentations = documentation
+                .getParameterDocumentations();
         BLangMarkdownParameterDocumentation parameter = parameterDocumentations.get(name);
-        if (parameter == null) {
-            return EMPTY_STRING;
+        if (parameter != null) {
+            return BallerinaDocUtils.mdToHtml(parameter.getParameterDocumentation());
+        } else {
+            // Get field-level documentation
+            BLangMarkdownDocumentation paramDocAttach = param.getMarkdownDocumentationAttachment();
+            if (paramDocAttach == null) {
+                return EMPTY_STRING;
+            }
+            return BallerinaDocUtils.mdToHtml(paramDocAttach.getDocumentation());
         }
-        return BallerinaDocUtils.mdToHtml(parameter.getParameterDocumentation());
     }
 
     private static void addDocForObjectType(BLangObjectTypeNode objectType,
