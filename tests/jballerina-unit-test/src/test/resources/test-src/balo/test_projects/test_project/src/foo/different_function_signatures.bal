@@ -60,6 +60,13 @@ public function funcWithNilDefaultParamExpr_2(Student? s = ()) returns Student? 
     return s;
 }
 
+// ------------------- Test function signature with rest param
+public function bar(public int i, boolean... b) returns int {
+    return i;
+}
+
+public function baz(string s, public float f = 2.0, boolean... b) {
+}
 
 // ------------------- Test function signature for attached functions ------------------
 
@@ -92,5 +99,14 @@ public type Person object {
         string val = n + " world";
         int intVal = a + 10;
         return [intVal, val];
+    }
+};
+
+public type Foo client object {
+    public function bar(public int i, boolean... b) returns int {
+        return i;
+    }
+
+    public remote function baz(string s, public float f = 2.0, boolean... b) {
     }
 };
