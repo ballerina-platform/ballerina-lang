@@ -92,6 +92,9 @@ function testInvocationWithArgVarargMixWithoutDefaultableParam() {
     assertFalse(res[1][0]);
     assertTrue(res[1][1]);
     assertTrue(res[1][2]);
+
+    [int, string...] x = [1, "hello", "world"];
+    qux(...x);
 }
 
 function testInvocationWithArgVarargMixWithDefaultableParam() {
@@ -162,6 +165,12 @@ function baz(int i, boolean... b) returns [int, boolean[]] {
 
 function bar(int i, string s = "hello", string... t) returns [int, string, string[]] {
     return [i, s, checkpanic string[].constructFrom(t)];
+}
+
+function qux(int i, string... s) {
+    assertValueEquality(1, i);
+    assertValueEquality("hello", s[0]);
+    assertValueEquality("world", s[1]);
 }
 
 function testMethodInvocationWithArgVarargMixWithoutDefaultableParam() {
