@@ -2855,6 +2855,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 switch (type.tag) {
                     case TypeTags.ARRAY:
                         selectType = checkExpr(selectExp, env, ((BArrayType) type).eType);
+                        enclosedTypeTag = TypeTags.ARRAY;
                         break;
                     case TypeTags.STREAM:
                         selectType = checkExpr(selectExp, env, ((BStreamType) type).constraint);
