@@ -44,7 +44,7 @@ public class JField {
     private boolean isArray;
     private boolean isStatic;
     private boolean isString;
-    private boolean isObject = false;
+    private boolean isObject = true;
     private boolean isSetter = false;
     private JParameter fieldObj;
 
@@ -53,8 +53,8 @@ public class JField {
         Class type = field.getType();
         fieldType = getBallerinaParamType(type);
         externalType = getBallerinaHandleType(type);
-        if (!type.isPrimitive() || !type.equals(String.class)) {
-            isObject = true;
+        if (type.isPrimitive() || type.equals(String.class)) {
+            isObject = false;
         }
         if (fieldType.equals(BALLERINA_STRING)) {
             isString = true;
