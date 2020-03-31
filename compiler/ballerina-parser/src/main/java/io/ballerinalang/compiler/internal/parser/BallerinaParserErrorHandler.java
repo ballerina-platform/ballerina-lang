@@ -71,12 +71,12 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] PARAMETER_RHS = { ParserRuleContext.COMMA, ParserRuleContext.ASSIGN_OP };
 
-    private static final ParserRuleContext[] TOP_LEVEL_NODES =
+    private static final ParserRuleContext[] TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER =
             { ParserRuleContext.FUNC_DEFINITION, ParserRuleContext.MODULE_TYPE_DEFINITION };
 
-    private static final ParserRuleContext[] TOP_LEVEL_NODES_WITH_MODIFIERS =
+    private static final ParserRuleContext[] TOP_LEVEL_NODE =
             new ParserRuleContext[] { ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.FUNC_DEFINITION,
-                    ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.EOF };
+                    ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.IMPORT_DECL, ParserRuleContext.EOF };
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
             { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.VARIABLE_NAME };
@@ -146,11 +146,11 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] IMPORT_DECL_RHS = { ParserRuleContext.SLASH, ParserRuleContext.DOT,
             ParserRuleContext.VERSION_KEYWORD, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
 
-    private static final ParserRuleContext[] AFTER_IMPORT_MODULE_NAME =
-            { ParserRuleContext.VERSION_KEYWORD, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
-
-    private static final ParserRuleContext[] MAJOR_MINOR_VERSION_END = { ParserRuleContext.DOT,
+    private static final ParserRuleContext[] AFTER_IMPORT_MODULE_NAME = { ParserRuleContext.DOT,
             ParserRuleContext.VERSION_KEYWORD, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
+
+    private static final ParserRuleContext[] MAJOR_MINOR_VERSION_END =
+            { ParserRuleContext.DOT, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -287,7 +287,7 @@ public class BallerinaParserErrorHandler {
 
     private boolean isProductionWithAlternatives(ParserRuleContext currentCtx) {
         switch (currentCtx) {
-            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
+            case TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER:
             case TOP_LEVEL_NODE:
             case STATEMENT:
             case FUNC_BODY:
@@ -309,8 +309,9 @@ public class BallerinaParserErrorHandler {
             case ELSE_BODY:
             case IMPORT_DECL_RHS:
             case IMPORT_SUB_VERSION:
-            case SEM_VER:
+            case VERSION_NUMBER:
             case IMPORT_VERSION_DECL:
+            case IMPORT_PREFIX_DECL:
                 return true;
             default:
                 return false;
@@ -507,11 +508,11 @@ public class BallerinaParserErrorHandler {
                 case REMOTE_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.REMOTE_KEYWORD;
                     break;
-                case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TOP_LEVEL_NODES);
-                case TOP_LEVEL_NODE:
+                case TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
-                            TOP_LEVEL_NODES_WITH_MODIFIERS);
+                            TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER);
+                case TOP_LEVEL_NODE:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TOP_LEVEL_NODE);
                 case FUNCTION_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.FUNCTION_KEYWORD;
                     break;
@@ -724,6 +725,9 @@ public class BallerinaParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.TRUE_KEYWORD || nextToken.kind == SyntaxKind.FALSE_KEYWORD;
                     break;
                 case DECIMAL_INTEGER_LITERAL:
+                case MAJOR_VERSION:
+                case MINOR_VERSION:
+                case PATCH_VERSION:
                     hasMatch = nextToken.kind == SyntaxKind.DECIMAL_INTEGER_LITERAL;
                     break;
                 case IMPORT_KEYWORD:
@@ -771,7 +775,7 @@ public class BallerinaParserErrorHandler {
                 case IF_BLOCK:
                 case BLOCK_STMT:
                 case WHILE_BLOCK:
-                case SEM_VER:
+                case VERSION_NUMBER:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1118,6 +1122,7 @@ public class BallerinaParserErrorHandler {
             case BLOCK_STMT:
             case WHILE_BLOCK:
             case CALL_STMT:
+            case IMPORT_DECL:
                 // case EXPRESSION:
                 startContext(currentCtx);
                 break;
@@ -1138,7 +1143,7 @@ public class BallerinaParserErrorHandler {
                     return ParserRuleContext.OBJECT_FUNC_OR_FIELD;
                 }
 
-                return ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER;
+                return ParserRuleContext.TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER;
             case PRIVATE_KEYWORD:
                 return ParserRuleContext.OBJECT_FUNC_OR_FIELD;
             case FUNC_DEFINITION:
@@ -1202,10 +1207,10 @@ public class BallerinaParserErrorHandler {
             case VARIABLE_NAME:
             case PARAMETER_RHS:
                 return getNextRuleForVarName(nextLookahead);
-            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
+            case TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER:
                 return ParserRuleContext.FUNC_DEFINITION;
             case FUNC_BODY:
-                return ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER;
+                return ParserRuleContext.TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER;
             case REQUIRED_PARAM:
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
@@ -1295,7 +1300,7 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.IMPORT_ORG_OR_MODULE_NAME;
             case IMPORT_PREFIX:
                 return ParserRuleContext.SEMICOLON;
-            case SEM_VER:
+            case VERSION_NUMBER:
             case VERSION_KEYWORD:
                 return ParserRuleContext.MAJOR_VERSION;
             case SLASH:
@@ -1308,10 +1313,13 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.IMPORT_PREFIX;
             case MAJOR_VERSION:
             case MINOR_VERSION:
+            case IMPORT_SUB_VERSION:
                 return ParserRuleContext.MAJOR_MINOR_VERSION_END;
-            // return ParserRuleContext.MINOR_VERSION_END;
             case PATCH_VERSION:
                 return ParserRuleContext.IMPORT_PREFIX_DECL;
+            case IMPORT_DECL:
+                return ParserRuleContext.IMPORT_KEYWORD;
+
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
@@ -1331,7 +1339,6 @@ public class BallerinaParserErrorHandler {
             case FIELD_DESCRIPTOR_RHS:
             case FIELD_OR_REST_DESCIPTOR_RHS:
             case IMPORT_PREFIX_DECL:
-            case IMPORT_SUB_VERSION:
             case NAMED_OR_POSITIONAL_ARG_RHS:
             case OBJECT_MEMBER:
             case OBJECT_TYPE_DESCRIPTOR_START:
@@ -1443,7 +1450,7 @@ public class BallerinaParserErrorHandler {
                 if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
                     return ParserRuleContext.EOF;
                 }
-                return ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER;
+                return ParserRuleContext.TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER;
             case OBJECT_MEMBER:
                 endContext(); // end object member
                 // fall through
@@ -1454,7 +1461,7 @@ public class BallerinaParserErrorHandler {
                 if (parentCtx == ParserRuleContext.MODULE_TYPE_DEFINITION) {
                     return ParserRuleContext.SEMICOLON;
                 }
-                return ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER;
+                return ParserRuleContext.TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER;
             case BLOCK_STMT:
                 endContext(); // end block stmt
                 parentCtx = getParentContext();
@@ -1780,7 +1787,7 @@ public class BallerinaParserErrorHandler {
             case IMPORT_ORG_OR_MODULE_NAME:
             case IMPORT_PREFIX:
                 return SyntaxKind.IDENTIFIER_TOKEN;
-            case SEM_VER:
+            case VERSION_NUMBER:
             case MAJOR_VERSION:
             case MINOR_VERSION:
             case PATCH_VERSION:
@@ -1791,11 +1798,13 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.VERSION_KEYWORD;
             case IMPORT_DECL_RHS:
                 return SyntaxKind.SEMICOLON_TOKEN;
+            case IMPORT_SUB_VERSION:
+                return SyntaxKind.SEMICOLON_TOKEN;
 
             // TODO:
             case COMP_UNIT:
             case TOP_LEVEL_NODE:
-            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
+            case TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER:
             case ANNOTATION_ATTACHMENT:
             case PARAM_LIST:
             case PARAMETER_RHS:
@@ -1820,7 +1829,6 @@ public class BallerinaParserErrorHandler {
             case OBJECT_TYPE_DESCRIPTOR_START:
             case AFTER_IMPORT_MODULE_NAME:
             case ASSIGNMENT_OR_VAR_DECL_STMT_RHS:
-            case IMPORT_SUB_VERSION:
             case BLOCK_STMT:
             case CALL_STMT:
             case CALL_STMT_START:

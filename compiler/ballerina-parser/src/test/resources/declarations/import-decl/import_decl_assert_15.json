@@ -1,0 +1,85 @@
+{
+    "kind": "IMPORT_DECLARATION",
+    "children": [
+        {
+            "kind": "IMPORT_KEYWORD"
+        },
+        {
+            "kind": "ORG_NAME",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "a"
+                },
+                {
+                    "kind": "SLASH_TOKEN",
+                    "isMissing": true
+                }
+            ]
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "b"
+                },
+                {
+                    "kind": "MODULE_NAME_PART",
+                    "children": [
+                        {
+                            "kind": "DOT_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "c"
+                        }
+                    ]
+                },
+                {
+                    "kind": "MODULE_NAME_PART",
+                    "children": [
+                        {
+                            "kind": "DOT_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "d"
+                        }
+                    ]
+                },
+                {
+                    "kind": "MODULE_NAME_PART",
+                    "children": [
+                        {
+                            "kind": "DOT_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "e"
+                        }
+                    ]
+                },
+                {
+                    "kind": "MODULE_NAME_PART",
+                    "children": [
+                        {
+                            "kind": "DOT_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "f"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}

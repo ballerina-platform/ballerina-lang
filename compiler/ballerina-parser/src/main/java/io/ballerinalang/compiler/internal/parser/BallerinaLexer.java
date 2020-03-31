@@ -471,7 +471,7 @@ public class BallerinaLexer {
                 case 'e':
                 case 'E':
                     // In sem-var mode, only decimal integer literals are supported
-                    if (this.mode == ParserMode.SEM_VAR) {
+                    if (this.mode == ParserMode.IMPORT) {
                         break;
                     }
 

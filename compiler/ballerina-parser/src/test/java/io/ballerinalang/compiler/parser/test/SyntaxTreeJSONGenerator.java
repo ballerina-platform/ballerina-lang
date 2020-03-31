@@ -54,7 +54,7 @@ public class SyntaxTreeJSONGenerator {
      * Change the below two constants as required, depending on the type of test.
      */
     private static final boolean INCLUDE_TRIVIA = false;
-    private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.TOP_LEVEL_NODE;
+    private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.COMP_UNIT;
 
     private static final PrintStream STANDARD_OUT = System.out;
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");

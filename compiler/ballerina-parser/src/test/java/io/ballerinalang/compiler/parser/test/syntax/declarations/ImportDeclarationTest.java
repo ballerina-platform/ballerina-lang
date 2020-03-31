@@ -94,4 +94,49 @@ public class ImportDeclarationTest extends AbstractDeclarationTest {
     public void testMissingSemicolonAndModuleName() {
         test("import-decl/import_decl_source_13.bal", "import-decl/import_decl_assert_13.json");
     }
+
+    @Test
+    public void testMissingSemicolonAndVersionNumber() {
+        testFile("import-decl/import_decl_source_14.bal", "import-decl/import_decl_assert_14.json");
+    }
+
+    @Test
+    public void testDotInModuleName() {
+        test("import-decl/import_decl_source_15.bal", "import-decl/import_decl_assert_15.json");
+    }
+
+    @Test
+    public void testMissionVersionKeyword() {
+        test("import-decl/import_decl_source_16.bal", "import-decl/import_decl_assert_16.json");
+    }
+
+    @Test
+    public void testInvalidTokenAfterModuleName() {
+        test("import-decl/import_decl_source_17.bal", "import-decl/import_decl_assert_17.json");
+    }
+
+    @Test
+    public void testDotsAfterModuleName() {
+        test("import-decl/import_decl_source_18.bal", "import-decl/import_decl_assert_18.json");
+    }
+
+    @Test
+    public void testMissingVersionKeyWordAndAsKeyword() {
+        test("import-decl/import_decl_source_19.bal", "import-decl/import_decl_assert_19.json");
+    }
+
+    @Test
+    public void testInvalidTokenAfterOrgName() {
+        test("import-decl/import_decl_source_20.bal", "import-decl/import_decl_assert_20.json");
+    }
+
+    @Test
+    public void testInvalidTokensEverywhere() {
+        test("import-decl/import_decl_source_21.bal", "import-decl/import_decl_assert_21.json");
+    }
+
+    @Test
+    public void testOutOfOrderImport() {
+        testFile("import-decl/import_decl_source_22.bal", "import-decl/import_decl_assert_22.json");
+    }
 }

@@ -112,7 +112,7 @@ public class BallerinaParser {
                 return parseAfterParamType(parsedNodes[0], parsedNodes[1]);
             case PARAMETER_RHS:
                 return parseParameterRhs(parsedNodes[0], parsedNodes[1], parsedNodes[2]);
-            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
+            case TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER:
                 return parseTopLevelNode(parsedNodes[0]);
             case TOP_LEVEL_NODE:
                 return parseTopLevel();
@@ -160,6 +160,35 @@ public class BallerinaParser {
                 return parseWhileKeyword();
             case BOOLEAN_LITERAL:
                 return parseBooleanLiteral();
+            case MAJOR_VERSION:
+                return parseMajorVersion();
+            case IMPORT_DECL_RHS:
+                return parseImportDecl(parsedNodes[0], parsedNodes[1]);
+            case IMPORT_PREFIX:
+                return parseImportPrefix();
+            case IMPORT_MODULE_NAME:
+            case IMPORT_ORG_OR_MODULE_NAME:
+                return parseIdentifier(context);
+            case IMPORT_KEYWORD:
+                return parseImportKeyword();
+            case SLASH:
+                return parseSlashToken();
+            case DOT:
+                return parseDotToken();
+            case IMPORT_VERSION_DECL:
+                return parseVersion();
+            case VERSION_KEYWORD:
+                return parseVersionKeywrod();
+            case VERSION_NUMBER:
+                return parseVersionNumber();
+            case DECIMAL_INTEGER_LITERAL:
+                return parseDecimalIntLiteral(context);
+            case IMPORT_SUB_VERSION:
+                return parseSubVersion(context);
+            case IMPORT_PREFIX_DECL:
+                return parseImportPrefixDecl();
+            case AS_KEYWORD:
+                return parseAsKeyword();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -250,8 +279,28 @@ public class BallerinaParser {
         STToken token = peek();
         List<STNode> otherDecls = new ArrayList<>();
         List<STNode> importDecls = new ArrayList<>();
+
+        boolean processImports = true;
         while (token.kind != SyntaxKind.EOF_TOKEN) {
-            otherDecls.add(parseTopLevelNode(token.kind));
+            STNode decl = parseTopLevelNode(token.kind);
+            if (decl.kind == SyntaxKind.IMPORT_DECLARATION) {
+                if (processImports) {
+                    importDecls.add(decl);
+                } else {
+                    // If an import occurs after any other module level declaration,
+                    // we add it to the other-decl list to preserve the order. But
+                    // log an error and mark it as invalid.
+                    otherDecls.add(decl);
+                    this.errorHandler.reportInvalidNode(token, "imports must be declared before other declarations");
+                }
+            } else {
+                if (processImports) {
+                    // While processing imports, if we reach any other declaration,
+                    // then mark this as the end of processing imports.
+                    processImports = false;
+                }
+                otherDecls.add(decl);
+            }
             token = peek();
         }
 
@@ -311,16 +360,20 @@ public class BallerinaParser {
 
     /**
      * Parse import declaration.
+     * <p>
+     * <code>import-decl :=  import [org-name /] module-name [version sem-ver] [as import-prefix] ;</code>
      * 
      * @return Parsed node
      */
     private STNode parseImportDecl() {
         startContext(ParserRuleContext.IMPORT_DECL);
+        this.tokenReader.switchMode(ParserMode.IMPORT);
         STNode importKeyword = parseImportKeyword();
         STNode identifier = parseIdentifier(ParserRuleContext.IMPORT_ORG_OR_MODULE_NAME);
 
         STToken token = peek();
         STNode importDecl = parseImportDecl(token.kind, importKeyword, identifier);
+        this.tokenReader.resetMode();
         endContext();
         return importDecl;
     }
@@ -356,11 +409,18 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse dot or slash token.
+     * Parse RHS of the import declaration. This includes the components after the
+     * starting identifier (org-name/module-name) of the import decl.
      * 
-     * @param tokenKind
+     * @param importKeyword Import keyword
+     * @param identifier Org-name or the module name
      * @return Parsed node
      */
+    private STNode parseImportDecl(STNode importKeyword, STNode identifier) {
+        STToken nextToken = peek();
+        return parseImportDecl(nextToken.kind, importKeyword, identifier);
+    }
+
     private STNode parseImportDecl(SyntaxKind tokenKind, STNode importKeyword, STNode identifier) {
         STNode orgName;
         STNode moduleName;
@@ -410,6 +470,11 @@ public class BallerinaParser {
         return STNodeFactory.createImportDecl(importKeyword, orgName, moduleName, version, alias, semicolon);
     }
 
+    /**
+     * parse slash token.
+     * 
+     * @return Parsed node
+     */
     private STNode parseSlashToken() {
         STToken token = peek();
         if (token.kind == SyntaxKind.SLASH_TOKEN) {
@@ -420,6 +485,11 @@ public class BallerinaParser {
         }
     }
 
+    /**
+     * Parse dot token.
+     * 
+     * @return Parsed node
+     */
     private STNode parseDotToken() {
         STToken nextToken = peek();
         return parseDotToken(nextToken.kind);
@@ -434,13 +504,18 @@ public class BallerinaParser {
         }
     }
 
+    /**
+     * Parse module name of a import declaration.
+     * 
+     * @return Parsed node
+     */
     private STNode parseModuleName() {
         STNode moduleNameStart = parseIdentifier(ParserRuleContext.IMPORT_MODULE_NAME);
         return parseModuleName(peek().kind, moduleNameStart);
     }
 
     /**
-     * Parse import module name, given the module name start identifier.
+     * Parse import module name of a import declaration, given the module name start identifier.
      * 
      * @param moduleNameStart Starting identifier of the module name
      * @return Parsed node
@@ -463,13 +538,7 @@ public class BallerinaParser {
     }
 
     private boolean isEndOfImportModuleName(SyntaxKind nextTokenKind) {
-        switch (nextTokenKind) {
-            case VERSION_KEYWORD:
-            case AS_KEYWORD:
-                return true;
-            default:
-                return isEndOfImportDecl(nextTokenKind);
-        }
+        return nextTokenKind != SyntaxKind.DOT_TOKEN && nextTokenKind != SyntaxKind.IDENTIFIER_TOKEN;
     }
 
     private boolean isEndOfImportDecl(SyntaxKind nextTokenKind) {
@@ -487,6 +556,13 @@ public class BallerinaParser {
         }
     }
 
+    /**
+     * Parse version component of a import declaration.
+     * <p>
+     * <code>version-decl := version sem-ver</code>
+     * 
+     * @return Parsed node
+     */
     private STNode parseVersion() {
         STToken nextToken = peek();
         return parseVersion(nextToken.kind);
@@ -496,7 +572,7 @@ public class BallerinaParser {
         switch (nextTokenKind) {
             case VERSION_KEYWORD:
                 STNode versionKeyword = parseVersionKeywrod();
-                STNode semVer = parseSemVer();
+                STNode semVer = parseVersionNumber();
                 return STNodeFactory.createImportVersion(versionKeyword, semVer);
             case AS_KEYWORD:
             case SEMICOLON_TOKEN:
@@ -521,6 +597,11 @@ public class BallerinaParser {
 
     }
 
+    /**
+     * Parse version keywrod.
+     * 
+     * @return Parsed node
+     */
     private STNode parseVersionKeywrod() {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.VERSION_KEYWORD) {
@@ -531,23 +612,34 @@ public class BallerinaParser {
         }
     }
 
-    private STNode parseSemVer() {
-        this.tokenReader.switchMode(ParserMode.SEM_VAR);
+    /**
+     * Parse version number.
+     * <p>
+     * <code>sem-ver := major-num [. minor-num [. patch-num]]
+     * <br/>
+     * major-num := DecimalNumber
+     * <br/>
+     * minor-num := DecimalNumber
+     * <br/>
+     * patch-num := DecimalNumber
+     * </code>
+     * 
+     * @return Parsed node
+     */
+    private STNode parseVersionNumber() {
         STToken nextToken = peek();
-        STNode semVar = parseSemVer(nextToken.kind);
-        this.tokenReader.resetMode();
-        return semVar;
+        return parseVersionNumber(nextToken.kind);
     }
 
-    private STNode parseSemVer(SyntaxKind nextTokenKind) {
+    private STNode parseVersionNumber(SyntaxKind nextTokenKind) {
         STNode majorVersion;
         switch (nextTokenKind) {
             case DECIMAL_INTEGER_LITERAL:
-                majorVersion = parseDecimalIntLiteral();
+                majorVersion = parseMajorVersion();
                 break;
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.SEM_VER);
+                Solution solution = recover(token, ParserRuleContext.VERSION_NUMBER);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -556,17 +648,17 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseSemVer(solution.tokenKind);
+                return parseVersionNumber(solution.tokenKind);
         }
 
         List<STNode> versionParts = new ArrayList<>();
         versionParts.add(majorVersion);
 
-        STNode minorVersion = parseSubVersion();
+        STNode minorVersion = parseMinorVersion();
         if (minorVersion != null) {
             versionParts.add(minorVersion);
 
-            STNode patchVersion = parseSubVersion();
+            STNode patchVersion = parsePatchVersion();
             if (patchVersion != null) {
                 versionParts.add(patchVersion);
             }
@@ -576,29 +668,53 @@ public class BallerinaParser {
 
     }
 
-    private STNode parseDecimalIntLiteral() {
+    private STNode parseMajorVersion() {
+        return parseDecimalIntLiteral(ParserRuleContext.MAJOR_VERSION);
+    }
+
+    private STNode parseMinorVersion() {
+        return parseSubVersion(ParserRuleContext.MINOR_VERSION);
+    }
+
+    private STNode parsePatchVersion() {
+        return parseSubVersion(ParserRuleContext.PATCH_VERSION);
+    }
+
+    /**
+     * Parse decimal literal.
+     * 
+     * @param context Context in which the decimal literal is used.
+     * @return Parsed node
+     */
+    private STNode parseDecimalIntLiteral(ParserRuleContext context) {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.DECIMAL_INTEGER_LITERAL) {
             return consume();
         } else {
-            Solution sol = recover(peek(), ParserRuleContext.DECIMAL_INTEGER_LITERAL);
+            Solution sol = recover(peek(), context);
             return sol.recoveredNode;
         }
     }
 
-    private STNode parseSubVersion() {
+    /**
+     * Parse sub version. i.e: minor-version/patch-version.
+     * 
+     * @param context Context indicating what kind of sub-version is being parsed.
+     * @return Parsed node
+     */
+    private STNode parseSubVersion(ParserRuleContext context) {
         STToken nextToken = peek();
-        return parseSubVersion(nextToken.kind);
+        return parseSubVersion(nextToken.kind, context);
     }
 
-    private STNode parseSubVersion(SyntaxKind nextTokenKind) {
+    private STNode parseSubVersion(SyntaxKind nextTokenKind, ParserRuleContext context) {
         switch (nextTokenKind) {
             case AS_KEYWORD:
             case SEMICOLON_TOKEN:
                 return null;
             case DOT_TOKEN:
                 STNode leadingDot = parseDotToken();
-                STNode versionNumber = parseDecimalIntLiteral();
+                STNode versionNumber = parseDecimalIntLiteral(context);
                 return STNodeFactory.createVersionPart(leadingDot, versionNumber);
             default:
                 STToken token = peek();
@@ -611,10 +727,20 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseSemVer(solution.tokenKind);
+                return parseSubVersion(solution.tokenKind, context);
         }
     }
 
+    /**
+     * Parse import prefix declaration.
+     * <p>
+     * <code>import-prefix-decl := as import-prefix
+     * <br/>
+     * import-prefix := a identifier | _
+     * </code>
+     * 
+     * @return Parsed node
+     */
     private STNode parseImportPrefixDecl() {
         STToken token = peek();
         return parseImportPrefixDecl(token.kind);
@@ -643,10 +769,15 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseVersion(solution.tokenKind);
+                return parseImportPrefixDecl(solution.tokenKind);
         }
     }
 
+    /**
+     * Parse <code>as</code> keyword.
+     * 
+     * @return Parsed node
+     */
     private STNode parseAsKeyword() {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.AS_KEYWORD) {
@@ -657,6 +788,11 @@ public class BallerinaParser {
         }
     }
 
+    /**
+     * Parse import prefix.
+     * 
+     * @return Parsed node
+     */
     private STNode parseImportPrefix() {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
@@ -693,7 +829,7 @@ public class BallerinaParser {
                 return parseModuleTypeDefinition(modifier);
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER, modifier);
+                Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER, modifier);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch

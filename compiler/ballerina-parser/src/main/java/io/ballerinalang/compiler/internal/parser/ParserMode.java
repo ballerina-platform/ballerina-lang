@@ -24,5 +24,5 @@ package io.ballerinalang.compiler.internal.parser;
  */
 public enum ParserMode {
     DEFAULT,
-    SEM_VAR
+    IMPORT
 }
