@@ -237,7 +237,7 @@ public class JSONUtils {
 
         BType type = ((RefValue) json).getType();
         int typeTag = type.getTag();
-        return typeTag == TypeTags.JSON_TAG || typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
+        return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
     }
 
     /**
