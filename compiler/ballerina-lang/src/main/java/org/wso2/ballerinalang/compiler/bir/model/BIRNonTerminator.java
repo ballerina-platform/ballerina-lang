@@ -594,41 +594,6 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     }
 
     /**
-     * The new table instruction.
-     * <p>
-     * e.g. {@code table<Employee> tbEmployee = table {
-     *         { key id, name, salary },
-     *         [ { 1, "Mary",  300.5 },
-     *           { 2, "John",  200.5 },
-     *           { 3, "Jim", 330.5 }
-     *         ]
-     *      };}
-     *
-     * @since 0.995.0
-     */
-    public static class NewTable extends BIRNonTerminator {
-        public BIROperand columnsOp;
-        public BIROperand dataOp;
-        public BIROperand keyColOp;
-        public BType type;
-
-        public NewTable(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand columnsOp,
-                        BIROperand dataOp, BIROperand keyColOp) {
-            super(pos, InstructionKind.NEW_TABLE);
-            this.type = type;
-            this.lhsOp = lhsOp;
-            this.columnsOp = columnsOp;
-            this.dataOp = dataOp;
-            this.keyColOp = keyColOp;
-        }
-
-        @Override
-        public void accept(BIRVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
-    /**
      * A type cast expression.
      * <p>
      * e.g., int a = cast(int) b;

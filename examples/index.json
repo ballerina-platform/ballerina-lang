@@ -184,10 +184,6 @@
                 "url": "maps"
             },
             {
-                "name": "Table",
-                "url": "table"
-            },
-            {
                 "name": "Union Types",
                 "url": "union-type"
             },
@@ -897,29 +893,6 @@
             "name": "Directory Listener",
             "url": "directory-listener"
         }]
-    },
-    {
-        "title": "Database",
-        "column": 2,
-        "category": "Working over the network",
-        "samples": [
-            {
-                "name": "JDBC Client CRUD Operations",
-                "url": "jdbc-client-crud-operations"
-            },
-            {
-                "name": "JDBC Client Batch Update",
-                "url": "jdbc-client-batch-update"
-            },
-            {
-                "name": "JDBC Client Call Procedures",
-                "url": "jdbc-client-call-procedures"
-            },
-            {
-                "name": "Streaming a Big Dataset",
-                "url": "jdbc-streaming-big-dataset"
-            }
-        ]
     },
     {
         "title": "gRPC",

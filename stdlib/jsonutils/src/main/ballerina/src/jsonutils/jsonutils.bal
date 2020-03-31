@@ -44,15 +44,17 @@ function externFromXML(xml x, XmlOptions options = {}) returns json|error|handle
     class: "org.ballerinalang.stdlib.jsonutils.FromXML"
 } external;
 
-# Converts a table to its json representation.
-#
-# + tbl - The source table
-# + return - JSON representation of source table
-public function fromTable(table<record{}> tbl) returns json {
-    return externFromTable(tbl);
-}
 
-function externFromTable(table<record{}> tbl) returns json = @java:Method {
-    name: "fromTable",
-    class: "org.ballerinalang.stdlib.jsonutils.FromTable"
-} external;
+//TODO Table remove - Fix
+//# Converts a table to its json representation.
+//#
+//# + tbl - The source table
+//# + return - JSON representation of source table
+//public function fromTable(table<record{}> tbl) returns json {
+//    return externFromTable(tbl);
+//}
+//
+//function externFromTable(table<record{}> tbl) returns json = @java:Method {
+//    name: "fromTable",
+//    class: "org.ballerinalang.stdlib.jsonutils.FromTable"
+//} external;

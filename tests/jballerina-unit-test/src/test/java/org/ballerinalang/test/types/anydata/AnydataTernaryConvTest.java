@@ -130,7 +130,7 @@ public class AnydataTernaryConvTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataToTuple3");
         assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(returns[0].getType().toString(),
-                     "[[int|float|string|boolean|byte|table<any>|json|xml|ClosedFoo|Foo|map<anydata>|anydata[][]" +
+                     "[[int|float|string|boolean|byte|json|xml|ClosedFoo|Foo|map<anydata>|anydata[][]" +
                              ",string],int,float]");
         assertEquals(returns[0].stringValue(), "[[[{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
                 "Lost World</book>], \"hello world!\"], 123, 23.45]");

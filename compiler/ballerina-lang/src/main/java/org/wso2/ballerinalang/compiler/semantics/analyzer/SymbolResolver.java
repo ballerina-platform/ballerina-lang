@@ -51,7 +51,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -529,9 +528,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             case TypeTags.CHAR_STRING:
                 bSymbol = lookupLangLibMethodInModule(symTable.langStringModuleSymbol, name);
                 break;
-            case TypeTags.TABLE:
-                bSymbol = lookupLangLibMethodInModule(symTable.langTableModuleSymbol, name);
-                break;
             case TypeTags.TYPEDESC:
                 bSymbol = lookupLangLibMethodInModule(symTable.langTypedescModuleSymbol, name);
                 break;
@@ -973,16 +969,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         BType constrainedType = null;
-        if (type.tag == TypeTags.TABLE) {
-            if (constraintType.tag == TypeTags.OBJECT) {
-                dlog.error(constrainedTypeNode.pos, DiagnosticCode.OBJECT_TYPE_NOT_ALLOWED);
-                resultType = symTable.semanticError;
-                return;
-            }
-            // TODO: Fix to set type symbol with specified constraint, as with other constrained types.
-            resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
-            return;
-        } else if (type.tag == TypeTags.FUTURE) {
+        if (type.tag == TypeTags.FUTURE) {
             constrainedType = new BFutureType(TypeTags.FUTURE, constraintType, null);
         } else if (type.tag == TypeTags.MAP) {
             constrainedType = new BMapType(TypeTags.MAP, constraintType, null);
