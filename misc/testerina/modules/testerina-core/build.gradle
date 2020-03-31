@@ -28,7 +28,6 @@ dependencies {
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')
-    implementation project(':ballerina-jdbc')
     implementation project(':ballerina-email')
     implementation project(':ballerina-file')
     // implementation project(':ballerina-grpc')

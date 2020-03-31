@@ -134,8 +134,6 @@ public class LangLibValueTest {
         Assert.assertEquals(array.getString(i++), "object Student Rola from MMV");
         Assert.assertEquals(array.getString(i++),
                 "name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12");
-        Assert.assertEquals(array.getString(i++),
-                "id=1 age=30 salary=300.5 name=Mary married=true id=2 age=20 salary=300.5 name=John married=true");
         Assert.assertEquals(array.getString(i),
                             "varInt=6 " +
                             "varFloat=6.0 " +
@@ -154,9 +152,7 @@ public class LangLibValueTest {
                             "varObj=object Student " +
                             "varObj2=Rola from MMV " +
                             "varObjArr=object Student Rola from MMV " +
-                            "varRecord=name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12 " +
-                            "varTable=id=1 age=30 salary=300.5 name=Mary married=true id=2 age=20 salary=300.5 " +
-                            "name=John married=true");
+                            "varRecord=name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12");
     }
 
     @Test(dataProvider = "mergeJsonFunctions")

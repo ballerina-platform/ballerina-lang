@@ -22,7 +22,6 @@ import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.BlockNode;
@@ -151,7 +150,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangP
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -2763,7 +2761,6 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.TUPLE:
             case TypeTags.XML:
             case TypeTags.MAP:
-            case TypeTags.TABLE:
             case TypeTags.STREAM:
             case TypeTags.RECORD:
                 BInvokableSymbol iteratorSymbol = getLangLibIteratorInvokableSymbol(collectionSymbol);
@@ -3252,38 +3249,6 @@ public class Desugar extends BLangNodeVisitor {
         List<RecordLiteralNode.RecordField> fields =  recordLiteral.fields;
         fields.sort((v1, v2) -> Boolean.compare(isComputedKey(v1), isComputedKey(v2)));
         result = rewriteExpr(rewriteMappingConstructor(recordLiteral));
-    }
-
-    @Override
-    public void visit(BLangTableLiteral tableLiteral) {
-        tableLiteral.tableDataRows = rewriteExprs(tableLiteral.tableDataRows);
-        //Generate key columns Array
-        List<String> keyColumns = new ArrayList<>();
-        for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
-            if (column.flagSet.contains(TableColumnFlag.PRIMARYKEY)) {
-                keyColumns.add(column.columnName);
-            }
-        }
-        BLangArrayLiteral keyColumnsArrayLiteral = createArrayLiteralExprNode();
-        keyColumnsArrayLiteral.exprs = keyColumns.stream()
-                .map(expr -> ASTBuilderUtil.createLiteral(tableLiteral.pos, symTable.stringType, expr))
-                .collect(Collectors.toList());
-        keyColumnsArrayLiteral.type = new BArrayType(symTable.stringType);
-        tableLiteral.keyColumnsArrayLiteral = keyColumnsArrayLiteral;
-        //Generate index columns Array
-        List<String> indexColumns = new ArrayList<>();
-        for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
-            if (column.flagSet.contains(TableColumnFlag.INDEX)) {
-                indexColumns.add(column.columnName);
-            }
-        }
-        BLangArrayLiteral indexColumnsArrayLiteral = createArrayLiteralExprNode();
-        indexColumnsArrayLiteral.exprs = indexColumns.stream()
-                .map(expr -> ASTBuilderUtil.createLiteral(tableLiteral.pos, symTable.stringType, expr))
-                .collect(Collectors.toList());
-        indexColumnsArrayLiteral.type = new BArrayType(symTable.stringType);
-        tableLiteral.indexColumnsArrayLiteral = indexColumnsArrayLiteral;
-        result = tableLiteral;
     }
 
     @Override

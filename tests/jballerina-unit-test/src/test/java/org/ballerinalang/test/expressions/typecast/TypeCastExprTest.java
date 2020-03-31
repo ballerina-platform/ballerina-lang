@@ -23,7 +23,6 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BAssertUtil;
@@ -424,13 +423,14 @@ public class TypeCastExprTest {
         Assert.assertEquals(returns[0].toString(), "{\"home\":\"SriLanka\"}");
     }
 
-    @Test(description = "Test casting a any to table")
-    public void testAnyToTable() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnyToTable");
-        Assert.assertTrue(returns[0] instanceof BTable);
-        Assert.assertEquals(returns[0].stringValue(), "table<Employee> {index: [], primaryKey: [], data: [{id:1, "
-                + "name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
-    }
+    //TODO Table remove - Fix
+//    @Test(description = "Test casting a any to table")
+//    public void testAnyToTable() {
+//        BValue[] returns = BRunUtil.invoke(result, "testAnyToTable");
+//        Assert.assertTrue(returns[0] instanceof BTable);
+//        Assert.assertEquals(returns[0].stringValue(), "table<Employee> {index: [], primaryKey: [], data: [{id:1, "
+//                + "name:\"Jane\"}, {id:2, name:\"Anne\"}]}");
+//    }
 
     @Test(description = "Test casting a null as any type to json")
     public void testAnyNullToJson() {

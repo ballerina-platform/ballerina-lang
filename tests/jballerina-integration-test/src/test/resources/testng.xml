@@ -146,6 +146,11 @@
     </test>
 
     <test name="ballerina-transaction-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="brokenOnTableRemove"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
             <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
@@ -275,6 +280,7 @@
         <groups>
             <run>
                 <exclude name="brokenOnXMLChange"/>
+                <exclude name="brokenOnTableRemove"/>
             </run>
         </groups>
         <classes>
@@ -291,6 +297,11 @@
 
     <test name="ballerina-observability-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnTableRemove"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>

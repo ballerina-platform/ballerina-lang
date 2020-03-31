@@ -50,7 +50,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
@@ -535,11 +534,6 @@ public class Types {
                     unresolvedTypes);
         }
 
-        if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
-            return isAssignable(((BTableType) source).constraint, (((BTableType) target).constraint),
-                                unresolvedTypes);
-        }
-
         if (targetTag == TypeTags.STREAM && sourceTag == TypeTags.STREAM) {
             return isAssignable(((BStreamType) source).constraint, ((BStreamType) target).constraint, unresolvedTypes);
         }
@@ -1016,14 +1010,6 @@ public class Types {
             case TypeTags.XML:
                 varType = BUnionType.create(null, symTable.xmlType, symTable.stringType);
                 break;
-            case TypeTags.TABLE:
-                BTableType tableType = (BTableType) collectionType;
-                if (tableType.constraint.tag == TypeTags.NONE) {
-                    varType = symTable.anydataType;
-                    break;
-                }
-                varType = tableType.constraint;
-                break;
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) collectionType;
                 if (streamType.constraint.tag == TypeTags.NONE) {
@@ -1115,14 +1101,6 @@ public class Types {
                 break;
             case TypeTags.XML:
                 varType = BUnionType.create(null, symTable.xmlType, symTable.stringType);
-                break;
-            case TypeTags.TABLE:
-                BTableType tableType = (BTableType) collectionType;
-                if (tableType.constraint.tag == TypeTags.NONE) {
-                    varType = symTable.anydataType;
-                    break;
-                }
-                varType = tableType.constraint;
                 break;
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) collectionType;
@@ -1812,11 +1790,6 @@ public class Types {
 
         private boolean hasSameOptionalFlag(BVarSymbol s, BVarSymbol t) {
             return ((s.flags & Flags.OPTIONAL) ^ (t.flags & Flags.OPTIONAL)) != Flags.OPTIONAL;
-        }
-
-        @Override
-        public Boolean visit(BTableType t, BType s) {
-            return t == s;
         }
 
         public Boolean visit(BTupleType t, BType s) {
@@ -2822,7 +2795,6 @@ public class Types {
             case TypeTags.BOOLEAN:
             case TypeTags.JSON:
             case TypeTags.XML:
-            case TypeTags.TABLE:
             case TypeTags.NIL:
             case TypeTags.ANYDATA:
             case TypeTags.MAP:
