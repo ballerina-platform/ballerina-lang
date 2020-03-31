@@ -172,6 +172,11 @@ public class LangLibArrayTest {
     }
 
     @Test
+    public void testSliceOnTupleWithRestDesc() {
+        BRunUtil.invokeFunction(compileResult, "testSliceOnTupleWithRestDesc");
+    }
+
+    @Test
     public void testRemove() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemove");
         assertEquals(returns[0].stringValue(), "FooFoo");
