@@ -634,13 +634,7 @@ public class Types {
             default:
                 throw new IllegalArgumentException("Incompatible target type: " + type.toString());
         }
-
-        if (recordType.sealed) {
-            return recordFieldsAssignableToType(recordType, targetType);
-        } else {
-            return recordFieldsAssignableToType(recordType, targetType) &&
-                    isAssignable(recordType.restFieldType, targetType);
-        }
+        return recordFieldsAssignableToType(recordType, targetType);
     }
 
     private boolean recordFieldsAssignableToType(BRecordType recordType, BType targetType) {
@@ -649,6 +643,11 @@ public class Types {
                 return false;
             }
         }
+
+        if (!recordType.sealed) {
+            return isAssignable(recordType.restFieldType, targetType);
+        }
+
         return true;
     }
 
