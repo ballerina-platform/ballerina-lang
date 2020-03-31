@@ -298,7 +298,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangXMLElementAccess xmlElementAccess) {
         // check for undeclared namespaces.
         checkXMLNamespacePrefixes(xmlElementAccess.filters);
-        resultType = checkExpr(xmlElementAccess.expr, env, expType);
+        resultType = checkExpr(xmlElementAccess.expr, env, symTable.xmlType);
         // todo: we may need to add some logic to constrain result type to xml @namedSubType type.
     }
 
@@ -1319,7 +1319,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 symbol = symResolver.resolveStructField(varRefExpr.pos, env, objFuncName,
                         env.enclType.type.tsymbol);
             }
-            if ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) {
+
+            // TODO: call to isInLocallyDefinedRecord() is a temporary fix done to disallow local var references in
+            //  locally defined record type defs. This check should be removed once local var referencing is supported.
+            if (((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) && !isInLocallyDefinedRecord(symbol, env)) {
                 BVarSymbol varSym = (BVarSymbol) symbol;
                 checkSefReferences(varRefExpr.pos, env, varSym);
                 varRefExpr.symbol = varSym;
@@ -2500,18 +2503,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Annotation such as <@untainted [T]>, where T is not provided,
         // it's merely a annotation on contextually expected type.
+        BLangExpression expr = conversionExpr.expr;
         if (conversionExpr.typeNode == null && !conversionExpr.annAttachments.isEmpty()) {
-            BType expType = checkExpr(conversionExpr.expr, env, this.expType);
+            BType expType = checkExpr(expr, env, this.expType);
             resultType = expType;
             return;
         }
 
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         conversionExpr.targetType = targetType;
-        BType expType = requireTypeInference(conversionExpr.expr) ? targetType : symTable.noType;
-        BType sourceType = checkExpr(conversionExpr.expr, env, expType);
+        BType expType = requireTypeInference(expr, false) ? targetType : symTable.noType;
+        BType sourceType = checkExpr(expr, env, expType);
 
-        if (types.isTypeCastable(conversionExpr.expr, sourceType, targetType)) {
+        if (types.isTypeCastable(expr, sourceType, targetType)) {
             // We reach this block only if the cast is valid, so we set the target type as the actual type.
             actualType = targetType;
         } else {
@@ -2583,6 +2587,12 @@ public class TypeChecker extends BLangNodeVisitor {
         if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             dlog.error(bLangXMLQName.pos, DiagnosticCode.INVALID_NAMESPACE_PREFIX, prefix);
             bLangXMLQName.type = symTable.semanticError;
+            return;
+        }
+
+        // XML attributes without a namespace prefix does not inherit default namespace
+        // https://www.w3.org/TR/xml-names/#defaulting
+        if (bLangXMLQName.prefix.value.isEmpty()) {
             return;
         }
 
@@ -3074,6 +3084,17 @@ public class TypeChecker extends BLangNodeVisitor {
         if (env.enclVarSym == varSymbol) {
             dlog.error(pos, DiagnosticCode.SELF_REFERENCE_VAR, varSymbol.name);
         }
+    }
+
+    private boolean isInLocallyDefinedRecord(BSymbol symbol, SymbolEnv env) {
+        boolean isLocalSym = (symbol.owner.tag & SymTag.PACKAGE) != SymTag.PACKAGE;
+        boolean isInLetExpr = (symbol.owner.tag & SymTag.LET) == SymTag.LET;
+
+        // Skipping let expressions here since they're not allowed as record fields' default values currently and the
+        // error message related to that gets logged at a later stage. If we don't skip it here, the error message
+        // about let expressions not being allowed will not be logged.
+        return isLocalSym && !isInLetExpr &&
+                (env.enclType != null && env.enclType.getKind() == NodeKind.RECORD_TYPE);
     }
 
     public List<BType> getListWithErrorTypes(int count) {
@@ -3645,7 +3666,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return actualType;
         }
 
-        checkRestArgs(iExpr.restArgs, vararg, invokableTypeSymbol.restParam);
+        checkRestArgs(iExpr.restArgs, vararg, invokableTypeSymbol.restParam, iExpr.langLibInvocation);
         BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
 
         if (iExpr.async) {
@@ -3685,7 +3706,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 // if arg is positional, corresponding parameter in the same position should be of same type.
                 if (i < nonRestParams.size()) {
                     BVarSymbol param = nonRestParams.get(i);
-                    checkTypeParamExpr(arg, this.env, param.type);
+                    checkTypeParamExpr(arg, this.env, param.type, iExpr.langLibInvocation);
                     valueProvidedParams.add(param);
                     requiredParams.remove(param);
                     continue;
@@ -3711,7 +3732,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     dlog.error(arg.pos, DiagnosticCode.DUPLICATE_NAMED_ARGS, varSym.name.value);
                     continue;
                 }
-                checkTypeParamExpr(arg, this.env, varSym.type);
+                checkTypeParamExpr(arg, this.env, varSym.type, iExpr.langLibInvocation);
                 valueProvidedParams.add(varSym);
             }
         }
@@ -3722,51 +3743,65 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkRestArgs(List<BLangExpression> restArgExprs, BLangExpression vararg, BVarSymbol restParam) {
+    private void checkRestArgs(List<BLangExpression> restArgExprs, BLangExpression vararg, BVarSymbol restParam,
+                               boolean langlibInvocation) {
         if (vararg != null && !restArgExprs.isEmpty()) {
             dlog.error(vararg.pos, DiagnosticCode.INVALID_REST_ARGS);
             return;
         }
 
         if (vararg != null) {
-            checkExpr(vararg, this.env, restParam.type);
+            checkTypeParamExpr(vararg.getKind() == NodeKind.REST_ARGS_EXPR ?
+                                       ((BLangRestArgsExpression) vararg).expr.pos : vararg.pos,
+                               vararg, this.env, restParam.type, langlibInvocation);
             restArgExprs.add(vararg);
             return;
         }
 
+        if (restArgExprs.isEmpty()) {
+            return;
+        }
+
+        BType restType = ((BArrayType) restParam.type).eType;
         for (BLangExpression arg : restArgExprs) {
-            BType restType = ((BArrayType) restParam.type).eType;
-            checkExpr(arg, this.env, restType);
-            typeParamAnalyzer.checkForTypeParamsInArg(arg.type, env, restType);
+            checkTypeParamExpr(arg, this.env, restType, true);
         }
     }
 
-    private void checkTypeParamExpr(BLangExpression arg, SymbolEnv env, BType expectedType) {
+    private void checkTypeParamExpr(BLangExpression arg, SymbolEnv env, BType expectedType,
+                                    boolean inferTypeForNumericLiteral) {
+        checkTypeParamExpr(arg.pos, arg, env, expectedType, inferTypeForNumericLiteral);
+    }
+
+    private void checkTypeParamExpr(DiagnosticPos pos, BLangExpression arg, SymbolEnv env, BType expectedType,
+                                    boolean inferTypeForNumericLiteral) {
 
         if (typeParamAnalyzer.notRequireTypeParams(env)) {
             checkExpr(arg, env, expectedType);
             return;
         }
-        if (requireTypeInference(arg)) {
+        if (requireTypeInference(arg, inferTypeForNumericLiteral)) {
             // Need to infer the type. Calculate matching bound type, with no type.
             BType expType = typeParamAnalyzer.getMatchingBoundType(expectedType, env);
             BType inferredType = checkExpr(arg, env, expType);
-            typeParamAnalyzer.checkForTypeParamsInArg(inferredType, this.env, expectedType);
+            typeParamAnalyzer.checkForTypeParamsInArg(pos, inferredType, this.env, expectedType);
             return;
         }
         checkExpr(arg, env, expectedType);
-        typeParamAnalyzer.checkForTypeParamsInArg(arg.type, this.env, expectedType);
+        typeParamAnalyzer.checkForTypeParamsInArg(pos, arg.type, this.env, expectedType);
     }
 
-    private boolean requireTypeInference(BLangExpression expr) {
+    private boolean requireTypeInference(BLangExpression expr, boolean inferTypeForNumericLiteral) {
 
         switch (expr.getKind()) {
             case GROUP_EXPR:
-                return requireTypeInference(((BLangGroupExpr) expr).expression);
+                return requireTypeInference(((BLangGroupExpr) expr).expression, inferTypeForNumericLiteral);
             case ARROW_EXPR:
             case LIST_CONSTRUCTOR_EXPR:
             case RECORD_LITERAL_EXPR:
                 return true;
+            case NUMERIC_LITERAL:
+                return inferTypeForNumericLiteral;
             default:
                 return false;
         }
@@ -4640,7 +4675,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 return actualType;
             }
 
-            checkExpr(indexExpr, this.env);
+            BType type = checkExpr(indexExpr, this.env, symTable.intType);
+            if (type == symTable.semanticError) {
+                return type;
+            }
             actualType = symTable.xmlType;
             indexBasedAccessExpr.originalType = actualType;
         } else if (varRefType == symTable.semanticError) {

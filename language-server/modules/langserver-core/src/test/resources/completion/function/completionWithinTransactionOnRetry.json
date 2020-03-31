@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 96,
+    "line": 77,
     "character": 8
   },
   "source": "function/source/commonCompletionBlocks.bal",
@@ -67,6 +67,14 @@
       "detail": "Keyword",
       "sortText": "220",
       "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "check",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "check ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -265,7 +273,7 @@
       "kind": "Event",
       "detail": "Error",
       "documentation": {
-        "left": "Default error type.\nThe first type parameter discribe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
+        "left": "Default error type.\nThe first type parameter describe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
       },
       "sortText": "200",
       "insertText": "error",
@@ -398,6 +406,14 @@
       "detail": "Service",
       "sortText": "230",
       "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "onRetryVar",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "130",
+      "insertText": "onRetryVar",
       "insertTextFormat": "Snippet"
     },
     {
@@ -1269,6 +1285,29 @@
       ]
     },
     {
+      "label": "ballerina/mysql",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "mysql",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/mysql;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/task",
       "kind": "Module",
       "detail": "Module",
@@ -1495,6 +1534,29 @@
             }
           },
           "newText": "import ballerina/socket;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/sql",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "sql",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/sql;\n"
         }
       ]
     }

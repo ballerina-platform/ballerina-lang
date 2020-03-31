@@ -223,7 +223,8 @@ public class JvmInstructionGen {
 
         if (jType == null) {
             return;
-        } else if (jType.jTag == JTypeTags.JBYTE) {
+        }
+        if (jType.jTag == JTypeTags.JBYTE) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJByte", String.format("(L%s;)B", OBJECT), false);
         } else if (jType.jTag == JTypeTags.JCHAR) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJChar", String.format("(L%s;)C", OBJECT), false);
@@ -1111,8 +1112,14 @@ public class JvmInstructionGen {
             loadType(this.mv, tableNewIns.type);
             this.loadVar(tableNewIns.keyColOp.variableDcl);
             this.loadVar(tableNewIns.dataOp.variableDcl);
-            this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", String.format("(L%s;L%s;L%s;)V", BTYPE,
-                    ARRAY_VALUE, ARRAY_VALUE), false);
+            if (isBString) {
+                this.mv.visitInsn(ICONST_1);
+                this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", String.format("(L%s;L%s;L%s;Z)V", BTYPE,
+                        ARRAY_VALUE, ARRAY_VALUE), false);
+            } else {
+                this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", String.format("(L%s;L%s;L%s;)V", BTYPE,
+                        ARRAY_VALUE, ARRAY_VALUE), false);
+            }
             this.storeToVar(tableNewIns.lhsOp.variableDcl);
         }
 
@@ -1150,14 +1157,17 @@ public class JvmInstructionGen {
             this.loadVar(mapLoadIns.keyOp.variableDcl);
 
             if (varRefType.tag == TypeTags.JSON) {
+
                 if (mapLoadIns.optionalFieldAccess) {
-                    this.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+                    this.mv.visitTypeInsn(CHECKCAST, isBString ? B_STRING_VALUE : STRING_VALUE);
                     this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElementOrNil",
-                            String.format("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
+                            String.format("(L%s;L%s;)L%s;", OBJECT, isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT),
+                            false);
                 } else {
-                    this.mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+                    this.mv.visitTypeInsn(CHECKCAST, isBString ? B_STRING_VALUE : STRING_VALUE);
                     this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
-                            String.format("(L%s;L%s;)L%s;", OBJECT, STRING_VALUE, OBJECT), false);
+                            String.format("(L%s;L%s;)L%s;", OBJECT, isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT),
+                            false);
                 }
             } else {
                 if (mapLoadIns.fillingRead) {

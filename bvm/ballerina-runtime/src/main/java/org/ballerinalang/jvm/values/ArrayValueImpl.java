@@ -300,7 +300,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (byteValues != null) {
             return byteValues[(int) index];
         }
-        return (Byte) refValues[(int) index];
+        return ((Integer) refValues[(int) index]).byteValue();
     }
 
     /**
@@ -510,6 +510,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * 
      * @return the value that was the first member of the array
      */
+    @Override
     public Object shift() {
         return shift(0);
     }
@@ -568,11 +569,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
         }
         return sj.toString();
-    }
-
-    @Override
-    public BString bStringValue() {
-        return null;
     }
 
     @Override
@@ -926,7 +922,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
         // to the array, then an exception will be thrown.
         if (arrayType.hasFillerValue()) {
             return;
-        } else if (index > size) {
+        }
+        if (index > size) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
                                                            RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
         }
@@ -966,31 +963,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
     protected void unshift(long index, ArrayValue vals) {
         handleFrozenArrayValue();
         unshiftArray(index, vals.size(), getCurrentArrayLength());
-        switch (this.elementType.getTag()) {
-            case TypeTags.INT_TAG:
-            case TypeTags.SIGNED32_INT_TAG:
-            case TypeTags.SIGNED16_INT_TAG:
-            case TypeTags.SIGNED8_INT_TAG:
-            case TypeTags.UNSIGNED32_INT_TAG:
-            case TypeTags.UNSIGNED16_INT_TAG:
-            case TypeTags.UNSIGNED8_INT_TAG:
-                addToIntArray(vals, (int) index);
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                addToBooleanArray(vals, (int) index);
-                break;
-            case TypeTags.BYTE_TAG:
-                addToByteArray(vals, (int) index);
-                break;
-            case TypeTags.FLOAT_TAG:
-                addToFloatArray(vals, (int) index);
-                break;
-            case TypeTags.STRING_TAG:
-            case TypeTags.CHAR_STRING_TAG:
-                addToStringArray(vals, (int) index);
-                break;
-            default:
-                addToRefArray(vals, (int) index);
+
+        int startIndex = (int) index;
+        int endIndex = startIndex + vals.size();
+
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals.get(j));
         }
     }
 
@@ -1049,49 +1027,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private void resetSize(int index) {
         if (index >= size) {
             size = index + 1;
-        }
-    }
-
-    private void addToIntArray(ArrayValue vals, int startIndex) {
-        int endIndex = startIndex + vals.size();
-        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
-            add(i, vals.getInt(j));
-        }
-    }
-
-    private void addToFloatArray(ArrayValue vals, int startIndex) {
-        int endIndex = startIndex + vals.size();
-        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
-            add(i, vals.getFloat(j));
-        }
-    }
-
-    private void addToStringArray(ArrayValue vals, int startIndex) {
-        int endIndex = startIndex + vals.size();
-        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
-            add(i, vals.getString(j));
-        }
-    }
-
-    private void addToByteArray(ArrayValue vals, int startIndex) {
-        int endIndex = startIndex + vals.size();
-        byte[] bytes = vals.getBytes();
-        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
-            this.byteValues[i] = bytes[j];
-        }
-    }
-
-    private void addToBooleanArray(ArrayValue vals, int startIndex) {
-        int endIndex = startIndex + vals.size();
-        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
-            add(i, vals.getBoolean(j));
-        }
-    }
-
-    private void addToRefArray(ArrayValue vals, int startIndex) {
-        int endIndex = startIndex + vals.size();
-        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
-            add(i, vals.getRefValue(j));
         }
     }
 

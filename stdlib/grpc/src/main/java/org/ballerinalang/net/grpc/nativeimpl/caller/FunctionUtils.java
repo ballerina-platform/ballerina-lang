@@ -40,7 +40,6 @@ import java.util.Optional;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
-import static org.ballerinalang.net.grpc.GrpcConstants.TAG_KEY_GRPC_MESSAGE_CONTENT;
 import static org.ballerinalang.net.grpc.MessageUtils.getMappingHttpStatusCode;
 
 /**
@@ -139,8 +138,6 @@ public class FunctionUtils {
                                 x -> observerContext.ifPresent(ctx -> ctx.addTag(x.getKey(), x.getValue())));
                     }
                     responseObserver.onNext(responseMessage);
-                    observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_GRPC_MESSAGE_CONTENT,
-                            responseValue.toString()));
                 }
             } catch (Exception e) {
                 LOG.error("Error while sending client response.", e);
