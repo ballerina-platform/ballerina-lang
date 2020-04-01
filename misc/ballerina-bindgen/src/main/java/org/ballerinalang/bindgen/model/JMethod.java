@@ -63,7 +63,6 @@ public class JMethod {
     private StringBuilder paramTypes = new StringBuilder();
 
     JMethod(Method m) {
-
         javaMethodName = m.getName();
         methodName = m.getName();
         shortClassName = m.getDeclaringClass().getSimpleName();
@@ -104,7 +103,6 @@ public class JMethod {
     }
 
     private void setReturnTypeAttributes(Class returnTypeClass) {
-
         hasReturn = true;
         externalType = getBallerinaHandleType(returnTypeClass);
         returnType = getBallerinaParamType(returnTypeClass);
@@ -127,7 +125,6 @@ public class JMethod {
     }
 
     private void setParameters(Parameter[] paramArr) {
-
         for (Parameter param : paramArr) {
             paramTypes.append(param.getType().getSimpleName().toLowerCase(Locale.ENGLISH));
             JParameter parameter = new JParameter(param);
@@ -143,52 +140,42 @@ public class JMethod {
     }
 
     String getJavaMethodName() {
-
         return javaMethodName;
     }
 
     String getParamTypes() {
-
         return paramTypes.toString();
     }
 
     public Boolean getHasReturn() {
-
         return hasReturn;
     }
 
     public Boolean getHasException() {
-
         return hasException;
     }
 
     public Boolean getIsStringReturn() {
-
         return isStringReturn;
     }
 
     public Boolean getHasPrimitiveParam() {
-
         return hasPrimitiveParam;
     }
 
     public String getReturnType() {
-
         return returnType;
     }
 
     public void setIsOverloaded(boolean overloaded) {
-
         isOverloaded = overloaded;
     }
 
     public String getMethodName() {
-
         return methodName;
     }
 
     public void setMethodName(String methodName) {
-
         this.methodName = methodName;
     }
 }

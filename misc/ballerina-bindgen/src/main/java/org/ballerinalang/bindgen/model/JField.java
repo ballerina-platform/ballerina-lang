@@ -50,7 +50,6 @@ public class JField {
     private JParameter fieldObj;
 
     JField(Field field, String fieldKind) {
-
         Class type = field.getType();
         fieldType = getBallerinaParamType(type);
         externalType = getBallerinaHandleType(type);
@@ -83,7 +82,6 @@ public class JField {
     }
 
     public boolean isString() {
-
         return isString;
     }
 }

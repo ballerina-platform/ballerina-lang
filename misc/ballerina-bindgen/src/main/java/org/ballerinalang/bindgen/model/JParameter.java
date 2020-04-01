@@ -45,7 +45,6 @@ public class JParameter {
     private Boolean isPrimitiveArray = false;
 
     JParameter(Class parameterClass) {
-
         type = parameterClass.getName();
         shortTypeName = getBallerinaParamType(parameterClass);
 
@@ -75,14 +74,11 @@ public class JParameter {
     }
 
     JParameter(Parameter parameter) {
-
         this(parameter.getType());
         fieldName = parameter.getName();
-
     }
 
     private void setArrayAttributes(Class parameterClass) {
-
         Class component = parameterClass.getComponentType();
         componentType = component.getTypeName();
         if (!parameterClass.getComponentType().isPrimitive()) {
@@ -99,47 +95,38 @@ public class JParameter {
     }
 
     void setHasNext(boolean hasNext) {
-
         this.hasNext = hasNext;
     }
 
     Boolean isObjArrayParam() {
-
         return this.isObjArray;
     }
 
     public String getComponentType() {
-
         return componentType;
     }
 
     public String getFieldName() {
-
         return fieldName;
     }
 
     public Boolean getIsObj() {
-
         return isObj;
     }
 
     public Boolean getIsString() {
-
         return isString;
     }
 
     public Boolean getIsObjArray() {
-
         return isObjArray;
     }
 
     public Boolean getIsPrimitiveArray() {
-
         return isPrimitiveArray;
     }
 
     public Boolean getHasNext() {
-
         return hasNext;
     }
 }

@@ -85,7 +85,6 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.TEMPLATES_DIR_PAT
 public class BindgenUtils {
 
     private BindgenUtils() {
-
     }
 
     private static final PrintStream errStream = System.err;
@@ -93,7 +92,6 @@ public class BindgenUtils {
 
     public static void writeOutputFile(Object object, String templateDir, String templateName, String outPath,
                                        Boolean append) throws BindgenException {
-
         PrintWriter writer = null;
         FileWriterWithEncoding fileWriter = null;
         try {
@@ -124,7 +122,6 @@ public class BindgenUtils {
 
     private static Template compileTemplate(String defaultTemplateDir, String templateName)
             throws BindgenException {
-
         String templatesDirPath = System.getProperty(TEMPLATES_DIR_PATH_KEY, defaultTemplateDir);
         ClassPathTemplateLoader cpTemplateLoader = new ClassPathTemplateLoader((templatesDirPath));
         FileTemplateLoader fileTemplateLoader = new FileTemplateLoader(templatesDirPath);
@@ -178,7 +175,6 @@ public class BindgenUtils {
     }
 
     private static String getParamsHelper(JParameter param) {
-
         StringBuilder returnString = new StringBuilder();
         if (param.getIsObjArray()) {
             returnString.append("check getHandleFromObjectArray(").append(param.getFieldName())
@@ -201,7 +197,6 @@ public class BindgenUtils {
     }
 
     private static String getReturnHelper(JMethod jMethod) {
-
         StringBuilder returnString = new StringBuilder();
         if (jMethod.getHasReturn()) {
             returnString.append("returns ");
@@ -220,7 +215,6 @@ public class BindgenUtils {
     }
 
     private static void listAllFiles(String directoryName, List<File> files) {
-
         File directory = new File(directoryName);
         File[] fileList = directory.listFiles();
         if (fileList != null) {
@@ -235,7 +229,6 @@ public class BindgenUtils {
     }
 
     public static void notifyExistingDependencies(Set<String> classList, File dependencyPath) {
-
         if (dependencyPath.isDirectory()) {
             List<File> listOfFiles = new ArrayList<>();
             listAllFiles(dependencyPath.toString(), listOfFiles);
@@ -253,7 +246,6 @@ public class BindgenUtils {
     }
 
     public static List<String> getExistingBindings(Set<String> classList, File bindingsPath) {
-
         List<String> removeList = new ArrayList<>();
         if (bindingsPath.isDirectory()) {
             List<File> listOfFiles = new ArrayList<>();
@@ -274,7 +266,6 @@ public class BindgenUtils {
     }
 
     public static Set<String> getUpdatedConstantsList(Path existingPath, Set<String> classList) {
-
         try {
             List<String> allLines = Files.readAllLines(Paths.get(existingPath.toString()));
             List<String> removeList = new ArrayList<>();
@@ -294,7 +285,6 @@ public class BindgenUtils {
     }
 
     public static void createDirectory(String path) throws BindgenException {
-
         File directory = new File(path);
         if (!directory.exists()) {
             try {
@@ -309,7 +299,6 @@ public class BindgenUtils {
     }
 
     public static Set<String> getClassNamesInJar(String jarPath) throws IOException {
-
         JarInputStream jarInputStream = new JarInputStream(new FileInputStream(jarPath));
         JarEntry jarEntry;
         Set<String> classes = new HashSet<>();
@@ -334,49 +323,41 @@ public class BindgenUtils {
     }
 
     public static boolean isPublicField(Field field) {
-
         int modifiers = field.getModifiers();
         return Modifier.isPublic(modifiers);
     }
 
     public static boolean isPublicMethod(Method method) {
-
         int modifiers = method.getModifiers();
         return Modifier.isPublic(modifiers);
     }
 
     public static boolean isPublicClass(Class javaClass) {
-
         int modifiers = javaClass.getModifiers();
         return Modifier.isPublic(modifiers);
     }
 
     public static boolean isStaticField(Field field) {
-
         int modifiers = field.getModifiers();
         return Modifier.isStatic(modifiers);
     }
 
     public static boolean isStaticMethod(Method method) {
-
         int modifiers = method.getModifiers();
         return Modifier.isStatic(modifiers);
     }
 
     public static boolean isFinalField(Field field) {
-
         int modifiers = field.getModifiers();
         return Modifier.isFinal(modifiers);
     }
 
     public static boolean isAbstractClass(Class javaClass) {
-
         int modifiers = javaClass.getModifiers();
         return Modifier.isAbstract(modifiers);
     }
 
     public static String getModuleName(String jarPath) {
-
         String name = null;
         if (jarPath != null) {
             Path jarName = Paths.get(jarPath).getFileName();
@@ -390,7 +371,6 @@ public class BindgenUtils {
     }
 
     public static void handleOverloadedMethods(List<JMethod> methodList) {
-
         Map<String, Integer> methodNames = new HashMap<>();
         for (JMethod method : methodList) {
             String mName = method.getMethodName();
@@ -415,7 +395,6 @@ public class BindgenUtils {
     }
 
     public static String getBallerinaParamType(Class javaType) {
-
         if (javaType.isArray() && javaType.getComponentType().isPrimitive()) {
             return getPrimitiveArrayBalType(javaType.getComponentType().getSimpleName());
         } else {
@@ -428,7 +407,6 @@ public class BindgenUtils {
     }
 
     public static String getBallerinaHandleType(Class javaType) {
-
         String type = javaType.getSimpleName();
         String returnType = getBalType(type);
         if (type.equals(JAVA_STRING) || type.equals(JAVA_STRING_ARRAY)) {
@@ -438,7 +416,6 @@ public class BindgenUtils {
     }
 
     private static String getBalType(String type) {
-
         switch (type) {
             case INT:
                 return INT;
@@ -466,7 +443,6 @@ public class BindgenUtils {
     }
 
     private static String getPrimitiveArrayBalType(String type) {
-
         switch (type) {
             case INT:
                 return INT_ARRAY;
@@ -490,7 +466,6 @@ public class BindgenUtils {
     }
 
     public static String getPrimitiveArrayType(String type) {
-
         switch (type) {
             case "[C":
             case "[S":
@@ -512,7 +487,6 @@ public class BindgenUtils {
     }
 
     public static URLClassLoader getClassLoader(Set<String> jarPaths, ClassLoader parent) throws BindgenException {
-
         URLClassLoader classLoader;
         List<URL> urls = new ArrayList<>();
         try {

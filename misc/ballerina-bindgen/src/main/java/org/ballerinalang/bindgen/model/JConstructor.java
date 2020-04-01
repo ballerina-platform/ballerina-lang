@@ -41,7 +41,6 @@ public class JConstructor implements Cloneable {
     private List<JParameter> parameters = new ArrayList<>();
 
     JConstructor(Constructor c) {
-
         shortClassName = c.getDeclaringClass().getSimpleName();
         constructorName = c.getName();
         interopType = CONSTRUCTOR_INTEROP_TYPE;
@@ -69,22 +68,18 @@ public class JConstructor implements Cloneable {
     }
 
     void setConstructorName(String name) {
-
         this.constructorName = name;
     }
 
     void setExternalFunctionName(String name) {
-
         this.externalFunctionName = name;
     }
 
     protected Object clone() throws CloneNotSupportedException {
-
         return super.clone();
     }
 
     public String getConstructorName() {
-
         return constructorName;
     }
 }
