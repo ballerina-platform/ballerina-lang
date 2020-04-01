@@ -19,6 +19,8 @@ package org.ballerinalang.bindgen.exceptions;
 
 /**
  * Indicate the errors thrown by the Ballerina Bindgen CLI tool.
+ *
+ * @since 1.2.0
  */
 public class BindgenException extends Exception {
 

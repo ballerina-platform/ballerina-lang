@@ -19,6 +19,8 @@ package org.ballerinalang.bindgen.utils;
 
 /**
  * Class for storing constants related to Ballerina Bindgen CLI tool.
+ *
+ * @since 1.2.0
  */
 public class BindgenConstants {
 

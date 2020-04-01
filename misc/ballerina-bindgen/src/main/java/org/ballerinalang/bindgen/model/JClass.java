@@ -38,6 +38,8 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicMethod;
 
 /**
  * Class for storing details pertaining to a specific Java class used for Ballerina bridge code generation.
+ *
+ * @since 1.2.0
  */
 public class JClass {
 

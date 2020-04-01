@@ -36,6 +36,8 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticMethod;
 
 /**
  * Class for storing details pertaining to a specific Java method used for Ballerina bridge code generation.
+ *
+ * @since 1.2.0
  */
 public class JMethod {
 

@@ -26,6 +26,8 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTRUCTOR_INTER
 
 /**
  * Class for storing details pertaining to a specific Java constructor used for Ballerina bridge code generation.
+ *
+ * @since 1.2.0
  */
 public class JConstructor implements Cloneable {
 
