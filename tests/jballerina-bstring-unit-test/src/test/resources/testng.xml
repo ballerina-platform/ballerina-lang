@@ -44,6 +44,7 @@
             <package name="org.ballerinalang.test.types.errors.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*" />
             <package name="org.ballerinalang.test.types.finite.*" />
+            <package name="org.ballerinalang.test.types.floattype.*" />
             <package name="org.ballerinalang.test.types.decimaltype.*" />
             <package name="org.ballerinalang.test.types.string.*"/>
             <package name="org.ballerinalang.test.types.xml.*"/>
