@@ -6,29 +6,6 @@
   "source": "function/source/returnParameterContextSuggestion11.bal",
   "items": [
     {
-      "label": "ballerinax/java.jdbc",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "jdbc",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerinax/java.jdbc;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.object",
       "kind": "Module",
       "detail": "Module",
@@ -926,29 +903,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.table",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "'table",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.'table;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/log",
       "kind": "Module",
       "detail": "Module",
@@ -1289,14 +1243,6 @@
       "detail": "Map",
       "sortText": "230",
       "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "table",
-      "kind": "Unit",
-      "detail": "Table",
-      "sortText": "230",
-      "insertText": "table",
       "insertTextFormat": "Snippet"
     },
     {
