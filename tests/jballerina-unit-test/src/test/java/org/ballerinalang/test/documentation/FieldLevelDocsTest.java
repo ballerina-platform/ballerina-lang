@@ -58,6 +58,8 @@ public class FieldLevelDocsTest {
     private Object studentObj;
     // Object with field-level documentation
     private Object teacherObj;
+    // object with both module-level & field-level documentation
+    private Object employeeObj;
 
     private static final String PARAGRAPH_OPEN_TAG = "<p>";
     private static final String PARAGRAPH_CLOSE_TAG = "</p>";
@@ -100,6 +102,8 @@ public class FieldLevelDocsTest {
                 studentObj = obj;
             } else if ("Teacher".equals(objName)) {
                 teacherObj = obj;
+            } else if ("Employee".equals(objName)) {
+                employeeObj = obj;
             }
         }
     }
@@ -155,7 +159,7 @@ public class FieldLevelDocsTest {
     }
 
 
-    @Test(description = "Test records with both module-level & field-level field docs. module-level is the priority")
+    @Test(description = "Test records with both module-level & field-level field docs. field-level is the priority")
     public void testRecordWithModuleLevelAndFieldLevelFieldDocs() {
         DefaultableVariable numberField = null;
         DefaultableVariable streetField = null;
@@ -175,9 +179,9 @@ public class FieldLevelDocsTest {
             }
         }
 
-        testDescription(numberField, formatHtmlDescription("number of the apartment"));
-        testDescription(streetField, formatHtmlDescription("street of the apartment"));
-        testDescription(countryCodeField, formatHtmlDescription("country code of the apartment"));
+        testDescription(numberField, formatHtmlDescription("apartment no"));
+        testDescription(streetField, formatHtmlDescription("apartment street"));
+        testDescription(countryCodeField, formatHtmlDescription("apartment country-code"));
     }
 
     @Test(description = "Test object with module-level field docs")
@@ -220,6 +224,27 @@ public class FieldLevelDocsTest {
 
         testDescription(nameField, formatHtmlDescription("Teacher name"));
         testDescription(ageField, formatHtmlDescription("Teacher age"));
+    }
+
+    @Test(description = "Test object with both module-level & field-level field docs. field-level is the priority")
+    public void testObjWithModuleLevelAndFieldLevelFieldDocs() {
+        DefaultableVariable empNoField = null;
+        DefaultableVariable ageField = null;
+
+        List<DefaultableVariable> fields = employeeObj.fields;
+
+        for (DefaultableVariable field : fields) {
+            String fieldName = field.name;
+
+            if ("empNo".equals(fieldName)) {
+                empNoField = field;
+            } else if ("age".equals(fieldName)) {
+                ageField = field;
+            }
+        }
+
+        testDescription(empNoField, formatHtmlDescription("funny number"));
+        testDescription(ageField, formatHtmlDescription("funny age"));
     }
 
     @Test(description = "Test documentation of objects with markdown styles")
