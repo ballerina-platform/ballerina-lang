@@ -2933,7 +2933,9 @@ public class Types {
                 hasFillerValue = true;
             }
         }
-        if (!hasFillerValue) return false;
+        if (!hasFillerValue) {
+            return false;
+        }
 
         Iterator<BType> iterator = memberTypes.iterator();
         BType firstMember = iterator.next();
@@ -2943,7 +2945,9 @@ public class Types {
             }
         }
 
-        if (valueTypePresent) return defaultValuePresent;
+        if (valueTypePresent) {
+            return defaultValuePresent;
+        }
         return false;
     }
 
