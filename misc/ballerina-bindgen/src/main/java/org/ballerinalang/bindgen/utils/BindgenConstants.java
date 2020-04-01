@@ -23,7 +23,6 @@ package org.ballerinalang.bindgen.utils;
 public class BindgenConstants {
 
     private BindgenConstants() {
-
     }
 
     public static final String BALLERINA_BINDINGS_DIR = "ballerina_bindings";

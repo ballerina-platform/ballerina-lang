@@ -75,7 +75,6 @@ public class BindingsGenerator {
     private static Map<String, String> failedClassGens = new HashMap<>();
 
     void generateJavaBindings() throws BindgenException {
-
         ClassLoader classLoader = setClassLoader();
         if (classLoader != null) {
             setDirectoryPaths();
@@ -110,7 +109,6 @@ public class BindingsGenerator {
     }
 
     private ClassLoader setClassLoader() throws BindgenException {
-
         ClassLoader classLoader;
         try {
             if (!this.classPaths.isEmpty()) {
@@ -126,20 +124,16 @@ public class BindingsGenerator {
     }
 
     private void setDirectoryPaths() {
-
-        if (outputPath == null) {
-            modulePath = Paths.get(userDir.toString(), BALLERINA_BINDINGS_DIR, BINDINGS_DIR);
-            dependenciesPath = Paths.get(userDir.toString(), BALLERINA_BINDINGS_DIR, DEPENDENCIES_DIR);
-            utilsDirPath = Paths.get(userDir.toString(), BALLERINA_BINDINGS_DIR, UTILS_DIR);
-        } else {
-            modulePath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR, BINDINGS_DIR);
-            dependenciesPath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR, DEPENDENCIES_DIR);
-            utilsDirPath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR, UTILS_DIR);
+        String userPath = userDir.toString();
+        if (outputPath != null) {
+            userPath = outputPath;
         }
+        modulePath = Paths.get(userPath, BALLERINA_BINDINGS_DIR, BINDINGS_DIR);
+        dependenciesPath = Paths.get(userPath, BALLERINA_BINDINGS_DIR, DEPENDENCIES_DIR);
+        utilsDirPath = Paths.get(userPath, BALLERINA_BINDINGS_DIR, UTILS_DIR);
     }
 
     private void handleFailedClassGens() throws BindgenException {
-
         errStream.print("\n");
         for (Map.Entry<String, String> entry : failedClassGens.entrySet()) {
             if (classNames.contains(entry.getKey())) {
@@ -153,7 +147,6 @@ public class BindingsGenerator {
     }
 
     private void generateUtilFiles() throws BindgenException {
-
         createDirectory(utilsDirPath.toString());
 
         // Create the JObject.bal file.
@@ -177,23 +170,19 @@ public class BindingsGenerator {
     }
 
     void setOutputPath(String outputPath) {
-
         this.outputPath = outputPath;
     }
 
     void setDependentJars(String[] jarPaths) {
-
         Collections.addAll(this.classPaths, jarPaths);
     }
 
     void setClassNames(List<String> classNames) {
-
         this.classNames = new HashSet<>(classNames);
     }
 
     private void generateBindings(Set<String> classList, ClassLoader classLoader, Path modulePath)
             throws BindgenException {
-
         createDirectory(modulePath.toString());
         for (String c : classList) {
             try {
@@ -217,27 +206,22 @@ public class BindingsGenerator {
     }
 
     public static boolean isDirectJavaClass() {
-
         return directJavaClass;
     }
 
     private static void setDependentJavaClass() {
-
         BindingsGenerator.directJavaClass = false;
     }
 
     public static Set<String> getAllJavaClasses() {
-
         return allJavaClasses;
     }
 
     public static void setClassListForLooping(String classListForLooping) {
-
         BindingsGenerator.classListForLooping.add(classListForLooping);
     }
 
     public static void setAllClasses(String allClasses) {
-
         BindingsGenerator.allClasses.add(allClasses);
     }
 }

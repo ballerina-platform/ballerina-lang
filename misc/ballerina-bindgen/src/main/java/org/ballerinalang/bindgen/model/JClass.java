@@ -57,7 +57,6 @@ public class JClass {
     private List<JConstructor> initFunctionList = new ArrayList<>();
 
     public JClass(Class c) {
-
         className = c.getName();
         prefix = className.replace(".", "_").replace("$", "_");
         shortClassName = c.getSimpleName();
@@ -96,7 +95,6 @@ public class JClass {
     }
 
     private List<Method> getMethods(Class classObject) {
-
         Method[] declaredMethods = classObject.getMethods();
         List<Method> classMethods = new ArrayList<>();
         for (Method m : declaredMethods) {
@@ -108,7 +106,6 @@ public class JClass {
     }
 
     private void populateConstructors(Constructor[] constructors) {
-
         int i = 1;
         for (Constructor constructor : constructors) {
             JConstructor jConstructor = new JConstructor(constructor);
@@ -119,7 +116,6 @@ public class JClass {
     }
 
     private void populateInitFunctions() {
-
         int j = 1;
         for (JConstructor constructor : constructorList) {
             JConstructor newCons = null;
@@ -138,7 +134,6 @@ public class JClass {
     }
 
     private void populateMethods(List<Method> declaredMethods) {
-
         for (Method method : declaredMethods) {
             if (isPublicMethod(method)) {
                 JMethod jMethod = new JMethod(method);
@@ -148,7 +143,6 @@ public class JClass {
     }
 
     private void populateFields(Field[] fields) {
-
         for (Field field : fields) {
             fieldList.add(new JField(field, ACCESS_FIELD));
             if (!isFinalField(field) && isPublicField(field)) {
@@ -158,7 +152,6 @@ public class JClass {
     }
 
     private void populateImplementedInterfaces(Class[] interfaces) {
-
         for (Class interfaceClass : interfaces) {
             setAllClasses(interfaceClass.getSimpleName());
             superClasses.add(interfaceClass.getSimpleName());
@@ -169,12 +162,10 @@ public class JClass {
     }
 
     public String getShortClassName() {
-
         return shortClassName;
     }
 
     public String getPackageName() {
-
         return packageName;
     }
 }

@@ -61,7 +61,6 @@ public class BindgenCommand implements BLauncherCmd {
 
     @Override
     public void execute() {
-
         outStream.println("\nNote: This is an experimental tool.\n");
         //Help flag check
         if (helpFlag) {
@@ -98,13 +97,11 @@ public class BindgenCommand implements BLauncherCmd {
 
     @Override
     public String getName() {
-
         return COMPONENT_IDENTIFIER;
     }
 
     @Override
     public void printLongDesc(StringBuilder out) {
-
         out.append("A CLI tool for generating Ballerina bridge code for Java APIs. \n");
         out.append("\n");
         out.append("Ballerina bindings could be generated for Java classes residing inside Java libraries \n");
@@ -117,7 +114,6 @@ public class BindgenCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-
         out.append("  ballerina " + COMPONENT_IDENTIFIER + " java.utils.ArrayDeque\n");
         out.append("  ballerina " + COMPONENT_IDENTIFIER + " -cp ./libs/snakeyaml-1.25.jar,./libs/pdfbox-1.8.10.jar " +
                 "  -o ./src/sample org.yaml.snakeyaml.Yaml org.apache.pdfbox.pdmodel.PDDocument java.io.File\n");
@@ -125,6 +121,5 @@ public class BindgenCommand implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-
     }
 }
