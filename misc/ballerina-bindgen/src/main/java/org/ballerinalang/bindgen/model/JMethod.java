@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.bindgen.components;
+package org.ballerinalang.bindgen.model;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -24,8 +24,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import static org.ballerinalang.bindgen.command.BindingsGenerator.allJavaClasses;
-import static org.ballerinalang.bindgen.command.BindingsGenerator.classListForLooping;
+import static org.ballerinalang.bindgen.command.BindingsGenerator.getAllJavaClasses;
+import static org.ballerinalang.bindgen.command.BindingsGenerator.setClassListForLooping;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
@@ -40,14 +40,13 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticMethod;
 public class JMethod {
 
     private boolean isStatic;
-    private boolean params = true;
     private boolean noParams = true;
     private boolean hasReturn = false;
+    private boolean isOverloaded = true;
     private boolean objectReturn = false;
-    private boolean objectMethod = false;
     private boolean reservedWord = false;
     private boolean isArrayReturn = false;
-    private boolean exceptionTypes = false;
+    private boolean hasException = false;
     private boolean handleException = false;
     private boolean isStringReturn = false;
     private boolean hasPrimitiveParam = false;
@@ -58,7 +57,6 @@ public class JMethod {
     private String externalType;
     private String shortClassName;
     private String javaMethodName;
-    private String methodClassName;
     private String interopType = METHOD_INTEROP_TYPE;
 
     private List<JParameter> parameters = new ArrayList<>();
@@ -69,55 +67,62 @@ public class JMethod {
         javaMethodName = m.getName();
         methodName = m.getName();
         shortClassName = m.getDeclaringClass().getSimpleName();
-        if (m.getDeclaringClass().equals(Object.class)) {
-            methodClassName = m.getDeclaringClass().getName();
-            objectMethod = true;
-        }
+        isStatic = isStaticMethod(m);
+
+        // Set the attributes required to identify different return types.
         Class returnTypeClass = m.getReturnType();
         if (!returnTypeClass.equals(Void.TYPE)) {
-            hasReturn = true;
-            externalType = getBallerinaHandleType(returnTypeClass);
-            returnType = getBallerinaParamType(returnTypeClass);
-            if (returnTypeClass.isArray()) {
-                isArrayReturn = true;
-                if (returnTypeClass.getComponentType().isPrimitive()) {
-                    objectReturn = false;
-                }
-            } else if (returnTypeClass.isPrimitive()) {
-                objectReturn = false;
-            } else if (returnType.equals(BALLERINA_STRING)) {
-                isStringReturn = true;
-            } else if (returnType.equals(BALLERINA_STRING_ARRAY)) {
-                objectReturn = true;
-                isArrayReturn = true;
-                isStringArrayReturn = true;
-            } else {
-                objectReturn = true;
-            }
-
+            setReturnTypeAttributes(returnTypeClass);
         }
-        isStatic = isStaticMethod(m);
-        setParameters(m.getParameters());
+
+        // Set the attributes relevant to error returns.
         if (m.getExceptionTypes().length > 0) {
-            exceptionTypes = true;
+            hasException = true;
             handleException = true;
         }
+
+        // Set the attributes required to identify different parameters.
+        setParameters(m.getParameters());
         if (!parameters.isEmpty()) {
             JParameter lastParam = parameters.get(parameters.size() - 1);
             lastParam.setHasNext(false);
         } else {
             noParams = false;
         }
+
         List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
         if (reservedWords.contains(methodName)) {
             reservedWord = true;
         }
-        if (objectReturn && !allJavaClasses.contains(returnTypeClass.getName())) {
+        if (objectReturn && !getAllJavaClasses().contains(returnTypeClass.getName())) {
             if (isArrayReturn) {
-                classListForLooping.add(returnTypeClass.getComponentType().getName());
+                setClassListForLooping(returnTypeClass.getComponentType().getName());
             } else {
-                classListForLooping.add(returnTypeClass.getName());
+                setClassListForLooping(returnTypeClass.getName());
             }
+        }
+    }
+
+    private void setReturnTypeAttributes(Class returnTypeClass) {
+
+        hasReturn = true;
+        externalType = getBallerinaHandleType(returnTypeClass);
+        returnType = getBallerinaParamType(returnTypeClass);
+        if (returnTypeClass.isArray()) {
+            isArrayReturn = true;
+            if (returnTypeClass.getComponentType().isPrimitive()) {
+                objectReturn = false;
+            }
+        } else if (returnTypeClass.isPrimitive()) {
+            objectReturn = false;
+        } else if (returnType.equals(BALLERINA_STRING)) {
+            isStringReturn = true;
+        } else if (returnType.equals(BALLERINA_STRING_ARRAY)) {
+            objectReturn = true;
+            isArrayReturn = true;
+            isStringArrayReturn = true;
+        } else {
+            objectReturn = true;
         }
     }
 
@@ -129,20 +134,20 @@ public class JMethod {
             parameters.add(parameter);
             if (parameter.getIsPrimitiveArray()) {
                 hasPrimitiveParam = true;
-                exceptionTypes = true;
+                hasException = true;
             }
             if (parameter.isObjArrayParam()) {
-                this.exceptionTypes = true;
+                hasException = true;
             }
         }
     }
 
-    public String getJavaMethodName() {
+    String getJavaMethodName() {
 
         return javaMethodName;
     }
 
-    public String getParamTypes() {
+    String getParamTypes() {
 
         return paramTypes.toString();
     }
@@ -152,9 +157,9 @@ public class JMethod {
         return hasReturn;
     }
 
-    public Boolean getExceptionTypes() {
+    public Boolean getHasException() {
 
-        return exceptionTypes;
+        return hasException;
     }
 
     public Boolean getIsStringReturn() {
@@ -172,9 +177,9 @@ public class JMethod {
         return returnType;
     }
 
-    public void setParams(boolean params) {
+    public void setIsOverloaded(boolean overloaded) {
 
-        this.params = params;
+        isOverloaded = overloaded;
     }
 
     public String getMethodName() {
@@ -185,20 +190,5 @@ public class JMethod {
     public void setMethodName(String methodName) {
 
         this.methodName = methodName;
-    }
-
-    public void setObjectReturn(boolean objectReturn) {
-
-        this.objectReturn = objectReturn;
-    }
-
-    public void setIsArrayReturn(boolean arrayReturn) {
-
-        isArrayReturn = arrayReturn;
-    }
-
-    public void setIsStringArrayReturn(boolean stringArrayReturn) {
-
-        isStringArrayReturn = stringArrayReturn;
     }
 }

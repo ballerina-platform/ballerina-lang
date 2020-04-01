@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.bindgen.components;
+package org.ballerinalang.bindgen.model;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -46,6 +46,7 @@ public class JField {
     private boolean isString;
     private boolean isObject = true;
     private boolean isSetter = false;
+
     private JParameter fieldObj;
 
     JField(Field field, String fieldKind) {
@@ -53,6 +54,11 @@ public class JField {
         Class type = field.getType();
         fieldType = getBallerinaParamType(type);
         externalType = getBallerinaHandleType(type);
+        isStatic = isStaticField(field);
+        fieldName = field.getName();
+        fieldObj = new JParameter(type);
+        fieldObj.setHasNext(false);
+
         if (type.isPrimitive() || type.equals(String.class)) {
             isObject = false;
         }
@@ -65,17 +71,19 @@ public class JField {
                 isObject = false;
             }
         }
-        fieldObj = new JParameter(field.getType());
-        fieldObj.setHasNext(false);
-        this.isStatic = isStaticField(field);
-        this.fieldName = field.getName();
+
         if (fieldKind.equals(ACCESS_FIELD)) {
-            this.fieldMethodName = "get" + StringUtils.capitalize(this.fieldName);
+            fieldMethodName = "get" + StringUtils.capitalize(fieldName);
             interopType = ACCESS_FIELD_INTEROP_TYPE;
         } else if (fieldKind.equals(MUTATE_FIELD)) {
-            this.fieldMethodName = "set" + StringUtils.capitalize(this.fieldName);
+            fieldMethodName = "set" + StringUtils.capitalize(fieldName);
             interopType = MUTATE_FIELD_INTEROP_TYPE;
-            this.isSetter = true;
+            isSetter = true;
         }
+    }
+
+    public boolean isString() {
+
+        return isString;
     }
 }
