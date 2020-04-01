@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
@@ -232,7 +231,7 @@ class Utils {
         memberTypes.add(type);
         memberTypes.add(BTypes.typeNull);
         BUnionType unionType = new BUnionType(memberTypes);
-        return new ArrayValueImpl(new BArrayType(unionType));
+        return (ArrayValue) BValueCreator.createArrayValue(new BArrayType(unionType));
     }
 
     private static Object[] validateNullable(Object[] objects) {
@@ -267,7 +266,7 @@ class Utils {
     static Object convert(byte[] value, int sqlType, BType bType) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL Binary");
         if (value != null) {
-            return new ArrayValueImpl(value);
+            return BValueCreator.createArrayValue(value);
         } else {
             return null;
         }
@@ -312,7 +311,7 @@ class Utils {
     static Object convert(Blob value, int sqlType, BType bType) throws ApplicationError, SQLException {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL Blob");
         if (value != null) {
-            return new ArrayValueImpl(value.getBytes(1L, (int) value.length()));
+            return BValueCreator.createArrayValue(value.getBytes(1L, (int) value.length()));
         } else {
             return null;
         }

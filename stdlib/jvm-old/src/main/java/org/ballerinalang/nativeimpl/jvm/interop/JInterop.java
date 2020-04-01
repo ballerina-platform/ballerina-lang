@@ -22,10 +22,10 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -135,6 +135,7 @@ class JInterop {
     static final String J_PRIMITIVE_DOUBLE_TNAME = double.class.getTypeName();
     static final String J_PRIMITIVE_BOOLEAN_TNAME = boolean.class.getTypeName();
     static final String J_VOID_TNAME = void.class.getTypeName();
+    private static final BArrayType anydataArrayType = new BArrayType(BTypes.typeAnydata);
 
     static MapValue<String, Object> createRecordBValue(String typeName) {
         return BallerinaValues.createRecordValue(JVM_PACKAGE_ID, typeName);
@@ -143,7 +144,7 @@ class JInterop {
     static MapValue<String, Object> createJMethodTypeBValue(JMethod jMethod) {
         MapValue<String, Object> jMethodTypeBRecord = createRecordBValue(METHOD_TYPE_TYPE_NAME);
 
-        ArrayValue paramBTypeArray = new ArrayValueImpl(new BArrayType(BTypes.typeAnydata));
+        ArrayValue paramBTypeArray = (ArrayValue) BValueCreator.createArrayValue(anydataArrayType);
         Class<?>[] paramClassTypes = jMethod.getParamTypes();
         for (int paramIndex = 0; paramIndex < paramClassTypes.length; paramIndex++) {
             Class<?> paramClassType = paramClassTypes[paramIndex];
