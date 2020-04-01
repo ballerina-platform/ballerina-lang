@@ -26,7 +26,7 @@ import ballerina/time;
 # + method - The HTTP request method
 # + httpVersion - The HTTP version supported by the client
 # + userAgent - The user-agent. This value is used when setting the `user-agent` header
-# + extraPathInfo - The part of the url which matched to '*', if the request is dispatched to a wildcard resource
+# + extraPathInfo - The part of the URL, which matched to '*' if the request is dispatched to a wildcard resource
 # + cacheControl - The cache-control directives for the request. This needs to be explicitly initialized if intending
 #                  on utilizing HTTP caching.
 # + mutualSslHandshake - A record providing mutual ssl handshake results.
@@ -125,8 +125,8 @@ public type Request object {
     # these values is returned.
     #
     # + headerName - The header name
-    # + return - The first header value for the specified header name. Panic if the header is not found. Use
-    #            `Request.hasHeader()` beforehand to check the existence of header.
+    # + return - The first header value for the specified header name. Panic if the header is not found. Use the
+    #            `Request.hasHeader()` beforehand to check the existence of a header.
     public function getHeader(string headerName) returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeader(headerName);
@@ -135,8 +135,8 @@ public type Request object {
     # Gets all the header values to which the specified header key maps to.
     #
     # + headerName - The header name
-    # + return - The header values the specified header key maps to. Panic if the header is not found. Use
-    #            `Request.hasHeader()` beforehand to check the existence of header.
+    # + return - The header values the specified header key maps to. Panic if the header is not found. Use the
+    #            `Request.hasHeader()` beforehand to check the existence of a header.
     public function getHeaders(string headerName) returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeaders(headerName);
