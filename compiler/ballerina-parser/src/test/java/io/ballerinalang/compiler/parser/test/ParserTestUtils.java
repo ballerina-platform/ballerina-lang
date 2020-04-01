@@ -248,7 +248,7 @@ public class ParserTestUtils {
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
                 return ((STIdentifier) token).text;
-            case STRING_LITERAL_TOKEN:
+            case STRING_LITERAL:
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
                 return ((STLiteralValueToken) token).text;
@@ -385,8 +385,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BRACED_EXPRESSION;
             case "BINARY_EXPRESSION":
                 return SyntaxKind.BINARY_EXPRESSION;
-            case "STRING_LITERAL_TOKEN":
-                return SyntaxKind.STRING_LITERAL_TOKEN;
+            case "STRING_LITERAL":
+                return SyntaxKind.STRING_LITERAL;
             case "DECIMAL_INTEGER_LITERAL":
                 return SyntaxKind.DECIMAL_INTEGER_LITERAL;
             case "HEX_INTEGER_LITERAL":

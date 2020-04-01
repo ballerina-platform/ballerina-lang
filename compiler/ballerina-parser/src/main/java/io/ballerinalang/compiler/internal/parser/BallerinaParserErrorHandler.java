@@ -861,6 +861,7 @@ public class BallerinaParserErrorHandler {
         switch (nextToken.kind) {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
+            case STRING_LITERAL:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
                 nextContext = ParserRuleContext.EXPRESSION_END;

@@ -1,0 +1,86 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "BLOCK_STATEMENT",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "LOCAL_VARIABLE_DECL",
+                            "children": [
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "string"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "s1"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "STRING_LITERAL",
+                                    "value": "\"hello world;"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN",
+                                    "isMissing": true
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "LOCAL_VARIABLE_DECL",
+                            "children": [
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "string"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "s2"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "STRING_LITERAL",
+                                    "value": "\"how are you?\""
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}

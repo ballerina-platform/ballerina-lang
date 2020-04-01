@@ -35,6 +35,7 @@ public class BallerinaLexer {
     private CharReader reader;
     private List<STNode> leadingTriviaList;
     private ParserMode mode = ParserMode.DEFAULT;
+    private final BallerinaParserErrorListener errorListener = new BallerinaParserErrorListener();
 
     public BallerinaLexer(CharReader charReader) {
         this.reader = charReader;
@@ -130,6 +131,9 @@ public class BallerinaLexer {
                 break;
             case LexerTerminals.QUESTION_MARK:
                 token = getSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
+                break;
+            case LexerTerminals.DOUBLE_QUOTE:
+                token = processStringLiteral();
                 break;
 
             // Arithmetic operators
@@ -751,5 +755,103 @@ public class BallerinaLexer {
      */
     private String getLexeme() {
         return reader.getMarkedChars();
+    }
+
+    /**
+     * Process and return double-quoted string literal.
+     * <p>
+     * <code>string-literal := DoubleQuotedStringLiteral
+     * <br/>
+     * DoubleQuotedStringLiteral := " (StringChar | StringEscape)* "
+     * <br/>
+     * StringChar := ^ ( 0xA | 0xD | \ | " )
+     * <br/>
+     * StringEscape := StringSingleEscape | StringNumericEscape
+     * <br/>
+     * StringSingleEscape := \t | \n | \r | \\ | \"
+     * <br/>
+     * StringNumericEscape := \ u{ CodePoint }
+     * <br/>
+     * CodePoint := HexDigit+
+     * </code>
+     * 
+     * @return String literal token
+     */
+    private STToken processStringLiteral() {
+        int nextChar;
+        while (true) {
+            nextChar = peek();
+            switch (nextChar) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                    reportLexerError("missing double-quote");
+                    break;
+                case LexerTerminals.DOUBLE_QUOTE:
+                    this.reader.advance();
+                    break;
+                case LexerTerminals.BACKSLASH:
+                    switch (this.reader.peek(1)) {
+                        case 'n':
+                        case 't':
+                        case 'r':
+                        case LexerTerminals.BACKSLASH:
+                        case LexerTerminals.DOUBLE_QUOTE:
+                            this.reader.advance(2);
+                            continue;
+                        case 'u':
+                            if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
+                                processStringNumericEscape();
+                            } else {
+                                reportLexerError("invalid string numeric escape sequence");
+                                this.reader.advance(2);
+                            }
+                            continue;
+                        // else fall through
+                        default:
+                            reportLexerError("invalid escape sequence");
+                            this.reader.advance();
+                            continue;
+                    }
+                default:
+                    this.reader.advance();
+                    continue;
+            }
+            break;
+        }
+
+        return getLiteral(SyntaxKind.STRING_LITERAL);
+    }
+
+    /**
+     * Process string numeric escape.
+     * <p>
+     * <code>StringNumericEscape := \ u { CodePoint }</code>
+     */
+    private void processStringNumericEscape() {
+        // Process '\ u {'
+        this.reader.advance(3);
+
+        // Process code-point
+        if (!isHexDigit(peek())) {
+            reportLexerError("invalid string numeric escape sequence");
+            return;
+        }
+
+        reader.advance();
+        while (isHexDigit(peek())) {
+            reader.advance();
+        }
+
+        // Process close brace
+        if (peek() != LexerTerminals.CLOSE_BRACE) {
+            reportLexerError("invalid string numeric escape sequence");
+            return;
+        }
+
+        this.reader.advance();
+    }
+
+    private void reportLexerError(String message) {
+        this.errorListener.reportInvalidNodeError(null, message);
     }
 }
