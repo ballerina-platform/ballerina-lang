@@ -78,11 +78,11 @@ public enum SyntaxKind {
     ASTERISK_TOKEN(557, "*"),
     LT_TOKEN(558, "<"),
     EQUAL_LT_TOKEN(559, "<="),
-    GT_TOKEN(560, "<"),
+    GT_TOKEN(560, ">"),
     EQUAL_GT_TOKEN(561, "=>"),
     QUESTION_MARK_TOKEN(562, "?"),
     PIPE_TOKEN(563, "|"),
-    
+
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
     DECIMAL_INTEGER_LITERAL(1002),

@@ -156,10 +156,10 @@ public class BallerinaParserErrorHandler {
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
-            ParserRuleContext.STRING_LITERAL, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.ELLIPSIS };
+            ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
 
-    private static final ParserRuleContext[] SPECIFIC_FIELD_RHS = { ParserRuleContext.MAPPING_FIELD_NAME,
-            ParserRuleContext.COLON, ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
+    private static final ParserRuleContext[] SPECIFIC_FIELD_RHS =
+            { ParserRuleContext.COLON, ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -600,7 +600,6 @@ public class BallerinaParserErrorHandler {
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, PARAM_LIST);
                 case PARAMETER_RHS:
                     ParserRuleContext parentCtx = getParentContext();
-                    parentCtx = getParentContext();
                     switch (parentCtx) {
                         case REQUIRED_PARAM:
                             return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, PARAMETER_RHS);
@@ -797,7 +796,7 @@ public class BallerinaParserErrorHandler {
                 case IMPORT_SUB_VERSION:
                 case MAPPING_CONSTRUCTOR:
                 case PANIC_STMT:
-                    // case SPECIFIC_FIELD:
+                case COMPUTED_FIELD_NAME:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -928,6 +927,12 @@ public class BallerinaParserErrorHandler {
         if (parentCtx == ParserRuleContext.MAPPING_CONSTRUCTOR) {
             ParserRuleContext[] next = { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
                     ParserRuleContext.OPEN_BRACKET, ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACE };
+            return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next);
+        }
+
+        if (parentCtx == ParserRuleContext.COMPUTED_FIELD_NAME) {
+            ParserRuleContext[] next = { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.BINARY_OPERATOR,
+                    ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET };
             return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next);
         }
 
@@ -1144,7 +1149,7 @@ public class BallerinaParserErrorHandler {
             case PANIC_STMT:
             case CALL_STMT:
             case IMPORT_DECL:
-                // case EXPRESSION:
+            case COMPUTED_FIELD_NAME:
                 startContext(currentCtx);
                 break;
             default:
@@ -1299,6 +1304,11 @@ public class BallerinaParserErrorHandler {
             case OPEN_BRACKET:
                 return ParserRuleContext.EXPRESSION;
             case CLOSE_BRACKET:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.COMPUTED_FIELD_NAME) {
+                    endContext(); // end computed-field-name
+                }
+                return ParserRuleContext.EXPRESSION_RHS;
             case FIELD_OR_FUNC_NAME:
                 return ParserRuleContext.EXPRESSION_RHS;
             case DOT:
@@ -1360,6 +1370,8 @@ public class BallerinaParserErrorHandler {
             case STRING_LITERAL:
                 // We assume string literal is specifically used in the mapping constructor key.
                 return ParserRuleContext.COLON;
+            case COMPUTED_FIELD_NAME:
+                return ParserRuleContext.OPEN_BRACKET;
 
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
@@ -1858,6 +1870,7 @@ public class BallerinaParserErrorHandler {
             case COLON:
                 return SyntaxKind.COLON_TOKEN;
             case MAPPING_FIELD_NAME:
+            case MAPPING_FIELD:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case PANIC_KEYWORD:
                 return SyntaxKind.PANIC_KEYWORD;
@@ -1905,7 +1918,6 @@ public class BallerinaParserErrorHandler {
             case ACCESS_EXPRESSION:
             case IMPORT_VERSION_DECL:
             case MAPPING_CONSTRUCTOR:
-            case MAPPING_FIELD:
             case PANIC_STMT:
             case SPECIFIC_FIELD_RHS:
             default:

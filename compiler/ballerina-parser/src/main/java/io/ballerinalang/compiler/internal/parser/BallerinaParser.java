@@ -191,6 +191,16 @@ public class BallerinaParser {
                 return parseImportPrefixDecl();
             case AS_KEYWORD:
                 return parseAsKeyword();
+            case MAPPING_FIELD:
+                return parseMappingField(parsedNodes[0]);
+            case SPECIFIC_FIELD_RHS:
+                return parseSpecificFieldRhs(parsedNodes[0], parsedNodes[1]);
+            case STRING_LITERAL:
+                return parseStringLiteral();
+            case COLON:
+                return parseColon();
+            case OPEN_BRACKET:
+                return parseOpenBracket();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -3501,9 +3511,11 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseMappingConstructorExpr() {
+        startContext(ParserRuleContext.MAPPING_CONSTRUCTOR);
         STNode openBrace = parseOpenBrace();
         STNode fields = parseMapingConstructorFields();
         STNode closeBrace = parseCloseBrace();
+        endContext();
         return STNodeFactory.createMappingContructorExpr(openBrace, fields, closeBrace);
     }
 
@@ -3513,33 +3525,27 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseMapingConstructorFields() {
-        startContext(ParserRuleContext.MAPPING_CONSTRUCTOR);
         List<STNode> fields = new ArrayList<>();
-
         STToken nextToken = peek();
         if (isEndOfMappingConstructor(nextToken.kind)) {
-            STNode fieldsMapping = STNodeFactory.createNodeList(fields);
-            endContext();
-            return fieldsMapping;
+            return STNodeFactory.createNodeList(fields);
         }
 
         // Parse first field mapping, that has no leading comma
         STNode leadingComma = STNodeFactory.createEmptyNode();
-        STNode field = parseMapingField(leadingComma);
+        STNode field = parseMappingField(leadingComma);
         fields.add(field);
 
         // Parse the remaining field mappings
         nextToken = peek();
         while (!isEndOfMappingConstructor(nextToken.kind)) {
             leadingComma = parseComma();
-            field = parseMapingField(leadingComma);
+            field = parseMappingField(leadingComma);
             fields.add(field);
             nextToken = peek();
         }
 
-        STNode fieldsMapping = STNodeFactory.createNodeList(fields);
-        endContext();
-        return fieldsMapping;
+        return STNodeFactory.createNodeList(fields);
     }
 
     private boolean isEndOfMappingConstructor(SyntaxKind tokenKind) {
@@ -3567,12 +3573,12 @@ public class BallerinaParser {
      * @param leadingComma Leading comma
      * @return Parsed node
      */
-    private STNode parseMapingField(STNode leadingComma) {
+    private STNode parseMappingField(STNode leadingComma) {
         STToken nextToken = peek();
-        return parseMapingField(nextToken.kind, leadingComma);
+        return parseMappingField(nextToken.kind, leadingComma);
     }
 
-    private STNode parseMapingField(SyntaxKind tokenKind, STNode leadingComma) {
+    private STNode parseMappingField(SyntaxKind tokenKind, STNode leadingComma) {
         switch (tokenKind) {
             case IDENTIFIER_TOKEN:
                 return parseSpecificFieldWithOptionValue(leadingComma);
@@ -3589,7 +3595,7 @@ public class BallerinaParser {
                 return STNodeFactory.createSpreadField(leadingComma, ellipsis, expr);
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.MAPPING_FIELD);
+                Solution solution = recover(token, ParserRuleContext.MAPPING_FIELD, leadingComma);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -3598,7 +3604,7 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseMapingField(solution.tokenKind, leadingComma);
+                return parseMappingField(solution.tokenKind, leadingComma);
         }
     }
 
@@ -3610,6 +3616,10 @@ public class BallerinaParser {
      */
     private STNode parseSpecificFieldWithOptionValue(STNode leadingComma) {
         STNode key = parseIdentifier(ParserRuleContext.MAPPING_FIELD_NAME);
+        return parseSpecificFieldRhs(leadingComma, key);
+    }
+
+    private STNode parseSpecificFieldRhs(STNode leadingComma, STNode key) {
         STToken nextToken = peek();
         return parseSpecificFieldRhs(nextToken.kind, leadingComma, key);
     }
@@ -3635,7 +3645,7 @@ public class BallerinaParser {
                 }
 
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.SPECIFIC_FIELD_RHS);
+                Solution solution = recover(token, ParserRuleContext.SPECIFIC_FIELD_RHS, leadingComma, key);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -3689,11 +3699,13 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseComputedField(STNode leadingComma) {
+        startContext(ParserRuleContext.COMPUTED_FIELD_NAME);
         STNode openBracket = parseOpenBracket();
         STNode fieldNameExpr = parseExpression();
         STNode closeBracket = parseCloseBracket();
         STNode colon = parseColon();
         STNode valueExpr = parseExpression();
+        endContext();
         return STNodeFactory.createComputedNameField(leadingComma, openBracket, fieldNameExpr, closeBracket, colon,
                 valueExpr);
     }

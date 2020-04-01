@@ -156,8 +156,8 @@ public enum ParserRuleContext {
     MAPPING_CONSTRUCTOR("maping-constructor"),
     MAPPING_FIELD("maping-field"),
     MAPPING_FIELD_NAME("maping-field-name"),
-//    SPECIFIC_FIELD("specific-field"),
     SPECIFIC_FIELD_RHS("specific-field-rhs"),
+    COMPUTED_FIELD_NAME("computed-field-name")
     ;
 
     private String value;

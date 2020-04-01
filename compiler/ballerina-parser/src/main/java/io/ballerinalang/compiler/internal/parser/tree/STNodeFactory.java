@@ -348,7 +348,7 @@ public class STNodeFactory {
     public static STNode createSpecificField(STNode leadingComma, STNode key, STNode colon, STNode valueExpr) {
         return new STSpecificField(leadingComma, key, colon, valueExpr);
     }
-    
+
     public static STNode createComputedNameField(STNode leadingComma,
                                                  STNode openBracket,
                                                  STNode fieldNameExpr,
