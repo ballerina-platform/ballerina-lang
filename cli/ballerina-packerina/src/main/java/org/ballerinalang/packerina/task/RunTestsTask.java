@@ -285,7 +285,7 @@ public class RunTestsTask implements Task {
 
             content = new String(Files.readAllBytes(jsonPath.resolve(REPORT_DIR_NAME).resolve(RESULTS_HTML_FILE)),
                     StandardCharsets.UTF_8);
-            content = content.replaceAll(REPORT_DATA_PLACEHOLDER, json.replace("\\", "\\\\"));
+            content = content.replace(REPORT_DATA_PLACEHOLDER, json);
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("error occurred while preparing test report: " + e.toString());
         }
