@@ -222,11 +222,18 @@ public class FieldLevelDocsTest {
         testDescription(ageField, formatHtmlDescription("Teacher age"));
     }
 
-    @Test(description = "Test documentation with markdown styles")
-    public void testDocumentsWithMarkdownStyles() {
+    @Test(description = "Test documentation of objects with markdown styles")
+    public void testObjectDocsWithMarkdownStyles() {
         Assert.assertEquals(teacherObj.description.trim(),
-                "<p><code>Teacher</code> object in <em>school</em> located in <strong>New York</strong>\n"
-                        + "<code>Senior</code> teacher of the school</p>");
+                "<code>Teacher</code> object in <em>school</em> located in <strong>New York</strong>\n"
+                        + "<code>Senior</code> teacher of the school");
+    }
+
+    @Test(description = "Test documentation of records with markdown styles")
+    public void testRecordDocsWithMarkdownStyles() {
+        Assert.assertEquals(apartmentRecord.description.trim(),
+                "<code>Apartment</code> record in the <em>town</em>\n"
+                        + "<code>test</code> documentation row");
     }
 
     private void testDescription(DefaultableVariable field, String expectedDesc) {
