@@ -212,12 +212,13 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             List<BLangSimpleVariable> fields = ((BLangObjectTypeNode) typeNode).fields;
             validateParameters(typeDefinition, fields, null, DiagnosticCode.UNDOCUMENTED_FIELD,
                     DiagnosticCode.NO_SUCH_DOCUMENTABLE_FIELD, DiagnosticCode.FIELD_ALREADY_DOCUMENTED);
-            validateDeprecatedParameters(typeDefinition, fields, null,
-                    DiagnosticCode.FIELD_ALREADY_DOCUMENTED, DiagnosticCode.NO_SUCH_DOCUMENTABLE_PARAMETER);
             validateReturnParameter(typeDefinition, null, false);
             validateReferences(typeDefinition);
             for (SimpleVariableNode field : fields) {
                 validateReferences(field);
+                validateDeprecationDocumentation(field.getMarkdownDocumentationAttachment(),
+                        Symbols.isFlagOn(((BLangSimpleVariable) field).symbol.flags, Flags.DEPRECATED),
+                        (DiagnosticPos) field.getPosition());
             }
 
             ((BLangObjectTypeNode) typeDefinition.getTypeNode()).getFunctions().forEach(this::analyzeNode);
@@ -232,7 +233,13 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                 validateReferences(field);
             }
         }
-        validateDeprecationDocumentation(typeDefinition.markdownDocumentationAttachment,
+
+        BLangMarkdownDocumentation documentation = typeDefinition.markdownDocumentationAttachment;
+        if (documentation != null && documentation.deprecatedParametersDocumentation != null) {
+            dlog.error(typeDefinition.pos, DiagnosticCode.DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED);
+        }
+
+        validateDeprecationDocumentation(documentation,
                 Symbols.isFlagOn(typeDefinition.symbol.flags, Flags.DEPRECATED), typeDefinition.pos);
     }
 
@@ -560,13 +567,11 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        List<String> fieldsDocumentedAtFieldLevel = getDocumentedFields(actualParameters);
-
         Map<String, BLangMarkdownParameterDocumentation> documentedDeprecatedParameterMap = new HashMap<>();
         if (documentation.deprecatedParametersDocumentation != null) {
             documentedDeprecatedParameterMap =
                     getDocumentedParameters(documentation.deprecatedParametersDocumentation.parameters,
-                            fieldsDocumentedAtFieldLevel, parameterAlreadyDefined);
+                            new ArrayList<>(), parameterAlreadyDefined);
         }
 
         for (BLangSimpleVariable parameter : actualParameters) {
