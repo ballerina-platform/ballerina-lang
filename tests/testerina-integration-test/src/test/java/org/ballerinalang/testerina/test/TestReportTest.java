@@ -25,15 +25,19 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.stream.Stream;
 
 /**
  * Test class to test report using a ballerina project.
@@ -59,7 +63,7 @@ public class TestReportTest extends BaseTestCase {
         validateCoverage();
     }
 
-    @Test (enabled = false)
+    @Test
     public void testWithoutCoverage() throws BallerinaTestException, IOException {
         runCommand(false);
         validateStatuses();
@@ -217,5 +221,24 @@ public class TestReportTest extends BaseTestCase {
         Assert.assertEquals(totalCovered, resultObj.get("coveredLines").getAsInt());
         Assert.assertEquals(totalMissed, resultObj.get("missedLines").getAsInt());
         Assert.assertEquals(coveragePercentage, resultObj.get("coveragePercentage").getAsFloat());
+    }
+
+    @AfterMethod
+    private void cleanUp() throws Exception {
+        deleteDirectory(reportTestProjectPath.resolve("target").toFile());
+    }
+
+
+
+    private void deleteDirectory(File dir) throws IOException {
+        File[] contents = dir.listFiles();
+        if (contents != null) {
+            for (File f : contents) {
+                if (!Files.isSymbolicLink(f.toPath())) {
+                    deleteDirectory(f);
+                }
+            }
+        }
+        Files.deleteIfExists(dir.toPath());
     }
 }
