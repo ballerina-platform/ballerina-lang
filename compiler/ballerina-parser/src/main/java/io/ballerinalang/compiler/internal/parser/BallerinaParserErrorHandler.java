@@ -64,7 +64,7 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] STATEMENTS =
             { ParserRuleContext.ASSIGNMENT_STMT, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK,
-                    ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE };
+                    ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE, ParserRuleContext.RETURN_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -695,6 +695,9 @@ public class BallerinaParserErrorHandler {
                     break;
                 case CALL_STMT_START:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, CALL_STATEMENT);
+                case RETURN_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.RETURN_KEYWORD;
+                    break;
 
                 // productions
                 case COMP_UNIT:
@@ -1059,6 +1062,7 @@ public class BallerinaParserErrorHandler {
             case BLOCK_STMT:
             case WHILE_BLOCK:
             case CALL_STMT:
+            case RETURN_STMT:
                 // case EXPRESSION:
                 startContext(currentCtx);
                 break;
@@ -1230,6 +1234,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.EXPRESSION;
             case CALL_STMT:
                 return ParserRuleContext.CALL_STMT_START;
+            case RETURN_STMT:
+                return ParserRuleContext.RETURN_KEYWORD;
+            case RETURN_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
@@ -1484,6 +1492,7 @@ public class BallerinaParserErrorHandler {
             case BLOCK_STMT:
             case WHILE_BLOCK:
             case CALL_STMT:
+            case RETURN_STMT:
                 return true;
             default:
                 return false;

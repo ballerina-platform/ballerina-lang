@@ -155,6 +155,8 @@ public class BallerinaParser {
                 return parseWhileKeyword();
             case BOOLEAN_LITERAL:
                 return parseBooleanLiteral();
+            case RETURN_KEYWORD:
+                return parseReturnStatement();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
