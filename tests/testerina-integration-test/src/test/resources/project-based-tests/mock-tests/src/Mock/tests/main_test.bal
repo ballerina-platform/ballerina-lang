@@ -41,6 +41,15 @@ function test_MockNativeFunction() {
     test:assertEquals(answer, 125.0, "Mocking did not take place");
 }
 
+// Test Function mocking for Object methods
+Person p1 = new ("Jane", "Doe");
+
+@test:Config {
+}
+function test_MockObjectFunction() {
+    test:assertEquals(p1.getFullName(), "John Doe", "Mocking did not take place");
+}
+
 
 //
 // FUNCTION MOCKS
@@ -70,4 +79,12 @@ function mocksqrt(float a) returns (float) {
     return a*a*a;
 }
 
+@test:Mock {
+    moduleName : "",
+    objectName : "Person",
+    functionName : "getFullName"
+}
+function mock_getFullName() returns string {
+    return "John Doe";
+}
 
