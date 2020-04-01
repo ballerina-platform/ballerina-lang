@@ -2788,14 +2788,13 @@ public class BLangPackageBuilder {
         deprecationAnnotationDocumentation.addDeprecationDocumentationLine(description);
     }
 
-    void endDeprecatedParametersDocumentation(DiagnosticPos pos, Set<Whitespace> ws, String description) {
+    void endDeprecatedParametersDocumentation(DiagnosticPos pos, Set<Whitespace> ws) {
         MarkdownDocumentationNode markdownDocumentationNode = markdownDocumentationStack.peek();
         BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation =
                 (BLangMarkDownDeprecatedParametersDocumentation)
                         TreeBuilder.createMarkDownDeprecatedParametersAttributeNode();
         deprecatedParametersDocumentation.pos = pos;
         deprecatedParametersDocumentation.addWS(ws);
-        deprecatedParametersDocumentation.setCorrectDeprecationLine(description);
         markdownDocumentationNode.setDeprecatedParametersDocumentation(deprecatedParametersDocumentation);
     }
 
