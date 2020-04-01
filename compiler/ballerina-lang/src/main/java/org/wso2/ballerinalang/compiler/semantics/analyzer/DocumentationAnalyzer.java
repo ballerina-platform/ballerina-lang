@@ -56,6 +56,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -164,6 +166,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         validateReferences(constant);
         validateDeprecationDocumentation(constant.markdownDocumentationAttachment,
                 Symbols.isFlagOn(constant.symbol.flags, Flags.DEPRECATED), constant.pos);
+        validateDeprecatedParametersDocumentation(constant.markdownDocumentationAttachment, constant.pos);
     }
 
     @Override
@@ -171,6 +174,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         validateNoParameters(varNode);
         validateReturnParameter(varNode, null, false);
         validateReferences(varNode);
+        validateDeprecationDocumentation(varNode.markdownDocumentationAttachment, false, varNode.pos);
+        validateDeprecatedParametersDocumentation(varNode.markdownDocumentationAttachment, varNode.pos);
     }
 
     @Override
@@ -203,6 +208,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         validateNoParameters(serviceNode);
         validateReturnParameter(serviceNode, null, false);
         validateReferences(serviceNode);
+        validateDeprecationDocumentation(serviceNode.markdownDocumentationAttachment, false, serviceNode.pos);
+        validateDeprecatedParametersDocumentation(serviceNode.markdownDocumentationAttachment, serviceNode.pos);
     }
 
     @Override
@@ -234,13 +241,9 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        BLangMarkdownDocumentation documentation = typeDefinition.markdownDocumentationAttachment;
-        if (documentation != null && documentation.deprecatedParametersDocumentation != null) {
-            dlog.error(typeDefinition.pos, DiagnosticCode.DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED);
-        }
-
-        validateDeprecationDocumentation(documentation,
+        validateDeprecationDocumentation(typeDefinition.markdownDocumentationAttachment,
                 Symbols.isFlagOn(typeDefinition.symbol.flags, Flags.DEPRECATED), typeDefinition.pos);
+        validateDeprecatedParametersDocumentation(typeDefinition.markdownDocumentationAttachment, typeDefinition.pos);
     }
 
     @Override
@@ -255,14 +258,17 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateDeprecationDocumentation(BLangMarkdownDocumentation documentation,
-                                                  boolean isDeprecationAnnotationAvailable, DiagnosticPos pos) {
+                                                  boolean isDeprecationAnnotationAvailable,
+                                                  DiagnosticPos pos) {
         if (documentation == null) {
             return;
         }
 
+        BLangMarkDownDeprecationDocumentation deprecationDocumentation =
+                documentation.getDeprecationDocumentation();
+
         boolean isDeprecationDocumentationAvailable = false;
-        if (documentation.deprecationDocumentation != null &&
-                documentation.deprecationDocumentation.isCorrectDeprecationLine) {
+        if (deprecationDocumentation != null && deprecationDocumentation.isCorrectDeprecationLine) {
             isDeprecationDocumentationAvailable = true;
         }
 
@@ -270,6 +276,18 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             dlog.error(pos, DiagnosticCode.INVALID_DEPRECATION_DOCUMENTATION);
         } else if (!isDeprecationDocumentationAvailable && isDeprecationAnnotationAvailable) {
             dlog.error(pos, DiagnosticCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
+        }
+    }
+
+    public void validateDeprecatedParametersDocumentation(BLangMarkdownDocumentation documentation, DiagnosticPos pos) {
+        if (documentation == null) {
+            return;
+        }
+
+        BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation =
+                documentation.getDeprecatedParametersDocumentation();
+        if (deprecatedParametersDocumentation != null) {
+            dlog.error(pos, DiagnosticCode.DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED);
         }
     }
 

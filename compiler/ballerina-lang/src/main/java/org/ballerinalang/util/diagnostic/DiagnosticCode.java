@@ -492,6 +492,7 @@ public enum DiagnosticCode {
     INVALID_DEPRECATION_DOCUMENTATION("invalid.deprecation.documentation"),
     DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE("deprecation.documentation.should.available"),
     DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED("deprecated.parameters.documentation.not.allowed"),
+    DEPRECATION_DOCUMENTATION_NOT_ALLOWED("deprecation.documentation.not.allowed"),
     INVALID_ATTRIBUTE_REFERENCE("invalid.attribute.reference"),
     ;
     private String value;
