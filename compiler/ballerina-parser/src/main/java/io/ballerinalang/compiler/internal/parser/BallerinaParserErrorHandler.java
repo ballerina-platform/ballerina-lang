@@ -152,6 +152,9 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] MAJOR_MINOR_VERSION_END =
             { ParserRuleContext.DOT, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
 
+    private static final ParserRuleContext[] EXPRESSIONS =
+            { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION };
+
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
@@ -524,6 +527,7 @@ public class BallerinaParserErrorHandler {
                 case IMPORT_ORG_OR_MODULE_NAME:
                 case IMPORT_MODULE_NAME:
                 case IMPORT_PREFIX:
+                case VARIABLE_REF:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case OPEN_PARENTHESIS:
@@ -575,11 +579,11 @@ public class BallerinaParserErrorHandler {
                     hasMatch = isBinaryOperator(nextToken);
                     break;
                 case EXPRESSION:
-                    return seekInExpression(currentCtx, lookahead, currentDepth, matchingRulesCount);
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, EXPRESSIONS);
                 case VAR_DECL_STMT_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, VAR_DECL_RHS);
                 case EXPRESSION_RHS:
-                    // Binary expr rhs can be either the end of the expression or can be (binary-op expression).
+                    // Binary expr-rhs can be either the end of the expression or can be (binary-op expression).
                     ParserRuleContext parentCtx = getParentContext();
                     ParserRuleContext exprEndCtx;
                     if (isParameter(parentCtx) || parentCtx == ParserRuleContext.ARG) {
@@ -754,6 +758,11 @@ public class BallerinaParserErrorHandler {
                 case MAJOR_MINOR_VERSION_END:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             MAJOR_MINOR_VERSION_END);
+                case ACCESS_EXPRESSION:
+                    return seekInAccessExpression(currentCtx, lookahead, currentDepth, matchingRulesCount);
+                case BASIC_LITERAL:
+                    hasMatch = isBasicLiteral(nextToken.kind);
+                    break;
 
                 // productions
                 case COMP_UNIT:
@@ -845,7 +854,8 @@ public class BallerinaParserErrorHandler {
     }
 
     /**
-     * Search for matching token sequences within expressions and returns the most optimal solution.
+     * Search for matching token sequences within access expressions and returns the most optimal solution.
+     * Access expression can be one of: method-call, field-access, member-access.
      * 
      * @param currentCtx Current context
      * @param lookahead Position of the next token to consider, relative to the position of the original error
@@ -854,41 +864,30 @@ public class BallerinaParserErrorHandler {
      * @param fixes Fixes made so far
      * @return Recovery result
      */
-    private Result seekInExpression(ParserRuleContext currentCtx, int lookahead, int currentDepth, int currentMatches) {
+    private Result seekInAccessExpression(ParserRuleContext currentCtx, int lookahead, int currentDepth,
+                                          int currentMatches) {
         STToken nextToken = this.tokenReader.peek(lookahead);
         currentDepth++;
+        if (nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
+            Result fixedPathResult = fixAndContinue(currentCtx, lookahead, currentDepth);
+            return getFinalResult(currentMatches, fixedPathResult);
+        }
+
         ParserRuleContext nextContext;
-        switch (nextToken.kind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case STRING_LITERAL:
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-                nextContext = ParserRuleContext.EXPRESSION_END;
+        STToken nextNextToken = this.tokenReader.peek(lookahead + 1);
+        switch (nextNextToken.kind) {
+            case OPEN_PAREN_TOKEN:
+                nextContext = ParserRuleContext.OPEN_PARENTHESIS;
                 break;
-            // case OPEN_PAREN_TOKEN:
-            // Result result = seekMatch(ParserRuleContext.EXPRESSION, ++lookahead, currentDepth);
-            // return getFinalResult(++currentMatches, result);
-            case IDENTIFIER_TOKEN:
-                STToken nextNextToken = this.tokenReader.peek(lookahead + 1);
-                switch (nextNextToken.kind) {
-                    case OPEN_PAREN_TOKEN:
-                        nextContext = ParserRuleContext.OPEN_PARENTHESIS;
-                        break;
-                    case DOT_TOKEN:
-                        nextContext = ParserRuleContext.DOT;
-                        break;
-                    case OPEN_BRACKET_TOKEN:
-                        nextContext = ParserRuleContext.OPEN_BRACKET;
-                        break;
-                    default:
-                        nextContext = ParserRuleContext.EXPRESSION_END;
-                        break;
-                }
+            case DOT_TOKEN:
+                nextContext = ParserRuleContext.DOT;
+                break;
+            case OPEN_BRACKET_TOKEN:
+                nextContext = ParserRuleContext.OPEN_BRACKET;
                 break;
             default:
-                Result fixedPathResult = fixAndContinue(currentCtx, lookahead, currentDepth);
-                return getFinalResult(currentMatches, fixedPathResult);
+                nextContext = ParserRuleContext.EXPRESSION_END;
+                break;
         }
 
         currentMatches++;
@@ -1328,6 +1327,11 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.IMPORT_PREFIX_DECL;
             case IMPORT_DECL:
                 return ParserRuleContext.IMPORT_KEYWORD;
+            case ACCESS_EXPRESSION:
+                // return ParserRuleContext.ACCESS_EXPRESSION_RHS;
+            case BASIC_LITERAL:
+            case VARIABLE_REF:
+                return ParserRuleContext.EXPRESSION_END;
 
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
@@ -1796,6 +1800,8 @@ public class BallerinaParserErrorHandler {
             case IMPORT_MODULE_NAME:
             case IMPORT_ORG_OR_MODULE_NAME:
             case IMPORT_PREFIX:
+            case VARIABLE_REF:
+            case BASIC_LITERAL: // return var-ref for any kind of terminal expression
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -1855,6 +1861,25 @@ public class BallerinaParserErrorHandler {
         }
 
         return SyntaxKind.NONE;
+    }
+
+    /**
+     * Check whether a token kind is a basic literal.
+     * 
+     * @param kind Token kind to check
+     * @return <code>true</code> if the given token kind belongs to a basic literal.<code>false</code> otherwise
+     */
+    private boolean isBasicLiteral(SyntaxKind kind) {
+        switch (kind) {
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case STRING_LITERAL:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**

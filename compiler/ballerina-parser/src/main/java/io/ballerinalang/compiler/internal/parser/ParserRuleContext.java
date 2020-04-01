@@ -103,7 +103,6 @@ public enum ParserRuleContext {
     REMOTE_KEYWORD("remote"),
     FUNCTION_KEYWORD("function"),
     EXTERNAL_KEYWORD("external"), 
-    VARIABLE_NAME("variable"),
     RECORD_KEYWORD("record"),
     OBJECT_KEYWORD("object"),
     ABSTRACT_KEYWORD("abstract"),
@@ -136,6 +135,7 @@ public enum ParserRuleContext {
 
     // Other terminals
     FUNC_NAME("function-name"),
+    VARIABLE_NAME("variable"),
     SIMPLE_TYPE_DESCRIPTOR("simple-type-desc"),
     BINARY_OPERATOR("binary-operator"),
     TYPE_NAME("type-name"),
@@ -148,7 +148,10 @@ public enum ParserRuleContext {
     EXPRESSION_RHS("expression-rhs"),
     FUNC_CALL("func-call"),
     EXPRESSION_END("expr-end"),
+    BASIC_LITERAL("basic-literal"),
+    ACCESS_EXPRESSION("access-expr"),   // method-call, field-access, member-access
     DECIMAL_INTEGER_LITERAL("decimal-int-literal"),
+    VARIABLE_REF("var-ref"),
     ;
 
     private String value;
