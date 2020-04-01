@@ -115,14 +115,15 @@ public class AnydataTest {
         assertEquals(returns[0].stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
     }
 
-    @Test(description = "Test table assignment")
-    public void testTableAssignment() {
-        BValue[] returns = BRunUtil.invoke(result, "testTableAssignment");
-        assertEquals(returns[0].getType().getTag(), TypeTags.TABLE_TAG);
-        assertEquals(returns[0].stringValue(), "table<Employee> {index: [], primaryKey: [\"id\"], data: " +
-                "[{id:1, name:\"Mary\", salary:300.5}, {id:2, name:\"John\", salary:200.5}, {id:3, name:\"Jim\", " +
-                "salary:330.5}]}");
-    }
+    //TODO Table remove - Fix
+//    @Test(description = "Test table assignment")
+//    public void testTableAssignment() {
+//        BValue[] returns = BRunUtil.invoke(result, "testTableAssignment");
+//        assertEquals(returns[0].getType().getTag(), TypeTags.TABLE_TAG);
+//        assertEquals(returns[0].stringValue(), "table<Employee> {index: [], primaryKey: [\"id\"], data: " +
+//                "[{id:1, name:\"Mary\", salary:300.5}, {id:2, name:\"John\", salary:200.5}, {id:3, name:\"Jim\", " +
+//                "salary:330.5}]}");
+//    }
 
     @Test(description = "Test map assignment")
     public void testMapAssignment() {
@@ -142,11 +143,12 @@ public class AnydataTest {
         assertEquals(anydataMap.get(StringUtils.fromString("record")).stringValue(), "{a:15}");
         assertEquals(anydataMap.get(StringUtils.fromString("map")).stringValue(), "{\"foo\":\"foo\", \"bar\":\"bar\"}");
         assertEquals(anydataMap.get(StringUtils.fromString("json")).stringValue(),
-                "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
-        assertEquals(anydataMap.get(StringUtils.fromString("table")).stringValue(), "table<Employee> {index: []," +
-                " primaryKey: [\"id\"], data: [{id:1, name:\"Mary\", salary:300.5}, {id:2, name:\"John\", " +
-                "salary:200.5}, {id:3, name:\"Jim\", salary:330.5}]}");
+                     "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
 
+        //TODO Table remove - Fix
+//        assertEquals(anydataMap.get("table").stringValue(), "table<Employee> {index: [], primaryKey: [\"id\"]," +
+//                " data: [{id:1, name:\"Mary\", salary:300.5}, {id:2, name:\"John\", salary:200.5}, {id:3, " +
+//                "name:\"Jim\", salary:330.5}]}");
     }
 
     @Test(description = "Test array assignment")
@@ -168,15 +170,15 @@ public class AnydataTest {
     public void testUnionAssignment2() {
         BValue[] returns = BRunUtil.invoke(result, "testUnionAssignment2");
         assertEquals(returns[0].stringValue(), "hello world!");
-        assertEquals(returns[1].stringValue(), "table<Employee> {index: [], primaryKey: [\"id\"], data: [{id:1, " +
-                "name:\"Mary\", salary:300.5}, {id:2, name:\"John\", salary:200.5}, {id:3, name:\"Jim\", " +
-                "salary:330.5}]}");
-        assertEquals(returns[2].stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
-        assertEquals(returns[3].stringValue(), "<book>The Lost World</book>");
-        assertEquals(returns[4].stringValue(), "{a:15}");
-        assertEquals(returns[5].stringValue(), "{ca:15}");
-        assertEquals(returns[6].stringValue(), "{\"foo\":{a:15}}");
-        assertEquals(returns[7].stringValue(), "[\"hello world!\"]");
+//        assertEquals(returns[1].stringValue(), "table<Employee> {index: [], primaryKey: [\"id\"], data: [{id:1, " +
+//                "name:\"Mary\", salary:300.5}, {id:2, name:\"John\", salary:200.5}, {id:3, name:\"Jim\", " +
+//                "salary:330.5}]}");
+        assertEquals(returns[1].stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
+        assertEquals(returns[2].stringValue(), "<book>The Lost World</book>");
+        assertEquals(returns[3].stringValue(), "{a:15}");
+        assertEquals(returns[4].stringValue(), "{ca:15}");
+        assertEquals(returns[5].stringValue(), "{\"foo\":{a:15}}");
+        assertEquals(returns[6].stringValue(), "[\"hello world!\"]");
     }
 
     @Test(description = "Test tuple assignment")
@@ -265,14 +267,15 @@ public class AnydataTest {
         assertEquals(returns[0].stringValue(), "{a:15}");
     }
 
-    @Test(description = "Test anydata to table conversion")
-    public void testAnydataToTable() {
-        BValue[] returns = BRunUtil.invoke(result, "testAnydataToTable");
-        assertEquals(returns[0].getType().getTag(), TypeTags.TABLE_TAG);
-        assertEquals(returns[0].stringValue(), "table<Employee> {index: [], primaryKey: [\"id\"], data: [{id:1, " +
-                "name:\"Mary\", salary:300.5}, {id:2, name:\"John\", salary:200.5}, {id:3, name:\"Jim\", " +
-                "salary:330.5}]}");
-    }
+    //TODO Table remove - Fix
+//    @Test(description = "Test anydata to table conversion")
+//    public void testAnydataToTable() {
+//        BValue[] returns = BRunUtil.invoke(result, "testAnydataToTable");
+//        assertEquals(returns[0].getType().getTag(), TypeTags.TABLE_TAG);
+//        assertEquals(returns[0].stringValue(), "table<Employee> {index: [], primaryKey: [\"id\"], data: [{id:1, " +
+//                "name:\"Mary\", salary:300.5}, {id:2, name:\"John\", salary:200.5}, {id:3, name:\"Jim\", " +
+//                "salary:330.5}]}");
+//    }
 
     @Test(description = "Test anydata to union conversion")
     public void testAnydataToUnion() {
@@ -294,20 +297,18 @@ public class AnydataTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnydataToUnion2");
         assertEquals(returns[0].getType().getTag(), TypeTags.MAP_TAG);
         assertEquals(returns[1].getType().getTag(), TypeTags.XML_TAG);
-        assertEquals(returns[2].getType().getTag(), TypeTags.TABLE_TAG);
-        assertEquals(returns[3].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        assertEquals(returns[4].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
-        assertEquals(returns[5].getType().getTag(), TypeTags.MAP_TAG);
-        assertEquals(returns[6].getType().getTag(), TypeTags.ARRAY_TAG);
+        assertEquals(returns[2].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
+        assertEquals(returns[4].getType().getTag(), TypeTags.MAP_TAG);
+        assertEquals(returns[5].getType().getTag(), TypeTags.ARRAY_TAG);
         assertEquals(returns[0].stringValue(), "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
         assertEquals(returns[1].stringValue(), "<book>The Lost World</book>");
-        assertEquals(returns[2].stringValue(), "table<Employee> {index: [], primaryKey: [\"id\"], data: [{id:1, " +
-                "name:\"Mary\", salary:300.5}, {id:2, name:\"John\", salary:200.5}, {id:3, name:\"Jim\", " +
-                "salary:330.5}]}");
-        assertEquals(returns[3].stringValue(), "{a:15}");
-        assertEquals(returns[4].stringValue(), "{ca:15}");
-        assertEquals(returns[5].stringValue(), "{\"foo\":{a:15}}");
-        assertEquals(returns[6].stringValue(), "[{a:15}]");
+//        assertEquals(returns[2].stringValue(), "table<Employee> {index: [], primaryKey: [\"id\"], data: [{id:1, " +
+//                "name:\"Mary\", salary:300.5}, {id:2, name:\"John\", salary:200.5}, {id:3, name:\"Jim\", " +
+//                "salary:330.5}]}");
+        assertEquals(returns[2].stringValue(), "{a:15}");
+        assertEquals(returns[3].stringValue(), "{ca:15}");
+        assertEquals(returns[4].stringValue(), "{\"foo\":{a:15}}");
+        assertEquals(returns[5].stringValue(), "[{a:15}]");
     }
 
     @Test(description = "Test anydata to tuple conversion")
@@ -332,8 +333,8 @@ public class AnydataTest {
         BValue[] returns = BRunUtil.invokeFunction(result, "testAnydataToTuple3");
         assertEquals(returns[0].getType().getTag(), TypeTags.TUPLE_TAG);
         assertEquals(returns[0].getType().toString(),
-                "[[int|float|string|boolean|byte|table<any>|json|xml|ClosedFoo|Foo|map<anydata>|anydata" +
-                        "[][],string],int,float]");
+                     "[[int|float|string|boolean|byte|json|xml|ClosedFoo|Foo|map<anydata>|anydata" +
+                             "[][],string],int,float]");
         assertEquals(returns[0].stringValue(), "[[[{\"name\":\"apple\", \"color\":\"red\", \"price\":40}, <book>The " +
                 "Lost World</book>], \"hello world!\"], 123, 23.45]");
     }
