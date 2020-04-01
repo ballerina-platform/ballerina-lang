@@ -517,7 +517,7 @@ public class Types {
 
         if (targetTag == TypeTags.MAP && sourceTag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) source;
-            return isAssignableRecordType(recordType, (BMapType) target);
+            return isAssignableRecordType(recordType, target);
         }
 
         if (targetTag == TypeTags.RECORD && sourceTag == TypeTags.MAP) {
@@ -562,6 +562,10 @@ public class Types {
 
             if (sourceTag == TypeTags.MAP) {
                 return isAssignable(((BMapType) source).constraint, target, unresolvedTypes);
+            }
+
+            if (sourceTag == TypeTags.RECORD) {
+                return isAssignableRecordType((BRecordType) source, target);
             }
         }
 
@@ -608,17 +612,33 @@ public class Types {
                 isArrayTypesAssignable(source, target, unresolvedTypes);
     }
 
-    private boolean isAssignableRecordType(BRecordType recordType, BMapType targetMapType) {
-        if (recordType.sealed) {
-            return recordFieldsAssignableToMap(recordType, targetMapType);
-        } else {
-            return isAssignable(recordType.restFieldType, targetMapType.constraint)
-                    && recordFieldsAssignableToMap(recordType, targetMapType);
+    private boolean isAssignableRecordType(BRecordType recordType, BType type) {
+        BType targetType;
+        switch (type.tag) {
+            case TypeTags.MAP:
+                targetType = ((BMapType) type).constraint;
+                break;
+            case TypeTags.JSON:
+                targetType = type;
+                break;
+            default:
+                throw new IllegalArgumentException("Incompatible target type: " + type.toString());
         }
+        return recordFieldsAssignableToType(recordType, targetType);
     }
 
-    private boolean recordFieldsAssignableToMap(BRecordType recordType, BMapType targetMapType) {
-        return recordType.fields.stream().allMatch(field -> isAssignable(field.type, targetMapType.constraint));
+    private boolean recordFieldsAssignableToType(BRecordType recordType, BType targetType) {
+        for (BField field : recordType.fields) {
+            if (!isAssignable(field.type, targetType)) {
+                return false;
+            }
+        }
+
+        if (!recordType.sealed) {
+            return isAssignable(recordType.restFieldType, targetType);
+        }
+
+        return true;
     }
 
     private boolean isAssignableMapType(BMapType sourceMapType, BRecordType targetRecType) {
