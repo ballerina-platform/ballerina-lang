@@ -501,7 +501,8 @@ public class StubGeneratorTestCase {
         );
     }
 
-    @Test(description = "Test case checks creation of only the service file, in the service mode, with multiple services")
+    @Test(description = "Test case checks creation of only the service file," +
+            " in the service mode, with multiple services")
     public void testServiceFilesGenForMultipleServices() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
