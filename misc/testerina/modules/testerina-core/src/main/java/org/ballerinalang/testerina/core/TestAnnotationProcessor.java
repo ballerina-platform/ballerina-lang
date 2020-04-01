@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -89,6 +90,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private BLangPackage parent;
     private PackageCache packageCache;
     private Map<BPackageSymbol, SymbolEnv> packageEnvironmentMap;
+    private Map<String, Map<String, BType>> objectMethodMap;
 
     /**
      * this property is used as a work-around to initialize test suites only once for a package as Compiler
@@ -342,23 +344,10 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
                 // If the object name is specified then you have to exclusively check the entrySymbolEnv for the enclPkg
                 if (objectName != null) {
-                    BLangPackage enclPkg = entrySymbolEnv.enclPkg;
-                    List<BLangTypeDefinition> typeDefinitionList = enclPkg.getTypeDefinitions();
-
-                    // Look thru all the existing definitions for objectName
-                    for (BLangTypeDefinition objectBlangType : typeDefinitionList) {
-                        // If the correct type definition is found, we need to look thru its list of function
-                        if (objectBlangType.getName().toString().equals(objectName)) {
-                            List<BLangFunction> objectMethods =
-                                    ((BLangObjectTypeNode) objectBlangType.typeNode).getFunctions();
-                            // Check every method for the matching function name
-                            for (BLangFunction objectMethod : objectMethods) {
-                                if (objectMethod.getName().toString().equals(functionName)) {
-                                    return objectMethod.symbol.type;
-                                }
-                            }
-                        }
+                    if (objectMethodMap == null) {
+                        generateObjectMethodMap(entrySymbolEnv.enclPkg);
                     }
+                    return getObjectMethodType(objectName, functionName);
                 } else {
                     BSymbol symbol = symbolResolver.lookupSymbolInMainSpace(entrySymbolEnv, new Name(functionName));
                     if (!symbol.getType().toString().equals("other")) {
@@ -368,6 +357,44 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             }
         }
         return null;
+    }
+
+
+    /**
+     * Generates an object method map with the each object method and relevant method type.
+     * @param enclPkg Enclosed BLangPackage with Object type definitions
+     */
+    private void generateObjectMethodMap(BLangPackage enclPkg) {
+
+        objectMethodMap = new HashMap<>();
+        List<BLangTypeDefinition> typeDefinitionList = enclPkg.getTypeDefinitions();
+
+        if (typeDefinitionList != null) {
+            for (BLangTypeDefinition objectBlangType : typeDefinitionList) {
+                Map<String, BType> methodTypeMap = new HashMap<>();
+                String objectName = objectBlangType.getName().toString();
+                List<BLangFunction> objectMethods =
+                        ((BLangObjectTypeNode) objectBlangType.typeNode).getFunctions();
+                // For every method, we will have to add the method name and the relevant type to the methodTypeMap
+                for (BLangFunction objectMethod : objectMethods) {
+                    String methodName = objectMethod.getName().toString();
+                    BType methodType = objectMethod.symbol.type;
+                    methodTypeMap.put(methodName, methodType);
+                }
+                objectMethodMap.put(objectName, methodTypeMap);
+            }
+        }
+    }
+
+    /**
+     * Get the type of the passed object method name.
+     * @param objectName Name of the object
+     * @param methodName Name of the object method
+     * @return Type of the object method
+     */
+    private BType getObjectMethodType(String objectName, String methodName) {
+        Map<String, BType> typeDefinitionList = objectMethodMap.get(objectName);
+        return typeDefinitionList.get(methodName);
     }
 
     /**
