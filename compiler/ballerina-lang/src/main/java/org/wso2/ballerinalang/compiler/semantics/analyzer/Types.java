@@ -1266,7 +1266,7 @@ public class Types {
         return null;
     }
 
-    private BType getResultTypeOfNextInvocation(BObjectType iteratorType) {
+    public BType getResultTypeOfNextInvocation(BObjectType iteratorType) {
         BAttachedFunction nextFunc = getNextFunc(iteratorType);
         return Objects.requireNonNull(nextFunc).type.retType;
     }
