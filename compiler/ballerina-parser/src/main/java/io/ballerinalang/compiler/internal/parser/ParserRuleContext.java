@@ -80,6 +80,7 @@ public enum ParserRuleContext {
     CALL_STMT("call-statement"),
     CALL_STMT_START("call-statement-start"),
     RETURN_STMT("return-stmt"),
+    RETURN_STMT_RHS("return-stmt-rhs"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),

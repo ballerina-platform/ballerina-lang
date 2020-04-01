@@ -137,6 +137,9 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] CALL_STATEMENT =
             { ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.VARIABLE_NAME };
 
+    private static final ParserRuleContext[] RETURN_RHS =
+            { ParserRuleContext.SEMICOLON, ParserRuleContext.EXPRESSION };
+
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
@@ -698,6 +701,8 @@ public class BallerinaParserErrorHandler {
                 case RETURN_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.RETURN_KEYWORD;
                     break;
+                case RETURN_STMT_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RETURN_RHS);
 
                 // productions
                 case COMP_UNIT:
@@ -1237,7 +1242,7 @@ public class BallerinaParserErrorHandler {
             case RETURN_STMT:
                 return ParserRuleContext.RETURN_KEYWORD;
             case RETURN_KEYWORD:
-                return ParserRuleContext.EXPRESSION;
+                return ParserRuleContext.RETURN_STMT_RHS;
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
