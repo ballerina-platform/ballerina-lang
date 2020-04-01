@@ -22,6 +22,10 @@ package org.ballerinalang.bindgen.utils;
  */
 public class BindgenConstants {
 
+    private BindgenConstants() {
+
+    }
+
     public static final String BALLERINA_BINDINGS_DIR = "ballerina_bindings";
     public static final String BINDINGS_DIR = "bindings";
     public static final String ACCESS_FIELD = "access";
@@ -58,9 +62,9 @@ public class BindgenConstants {
     static final String CHAR = "char";
     static final String DOUBLE = "double";
     static final String LONG = "long";
-    public static final String JAVA_STRING = "String";
+    static final String JAVA_STRING = "String";
     static final String JAVA_STRING_ARRAY = "String[]";
-    public static final String HANDLE = "handle";
+    static final String HANDLE = "handle";
     public static final String BALLERINA_STRING = "string";
     public static final String BALLERINA_STRING_ARRAY = "string[]";
     public static final String[] BALLERINA_RESERVED_WORDS = {"import", "as", "public", "private", "external", "final",

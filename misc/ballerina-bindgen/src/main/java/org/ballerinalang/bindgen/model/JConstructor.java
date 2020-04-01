@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.bindgen.components;
+package org.ballerinalang.bindgen.model;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
@@ -29,37 +29,43 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTRUCTOR_INTER
  */
 public class JConstructor implements Cloneable {
 
-    String constructorName;
-
     private String interopType;
     private String shortClassName;
     private String initObjectName;
+    private String constructorName;
     private String externalFunctionName;
-    private boolean exceptionTypes = false;
-    private boolean handleException = false;
+
+    private boolean hasException = false; // identifies if the Ballerina returns should have an error declared
+    private boolean handleException = false; // identifies if the Java constructor throws an error
+
     private List<JParameter> parameters = new ArrayList<>();
 
     JConstructor(Constructor c) {
 
-        this.shortClassName = c.getDeclaringClass().getSimpleName();
-        this.constructorName = c.getName();
+        shortClassName = c.getDeclaringClass().getSimpleName();
+        constructorName = c.getName();
+        interopType = CONSTRUCTOR_INTEROP_TYPE;
+        initObjectName = "_" + Character.toLowerCase(this.shortClassName.charAt(0)) + shortClassName.substring(1);
+
+        // Loop through the parameters of the constructor to populate a list.
         for (Parameter param : c.getParameters()) {
             parameters.add(new JParameter(param));
             if (param.getType().isArray()) {
-                this.exceptionTypes = true;
+                hasException = true;
             }
         }
+
+        // Set an identifier for the last parameter in the list.
         if (!parameters.isEmpty()) {
             JParameter lastParam = parameters.get(parameters.size() - 1);
             lastParam.setHasNext(false);
         }
+
+        // Populate fields to identify error return types.
         if (c.getExceptionTypes().length > 0) {
-            this.exceptionTypes = true;
+            hasException = true;
             handleException = true;
         }
-        this.interopType = CONSTRUCTOR_INTEROP_TYPE;
-        this.initObjectName = "_" + Character.toLowerCase(this.shortClassName.charAt(0))
-                + this.shortClassName.substring(1);
     }
 
     void setConstructorName(String name) {
@@ -75,5 +81,10 @@ public class JConstructor implements Cloneable {
     protected Object clone() throws CloneNotSupportedException {
 
         return super.clone();
+    }
+
+    public String getConstructorName() {
+
+        return constructorName;
     }
 }

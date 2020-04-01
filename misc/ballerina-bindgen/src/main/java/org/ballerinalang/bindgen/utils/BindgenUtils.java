@@ -26,9 +26,9 @@ import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.apache.commons.io.output.FileWriterWithEncoding;
-import org.ballerinalang.bindgen.components.JMethod;
-import org.ballerinalang.bindgen.components.JParameter;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
+import org.ballerinalang.bindgen.model.JMethod;
+import org.ballerinalang.bindgen.model.JParameter;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -131,12 +131,16 @@ public class BindgenUtils {
         cpTemplateLoader.setSuffix(MUSTACHE_FILE_EXTENSION);
         fileTemplateLoader.setSuffix(MUSTACHE_FILE_EXTENSION);
         Handlebars handlebars = new Handlebars().with(cpTemplateLoader, fileTemplateLoader);
+
+        // Helper to obtain a single quote escape character in front of Ballerina reserved words.
         handlebars.registerHelper("controlChars", (object, options) -> {
             if (object instanceof String) {
                 return "\'" + object;
             }
             return "";
         });
+
+        // Helper to obtain the simple class name from a fully qualified class name.
         handlebars.registerHelper("getSimpleName", (object, options) -> {
             if (object instanceof String) {
                 String className = (String) object;
@@ -144,57 +148,75 @@ public class BindgenUtils {
             }
             return object;
         });
+
+        // Helper to obtain the parameters string with the required Ballerina to Java conversions.
         handlebars.registerHelper("getParams", (object, options) -> {
-            StringBuilder returnString = new StringBuilder();
+            String returnString = "";
             if (object instanceof JParameter) {
                 JParameter param = (JParameter) object;
-                if (param.getIsObjArray()) {
-                    returnString.append("check getHandleFromObjectArray(").append(param.getFieldName())
-                            .append(", \"").append(param.getComponentType()).append("\")");
-                } else if (param.getIsPrimitiveArray()) {
-                    returnString.append("check getHandleFromArray(").append(param.getFieldName())
-                            .append(", \"").append(param.getComponentType()).append("\")");
-                } else if (param.getIsString()) {
-                    returnString.append("java:fromString(").append(param.getFieldName()).append(")");
-                } else {
-                    returnString.append(param.getFieldName());
-                    if (param.getIsObj()) {
-                        returnString.append(".jObj");
-                    }
-                }
-                if (param.getHasNext()) {
-                    returnString.append(", ");
-                }
+                returnString = getParamsHelper(param);
             }
-            return returnString.toString();
+            return returnString;
         });
+
+        // Helper to obtain the returns string while analyzing the return types and errors.
         handlebars.registerHelper("getReturn", (object, options) -> {
-            StringBuilder returnString = new StringBuilder();
+            String returnString = "";
             if (object instanceof JMethod) {
                 JMethod jMethod = (JMethod) object;
-                if (jMethod.getHasReturn()) {
-                    returnString.append("returns ");
-                    returnString.append(jMethod.getReturnType());
-                    if (jMethod.getIsStringReturn()) {
-                        returnString.append("?");
-                    }
-                    if (jMethod.getExceptionTypes()) {
-                        returnString.append("|error");
-                    }
-                    returnString.append(" ");
-                } else if (jMethod.getExceptionTypes() || jMethod.getHasPrimitiveParam()) {
-                    returnString.append("returns error? ");
-                }
+                returnString = getReturnHelper(jMethod);
             }
-            return returnString.toString();
+            return returnString;
         });
         try {
             return handlebars.compile(templateName);
         } catch (FileNotFoundException e) {
-            throw new BindgenException("Code generation template file does not exist. " + e.getMessage(), e);
+            throw new BindgenException("Code generation template file does not exist: " + e.getMessage(), e);
         } catch (IOException e) {
-            throw new BindgenException("IO error while compiling the template file. " + e.getMessage(), e);
+            throw new BindgenException("Unable to read the " + templateName + " template file: " + e.getMessage(), e);
         }
+    }
+
+    private static String getParamsHelper(JParameter param) {
+
+        StringBuilder returnString = new StringBuilder();
+        if (param.getIsObjArray()) {
+            returnString.append("check getHandleFromObjectArray(").append(param.getFieldName())
+                    .append(", \"").append(param.getComponentType()).append("\")");
+        } else if (param.getIsPrimitiveArray()) {
+            returnString.append("check getHandleFromArray(").append(param.getFieldName())
+                    .append(", \"").append(param.getComponentType()).append("\")");
+        } else if (param.getIsString()) {
+            returnString.append("java:fromString(").append(param.getFieldName()).append(")");
+        } else {
+            returnString.append(param.getFieldName());
+            if (param.getIsObj()) {
+                returnString.append(".jObj");
+            }
+        }
+        if (param.getHasNext()) {
+            returnString.append(", ");
+        }
+        return returnString.toString();
+    }
+
+    private static String getReturnHelper(JMethod jMethod) {
+
+        StringBuilder returnString = new StringBuilder();
+        if (jMethod.getHasReturn()) {
+            returnString.append("returns ");
+            returnString.append(jMethod.getReturnType());
+            if (jMethod.getIsStringReturn()) {
+                returnString.append("?");
+            }
+            if (jMethod.getHasException()) {
+                returnString.append("|error");
+            }
+            returnString.append(" ");
+        } else if (jMethod.getHasException() || jMethod.getHasPrimitiveParam()) {
+            returnString.append("returns error? ");
+        }
+        return returnString.toString();
     }
 
     private static void listAllFiles(String directoryName, List<File> files) {
@@ -384,7 +406,7 @@ public class BindgenUtils {
                 for (JMethod jMethod : methodList) {
                     if (jMethod.getMethodName().equals(entry.getKey())) {
                         jMethod.setMethodName(jMethod.getMethodName() + i);
-                        jMethod.setParams(true);
+                        jMethod.setIsOverloaded(true);
                         i++;
                     }
                 }
@@ -473,17 +495,17 @@ public class BindgenUtils {
             case "[C":
             case "[S":
             case "[J":
-                return "byte[]|int[]|float[]";
+                return INT_ARRAY;
             case "[D":
-                return "byte[]|float[]";
+                return FLOAT_ARRAY;
             case "[B":
-                return "byte[]";
+                return BYTE_ARRAY;
             case "[I":
-                return "int[]";
+                return INT_ARRAY;
             case "[F":
-                return "float[]";
+                return FLOAT_ARRAY;
             case "[Z":
-                return "boolean[]";
+                return BOOLEAN_ARRAY;
             default:
                 return type;
         }
@@ -494,8 +516,22 @@ public class BindgenUtils {
         URLClassLoader classLoader;
         List<URL> urls = new ArrayList<>();
         try {
+            List<String> classPaths = new ArrayList<>();
             for (String path : jarPaths) {
-                urls.add(FileSystems.getDefault().getPath(path).toFile().toURI().toURL());
+                File file = FileSystems.getDefault().getPath(path).toFile();
+                String fileName = file.getName();
+                urls.add(file.toURI().toURL());
+                if (file.isFile() && fileName.substring(fileName.lastIndexOf('.')).equals(".jar")) {
+                    classPaths.add(fileName);
+                }
+            }
+            if (!classPaths.isEmpty()) {
+                outStream.println("Following classpaths were detected:");
+                for (String path : classPaths) {
+                    outStream.println("\t" + path);
+                }
+            } else {
+                errStream.println("Unable to detect the provided classpaths.");
             }
             classLoader = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction) ()
                     -> new URLClassLoader(urls.toArray(new URL[urls.size()]), parent));

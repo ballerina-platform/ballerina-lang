@@ -17,17 +17,17 @@
  */
 package org.ballerinalang.bindgen.command;
 
-import org.ballerinalang.bindgen.components.JClass;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
+import org.ballerinalang.bindgen.model.JClass;
 
-import java.io.IOException;
 import java.io.PrintStream;
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_UTILS_FILE_NAME;
@@ -58,10 +58,10 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
  */
 public class BindingsGenerator {
 
-    private String outputPath;
     private Path modulePath;
     private Path dependenciesPath;
     private Path utilsDirPath;
+    private String outputPath;
     private Set<String> classPaths = new HashSet<>();
     private Set<String> classNames = new HashSet<>();
     private static boolean directJavaClass = true;
@@ -69,84 +69,110 @@ public class BindingsGenerator {
     private static final PrintStream outStream = System.out;
     private static Path userDir = Paths.get(System.getProperty(USER_DIR));
 
-    public static Set<String> allClasses = new HashSet<>();
-    public static Set<String> classListForLooping = new HashSet<>();
-    public static Set<String> allJavaClasses = new HashSet<>();
-    public static Set<String> failedClassGens = new HashSet<>();
+    private static Set<String> allClasses = new HashSet<>();
+    private static Set<String> classListForLooping = new HashSet<>();
+    private static Set<String> allJavaClasses = new HashSet<>();
+    private static Map<String, String> failedClassGens = new HashMap<>();
 
     void generateJavaBindings() throws BindgenException {
+
+        ClassLoader classLoader = setClassLoader();
+        if (classLoader != null) {
+            setDirectoryPaths();
+
+            // Generate bindings for directly specified Java classes.
+            outStream.println("\nGenerating bindings for: ");
+            generateBindings(classNames, classLoader, modulePath);
+
+            // Generate bindings for dependent Java classes.
+            if (!classListForLooping.isEmpty()) {
+                outStream.println("\nGenerating dependency bindings for: ");
+                setDependentJavaClass();
+            }
+            while (!classListForLooping.isEmpty()) {
+                Set<String> newSet = new HashSet<>(classListForLooping);
+                newSet.removeAll(classNames);
+                List<String> existingBindings = getExistingBindings(newSet, modulePath.toFile());
+                newSet.removeAll(existingBindings);
+                allJavaClasses.addAll(newSet);
+                classListForLooping.clear();
+                generateBindings(newSet, classLoader, dependenciesPath);
+            }
+
+            // Generate the required util files.
+            generateUtilFiles();
+
+            // Handle failed binding generations.
+            if (failedClassGens != null) {
+                handleFailedClassGens();
+            }
+        }
+    }
+
+    private ClassLoader setClassLoader() throws BindgenException {
 
         ClassLoader classLoader;
         try {
             if (!this.classPaths.isEmpty()) {
                 classLoader = getClassLoader(this.classPaths, this.getClass().getClassLoader());
             } else {
+                outStream.println("No classpaths were detected.");
                 classLoader = this.getClass().getClassLoader();
             }
         } catch (BindgenException e) {
             throw new BindgenException("Error while loading the classpaths.", e);
         }
-        if (classLoader != null) {
-            if (this.outputPath == null) {
-                modulePath = Paths.get(userDir.toString(), BALLERINA_BINDINGS_DIR, BINDINGS_DIR);
-                dependenciesPath = Paths.get(userDir.toString(), BALLERINA_BINDINGS_DIR, DEPENDENCIES_DIR);
-                utilsDirPath = Paths.get(userDir.toString(), BALLERINA_BINDINGS_DIR, UTILS_DIR);
-            } else {
-                modulePath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR, BINDINGS_DIR);
-                dependenciesPath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR, DEPENDENCIES_DIR);
-                utilsDirPath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR, UTILS_DIR);
-            }
-            outStream.println("Generating bindings for: ");
-            String modulePathString = modulePath.toString();
-            generateBindings(classNames, classLoader, modulePath);
+        return classLoader;
+    }
 
-            if (!classListForLooping.isEmpty()) {
-                outStream.println("\nGenerating dependency bindings for: ");
-            }
-            directJavaClass = false;
-            while (!classListForLooping.isEmpty()) {
-                Set<String> newSet = new HashSet<>(classListForLooping);
-                newSet.removeAll(classNames);
-                List existingBindings = getExistingBindings(newSet, modulePath.toFile());
-                newSet.removeAll(existingBindings);
-                allJavaClasses.addAll(newSet);
-                classListForLooping.clear();
+    private void setDirectoryPaths() {
 
-                generateBindings(newSet, classLoader, dependenciesPath);
-            }
-            createDirectory(utilsDirPath.toString());
-            writeOutputFile(null, DEFAULT_TEMPLATE_DIR, JOBJECT_TEMPLATE_NAME,
-                    Paths.get(utilsDirPath.toString(), JOBJECT_FILE_NAME).toString(), false);
-            writeOutputFile(null, DEFAULT_TEMPLATE_DIR, ARRAY_UTILS_TEMPLATE_NAME,
-                    Paths.get(utilsDirPath.toString(), ARRAY_UTILS_FILE_NAME).toString(), false);
+        if (outputPath == null) {
+            modulePath = Paths.get(userDir.toString(), BALLERINA_BINDINGS_DIR, BINDINGS_DIR);
+            dependenciesPath = Paths.get(userDir.toString(), BALLERINA_BINDINGS_DIR, DEPENDENCIES_DIR);
+            utilsDirPath = Paths.get(userDir.toString(), BALLERINA_BINDINGS_DIR, UTILS_DIR);
+        } else {
+            modulePath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR, BINDINGS_DIR);
+            dependenciesPath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR, DEPENDENCIES_DIR);
+            utilsDirPath = Paths.get(outputPath, BALLERINA_BINDINGS_DIR, UTILS_DIR);
+        }
+    }
 
-            Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
-            Set<String> names = new HashSet<>(allClasses);
-            if (constantsPath.toFile().exists()) {
-                getUpdatedConstantsList(constantsPath, names);
-                notifyExistingDependencies(classNames, dependenciesPath.toFile());
-            }
-            if (!names.isEmpty()) {
-                writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantsPath.toString(), true);
-            }
+    private void handleFailedClassGens() throws BindgenException {
 
-            if (failedClassGens != null) {
-                errStream.print("\n");
-                for (String className : failedClassGens) {
-                    if (classNames.contains(className)) {
-                        errStream.println("Bindings for '" + className + "' class could not be generated.");
-                    }
-                    String simpleClassName = className.substring(className.lastIndexOf('.') + 1);
-                    writeOutputFile(className, DEFAULT_TEMPLATE_DIR, EMPTY_OBJECT_TEMPLATE_NAME,
-                            Paths.get(dependenciesPath.toString(),simpleClassName + BAL_EXTENSION).toString(), false);
-                }
+        errStream.print("\n");
+        for (Map.Entry<String, String> entry : failedClassGens.entrySet()) {
+            if (classNames.contains(entry.getKey())) {
+                errStream.println("Bindings for '" + entry.getKey() + "' class could not be generated. "
+                        + entry.getValue());
             }
-            if (classLoader instanceof URLClassLoader) {
-                try {
-                    ((URLClassLoader) classLoader).close();
-                } catch (IOException ignored) {
-                }
-            }
+            String simpleClassName = entry.getKey().substring(entry.getKey().lastIndexOf('.') + 1);
+            writeOutputFile(entry.getKey(), DEFAULT_TEMPLATE_DIR, EMPTY_OBJECT_TEMPLATE_NAME,
+                    Paths.get(modulePath.toString(), simpleClassName + BAL_EXTENSION).toString(), false);
+        }
+    }
+
+    private void generateUtilFiles() throws BindgenException {
+
+        createDirectory(utilsDirPath.toString());
+
+        // Create the JObject.bal file.
+        writeOutputFile(null, DEFAULT_TEMPLATE_DIR, JOBJECT_TEMPLATE_NAME,
+                Paths.get(utilsDirPath.toString(), JOBJECT_FILE_NAME).toString(), false);
+
+        // Create the ArrayUtils.bal file.
+        writeOutputFile(null, DEFAULT_TEMPLATE_DIR, ARRAY_UTILS_TEMPLATE_NAME,
+                Paths.get(utilsDirPath.toString(), ARRAY_UTILS_FILE_NAME).toString(), false);
+
+        // Create the Constants.bal file.
+        Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
+        Set<String> names = new HashSet<>(allClasses);
+        if (constantsPath.toFile().exists()) {
+            getUpdatedConstantsList(constantsPath, names);
+            notifyExistingDependencies(classNames, dependenciesPath.toFile());
+        }
+        if (!names.isEmpty()) {
+            writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantsPath.toString(), true);
         }
     }
 
@@ -183,7 +209,7 @@ public class BindingsGenerator {
                     }
                 }
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                failedClassGens.add(c);
+                failedClassGens.put(c, e.toString());
             } catch (BindgenException e) {
                 throw new BindgenException("Error while generating Ballerina bridge code: " + e);
             }
@@ -193,5 +219,25 @@ public class BindingsGenerator {
     public static boolean isDirectJavaClass() {
 
         return directJavaClass;
+    }
+
+    private static void setDependentJavaClass() {
+
+        BindingsGenerator.directJavaClass = false;
+    }
+
+    public static Set<String> getAllJavaClasses() {
+
+        return allJavaClasses;
+    }
+
+    public static void setClassListForLooping(String classListForLooping) {
+
+        BindingsGenerator.classListForLooping.add(classListForLooping);
+    }
+
+    public static void setAllClasses(String allClasses) {
+
+        BindingsGenerator.allClasses.add(allClasses);
     }
 }
