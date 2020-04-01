@@ -26,6 +26,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -45,7 +46,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -107,7 +107,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -1297,12 +1296,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 break;
-            case TypeTags.TABLE:
-                BTableType tableType = (BTableType) symbol.type;
-                if (tableType.constraint != null) {
-                    checkForExportableType(tableType.constraint.tsymbol, pos);
-                }
-                return;
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) symbol.type;
                 if (streamType.constraint != null) {
@@ -1927,10 +1920,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangTableLiteral tableLiteral) {
-        /* ignore */
-    }
-
     public void visit(BLangSimpleVarRef varRefExpr) {
         switch (varRefExpr.parent.getKind()) {
             // Referring workers for worker interactions are allowed, hence skip the check.
@@ -2079,6 +2068,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         analyzeExpr(xmlNavigation.expr);
         if (xmlNavigation.childIndex != null) {
+            if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.DESCENDANTS
+                    || xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
+                dlog.error(xmlNavigation.pos, DiagnosticCode.UNSUPPORTED_INDEX_IN_XML_NAVIGATION);
+            }
             analyzeExpr(xmlNavigation.childIndex);
         }
         validateMethodInvocationsInXMLNavigationExpression(xmlNavigation);

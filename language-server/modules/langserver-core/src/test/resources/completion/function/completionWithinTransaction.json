@@ -1,6 +1,6 @@
 {
   "position": {
-    "line": 71,
+    "line": 72,
     "character": 8
   },
   "source": "function/source/commonCompletionBlocks.bal",
@@ -67,6 +67,14 @@
       "detail": "Keyword",
       "sortText": "220",
       "insertText": "checkpanic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "check",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "check ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -163,14 +171,6 @@
       "detail": "Statement",
       "sortText": "240",
       "insertText": "while (${1:true}) {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "resp - typeguard resp",
-      "kind": "Snippet",
-      "detail": "Destructure the variable resp with typeguard",
-      "sortText": "240",
-      "insertText": "if (resp is error) {\n\t${1}\n} else {\n\t${21}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -289,10 +289,18 @@
       "kind": "Event",
       "detail": "Error",
       "documentation": {
-        "left": "Default error type.\nThe first type parameter discribe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
+        "left": "Default error type.\nThe first type parameter describe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
       },
       "sortText": "200",
       "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transactionVar",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "130",
+      "insertText": "transactionVar",
       "insertTextFormat": "Snippet"
     },
     {
@@ -345,27 +353,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "table",
-      "kind": "Unit",
-      "detail": "Table",
-      "sortText": "230",
-      "insertText": "table",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "anydata",
       "kind": "Unit",
       "detail": "Anydata",
       "sortText": "230",
       "insertText": "anydata",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "resp",
-      "kind": "Variable",
-      "detail": "(http:Response|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)",
-      "sortText": "130",
-      "insertText": "resp",
       "insertTextFormat": "Snippet"
     },
     {
@@ -471,29 +463,6 @@
       "sortText": "140",
       "insertText": "log",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerinax/java.jdbc",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "jdbc",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 3,
-              "character": 0
-            },
-            "end": {
-              "line": 3,
-              "character": 0
-            }
-          },
-          "newText": "import ballerinax/java.jdbc;\n"
-        }
-      ]
     },
     {
       "label": "ballerina/lang.object",
@@ -1301,6 +1270,29 @@
       ]
     },
     {
+      "label": "ballerina/mysql",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "mysql",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/mysql;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/task",
       "kind": "Module",
       "detail": "Module",
@@ -1320,29 +1312,6 @@
             }
           },
           "newText": "import ballerina/task;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.table",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "'table",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 3,
-              "character": 0
-            },
-            "end": {
-              "line": 3,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.'table;\n"
         }
       ]
     },
@@ -1527,6 +1496,29 @@
             }
           },
           "newText": "import ballerina/socket;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/sql",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "sql",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 0
+            },
+            "end": {
+              "line": 3,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/sql;\n"
         }
       ]
     }

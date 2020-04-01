@@ -325,6 +325,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         dapStackFrame.setSource(source);
         dapStackFrame.setLine((long) stackFrame.location().lineNumber());
+        dapStackFrame.setColumn(0L);
         dapStackFrame.setName(stackFrame.location().method().name());
 
         return dapStackFrame;

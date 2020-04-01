@@ -124,22 +124,22 @@ public function cloneMap() returns [map<any>, map<any>, map<any>] {
     return [a, x, y];
 }
 
-public function cloneTable() returns [table<Employee>, table<Employee>, table<Employee>] {
-
-    Employee e1 = { id: 1, name: "Jane", salary: 300.50 };
-    Employee e2 = { id: 2, name: "Anne", salary: 100.50 };
-    Employee e3 = { id: 3, name: "John", salary: 400.50 };
-
-    table<Employee> a = table {
-        { key id, name, salary },
-        [e1, e2]
-    };
-    table<Employee> x = a.clone();
-    table<Employee> y = a.clone();
-    checkpanic a.add(e3);
-    checkpanic y.add(e3);
-    return [a, x, y];
-}
+//public function cloneTable() returns [table<Employee>, table<Employee>, table<Employee>] {
+//
+//    Employee e1 = { id: 1, name: "Jane", salary: 300.50 };
+//    Employee e2 = { id: 2, name: "Anne", salary: 100.50 };
+//    Employee e3 = { id: 3, name: "John", salary: 400.50 };
+//
+//    table<Employee> a = table {
+//        { key id, name, salary },
+//        [e1, e2]
+//    };
+//    table<Employee> x = a.clone();
+//    table<Employee> y = a.clone();
+//    checkpanic a.add(e3);
+//    checkpanic y.add(e3);
+//    return [a, x, y];
+//}
 
 public function cloneJSON() returns [json, json, json] {
     map<json> a = {"name": "Alex", "age": 21, "id": 123, "otherData":[1, "EE", 12.3]};

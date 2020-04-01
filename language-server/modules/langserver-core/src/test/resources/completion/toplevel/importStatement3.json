@@ -302,19 +302,19 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "mysql",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "mysql",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "task",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
       "insertText": "task",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.table",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "lang.'table;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -387,6 +387,14 @@
       "detail": "Module",
       "sortText": "110",
       "insertText": "socket",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sql",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "sql",
       "insertTextFormat": "Snippet"
     }
   ]

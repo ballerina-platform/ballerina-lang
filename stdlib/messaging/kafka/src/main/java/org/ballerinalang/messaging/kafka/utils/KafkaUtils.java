@@ -18,9 +18,6 @@
 
 package org.ballerinalang.messaging.kafka.utils;
 
-import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.util.Utf8;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -31,15 +28,14 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.SslConfigs;
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
@@ -53,6 +49,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 import static org.ballerinalang.jvm.BallerinaValues.createRecord;
+import static org.ballerinalang.messaging.kafka.utils.AvroUtils.handleAvroConsumer;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_CONCURRENT_CONSUMERS;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_DECOUPLE_PROCESSING;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_OFFSET;
@@ -63,6 +60,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_TOPIC
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_TOPICS;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.BALLERINA_STRAND;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_FIELD_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_KEY_DESERIALIZER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG;
@@ -520,10 +518,6 @@ public class KafkaUtils {
 
     public static MapValue<String, Object> populateConsumerRecord(ConsumerRecord record, String keyType,
                                                                   String valueType) {
-        if (Objects.isNull(record)) {
-            return null;
-        }
-
         Object key = null;
         if (Objects.nonNull(record.key())) {
             key = getBValues(record.key(), keyType);
@@ -539,7 +533,7 @@ public class KafkaUtils {
             if (value instanceof byte[]) {
                 return BValueCreator.createArrayValue((byte[]) value);
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: byte[]");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: byte[]");
             }
         } else if (KafkaConstants.SERDES_STRING.equals(type)) {
             if (value instanceof String) {
@@ -547,41 +541,26 @@ public class KafkaUtils {
                 return value;
                 // return StringUtils.fromString((String) value);
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: string");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: string");
             }
         } else if (KafkaConstants.SERDES_INT.equals(type)) {
             if (value instanceof Long) {
                 return value;
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: int");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: int");
             }
         } else if (KafkaConstants.SERDES_FLOAT.equals(type)) {
             if (value instanceof Double) {
                 return value;
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: float");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: float");
             }
         } else if (SERDES_AVRO.equals(type)) {
-            if (value instanceof GenericRecord) {
-                return populateGenericAvroRecord((GenericRecord) value);
-            }
+            return handleAvroConsumer(value);
         } else if (SERDES_CUSTOM.equals(type)) {
             return value;
         }
-        throw createKafkaError("Unexpected type found for consumer record");
-    }
-
-    private static Object populateGenericAvroRecord(GenericRecord record) {
-        List<Schema.Field> fields = record.getSchema().getFields();
-        MapValue valueRecord = getAvroGenericRecord();
-        for (Schema.Field field : fields) {
-            if (record.get(field.name()) instanceof Utf8) {
-                valueRecord.put(field.name(), record.get(field.name()).toString());
-            } else {
-                valueRecord.put(field.name(), record.get(field.name()));
-            }
-        }
-        return valueRecord;
+        throw createKafkaError("Unexpected type found for consumer record", CONSUMER_ERROR);
     }
 
     public static MapValue<String, Object> getConsumerRecord() {
@@ -600,20 +579,21 @@ public class KafkaUtils {
         return createKafkaRecord(KafkaConstants.TOPIC_PARTITION_STRUCT_NAME);
     }
 
-    public static ErrorValue createKafkaError(String message) {
-        return createKafkaError(message, KafkaConstants.CONSUMER_ERROR);
+    public static BError createKafkaError(String message, String reason) {
+        MapValue<String, Object> detail = createKafkaDetailRecord(message);
+        return BValueCreator.createErrorValue(StringUtils.fromString(reason), detail);
     }
 
-    public static ErrorValue createKafkaError(String message, String reason) {
-        MapValue<String, Object> detail = createKafkaDetailRecord(message);
-        return BallerinaErrors.createError(reason, detail);
+    public static BError createKafkaError(String message, String reason, BError cause) {
+        MapValue<String, Object> detail = createKafkaDetailRecord(message, cause);
+        return BValueCreator.createErrorValue(StringUtils.fromString(reason), detail);
     }
 
     private static MapValue<String, Object> createKafkaDetailRecord(String message) {
         return createKafkaDetailRecord(message, null);
     }
 
-    private static MapValue<String, Object> createKafkaDetailRecord(String message, ErrorValue cause) {
+    private static MapValue<String, Object> createKafkaDetailRecord(String message, BError cause) {
         MapValue<String, Object> detail = createKafkaRecord(KafkaConstants.DETAIL_RECORD_NAME);
         return BallerinaValues.createRecord(detail, message, cause);
     }

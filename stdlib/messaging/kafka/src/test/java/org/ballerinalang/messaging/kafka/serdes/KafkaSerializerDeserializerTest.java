@@ -21,7 +21,6 @@ package org.ballerinalang.messaging.kafka.serdes;
 import io.debezium.kafka.KafkaCluster;
 import io.debezium.util.Testing;
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -35,9 +34,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.concurrent.TimeUnit;
 
-import static org.awaitility.Awaitility.await;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SERDES;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
 import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
@@ -54,28 +51,57 @@ public class KafkaSerializerDeserializerTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        result = BCompileUtil.compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_SERDES, "kafka_serializer.bal")));
+        result = BCompileUtil.compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_SERDES, "invalid_producers.bal")));
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-serdes-test");
         kafkaCluster = createKafkaCluster(dataDir, 14013, 14113).addBrokers(1).startup();
     }
 
-    // Unit tests do not work for custom serializers
-    @Test(description = "Test Kafka producer custom serializer", enabled = false)
-    public void testCustomSerializerDeserializer() {
-        String topic = "add-person";
-        kafkaCluster.createTopic(topic, 1, 1);
-        BValue[] returnValues = BRunUtil.invoke(result, "sendData");
+    @Test(description = "Test Kafka producer avro serializer without schema url")
+    public void testAvroProducerWithoutSchemaUrl() {
+        String errorMessage = "Missing schema registry URL for the Avro serializer. Please provide " +
+                "'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.";
+        BValue[] returnValues = BRunUtil.invoke(result, "createAvroProducerWithoutSchemaUrlConfig");
         Assert.assertNotNull(returnValues);
         Assert.assertEquals(returnValues.length, 1);
-        Assert.assertFalse(returnValues[0] instanceof BError, "Error occurred while sending data: ");
+        Assert.assertTrue(returnValues[0] instanceof BError, "Erroneous producer creation did not return error");
+        String receivedMessage = ((BMap) ((BError) returnValues[0]).getDetails()).getMap().get("message").toString();
+        Assert.assertEquals(receivedMessage, errorMessage, "Error message mismatch");
+    }
 
-        await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {
-            BValue[] retrievedData = BRunUtil.invoke(result, "retrieveData");
-            Assert.assertEquals(retrievedData.length, 1);
-            Assert.assertTrue(retrievedData[0] instanceof BMap);
-            Assert.assertEquals(((BMap) retrievedData[0]).get("name").stringValue(), "Thisaru Guruge");
-            return (((BInteger) ((BMap) retrievedData[0]).get("age")).intValue() == 29);
-        });
+    @Test(description = "Test Kafka producer avro key serializer without schema url")
+    public void testAvroKeyProducerWithoutSchemaUrl() {
+        String errorMessage = "Missing schema registry URL for the Avro serializer. Please provide " +
+                "'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.";
+        BValue[] returnValues = BRunUtil.invoke(result, "createAvroKeySerializerProducerWithoutSchemaUrlConfig");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertTrue(returnValues[0] instanceof BError, "Erroneous producer creation did not return error");
+        String receivedMessage = ((BMap) ((BError) returnValues[0]).getDetails()).getMap().get("message").toString();
+        Assert.assertEquals(receivedMessage, errorMessage, "Error message mismatch");
+    }
+
+    @Test(description = "Test Kafka producer custom key serializer without serializer object")
+    public void testCustomKeySerializerWithoutSerializerObject() {
+        String errorMessage =
+                "Invalid keySerializer config: Please Provide a valid custom serializer for the keySerializer";
+        BValue[] returnValues = BRunUtil.invoke(result, "createCustomKeySerializerWithoutSerializerObject");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertTrue(returnValues[0] instanceof BError, "Erroneous producer creation did not return error");
+        String receivedMessage = ((BMap) ((BError) returnValues[0]).getDetails()).getMap().get("message").toString();
+        Assert.assertEquals(receivedMessage, errorMessage, "Error message mismatch");
+    }
+
+    @Test(description = "Test Kafka producer custom value serializer without serializer object")
+    public void testCustomValueSerializerWithoutSerializerObject() {
+        String errorMessage =
+                "Invalid valueSerializer config: Please Provide a valid custom serializer for the valueSerializer";
+        BValue[] returnValues = BRunUtil.invoke(result, "createCustomValueSerializerWithoutSerializerObject");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 1);
+        Assert.assertTrue(returnValues[0] instanceof BError, "Erroneous producer creation did not return error");
+        String receivedMessage = ((BMap) ((BError) returnValues[0]).getDetails()).getMap().get("message").toString();
+        Assert.assertEquals(receivedMessage, errorMessage, "Error message mismatch");
     }
 
     @AfterClass

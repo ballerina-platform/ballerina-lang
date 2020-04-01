@@ -73,6 +73,7 @@ dependencies {
     dist 'com.fasterxml.jackson.core:jackson-core:2.8.6'
     dist 'com.fasterxml.jackson.core:jackson-annotations:2.8.0'
     dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
+    dist 'com.google.api.grpc:proto-google-common-protos:1.17.0'
     // dist 'org.ow2.asm:asm:6.2.1'
     dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
     dist 'org.codehaus.woodstox:stax2-api:3.1.1'
@@ -145,7 +146,6 @@ dependencies {
     birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 
     // ballerinax module cache
-    balxBir project(path: ':ballerina-jdbc', configuration: 'bir')
     balxBir project(path: ':ballerina-java', configuration: 'bir')
     balxBir project(path: ':ballerina-java-arrays', configuration: 'bir')
 }

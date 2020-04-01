@@ -36,6 +36,8 @@ dependencies {
     implementation 'org.apache.ws.commons.axiom:axiom-c14n'
     implementation 'org.apache.geronimo.specs:geronimo-stax-api_1.0_spec'
     implementation 'org.wso2.staxon:staxon-core'
+    implementation 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
+    implementation 'org.codehaus.woodstox:stax2-api:4.2'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'javax.transaction:javax.transaction-api'
     implementation 'io.ballerina.messaging:broker-common'

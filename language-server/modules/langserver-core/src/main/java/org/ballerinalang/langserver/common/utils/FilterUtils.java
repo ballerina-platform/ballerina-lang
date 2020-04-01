@@ -607,9 +607,6 @@ public class FilterUtils {
             case TypeTags.STRING:
                 entries.putAll(symTable.langStringModuleSymbol.scope.entries);
                 break;
-            case TypeTags.TABLE:
-                entries.putAll(symTable.langTableModuleSymbol.scope.entries);
-                break;
             case TypeTags.TYPEDESC:
                 entries.putAll(symTable.langTypedescModuleSymbol.scope.entries);
                 break;

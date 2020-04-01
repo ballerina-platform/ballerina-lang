@@ -50,7 +50,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
@@ -518,7 +517,11 @@ public class Types {
 
         if (targetTag == TypeTags.MAP && sourceTag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) source;
-            return isAssignableRecordType(recordType, (BMapType) target);
+            return isAssignableRecordType(recordType, target);
+        }
+
+        if (targetTag == TypeTags.RECORD && sourceTag == TypeTags.MAP) {
+            return isAssignableMapType((BMapType) source, (BRecordType) target);
         }
 
         if (target.getKind() == TypeKind.SERVICE && source.getKind() == TypeKind.SERVICE) {
@@ -529,11 +532,6 @@ public class Types {
         if (targetTag == TypeTags.TYPEDESC && sourceTag == TypeTags.TYPEDESC) {
             return isAssignable(((BTypedescType) source).constraint, (((BTypedescType) target).constraint),
                     unresolvedTypes);
-        }
-
-        if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
-            return isAssignable(((BTableType) source).constraint, (((BTableType) target).constraint),
-                                unresolvedTypes);
         }
 
         if (targetTag == TypeTags.STREAM && sourceTag == TypeTags.STREAM) {
@@ -565,6 +563,10 @@ public class Types {
             if (sourceTag == TypeTags.MAP) {
                 return isAssignable(((BMapType) source).constraint, target, unresolvedTypes);
             }
+
+            if (sourceTag == TypeTags.RECORD) {
+                return isAssignableRecordType((BRecordType) source, target);
+            }
         }
 
         if (targetTag == TypeTags.FUTURE && sourceTag == TypeTags.FUTURE) {
@@ -583,14 +585,6 @@ public class Types {
             }
 
             return isAssignable(((BMapType) source).constraint, ((BMapType) target).constraint, unresolvedTypes);
-        }
-
-        if (targetTag == TypeTags.MAP && sourceTag == TypeTags.RECORD) {
-            BType mapConstraint = ((BMapType) target).constraint;
-            BRecordType srcRec = (BRecordType) source;
-            boolean hasIncompatibleType = srcRec.fields
-                    .stream().anyMatch(field -> !isAssignable(field.type, mapConstraint));
-            return !hasIncompatibleType && isAssignable(srcRec.restFieldType, mapConstraint);
         }
 
         if ((sourceTag == TypeTags.OBJECT || sourceTag == TypeTags.RECORD)
@@ -618,17 +612,48 @@ public class Types {
                 isArrayTypesAssignable(source, target, unresolvedTypes);
     }
 
-    private boolean isAssignableRecordType(BRecordType recordType, BMapType targetMapType) {
-        if (recordType.sealed) {
-            return recordFieldsAssignableToMap(recordType, targetMapType);
-        } else {
-            return isAssignable(recordType.restFieldType, targetMapType.constraint)
-                    && recordFieldsAssignableToMap(recordType, targetMapType);
+    private boolean isAssignableRecordType(BRecordType recordType, BType type) {
+        BType targetType;
+        switch (type.tag) {
+            case TypeTags.MAP:
+                targetType = ((BMapType) type).constraint;
+                break;
+            case TypeTags.JSON:
+                targetType = type;
+                break;
+            default:
+                throw new IllegalArgumentException("Incompatible target type: " + type.toString());
         }
+        return recordFieldsAssignableToType(recordType, targetType);
     }
 
-    private boolean recordFieldsAssignableToMap(BRecordType recordType, BMapType targetMapType) {
-        return recordType.fields.stream().allMatch(field -> isAssignable(field.type, targetMapType.constraint));
+    private boolean recordFieldsAssignableToType(BRecordType recordType, BType targetType) {
+        for (BField field : recordType.fields) {
+            if (!isAssignable(field.type, targetType)) {
+                return false;
+            }
+        }
+
+        if (!recordType.sealed) {
+            return isAssignable(recordType.restFieldType, targetType);
+        }
+
+        return true;
+    }
+
+    private boolean isAssignableMapType(BMapType sourceMapType, BRecordType targetRecType) {
+        if (targetRecType.sealed) {
+            return false;
+        }
+
+        for (BField field : targetRecType.fields) {
+            if (!(Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
+                    isAssignable(sourceMapType.constraint, field.type))) {
+                return false;
+            }
+        }
+
+        return isAssignable(sourceMapType.constraint, targetRecType.restFieldType);
     }
 
     private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, Set<TypePair> unresolvedTypes) {
@@ -1009,14 +1034,6 @@ public class Types {
             case TypeTags.XML:
                 varType = BUnionType.create(null, symTable.xmlType, symTable.stringType);
                 break;
-            case TypeTags.TABLE:
-                BTableType tableType = (BTableType) collectionType;
-                if (tableType.constraint.tag == TypeTags.NONE) {
-                    varType = symTable.anydataType;
-                    break;
-                }
-                varType = tableType.constraint;
-                break;
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) collectionType;
                 if (streamType.constraint.tag == TypeTags.NONE) {
@@ -1108,14 +1125,6 @@ public class Types {
                 break;
             case TypeTags.XML:
                 varType = BUnionType.create(null, symTable.xmlType, symTable.stringType);
-                break;
-            case TypeTags.TABLE:
-                BTableType tableType = (BTableType) collectionType;
-                if (tableType.constraint.tag == TypeTags.NONE) {
-                    varType = symTable.anydataType;
-                    break;
-                }
-                varType = tableType.constraint;
                 break;
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) collectionType;
@@ -1281,7 +1290,7 @@ public class Types {
         return null;
     }
 
-    private BType getResultTypeOfNextInvocation(BObjectType iteratorType) {
+    public BType getResultTypeOfNextInvocation(BObjectType iteratorType) {
         BAttachedFunction nextFunc = getNextFunc(iteratorType);
         return Objects.requireNonNull(nextFunc).type.retType;
     }
@@ -1805,11 +1814,6 @@ public class Types {
 
         private boolean hasSameOptionalFlag(BVarSymbol s, BVarSymbol t) {
             return ((s.flags & Flags.OPTIONAL) ^ (t.flags & Flags.OPTIONAL)) != Flags.OPTIONAL;
-        }
-
-        @Override
-        public Boolean visit(BTableType t, BType s) {
-            return t == s;
         }
 
         public Boolean visit(BTupleType t, BType s) {
@@ -2815,7 +2819,6 @@ public class Types {
             case TypeTags.BOOLEAN:
             case TypeTags.JSON:
             case TypeTags.XML:
-            case TypeTags.TABLE:
             case TypeTags.NIL:
             case TypeTags.ANYDATA:
             case TypeTags.MAP:

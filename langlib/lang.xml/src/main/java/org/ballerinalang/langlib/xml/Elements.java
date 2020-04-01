@@ -64,4 +64,7 @@ public class Elements {
         }
         return new XMLSequence(list);
     }
+    public static XMLValue elements_bstring(Strand strand, XMLValue xml) {
+        return elements(strand, xml);
+    }
 }

@@ -23,6 +23,8 @@ public type Detail record {
     error cause?;
 };
 
+# Represents the reason string for the `math:Error`.
 public const ARITHMETIC_ERROR = "{ballerina/math}Error";
 
+# Represents an error occurred in the `math` operation.
 public type Error error<ARITHMETIC_ERROR, Detail>;
