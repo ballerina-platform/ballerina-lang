@@ -27,6 +27,8 @@ public type Client client object {
     private boolean clientActive = true;
 
     # Gets called when the JDBC client is instantiated.
+    #
+    # c - Client configuration for the JDBC client
     public function __init(ClientConfiguration c) {
         createClient(self, c, globalPoolConfigContainer.getGlobalPoolConfig());
     }
