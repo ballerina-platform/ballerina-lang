@@ -79,4 +79,17 @@ public final class Constants {
         public static final String SQL_STATE = "sqlState";
 
     }
+
+    /**
+     * Constants for SQL Params.
+     */
+    public static final class SQLParamsFields {
+        public static final String URL = "url";
+        public static final String USER = "user";
+        public static final String PASSWORD = "password";
+        public static final String DATASOURCE_NAME = "datasourceName";
+        public static final String OPTIONS = "options";
+        public static final String CONNECTION_POOL = "connectionPool";
+        public static final String CONNECTION_POOL_OPTIONS = "connectionPoolOptions";
+    }
 }

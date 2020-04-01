@@ -31,8 +31,7 @@ public class TypeTags {
     // All the above types are values type
     public static final int JSON = BOOLEAN + 1;
     public static final int XML = JSON + 1;
-    public static final int TABLE = XML + 1;
-    public static final int NIL = TABLE + 1;
+    public static final int NIL = XML + 1;
     public static final int ANYDATA = NIL + 1;
     public static final int RECORD = ANYDATA + 1;
     public static final int TYPEDESC = RECORD + 1;

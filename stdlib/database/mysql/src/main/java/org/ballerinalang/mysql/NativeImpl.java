@@ -57,18 +57,19 @@ public class NativeImpl {
         }
 
         MapValue connectionPool = clientConfig.getMapValue(Constants.ClientConfiguration.CONNECTION_POOL_OPTIONS);
-        if (connectionPool == null) {
-            connectionPool = globalPool;
-        }
 
         String datasourceName = Constants.MYSQL_DATASOURCE_NAME;
         if (options != null && options.getBooleanValue(Constants.Options.USE_XA_DATASOURCE)) {
             datasourceName = Constants.MYSQL_XA_DATASOURCE_NAME;
         }
 
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = new SQLDatasource.SQLDatasourceParams().
-                setUrl(url).setUser(user).setPassword(password).setDatasourceName(datasourceName).
-                setOptions(properties).setConnectionPool(connectionPool).setPoolProperties(poolProperties);
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = new SQLDatasource.SQLDatasourceParams()
+                .setUrl(url).setUser(user)
+                .setPassword(password)
+                .setDatasourceName(datasourceName)
+                .setOptions(properties)
+                .setConnectionPool(connectionPool, globalPool)
+                .setPoolProperties(poolProperties);
 
         return ClientUtils.createClient(client, sqlDatasourceParams);
     }

@@ -100,7 +100,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -793,17 +792,6 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangNumericLiteral clone = new BLangNumericLiteral();
         source.cloneRef = clone;
         cloneBLangLiteral(source, clone);
-    }
-
-    @Override
-    public void visit(BLangTableLiteral source) {
-
-        BLangTableLiteral clone = new BLangTableLiteral();
-        source.cloneRef = clone;
-        clone.columns.addAll(source.columns);
-        clone.tableDataRows = cloneList(source.tableDataRows);
-        clone.indexColumnsArrayLiteral = clone(source.indexColumnsArrayLiteral);
-        clone.keyColumnsArrayLiteral = clone(source.keyColumnsArrayLiteral);
     }
 
     @Override

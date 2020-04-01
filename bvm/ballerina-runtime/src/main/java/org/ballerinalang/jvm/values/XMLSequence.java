@@ -179,6 +179,7 @@ public final class XMLSequence extends XMLValue {
     }
 
     @Override
+    @Deprecated
     public void setAttributes(BMap<String, ?> attributes) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
@@ -543,6 +544,20 @@ public final class XMLSequence extends XMLValue {
         for (BXML elem : children) {
             elem.freezeDirect();
         }
+    }
+
+    @Override
+    public synchronized boolean isFrozen() {
+        if (freezeStatus.isFrozen()) {
+            return true;
+        }
+        for (BXML child : this.children) {
+            if (!child.isFrozen()) {
+                return false;
+            }
+        }
+        freezeStatus.setFrozen();
+        return true;
     }
 
     @Override

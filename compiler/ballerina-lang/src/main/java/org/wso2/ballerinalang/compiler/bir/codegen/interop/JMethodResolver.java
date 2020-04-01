@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BStream;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BTable;
 import org.ballerinalang.jvm.values.api.BTypedesc;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -291,8 +290,6 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.ERROR:
                     return this.classLoader.loadClass(BError.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TABLE:
-                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.XML:
                 case TypeTags.XML_ELEMENT:
                 case TypeTags.XML_PI:
@@ -433,8 +430,6 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.ERROR:
                     return this.classLoader.loadClass(BError.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TABLE:
-                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.XML:
                 case TypeTags.XML_ELEMENT:
                 case TypeTags.XML_PI:

@@ -69,8 +69,6 @@ class InstructionEmitter {
                 return emitInsConstantLoad((BIRNonTerminator.ConstantLoad) ins, tabs);
             case NEW_STRUCTURE:
                 return emitInsNewMap((BIRNonTerminator.NewStructure) ins, tabs);
-            case NEW_TABLE:
-                return emitInsNewTable((BIRNonTerminator.NewTable) ins, tabs);
             case NEW_INSTANCE:
                 return emitInsNewInstance((BIRNonTerminator.NewInstance) ins, tabs);
             case NEW_ARRAY:
@@ -146,28 +144,6 @@ class InstructionEmitter {
         nMapStr += emitTypeRef(ins.type, 0);
         nMapStr += ";";
         return nMapStr;
-    }
-
-    private static String emitInsNewTable(BIRNonTerminator.NewTable ins, int tabs) {
-
-        String str = "";
-        str += emitTabs(tabs);
-        str += emitVarRef(ins.lhsOp);
-        str += emitSpaces(1);
-        str += "=";
-        str += emitSpaces(1);
-        str += "table(";
-        str += emitVarRef(ins.columnsOp);
-        str += ",";
-        str += emitSpaces(1);
-        str += emitVarRef(ins.dataOp);
-        str += ",";
-        str += emitSpaces(1);
-        str += emitVarRef(ins.keyColOp);
-        str += ")<";
-        str += emitTypeRef(ins.type, 0);
-        str += ">;";
-        return str;
     }
 
     private static String emitInsNewInstance(BIRNonTerminator.NewInstance ins, int tabs) {

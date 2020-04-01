@@ -23,6 +23,8 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
+import java.util.Map;
+
 /**
  * XML nodes containing processing instructions.
  *
@@ -65,6 +67,14 @@ public class XMLPi extends XMLNonElementItem {
     @Override
     public XMLNodeType getNodeType() {
         return XMLNodeType.PI;
+    }
+
+    @Override
+    public Object copy(Map<Object, Object> refs) {
+        if (isFrozen()) {
+            return this;
+        }
+        return new XMLPi(data, target);
     }
 
     @Override

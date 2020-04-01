@@ -148,7 +148,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SHORT_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
@@ -183,7 +182,6 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewErro
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInstance;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTable;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
@@ -290,7 +288,6 @@ public class JvmInstructionGen {
         } else if (bType.tag == TypeTags.ARRAY ||
                 TypeTags.isStringTypeTag(bType.tag) ||
                 bType.tag == TypeTags.MAP ||
-                bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.STREAM ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
@@ -374,7 +371,6 @@ public class JvmInstructionGen {
         } else if (bType.tag == TypeTags.ARRAY ||
                 TypeTags.isStringTypeTag(bType.tag) ||
                 bType.tag == TypeTags.MAP ||
-                bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.STREAM ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
@@ -1103,24 +1099,6 @@ public class JvmInstructionGen {
                 this.mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", BTYPE), false);
             }
             this.storeToVar(mapNewIns.lhsOp.variableDcl);
-        }
-
-        void generateTableNewIns(NewTable tableNewIns) {
-
-            this.mv.visitTypeInsn(NEW, TABLE_VALUE);
-            this.mv.visitInsn(DUP);
-            loadType(this.mv, tableNewIns.type);
-            this.loadVar(tableNewIns.keyColOp.variableDcl);
-            this.loadVar(tableNewIns.dataOp.variableDcl);
-            if (isBString) {
-                this.mv.visitInsn(ICONST_1);
-                this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", String.format("(L%s;L%s;L%s;Z)V", BTYPE,
-                        ARRAY_VALUE, ARRAY_VALUE), false);
-            } else {
-                this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>", String.format("(L%s;L%s;L%s;)V", BTYPE,
-                        ARRAY_VALUE, ARRAY_VALUE), false);
-            }
-            this.storeToVar(tableNewIns.lhsOp.variableDcl);
         }
 
         void generateMapStoreIns(FieldAccess mapStoreIns) {

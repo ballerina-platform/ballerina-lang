@@ -39,8 +39,6 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.StreamingJsonValue;
-import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
@@ -297,7 +295,8 @@ public class JSONUtils {
         }
 
         BType type = ((RefValue) json).getType();
-        return type.getTag() == TypeTags.JSON_TAG || type.getTag() == TypeTags.MAP_TAG;
+        int typeTag = type.getTag();
+        return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
     }
 
     /**
@@ -629,20 +628,21 @@ public class JSONUtils {
         }
     }
 
-    /**
-     * Convert {@link TableValue} to JSON.
-     *
-     * @param table {@link TableValue} to be converted to {@link StreamingJsonValue}
-     * @return JSON representation of the provided table
-     */
-    public static Object toJSON(TableValue table) {
-        TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
-        if (table.isInMemoryTable()) {
-            return jsonDataSource.build();
-        }
-
-        return new StreamingJsonValue(jsonDataSource);
-    }
+    //TODO Table remove - Fix
+//    /**
+//     * Convert {@link TableValue} to JSON.
+//     *
+//     * @param table {@link TableValue} to be converted to {@link StreamingJsonValue}
+//     * @return JSON representation of the provided table
+//     */
+//    public static Object toJSON(TableValue table) {
+//        TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
+//        if (table.isInMemoryTable()) {
+//            return jsonDataSource.build();
+//        }
+//
+//        return new StreamingJsonValue(jsonDataSource);
+//    }
 
     public static ErrorValue createJsonConversionError(Throwable throwable, String prefix) {
         String detail = throwable.getMessage() != null ?

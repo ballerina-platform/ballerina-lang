@@ -112,7 +112,8 @@ public class FormattingTest {
                 {"expectedTransaction.bal", "transaction.bal"},
                 {"expectedContinue.bal", "continue.bal"},
                 {"expectedTypeDefinition.bal", "typeDefinition.bal"},
-                {"expectedTable.bal", "table.bal"},
+                //TODO Table remove - Fix
+//                {"expectedTable.bal", "table.bal"},
                 {"expectedCompilationUnitMultiEOF.bal", "compilationUnitMultiEOF.bal"},
                 {"expectedAnnotation.bal", "annotation.bal"},
                 {"expectedArrowExpr.bal", "arrowExpr.bal"},
@@ -170,6 +171,7 @@ public class FormattingTest {
                 {"expectedListConstructorExpr.bal", "listConstructorExpr.bal"},
                 {"expectedRecordLiteralSpreadOp.bal", "recordLiteralSpreadOp.bal"},
                 {"expectedLetExpr.bal", "letExpr.bal"},
+                {"expectedStreamingQueries.bal", "streamingQueries.bal"},
         };
     }
 
