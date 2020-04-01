@@ -32,12 +32,11 @@ import org.testng.annotations.Test;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.stream.Stream;
 
 /**
  * Test class to test report using a ballerina project.
@@ -48,6 +47,8 @@ public class TestReportTest extends BaseTestCase {
     private String projectPath;
     private Path resultsJsonPath;
     private JsonObject resultObj;
+
+    private static PrintStream outStream = System.out;
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
@@ -239,6 +240,11 @@ public class TestReportTest extends BaseTestCase {
                 }
             }
         }
-        Files.deleteIfExists(dir.toPath());
+        try {
+            Files.deleteIfExists(dir.toPath());
+        } catch (IOException e) {
+            outStream.println("-------------unable to delete" + dir.toPath());
+            throw e;
+        }
     }
 }
