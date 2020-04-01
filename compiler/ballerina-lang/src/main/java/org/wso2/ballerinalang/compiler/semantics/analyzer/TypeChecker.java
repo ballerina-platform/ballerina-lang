@@ -230,10 +230,10 @@ public class TypeChecker extends BLangNodeVisitor {
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
-        init();
+        initModifierFunctions();
     }
 
-    private void init() {
+    private void initModifierFunctions() {
         this.modifierFunctions.add("push");
         this.modifierFunctions.add("pop");
         this.modifierFunctions.add("shift");
@@ -1837,7 +1837,7 @@ public class TypeChecker extends BLangNodeVisitor {
             BArrayType arrayType = (BArrayType) varRefType;
             if (arrayType.state == BArrayState.CLOSED_SEALED && this.modifierFunctions.contains(
                     iExpr.name.getValue())) {
-                dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_ARRAY_SIZE, iExpr.name.value, arrayType);
+                dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_LIST_SIZE, iExpr.name.value, arrayType);
                 resultType = symTable.semanticError;
                 return;
             }
@@ -1846,7 +1846,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (varRefType.tag == TypeTags.TUPLE) {
             BTupleType tupleType = (BTupleType) varRefType;
             if ((tupleType.restType == null) && this.modifierFunctions.contains(iExpr.name.getValue())) {
-                dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_TUPLE_SIZE, iExpr.name.value, tupleType);
+                dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_LIST_SIZE, iExpr.name.value, tupleType);
                 resultType = symTable.semanticError;
                 return;
             }
