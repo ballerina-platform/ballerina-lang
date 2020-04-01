@@ -287,7 +287,9 @@ public class CodeActionTest {
                 {"typeGuardCodeAction3.json", "typeGuard.bal"},
 //                {"typeGuardCodeAction4.json", "typeGuard.bal"},
                 {"implementFuncObj.json", "implementFuncObj.bal"},
-                {"optimizeImports.json", "optimizeImports.bal"}
+                {"optimizeImports.json", "optimizeImports.bal"},
+                {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
+                {"changeAbstractTypeObj2.json", "changeAbstractType.bal"}
         };
     }
 
@@ -315,9 +317,7 @@ public class CodeActionTest {
                 {"packagePull1.json", "packagePull.bal"},
                 {"packagePull2.json", "packagePull.bal"},
                 {"packagePull3.json", "packagePull2.bal"},
-                {"packagePull4.json", "packagePull2.bal"},
-                {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
-                {"changeAbstractTypeObj2.json", "changeAbstractType.bal"}
+                {"packagePull4.json", "packagePull2.bal"}
         };
     }
 
