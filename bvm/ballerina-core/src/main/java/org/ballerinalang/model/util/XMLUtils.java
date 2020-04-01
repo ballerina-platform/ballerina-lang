@@ -33,15 +33,12 @@ import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.dom.TextImpl;
-import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.apache.axiom.om.util.StAXParserConfiguration;
-import org.ballerinalang.model.TableOMDataSource;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.model.values.BXML;
@@ -260,18 +257,19 @@ public class XMLUtils {
         return new BXMLSequence(concatSeq);
     }
 
-    /**
-     * Converts a {@link BTable} to {@link BXML}.
-     *
-     * @param table {@link BTable} to convert
-     * @return converted {@link BXML}
-     */
-    @SuppressWarnings("rawtypes")
-    public static BXML tableToXML(BTable table) {
-        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-        omSourcedElement.init(new TableOMDataSource(table, null, null));
-        return new BXMLItem(omSourcedElement);
-    }
+    //TODO Table remove - Fix
+//    /**
+//     * Converts a {@link BTable} to {@link BXML}.
+//     *
+//     * @param table {@link BTable} to convert
+//     * @return converted {@link BXML}
+//     */
+//    @SuppressWarnings("rawtypes")
+//    public static BXML tableToXML(BTable table) {
+//        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
+//        omSourcedElement.init(new TableOMDataSource(table, null, null));
+//        return new BXMLItem(omSourcedElement);
+//    }
 
     /**
      * Create an element type BXML.

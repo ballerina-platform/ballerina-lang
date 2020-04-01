@@ -30,7 +30,7 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
-import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 import org.ballerinalang.nats.observability.NatsTracingUtil;
 
@@ -57,42 +57,43 @@ public class Request {
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
 
             if (natsConnection == null) {
-                NatsMetricsUtil.reportProducerError(NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+                NatsMetricsReporter.reportProducerError(NatsObservabilityConstants.ERROR_TYPE_REQUEST);
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
                         ". NATS connection doesn't exist.");
             }
-            String url = natsConnection.getConnectedUrl();
+            NatsMetricsReporter natsMetricsReporter =
+                    (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
             byte[] byteContent = convertDataIntoByteArray(data);
             try {
                 Message reply;
                 Future<Message> incoming = natsConnection.request(subject, byteContent);
-                NatsMetricsUtil.reportRequest(url, subject, byteContent.length);
+                natsMetricsReporter.reportRequest(subject, byteContent.length);
                 if (TypeChecker.getType(duration).getTag() == TypeTags.INT_TAG) {
                     reply = incoming.get((Long) duration, TimeUnit.MILLISECONDS);
                 } else {
                     reply = incoming.get();
                 }
                 ArrayValue msgData = new ArrayValueImpl(reply.getData());
-                NatsMetricsUtil.reportResponse(url, subject, reply.getData().length);
+                natsMetricsReporter.reportResponse(subject);
                 ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
                         Constants.NATS_MESSAGE_OBJ_NAME, reply.getSubject(), msgData, reply.getReplyTo());
                 msgObj.addNativeData(Constants.NATS_MSG, reply);
                 return msgObj;
             } catch (TimeoutException ex) {
-                NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+                natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
                 return Utils.createNatsError("Request to subject " + subject + " timed out while waiting for a reply");
             } catch (IllegalArgumentException | IllegalStateException | ExecutionException ex) {
-                NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+                natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while requesting message to " +
                         "subject " + subject + ". " + ex.getMessage());
             } catch (InterruptedException ex) {
-                NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+                natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_REQUEST);
                 Thread.currentThread().interrupt();
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, "Error while requesting message to " +
                         "subject " + subject + ". " + ex.getMessage());
             }
         } else {
-            NatsMetricsUtil.reportProducerError(NatsObservabilityConstants.ERROR_TYPE_REQUEST);
+            NatsMetricsReporter.reportProducerError(NatsObservabilityConstants.ERROR_TYPE_REQUEST);
             return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
                     ". Producer is logically disconnected.");
         }

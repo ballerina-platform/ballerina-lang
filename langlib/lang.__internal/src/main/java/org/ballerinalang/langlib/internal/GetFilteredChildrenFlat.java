@@ -82,4 +82,9 @@ public class GetFilteredChildrenFlat {
             return new ArrayList<>();
         }
     }
+
+    public static XMLValue getFilteredChildrenFlat_bstring(Strand strand, XMLValue xmlVal, long index,
+                                                           ArrayValue elemNames) {
+        return getFilteredChildrenFlat(strand, xmlVal, index, elemNames);
+    }
 }

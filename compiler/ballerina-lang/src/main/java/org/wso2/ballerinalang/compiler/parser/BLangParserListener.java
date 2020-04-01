@@ -1459,82 +1459,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void enterTableLiteral(BallerinaParser.TableLiteralContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.startTableLiteral();
-    }
-
-    @Override
-    public void exitTableColumnDefinition(BallerinaParser.TableColumnDefinitionContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.endTableColumnDefinition(getWS(ctx));
-    }
-
-    @Override
-    public void exitTableColumn(BallerinaParser.TableColumnContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        String columnName;
-        int childCount = ctx.getChildCount();
-        if (childCount == 2) {
-            boolean keyColumn = KEYWORD_KEY.equals(ctx.getChild(0).getText());
-            if (keyColumn) {
-                columnName = escapeQuotedIdentifier(ctx.getChild(1).getText());
-                this.pkgBuilder.addTableColumn(columnName, getCurrentPos(ctx), getWS(ctx));
-                this.pkgBuilder.markPrimaryKeyColumn(columnName);
-            } else {
-                DiagnosticPos pos = getCurrentPos(ctx);
-                dlog.error(pos, DiagnosticCode.TABLE_KEY_EXPECTED);
-            }
-        } else {
-            columnName = escapeQuotedIdentifier(ctx.getChild(0).getText());
-            this.pkgBuilder.addTableColumn(columnName, getCurrentPos(ctx), getWS(ctx));
-        }
-    }
-
-    @Override
-    public void exitTableDataArray(BallerinaParser.TableDataArrayContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.endTableDataArray(getWS(ctx));
-    }
-
-    @Override
-    public void exitTableDataList(BallerinaParser.TableDataListContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        if (ctx.expressionList() != null) {
-            this.pkgBuilder.endTableDataRow(getWS(ctx));
-        }
-    }
-
-    @Override
-    public void exitTableData(BallerinaParser.TableDataContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.endTableDataList(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void exitTableLiteral(BallerinaParser.TableLiteralContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-
-        this.pkgBuilder.addTableLiteral(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
     public void exitListConstructorExpr(BallerinaParser.ListConstructorExprContext ctx) {
         if (isInErrorState) {
             return;
@@ -2779,6 +2703,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterFromClause(BallerinaParser.FromClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startFromClause();
+    }
+
+    @Override
     public void exitFromClause(BallerinaParser.FromClauseContext ctx) {
         if (isInErrorState) {
             return;
@@ -2815,7 +2748,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        this.pkgBuilder.addLetClause(getCurrentPos(ctx));
+        this.pkgBuilder.addLetClause(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

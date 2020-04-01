@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -35,6 +34,7 @@ import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -49,7 +49,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -199,26 +198,26 @@ public class LSStandardLibCache {
         BLangPackage bLangPackage = compiler.compile(moduleName);
         return bLangPackage.topLevelNodes.stream()
                 .filter(topLevelNode -> {
-                    Set<Flag> flagSet;
+                    BLangIdentifier nodeName;
                     switch (topLevelNode.getKind()) {
                         case FUNCTION:
-                            flagSet = ((BLangFunction) topLevelNode).flagSet;
+                            nodeName = ((BLangFunction) topLevelNode).name;
                             break;
                         case TYPE_DEFINITION:
-                            flagSet = ((BLangTypeDefinition) topLevelNode).flagSet;
+                            nodeName = ((BLangTypeDefinition) topLevelNode).name;
                             break;
                         case CONSTANT:
-                            flagSet = ((BLangConstant) topLevelNode).flagSet;
+                            nodeName = ((BLangConstant) topLevelNode).name;
                             break;
                         // TODO: Handle XML Namespace Declarations
                         case ANNOTATION:
-                            flagSet = ((BLangAnnotation) topLevelNode).flagSet;
+                            nodeName = ((BLangAnnotation) topLevelNode).name;
                             break;
                         default:
-                            flagSet = new HashSet<>();
+                            nodeName = null;
                             break;
                     }
-                    return flagSet.contains(Flag.PUBLIC);
+                    return nodeName != null && !nodeName.getValue().contains("$");
                 })
                 .collect(Collectors.toList());
     }

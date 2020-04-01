@@ -32,10 +32,13 @@
         <groups>
             <run>
                 <exclude name="brokenOnJBallerina"/>
+                <exclude name="brokenOnXMLLangLibChange"/>
             </run>
         </groups>
         <packages>
             <package name="org.ballerinalang.test.types.string.*"/>
+            <package name="org.ballerinalang.test.types.xml.*"/>
+            <package name="org.ballerinalang.test.types.any.*"/>
         </packages>
 
     </test>

@@ -12,3 +12,10 @@ function testUpdatingGetAllChildren() {
     xml x2 = xml `<fruit>apple</fruit>`;
     x1/* = x2;
 }
+
+function testNonStringIndexAccess() {
+    xml x = xml `<elem></elem>`;
+    var c = x["child"];
+    var k = x[true];
+    var b = x[1.2];
+}

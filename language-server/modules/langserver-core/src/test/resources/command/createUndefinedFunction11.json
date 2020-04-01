@@ -20,7 +20,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction printThis(boolean isNaN){\n\n}\n"
+                                "newText": "\n\nfunction printThis(boolean isNaNResult){\n\n}\n"
                             }
                         ]
                     }

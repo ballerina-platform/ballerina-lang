@@ -80,7 +80,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -715,14 +714,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
             keyValue.valueExpr = rewriteExpr(keyValue.valueExpr);
         });
         result = recordLiteral;
-    }
-
-    @Override
-    public void visit(BLangTableLiteral tableLiteral) {
-        tableLiteral.tableDataRows = rewriteExprs(tableLiteral.tableDataRows);
-        tableLiteral.indexColumnsArrayLiteral = rewriteExpr(tableLiteral.indexColumnsArrayLiteral);
-        tableLiteral.keyColumnsArrayLiteral = rewriteExpr(tableLiteral.keyColumnsArrayLiteral);
-        result = tableLiteral;
     }
 
     @Override
