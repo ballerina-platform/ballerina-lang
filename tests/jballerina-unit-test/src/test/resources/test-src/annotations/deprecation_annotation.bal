@@ -155,15 +155,37 @@ public type Object1 object {
 
 # The `Object2` is a user-defined object.
 #
-# + fieldOne - This is the description of the `Object2`'s `fieldOne` field.
 # + fieldTwo - This is the description of the `Object2`'s `fieldTwo` field.
-# # Deprecated parameters
-# + fieldOne - deprecated
-# + t - deprecated
 public type Object2 object {
 
+    # This is the description of the `Object2`'s `fieldOne` field.
+    # # Deprecated
+    # This field is deprecated
     @deprecated
     public string fieldOne = "Foo";
+    # This is the description of the `Object2`'s `fieldTwo` field.
+    # # Deprecated
+    # This field is deprecated
+    @deprecated
+    TYPE1 t = CONST3;
+    public string fieldTwo = "";
+
+    public function doThatOnObject(string paramOne, TYPE1 t) {
+        self.fieldOne = paramOne;
+        self.t = t;
+    }
+};
+
+public type Object3 object {
+
+    # This is the description of the `Object2`'s `fieldOne` field.
+    # # Deprecated
+    # This field is deprecated
+    @deprecated
+    public string fieldOne = "Foo";
+    # This is the description of the `Object2`'s `fieldTwo` field.
+    # # Deprecated
+    # This field is deprecated
     @deprecated
     TYPE1 t = CONST3;
     public string fieldTwo = "";
@@ -189,4 +211,13 @@ public function func5() {
 # + z - deprecated rest parameter
 function add3(public int x, public int y, @deprecated int... z) {
     int n = z[0];
+}
+
+public function typeReturn() returns Foo { // Compile warning because 'Foo' is deprecated
+    Foo f = CONST2;
+    return f;
+}
+
+public function getType() {
+    Foo f = typeReturn();
 }

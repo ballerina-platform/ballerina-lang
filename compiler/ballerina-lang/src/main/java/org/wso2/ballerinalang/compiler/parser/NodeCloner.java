@@ -1622,8 +1622,6 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangMarkDownDeprecatedParametersDocumentation clone = new BLangMarkDownDeprecatedParametersDocumentation();
         source.cloneRef = clone;
         clone.parameters = source.parameters;
-        clone.deprecationLine = source.deprecationLine;
-        clone.isCorrectDeprecationLine = source.isCorrectDeprecationLine;
     }
 
     @Override

@@ -26,13 +26,11 @@ import java.util.LinkedList;
 /**
  * Represents deprecated parameters documentation node.
  *
- * @since 1.2.0
+ * @since 1.2.1
  */
 public class BLangMarkDownDeprecatedParametersDocumentation extends BLangExpression
         implements MarkDownDocumentationDeprecatedParametersAttributeNode {
 
-    public String deprecationLine;
-    public boolean isCorrectDeprecationLine = false;
     public LinkedList<BLangMarkdownParameterDocumentation> parameters;
 
     public BLangMarkDownDeprecatedParametersDocumentation() {
@@ -50,20 +48,12 @@ public class BLangMarkDownDeprecatedParametersDocumentation extends BLangExpress
     }
 
     @Override
-    public void addDeprecatedParametersLine(String text) {
-        deprecationLine = text;
-        if (deprecationLine.equals("# # Deprecated parameters")) {
-            isCorrectDeprecationLine = true;
-        }
-    }
-
-    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
     public NodeKind getKind() {
-        return null;
+        return NodeKind.DOCUMENTATION_DEPRECATED_PARAMETERS;
     }
 }

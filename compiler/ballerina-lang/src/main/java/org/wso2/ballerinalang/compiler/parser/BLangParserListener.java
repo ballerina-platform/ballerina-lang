@@ -3339,9 +3339,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        String str = ctx.DeprecatedParametersDocumentation() != null ?
-                ctx.DeprecatedParametersDocumentation().getText() : "";
-        this.pkgBuilder.endDeprecatedParametersDocumentation(getCurrentPos(ctx.getParent()), getWS(ctx), str);
+        this.pkgBuilder.endDeprecatedParametersDocumentation(getCurrentPos(ctx.getParent()), getWS(ctx));
     }
 
     @Override

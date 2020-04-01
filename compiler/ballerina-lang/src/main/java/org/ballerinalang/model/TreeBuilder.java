@@ -650,7 +650,8 @@ public class TreeBuilder {
         return new BLangMarkDownDeprecationDocumentation();
     }
 
-    public static MarkDownDocumentationDeprecatedParametersAttributeNode createMarkDeprecatedParametersAttributeNode() {
+    public static MarkDownDocumentationDeprecatedParametersAttributeNode
+                                                                createMarkDownDeprecatedParametersAttributeNode() {
         return new BLangMarkDownDeprecatedParametersDocumentation();
     }
 
