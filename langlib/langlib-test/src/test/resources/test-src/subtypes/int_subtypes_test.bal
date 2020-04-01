@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'int as ints;
-import ballerina/lang.compilertest as comp;
+import ballerina/lang.test as comp;
 
 function testValueAssignment() {
     ints:Signed32 a1 = 2147483647;
@@ -1114,39 +1114,3 @@ function testBitwiseXor() {
     comp:assertValueEqual(-1555, z);
 }
 
-// Test Functions
-
-//function assertValueEqual(anydata expected, anydata actual) {
-//    if(expected != actual) {
-//        error e = error("Not Equal", message = "expected: " + expected.toString() + ", found: " + actual.toString());
-//        panic e;
-//    }
-//}
-//
-//function assertError(anydata|error value) {
-//    if !(value is error) {
-//        error e = error("Not Error", message = "expected: Error, found: " + value.toString());
-//        panic e;
-//    }
-//}
-//
-//function assertNotError(anydata|error value) {
-//    if (value is error) {
-//        error e = error("Not Error", message = "expected: Error, found: " + value.toString());
-//        panic e;
-//    }
-//}
-//
-//function assertTrue(boolean value) {
-//    if !(value) {
-//        error e = error("Not True", message = "expected: true, found: " + value.toString());
-//        panic e;
-//    }
-//}
-//
-//function assertFalse(boolean value) {
-//    if (value) {
-//        error e = error("Not False", message = "expected: false, found: " + value.toString());
-//        panic e;
-//    }
-//}

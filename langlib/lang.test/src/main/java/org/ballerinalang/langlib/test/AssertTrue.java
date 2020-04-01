@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.langlib.compilertest;
+package org.ballerinalang.langlib.test;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -25,19 +25,19 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * Native implementation of assertFalse(boolean value).
+ * Native implementation of assertTrue(boolean value).
  *
- * @since 2.0
+ * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.compilertest", functionName = "assertFalse",
+        orgName = "ballerina", packageName = "lang.test", functionName = "assertTrue",
         args = {@Argument(name = "value", type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class AssertFalse {
-    public static void assertFalse(Strand strand, boolean value) {
-        if (value) {
-            throw BallerinaErrors.createError("Not False");
+public class AssertTrue {
+    public static void assertTrue(Strand strand, boolean value) {
+        if (!value) {
+            throw BallerinaErrors.createError("Not True");
         }
     }
 }

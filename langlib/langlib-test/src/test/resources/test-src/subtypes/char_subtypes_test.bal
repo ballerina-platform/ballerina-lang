@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'string as s;
-import ballerina/lang.compilertest as comp;
+import ballerina/lang.test as comp;
 
 function testValueAssignment() {
     s:Char a1 = "a";
