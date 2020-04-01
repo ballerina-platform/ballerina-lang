@@ -26,7 +26,7 @@ import ballerina/time;
 # + method - The HTTP request method
 # + httpVersion - The HTTP version supported by the client
 # + userAgent - The user-agent. This value is used when setting the `user-agent` header
-# + extraPathInfo - Additional information associated with the URL provided by the client
+# + extraPathInfo - The part of the url which matched to '*', if the request is dispatched to a wildcard resource
 # + cacheControl - The cache-control directives for the request. This needs to be explicitly initialized if intending
 #                  on utilizing HTTP caching.
 # + mutualSslHandshake - A record providing mutual ssl handshake results.
