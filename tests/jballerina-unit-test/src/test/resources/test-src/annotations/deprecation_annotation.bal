@@ -155,15 +155,37 @@ public type Object1 object {
 
 # The `Object2` is a user-defined object.
 #
-# + fieldOne - This is the description of the `Object2`'s `fieldOne` field.
 # + fieldTwo - This is the description of the `Object2`'s `fieldTwo` field.
-# # Deprecated parameters
-# + fieldOne - deprecated
-# + t - deprecated
 public type Object2 object {
 
+    # This is the description of the `Object2`'s `fieldOne` field.
+    # # Deprecated
+    # This field is deprecated
     @deprecated
     public string fieldOne = "Foo";
+    # This is the description of the `Object2`'s `fieldTwo` field.
+    # # Deprecated
+    # This field is deprecated
+    @deprecated
+    TYPE1 t = CONST3;
+    public string fieldTwo = "";
+
+    public function doThatOnObject(string paramOne, TYPE1 t) {
+        self.fieldOne = paramOne;
+        self.t = t;
+    }
+};
+
+public type Object3 object {
+
+    # This is the description of the `Object2`'s `fieldOne` field.
+    # # Deprecated
+    # This field is deprecated
+    @deprecated
+    public string fieldOne = "Foo";
+    # This is the description of the `Object2`'s `fieldTwo` field.
+    # # Deprecated
+    # This field is deprecated
     @deprecated
     TYPE1 t = CONST3;
     public string fieldTwo = "";

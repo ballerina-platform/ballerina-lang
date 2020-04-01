@@ -154,3 +154,24 @@ function add4(public int x, public int y, @deprecated int... z) {       // Compi
 function add5(public int x, public int y, int... z) {
     int n = z[0];
 }
+
+public type Object4 object {
+
+    # Describe the field here
+    # # Deprecated
+    public string fieldOne = "Foo";
+    # Describe the field here
+    @deprecated                         // Compile error
+    T1 t = CONST3;
+    public string fieldTwo = "";
+};
+
+# Docs for `Foo`
+#
+# # Deprecated parameters
+# + s - deprecated s
+type Bar record {
+
+    # Docs for s
+    string s;
+};
