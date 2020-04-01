@@ -71,6 +71,10 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(panicStatement);
     }
 
+    public T transform(CompoundAssignmentStatement compoundAssignmentStatement) {
+        return transformSyntaxNode(compoundAssignmentStatement);
+    }
+
     // Expressions
 
     public T transform(BinaryExpression binaryExpression) {
@@ -168,6 +172,10 @@ public abstract class SyntaxNodeTransformer<T> {
 
     public T transform(ImportOrgName importOrgName) {
         return transformSyntaxNode(importOrgName);
+    }
+
+    public T transform(CompoundAssignmentOperator compoundAssignmentOperator) {
+        return transformSyntaxNode(compoundAssignmentOperator);
     }
 
     /**

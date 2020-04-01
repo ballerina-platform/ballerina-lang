@@ -69,6 +69,10 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(panicStatement);
     }
 
+    public void visit(CompoundAssignmentStatement compoundAssignmentStatement) {
+        visitSyntaxNode(compoundAssignmentStatement);
+    }
+
     // Expressions
 
     public void visit(BinaryExpression binaryExpression) {
@@ -177,5 +181,9 @@ public abstract class SyntaxNodeVisitor {
             Node child = nonTerminalNode.childInBucket(bucket);
             child.accept(this);
         }
+    }
+
+    public void visit(CompoundAssignmentOperator compoundAssignmentOperator) {
+        visitSyntaxNode(compoundAssignmentOperator);
     }
 }
