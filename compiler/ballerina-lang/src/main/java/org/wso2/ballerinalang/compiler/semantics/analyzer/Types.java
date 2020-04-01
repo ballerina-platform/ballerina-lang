@@ -2892,16 +2892,32 @@ public class Types {
         return defaultFillValuePresent;
     }
 
+    private boolean hasImplicitDefaultValue(BFiniteType finiteType) {
+        for (BLangExpression expression : finiteType.getValueSpace()) {
+            if (isImplicitDefaultValue(expression)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean checkFillerValue(BUnionType type) {
         if (type.isNullable()) {
             return true;
         }
+
         Set<BType> memberTypes = new HashSet<>();
         boolean hasFillerValue = false;
+        boolean defaultValuePresent = false;
+        boolean valueTypePresent = false;
         for (BType member : type.getMemberTypes()) {
             if (member.tag == TypeTags.FINITE) {
                 Set<BType> uniqueValues = getUniqueValues((BFiniteType) member);
                 memberTypes.addAll(uniqueValues);
+                if (!defaultValuePresent && hasImplicitDefaultValue((BFiniteType) member)) {
+                    defaultValuePresent = true;
+                }
+                valueTypePresent = true;
             } else {
                 memberTypes.add(member);
             }
@@ -2909,6 +2925,8 @@ public class Types {
                 hasFillerValue = true;
             }
         }
+        if (!hasFillerValue) return false;
+
         Iterator<BType> iterator = memberTypes.iterator();
         BType firstMember = iterator.next();
         while (iterator.hasNext()) {
@@ -2916,7 +2934,9 @@ public class Types {
                 return false;
             }
         }
-        return isValueType(firstMember) && hasFillerValue;
+
+        if (valueTypePresent) return defaultValuePresent;
+        return false;
     }
 
     private Set<BType> getUniqueValues(BFiniteType member) {

@@ -138,3 +138,19 @@ type unionWithIntFloatConsts MyIntZeroConst | MyFloatConst ;
 function createUnionWithIntFloatConstTypesSealedArray() {
     unionWithIntFloatConsts[2] unionArr = [];
 }
+
+const FINITE_1 = 1;
+type FiniteOneAndTwo FINITE_1 | 2;
+
+function createUnionWithConstTypesWithoutDefaultValueSealedArray() {
+    FiniteOneAndTwo[2] unionArr = [];
+}
+
+const FOO = "foo";
+const BAR = "bar";
+
+type FooBar FOO|BAR;
+
+function createUnionOfMapValuesWithoutProperInherantEmptyMapping() {
+    (map<FooBar>|map<string>)[2] x = [];
+}
