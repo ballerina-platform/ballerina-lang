@@ -521,10 +521,6 @@ public class Types {
             return isAssignableRecordType(recordType, (BMapType) target);
         }
 
-        if (targetTag == TypeTags.RECORD && sourceTag == TypeTags.MAP) {
-            return isAssignableMapType((BMapType) source, (BRecordType) target);
-        }
-
         if (target.getKind() == TypeKind.SERVICE && source.getKind() == TypeKind.SERVICE) {
             // Special casing services, until we figure out service type concept.
             return true;
@@ -589,6 +585,14 @@ public class Types {
             return isAssignable(((BMapType) source).constraint, ((BMapType) target).constraint, unresolvedTypes);
         }
 
+        if (targetTag == TypeTags.MAP && sourceTag == TypeTags.RECORD) {
+            BType mapConstraint = ((BMapType) target).constraint;
+            BRecordType srcRec = (BRecordType) source;
+            boolean hasIncompatibleType = srcRec.fields
+                    .stream().anyMatch(field -> !isAssignable(field.type, mapConstraint));
+            return !hasIncompatibleType && isAssignable(srcRec.restFieldType, mapConstraint);
+        }
+
         if ((sourceTag == TypeTags.OBJECT || sourceTag == TypeTags.RECORD)
                 && (targetTag == TypeTags.OBJECT || targetTag == TypeTags.RECORD)) {
             return checkStructEquivalency(source, target, unresolvedTypes);
@@ -625,21 +629,6 @@ public class Types {
 
     private boolean recordFieldsAssignableToMap(BRecordType recordType, BMapType targetMapType) {
         return recordType.fields.stream().allMatch(field -> isAssignable(field.type, targetMapType.constraint));
-    }
-
-    private boolean isAssignableMapType(BMapType sourceMapType, BRecordType targetRecType) {
-        if (targetRecType.sealed) {
-            return false;
-        }
-
-        for (BField field : targetRecType.fields) {
-            if (!(Symbols.isFlagOn(field.symbol.flags, Flags.OPTIONAL) &&
-                    isAssignable(sourceMapType.constraint, field.type))) {
-                return false;
-            }
-        }
-
-        return isAssignable(sourceMapType.constraint, targetRecType.restFieldType);
     }
 
     private boolean isErrorTypeAssignable(BErrorType source, BErrorType target, Set<TypePair> unresolvedTypes) {
