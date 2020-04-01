@@ -69,6 +69,10 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(panicStatement);
     }
 
+    public void visit(ContinueStatement continueStatement) {
+        visitSyntaxNode(continueStatement);
+    }
+
     // Expressions
 
     public void visit(BinaryExpression binaryExpression) {

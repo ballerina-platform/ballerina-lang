@@ -71,6 +71,10 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(panicStatement);
     }
 
+    public T transform(ContinueStatement continueStatement) {
+        return transformSyntaxNode(continueStatement);
+    }
+
     // Expressions
 
     public T transform(BinaryExpression binaryExpression) {
