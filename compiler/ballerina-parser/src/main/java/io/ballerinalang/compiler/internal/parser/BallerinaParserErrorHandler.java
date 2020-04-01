@@ -64,7 +64,8 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] STATEMENTS = { ParserRuleContext.ASSIGNMENT_STMT,
             ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK, ParserRuleContext.WHILE_BLOCK,
-            ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE, ParserRuleContext.PANIC_STMT };
+            ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE, ParserRuleContext.PANIC_STMT,
+            ParserRuleContext.RETURN_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -151,6 +152,9 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] MAJOR_MINOR_VERSION_END =
             { ParserRuleContext.DOT, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
+
+    private static final ParserRuleContext[] RETURN_RHS =
+            { ParserRuleContext.SEMICOLON, ParserRuleContext.EXPRESSION };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -754,6 +758,11 @@ public class BallerinaParserErrorHandler {
                 case MAJOR_MINOR_VERSION_END:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             MAJOR_MINOR_VERSION_END);
+                case RETURN_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.RETURN_KEYWORD;
+                    break;
+                case RETURN_STMT_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RETURN_RHS);
 
                 // productions
                 case COMP_UNIT:
@@ -1127,6 +1136,7 @@ public class BallerinaParserErrorHandler {
             case PANIC_STMT:
             case CALL_STMT:
             case IMPORT_DECL:
+            case RETURN_STMT:
                 // case EXPRESSION:
                 startContext(currentCtx);
                 break;
@@ -1327,6 +1337,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.IMPORT_PREFIX_DECL;
             case IMPORT_DECL:
                 return ParserRuleContext.IMPORT_KEYWORD;
+            case RETURN_STMT:
+                return ParserRuleContext.RETURN_KEYWORD;
+            case RETURN_KEYWORD:
+                return ParserRuleContext.RETURN_STMT_RHS;
 
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
@@ -1613,6 +1627,7 @@ public class BallerinaParserErrorHandler {
             case WHILE_BLOCK:
             case CALL_STMT:
             case PANIC_STMT:
+            case RETURN_STMT:
                 return true;
             default:
                 return false;

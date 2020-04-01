@@ -321,6 +321,8 @@ public class ParserTestUtils {
                 return SyntaxKind.VERSION_KEYWORD;
             case "AS_KEYWORD":
                 return SyntaxKind.AS_KEYWORD;
+            case "RETURN_KEYWORD":
+                return SyntaxKind.RETURN_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -431,6 +433,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CALL_STATEMENT;
             case "PANIC_STATEMENT":
                 return SyntaxKind.PANIC_STATEMENT;
+            case "RETURN_STATEMENT":
+                return SyntaxKind.RETURN_STATEMENT;
 
             // Others
             case "SIMPLE_TYPE":
