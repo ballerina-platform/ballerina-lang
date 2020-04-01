@@ -207,14 +207,12 @@ dependencies {
     balDoc project(path: ':ballerina-lang:object', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:stream', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:string', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-lang:table', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:typedesc', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:value', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:xml', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:bool', configuration: 'balDoc')
 
     // ballerinax modules
-    balDoc project(path: ':ballerina-jdbc', configuration: 'balDoc')
     balDoc project(path: ':ballerina-java', configuration: 'balDoc')
     balDoc project(path: ':ballerina-java-arrays', configuration: 'balDoc')
 
