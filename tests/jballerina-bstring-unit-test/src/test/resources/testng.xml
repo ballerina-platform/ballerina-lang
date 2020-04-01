@@ -32,6 +32,7 @@
         <groups>
             <run>
                 <exclude name="brokenOnJBallerina"/>
+                <exclude name="brokenOnSpecDeviation"/>
                 <exclude name="brokenOnXMLLangLibChange"/>
             </run>
         </groups>
@@ -42,6 +43,7 @@
             <package name="org.ballerinalang.test.types.constant.*"/>
             <package name="org.ballerinalang.test.types.errors.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*" />
+            <package name="org.ballerinalang.test.types.finite.*" />
             <package name="org.ballerinalang.test.types.decimaltype.*" />
             <package name="org.ballerinalang.test.types.string.*"/>
             <package name="org.ballerinalang.test.types.xml.*"/>
