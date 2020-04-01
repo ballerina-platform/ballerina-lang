@@ -40,11 +40,15 @@ public class LexerTerminals {
     public static final String IF = "if";
     public static final String ELSE = "else";
     public static final String WHILE = "while";
+    public static final String PANIC = "panic";
     public static final String TRUE = "true";
     public static final String FALSE = "false";
     public static final String CHECK = "check";
     public static final String CHECKPANIC = "checkpanic";
     public static final String CONTINUE = "continue";
+    public static final String IMPORT = "import";
+    public static final String VERSION = "version";
+    public static final String AS = "as";
 
     // Types
     public static final String INT = "int";
@@ -76,18 +80,17 @@ public class LexerTerminals {
 
     // Arithmetic operators
     public static final char EQUAL = '=';
-    public static final char ADD = '+';
-    public static final char SUB = '-';
-    public static final char MUL = '*';
-    public static final char DIV = '/';
-    public static final char MOD = '%';
+    public static final char PLUS = '+';
+    public static final char MINUS = '-';
+    public static final char ASTERISK = '*';
+    public static final char SLASH = '/';
+    public static final char PERCENT = '%';
     public static final char GT = '>';
     public static final char LT = '<';
 
     // Other
     public static final char NEWLINE = '\n'; // equivalent to 0xA
     public static final char CARRIAGE_RETURN = '\r'; // equivalent to 0xD
-
     public static final char TAB = 0x9;
     public static final char SPACE = 0x20;
     public static final char FORM_FEED = 0xC;

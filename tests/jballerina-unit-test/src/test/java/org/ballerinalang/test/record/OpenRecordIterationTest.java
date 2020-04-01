@@ -60,15 +60,15 @@ public class OpenRecordIterationTest {
 
         // Test invalid foreach iterable operation
         BAssertUtil.validateError(openRecNegatives, index++,
-                                  "incompatible types: expected '[string,any]', found 'anydata'", 41, 5);
+                                  "incompatible types: expected '[string,any]', found 'anydata'", 41, 15);
         BAssertUtil.validateError(openRecNegatives, index++,
                                   "incompatible types: expected '(string|int|Address)', found 'anydata'",
-                                  44, 5);
+                                  44, 15);
 
         // Test invalid map iterable operation
         BAssertUtil.validateError(openRecNegatives, index++,
                                   "incompatible types: expected '[string,any]', found 'anydata'",
-                                  52, 21);
+                                  52, 28);
         BAssertUtil.validateError(openRecNegatives, index++,
                                   "incompatible types: expected 'map', found 'map<(any|error)>'", 60, 12);
         BAssertUtil.validateError(openRecNegatives, index++,
@@ -78,7 +78,7 @@ public class OpenRecordIterationTest {
         // Test invalid filter iterable operation
         BAssertUtil.validateError(openRecNegatives, index++,
                                   "incompatible types: expected '[string,any]', found 'anydata'",
-                                  74, 21);
+                                  74, 30);
         BAssertUtil.validateError(openRecNegatives, index++,
                                   "incompatible types: expected 'function ((any|error)) returns (boolean)', found " +
                                           "'function (anydata) returns (string)'",

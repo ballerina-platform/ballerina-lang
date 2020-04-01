@@ -39,8 +39,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.StreamingJsonValue;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -142,10 +141,34 @@ public class JSONUtils {
      *
      * @param json JSON to get the element from
      * @param elementName Name of the element to be retrieved
+     * @return Element of the JSON for the provided key, if the JSON is object type. Error if not an object or nil
+     * if the object does not have the key.
+     */
+    public static Object getElementOrNil(Object json, BString elementName) {
+        return getMappingElement(json, elementName, true);
+    }
+
+    /**
+     * Get an element from a JSON.
+     *
+     * @param json JSON to get the element from
+     * @param elementName Name of the element to be retrieved
      * @return Element of the JSON for the provided key, if the JSON is object type. Error if not an object or does
      * not have the key.
      */
     public static Object getElement(Object json, String elementName) {
+        return getMappingElement(json, elementName, false);
+    }
+
+    /**
+     * Get an element from a JSON.
+     *
+     * @param json JSON to get the element from
+     * @param elementName Name of the element to be retrieved
+     * @return Element of the JSON for the provided key, if the JSON is object type. Error if not an object or does
+     * not have the key.
+     */
+    public static Object getElement(Object json, BString elementName) {
         return getMappingElement(json, elementName, false);
     }
 
@@ -171,6 +194,42 @@ public class JSONUtils {
 
             return BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR,
                                                "Key '" + elementName + "' not found in JSON mapping");
+        }
+
+        try {
+            return jsonObject.get(elementName);
+        } catch (BallerinaException e) {
+            if (e.getDetail() != null) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetail());
+            }
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getMessage());
+        } catch (Throwable t) {
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
+        }
+    }
+
+    /**
+     * Get an element from a JSON.
+     *
+     * @param json JSON object to get the element from
+     * @param elementName Name of the element to be retrieved
+     * @param returnNilOnMissingKey Whether to return nil on missing key instead of error
+     * @return Element of JSON having the provided name, if the JSON is object type. Null otherwise.
+     */
+    private static Object getMappingElement(Object json, BString elementName, boolean returnNilOnMissingKey) {
+        if (!isJSONObject(json)) {
+            return BallerinaErrors.createError(JSON_OPERATION_ERROR, "JSON value is not a mapping");
+        }
+
+        MapValueImpl<BString, Object> jsonObject = (MapValueImpl<BString, Object>) json;
+
+        if (!jsonObject.containsKey(elementName)) {
+            if (returnNilOnMissingKey) {
+                return null;
+            }
+
+            return BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR,
+                    "Key '" + elementName + "' not found in JSON mapping");
         }
 
         try {
@@ -568,20 +627,21 @@ public class JSONUtils {
         }
     }
 
-    /**
-     * Convert {@link TableValue} to JSON.
-     *
-     * @param table {@link TableValue} to be converted to {@link StreamingJsonValue}
-     * @return JSON representation of the provided table
-     */
-    public static Object toJSON(TableValue table) {
-        TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
-        if (table.isInMemoryTable()) {
-            return jsonDataSource.build();
-        }
-
-        return new StreamingJsonValue(jsonDataSource);
-    }
+    //TODO Table remove - Fix
+//    /**
+//     * Convert {@link TableValue} to JSON.
+//     *
+//     * @param table {@link TableValue} to be converted to {@link StreamingJsonValue}
+//     * @return JSON representation of the provided table
+//     */
+//    public static Object toJSON(TableValue table) {
+//        TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
+//        if (table.isInMemoryTable()) {
+//            return jsonDataSource.build();
+//        }
+//
+//        return new StreamingJsonValue(jsonDataSource);
+//    }
 
     public static ErrorValue createJsonConversionError(Throwable throwable, String prefix) {
         String detail = throwable.getMessage() != null ?

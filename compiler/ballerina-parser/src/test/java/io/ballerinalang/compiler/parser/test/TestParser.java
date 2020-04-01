@@ -48,6 +48,7 @@ public class TestParser {
         long sTime = System.currentTimeMillis();
         BallerinaParser parser = ParserFactory.getParser(content);
         STNode node = parser.parse();
+        OUT.println("__________________________________________________");
         OUT.println(node);
         OUT.println("__________________________________________________");
         OUT.println("Time: " + (System.currentTimeMillis() - sTime) / 1000.0);

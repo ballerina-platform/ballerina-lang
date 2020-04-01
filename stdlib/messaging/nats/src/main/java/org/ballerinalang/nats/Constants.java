@@ -35,6 +35,8 @@ public class Constants {
     // Represents the NATS streaming connection.
     public static final String NATS_STREAMING_CONNECTION = "nats_streaming_connection";
 
+    public static final String NATS_METRIC_UTIL = "nats_metric_util";
+
     // Represents connected clients.
     public static final String CONNECTED_CLIENTS = "connected_clients";
 

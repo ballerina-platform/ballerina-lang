@@ -24,4 +24,14 @@ public class Minutiae extends Node {
     public Minutiae(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+        return visitor.transform(this);
+    }
 }

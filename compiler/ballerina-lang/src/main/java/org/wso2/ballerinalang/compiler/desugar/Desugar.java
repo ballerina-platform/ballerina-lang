@@ -22,7 +22,6 @@ import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.BlockFunctionBodyNode;
 import org.ballerinalang.model.tree.BlockNode;
@@ -151,7 +150,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangP
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -2763,7 +2761,6 @@ public class Desugar extends BLangNodeVisitor {
             case TypeTags.TUPLE:
             case TypeTags.XML:
             case TypeTags.MAP:
-            case TypeTags.TABLE:
             case TypeTags.STREAM:
             case TypeTags.RECORD:
                 BInvokableSymbol iteratorSymbol = getLangLibIteratorInvokableSymbol(collectionSymbol);
@@ -3255,38 +3252,6 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableLiteral tableLiteral) {
-        tableLiteral.tableDataRows = rewriteExprs(tableLiteral.tableDataRows);
-        //Generate key columns Array
-        List<String> keyColumns = new ArrayList<>();
-        for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
-            if (column.flagSet.contains(TableColumnFlag.PRIMARYKEY)) {
-                keyColumns.add(column.columnName);
-            }
-        }
-        BLangArrayLiteral keyColumnsArrayLiteral = createArrayLiteralExprNode();
-        keyColumnsArrayLiteral.exprs = keyColumns.stream()
-                .map(expr -> ASTBuilderUtil.createLiteral(tableLiteral.pos, symTable.stringType, expr))
-                .collect(Collectors.toList());
-        keyColumnsArrayLiteral.type = new BArrayType(symTable.stringType);
-        tableLiteral.keyColumnsArrayLiteral = keyColumnsArrayLiteral;
-        //Generate index columns Array
-        List<String> indexColumns = new ArrayList<>();
-        for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
-            if (column.flagSet.contains(TableColumnFlag.INDEX)) {
-                indexColumns.add(column.columnName);
-            }
-        }
-        BLangArrayLiteral indexColumnsArrayLiteral = createArrayLiteralExprNode();
-        indexColumnsArrayLiteral.exprs = indexColumns.stream()
-                .map(expr -> ASTBuilderUtil.createLiteral(tableLiteral.pos, symTable.stringType, expr))
-                .collect(Collectors.toList());
-        indexColumnsArrayLiteral.type = new BArrayType(symTable.stringType);
-        tableLiteral.indexColumnsArrayLiteral = indexColumnsArrayLiteral;
-        result = tableLiteral;
-    }
-
-    @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         BLangSimpleVarRef genVarRefExpr = varRefExpr;
 
@@ -3592,7 +3557,10 @@ public class Desugar extends BLangNodeVisitor {
 
         // Reorder the arguments to match the original function signature.
         reorderArguments(iExpr);
+
         iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
+        fixNonRestArgTypeCastInTypeParamInvocation(iExpr);
+
         iExpr.restArgs = rewriteExprs(iExpr.restArgs);
 
         annotationDesugar.defineStatementAnnotations(iExpr.annAttachments, iExpr.pos, iExpr.symbol.pkgID,
@@ -3632,6 +3600,21 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         fixTypeCastInTypeParamInvocation(iExpr, genIExpr);
+    }
+
+    private void fixNonRestArgTypeCastInTypeParamInvocation(BLangInvocation iExpr) {
+        if (!iExpr.langLibInvocation) {
+            return;
+        }
+
+        List<BLangExpression> requiredArgs = iExpr.requiredArgs;
+
+        List<BVarSymbol> params = ((BInvokableSymbol) iExpr.symbol).params;
+
+        // Start from index `1`, since for langlib methods index `0` will be the value itself.
+        for (int i = 1; i < requiredArgs.size(); i++) {
+            requiredArgs.set(i, addConversionExprIfRequired(requiredArgs.get(i), params.get(i).type));
+        }
     }
 
     private void fixTypeCastInTypeParamInvocation(BLangInvocation iExpr, BLangInvocation genIExpr) {
@@ -5098,8 +5081,15 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
         BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
-        arrayLiteral.exprs = iExpr.restArgs;
         arrayLiteral.type = invokableSymbol.restParam.type;
+
+        BType elemType = ((BArrayType) arrayLiteral.type).eType;
+        List<BLangExpression> rewrittenRestArgs = new ArrayList<>();
+        for (BLangExpression restArg : iExpr.restArgs) {
+            rewrittenRestArgs.add(addConversionExprIfRequired(restArg, elemType));
+        }
+        arrayLiteral.exprs = rewrittenRestArgs;
+
         iExpr.restArgs = new ArrayList<>();
         iExpr.restArgs.add(arrayLiteral);
     }

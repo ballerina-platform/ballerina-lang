@@ -1,0 +1,23 @@
+{
+    "line": 53,
+    "character": 4,
+    "expected": {
+        "title": "Create Local Variable with 'json'",
+        "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 53,
+                        "character": 4
+                    },
+                    "end": {
+                        "line": 53,
+                        "character": 4
+                    }
+                },
+                "newText": "json a = "
+            }
+        ]
+    }
+}
+

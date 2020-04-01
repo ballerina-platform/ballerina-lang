@@ -33,6 +33,8 @@ import org.ballerinalang.langserver.compiler.exception.CompilationFailedExceptio
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel.Reference;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.eclipse.lsp4j.CodeAction;
@@ -45,20 +47,27 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -136,7 +145,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
             context.put(ReferencesKeys.ENABLE_FIND_LITERALS, true);
             context.put(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS, true);
-            Position afterAliasPos = offsetInvocation(diagnosedContent, position);
+            Position afterAliasPos = offsetPositionToInvocation(diagnosedContent, position);
             Reference refAtCursor = getSymbolAtCursor(context, document, afterAliasPos);
 
             BSymbol symbolAtCursor = refAtCursor.getSymbol();
@@ -251,7 +260,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                                                                              boolean hasCustomInitFunction,
                                                                              BLangNode bLangNode, List<TextEdit> edits,
                                                                              CompilerContext compilerContext) {
-        Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
+        Set<String> nameEntries = CommonUtil.getAllNameEntries(compilerContext);
         PackageID currentPkgId = bLangNode.pos.src.pkgID;
         BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
             boolean notFound = CommonUtil.getCurrentModuleImports(context).stream().noneMatch(
@@ -298,15 +307,42 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                 types.add(variableType);
                 names.add(variableName);
             } else if (bLangNode instanceof BLangRecordLiteral) {
-                // JSON
                 String variableName = CommonUtil.generateName(1, nameEntries);
-                types.add("json");
-                names.add(variableName);
 
                 // Record
+                List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
+                BRecordType matchingRecordType = null;
+                Types typesChk = Types.getInstance(compilerContext);
+                for (BLangPackage pkg : bLangPackages) {
+                    for (TopLevelNode topLevelNode : pkg.topLevelNodes) {
+                        if (topLevelNode instanceof BLangTypeDefinition &&
+                                ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangRecordTypeNode &&
+                                ((BLangTypeDefinition) topLevelNode).typeNode.type instanceof BRecordType) {
+                            BRecordType type = (BRecordType) ((BLangTypeDefinition) topLevelNode).typeNode.type;
+                            if (typesChk.checkStructEquivalency(bLangNode.type, type) &&
+                                    !type.tsymbol.name.value.startsWith("$")) {
+                                matchingRecordType = type;
+                            }
+                        }
+                    }
+                }
+
+                // Matching Record
+                if (matchingRecordType != null) {
+                    String recType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
+                                                                              matchingRecordType);
+                    types.add(recType);
+                    names.add(variableName);
+                }
+
+                // Anon Record
                 String rType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type);
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) bLangNode;
                 types.add((recordLiteral.fields.size() > 0) ? rType : "record {}");
+                names.add(variableName);
+
+                // JSON
+                types.add("json");
                 names.add(variableName);
 
                 // Map
@@ -378,6 +414,24 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                     types.add("[" + tupleJoiner.toString() + "]");
                     names.add(variableName);
                 }
+            } else if (bLangNode instanceof BLangQueryExpr) {
+                BLangQueryExpr queryExpr = (BLangQueryExpr) bLangNode;
+                ExpressionNode expression = queryExpr.selectClause.getExpression();
+                if (expression instanceof BLangRecordLiteral) {
+                    BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
+                    return getPossibleTypesAndNames(context, referenceAtCursor, hasDefaultInitFunction,
+                                                    hasCustomInitFunction, recordLiteral, edits, compilerContext);
+                } else {
+                    String variableName = CommonUtil.generateName(1, nameEntries);
+                    types.add("var");
+                    names.add(variableName);
+                }
+            } else if (bLangNode instanceof BLangBinaryExpr) {
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) bLangNode;
+                variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, binaryExpr.type);
+                String variableName = CommonUtil.generateName(1, nameEntries);
+                types.add(variableType);
+                names.add(variableName);
             } else {
                 String variableName = CommonUtil.generateVariableName(bLangNode.type, nameEntries);
                 types.add(variableType);
@@ -430,7 +484,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             });
         } else {
             CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-            Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
+            Set<String> nameEntries = CommonUtil.getAllNameEntries(compilerContext);
             String varName = CommonUtil.generateVariableName(bLangNode, nameEntries);
             String typeDef = CommonUtil.getBTypeName(unionType, context, true);
             boolean addErrorTypeAtEnd;

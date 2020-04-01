@@ -27,13 +27,13 @@ import org.testng.annotations.Test;
  *
  * @since 1.3.0
  */
-public class ModuleLevelDeclarationTest {
+public class ModuleLevelDeclarationTest extends AbstractIncrementalParserTest {
 
     @Test
     public void testVariableNameChange() {
-        SyntaxTree oldTree = TestUtils.parse("module_declarations/function_name_old.bal");
-        SyntaxTree newTree = TestUtils.parse(oldTree, "module_declarations/function_name_new.bal");
-        Node[] newNodes = TestUtils.populateNewNodes(oldTree, newTree);
+        SyntaxTree oldTree = parseFile("module_declarations/function_name_old.bal");
+        SyntaxTree newTree = parse(oldTree, "module_declarations/function_name_new.bal");
+        Node[] newNodes = populateNewNodes(oldTree, newTree);
 
         // TODO This is fragile way to test. Improve
         Assert.assertEquals(newNodes.length, 6);

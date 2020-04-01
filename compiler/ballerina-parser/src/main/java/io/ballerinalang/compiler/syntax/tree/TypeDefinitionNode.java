@@ -92,4 +92,14 @@ public class TypeDefinitionNode extends ModuleMemberDeclaration {
         }
         return null;
     }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+        return visitor.transform(this);
+    }
 }

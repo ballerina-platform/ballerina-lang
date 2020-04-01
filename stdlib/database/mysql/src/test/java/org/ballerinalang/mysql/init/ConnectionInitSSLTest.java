@@ -39,7 +39,7 @@ import java.io.File;
 public class ConnectionInitSSLTest {
     private static final String DB_NAME = "SSL_CONNECT_DB";
     private static final String SQL_SCRIPT = SQLDBUtils.SQL_RESOURCE_DIR + File.separator
-            + SQLDBUtils.CONNECTIONS_DIR + File.separator + "connections_test_data.sql";
+            + SQLDBUtils.CONNECTIONS_DIR + File.separator + "connections-test-data.sql";
     private CompileResult result;
 
     static {
@@ -49,7 +49,7 @@ public class ConnectionInitSSLTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile(SQLDBUtils.getBalFilesDir(SQLDBUtils.CONNECTIONS_DIR,
-                "connection_ssl_test.bal"));
+                "connection-ssl-test.bal"));
     }
 
     @Test

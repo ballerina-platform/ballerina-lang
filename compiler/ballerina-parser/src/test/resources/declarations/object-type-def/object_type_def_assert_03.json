@@ -43,14 +43,14 @@
                                     "kind": "BINARY_EXPRESSION",
                                     "children": [
                                         {
-                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
                                             "value": "10"
                                         },
                                         {
                                             "kind": "ASTERISK_TOKEN"
                                         },
                                         {
-                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
                                             "value": "2"
                                         }
                                     ]
@@ -94,7 +94,7 @@
                                     "kind": "EQUAL_TOKEN"
                                 },
                                 {
-                                    "kind": "NUMERIC_LITERAL_TOKEN",
+                                    "kind": "DECIMAL_INTEGER_LITERAL",
                                     "value": "0"
                                 },
                                 {

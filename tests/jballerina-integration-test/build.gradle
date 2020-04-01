@@ -63,7 +63,6 @@ dependencies {
     implementation project(':ballerina-grpc')
     implementation project(':ballerina-kafka')
     implementation project(':protobuf-ballerina')
-    implementation project(':ballerina-jdbc')
     implementation project(':ballerina-transactions')
     implementation project(':protobuf-ballerina')
     implementation project(':ballerina-packerina')
@@ -96,7 +95,6 @@ dependencies {
     balRuntime project(':ballerina-runtime')
 
     baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
