@@ -302,7 +302,7 @@ public class BIRGen extends BLangNodeVisitor {
                     String functionKey = null;
 
                     // Generate the function key
-                    if (callTerminator.isVirtual && callTerminator.args.size() == 1) {
+                    if (callTerminator.isVirtual) {
                         // Function key for object methods
                         String objectPkg = callTerminator.args.get(0).variableDcl.type.toString();
                         functionKey = objectPkg + MOCK_ANNOTATION_DELIMITER + callTerminator.name.toString();
