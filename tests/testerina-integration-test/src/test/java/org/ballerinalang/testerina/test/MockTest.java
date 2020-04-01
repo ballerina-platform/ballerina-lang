@@ -40,7 +40,7 @@ public class MockTest extends BaseTestCase {
 
     @Test
     public void testAssertTrue() throws BallerinaTestException {
-        String msg = "4 passing";
+        String msg = "5 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.runMain("test", new String[]{"--all"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
