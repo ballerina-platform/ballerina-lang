@@ -73,14 +73,14 @@
                                     "kind": "BINARY_EXPRESSION",
                                     "children": [
                                         {
-                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
                                             "value": "4"
                                         },
                                         {
                                             "kind": "PLUS_TOKEN"
                                         },
                                         {
-                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
                                             "value": "6"
                                         }
                                     ]
@@ -116,14 +116,14 @@
                                     "kind": "BINARY_EXPRESSION",
                                     "children": [
                                         {
-                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
                                             "value": "4"
                                         },
                                         {
                                             "kind": "PLUS_TOKEN"
                                         },
                                         {
-                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
                                             "value": "6"
                                         }
                                     ]
@@ -150,7 +150,7 @@
                                                     "kind": "OPEN_BRACKET_TOKEN"
                                                 },
                                                 {
-                                                    "kind": "NUMERIC_LITERAL_TOKEN",
+                                                    "kind": "DECIMAL_INTEGER_LITERAL",
                                                     "value": "4"
                                                 },
                                                 {
@@ -174,14 +174,14 @@
                                     "kind": "BINARY_EXPRESSION",
                                     "children": [
                                         {
-                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
                                             "value": "4"
                                         },
                                         {
                                             "kind": "PLUS_TOKEN"
                                         },
                                         {
-                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
                                             "value": "6"
                                         }
                                     ]

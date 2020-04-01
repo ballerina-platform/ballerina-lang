@@ -45,6 +45,9 @@ public class LexerTerminals {
     public static final String FALSE = "false";
     public static final String CHECK = "check";
     public static final String CHECKPANIC = "checkpanic";
+    public static final String IMPORT = "import";
+    public static final String VERSION = "version";
+    public static final String AS = "as";
 
     // Types
     public static final String INT = "int";

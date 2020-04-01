@@ -249,7 +249,8 @@ public class ParserTestUtils {
             case IDENTIFIER_TOKEN:
                 return ((STIdentifier) token).text;
             case STRING_LITERAL_TOKEN:
-            case NUMERIC_LITERAL_TOKEN:
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
                 return ((STLiteralValueToken) token).text;
             case SIMPLE_TYPE:
                 return ((STTypeToken) token).text;
@@ -272,6 +273,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_DEFINITION;
             case "FUNCTION_DEFINITION":
                 return SyntaxKind.FUNCTION_DEFINITION;
+            case "IMPORT_DECLARATION":
+                return SyntaxKind.IMPORT_DECLARATION;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -312,6 +315,12 @@ public class ParserTestUtils {
                 return SyntaxKind.CHECKPANIC_KEYWORD;
             case "PANIC_KEYWORD":
                 return SyntaxKind.PANIC_KEYWORD;
+            case "IMPORT_KEYWORD":
+                return SyntaxKind.IMPORT_KEYWORD;
+            case "VERSION_KEYWORD":
+                return SyntaxKind.VERSION_KEYWORD;
+            case "AS_KEYWORD":
+                return SyntaxKind.AS_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -378,8 +387,14 @@ public class ParserTestUtils {
                 return SyntaxKind.BINARY_EXPRESSION;
             case "STRING_LITERAL_TOKEN":
                 return SyntaxKind.STRING_LITERAL_TOKEN;
-            case "NUMERIC_LITERAL_TOKEN":
-                return SyntaxKind.NUMERIC_LITERAL_TOKEN;
+            case "DECIMAL_INTEGER_LITERAL":
+                return SyntaxKind.DECIMAL_INTEGER_LITERAL;
+            case "HEX_INTEGER_LITERAL":
+                return SyntaxKind.HEX_INTEGER_LITERAL;
+            case "DECIMAL_FLOATING_POINT_LITERAL":
+                return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
+            case "HEX_FLOATING_POINT_LITERAL":
+                return SyntaxKind.HEX_FLOATING_POINT_LITERAL;
             case "FUNCTION_CALL":
                 return SyntaxKind.FUNCTION_CALL;
             case "POSITIONAL_ARG":
@@ -442,6 +457,18 @@ public class ParserTestUtils {
                 return SyntaxKind.OBJECT_FIELD;
             case "OBJECT_TYPE_DESCRIPTOR":
                 return SyntaxKind.OBJECT_TYPE_DESCRIPTOR;
+            case "IMPORT_ORG_NAME":
+                return SyntaxKind.IMPORT_ORG_NAME;
+            case "MODULE_NAME":
+                return SyntaxKind.MODULE_NAME;
+            case "SUB_MODULE_NAME":
+                return SyntaxKind.SUB_MODULE_NAME;
+            case "IMPORT_VERSION":
+                return SyntaxKind.IMPORT_VERSION;
+            case "IMPORT_SUB_VERSION":
+                return SyntaxKind.IMPORT_SUB_VERSION;
+            case "IMPORT_PREFIX":
+                return SyntaxKind.IMPORT_PREFIX;
 
             // Trivia
             case "EOF_TOKEN":

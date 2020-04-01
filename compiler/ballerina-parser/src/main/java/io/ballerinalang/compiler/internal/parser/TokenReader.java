@@ -98,6 +98,22 @@ public class TokenReader extends AbstractTokenReader {
     }
 
     /**
+     * Switch the mode of the token reader to the given mode.
+     * 
+     * @param mode Mode to switch on to
+     */
+    public void switchMode(ParserMode mode) {
+        this.lexer.switchMode(mode);
+    }
+
+    /**
+     * Switch the mode of the token reader to {@link ParserMode#DEFAULT}.
+     */
+    public void resetMode() {
+        this.lexer.resetMode();
+    }
+
+    /**
      * A ring buffer of tokens.
      * 
      * @since 1.2.0

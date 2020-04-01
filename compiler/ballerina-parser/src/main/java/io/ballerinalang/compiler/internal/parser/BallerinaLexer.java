@@ -34,6 +34,7 @@ public class BallerinaLexer {
 
     private CharReader reader;
     private List<STNode> leadingTriviaList;
+    private ParserMode mode = ParserMode.DEFAULT;
 
     public BallerinaLexer(CharReader charReader) {
         this.reader = charReader;
@@ -52,6 +53,26 @@ public class BallerinaLexer {
     public void reset(int offset) {
         reader.reset(offset);
     }
+
+    /**
+     * Switch the mode of the lexer to the given mode.
+     * 
+     * @param mode Mode to switch on to
+     */
+    public void switchMode(ParserMode mode) {
+        this.mode = mode;
+    }
+
+    /**
+     * Switch the mode of the lexer to {@link ParserMode#DEFAULT}.
+     */
+    public void resetMode() {
+        this.mode = ParserMode.DEFAULT;
+    }
+
+    /*
+     * Private Methods
+     */
 
     private STToken readToken() {
         reader.mark();
@@ -449,6 +470,11 @@ public class BallerinaLexer {
                 case '.':
                 case 'e':
                 case 'E':
+                    // In sem-var mode, only decimal integer literals are supported
+                    if (this.mode == ParserMode.IMPORT) {
+                        break;
+                    }
+
                     // TODO: handle float
                     reader.advance();
                     processInvalidToken();
@@ -472,7 +498,7 @@ public class BallerinaLexer {
             return readToken();
         }
 
-        return getLiteral(SyntaxKind.NUMERIC_LITERAL_TOKEN);
+        return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL);
     }
 
     /**
@@ -498,8 +524,7 @@ public class BallerinaLexer {
             reader.advance();
         }
 
-        // TODO: can send syntax kind as HEX_LITERAL ??
-        return getLiteral(SyntaxKind.NUMERIC_LITERAL_TOKEN);
+        return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL);
     }
 
     /**
@@ -566,6 +591,12 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.CHECKPANIC_KEYWORD);
             case LexerTerminals.PANIC:
                 return getSyntaxToken(SyntaxKind.PANIC_KEYWORD);
+            case LexerTerminals.IMPORT:
+                return getSyntaxToken(SyntaxKind.IMPORT_KEYWORD);
+            case LexerTerminals.VERSION:
+                return getSyntaxToken(SyntaxKind.VERSION_KEYWORD);
+            case LexerTerminals.AS:
+                return getSyntaxToken(SyntaxKind.AS_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

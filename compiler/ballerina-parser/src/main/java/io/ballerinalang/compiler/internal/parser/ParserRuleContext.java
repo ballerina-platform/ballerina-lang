@@ -29,7 +29,7 @@ public enum ParserRuleContext {
     COMP_UNIT("comp-unit"),
     EOF("eof"),
     TOP_LEVEL_NODE("top-level-node"),
-    TOP_LEVEL_NODE_WITHOUT_MODIFIER("top-level-node-without-modifier"),
+    TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER("top-level-node-that-supports-modifier"),
     FUNC_DEFINITION("func-definition"),
     PARAM_LIST("parameters"),
     REQUIRED_PARAM("parameter"),
@@ -63,6 +63,20 @@ public enum ParserRuleContext {
     OBJECT_TYPE_FIRST_QUALIFIER("object-type-qualifier"),
     OBJECT_TYPE_SECOND_QUALIFIER("object-type-second-qualifier"),
     OBJECT_TYPE_DESCRIPTOR_START("object-type-desc-start"),
+    IMPORT_DECL("import-decl"),
+    IMPORT_ORG_OR_MODULE_NAME("import-org-or-module-name"),
+    IMPORT_MODULE_NAME("module-name"),
+    IMPORT_VERSION_DECL("import-version-decl"),
+    VERSION_NUMBER("sem-ver"),
+    IMPORT_SUB_VERSION("import-sub-version"),
+    MAJOR_VERSION("major-version"),
+    MINOR_VERSION("minor-version"),
+    PATCH_VERSION("patch-version"),
+    IMPORT_PREFIX("import-prefix"),
+    IMPORT_PREFIX_DECL("import-alias"),
+    IMPORT_DECL_RHS("import-decl-rhs"),
+    AFTER_IMPORT_MODULE_NAME("after-import-module-name"),
+    MAJOR_MINOR_VERSION_END("major-minor-version-end"),
 
     // Statements
     STATEMENT("statement"),
@@ -98,6 +112,9 @@ public enum ParserRuleContext {
     ELSE_KEYWORD("else"),
     WHILE_KEYWORD("while"),
     PANIC_KEYWORD("panic"),
+    IMPORT_KEYWORD("import"),
+    VERSION_KEYWORD("version"),
+    AS_KEYWORD("as"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -115,6 +132,7 @@ public enum ParserRuleContext {
     DOT("."),
     OPEN_BRACKET("["),
     CLOSE_BRACKET("]"),
+    SLASH("/"),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -130,6 +148,7 @@ public enum ParserRuleContext {
     EXPRESSION_RHS("expression-rhs"),
     FUNC_CALL("func-call"),
     EXPRESSION_END("expr-end"),
+    DECIMAL_INTEGER_LITERAL("decimal-int-literal"),
     ;
 
     private String value;
