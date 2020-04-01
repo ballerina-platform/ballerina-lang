@@ -98,7 +98,7 @@ public type CookieClient object {
         if (res is Response|ClientError) {
             return res;
         } else {
-            return getIllegalDataBindingStateError();
+            panic getIllegalDataBindingStateError();
         }
     }
 

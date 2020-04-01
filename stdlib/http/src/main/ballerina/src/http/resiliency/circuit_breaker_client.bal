@@ -517,7 +517,7 @@ function updateCircuitHealthAndRespond(Response|PayloadType|ClientError serviceR
         updateCircuitHealthFailure(circuitHealth, circuitBreakerInferredConfig);
         return serviceResponse;
     } else {
-        return getIllegalDataBindingStateError();
+        panic getIllegalDataBindingStateError();
     }
 }
 

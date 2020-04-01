@@ -177,7 +177,7 @@ function getResponseOrError(Response|PayloadType|ClientError result) returns Htt
     if (result is HttpResponse|ClientError) {
         return result;
     } else {
-        return getIllegalDataBindingStateError();
+        panic getIllegalDataBindingStateError();
     }
 }
 

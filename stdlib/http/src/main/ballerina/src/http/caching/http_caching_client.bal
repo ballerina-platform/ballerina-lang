@@ -432,7 +432,7 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Requ
         }
         return response;
     } else if (response is PayloadType) {
-        return getIllegalDataBindingStateError();
+        panic getIllegalDataBindingStateError();
     } else {
         return response;
     }
@@ -666,7 +666,7 @@ function sendValidationRequest(HttpClient httpClient, string path, Response cach
     if (res is Response|ClientError) {
         return res;
     } else {
-        return getIllegalDataBindingStateError();
+        panic getIllegalDataBindingStateError();
     }
 }
 
