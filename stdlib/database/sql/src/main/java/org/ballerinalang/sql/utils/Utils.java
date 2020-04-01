@@ -43,6 +43,7 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -63,7 +64,7 @@ import java.util.TimeZone;
  */
 class Utils {
 
-    public static void closeResources(ResultSet resultSet, Statement statement, Connection connection) {
+    static void closeResources(ResultSet resultSet, Statement statement, Connection connection) {
         if (resultSet != null) {
             try {
                 resultSet.close();
@@ -83,6 +84,51 @@ class Utils {
             }
         }
     }
+
+    static String getSqlQuery(MapValue<String, Object> paramString) throws ApplicationError {
+        ArrayValue partsArray = paramString.getArrayValue(Constants.ParameterizedStingFields.PARTS);
+        ArrayValue insertionsArray = paramString.getArrayValue(Constants.ParameterizedStingFields.INSERTIONS);
+        if (partsArray.size() - 1 == insertionsArray.size()) {
+            StringBuilder sqlQuery = new StringBuilder();
+            for (int i = 0; i < partsArray.size(); i++) {
+                if (i > 0) {
+                    sqlQuery.append(" ? ");
+                }
+                sqlQuery.append(partsArray.get(i).toString());
+            }
+            return sqlQuery.toString();
+        } else {
+            throw new ApplicationError("Parts and insertions count doesn't match in ParametrizedString passed. "
+                    + paramString.toString());
+        }
+    }
+
+    static void setParams(PreparedStatement preparedStatement, MapValue<String, Object> paramString)
+            throws SQLException, ApplicationError {
+        ArrayValue arrayValue = paramString.getArrayValue(Constants.ParameterizedStingFields.INSERTIONS);
+        for (int i = 0; i < arrayValue.size(); i++) {
+            Object object = arrayValue.get(i);
+            int index = i + 1;
+            if (object instanceof String) {
+                preparedStatement.setString(index, object.toString());
+            } else if (object instanceof Long) {
+                preparedStatement.setLong(index, (Long) object);
+            } else if (object instanceof Double) {
+                preparedStatement.setDouble(index, (Double) object);
+            } else if (object instanceof DecimalValue) {
+                preparedStatement.setBigDecimal(index, ((DecimalValue) object).decimalValue());
+            } else if (object instanceof ArrayValue) {
+                ArrayValue objectArray = (ArrayValue) object;
+                if (objectArray.getElementType().getTag() == org.wso2.ballerinalang.compiler.util.TypeTags.BYTE) {
+                    preparedStatement.setBytes(index, objectArray.getBytes());
+                } else {
+                    throw new ApplicationError("Only byte[] is supported can be set directly into " +
+                            "ParameterizedString, any other array types should be wrapped as sql:Value");
+                }
+            }
+        }
+    }
+
 
     static ArrayValue convert(Array array, int sqlType, BType bType) throws SQLException, ApplicationError {
         if (array != null) {

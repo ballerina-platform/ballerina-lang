@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.Flags;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -60,17 +59,20 @@ import java.util.Set;
  */
 public class QueryUtils {
 
-    public static StreamValue nativeQuery(ObjectValue client, MapValue<String, Object> paramSQLString, Object recordType) {
+    public static StreamValue nativeQuery(ObjectValue client, MapValue<String, Object> paramSQLString,
+                                          Object recordType) {
         Object dbClient = client.getNativeData(Constants.DATABASE_CLIENT);
         if (dbClient != null) {
             SQLDatasource sqlDatasource = (SQLDatasource) dbClient;
             Connection connection = null;
             PreparedStatement statement = null;
             ResultSet resultSet = null;
-            String sqlQuery = getSqlQuery(paramSQLString);
+            String sqlQuery = null;
             try {
+                sqlQuery = Utils.getSqlQuery(paramSQLString);
                 connection = sqlDatasource.getSQLConnection();
                 statement = connection.prepareStatement(sqlQuery);
+                Utils.setParams(statement, paramSQLString);
                 resultSet = statement.executeQuery();
                 List<ColumnDefinition> columnDefinitions;
                 BStructureType streamConstraint;
@@ -111,21 +113,6 @@ public class QueryUtils {
                     "Client is not properly initialized!");
             return getErrorStream(recordType, errorValue);
         }
-    }
-
-    private static String getSqlQuery(MapValue<String, Object> paramString) {
-        ArrayValue partsArray = paramString.getArrayValue(Constants.ParameterizedStingFields.PARTS);
-        StringBuilder sqlQuery = new StringBuilder();
-        for (int i = 0; i < partsArray.size(); i++) {
-            String partSqlQuery = partsArray.get(i).toString().trim();
-            if (!partSqlQuery.isEmpty()) {
-                if (i > 0) {
-                    sqlQuery.append("?");
-                }
-                sqlQuery.append(partSqlQuery);
-            }
-        }
-        return sqlQuery.toString();
     }
 
     private static StreamValue getErrorStream(Object recordType, ErrorValue errorValue) {
