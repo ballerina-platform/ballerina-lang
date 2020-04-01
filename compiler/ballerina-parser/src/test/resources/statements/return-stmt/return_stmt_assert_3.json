@@ -1,0 +1,28 @@
+{
+  "kind": "RETURN_STATEMENT",
+  "children": [
+    {
+      "kind": "RETURN_KEYWORD"
+    },
+    {
+      "kind": "BINARY_EXPRESSION",
+      "children": [
+        {
+          "kind": "NUMERIC_LITERAL_TOKEN",
+          "value": 6
+        },
+        {
+          "kind": "PLUS_TOKEN",
+          "value": "+"
+        },
+        {
+          "kind": "NUMERIC_LITERAL_TOKEN",
+          "value": 7
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
+}
