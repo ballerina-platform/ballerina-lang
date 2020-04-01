@@ -52,3 +52,19 @@ function testPushPopShiftUnshitOnInferredFixedLengthArray() {
     x = fixedLengthArray.shift();
     fixedLengthArray.unshift();
 }
+
+function testPushOnFixedLengthArrayUnions() {
+    int[1]|float[1] fixedLengthArray = <int[1]> [1];
+    fixedLengthArray.push(4);
+}
+
+function testPushOnFixedLengthTupleUnion() {
+    [int, int][1] | [float, float][1] fixedLengthArray = <[float, float][1]> [[1.0, 2.3]];
+    fixedLengthArray.push(<[float, float]>[1, 2]);
+}
+
+// run time panic no compile time error
+function testPushOnFixedLengthAndDynamicTupleUnion() {
+    [int, int][1] | [float, float][] fixedLengthArray = <[float, float][1]> [[1, 2]];
+    fixedLengthArray.push(<[float, float]>[1, 2]);
+}

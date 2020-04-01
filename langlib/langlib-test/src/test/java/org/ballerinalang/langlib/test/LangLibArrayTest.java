@@ -400,28 +400,34 @@ public class LangLibArrayTest {
     @Test
     public void callingLengthModificationFunctionsOnFixedLengthLists() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/arraylib_test_negative.bal");
-        BAssertUtil.validateError(negativeResult, 0, "cannot call 'push' on fixed length list of type 'int[1]'", 3, 22);
-        BAssertUtil.validateError(negativeResult, 1, "cannot call 'push' on fixed length list of type '[int,int]'", 8,
-                                  22);
-        BAssertUtil.validateError(negativeResult, 2, "cannot call 'pop' on fixed length list of type 'int[1]'", 13, 35);
-        BAssertUtil.validateError(negativeResult, 3, "cannot call 'pop' on fixed length list of type '[int,int]'", 18,
-                                  35);
-        BAssertUtil.validateError(negativeResult, 4, "cannot call 'shift' on fixed length list of type 'int[1]'", 29,
-                                  30);
-        BAssertUtil.validateError(negativeResult, 5, "cannot call 'unshift' on fixed length list of type 'int[1]'", 34,
-                                  22);
-        BAssertUtil.validateError(negativeResult, 6, "cannot call 'shift' on fixed length list of type '[int,int]'", 39,
-                                  35);
-        BAssertUtil.validateError(negativeResult, 7, "cannot call 'unshift' on fixed length list of type '[int,int]'",
+        BAssertUtil.validateError(negativeResult, 0, "cannot call 'push' on fixed length list(s) of type 'int[1]'",
+                                  3, 22);
+        BAssertUtil.validateError(negativeResult, 1, "cannot call 'push' on fixed length list(s) of type '[int,int]'",
+                                  8, 22);
+        BAssertUtil.validateError(negativeResult, 2, "cannot call 'pop' on fixed length list(s) of type 'int[1]'",
+                                  13, 35);
+        BAssertUtil.validateError(negativeResult, 3, "cannot call 'pop' on fixed length list(s) of type '[int,int]'",
+                                  18, 35);
+        BAssertUtil.validateError(negativeResult, 4, "cannot call 'shift' on fixed length list(s) of type 'int[1]'",
+                                  29,30);
+        BAssertUtil.validateError(negativeResult, 5, "cannot call 'unshift' on fixed length list(s) of type 'int[1]'",
+                                  34, 22);
+        BAssertUtil.validateError(negativeResult, 6, "cannot call 'shift' on fixed length list(s) of type '[int,int]'",
+                                  39, 35);
+        BAssertUtil.validateError(negativeResult, 7, "cannot call 'unshift' on fixed length list(s) of type '[int,int]'",
                                   44, 22);
-        BAssertUtil.validateError(negativeResult, 8, "cannot call 'push' on fixed length list of type 'int[2]'",
+        BAssertUtil.validateError(negativeResult, 8, "cannot call 'push' on fixed length list(s) of type 'int[2]'",
                                   50, 22);
-        BAssertUtil.validateError(negativeResult, 9, "cannot call 'pop' on fixed length list of type 'int[2]'",
+        BAssertUtil.validateError(negativeResult, 9, "cannot call 'pop' on fixed length list(s) of type 'int[2]'",
                                   51, 30);
-        BAssertUtil.validateError(negativeResult, 10, "cannot call 'shift' on fixed length list of type 'int[2]'",
+        BAssertUtil.validateError(negativeResult, 10, "cannot call 'shift' on fixed length list(s) of type 'int[2]'",
                                   52, 26);
-        BAssertUtil.validateError(negativeResult, 11, "cannot call 'unshift' on fixed length list of type 'int[2]'",
+        BAssertUtil.validateError(negativeResult, 11, "cannot call 'unshift' on fixed length list(s) of type 'int[2]'",
                                   53, 22);
-        Assert.assertEquals(negativeResult.getErrorCount(), 12);
+        BAssertUtil.validateError(negativeResult, 12,"cannot call 'push' on fixed length list(s) of type '(int[1]|float[1])'",
+                                  58, 22);
+        BAssertUtil.validateError(negativeResult, 13,"cannot call 'push' on fixed length list(s) of type '([int,int][1]|[float,float][1])'",
+                                  63, 22);
+        Assert.assertEquals(negativeResult.getErrorCount(), 14);
     }
 }

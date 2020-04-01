@@ -167,6 +167,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -1833,23 +1834,41 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (varRefType.tag == TypeTags.ARRAY) {
-            BArrayType arrayType = (BArrayType) varRefType;
-            if (arrayType.state == BArrayState.CLOSED_SEALED && this.modifierFunctions.contains(
-                    iExpr.name.getValue())) {
-                dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_LIST_SIZE, iExpr.name.value, arrayType);
-                resultType = symTable.semanticError;
-                return;
-            }
+        checkIllegalStorageSizeChangeMethodCall(iExpr, varRefType);
+    }
+
+    private boolean isPureSealed(BType type) {
+        switch(type.tag) {
+            case TypeTags.ARRAY:
+                return isPureSealed((BArrayType) type);
+            case TypeTags.TUPLE:
+                return isPureSealed((BTupleType) type);
+            case TypeTags.UNION:
+                return isPureSealed((BUnionType) type);
+        }
+        return false;
+    }
+
+    private boolean isPureSealed(BArrayType arrayType) {
+        return (arrayType.state == BArrayState.CLOSED_SEALED);
+    }
+
+    private boolean isPureSealed(BTupleType tupleType) {
+        return (tupleType.restType == null);
+    }
+
+    private boolean isPureSealed(BUnionType unionType) {
+        return unionType.getMemberTypes().stream().allMatch(type -> isPureSealed(type));
+    }
+
+    private void checkIllegalStorageSizeChangeMethodCall(BLangInvocation iExpr, BType varRefType) {
+        if (!modifierFunctions.contains(iExpr.name.getValue())) {
+            return;
         }
 
-        if (varRefType.tag == TypeTags.TUPLE) {
-            BTupleType tupleType = (BTupleType) varRefType;
-            if ((tupleType.restType == null) && this.modifierFunctions.contains(iExpr.name.getValue())) {
-                dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_LIST_SIZE, iExpr.name.value, tupleType);
-                resultType = symTable.semanticError;
-                return;
-            }
+        if (isPureSealed(varRefType)) {
+            dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_LIST_SIZE, iExpr.name.value, varRefType);
+            resultType = symTable.semanticError;
         }
     }
 
