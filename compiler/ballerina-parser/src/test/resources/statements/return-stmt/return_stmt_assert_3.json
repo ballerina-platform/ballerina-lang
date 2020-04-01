@@ -8,7 +8,7 @@
       "kind": "BINARY_EXPRESSION",
       "children": [
         {
-          "kind": "NUMERIC_LITERAL_TOKEN",
+          "kind": "DECIMAL_INTEGER_LITERAL",
           "value": 6
         },
         {
@@ -16,7 +16,7 @@
           "value": "+"
         },
         {
-          "kind": "NUMERIC_LITERAL_TOKEN",
+          "kind": "DECIMAL_INTEGER_LITERAL",
           "value": 7
         }
       ]
