@@ -501,6 +501,71 @@ public class StubGeneratorTestCase {
         );
     }
 
+    @Test(description = "Test case checks creation of only the service file," +
+            " in the service mode, with multiple services")
+    public void testServiceFilesGenForMultipleServices() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
+        GrpcCmd grpcCommand = (GrpcCmd) grpcCmd.newInstance();
+        Path tempDirPath = outputDirPath.resolve("service");
+        Path protoPath = Paths.get("multipleServices.proto");
+        Path protoRoot = resourceDir.resolve(protoPath);
+        grpcCommand.setBalOutPath(tempDirPath.toAbsolutePath().toString());
+        grpcCommand.setProtoPath(protoRoot.toAbsolutePath().toString());
+        grpcCommand.setMode("service");
+        grpcCommand.execute();
+        Path providerServiceFile = Paths.get(TMP_DIRECTORY_PATH, "grpc", "service", "Provider_sample_service.bal");
+        Path registerServiceFile = Paths.get(TMP_DIRECTORY_PATH, "grpc", "service", "Register_sample_service.bal");
+        Path stubFile = Paths.get(TMP_DIRECTORY_PATH, "grpc", "service", "multipleServices_pb.bal");
+
+        assertTrue(Files.exists(providerServiceFile));
+        assertTrue(Files.exists(registerServiceFile));
+        assertTrue(Files.exists(stubFile));
+
+        CompileResult providerCompileResult = BCompileUtil.compileOnly(providerServiceFile.toString());
+        CompileResult registerCompileResult = BCompileUtil.compileOnly(registerServiceFile.toString());
+        CompileResult stubCompileResult = BCompileUtil.compileOnly(stubFile.toString());
+
+        assertEquals(((BLangPackage) providerCompileResult.getAST()).globalVars.size(), 1,
+                "Expected constants count not found." +
+                        ((BLangPackage) providerCompileResult.getAST()).globalVars.size()
+        );
+        assertEquals(((BLangPackage) providerCompileResult.getAST()).services.size(), 1,
+                "Expected services count not found. " +
+                        ((BLangPackage) providerCompileResult.getAST()).services.size()
+        );
+        assertEquals(((BLangPackage) providerCompileResult.getAST()).getTypeDefinitions().size(), 1,
+                "Expected type definitions count not found." +
+                        ((BLangPackage) providerCompileResult.getAST()).getTypeDefinitions().size()
+        );
+
+        assertEquals(((BLangPackage) registerCompileResult.getAST()).globalVars.size(), 2,
+                "Expected constants count not found." +
+                        ((BLangPackage) registerCompileResult.getAST()).globalVars.size()
+        );
+        assertEquals(((BLangPackage) registerCompileResult.getAST()).services.size(), 1,
+                "Expected services count not found. " +
+                        ((BLangPackage) registerCompileResult.getAST()).services.size()
+        );
+        assertEquals(((BLangPackage) registerCompileResult.getAST()).getTypeDefinitions().size(), 1,
+                "Expected type definitions count not found." +
+                        ((BLangPackage) registerCompileResult.getAST()).getTypeDefinitions().size()
+        );
+
+        assertEquals(((BLangPackage) stubCompileResult.getAST()).globalVars.size(), 1,
+                "Expected type definitions count not found." +
+                        ((BLangPackage) registerCompileResult.getAST()).globalVars.size()
+        );
+        assertEquals(((BLangPackage) stubCompileResult.getAST()).getTypeDefinitions().size(), 2,
+                "Expected type definitions count not found." +
+                        ((BLangPackage) registerCompileResult.getAST()).getTypeDefinitions().size()
+        );
+        assertEquals(((BLangPackage) stubCompileResult.getAST()).constants.size(), 1,
+                "Expected type definitions count not found." +
+                        ((BLangPackage) registerCompileResult.getAST()).constants.size()
+        );
+    }
+
     private void validatePublicAttachedFunctions(CompileResult compileResult) {
         for (BLangFunction function : ((BLangPackage) compileResult.getAST()).functions) {
             if (function.attachedFunction) {
