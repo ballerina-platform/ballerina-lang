@@ -22,14 +22,17 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
@@ -37,7 +40,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -55,6 +57,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -138,36 +141,7 @@ public class FunctionGenerator {
      */
     public static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                                                 BLangNode bLangNode) {
-        if (bLangNode instanceof BLangTupleDestructure && bLangNode.type == null) {
-            // Check for tuple assignment eg. (int, int)
-            List<String> list = new ArrayList<>();
-            for (BLangExpression bLangExpression : ((BLangTupleDestructure) bLangNode).varRef.expressions) {
-                if (bLangExpression.type != null) {
-                    list.add(generateTypeDefinition(importsAcceptor, currentPkgId, bLangExpression.type));
-                }
-            }
-            return "[" + String.join(", ", list) + "]";
-        } else if (bLangNode instanceof BLangAssignment) {
-            if (((BLangAssignment) bLangNode).declaredWithVar) {
-                return "any";
-            }
-        } else if (bLangNode instanceof BLangFunctionTypeNode) {
-            BLangFunctionTypeNode funcType = (BLangFunctionTypeNode) bLangNode;
-            TestGenerator.TestFunctionGenerator generator = new TestGenerator.TestFunctionGenerator(importsAcceptor,
-                                                                                                    currentPkgId,
-                                                                                                    funcType);
-            String[] typeSpace = generator.getTypeSpace();
-            String[] nameSpace = generator.getNamesSpace();
-            StringJoiner params = new StringJoiner(", ");
-            IntStream.range(0, typeSpace.length - 1).forEach(index -> {
-                String type = typeSpace[index];
-                String name = nameSpace[index];
-                params.add(type + " " + name);
-            });
-            return "function (" + params.toString() + ") returns (" + typeSpace[typeSpace.length - 1] + ")";
-        }
-        return (bLangNode != null && bLangNode.type != null)
-                ? generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type) : null;
+        return generateTypeDefinition(importsAcceptor, 1, currentPkgId, bLangNode);
     }
 
     /**
@@ -180,67 +154,7 @@ public class FunctionGenerator {
      */
     public static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
                                                 BType bType) {
-        if ((bType.tsymbol == null || bType.tsymbol.name.value.isEmpty()) && bType instanceof BArrayType) {
-            // Check for array assignment eg.  int[]
-            return generateTypeDefinition(importsAcceptor, currentPkgId, ((BArrayType) bType).eType) + "[]";
-        } else if (bType instanceof BMapType && ((BMapType) bType).constraint != null) {
-            // Check for constrained map assignment eg. map<Student>
-            BTypeSymbol tSymbol = ((BMapType) bType).constraint.tsymbol;
-            if (tSymbol != null) {
-                String constraint = generateTypeDefinition(importsAcceptor, currentPkgId, tSymbol);
-                return ("any".equals(constraint)) ? "map" : "map<" + constraint + ">";
-            }
-        } else if (bType instanceof BUnionType) {
-            // Check for union type assignment eg. int | string
-            List<String> list = new ArrayList<>();
-            List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).getMemberTypes());
-            if (memberTypes.size() == 2 && memberTypes.stream().anyMatch(bType1 -> bType1 instanceof BNilType)) {
-                Optional<BType> type = memberTypes.stream()
-                        .filter(bType1 -> !(bType1 instanceof BNilType)).findFirst();
-                if (type.isPresent()) {
-                    return generateTypeDefinition(importsAcceptor, currentPkgId, type.get()) + "?";
-                }
-            }
-            // Check for multiple error member types and add generic error to avoid flooding member types eg.http errors
-            long errorTypesCount = memberTypes.stream().filter(t -> t instanceof BErrorType).count();
-            boolean addErrorTypeAtEnd = false;
-            if (errorTypesCount > 1) {
-                memberTypes.removeIf(s -> s instanceof BErrorType);
-                if (memberTypes.size() == 1 && memberTypes.get(0) instanceof BNilType) {
-                    return "error?";
-                } else {
-                    addErrorTypeAtEnd = true;
-                }
-            }
-            for (BType memberType : memberTypes) {
-                list.add(generateTypeDefinition(importsAcceptor, currentPkgId, memberType));
-            }
-            if (addErrorTypeAtEnd) {
-                list.add("error");
-            }
-            return String.join("|", list);
-        } else if (bType instanceof BTupleType) {
-            // Check for tuple type assignment eg. int, string
-            List<String> list = new ArrayList<>();
-            for (BType memberType : ((BTupleType) bType).tupleTypes) {
-                list.add(generateTypeDefinition(importsAcceptor, currentPkgId, memberType));
-            }
-            return "[" + String.join(", ", list) + "]";
-        } else if (bType instanceof BNilType) {
-            return "()";
-        } else if (bType instanceof BTableType) {
-            return "table<record {}>";
-        } else if (bType instanceof BStreamType) {
-            BStreamType streamType = (BStreamType) bType;
-            String constraint = generateTypeDefinition(importsAcceptor, currentPkgId, streamType.constraint);
-            String error = generateTypeDefinition(importsAcceptor, currentPkgId, streamType.error);
-            return "stream<" + constraint + ", " + error + ">";
-        } else if (bType instanceof BRecordType) {
-            BRecordType recordType = (BRecordType) bType;
-            return recordType.toString();
-        }
-        return (bType.tsymbol != null) ? generateTypeDefinition(importsAcceptor, currentPkgId, bType.tsymbol) :
-                "any";
+        return generateTypeDefinition(importsAcceptor, 1, currentPkgId, bType);
     }
 
     /**
@@ -318,7 +232,7 @@ public class FunctionGenerator {
             int argCounter = 1;
             CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
             for (BLangExpression bLangExpression : bLangInvocation.argExprs) {
-                Set<String> argNames = CommonUtil.getAllNameEntries(bLangExpression, compilerContext);
+                Set<String> argNames = CommonUtil.getAllNameEntries(compilerContext);
                 if (bLangExpression instanceof BLangSimpleVarRef) {
                     BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) bLangExpression;
                     String varName = simpleVarRef.variableName.value;
@@ -326,9 +240,7 @@ public class FunctionGenerator {
                     list.add(argType + " " + varName);
                     argNames.add(varName);
                 } else if (bLangExpression instanceof BLangInvocation) {
-                    BLangInvocation invocation = (BLangInvocation) bLangExpression;
-                    String functionName = invocation.name.value;
-                    String argType = lookupFunctionReturnType(functionName, parent);
+                    String argType = generateTypeDefinition(importsAcceptor, currentPkgId, bLangExpression);
                     String argName = CommonUtil.generateVariableName(bLangExpression, argNames);
                     list.add(argType + " " + argName);
                     argNames.add(argName);
@@ -343,7 +255,123 @@ public class FunctionGenerator {
         return (!list.isEmpty()) ? list : null;
     }
 
-    private static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor,
+    private static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor, int wsOffset,
+                                                 PackageID currentPkgId,
+                                                 BLangNode bLangNode) {
+        if (bLangNode instanceof BLangTupleDestructure && bLangNode.type == null) {
+            // Check for tuple assignment eg. (int, int)
+            List<String> list = new ArrayList<>();
+            for (BLangExpression bLangExpression : ((BLangTupleDestructure) bLangNode).varRef.expressions) {
+                if (bLangExpression.type != null) {
+                    list.add(generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, bLangExpression.type));
+                }
+            }
+            return "[" + String.join(", ", list) + "]";
+        } else if (bLangNode instanceof BLangAssignment) {
+            if (((BLangAssignment) bLangNode).declaredWithVar) {
+                return "any";
+            }
+        } else if (bLangNode instanceof BLangFunctionTypeNode) {
+            BLangFunctionTypeNode funcType = (BLangFunctionTypeNode) bLangNode;
+            TestGenerator.TestFunctionGenerator generator = new TestGenerator.TestFunctionGenerator(importsAcceptor,
+                                                                                                    currentPkgId,
+                                                                                                    funcType);
+            String[] typeSpace = generator.getTypeSpace();
+            String[] nameSpace = generator.getNamesSpace();
+            StringJoiner params = new StringJoiner(", ");
+            IntStream.range(0, typeSpace.length - 1).forEach(index -> {
+                String type = typeSpace[index];
+                String name = nameSpace[index];
+                params.add(type + " " + name);
+            });
+            return "function (" + params.toString() + ") returns (" + typeSpace[typeSpace.length - 1] + ")";
+        }
+        return (bLangNode != null && bLangNode.type != null)
+                ? generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, bLangNode.type) : null;
+    }
+
+    private static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor, int wsOffset,
+                                                 PackageID currentPkgId,
+                                                 BType bType) {
+        if ((bType.tsymbol == null || bType.tsymbol.name.value.isEmpty()) && bType instanceof BArrayType) {
+            // Check for array assignment eg.  int[]
+            return generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, ((BArrayType) bType).eType) + "[]";
+        } else if (bType instanceof BMapType && ((BMapType) bType).constraint != null) {
+            // Check for constrained map assignment eg. map<Student>
+            BTypeSymbol tSymbol = ((BMapType) bType).constraint.tsymbol;
+            if (tSymbol != null) {
+                String constraint = generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, tSymbol);
+                return ("any".equals(constraint)) ? "map" : "map<" + constraint + ">";
+            }
+        } else if (bType instanceof BUnionType) {
+            // Check for union type assignment eg. int | string
+            List<String> list = new ArrayList<>();
+            List<BType> memberTypes = new ArrayList<>(((BUnionType) bType).getMemberTypes());
+            if (memberTypes.size() == 2 && memberTypes.stream().anyMatch(bType1 -> bType1 instanceof BNilType)) {
+                Optional<BType> type = memberTypes.stream()
+                        .filter(bType1 -> !(bType1 instanceof BNilType)).findFirst();
+                if (type.isPresent()) {
+                    return generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, type.get()) + "?";
+                }
+            }
+            // Check for multiple error member types and add generic error to avoid flooding member types eg.http errors
+            long errorTypesCount = memberTypes.stream().filter(t -> t instanceof BErrorType).count();
+            boolean addErrorTypeAtEnd = false;
+            if (errorTypesCount > 1) {
+                memberTypes.removeIf(s -> s instanceof BErrorType);
+                if (memberTypes.size() == 1 && memberTypes.get(0) instanceof BNilType) {
+                    return "error?";
+                } else {
+                    addErrorTypeAtEnd = true;
+                }
+            }
+            for (BType memberType : memberTypes) {
+                list.add(generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, memberType));
+            }
+            if (addErrorTypeAtEnd) {
+                list.add("error");
+            }
+            return String.join("|", list);
+        } else if (bType instanceof BTupleType) {
+            // Check for tuple type assignment eg. int, string
+            List<String> list = new ArrayList<>();
+            for (BType memberType : ((BTupleType) bType).tupleTypes) {
+                list.add(generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, memberType));
+            }
+            return "[" + String.join(", ", list) + "]";
+        } else if (bType instanceof BNilType) {
+            return "()";
+        } else if (bType instanceof BStreamType) {
+            BStreamType streamType = (BStreamType) bType;
+            String constraint = generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, streamType.constraint);
+            String error = generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, streamType.error);
+            return "stream<" + constraint + ", " + error + ">";
+        } else if (bType instanceof BRecordType) {
+            BRecordType recordType = (BRecordType) bType;
+            if (recordType.tsymbol != null && recordType.tsymbol.name != null &&
+                    (recordType.tsymbol.name.value.isEmpty() || recordType.tsymbol.name.value.startsWith("$"))) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("record").append(" ").append("{|");
+                for (BField field : recordType.fields) {
+                    sb.append(" ").append(field.type).append(" ").append(field.name)
+                            .append(Symbols.isOptional(field.symbol) ? "?" : "")
+                            .append(";");
+                }
+                if (recordType.sealed) {
+                    sb.append(" ").append("|}");
+                    return sb.toString();
+                }
+                sb.append(" ").append(recordType.restFieldType).append("...").append(";").append(" ").append("|}");
+                return sb.toString();
+            }
+            return generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, bType.tsymbol);
+        }
+        return (bType.tsymbol != null) ? generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId,
+                                                                bType.tsymbol) :
+                "any";
+    }
+
+    private static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor, int wsOffset,
                                                  PackageID currentPkgId, BTypeSymbol tSymbol) {
         if (tSymbol != null) {
             // Generate function type text
@@ -355,26 +383,113 @@ public class FunctionGenerator {
                 for (BVarSymbol param : invokableTypeSymbol.params) {
                     BType bType = param.type;
                     String argName = CommonUtil.generateName(argCounter++, argNames);
-                    String argType = generateTypeDefinition(importsAcceptor, currentPkgId, bType);
+                    String argType = generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, bType);
                     params.add(argType + " " + argName);
                     argNames.add(argName);
                 }
                 BVarSymbol restParam = invokableTypeSymbol.restParam;
                 if (restParam != null && (restParam.type instanceof BArrayType)) {
                     BArrayType type = (BArrayType) restParam.type;
-                    params.add(generateTypeDefinition(importsAcceptor, type.eType.tsymbol.pkgID, type.eType) + "... "
+                    params.add(generateTypeDefinition(importsAcceptor, wsOffset, type.eType.tsymbol.pkgID, type.eType) +
+                                       "... "
                                        + restParam.getName().getValue());
                 }
                 String returnType = (invokableTypeSymbol.returnType != null)
-                        ? generateTypeDefinition(importsAcceptor, currentPkgId, invokableTypeSymbol.returnType)
+                        ? generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId,
+                                                 invokableTypeSymbol.returnType)
                         : "";
                 return "function (" + params.toString() + ")" + (returnType.isEmpty() ? "" : " returns " + returnType);
+            } else if (tSymbol instanceof BObjectTypeSymbol && tSymbol.name.value.startsWith("$")) {
+                // Anon Object
+                StringBuilder builder = new StringBuilder();
+                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) tSymbol;
+                boolean isAbstract = (objectTypeSymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT;
+                if (isAbstract) {
+                    builder.append("abstract ");
+                }
+                builder.append("object {");
+                if (objectTypeSymbol.attachedFuncs != null && !objectTypeSymbol.attachedFuncs.isEmpty()) {
+                    builder.append(CommonUtil.LINE_SEPARATOR);
+                    String objWS = new String(new char[wsOffset]).replace("\0", "\t");
+                    int newOffset = ++wsOffset;
+                    String funcWS = new String(new char[wsOffset]).replace("\0", "\t");
+                    objectTypeSymbol.attachedFuncs.forEach(func -> {
+                        builder.append(funcWS);
+                        builder.append(generateTypeDefinition(importsAcceptor, newOffset, currentPkgId, func));
+                        builder.append(";");
+                        builder.append(CommonUtil.LINE_SEPARATOR);
+                    });
+                    builder.append(objWS);
+                    builder.append("}");
+                } else {
+                    builder.append("}");
+                }
+                return builder.toString();
             } else {
                 String pkgPrefix = CommonUtil.getPackagePrefix(importsAcceptor, currentPkgId, tSymbol.pkgID);
                 return pkgPrefix + tSymbol.name.getValue();
             }
         }
         return "any";
+    }
+
+    private static String generateTypeDefinition(BiConsumer<String, String> importsAcceptor, int wsOffset,
+                                                 PackageID currentPkgId, BAttachedFunction func) {
+        StringBuilder builder = new StringBuilder();
+        String modifiers = parseModifiers(func.symbol.flags);
+        modifiers = modifiers.isEmpty() ? "" : modifiers + " ";
+        builder.append(modifiers);
+        builder.append("function ");
+        builder.append(func.funcName);
+        builder.append("(");
+
+        // Params
+        BInvokableType type = func.type;
+        StringJoiner params = new StringJoiner(", ");
+        int argCounter = 1;
+        Set<String> argNames = new HashSet<>(); // To avoid name duplications
+        List<BType> parameterTypes = type.getParameterTypes();
+        for (BType bType : parameterTypes) {
+            String argName = CommonUtil.generateName(argCounter++, argNames);
+            String argType = generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, bType);
+            params.add(argType + " " + argName);
+            argNames.add(argName);
+        }
+        BType restParam = type.restType;
+        if ((restParam instanceof BArrayType)) {
+            String restType = generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId,
+                                                     ((BArrayType) restParam).eType);
+            String argName = CommonUtil.generateName(argCounter++, argNames);
+            params.add(restType + "... " + argName);
+        }
+
+        builder.append(")");
+
+        if (type.retType != null) {
+            builder.append(" returns (");
+            String retType = generateTypeDefinition(importsAcceptor, wsOffset, currentPkgId, type.retType);
+            builder.append(retType);
+            builder.append(")");
+        }
+
+        return builder.toString();
+    }
+
+    private static String parseModifiers(int flagValue) {
+        StringJoiner joiner = new StringJoiner(" ");
+        if ((flagValue & Flags.PUBLIC) == Flags.PUBLIC) {
+            joiner.add("public");
+        }
+        if ((flagValue & Flags.PRIVATE) == Flags.PRIVATE) {
+            joiner.add("private");
+        }
+        if ((flagValue & Flags.ABSTRACT) == Flags.ABSTRACT) {
+            joiner.add("abstract");
+        }
+        if ((flagValue & Flags.REMOTE) == Flags.REMOTE) {
+            joiner.add("remote");
+        }
+        return joiner.toString();
     }
 
     private static String lookupVariableReturnType(BiConsumer<String, String> importsAcceptor,
@@ -498,9 +613,6 @@ public class FunctionGenerator {
                 break;
             case "byte":
                 result = "0";
-                break;
-            case "table":
-                result = "table{}";
                 break;
             case "error":
                 result = "error(\"\")";

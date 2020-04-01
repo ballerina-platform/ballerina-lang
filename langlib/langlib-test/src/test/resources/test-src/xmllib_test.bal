@@ -39,7 +39,7 @@ function getXML() returns xml[] {
     xml[] data = [];
 
     data[data.length()] = catalog;
-    data[data.length()] = catalog["CD"][0];
+    data[data.length()] = catalog/<CD>[0];
     data[data.length()] = xml `Hello World!`;
 
     return data;
@@ -48,7 +48,7 @@ function getXML() returns xml[] {
 function testFromString() returns xml|error {
     string s = catalog.toString();
     xml x = <xml> 'xml:fromString(s);
-    return x["CD"]["TITLE"];
+    return x/<CD>/<TITLE>;
 }
 
 function emptyConcatCall() returns xml {

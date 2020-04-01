@@ -80,7 +80,7 @@ public const IDLE_TIMEOUT_TRIGGERED = "{ballerina/mime}IdleTimeoutTriggeredError
 # Represents a `IdleTimeoutTriggeredError` with a detailed message.
 public type IdleTimeoutTriggeredError error<IDLE_TIMEOUT_TRIGGERED, Detail>;
 
-// Identifies no content errors in payload.
+# Identifies errors occured due to payloads with no content.
 public const NO_CONTENT_ERROR_CODE = "{ballerina/mime}NoContentError";
 
 # Represents a `NoContentError` with a detailed message.

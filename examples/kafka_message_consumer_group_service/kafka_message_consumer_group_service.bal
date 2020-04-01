@@ -1,23 +1,29 @@
-import ballerina/io;
 import ballerina/kafka;
-import ballerina/lang.'string as strings;
 import ballerina/log;
 
-// `bootstrapServers` is the list of remote server endpoints of the Kafka brokers.
 kafka:ConsumerConfiguration consumerConfigs = {
+    // The `bootstrapServers` is the list of remote server endpoints of the
+    // Kafka brokers.
     bootstrapServers: "localhost:9092",
+    // Using two concurrent consumers to work as a group.
     concurrentConsumers: 2,
     groupId: "group-id",
+    // Subscribes to the topic `test-kafka-topic`.
     topics: ["test-kafka-topic"],
-    pollingIntervalInMillis: 1000
+    pollingIntervalInMillis: 1000,
+    // Uses the default string deserializer to deserialize the Kafka value.
+    valueDeserializerType: kafka:DES_STRING
 };
 
 listener kafka:Consumer consumer = new (consumerConfigs);
 
 service kafkaService on consumer {
+    // This resource executes when a message or a set of messages are published
+    // to the subscribed topic/topics.
     resource function onMessage(kafka:Consumer kafkaConsumer,
-            kafka:ConsumerRecord[] records) {
-        // The set of Kafka records dispatched to the service processed one by one.
+        kafka:ConsumerRecord[] records) {
+        // The set of Kafka records dispatched to the service are processed one
+        // by one.
         foreach var kafkaRecord in records {
             processKafkaRecord(kafkaRecord);
         }
@@ -25,17 +31,13 @@ service kafkaService on consumer {
 }
 
 function processKafkaRecord(kafka:ConsumerRecord kafkaRecord) {
-    anydata serializedMsg = kafkaRecord.value;
-    if (serializedMsg is byte[]) {
-        string|error msg = strings:fromBytes(serializedMsg);
-        if (msg is string) {
-            // Print the retrieved Kafka record.
-            io:println("Topic: ", kafkaRecord.topic, " Partition: ",
-                kafkaRecord.partition.toString(), " Received Message: ", msg);
-        } else {
-            log:printError("Error occurred while converting message data", msg);
-        }
+    anydata message = kafkaRecord.value;
+    if (message is string) {
+        // Prints the retrieved Kafka record.
+        log:printInfo("Topic: " + kafkaRecord.topic + " Partition: " +
+            kafkaRecord.partition.toString() + " Received Message: " + message);
     } else {
-        log:printError("Error occurred while retrieving message data; Unexpected type");
+        log:printError("Error occurred while retrieving message data;" +
+            "Unexpected type");
     }
 }

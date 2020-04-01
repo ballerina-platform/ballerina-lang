@@ -25,7 +25,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
-import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsMetricsReporter;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -40,10 +40,12 @@ public class Detach {
     private static final PrintStream console;
 
     public static Object basicDetach(ObjectValue listener, ObjectValue service) {
+        ObjectValue connectionObject = (ObjectValue) listener.get(Constants.CONNECTION_OBJ);
         @SuppressWarnings("unchecked")
         List<ObjectValue> serviceList =
-                (List<ObjectValue>) ((ObjectValue) listener.get(Constants.CONNECTION_OBJ))
-                        .getNativeData(Constants.SERVICE_LIST);
+                (List<ObjectValue>) connectionObject.getNativeData(Constants.SERVICE_LIST);
+        NatsMetricsReporter natsMetricsReporter =
+                (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
         MapValue<String, Object> subscriptionConfig = Utils.getSubscriptionConfig(service.getType()
                 .getAnnotation(Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
@@ -67,7 +69,7 @@ public class Detach {
         Connection natsConnection = (Connection) ((ObjectValue) listener.get(Constants.CONNECTION_OBJ))
                 .getNativeData(Constants.NATS_CONNECTION);
         if (natsConnection != null) {
-            NatsMetricsUtil.reportUnsubscription(natsConnection.getConnectedUrl(), subject);
+            natsMetricsReporter.reportUnsubscription(subject);
         }
         return null;
     }

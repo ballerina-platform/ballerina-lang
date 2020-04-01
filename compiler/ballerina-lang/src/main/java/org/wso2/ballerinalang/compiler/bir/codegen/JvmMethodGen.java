@@ -161,7 +161,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
@@ -207,7 +206,6 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewErro
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInstance;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
-import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTable;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
@@ -578,10 +576,6 @@ public class JvmMethodGen {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", MAP_VALUE));
                 mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.TABLE) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", TABLE_VALUE));
-                mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.STREAM) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", STREAM_VALUE));
@@ -712,10 +706,6 @@ public class JvmMethodGen {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", MAP_VALUE));
-            } else if (bType.tag == TypeTags.TABLE) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", TABLE_VALUE));
             } else if (bType.tag == TypeTags.STREAM) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
@@ -829,8 +819,6 @@ public class JvmMethodGen {
             jvmType = String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.MAP || bType.tag == TypeTags.RECORD) {
             jvmType = String.format("L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.TABLE) {
-            jvmType = String.format("L%s;", TABLE_VALUE);
         } else if (bType.tag == TypeTags.STREAM) {
             jvmType = String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.ARRAY ||
@@ -1014,9 +1002,6 @@ public class JvmMethodGen {
                             break;
                         case STRING_LOAD:
                             instGen.generateStringLoadIns((FieldAccess) inst);
-                            break;
-                        case NEW_TABLE:
-                            instGen.generateTableNewIns((NewTable) inst);
                             break;
                         case TYPEOF:
                             instGen.generateTypeofIns((UnaryOP) inst);
@@ -1341,7 +1326,6 @@ public class JvmMethodGen {
             mv.visitVarInsn(ISTORE, index);
         } else if (bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.STREAM ||
                 bType.tag == TypeTags.ERROR ||
                 bType.tag == TypeTags.NIL ||
@@ -1415,7 +1399,6 @@ public class JvmMethodGen {
         } else if (TypeTags.isStringTypeTag(bType.tag) ||
                 bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.ERROR ||
                 bType.tag == TypeTags.NIL ||
                 bType.tag == TypeTags.ANY ||
@@ -1538,8 +1521,6 @@ public class JvmMethodGen {
             return String.format("L%s;", MAP_VALUE);
         } else if (bType.tag == TypeTags.FUTURE) {
             return String.format("L%s;", FUTURE_VALUE);
-        } else if (bType.tag == TypeTags.TABLE) {
-            return String.format("L%s;", TABLE_VALUE);
         } else if (bType.tag == TypeTags.STREAM) {
             return String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.INVOKABLE) {
@@ -1584,8 +1565,6 @@ public class JvmMethodGen {
             return String.format(")L%s;", MAP_VALUE);
         } else if (bType.tag == TypeTags.ERROR) {
             return String.format(")L%s;", ERROR_VALUE);
-        } else if (bType.tag == TypeTags.TABLE) {
-            return String.format(")L%s;", TABLE_VALUE);
         } else if (bType.tag == TypeTags.STREAM) {
             return String.format(")L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.FUTURE) {
@@ -2359,8 +2338,6 @@ public class JvmMethodGen {
             typeSig = String.format("L%s;", OBJECT);
         } else if (bType.tag == TypeTags.MAP) {
             typeSig = String.format("L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.TABLE) {
-            typeSig = String.format("L%s;", TABLE_VALUE);
         } else if (bType.tag == TypeTags.STREAM) {
             typeSig = String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.RECORD) {

@@ -114,7 +114,7 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'table<TableEmployee>' cannot be cast to " +
-                    "'table<TableEmployeeTwo>'.*")
+                    "'table<TableEmployeeTwo>'.*", enabled = false)
     public void testTableCastNegative() {
         BRunUtil.invoke(result, "testTableCastNegative");
     }
@@ -293,7 +293,6 @@ public class TypeCastExpressionsTest {
                 {"testJsonCastPositive"},
                 {"testMapCastPositive"},
                 {"testRecordCastPositive"},
-                {"testTableCastPositive"},
                 {"testXmlCastPositive"},
                 {"testErrorCastPositive"},
                 {"testFunctionCastPositive"},
