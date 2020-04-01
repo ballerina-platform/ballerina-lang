@@ -27,7 +27,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
-import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 
 import java.io.FileInputStream;
@@ -95,6 +95,7 @@ public class Init {
             opts.inboxPrefix(connectionConfig.getStringValue(INBOX_PREFIX));
 
             List<ObjectValue> serviceList = Collections.synchronizedList(new ArrayList<>());
+
             // Add NATS connection listener.
             opts.connectionListener(new DefaultConnectionListener());
 
@@ -116,18 +117,19 @@ public class Init {
             }
 
             Connection natsConnection = Nats.connect(opts.build());
+            connectionObject.addNativeData(Constants.NATS_METRIC_UTIL, new NatsMetricsReporter(natsConnection));
             connectionObject.addNativeData(Constants.NATS_CONNECTION, natsConnection);
             connectionObject.addNativeData(Constants.CONNECTED_CLIENTS, new AtomicInteger(0));
             connectionObject.addNativeData(Constants.SERVICE_LIST, serviceList);
         } catch (IOException | InterruptedException e) {
-            NatsMetricsUtil.reportError(NatsObservabilityConstants.CONTEXT_CONNECTION,
-                                        NatsObservabilityConstants.ERROR_TYPE_CONNECTION);
+            NatsMetricsReporter.reportError(NatsObservabilityConstants.CONTEXT_CONNECTION,
+                                            NatsObservabilityConstants.ERROR_TYPE_CONNECTION);
             String errorMsg = "Error while setting up a connection. " +
                     (e.getCause() != null ? e.getCause().getMessage() : e.getMessage());
             throw Utils.createNatsError(errorMsg);
         } catch (IllegalArgumentException e) {
-            NatsMetricsUtil.reportError(NatsObservabilityConstants.CONTEXT_CONNECTION,
-                                        NatsObservabilityConstants.ERROR_TYPE_CONNECTION);
+            NatsMetricsReporter.reportError(NatsObservabilityConstants.CONTEXT_CONNECTION,
+                                            NatsObservabilityConstants.ERROR_TYPE_CONNECTION);
             throw Utils.createNatsError(e.getMessage());
         }
     }

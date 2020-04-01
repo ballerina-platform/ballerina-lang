@@ -30,7 +30,7 @@ type Employee record {|
 |};
 
 type ValueType int|float|string|boolean|byte;
-type DataType ValueType|table<any>|json|xml|Bar|map<anydata>|anydata[]|();
+type DataType ValueType|json|xml|Bar|map<anydata>|anydata[]|();
 
 function testInvalidAssignmentsWithLiterals() {
     anydata|map<int> adrl = {a: 15};

@@ -1,3 +1,10 @@
+# For this example to work properly, an active Kafka broker should be present.
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run --experimental kafka_message_producer_transactional.bal
+
+# If the producer successfully sent the message, the following will be printed
+# in the Console.
+2020-03-26 13:57:29,129 INFO  [ballerina/transactions] - Created transaction: 6cfac3a7-a8a2-4220-944e-dfbd6d27910f
+2020-03-26 13:57:29,184 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: 6cfac3a7-a8a2-4220-944e-dfbd6d27910f:$anon$.$0
+Transaction committed

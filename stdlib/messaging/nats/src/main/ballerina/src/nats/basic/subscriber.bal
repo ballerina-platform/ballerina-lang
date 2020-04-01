@@ -40,6 +40,10 @@ public type Listener object {
         return basicRegister(self, s, name);
     }
 
+    # Stops consuming messages and detaches the service from the `Listener` endpoint.
+    #
+    # + s - Type descriptor of the service
+    # + return - Nil or error upon failure to detach the service
     public function __detach(service s) returns error? {
         return basicDetach(self, s);
     }

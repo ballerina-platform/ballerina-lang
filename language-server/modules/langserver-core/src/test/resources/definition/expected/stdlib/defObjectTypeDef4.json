@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "defObjectTypeDef1.bal"
+  },
+  "position": {
+    "line": 19,
+    "character": 21
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 23,
+          "character": 31
+        },
+        "end": {
+          "line": 23,
+          "character": 43
+        }
+      },
+      "uri": "src/ballerina_http_0.0.0/auth/authn_filter.bal"
+    }
+  ]
+}

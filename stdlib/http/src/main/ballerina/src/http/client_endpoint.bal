@@ -38,13 +38,12 @@ public type Client client object {
     public HttpClient httpClient;
     public CookieStore? cookieStore = ();
 
-    # Gets invoked to initialize the client. During initialization, the configurations provided through the `config`
+    # Gets invoked to initialize the `client`. During initialization, the configurations provided through the `config`
     # record is used to determine which type of additional behaviours are added to the endpoint (e.g., caching,
     # security, circuit breaking).
     #
     # + url - URL of the target service
-    # + config - The configurations to be used when initializing the client
-    # + cookieStore - Stores the cookies of the client
+    # + config - The configurations to be used when initializing the `client`
     public function __init(string url, public ClientConfiguration? config = ()) {
         self.config = config ?: {};
         self.url = url;
