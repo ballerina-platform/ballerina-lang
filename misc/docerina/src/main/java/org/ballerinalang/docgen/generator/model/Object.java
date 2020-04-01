@@ -30,7 +30,8 @@ public class Object extends Construct {
     public Function initMethod;
     public List<Function> otherMethods = new ArrayList<>();
 
-    public Object(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields, List<Function> methods) {
+    public Object(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
+            List<Function> methods) {
         super(name, description, isDeprecated);
         this.fields = fields;
         this.methods = methods;

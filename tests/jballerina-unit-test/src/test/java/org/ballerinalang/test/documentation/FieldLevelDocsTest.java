@@ -16,10 +16,10 @@
  *  under the License.
  */
 
-package org.ballerinalang.test.docerina;
+package org.ballerinalang.test.documentation;
 
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
-import org.ballerinalang.docgen.generator.model.DefaultableVarible;
+import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.Object;
 import org.ballerinalang.docgen.generator.model.Project;
@@ -66,8 +66,9 @@ public class FieldLevelDocsTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        String sourceRoot = "test-src" + File.separator + "docerina" + File.separator + "fieldLevelDocsProject";
-        CompileResult result = BCompileUtil.compile(sourceRoot, "testModule");
+        String sourceRoot =
+                "test-src" + File.separator + "documentation" + File.separator + "record_object_fields_project";
+        CompileResult result = BCompileUtil.compile(sourceRoot, "test_module");
 
         List<BLangPackage> modules = new LinkedList<>();
         modules.add((BLangPackage) result.getAST());
@@ -105,13 +106,13 @@ public class FieldLevelDocsTest {
 
     @Test(description = "Test records with module-level field docs")
     public void testRecordWithModuleLevelFieldDocs() {
-        DefaultableVarible streetField = null;
-        DefaultableVarible cityField = null;
-        DefaultableVarible countryCodeField = null;
+        DefaultableVariable streetField = null;
+        DefaultableVariable cityField = null;
+        DefaultableVariable countryCodeField = null;
 
-        List<DefaultableVarible> fields = addressRecord.fields;
+        List<DefaultableVariable> fields = addressRecord.fields;
 
-        for (DefaultableVarible field : fields) {
+        for (DefaultableVariable field : fields) {
             String fieldName = field.name;
 
             if ("street".equals(fieldName)) {
@@ -130,13 +131,13 @@ public class FieldLevelDocsTest {
 
     @Test(description = "Test records with field-level field docs")
     public void testRecordWithFieldLevelFieldDocs() {
-        DefaultableVarible nameField = null;
-        DefaultableVarible ageField = null;
-        DefaultableVarible countryCodeField = null;
+        DefaultableVariable nameField = null;
+        DefaultableVariable ageField = null;
+        DefaultableVariable countryCodeField = null;
 
-        List<DefaultableVarible> fields = personRecord.fields;
+        List<DefaultableVariable> fields = personRecord.fields;
 
-        for (DefaultableVarible field : fields) {
+        for (DefaultableVariable field : fields) {
             String fieldName = field.name;
 
             if ("name".equals(fieldName)) {
@@ -156,13 +157,13 @@ public class FieldLevelDocsTest {
 
     @Test(description = "Test records with both module-level & field-level field docs. module-level is the priority")
     public void testRecordWithModuleLevelAndFieldLevelFieldDocs() {
-        DefaultableVarible numberField = null;
-        DefaultableVarible streetField = null;
-        DefaultableVarible countryCodeField = null;
+        DefaultableVariable numberField = null;
+        DefaultableVariable streetField = null;
+        DefaultableVariable countryCodeField = null;
 
-        List<DefaultableVarible> fields = apartmentRecord.fields;
+        List<DefaultableVariable> fields = apartmentRecord.fields;
 
-        for (DefaultableVarible field : fields) {
+        for (DefaultableVariable field : fields) {
             String fieldName = field.name;
 
             if ("number".equals(fieldName)) {
@@ -181,12 +182,12 @@ public class FieldLevelDocsTest {
 
     @Test(description = "Test object with module-level field docs")
     public void testObjectWithModuleLevelFieldDocs() {
-        DefaultableVarible nameField = null;
-        DefaultableVarible ageField = null;
+        DefaultableVariable nameField = null;
+        DefaultableVariable ageField = null;
 
-        List<DefaultableVarible> fields = studentObj.fields;
+        List<DefaultableVariable> fields = studentObj.fields;
 
-        for (DefaultableVarible field : fields) {
+        for (DefaultableVariable field : fields) {
             String fieldName = field.name;
 
             if ("name".equals(fieldName)) {
@@ -202,12 +203,12 @@ public class FieldLevelDocsTest {
 
     @Test(description = "Test object with field-level field docs")
     public void testObjectWithFieldLevelFieldDocs() {
-        DefaultableVarible nameField = null;
-        DefaultableVarible ageField = null;
+        DefaultableVariable nameField = null;
+        DefaultableVariable ageField = null;
 
-        List<DefaultableVarible> fields = teacherObj.fields;
+        List<DefaultableVariable> fields = teacherObj.fields;
 
-        for (DefaultableVarible field : fields) {
+        for (DefaultableVariable field : fields) {
             String fieldName = field.name;
 
             if ("name".equals(fieldName)) {
@@ -228,7 +229,7 @@ public class FieldLevelDocsTest {
                         + "<code>Senior</code> teacher of the school</p>");
     }
 
-    private void testDescription(DefaultableVarible field, String expectedDesc) {
+    private void testDescription(DefaultableVariable field, String expectedDesc) {
         Assert.assertNotNull(field);
         Assert.assertEquals(field.description, expectedDesc);
     }

@@ -442,7 +442,9 @@ public class Generator {
         if (isDocumentAttached(node)) {
             BLangMarkdownDocumentation documentationAttachment =
                     ((DocumentableNode) node).getMarkdownDocumentationAttachment();
-            return BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation());
+            return BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation())
+                    .replace("<p>", "")
+                    .replace("</p>", "");
         }
         return EMPTY_STRING;
     }
@@ -477,14 +479,13 @@ public class Generator {
      * @return @deprecated annotation contains
      */
     private static boolean isDeprecated(List<BLangAnnotationAttachment> annotationAttachments) {
-        boolean isDeprecated = false;
         if (annotationAttachments != null) {
             for (BLangAnnotationAttachment attachment : annotationAttachments) {
                 if (attachment.getAnnotationName().getValue().equals("deprecated")) {
-                    isDeprecated = true;
+                    return true;
                 }
             }
         }
-        return isDeprecated;
+        return false;
     }
 }
