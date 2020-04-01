@@ -191,6 +191,8 @@ public class BallerinaParser {
                 return parseImportPrefixDecl();
             case AS_KEYWORD:
                 return parseAsKeyword();
+            case RETURN_KEYWORD:
+                return parseReturnKeyword();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -364,7 +366,7 @@ public class BallerinaParser {
      * Parse import declaration.
      * <p>
      * <code>import-decl :=  import [org-name /] module-name [version sem-ver] [as import-prefix] ;</code>
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseImportDecl() {
@@ -382,7 +384,7 @@ public class BallerinaParser {
 
     /**
      * Parse import keyword.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseImportKeyword() {
@@ -397,7 +399,7 @@ public class BallerinaParser {
 
     /**
      * Parse identifier.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseIdentifier(ParserRuleContext currentCtx) {
@@ -413,7 +415,7 @@ public class BallerinaParser {
     /**
      * Parse RHS of the import declaration. This includes the components after the
      * starting identifier (org-name/module-name) of the import decl.
-     * 
+     *
      * @param importKeyword Import keyword
      * @param identifier Org-name or the module name
      * @return Parsed node
@@ -474,7 +476,7 @@ public class BallerinaParser {
 
     /**
      * parse slash token.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseSlashToken() {
@@ -489,7 +491,7 @@ public class BallerinaParser {
 
     /**
      * Parse dot token.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseDotToken() {
@@ -508,7 +510,7 @@ public class BallerinaParser {
 
     /**
      * Parse module name of a import declaration.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseModuleName() {
@@ -518,7 +520,7 @@ public class BallerinaParser {
 
     /**
      * Parse import module name of a import declaration, given the module name start identifier.
-     * 
+     *
      * @param moduleNameStart Starting identifier of the module name
      * @return Parsed node
      */
@@ -562,7 +564,7 @@ public class BallerinaParser {
      * Parse version component of a import declaration.
      * <p>
      * <code>version-decl := version sem-ver</code>
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseVersion() {
@@ -601,7 +603,7 @@ public class BallerinaParser {
 
     /**
      * Parse version keywrod.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseVersionKeywrod() {
@@ -625,7 +627,7 @@ public class BallerinaParser {
      * <br/>
      * patch-num := DecimalNumber
      * </code>
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseVersionNumber() {
@@ -684,7 +686,7 @@ public class BallerinaParser {
 
     /**
      * Parse decimal literal.
-     * 
+     *
      * @param context Context in which the decimal literal is used.
      * @return Parsed node
      */
@@ -700,7 +702,7 @@ public class BallerinaParser {
 
     /**
      * Parse sub version. i.e: minor-version/patch-version.
-     * 
+     *
      * @param context Context indicating what kind of sub-version is being parsed.
      * @return Parsed node
      */
@@ -740,7 +742,7 @@ public class BallerinaParser {
      * <br/>
      * import-prefix := a identifier | _
      * </code>
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseImportPrefixDecl() {
@@ -777,7 +779,7 @@ public class BallerinaParser {
 
     /**
      * Parse <code>as</code> keyword.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseAsKeyword() {
@@ -792,7 +794,7 @@ public class BallerinaParser {
 
     /**
      * Parse import prefix.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseImportPrefix() {
@@ -2136,6 +2138,8 @@ public class BallerinaParser {
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
                 return parseCallStatementWithCheck();
+            case RETURN_KEYWORD:
+                return parseReturnStatement();
             default:
                 // If the next token in the token stream does not match to any of the statements and
                 // if it is not the end of statement, then try to fix it and continue.
@@ -3342,7 +3346,7 @@ public class BallerinaParser {
     /**
      * Parse panic statement.
      * <code>panic-stmt := panic expression ;</code>
-     * 
+     *
      * @return Panic statement
      */
     private STNode parsePanicStatement() {
@@ -3356,7 +3360,7 @@ public class BallerinaParser {
 
     /**
      * Parse panic-keyword.
-     * 
+     *
      * @return Panic-keyword node
      */
     private STNode parsePanicKeyword() {
@@ -3489,5 +3493,73 @@ public class BallerinaParser {
             Solution sol = recover(token, ParserRuleContext.CHECKING_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse return statement.
+     * <code>return-stmt := return [ action-or-expr ] ;</code>
+     *
+     * @return Return statement
+     */
+    private STNode parseReturnStatement() {
+        startContext(ParserRuleContext.RETURN_STMT);
+        STNode returnKeyword = parseReturnKeyword();
+        STNode returnRhs = parseReturnStatementRhs(returnKeyword);
+        endContext();
+        return returnRhs;
+    }
+
+    /**
+     * Parse return-keyword.
+     *
+     * @return Return-keyword node
+     */
+    private STNode parseReturnKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.RETURN_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.RETURN_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * <p>
+     * Parse the right hand side of a return statement.
+     * </p>
+     * <code>
+     * return-stmt-rhs := ; |  action-or-expr ;
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseReturnStatementRhs(STNode returnKeyword) {
+        STToken token = peek();
+        return parseReturnStatementRhs(token.kind, returnKeyword);
+    }
+
+    /**
+     * Parse the right hand side of a return statement, given the
+     * next token kind.
+     *
+     * @param tokenKind Next token kind
+     * @return Parsed node
+     */
+    private STNode parseReturnStatementRhs(SyntaxKind tokenKind, STNode returnKeyword) {
+        STNode expr;
+        STNode semicolon;
+
+        switch (tokenKind) {
+            case SEMICOLON_TOKEN:
+                expr = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                expr = parseExpression();
+                break;
+        }
+
+        semicolon = parseSemicolon();
+        return STNodeFactory.createReturnStatement(SyntaxKind.RETURN_STATEMENT, returnKeyword, expr, semicolon);
     }
 }

@@ -93,7 +93,9 @@ public enum ParserRuleContext {
     WHILE_BLOCK("while-block"),
     CALL_STMT("call-statement"),
     CALL_STMT_START("call-statement-start"),
-    PANIC_STMT("panic-statement"),    
+    PANIC_STMT("panic-statement"),
+    RETURN_STMT("return-stmt"),
+    RETURN_STMT_RHS("return-stmt-rhs"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -114,6 +116,7 @@ public enum ParserRuleContext {
     IMPORT_KEYWORD("import"),
     VERSION_KEYWORD("version"),
     AS_KEYWORD("as"),
+    RETURN_KEYWORD("return"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

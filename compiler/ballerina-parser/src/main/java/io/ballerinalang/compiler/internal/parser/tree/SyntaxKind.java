@@ -110,6 +110,7 @@ public enum SyntaxKind {
     WHILE_STATEMENT(1205),
     CALL_STATEMENT(1206),
     PANIC_STATEMENT(1207),
+    RETURN_STATEMENT(1208),
 
     // Expressions
     BINARY_EXPRESSION(1300),
