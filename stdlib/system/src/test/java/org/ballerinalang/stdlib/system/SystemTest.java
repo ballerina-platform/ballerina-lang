@@ -114,8 +114,8 @@ public class SystemTest {
 
     @Test(description = "test process execute error")
     public void testExecWithError() {
-        String expectedError = "{ballerina/system}ProcessExecError {message:\"Cannot run program \"eee\": error=2, No" +
-                " such file or directory\"}";
+        String expectedError = "{ballerina/system}InvalidOperationError {message:\"Cannot run program \"eee\": " +
+                "error=2, No such file or directory\"}";
         if (SystemUtils.IS_OS_UNIX) {
             BValue[] returns = BRunUtil.invoke(compileResult, "testExecWithError");
             Assert.assertEquals(returns[0].stringValue().trim(), expectedError);
