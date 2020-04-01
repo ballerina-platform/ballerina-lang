@@ -122,6 +122,7 @@ public enum ParserRuleContext {
     CLOSE_BRACE("}"),
     ASSIGN_OP("="),
     SEMICOLON(";"),
+    COLON(":"),
     COMMA(","),
     ELLIPSIS("..."),
     QUESTION_MARK("?"),
@@ -147,11 +148,16 @@ public enum ParserRuleContext {
     EXPRESSION("expression"),
     EXPRESSION_RHS("expression-rhs"),
     FUNC_CALL("func-call"),
-    EXPRESSION_END("expr-end"),
     BASIC_LITERAL("basic-literal"),
     ACCESS_EXPRESSION("access-expr"),   // method-call, field-access, member-access
     DECIMAL_INTEGER_LITERAL("decimal-int-literal"),
     VARIABLE_REF("var-ref"),
+    STRING_LITERAL("string-literal"),
+    MAPPING_CONSTRUCTOR("maping-constructor"),
+    MAPPING_FIELD("maping-field"),
+    MAPPING_FIELD_NAME("maping-field-name"),
+//    SPECIFIC_FIELD("specific-field"),
+    SPECIFIC_FIELD_RHS("specific-field-rhs"),
     ;
 
     private String value;
