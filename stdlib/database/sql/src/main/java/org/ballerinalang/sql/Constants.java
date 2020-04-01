@@ -81,6 +81,14 @@ public final class Constants {
     }
 
     /**
+     * Constants related to parameterized string fields.
+     */
+    public static final class ParameterizedStingFields {
+        public static final String PARTS = "parts";
+        public static final String INSERTIONS = "insertions";
+    }
+
+    /**
      * Constants for SQL Params.
      */
     public static final class SQLParamsFields {
