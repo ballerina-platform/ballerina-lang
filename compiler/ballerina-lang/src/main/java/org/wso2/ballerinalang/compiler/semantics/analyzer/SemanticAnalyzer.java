@@ -227,6 +227,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return pkgNode;
     }
 
+
     // Visitor methods
 
     public void visit(BLangPackage pkgNode) {
@@ -619,6 +620,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
             return;
         }
+
         // Here we create a new symbol environment to catch self references by keep the current
         // variable symbol in the symbol environment
         // e.g. int a = x + a;

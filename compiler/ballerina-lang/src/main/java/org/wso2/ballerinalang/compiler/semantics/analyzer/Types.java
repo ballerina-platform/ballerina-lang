@@ -124,6 +124,7 @@ public class Types {
         if (types == null) {
             types = new Types(context);
         }
+
         return types;
     }
 
