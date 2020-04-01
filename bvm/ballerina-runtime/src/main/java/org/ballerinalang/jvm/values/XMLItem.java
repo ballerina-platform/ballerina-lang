@@ -24,7 +24,6 @@ import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
-import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
@@ -65,9 +64,10 @@ import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
 public final class XMLItem extends XMLValue {
 
     public static final String XMLNS_URL_PREFIX = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}";
+    public static final String XMLNS = "xmlns";
     private QName name;
     private XMLSequence children;
-    private MapValue<String, String> attributes;
+    private AttributeMapValueImpl attributes;
     // Keep track of probable parents of xml element to detect probable cycles in xml.
     private List<WeakReference<XMLItem>> probableParents;
 
@@ -77,7 +77,8 @@ public final class XMLItem extends XMLValue {
         for (BXML child : children.children) {
             addParent(child, this);
         }
-        attributes = new MapValueImpl<>(new BMapType(BTypes.typeString));
+        attributes = new AttributeMapValueImpl();
+        addDefaultNamespaceAttribute(name, attributes);
         probableParents = new ArrayList<>();
     }
 
@@ -88,6 +89,20 @@ public final class XMLItem extends XMLValue {
      */
     public XMLItem(QName name) {
         this(name, new XMLSequence(new ArrayList<>()));
+    }
+
+    private void addDefaultNamespaceAttribute(QName name, MapValue<String, String> attributes) {
+        String namespace = name.getNamespaceURI();
+        if (namespace == null || namespace.isEmpty()) {
+            return;
+        }
+
+        String prefix = name.getPrefix();
+        if (prefix == null || prefix.isEmpty()) {
+            prefix = XMLNS;
+        }
+
+        attributes.put(XMLNS_URL_PREFIX + prefix, namespace);
     }
 
     /**
@@ -169,10 +184,6 @@ public final class XMLItem extends XMLValue {
         if (namespace != null && !namespace.isEmpty()) {
             return attributes.get("{" + namespace + "}" + localName);
         }
-        String defaultNS = attributes.get("{http://www.w3.org/2000/xmlns/}xmlns");
-        if (defaultNS != null) {
-            return attributes.get("{" + defaultNS + "}" + localName);
-        }
         return attributes.get(localName);
     }
 
@@ -187,50 +198,7 @@ public final class XMLItem extends XMLValue {
             }
         }
 
-        if (localName == null || localName.isEmpty()) {
-            throw BallerinaErrors.createError("localname of the attribute cannot be empty");
-        }
-
-        // Validate whether the attribute name is an XML supported qualified name, according to the XML recommendation.
-        XMLValidator.validateXMLName(localName);
-        XMLValidator.validateXMLName(prefix);
-
-        // JVM codegen uses prefix == 'xmlns' and namespaceUri == null to denote namespace decl at runtime.
-        // 'localName' will contain the namespace name where as 'value' will contain the namespace URI
-        // todo: Fix this so that namespaceURI points to XMLConstants.XMLNS_ATTRIBUTE_NS_URI
-        //  and remove this special case
-        if ((namespaceUri == null && prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE))
-            || localName.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
-            String nsNameDecl = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + localName;
-            attributes.put(nsNameDecl, value);
-            return;
-        }
-
-        String nsOfPrefix = attributes.get(XMLNS_URL_PREFIX + prefix);
-        if (namespaceUri != null && nsOfPrefix != null && !namespaceUri.equals(nsOfPrefix)) {
-            String errorMsg = String.format(
-                    "failed to add attribute '%s:%s'. prefix '%s' is already bound to namespace '%s'",
-                    prefix, localName, prefix, nsOfPrefix);
-            throw BallerinaErrors.createError(errorMsg);
-        }
-
-        if ((namespaceUri == null || namespaceUri.isEmpty())) {
-            String ns = attributes.get("{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + XMLConstants.XMLNS_ATTRIBUTE);
-            if (ns != null) {
-                namespaceUri = ns;
-            }
-        }
-
-        // If the attribute already exists, update the value.
-        QName qname = getQName(localName, namespaceUri, prefix);
-        attributes.put(qname.toString(), value);
-
-
-        // If the prefix is 'xmlns' then this is a namespace addition
-        if (prefix != null && prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
-            String xmlnsPrefix = "{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + prefix;
-            attributes.put(xmlnsPrefix, namespaceUri);
-        }
+        attributes.setAttribute(localName, namespaceUri, prefix, value);
     }
 
     /**
@@ -245,6 +213,7 @@ public final class XMLItem extends XMLValue {
      * {@inheritDoc}
      */
     @Override
+    @Deprecated
     public void setAttributes(BMap<String, ?> attributes) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
@@ -528,18 +497,6 @@ public final class XMLItem extends XMLValue {
             attributesMap.freeze();
         }
         return xmlItem;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object frozenCopy(Map<Object, Object> refs) {
-        XMLItem copy = (XMLItem) copy(refs);
-        if (!copy.isFrozen()) {
-            copy.freezeDirect();
-        }
-        return copy;
     }
 
     /**

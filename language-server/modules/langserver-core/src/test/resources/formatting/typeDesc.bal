@@ -7,16 +7,6 @@ function testBasicTypes() returns [typedesc<int>, typedesc<string>, typedesc<flo
     return [a, b, c, d, e];
 }
 
-function testRefTypes() returns [ typedesc<xml>,  typedesc<json>,  typedesc<map<any>>,  typedesc<table<Employee>>] {
-    typedesc<xml> a =        xml;
-    typedesc<json> b =
-           json;
-    typedesc<map<any>> c =       map<any>;
-    typedesc<table<Employee>> d =
-table<Employee>;
-    return [a, b, c, d];
-}
-
 function testObjectTypes() returns [ typedesc<Person>,  typedesc<object {}>] {
     typedesc<Person> a =    Person;
     typedesc<object {}> b = object {

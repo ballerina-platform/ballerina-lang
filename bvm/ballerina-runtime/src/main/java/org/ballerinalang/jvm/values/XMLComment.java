@@ -23,6 +23,8 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 
+import java.util.Map;
+
 /**
  * XML nodes containing comment data.
  *
@@ -49,6 +51,14 @@ public class XMLComment extends XMLNonElementItem {
     @Override
     public XMLNodeType getNodeType() {
         return XMLNodeType.COMMENT;
+    }
+
+    @Override
+    public Object copy(Map<Object, Object> refs) {
+        if (isFrozen()) {
+            return this;
+        }
+        return new XMLComment(data);
     }
 
     @Override

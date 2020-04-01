@@ -57,7 +57,6 @@ import static org.ballerinalang.model.elements.PackageID.MAP;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
-import static org.ballerinalang.model.elements.PackageID.TABLE;
 import static org.ballerinalang.model.elements.PackageID.TYPEDESC;
 import static org.ballerinalang.model.elements.PackageID.VALUE;
 import static org.ballerinalang.model.elements.PackageID.XML;
@@ -149,7 +148,6 @@ public class CompilerDriver {
             symbolTable.langObjectModuleSymbol = pkgLoader.loadPackageSymbol(OBJECT, null, null);
             symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
-            symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langTypedescModuleSymbol = pkgLoader.loadPackageSymbol(TYPEDESC, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);

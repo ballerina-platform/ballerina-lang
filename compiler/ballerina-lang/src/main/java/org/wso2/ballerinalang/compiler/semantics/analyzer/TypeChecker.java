@@ -23,13 +23,13 @@ import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
@@ -62,7 +62,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -111,7 +110,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -298,7 +296,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangXMLElementAccess xmlElementAccess) {
         // check for undeclared namespaces.
         checkXMLNamespacePrefixes(xmlElementAccess.filters);
-        resultType = checkExpr(xmlElementAccess.expr, env, expType);
+        resultType = checkExpr(xmlElementAccess.expr, env, symTable.xmlType);
         // todo: we may need to add some logic to constrain result type to xml @namedSubType type.
     }
 
@@ -668,75 +666,6 @@ public class TypeChecker extends BLangNodeVisitor {
         dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, literalType);
         resultType = symTable.semanticError;
         return resultType;
-    }
-
-    public void visit(BLangTableLiteral tableLiteral) {
-
-        if (expType.tag == symTable.semanticError.tag) {
-            return;
-        }
-        if (expType.getKind() != TypeKind.TABLE) {
-            dlog.error(tableLiteral.pos, DiagnosticCode.CANNOT_INFER_TABLE_TYPE);
-            resultType = symTable.semanticError;
-            return;
-        }
-        BType tableConstraint = ((BTableType) expType).getConstraint();
-        if (tableConstraint.tag == TypeTags.NONE) {
-            dlog.error(tableLiteral.pos, DiagnosticCode.TABLE_CANNOT_BE_CREATED_WITHOUT_CONSTRAINT);
-            return;
-        } else if (tableConstraint.tag != TypeTags.RECORD) {
-            dlog.error(tableLiteral.pos, DiagnosticCode.TABLE_CONSTRAINT_MUST_BE_A_RECORD_TYPE);
-            return;
-        }
-        validateTableColumns(tableConstraint, tableLiteral);
-        checkExprs(tableLiteral.tableDataRows, this.env, tableConstraint);
-        resultType = types.checkType(tableLiteral, expType, symTable.noType);
-    }
-
-    private void validateTableColumns(BType tableConstraint, BLangTableLiteral tableLiteral) {
-        if (tableConstraint.tag != TypeTags.SEMANTIC_ERROR) {
-            List<String> columnNames = new ArrayList<>();
-            for (BField field : ((BRecordType) tableConstraint).fields) {
-                columnNames.add(field.getName().getValue());
-                //Check for valid column types
-                if (!(field.type.tag == TypeTags.INT || field.type.tag == TypeTags.STRING ||
-                        field.type.tag == TypeTags.FLOAT || field.type.tag == TypeTags.DECIMAL ||
-                        field.type.tag == TypeTags.XML || field.type.tag == TypeTags.JSON ||
-                        field.type.tag == TypeTags.BOOLEAN || field.type.tag == TypeTags.ARRAY)) {
-                    dlog.error(tableLiteral.pos, DiagnosticCode.FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN,
-                               field.name.value, field.type);
-                }
-                //Check for valid array types as columns
-                if (field.type.tag == TypeTags.ARRAY) {
-                    BType arrayType = ((BArrayType) field.type).eType;
-                    if (!(arrayType.tag == TypeTags.INT || arrayType.tag == TypeTags.FLOAT ||
-                            arrayType.tag == TypeTags.DECIMAL || arrayType.tag == TypeTags.STRING ||
-                            arrayType.tag == TypeTags.BOOLEAN || arrayType.tag == TypeTags.BYTE)) {
-                        dlog.error(tableLiteral.pos, DiagnosticCode.FIELD_NOT_ALLOWED_WITH_TABLE_COLUMN,
-                                   field.name.value, field.type);
-                    }
-                }
-            }
-            for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
-                boolean contains = columnNames.contains(column.columnName);
-                if (!contains) {
-                    dlog.error(column.pos, DiagnosticCode.UNDEFINED_TABLE_COLUMN, column.columnName,
-                               tableConstraint);
-                }
-                //Check for valid primary key column types
-                if (column.flagSet.contains(TableColumnFlag.PRIMARYKEY)) {
-                    for (BField field : ((BRecordType) tableConstraint).fields) {
-                        if (field.name.value.equals(column.columnName)) {
-                            if (!(field.type.tag == TypeTags.INT || field.type.tag == TypeTags.STRING)) {
-                                dlog.error(column.pos, DiagnosticCode.TYPE_NOT_ALLOWED_WITH_PRIMARYKEY,
-                                           column.columnName, field.type);
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
     }
 
     @Override
@@ -2503,18 +2432,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Annotation such as <@untainted [T]>, where T is not provided,
         // it's merely a annotation on contextually expected type.
+        BLangExpression expr = conversionExpr.expr;
         if (conversionExpr.typeNode == null && !conversionExpr.annAttachments.isEmpty()) {
-            BType expType = checkExpr(conversionExpr.expr, env, this.expType);
+            BType expType = checkExpr(expr, env, this.expType);
             resultType = expType;
             return;
         }
 
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
         conversionExpr.targetType = targetType;
-        BType expType = requireTypeInference(conversionExpr.expr) ? targetType : symTable.noType;
-        BType sourceType = checkExpr(conversionExpr.expr, env, expType);
+        BType expType = requireTypeInference(expr, false) ? targetType : symTable.noType;
+        BType sourceType = checkExpr(expr, env, expType);
 
-        if (types.isTypeCastable(conversionExpr.expr, sourceType, targetType)) {
+        if (types.isTypeCastable(expr, sourceType, targetType)) {
             // We reach this block only if the cast is valid, so we set the target type as the actual type.
             actualType = targetType;
         } else {
@@ -2586,6 +2516,12 @@ public class TypeChecker extends BLangNodeVisitor {
         if (prefix.equals(XMLConstants.XMLNS_ATTRIBUTE)) {
             dlog.error(bLangXMLQName.pos, DiagnosticCode.INVALID_NAMESPACE_PREFIX, prefix);
             bLangXMLQName.type = symTable.semanticError;
+            return;
+        }
+
+        // XML attributes without a namespace prefix does not inherit default namespace
+        // https://www.w3.org/TR/xml-names/#defaulting
+        if (bLangXMLQName.prefix.value.isEmpty()) {
             return;
         }
 
@@ -2811,6 +2747,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<? extends FromClauseNode> fromClauseList = queryExpr.fromClauseList;
         List<? extends WhereClauseNode> whereClauseList = queryExpr.whereClauseList;
         List<? extends LetClauseNode> letClauseList = queryExpr.letClausesList;
+        BLangExpression collectionNode = (BLangExpression) fromClauseList.get(0).getCollection();
         SymbolEnv parentEnv = env;
         for (FromClauseNode fromClause : fromClauseList) {
             parentEnv = typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
@@ -2824,13 +2761,81 @@ public class TypeChecker extends BLangNodeVisitor {
             whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, selectClause, parentEnv);
         }
 
-        BType expSelectType = expType;
-        if (expType.tag == TypeTags.ARRAY) {
-            expSelectType = ((BArrayType) expType).eType;
+        BType actualType = findAssignableType(whereEnv, selectClause.expression,  collectionNode.type, expType);
+        if (actualType != symTable.semanticError) {
+            resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        } else {
+            resultType = actualType;
+        }
+    }
+
+    private BType findAssignableType(SymbolEnv env, BLangExpression selectExp, BType collectionType, BType targetType) {
+        List<BType> assignableSelectTypes = new ArrayList<>();
+        int enclosedTypeTag = targetType.tag == TypeTags.NONE ? collectionType.tag : expType.tag;
+        BType actualType = symTable.semanticError;
+
+        Map<Boolean, List<BType>> resultTypeMap = types.getAllTypes(targetType).stream()
+                .collect(Collectors.groupingBy(memberType -> (types.isAssignable(memberType, symTable.errorType) ||
+                        (types.isAssignable(memberType, symTable.nilType)))));
+        for (BType type : resultTypeMap.get(false)) {
+            BType selectType;
+            switch (type.tag) {
+                case TypeTags.ARRAY:
+                    selectType = checkExpr(selectExp, env, ((BArrayType) type).eType);
+                    enclosedTypeTag = TypeTags.ARRAY;
+                    break;
+                case TypeTags.STREAM:
+                    selectType = checkExpr(selectExp, env, ((BStreamType) type).constraint);
+                    break;
+                default:
+                    selectType = checkExpr(selectExp, env, type);
+                    enclosedTypeTag = TypeTags.ARRAY;
+            }
+            if (selectType != symTable.semanticError) {
+                assignableSelectTypes.add(selectType);
+            }
         }
 
-        BType selectType = checkExpr(selectClause.expression, whereEnv, expSelectType);
-        resultType = selectType == symTable.semanticError ? selectType : new BArrayType(selectType);
+        if (assignableSelectTypes.size() == 1) {
+            actualType = assignableSelectTypes.get(0);
+            if (enclosedTypeTag == TypeTags.ARRAY) {
+                actualType = new BArrayType(assignableSelectTypes.get(0));
+            }
+        } else if (assignableSelectTypes.size() > 1) {
+            dlog.error(selectExp.pos, DiagnosticCode.AMBIGUOUS_TYPES, assignableSelectTypes);
+            return actualType;
+        } else {
+            return actualType;
+        }
+
+        BType nextMethodReturnType = null;
+        switch (collectionType.tag) {
+            case TypeTags.STREAM:
+                BErrorType errorType = (BErrorType) ((BStreamType) collectionType).error;
+                if (errorType != null) {
+                    return BUnionType.create(null, actualType, errorType);
+                }
+                break;
+            case TypeTags.OBJECT:
+                nextMethodReturnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
+                break;
+            default:
+                BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
+                        names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+                nextMethodReturnType =
+                        (BUnionType) types.getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
+        }
+
+        if (nextMethodReturnType != null) {
+            Map<Boolean, List<BType>> collectionTypeMap = types.getAllTypes(nextMethodReturnType).stream()
+                    .collect(Collectors.groupingBy(memberType -> types.isAssignable(memberType, symTable.errorType)));
+            if (collectionTypeMap.get(true) != null && !collectionTypeMap.get(true).isEmpty()) {
+                List<BType> collectionTypes = Lists.of(actualType);
+                collectionTypes.addAll(collectionTypeMap.get(true));
+                return BUnionType.create(null, collectionTypes.toArray(new BType[collectionTypes.size()]));
+            }
+        }
+        return actualType;
     }
 
     @Override
@@ -3659,7 +3664,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return actualType;
         }
 
-        checkRestArgs(iExpr.restArgs, vararg, invokableTypeSymbol.restParam);
+        checkRestArgs(iExpr.restArgs, vararg, invokableTypeSymbol.restParam, iExpr.langLibInvocation);
         BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
 
         if (iExpr.async) {
@@ -3699,7 +3704,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 // if arg is positional, corresponding parameter in the same position should be of same type.
                 if (i < nonRestParams.size()) {
                     BVarSymbol param = nonRestParams.get(i);
-                    checkTypeParamExpr(arg, this.env, param.type);
+                    checkTypeParamExpr(arg, this.env, param.type, iExpr.langLibInvocation);
                     valueProvidedParams.add(param);
                     requiredParams.remove(param);
                     continue;
@@ -3725,7 +3730,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     dlog.error(arg.pos, DiagnosticCode.DUPLICATE_NAMED_ARGS, varSym.name.value);
                     continue;
                 }
-                checkTypeParamExpr(arg, this.env, varSym.type);
+                checkTypeParamExpr(arg, this.env, varSym.type, iExpr.langLibInvocation);
                 valueProvidedParams.add(varSym);
             }
         }
@@ -3736,51 +3741,65 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private void checkRestArgs(List<BLangExpression> restArgExprs, BLangExpression vararg, BVarSymbol restParam) {
+    private void checkRestArgs(List<BLangExpression> restArgExprs, BLangExpression vararg, BVarSymbol restParam,
+                               boolean langlibInvocation) {
         if (vararg != null && !restArgExprs.isEmpty()) {
             dlog.error(vararg.pos, DiagnosticCode.INVALID_REST_ARGS);
             return;
         }
 
         if (vararg != null) {
-            checkExpr(vararg, this.env, restParam.type);
+            checkTypeParamExpr(vararg.getKind() == NodeKind.REST_ARGS_EXPR ?
+                                       ((BLangRestArgsExpression) vararg).expr.pos : vararg.pos,
+                               vararg, this.env, restParam.type, langlibInvocation);
             restArgExprs.add(vararg);
             return;
         }
 
+        if (restArgExprs.isEmpty()) {
+            return;
+        }
+
+        BType restType = ((BArrayType) restParam.type).eType;
         for (BLangExpression arg : restArgExprs) {
-            BType restType = ((BArrayType) restParam.type).eType;
-            checkExpr(arg, this.env, restType);
-            typeParamAnalyzer.checkForTypeParamsInArg(arg.type, env, restType);
+            checkTypeParamExpr(arg, this.env, restType, true);
         }
     }
 
-    private void checkTypeParamExpr(BLangExpression arg, SymbolEnv env, BType expectedType) {
+    private void checkTypeParamExpr(BLangExpression arg, SymbolEnv env, BType expectedType,
+                                    boolean inferTypeForNumericLiteral) {
+        checkTypeParamExpr(arg.pos, arg, env, expectedType, inferTypeForNumericLiteral);
+    }
+
+    private void checkTypeParamExpr(DiagnosticPos pos, BLangExpression arg, SymbolEnv env, BType expectedType,
+                                    boolean inferTypeForNumericLiteral) {
 
         if (typeParamAnalyzer.notRequireTypeParams(env)) {
             checkExpr(arg, env, expectedType);
             return;
         }
-        if (requireTypeInference(arg)) {
+        if (requireTypeInference(arg, inferTypeForNumericLiteral)) {
             // Need to infer the type. Calculate matching bound type, with no type.
             BType expType = typeParamAnalyzer.getMatchingBoundType(expectedType, env);
             BType inferredType = checkExpr(arg, env, expType);
-            typeParamAnalyzer.checkForTypeParamsInArg(inferredType, this.env, expectedType);
+            typeParamAnalyzer.checkForTypeParamsInArg(pos, inferredType, this.env, expectedType);
             return;
         }
         checkExpr(arg, env, expectedType);
-        typeParamAnalyzer.checkForTypeParamsInArg(arg.type, this.env, expectedType);
+        typeParamAnalyzer.checkForTypeParamsInArg(pos, arg.type, this.env, expectedType);
     }
 
-    private boolean requireTypeInference(BLangExpression expr) {
+    private boolean requireTypeInference(BLangExpression expr, boolean inferTypeForNumericLiteral) {
 
         switch (expr.getKind()) {
             case GROUP_EXPR:
-                return requireTypeInference(((BLangGroupExpr) expr).expression);
+                return requireTypeInference(((BLangGroupExpr) expr).expression, inferTypeForNumericLiteral);
             case ARROW_EXPR:
             case LIST_CONSTRUCTOR_EXPR:
             case RECORD_LITERAL_EXPR:
                 return true;
+            case NUMERIC_LITERAL:
+                return inferTypeForNumericLiteral;
             default:
                 return false;
         }
@@ -5125,8 +5144,6 @@ public class TypeChecker extends BLangNodeVisitor {
         encounteredTypes.add(type);
 
         switch (type.tag) {
-            case TypeTags.TABLE:
-                return true;
             case TypeTags.UNION:
                 return ((BUnionType) type).getMemberTypes().stream()
                         .anyMatch(bType -> couldHoldTableValues(bType, encounteredTypes));

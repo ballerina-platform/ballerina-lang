@@ -221,8 +221,12 @@ public class SQLDatasource {
         public SQLDatasourceParams() {
         }
 
-        public SQLDatasourceParams setConnectionPool(MapValue connectionPool) {
-            this.connectionPool = connectionPool;
+        public SQLDatasourceParams setConnectionPool(MapValue connectionPool, MapValue globalConnectionPool) {
+            if (connectionPool != null) {
+                this.connectionPool = connectionPool;
+            } else {
+                this.connectionPool = globalConnectionPool;
+            }
             return this;
         }
 

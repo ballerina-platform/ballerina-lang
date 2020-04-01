@@ -129,28 +129,27 @@ function testIsFrozenOnStructuralTypes() returns [boolean, boolean]|error {
     json j = { name: "Em", dataType: "json" };
     xml x = xml `<bookItem>The Lost World</bookItem>`;
 
-    table<Employee> empTable = table {
-        { key id, name },
-        [
-            { 1, "Mary" },
-            { 2, "John" },
-            { 3, "Jim" }
-        ]
-    };
+    //table<Employee> empTable = table {
+    //    { key id, name },
+    //    [
+    //        { 1, "Mary" },
+    //        { 2, "John" },
+    //        { 3, "Jim" }
+    //    ]
+    //};
 
     byte byteVal = 255;
     map<anydata> m1 = { intVal: 1, byteVal: byteVal, floatVal: 200.1, stringVal: "Ballerina says freeze",
-        booleanVal: false, arrayVal: a, mapVal: m, tupleVal: t, jsonVal: j, xmlVal: x, tableVal: empTable };
+        booleanVal: false, arrayVal: a, mapVal: m, tupleVal: t, jsonVal: j, xmlVal: x };
 
     boolean isFrozenBeforeFreeze = m.isReadOnly() || a.isReadOnly() || m1.isReadOnly() || e.isReadOnly() || t.isReadOnly() ||
-                                    j.isReadOnly() || x.isReadOnly() || empTable.isReadOnly();
+                                    j.isReadOnly() || x.isReadOnly();
 
     map<anydata> m2 = m1.cloneReadOnly();
     map<anydata> m3 = <map<anydata>>m2["mapVal"];
     boolean isFrozenAfterFreeze = m3.isReadOnly() && m2["arrayVal"].isReadOnly() && m2.isReadOnly() &&
                                    m3["rec"].isReadOnly() && m2["tupleVal"].isReadOnly() &&
-                                   m2["jsonVal"].isReadOnly() && m2["xmlVal"].isReadOnly() &&
-                                   m2["tableVal"].isReadOnly();
+                                   m2["jsonVal"].isReadOnly() && m2["xmlVal"].isReadOnly() ;
     return [isFrozenBeforeFreeze, isFrozenAfterFreeze];
 }
 
@@ -249,6 +248,26 @@ function testFrozenXmlSetChildrenDeep() {
     xml author = x3.getChildren().strip()[1];
     xmllib:Element authorEm = <xmllib:Element> author;
     authorEm.setChildren(x2);
+}
+
+function testXMLItemsCloneReadOnly() {
+    xml x0 = xmllib:concat(xml `<hello>world</hello>`,
+                        xml `<!-- comment text -->`,
+                        xml `<?PIT data?>`,
+                        xml `<item><child>String Content <sub></sub>More Str</child><child></child></item>`);
+
+    assertFalse((x0.<hello>).isReadOnly());
+    assertTrue((x0.<hello>/*).isReadOnly()); // Sequence containing text item
+    assertFalse(x0[1].isReadOnly());
+    assertFalse(x0[2].isReadOnly());
+    assertTrue((x0/**/<child>/*)[0].isReadOnly()); // Text item
+
+    xml x1 = x0.cloneReadOnly();
+    assertTrue((x1.<hello>).isReadOnly());
+    assertTrue((x1.<hello>/*).isReadOnly());
+    assertTrue(x1[1].isReadOnly());
+    assertTrue(x1[2].isReadOnly());
+    assertTrue((x1/**/<child>/*)[0].isReadOnly());
 }
 
 function testFrozenMapUpdate() {
@@ -356,32 +375,34 @@ function testFrozenInnerRecordUpdate() {
     d2.code = "fe12";
 }
 
-function testFrozenTableAddition() {
-    table<Employee> empTable = table {
-        { key id, name },
-        [
-            { 1, "Mary" },
-            { 2, "John" },
-            { 3, "Jim" }
-        ]
-    };
-    Employee e = { id: 5, name: "Anne" };
-    table<Employee> empTable2  = empTable.cloneReadOnly();
-    checkpanic empTable2.add(e);
-}
+//TODO Table remove - Fix
 
-function testFrozenTableRemoval() {
-    table<Employee> empTable = table {
-        { key id, name },
-        [
-            { 1, "Mary" },
-            { 2, "John" },
-            { 3, "Jim" }
-        ]
-    };
-    table<Employee> empTable2 = empTable.cloneReadOnly();
-    _ = checkpanic empTable2.remove(isIdTwo);
-}
+//function testFrozenTableAddition() {
+//    table<Employee> empTable = table {
+//        { key id, name },
+//        [
+//            { 1, "Mary" },
+//            { 2, "John" },
+//            { 3, "Jim" }
+//        ]
+//    };
+//    Employee e = { id: 5, name: "Anne" };
+//    table<Employee> empTable2  = empTable.cloneReadOnly();
+//    checkpanic empTable2.add(e);
+//}
+//
+//function testFrozenTableRemoval() {
+//    table<Employee> empTable = table {
+//        { key id, name },
+//        [
+//            { 1, "Mary" },
+//            { 2, "John" },
+//            { 3, "Jim" }
+//        ]
+//    };
+//    table<Employee> empTable2 = empTable.cloneReadOnly();
+//    _ = checkpanic empTable2.remove(isIdTwo);
+//}
 
 function testSimpleUnionFreeze() returns boolean {
     int|string u1 = "hello world";
@@ -489,3 +510,17 @@ type FreezeAllowedDepartment record {|
     string head;
     (int)...;
 |};
+
+function assertTrue(boolean value) {
+    if !(value) {
+        error e = error("AssertionError", message = "expected: true, found: " + value.toString());
+        panic e;
+    }
+}
+
+function assertFalse(boolean value) {
+    if (value) {
+        error e = error("AssertionError", message = "expected: false, found: " + value.toString());
+        panic e;
+    }
+}
