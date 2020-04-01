@@ -198,7 +198,7 @@ public class SealedArrayTest {
 
     @Test()
     public void testNegativeAutoFillSealedArray() {
-        Assert.assertEquals(listExprNegative.getErrorCount(), 13);
+        Assert.assertEquals(listExprNegative.getErrorCount(), 15);
         BAssertUtil.validateError(listExprNegative, 0,
                                   "invalid usage of list constructor: type 'Person[5]' does not have a filler value",
                                   24, 19);
@@ -240,7 +240,13 @@ public class SealedArrayTest {
         BAssertUtil.validateError(listExprNegative, 12,
                                   "invalid usage of list constructor: type '(0|1.0f)[2]' does not have a filler value",
                                   139, 43);
-
+        BAssertUtil.validateError(listExprNegative, 13,
+                                  "invalid usage of list constructor: type '(1|2)[2]' does not have a filler value",
+                                  146, 35);
+        BAssertUtil.validateError(listExprNegative, 14,
+                                  "invalid usage of list constructor: type '(map<(foo|bar)>|map<string>)[2]' does not" +
+                                          " have a filler value",
+                                  155, 38);
     }
 
     @Test()
