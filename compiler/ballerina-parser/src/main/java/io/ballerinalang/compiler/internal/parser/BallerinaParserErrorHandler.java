@@ -62,9 +62,10 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] FUNC_BODIES =
             { ParserRuleContext.FUNC_BODY_BLOCK, ParserRuleContext.EXTERNAL_FUNC_BODY };
 
-    private static final ParserRuleContext[] STATEMENTS = { ParserRuleContext.ASSIGNMENT_STMT,
-            ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK, ParserRuleContext.WHILE_BLOCK,
-            ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE, ParserRuleContext.PANIC_STMT };
+    private static final ParserRuleContext[] STATEMENTS =
+            { ParserRuleContext.ASSIGNMENT_STMT, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK,
+                    ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE,
+                    ParserRuleContext.PANIC_STMT, ParserRuleContext.RETURN_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -151,6 +152,8 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] MAJOR_MINOR_VERSION_END =
             { ParserRuleContext.DOT, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
+
+    private static final ParserRuleContext[] RETURN_RHS = { ParserRuleContext.SEMICOLON, ParserRuleContext.EXPRESSION };
 
     private static final ParserRuleContext[] EXPRESSIONS =
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION };
@@ -753,6 +756,12 @@ public class BallerinaParserErrorHandler {
                 case MAJOR_MINOR_VERSION_END:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             MAJOR_MINOR_VERSION_END);
+                case RETURN_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.RETURN_KEYWORD;
+                    break;
+                case RETURN_STMT_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RETURN_RHS);
+
                 case ACCESS_EXPRESSION:
                     return seekInAccessExpression(currentCtx, lookahead, currentDepth, matchingRulesCount);
                 case BASIC_LITERAL:
@@ -1149,6 +1158,7 @@ public class BallerinaParserErrorHandler {
             case PANIC_STMT:
             case CALL_STMT:
             case IMPORT_DECL:
+            case RETURN_STMT:
             case COMPUTED_FIELD_NAME:
                 startContext(currentCtx);
                 break;
@@ -1358,6 +1368,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.IMPORT_PREFIX_DECL;
             case IMPORT_DECL:
                 return ParserRuleContext.IMPORT_KEYWORD;
+            case RETURN_STMT:
+                return ParserRuleContext.RETURN_KEYWORD;
+            case RETURN_KEYWORD:
+                return ParserRuleContext.RETURN_STMT_RHS;
             case ACCESS_EXPRESSION:
                 // return ParserRuleContext.ACCESS_EXPRESSION_RHS;
             case BASIC_LITERAL:
@@ -1669,6 +1683,7 @@ public class BallerinaParserErrorHandler {
             case WHILE_BLOCK:
             case CALL_STMT:
             case PANIC_STMT:
+            case RETURN_STMT:
                 return true;
             default:
                 return false;
