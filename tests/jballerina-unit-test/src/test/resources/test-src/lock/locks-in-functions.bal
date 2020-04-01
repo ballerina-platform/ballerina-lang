@@ -34,6 +34,7 @@ function makeAsync() returns (int) {
 }
 
 function lockWithinLockInWorkers() returns [int, string] {
+    @strand{thread:"any"}
     worker w1 {
         lock {
             lockWithinLockInt1 = 90;
@@ -45,6 +46,8 @@ function lockWithinLockInWorkers() returns [int, string] {
             lockWithinLockInt1 = 45;
         }
     }
+
+    @strand{thread:"any"}
     worker w2 {
         runtime:sleep(20);
         lock {
@@ -61,6 +64,7 @@ function lockWithinLockInWorkers() returns [int, string] {
 }
 
 function lockInsideWhileLoop() returns (int) {
+    @strand{thread:"any"}
     worker w2 {
         runtime:sleep(10);
         lock {
@@ -95,6 +99,7 @@ function convertStringToInt() {
 }
 
 function throwErrorInsideLock() returns [int, string] {
+    @strand{thread:"any"}
     worker w1 {
         lock {
             convertStringToInt();
@@ -117,6 +122,7 @@ function errorPanicInsideLock() {
 }
 
 function throwErrorInsideLockInsideTryFinally() returns [int, string] {
+    @strand{thread:"any"}
     worker w2 {
         runtime:sleep(10);
         lock {
@@ -139,7 +145,7 @@ function throwErrorInsideLockInsideTryFinally() returns [int, string] {
 }
 
 function throwErrorInsideTryCatchFinallyInsideLock() returns [int, string] {
-
+    @strand{thread:"any"}
     worker w2 {
         runtime:sleep(10);
         lock {
@@ -165,6 +171,7 @@ function throwErrorInsideTryCatchFinallyInsideLock() returns [int, string] {
 }
 
 function throwErrorInsideTryFinallyInsideLock() returns [int, string] {
+    @strand{thread:"any"}
     worker w1 {
         lock {
             runtime:sleep(50);
@@ -193,6 +200,7 @@ function throwErrorInsideTryFinallyInsideLock() returns [int, string] {
 }
 
 function throwErrorInsideLockInsideTryCatch() returns [int, string] {
+    @strand{thread:"any"}
     worker w2 {
         runtime:sleep(10);
         lock {
@@ -212,6 +220,7 @@ function throwErrorInsideLockInsideTryCatch() returns [int, string] {
 }
 
 function throwErrorInsideTryCatchInsideLock() returns [int, string] {
+    @strand{thread:"any"}
     worker w2 {
         runtime:sleep(10);
         lock {
@@ -235,6 +244,7 @@ function throwErrorInsideTryCatchInsideLock() returns [int, string] {
 
 
 function lockWithinLockInWorkersForBlobAndBoolean() returns [boolean, byte[]] {
+    @strand{thread:"any"}
     worker w1 {
         lock {
             boolValue = true;
@@ -246,6 +256,8 @@ function lockWithinLockInWorkersForBlobAndBoolean() returns [boolean, byte[]] {
             runtime:sleep(100);
         }
     }
+
+    @strand{thread:"any"}
     worker w2 {
         runtime:sleep(20);
         lock {
@@ -263,6 +275,7 @@ function lockWithinLockInWorkersForBlobAndBoolean() returns [boolean, byte[]] {
 }
 
 function returnInsideLock() returns [int, string] {
+    @strand{thread:"any"}
     worker w1 {
         string value = returnInsideLockPart();
     }
@@ -289,6 +302,7 @@ function returnInsideLockPart() returns (string) {
 }
 
 function breakInsideLock() returns [int, string] {
+    @strand{thread:"any"}
     worker w1 {
         int i = 0;
         while (i < 3) {
@@ -316,6 +330,7 @@ function breakInsideLock() returns [int, string] {
 }
 
 function nextInsideLock() returns [int, string] {
+    @strand{thread:"any"}
     worker w1 {
         int i = 0;
         while (i < 1) {

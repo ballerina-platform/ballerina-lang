@@ -166,6 +166,7 @@ public class SignatureHelpTest {
                 {"functionInSameFile.json", "functionInSameFile.bal"},
                 {"functionInSameFile2.json", "functionInSameFile2.bal"},
                 {"functionInSameFile3.json", "functionInSameFile3.bal"},
+                {"functionInSameFile4.json", "functionInSameFile4.bal"},
                 {"functionInSameFileWithoutDocumentation.json", "functionInSameFileWithoutDocumentation.bal"},
                 {"typeAttachedFunctions.json", "typeAttachedFunctions.bal"},
                 {"functionInBuiltinPackage.json", "functionInBuiltinPackage.bal"},
