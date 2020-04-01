@@ -29,6 +29,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.parser.NodeCloner;
@@ -2746,6 +2747,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<? extends FromClauseNode> fromClauseList = queryExpr.fromClauseList;
         List<? extends WhereClauseNode> whereClauseList = queryExpr.whereClauseList;
         List<? extends LetClauseNode> letClauseList = queryExpr.letClausesList;
+        BLangExpression collectionNode = (BLangExpression) fromClauseList.get(0).getCollection();
         SymbolEnv parentEnv = env;
         for (FromClauseNode fromClause : fromClauseList) {
             parentEnv = typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
@@ -2759,13 +2761,81 @@ public class TypeChecker extends BLangNodeVisitor {
             whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, selectClause, parentEnv);
         }
 
-        BType expSelectType = expType;
-        if (expType.tag == TypeTags.ARRAY) {
-            expSelectType = ((BArrayType) expType).eType;
+        BType actualType = findAssignableType(whereEnv, selectClause.expression,  collectionNode.type, expType);
+        if (actualType != symTable.semanticError) {
+            resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        } else {
+            resultType = actualType;
+        }
+    }
+
+    private BType findAssignableType(SymbolEnv env, BLangExpression selectExp, BType collectionType, BType targetType) {
+        List<BType> assignableSelectTypes = new ArrayList<>();
+        int enclosedTypeTag = targetType.tag == TypeTags.NONE ? collectionType.tag : expType.tag;
+        BType actualType = symTable.semanticError;
+
+        Map<Boolean, List<BType>> resultTypeMap = types.getAllTypes(targetType).stream()
+                .collect(Collectors.groupingBy(memberType -> (types.isAssignable(memberType, symTable.errorType) ||
+                        (types.isAssignable(memberType, symTable.nilType)))));
+        for (BType type : resultTypeMap.get(false)) {
+            BType selectType;
+            switch (type.tag) {
+                case TypeTags.ARRAY:
+                    selectType = checkExpr(selectExp, env, ((BArrayType) type).eType);
+                    enclosedTypeTag = TypeTags.ARRAY;
+                    break;
+                case TypeTags.STREAM:
+                    selectType = checkExpr(selectExp, env, ((BStreamType) type).constraint);
+                    break;
+                default:
+                    selectType = checkExpr(selectExp, env, type);
+                    enclosedTypeTag = TypeTags.ARRAY;
+            }
+            if (selectType != symTable.semanticError) {
+                assignableSelectTypes.add(selectType);
+            }
         }
 
-        BType selectType = checkExpr(selectClause.expression, whereEnv, expSelectType);
-        resultType = selectType == symTable.semanticError ? selectType : new BArrayType(selectType);
+        if (assignableSelectTypes.size() == 1) {
+            actualType = assignableSelectTypes.get(0);
+            if (enclosedTypeTag == TypeTags.ARRAY) {
+                actualType = new BArrayType(assignableSelectTypes.get(0));
+            }
+        } else if (assignableSelectTypes.size() > 1) {
+            dlog.error(selectExp.pos, DiagnosticCode.AMBIGUOUS_TYPES, assignableSelectTypes);
+            return actualType;
+        } else {
+            return actualType;
+        }
+
+        BType nextMethodReturnType = null;
+        switch (collectionType.tag) {
+            case TypeTags.STREAM:
+                BErrorType errorType = (BErrorType) ((BStreamType) collectionType).error;
+                if (errorType != null) {
+                    return BUnionType.create(null, actualType, errorType);
+                }
+                break;
+            case TypeTags.OBJECT:
+                nextMethodReturnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
+                break;
+            default:
+                BInvokableSymbol iteratorSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
+                        names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
+                nextMethodReturnType =
+                        (BUnionType) types.getResultTypeOfNextInvocation((BObjectType) iteratorSymbol.retType);
+        }
+
+        if (nextMethodReturnType != null) {
+            Map<Boolean, List<BType>> collectionTypeMap = types.getAllTypes(nextMethodReturnType).stream()
+                    .collect(Collectors.groupingBy(memberType -> types.isAssignable(memberType, symTable.errorType)));
+            if (collectionTypeMap.get(true) != null && !collectionTypeMap.get(true).isEmpty()) {
+                List<BType> collectionTypes = Lists.of(actualType);
+                collectionTypes.addAll(collectionTypeMap.get(true));
+                return BUnionType.create(null, collectionTypes.toArray(new BType[collectionTypes.size()]));
+            }
+        }
+        return actualType;
     }
 
     @Override

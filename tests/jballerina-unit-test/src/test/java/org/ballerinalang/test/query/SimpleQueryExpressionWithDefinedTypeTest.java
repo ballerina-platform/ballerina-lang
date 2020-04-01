@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.query;
 
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
@@ -247,6 +248,26 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(employee.get("firstName").stringValue(), "Ranjan");
         Assert.assertEquals(employee.get("lastName").stringValue(), "Fonseka");
         Assert.assertEquals(employee.get("age").stringValue(), "44");
+    }
+
+    @Test(description = "Use a stream with query expression")
+    public void testQueryWithStream() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryWithStream");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(returnValues[0] instanceof BValueArray, "Expected BValueArray type value");
+
+        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(0), 1);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(1), 3);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(2), 5);
+    }
+
+    @Test(description = "Query a stream with error")
+    public void testQueryStreamWithError() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryStreamWithError");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(returnValues[0] instanceof BError, "Expected BErrorType type value");
     }
 }
 
