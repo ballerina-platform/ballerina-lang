@@ -191,6 +191,8 @@ public class BallerinaParser {
                 return parseImportPrefixDecl();
             case AS_KEYWORD:
                 return parseAsKeyword();
+            case COMPOUND_ASSIGNMENT_STMT:
+                return parseCompoundAssignmentStmt();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -2296,6 +2298,10 @@ public class BallerinaParser {
                         return parseCallStatement(expr);
                 }
             default:
+                // If its a binary oerator then this can be a compound assignment statement
+                if (isBinaryOperator(nextTokenKind)) {
+                    return parseCompoundAssignmentStmtRhs(identifier);
+                }
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.ASSIGNMENT_OR_VAR_DECL_STMT_RHS, identifier);
 
@@ -3485,5 +3491,53 @@ public class BallerinaParser {
             Solution sol = recover(token, ParserRuleContext.CHECKING_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+    
+    /**
+     * Parse CompoundAssignmentOperator.
+     * <code>CompoundAssignmentOperator := BinaryOperator =</code>
+     * <code>BinaryOperator := + | - | * | / | & | | | ^ | << | >> | >>></code>
+     * 
+     * @return CompoundAssignmentOperator
+     */
+    private STNode parseCompoundAssignmentOperator() {
+        startContext(ParserRuleContext.COMPOUND_ASSIGNMENT_OPERATOR);
+        STNode binaryOperator = parseBinaryOperator();
+        STNode equalsToken = parseAssignOp();
+        endContext();
+        return STNodeFactory.createCompoundAssignmentOperator(binaryOperator, equalsToken);
+    }
+
+    /**
+     * <p>
+     * Parse compound assignment statement, which takes the following format.
+     * </p>
+     * <code>assignment-stmt := lvexpr CompoundAssignmentOperator action-or-expr ;</code>
+     * 
+     * @return Parsed node
+     */
+    private STNode parseCompoundAssignmentStmt() {
+        startContext(ParserRuleContext.COMPOUND_ASSIGNMENT_STMT);
+        STNode varName = parseVariableName();
+        STNode compoundAssignmentStmt = parseCompoundAssignmentStmtRhs(varName);
+        endContext();
+        return compoundAssignmentStmt;
+    }
+
+    /**
+     * <p>
+     * Parse the RHS portion of the compound assignment.
+     * </p>
+     * <code>compound-assignment-stmt-rhs := CompoundAssignmentOperator action-or-expr ;</code>
+     * 
+     * @param expression LHS expression
+     * @return Parsed node
+     */
+    private STNode parseCompoundAssignmentStmtRhs(STNode expression) {
+        STNode compoundAssignmentOperator = parseCompoundAssignmentOperator();
+        STNode expr = parseExpression();
+        STNode semicolon = parseSemicolon();
+        return STNodeFactory.createCompoundAssignmentStatement(expression, compoundAssignmentOperator,
+             expr, semicolon);
     }
 }

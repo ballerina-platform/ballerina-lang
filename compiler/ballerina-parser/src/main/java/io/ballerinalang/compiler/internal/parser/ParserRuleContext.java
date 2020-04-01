@@ -94,6 +94,7 @@ public enum ParserRuleContext {
     CALL_STMT("call-statement"),
     CALL_STMT_START("call-statement-start"),
     PANIC_STMT("panic-statement"),    
+    COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -142,6 +143,7 @@ public enum ParserRuleContext {
     FIELD_OR_FUNC_NAME("field-or-func-name"),
     BOOLEAN_LITERAL("boolean-literal"),
     CHECKING_KEYWORD("checking-keyword"),
+    COMPOUND_ASSIGNMENT_OPERATOR("compound-assignment-operator"),
 
     // Expressions
     EXPRESSION("expression"),

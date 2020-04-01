@@ -115,6 +115,13 @@ public class STNodeFactory {
         return new STVariableDeclaration(kind, typeName, variableName, equalsToken, initializer, semicolonToken);
     }
 
+    public static STNode createCompoundAssignmentStatement(STNode lhsExpression,
+                                                   STNode compoundAssignmentOperator,
+                                                   STNode expr,
+                                                   STNode semicolonToken) {
+        return new STCompoundAssignmentStatement(lhsExpression, compoundAssignmentOperator, expr, semicolonToken);
+    }
+
     // Expressions
 
     public static STNode createBinaryExpression(SyntaxKind kind,
@@ -336,4 +343,10 @@ public class STNodeFactory {
     public static STNode createImportPrefix(STNode asKeyword, STNode prefix) {
         return new STImportPrefix(asKeyword, prefix);
     }
+
+    public static STNode createCompoundAssignmentOperator(STNode binaryOperator,
+                                                   STNode equalsToken) {
+        return new STCompoundAssignmentOperator(binaryOperator, equalsToken);
+    }
+    
 }
