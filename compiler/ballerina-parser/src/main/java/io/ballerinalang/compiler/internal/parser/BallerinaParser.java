@@ -3543,7 +3543,7 @@ public class BallerinaParser {
      * @param tokenKind Next token kind
      * @return Parsed node
      */
-    private STNode parseReturnStatementRhs(SyntaxKind tokenKind,STNode returnKeyword) {
+    private STNode parseReturnStatementRhs(SyntaxKind tokenKind, STNode returnKeyword) {
         STNode expr;
         STNode semicolon;
 
@@ -3557,6 +3557,6 @@ public class BallerinaParser {
         }
 
         semicolon = parseSemicolon();
-        return STNodeFactory.createReturnStatement(SyntaxKind.RETURN_STATEMENT,returnKeyword, expr, semicolon);
+        return STNodeFactory.createReturnStatement(SyntaxKind.RETURN_STATEMENT, returnKeyword, expr, semicolon);
     }
 }
