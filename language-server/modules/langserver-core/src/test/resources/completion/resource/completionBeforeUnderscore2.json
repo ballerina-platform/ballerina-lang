@@ -126,7 +126,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nReturns the value of the specified header. If the specified header key maps to multiple values, the first of\nthese values is returned.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `string`   \n- The first header value for the specified header name. Panic if the header is not found. Use  \n           `Request.hasHeader()` beforehand to check the existence of header.  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nReturns the value of the specified header. If the specified header key maps to multiple values, the first of\nthese values is returned.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `string`   \n- The first header value for the specified header name. Panic if the header is not found. Use the  \n           `Request.hasHeader()` beforehand to check the existence of a header.  \n  \n"
         }
       },
       "sortText": "120",
@@ -602,7 +602,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets all the header values to which the specified header key maps to.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `string[]`   \n- The header values the specified header key maps to. Panic if the header is not found. Use  \n           `Request.hasHeader()` beforehand to check the existence of header.  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets all the header values to which the specified header key maps to.\n  \n**Params**  \n- `string` headerName: The header name  \n  \n**Returns** `string[]`   \n- The header values the specified header key maps to. Panic if the header is not found. Use the  \n           `Request.hasHeader()` beforehand to check the existence of a header.  \n  \n"
         }
       },
       "sortText": "120",
