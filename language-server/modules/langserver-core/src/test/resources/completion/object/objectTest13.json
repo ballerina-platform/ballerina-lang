@@ -160,6 +160,16 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "CredentialBearer",
+            "detail": "Union",
+            "documentation": {
+                "left": "Specifies how to send the authentication credentials when exchanging tokens."
+            },
+            "sortText": "110",
+            "insertText": "CredentialBearer",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "InboundAuthHandlers",
             "detail": "Union",
             "documentation": {
@@ -177,16 +187,6 @@
             },
             "sortText": "110",
             "insertText": "Scopes",
-            "insertTextFormat": "Snippet"
-        },
-        {
-            "label": "CredentialBearer",
-            "detail": "Union",
-            "documentation": {
-                "left": "Specifies how to send the authentication credentials when exchanging tokens."
-            },
-            "sortText": "110",
-            "insertText": "CredentialBearer",
             "insertTextFormat": "Snippet"
         },
         {
@@ -325,7 +325,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.\n"
+                "left": "Provides configurations for controlling the endpoint\u0027s behaviour in response to HTTP redirect related responses.\n"
             },
             "sortText": "180",
             "insertText": "FollowRedirects",
@@ -421,7 +421,7 @@
             "kind": "Interface",
             "detail": "Object",
             "documentation": {
-                "left": "Represents a 'future' that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
+                "left": "Represents a \u0027future\u0027 that returns as a result of an asynchronous HTTP request submission.\nThis can be used as a reference to fetch the results of the submission."
             },
             "sortText": "190",
             "insertText": "HttpFuture",
@@ -828,7 +828,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Inferred failover configurations passed into the failover client.\n"
+                "left": "Represents the inferred failover configurations passed into the failover client.\n"
             },
             "sortText": "180",
             "insertText": "FailoverInferredConfig",
@@ -1131,7 +1131,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Configuration for the WebSocket client endpoint.\n"
+                "left": "Configurations for the WebSocket client endpoint.\n"
             },
             "sortText": "180",
             "insertText": "WebSocketClientConfiguration",
@@ -1168,6 +1168,28 @@
             },
             "sortText": "200",
             "insertText": "WebSocketError",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "WebSocketFailoverClient",
+            "kind": "Interface",
+            "detail": "Object",
+            "documentation": {
+                "left": "A WebSocket client endpoint, which provides failover support for multiple WebSocket targets."
+            },
+            "sortText": "190",
+            "insertText": "WebSocketFailoverClient",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "WebSocketFailoverClientConfiguration",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Configurations for the WebSocket client endpoint.\n"
+            },
+            "sortText": "180",
+            "insertText": "WebSocketFailoverClientConfiguration",
             "insertTextFormat": "Snippet"
         },
         {

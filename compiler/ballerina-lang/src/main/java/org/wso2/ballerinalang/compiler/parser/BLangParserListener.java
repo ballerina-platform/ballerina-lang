@@ -2779,6 +2779,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterFromClause(BallerinaParser.FromClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startFromClause();
+    }
+
+    @Override
     public void exitFromClause(BallerinaParser.FromClauseContext ctx) {
         if (isInErrorState) {
             return;
@@ -2815,7 +2824,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        this.pkgBuilder.addLetClause(getCurrentPos(ctx));
+        this.pkgBuilder.addLetClause(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

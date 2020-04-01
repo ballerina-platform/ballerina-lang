@@ -12,3 +12,10 @@ public function testLangLig() {
     string[] stringArr = [];
     int length = stringArr.length();
 }
+
+public function testStdlibObjectFieldDefinition() {
+    http:InboundAuthHandler[] authHandlerArr = [];
+    http:InboundAuthHandlers authHandlers = authHandlerArr;
+    http:AuthnFilter authFilter = new(authHandlers);
+    authFilter.authHandlers = authHandlers;
+}
