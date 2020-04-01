@@ -49,7 +49,7 @@
                                     "kind": "BINARY_EXPRESSION",
                                     "children": [
                                         {
-                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
                                             "value": "3"
                                         },
                                         {
@@ -65,7 +65,7 @@
                                                             "kind": "CHECK_KEYWORD"
                                                         },
                                                         {
-                                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                                            "kind": "DECIMAL_INTEGER_LITERAL",
                                                             "value": "5"
                                                         }
                                                     ]
@@ -74,7 +74,7 @@
                                                     "kind": "PLUS_TOKEN"
                                                 },
                                                 {
-                                                    "kind": "NUMERIC_LITERAL_TOKEN",
+                                                    "kind": "DECIMAL_INTEGER_LITERAL",
                                                     "value": "2"
                                                 }
                                             ]

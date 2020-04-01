@@ -44,4 +44,14 @@ public class NodeList<T extends Node> extends NonTerminalNode {
     public int size() {
         return this.node.bucketCount();
     }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+        return visitor.transform(this);
+    }
 }

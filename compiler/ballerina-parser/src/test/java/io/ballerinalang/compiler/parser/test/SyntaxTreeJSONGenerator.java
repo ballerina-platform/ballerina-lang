@@ -25,6 +25,7 @@ import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 
 import java.io.IOException;
@@ -37,6 +38,8 @@ import java.nio.file.Paths;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.LEADING_TRIVIA;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.TRAILING_TRIVIA;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.VALUE_FIELD;
 
 /**
@@ -46,6 +49,12 @@ import static io.ballerinalang.compiler.parser.test.ParserTestConstants.VALUE_FI
  * @since 1.2.0
  */
 public class SyntaxTreeJSONGenerator {
+
+    /*
+     * Change the below two constants as required, depending on the type of test.
+     */
+    private static final boolean INCLUDE_TRIVIA = false;
+    private static final ParserRuleContext PARSER_CONTEXT = ParserRuleContext.COMP_UNIT;
 
     private static final PrintStream STANDARD_OUT = System.out;
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
@@ -62,7 +71,7 @@ public class SyntaxTreeJSONGenerator {
     private static void generateJSON(Path sourceFilePath) throws IOException {
         byte[] bytes = Files.readAllBytes(RESOURCE_DIRECTORY.resolve(sourceFilePath));
         String content = new String(bytes, StandardCharsets.UTF_8);
-        generateJSON(content, ParserRuleContext.TOP_LEVEL_NODE);
+        generateJSON(content, PARSER_CONTEXT);
     }
 
     private static void generateJSON(String source, ParserRuleContext context) {
@@ -87,21 +96,29 @@ public class SyntaxTreeJSONGenerator {
         }
 
         if (ParserTestUtils.isTerminalNode(nodeKind)) {
+
             // If the node is a terminal node with a dynamic value (i.e: non-syntax node)
             // then add the value to the json.
             if (!ParserTestUtils.isSyntaxToken(nodeKind)) {
-                jsonNode.addProperty(VALUE_FIELD, treeNode.toString().trim());
+                jsonNode.addProperty(VALUE_FIELD, ParserTestUtils.getTokenText(treeNode));
             }
 
+            if (INCLUDE_TRIVIA && !ParserTestUtils.isTrivia(nodeKind)) {
+                addTrivia((STToken) treeNode, jsonNode);
+            }
             // else do nothing
         } else {
-            addChildren(jsonNode, treeNode);
+            addChildren(treeNode, jsonNode);
         }
 
         return jsonNode;
     }
 
-    private static void addChildren(JsonObject node, STNode tree) {
+    private static void addChildren(STNode tree, JsonObject node) {
+        addNodeList(tree, node, CHILDREN_FIELD);
+    }
+
+    private static void addNodeList(STNode tree, JsonObject node, String key) {
         JsonArray children = new JsonArray();
         int size = tree.bucketCount();
         for (int i = 0; i < size; i++) {
@@ -112,6 +129,11 @@ public class SyntaxTreeJSONGenerator {
 
             children.add(getJSON(childNode));
         }
-        node.add(CHILDREN_FIELD, children);
+        node.add(key, children);
+    }
+
+    private static void addTrivia(STToken token, JsonObject jsonNode) {
+        addNodeList(token.leadingTrivia, jsonNode, LEADING_TRIVIA);
+        addNodeList(token.trailingTrivia, jsonNode, TRAILING_TRIVIA);
     }
 }

@@ -19,21 +19,16 @@ package io.ballerinalang.compiler.parser.test.incremental;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
+import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 import io.ballerinalang.compiler.syntax.BLModules;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocumentChange;
-import io.ballerinalang.compiler.text.TextDocuments;
 import io.ballerinalang.compiler.text.TextEdit;
 import io.ballerinalang.compiler.text.TextRange;
 import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch;
-import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch.Diff;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -43,45 +38,29 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Contains helper methods for incremental parser tests.
+ * An abstract class that contains utilities for incremental parser tests.
  *
  * @since 1.3.0
  */
-public class TestUtils {
+public class AbstractIncrementalParserTest {
 
-    private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
-
-    /**
-     * Returns a {@code SyntaxTree} after parsing the give source code.
-     *
-     * @param sourceFilePath Path to the ballerina file
-     */
-    public static SyntaxTree parse(String sourceFilePath) {
-        String text = getSourceText(sourceFilePath);
-        TextDocument textDocument = TextDocuments.from(text);
-        return BLModules.parse(textDocument);
+    public static SyntaxTree parseFile(String sourceFilePath) {
+        Path sourcePath = Paths.get("incremental", sourceFilePath);
+        return ParserTestUtils.parseFile(sourcePath);
     }
 
     public static SyntaxTree parse(SyntaxTree oldTree, String sourceFilePath) {
-        return BLModules.parse(oldTree, getTextChange(oldTree, sourceFilePath));
+        Path sourcePath = Paths.get("incremental", sourceFilePath);
+        return BLModules.parse(oldTree, getTextChange(oldTree, sourcePath));
     }
 
-    public static String getSourceText(String sourceFilePath) {
-        try {
-            return new String(Files.readAllBytes(RESOURCE_DIRECTORY.resolve(Paths.get("incremental/", sourceFilePath))),
-                    StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static TextDocumentChange getTextChange(SyntaxTree oldTree, String newSourceFilePath) {
-        return getTextChange(oldTree.toString(), getSourceText(newSourceFilePath));
+    public static TextDocumentChange getTextChange(SyntaxTree oldTree, Path newSourceFilePath) {
+        return getTextChange(oldTree.toString(), ParserTestUtils.getSourceText(newSourceFilePath));
     }
 
     public static TextDocumentChange getTextChange(String oldText, String newText) {
         DiffMatchPatch diffMatchPatch = new DiffMatchPatch();
-        LinkedList<Diff> diffList = diffMatchPatch.diffMain(oldText, newText);
+        LinkedList<DiffMatchPatch.Diff> diffList = diffMatchPatch.diffMain(oldText, newText);
         diffMatchPatch.diffCleanupSemantic(diffList);
         return new TextDocumentChange(getTextEdits(diffList));
     }
@@ -136,15 +115,15 @@ public class TestUtils {
         }
     }
 
-    private static TextEdit[] getTextEdits(List<Diff> diffList) {
+    private static TextEdit[] getTextEdits(List<DiffMatchPatch.Diff> diffList) {
         List<TextEdit> textEditList = new ArrayList<>();
         int oldTextOffset = 0;
-        Diff deleteDiff = null;
-        Diff insertDiff = null;
+        DiffMatchPatch.Diff deleteDiff = null;
+        DiffMatchPatch.Diff insertDiff = null;
         int diffIndex = 0;
         int diffCount = diffList.size();
         while (diffIndex < diffCount) {
-            Diff diff = diffList.get(diffIndex);
+            DiffMatchPatch.Diff diff = diffList.get(diffIndex);
             switch (diff.operation) {
                 case DELETE:
                     deleteDiff = diff;
@@ -171,7 +150,7 @@ public class TestUtils {
         return textEditList.toArray(new TextEdit[0]);
     }
 
-    private static TextEdit getTextEdit(Diff deleteDiff, Diff insertDiff, int diffStart) {
+    private static TextEdit getTextEdit(DiffMatchPatch.Diff deleteDiff, DiffMatchPatch.Diff insertDiff, int diffStart) {
         String newTextChange;
         int diffEnd;
         if (deleteDiff != null && insertDiff != null) {

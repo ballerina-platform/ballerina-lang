@@ -15,7 +15,7 @@
                     "kind": "POSITIONAL_ARG",
                     "children": [
                         {
-                            "kind": "NUMERIC_LITERAL_TOKEN",
+                            "kind": "DECIMAL_INTEGER_LITERAL",
                             "value": "5"
                         }
                     ]

@@ -34,6 +34,7 @@ public class BallerinaLexer {
 
     private CharReader reader;
     private List<STNode> leadingTriviaList;
+    private ParserMode mode = ParserMode.DEFAULT;
 
     public BallerinaLexer(CharReader charReader) {
         this.reader = charReader;
@@ -52,6 +53,26 @@ public class BallerinaLexer {
     public void reset(int offset) {
         reader.reset(offset);
     }
+
+    /**
+     * Switch the mode of the lexer to the given mode.
+     * 
+     * @param mode Mode to switch on to
+     */
+    public void switchMode(ParserMode mode) {
+        this.mode = mode;
+    }
+
+    /**
+     * Switch the mode of the lexer to {@link ParserMode#DEFAULT}.
+     */
+    public void resetMode() {
+        this.mode = ParserMode.DEFAULT;
+    }
+
+    /*
+     * Private Methods
+     */
 
     private STToken readToken() {
         reader.mark();
@@ -115,19 +136,19 @@ public class BallerinaLexer {
             case LexerTerminals.EQUAL:
                 token = processEqualOperator();
                 break;
-            case LexerTerminals.ADD:
+            case LexerTerminals.PLUS:
                 token = getSyntaxToken(SyntaxKind.PLUS_TOKEN);
                 break;
-            case LexerTerminals.SUB:
+            case LexerTerminals.MINUS:
                 token = getSyntaxToken(SyntaxKind.MINUS_TOKEN);
                 break;
-            case LexerTerminals.MUL:
+            case LexerTerminals.ASTERISK:
                 token = getSyntaxToken(SyntaxKind.ASTERISK_TOKEN);
                 break;
-            case LexerTerminals.DIV:
+            case LexerTerminals.SLASH:
                 token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
                 break;
-            case LexerTerminals.MOD:
+            case LexerTerminals.PERCENT:
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
                 break;
             case LexerTerminals.LT:
@@ -257,7 +278,7 @@ public class BallerinaLexer {
      */
     private STNode processTrailingTrivia() {
         List<STNode> triviaList = new ArrayList<>(10);
-        processSyntaxTrivia(triviaList, true);
+        processSyntaxTrivia(triviaList, false);
         return STNodeFactory.createNodeList(triviaList);
     }
 
@@ -286,9 +307,10 @@ public class BallerinaLexer {
                         break;
                     }
                     return;
-                case LexerTerminals.DIV:
-                    if (reader.peek(2) == LexerTerminals.DIV) {
+                case LexerTerminals.SLASH:
+                    if (reader.peek(1) == LexerTerminals.SLASH) {
                         triviaList.add(processComment());
+                        break;
                     }
                     return;
                 default:
@@ -302,7 +324,7 @@ public class BallerinaLexer {
      * <p>
      * <code>whitespace := 0x9 | 0xC | 0x20</code>
      * 
-     * @return
+     * @return Whitespace trivia
      */
     private STNode processWhitespaces() {
         while (true) {
@@ -372,11 +394,20 @@ public class BallerinaLexer {
      * <br/><br/>AnyCharButNewline := ^ 0xA</code>
      */
     private STNode processComment() {
-        // We reach here after verifying up to peek(2). Hence advance(2).
+        // We reach here after verifying up to 2 code-points ahead. Hence advance(2).
         reader.advance(2);
         int nextToken = peek();
-        while (nextToken != LexerTerminals.NEWLINE && nextToken != LexerTerminals.CARRIAGE_RETURN) {
-            reader.advance();
+        while (!reader.isEOF()) {
+            switch (nextToken) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                    break;
+                default:
+                    reader.advance();
+                    nextToken = peek();
+                    continue;
+            }
+            break;
         }
 
         return STNodeFactory.createSyntaxTrivia(SyntaxKind.COMMENT, getLexeme());
@@ -439,6 +470,11 @@ public class BallerinaLexer {
                 case '.':
                 case 'e':
                 case 'E':
+                    // In sem-var mode, only decimal integer literals are supported
+                    if (this.mode == ParserMode.IMPORT) {
+                        break;
+                    }
+
                     // TODO: handle float
                     reader.advance();
                     processInvalidToken();
@@ -462,7 +498,7 @@ public class BallerinaLexer {
             return readToken();
         }
 
-        return getLiteral(SyntaxKind.NUMERIC_LITERAL_TOKEN);
+        return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL);
     }
 
     /**
@@ -488,8 +524,7 @@ public class BallerinaLexer {
             reader.advance();
         }
 
-        // TODO: can send syntax kind as HEX_LITERAL ??
-        return getLiteral(SyntaxKind.NUMERIC_LITERAL_TOKEN);
+        return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL);
     }
 
     /**
@@ -554,6 +589,14 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.CHECK_KEYWORD);
             case LexerTerminals.CHECKPANIC:
                 return getSyntaxToken(SyntaxKind.CHECKPANIC_KEYWORD);
+            case LexerTerminals.PANIC:
+                return getSyntaxToken(SyntaxKind.PANIC_KEYWORD);
+            case LexerTerminals.IMPORT:
+                return getSyntaxToken(SyntaxKind.IMPORT_KEYWORD);
+            case LexerTerminals.VERSION:
+                return getSyntaxToken(SyntaxKind.VERSION_KEYWORD);
+            case LexerTerminals.AS:
+                return getSyntaxToken(SyntaxKind.AS_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
@@ -586,6 +629,10 @@ public class BallerinaLexer {
      * @return <code>true</code>, if the end of an invalid token is reached, <code>false</code> otherwise
      */
     private boolean isEndOfInvalidToken() {
+        if (reader.isEOF()) {
+            return true;
+        }
+
         int currentChar = peek();
         switch (currentChar) {
             case LexerTerminals.NEWLINE:
