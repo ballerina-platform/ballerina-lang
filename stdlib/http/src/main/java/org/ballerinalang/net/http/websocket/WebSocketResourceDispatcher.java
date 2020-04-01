@@ -427,6 +427,7 @@ public class WebSocketResourceDispatcher {
                                                     "Unexpected error");
         }
         if (onErrorResource == null) {
+            ErrorHandlerUtils.printError(throwable.getCause());
             return;
         }
         Object[] bValues = new Object[onErrorResource.getParameterType().length * 2];
