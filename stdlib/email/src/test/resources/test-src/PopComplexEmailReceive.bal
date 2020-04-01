@@ -15,17 +15,58 @@
 // under the License.
 
 import ballerina/email;
+import ballerina/mime;
 
 email:PopConfig popConfig = {
      port: 3110,
      enableSsl: false
  };
 
-function testReceiveComplexEmail(string host, string username, string password) returns email:Email|email:Error? {
+function testReceiveComplexEmail(string host, string username, string password) returns @tainted string[] {
+    string[] returnArray = [];
     email:PopClient|email:Error popClient = new (host, username, password, popConfig);
     if (popClient is email:PopClient) {
-        return popClient->read();
+        email:Email|email:Error? emailResponse = popClient->read();
+            if (emailResponse is email:Email) {
+                returnArray[0] = emailResponse.subject;
+                returnArray[1] = emailResponse.body;
+                returnArray[2] = emailResponse.'from;
+                returnArray[3] = getNonNilString(emailResponse?.sender);
+                returnArray[4] = concatStrings(emailResponse.to);
+                returnArray[5] = concatStrings(emailResponse?.cc);
+                returnArray[6] = concatStrings(emailResponse?.replyTo);
+                mime:Entity[]? attachments = emailResponse?.attachments;
+                if (attachments is mime:Entity[]) {
+                    string|error attachment1 = attachments[0].getText();
+                    returnArray[7] = (attachment1 is string) ? attachment1 : "";
+                }
+                return returnArray;
+            } else if (emailResponse is ()) {
+                return [];
+            } else {
+                return [];
+            }
     } else {
-        return popClient;
+        return [];
     }
+}
+
+function getNonNilString(string? sender) returns string {
+    if sender is string {
+        return sender;
+    } else {
+        return "";
+    }
+}
+
+function concatStrings(string[]? addresses) returns string {
+    string result = "";
+    int i = 0;
+    if addresses is string[] {
+        while (i < addresses.length()) {
+            result = result + addresses[i];
+            i = i + 1;
+        }
+    }
+    return result;
 }
