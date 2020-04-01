@@ -108,6 +108,7 @@ public class DocumentationTest {
     @Test(description = "Test doc attachments in annotations")
     public void testAnnotationDoc() {
         PackageNode packageNode = result.getAST();
+        Assert.assertEquals(result.getErrorCount(), 0);
         BPackageSymbol symbol = ((BLangPackage) packageNode).symbol;
 
         BPackageSymbol testOrgPackage = (BPackageSymbol) symbol.scope.lookup(new Name("test")).symbol;
