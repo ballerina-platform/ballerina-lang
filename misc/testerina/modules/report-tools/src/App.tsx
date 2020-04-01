@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import './bootstrap.min.css'
+import 'bootstrap-css-only/css/bootstrap.min.css'
 import './App.css';
 
 import ProjectReport, { ReportSummary } from './StatusReport';
