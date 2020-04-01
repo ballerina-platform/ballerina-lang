@@ -87,7 +87,9 @@ class RHSSignatureTokenTraverser extends AbstractTokenTraverser {
                 this.pendingRightParenthesis--;
                 result = false;
             } else {
-                this.processToken(token);
+                if (!this.capturedLastRightParenthesis) {
+                    this.processToken(token);
+                }
                 result = true;
             }
             if (this.pendingRightParenthesis == 0) {

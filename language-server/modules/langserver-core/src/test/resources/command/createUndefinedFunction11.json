@@ -1,0 +1,32 @@
+{
+    "arguments": {
+        "node.line": 23,
+        "node.column": 4
+    },
+    "expected": {
+        "result": {
+            "edit": {
+                "documentChanges": [
+                    {
+                        "edits": [
+                            {
+                                "range": {
+                                    "start": {
+                                        "line": 27,
+                                        "character": 0
+                                    },
+                                    "end": {
+                                        "line": 27,
+                                        "character": 0
+                                    }
+                                },
+                                "newText": "\n\nfunction printThis(boolean isNaNResult){\n\n}\n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "jsonrpc": "2.0"
+    }
+}
