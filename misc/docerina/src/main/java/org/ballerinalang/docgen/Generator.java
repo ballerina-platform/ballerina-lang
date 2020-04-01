@@ -284,8 +284,8 @@ public class Generator {
         for (BLangSimpleVariable param : allFields) {
             if (param.getFlags().contains(Flag.PUBLIC)) {
                 String name = param.getName().value;
-                String desc = fieldAnnotation(node, param);
-                desc = desc.isEmpty() ? findDescFromList(name, documentation, param) : desc;
+                String desc = findDescFromList(name, documentation, param);
+                desc = desc.isEmpty() ? fieldAnnotation(node, param) : desc;
 
                 String defaultValue = EMPTY_STRING;
                 if (null != param.getInitialExpression()) {
@@ -307,16 +307,19 @@ public class Generator {
         }
         Map<String, BLangMarkdownParameterDocumentation> parameterDocumentations = documentation
                 .getParameterDocumentations();
-        BLangMarkdownParameterDocumentation parameter = parameterDocumentations.get(name);
-        if (parameter != null) {
-            return BallerinaDocUtils.mdToHtml(parameter.getParameterDocumentation());
+
+        // Get field documentation from field decl documentation (priority)
+        BLangMarkdownDocumentation paramDocAttach = param.getMarkdownDocumentationAttachment();
+        if (paramDocAttach != null) {
+            return BallerinaDocUtils.mdToHtml(paramDocAttach.getDocumentation());
         } else {
-            // Get field-level documentation
-            BLangMarkdownDocumentation paramDocAttach = param.getMarkdownDocumentationAttachment();
-            if (paramDocAttach == null) {
+            // Get field documentation from object/record def documentation
+            BLangMarkdownParameterDocumentation parameter = parameterDocumentations.get(name);
+            if (parameter != null) {
+                return BallerinaDocUtils.mdToHtml(parameter.getParameterDocumentation());
+            } else {
                 return EMPTY_STRING;
             }
-            return BallerinaDocUtils.mdToHtml(paramDocAttach.getDocumentation());
         }
     }
 

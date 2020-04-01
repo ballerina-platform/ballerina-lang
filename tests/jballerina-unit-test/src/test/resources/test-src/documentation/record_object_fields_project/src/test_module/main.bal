@@ -60,6 +60,18 @@ public type Teacher object {
     public int age = 15;
 };
 
+
+# Employee object
+#
+# + empNo - employee number
+# + age - employee age
+public type Employee object {
+    # funny number
+    public string empNo = "E100546";
+    # funny age
+    public int age = 15;
+};
+
 # Prints `Hello World`.
 public function main() {
     io:println("Hello World!");
