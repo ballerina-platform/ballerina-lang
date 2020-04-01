@@ -72,6 +72,9 @@ public abstract class SyntaxNodeVisitor {
     public void visit(ContinueStatement continueStatement) {
         visitSyntaxNode(continueStatement);
     }
+    public void visit(BreakStatement breakStatement) {
+        visitSyntaxNode(breakStatement);
+    }
 
     // Expressions
 

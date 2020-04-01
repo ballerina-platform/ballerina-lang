@@ -51,6 +51,7 @@ public enum SyntaxKind {
     CHECK_KEYWORD(208, "check"),
     CHECKPANIC_KEYWORD(209, "checkpanic"),
     CONTINUE_KEYWORD(212,"continue"),
+    BREAK_KEYWORD(213,"break"),
     PANIC_KEYWORD(210, "panic"),
 
 
@@ -113,6 +114,8 @@ public enum SyntaxKind {
     CALL_STATEMENT(1206),
     PANIC_STATEMENT(1207),
     CONTINUE_STATEMENT(1209),
+    BREAK_STATEMENT(1210),
+
 
 
     // Expressions

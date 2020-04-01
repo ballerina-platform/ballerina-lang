@@ -2138,6 +2138,8 @@ public class BallerinaParser {
                 return parseCallStatementWithCheck();
             case CONTINUE_KEYWORD:
                 return parseContinueStatement();
+            case BREAK_KEYWORD:
+                return parseBreakStatement();
             default:
                 // If the next token in the token stream does not match to any of the statements and
                 // if it is not the end of statement, then try to fix it and continue.
@@ -3514,6 +3516,35 @@ public class BallerinaParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.CONTINUE_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse Break statement.
+     * <code>break-stmt := break ; </code>
+     *
+     * @return Break statement
+     */
+    private STNode parseBreakStatement() {
+        startContext(ParserRuleContext.BREAK_STATEMENT);
+        STNode breakKeyword = parseBreakKeyword();
+        STNode semicolon = parseSemicolon();
+        endContext();
+        return STNodeFactory.createBreakStatement(breakKeyword, semicolon);
+    }
+
+    /**
+     * Parse Continue-keyword.
+     *
+     * @return Continue-keyword node
+     */
+    private STNode parseBreakKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.BREAK_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.BREAK_KEYWORD);
             return sol.recoveredNode;
         }
     }

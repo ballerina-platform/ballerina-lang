@@ -591,6 +591,8 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.CHECKPANIC_KEYWORD);
             case LexerTerminals.CONTINUE:
                 return getSyntaxToken(SyntaxKind.CONTINUE_KEYWORD);
+            case LexerTerminals.BREAK:
+                return getSyntaxToken(SyntaxKind.BREAK_KEYWORD);
             case LexerTerminals.PANIC:
                 return getSyntaxToken(SyntaxKind.PANIC_KEYWORD);
             case LexerTerminals.IMPORT:

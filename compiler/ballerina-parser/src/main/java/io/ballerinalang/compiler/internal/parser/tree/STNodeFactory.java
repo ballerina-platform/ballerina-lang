@@ -115,6 +115,14 @@ public class STNodeFactory {
         return new STVariableDeclaration(kind, typeName, variableName, equalsToken, initializer, semicolonToken);
     }
 
+    public static STNode createContinueStatement(STNode continueKeyword, STNode semicolonToken) {
+        return new STContinueStatement(continueKeyword, semicolonToken);
+    }
+
+    public static STNode createBreakStatement(STNode breakKeyword, STNode semicolonToken) {
+        return new STBreakStatement(breakKeyword, semicolonToken);
+    }
+
     // Expressions
 
     public static STNode createBinaryExpression(SyntaxKind kind,
@@ -309,9 +317,7 @@ public class STNodeFactory {
     }
 
 
-    public static STNode createContinueStatement(STNode continueKeyword, STNode semicolonToken) {
-        return new STContinueStatement(continueKeyword, semicolonToken);
-    }
+
 
     public static STNode createImportDecl(STNode importKeyword,
                                           STNode orgName,

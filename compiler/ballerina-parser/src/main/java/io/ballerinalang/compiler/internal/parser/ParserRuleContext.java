@@ -94,6 +94,7 @@ public enum ParserRuleContext {
     CALL_STMT("call-statement"),
     CALL_STMT_START("call-statement-start"),
     CONTINUE_STATEMENT("continue-statement"),
+    BREAK_STATEMENT("break-statement"),
     PANIC_STMT("panic-statement"),
 
 
@@ -114,6 +115,7 @@ public enum ParserRuleContext {
     ELSE_KEYWORD("else"),
     WHILE_KEYWORD("while"),
     CONTINUE_KEYWORD("continue"),
+    BREAK_KEYWORD("break"),
     PANIC_KEYWORD("panic"),
     IMPORT_KEYWORD("import"),
     VERSION_KEYWORD("version"),
