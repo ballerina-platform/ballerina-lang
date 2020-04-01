@@ -64,6 +64,10 @@ public abstract class SyntaxNodeVisitor {
     public void visit(BlockStatement blockStatement) {
         visitSyntaxNode(blockStatement);
     }
+    
+    public void visit(PanicStatement panicStatement) {
+        visitSyntaxNode(panicStatement);
+    }
 
     public void visit(ReturnStatement returnStatement) {
         visitSyntaxNode(returnStatement);
@@ -144,6 +148,25 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(typeReferenceNode);
     }
 
+    public void visit(ImportPrefix importPrefix) {
+        visitSyntaxNode(importPrefix);
+    }
+
+    public void visit(ImportVersion importVersion) {
+        visitSyntaxNode(importVersion);
+    }
+
+    public void visit(ImportSubVersion importSubVersion) {
+        visitSyntaxNode(importSubVersion);
+    }
+
+    public void visit(SubModuleName subModuleName) {
+        visitSyntaxNode(subModuleName);
+    }
+
+    public void visit(ImportOrgName importOrgName) {
+        visitSyntaxNode(importOrgName);
+    }
 
     protected void visitSyntaxNode(Node node) {
         // TODO Find a better way to check for token

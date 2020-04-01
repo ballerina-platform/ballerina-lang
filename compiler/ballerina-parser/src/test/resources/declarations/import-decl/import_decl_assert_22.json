@@ -1,0 +1,121 @@
+{
+    "kind": "MODULE_PART",
+    "children": [
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "IMPORT_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "IMPORT_KEYWORD"
+                        },
+                        {
+                            "kind": "IMPORT_ORG_NAME",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "ballerina"
+                                },
+                                {
+                                    "kind": "SLASH_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "io"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "FUNCTION_DEFINITION",
+                    "children": [
+                        {
+                            "kind": "FUNCTION_KEYWORD"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "foo"
+                        },
+                        {
+                            "kind": "OPEN_PAREN_TOKEN"
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                            ]
+                        },
+                        {
+                            "kind": "CLOSE_PAREN_TOKEN"
+                        },
+                        {
+                            "kind": "BLOCK_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "OPEN_BRACE_TOKEN"
+                                },
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                },
+                                {
+                                    "kind": "CLOSE_BRACE_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "IMPORT_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "IMPORT_KEYWORD"
+                        },
+                        {
+                            "kind": "IMPORT_ORG_NAME",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "ballerina"
+                                },
+                                {
+                                    "kind": "SLASH_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "http"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "EOF_TOKEN"
+        }
+    ]
+}

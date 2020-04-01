@@ -33,7 +33,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
@@ -85,7 +84,7 @@ public class Slice {
                 elemTypeTag = -1; // To ensure additions go to ref value array in ArrayValue
 
                 for (long i = startIndex, j = 0; i < endIndex; i++, j++) {
-                    add(slicedArr, elemTypeTag, j, arr.getRefValue(i));
+                    slicedArr.add(j, arr.getRefValue(i));
                 }
                 break;
             default:

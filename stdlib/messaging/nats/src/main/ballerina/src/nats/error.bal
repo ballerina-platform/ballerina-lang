@@ -23,8 +23,10 @@ public type Detail record {
     error cause?;
 };
 
+# Represents the reason for the NATS module related errors.
 public const NATS_ERROR = "{ballerina/nats}Error";
 
+# Represents the NATS module related errors.
 public type Error error<NATS_ERROR, Detail>;
 
 # Prepare the `error` as a `Error`.

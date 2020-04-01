@@ -150,7 +150,6 @@ public class RecordItertorUtils {
         }
     }
 
-
     public static Object closeResult(ObjectValue recordIterator) {
         ResultSet resultSet = (ResultSet) recordIterator.getNativeData(Constants.RESULT_SET_NATIVE_DATA_FIELD);
         Statement statement = (Statement) recordIterator.getNativeData(Constants.STATEMENT_NATIVE_DATA_FIELD);

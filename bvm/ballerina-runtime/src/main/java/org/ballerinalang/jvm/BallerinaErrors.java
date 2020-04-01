@@ -68,7 +68,7 @@ public class BallerinaErrors {
     }
 
     public static ErrorValue createError(BString reason) {
-        return new ErrorValue((StringValue) reason, new MapValueImpl<>(BTypes.typeErrorDetail));
+        return new ErrorValue(reason, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     @Deprecated

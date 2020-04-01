@@ -67,6 +67,10 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(blockStatement);
     }
 
+    public T transform(PanicStatement panicStatement) {
+        return transformSyntaxNode(panicStatement);
+    }
+
     public T transform(ReturnStatement returnStatement) {
         return transformSyntaxNode(returnStatement);
     }
@@ -148,6 +152,26 @@ public abstract class SyntaxNodeTransformer<T> {
 
     public T transform(TypeReferenceNode typeReferenceNode) {
         return transformSyntaxNode(typeReferenceNode);
+    }
+
+    public T transform(ImportPrefix importPrefix) {
+        return transformSyntaxNode(importPrefix);
+    }
+
+    public T transform(ImportVersion importVersion) {
+        return transformSyntaxNode(importVersion);
+    }
+
+    public T transform(ImportSubVersion importSubVersion) {
+        return transformSyntaxNode(importSubVersion);
+    }
+
+    public T transform(SubModuleName subModuleName) {
+        return transformSyntaxNode(subModuleName);
+    }
+
+    public T transform(ImportOrgName importOrgName) {
+        return transformSyntaxNode(importOrgName);
     }
 
     /**

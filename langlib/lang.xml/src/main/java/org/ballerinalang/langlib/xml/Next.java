@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.IteratorValue;
@@ -54,6 +55,22 @@ public class Next {
         if (xmlIterator.hasNext()) {
             Object xmlValue = xmlIterator.next();
             return BallerinaValues.createRecord(new MapValueImpl<>(BTypes.xmlItrNextReturnType), xmlValue);
+        }
+
+        return null;
+    }
+
+    public static Object next_bstring(Strand strand, ObjectValue m) {
+        IteratorValue xmlIterator = (IteratorValue) m.getNativeData("&iterator&");
+
+        if (xmlIterator == null) {
+            xmlIterator = ((XMLValue) m.get(StringUtils.fromString("m"))).getIterator();
+            m.addNativeData("&iterator&", xmlIterator);
+        }
+
+        if (xmlIterator.hasNext()) {
+            Object xmlValue = xmlIterator.next();
+            return BallerinaValues.createRecord_bstring(new MapValueImpl<>(BTypes.xmlItrNextReturnType), xmlValue);
         }
 
         return null;

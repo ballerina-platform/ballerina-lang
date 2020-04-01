@@ -33,7 +33,7 @@ public class ForeachNegativeTests {
     @Test
     public void testForeachSemanticsNegative() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-semantics-negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 21);
+        Assert.assertEquals(compile.getErrorCount(), 18);
         int index = 0;
         BAssertUtil.validateError(compile, index++,
                                   "invalid tuple binding pattern: attempted to infer a tuple type, but found 'string'",
@@ -65,9 +65,6 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'reason'", 146, 9);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'fatal'", 147, 9);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'message'", 148, 9);
-        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'id'", 156, 9);
-        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'name'", 157, 9);
-        BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'salary'", 158, 9);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 169, 13);
         BAssertUtil.validateError(compile, index++, "cannot assign a value to final 'v'", 183, 13);
         BAssertUtil.validateError(compile, index, "cannot assign a value to final 'status'", 198, 9);

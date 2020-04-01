@@ -31,12 +31,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
@@ -141,14 +142,6 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
     }
 
     @Override
-    public void visit(BLangTableLiteral tableLiteral) {
-        if (isWithinNode.test(CommonUtil.toZeroBasedPosition(tableLiteral.pos))) {
-            this.addSymbol(tableLiteral, tableLiteral.type.tsymbol, false, tableLiteral.pos);
-        }
-        super.visit(tableLiteral);
-    }
-
-    @Override
     public void visit(BLangRecordLiteral recordLiteral) {
 //       BLangStructLiteral
 //       BLangMapLiteral
@@ -209,5 +202,21 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
             this.addSymbol(conversionExpr, conversionExpr.type.tsymbol, false, conversionExpr.pos);
         }
         super.visit(conversionExpr);
+    }
+
+    @Override
+    public void visit(BLangQueryExpr queryExpr) {
+        if (isWithinNode.test(CommonUtil.toZeroBasedPosition(queryExpr.pos))) {
+            this.addSymbol(queryExpr, queryExpr.type.tsymbol, false, queryExpr.pos);
+        }
+        super.visit(queryExpr);
+    }
+
+    @Override
+    public void visit(BLangBinaryExpr binaryExpr) {
+        if (isWithinNode.test(CommonUtil.toZeroBasedPosition(binaryExpr.pos))) {
+            this.addSymbol(binaryExpr, binaryExpr.type.tsymbol, false, binaryExpr.pos);
+        }
+        super.visit(binaryExpr);
     }
 }

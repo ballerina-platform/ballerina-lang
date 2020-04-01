@@ -1,3 +1,9 @@
+# For this example to work properly, an active Kafka broker should be present.
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
 $ ballerina run kafka_message_producer_simple.bal
+
+# If the producer successfully sent the message, the following will be printed
+# in the Console.
+Message sent successfully.
+Records were flushed successfully.
