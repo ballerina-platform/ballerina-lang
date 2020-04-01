@@ -87,7 +87,7 @@ public class StubGeneratorTestCase {
 
     @Test(description = "Test proto definition compilation when proto file inside a directory with white space")
     public void testDirectoryWithSpace() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
-        CompileResult compileResult = getStubCompileResult(Paths.get("a b","helloWorld.proto").toString(),
+        CompileResult compileResult = getStubCompileResult(Paths.get("a b", "helloWorld.proto").toString(),
                 outputDirPath.resolve("a b"), "helloWorld_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
