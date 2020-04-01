@@ -27,7 +27,8 @@ public type Person record {|
     CountryCode countryCode;
 |};
 
-# Apartment record
+# `Apartment` record in the *town*
+# `test` documentation row
 #
 # + number - number of the apartment
 # + street - street of the apartment

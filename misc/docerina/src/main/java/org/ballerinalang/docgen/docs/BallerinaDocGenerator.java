@@ -314,7 +314,7 @@ public class BallerinaDocGenerator {
         } catch (IOException e) {
             out.println(String.format("docerina: failed to copy the docerina-theme resource. Cause: %s", e.getMessage
                     ()));
-            log.error("Failed to coxpy the docerina-theme resource.", e);
+            log.error("Failed to copy the docerina-theme resource.", e);
         }
         if (BallerinaDocUtils.isDebugEnabled()) {
             out.println("docerina: successfully copied HTML theme into " + output);
