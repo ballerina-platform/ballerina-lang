@@ -42,7 +42,8 @@ public class ReturnStatement extends Statement{
             return actionOrExpr;
         }
 
-        actionOrExpr = createToken(1);
+        actionOrExpr = node.childInBucket(1).createFacade(getChildPosition(1), this);
+        childBuckets[1] = actionOrExpr;
         return actionOrExpr;
     }
 
