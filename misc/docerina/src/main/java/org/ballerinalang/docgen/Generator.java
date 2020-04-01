@@ -273,11 +273,9 @@ public class Generator {
         }
         BLangMarkdownDocumentation documentationNode = typeDefinition.getMarkdownDocumentationAttachment();
         List<DefaultableVariable> fields = getFields(recordType, recordType.fields, documentationNode, module);
-        String documentationText = documentationNode == null ? null : documentationNode.getDocumentation();
 
-        module.records
-                .add(new Record(recordName, documentationText, isDeprecated(typeDefinition.getAnnotationAttachments()),
-                        fields));
+        module.records.add(new Record(recordName, description(typeDefinition),
+                isDeprecated(typeDefinition.getAnnotationAttachments()), fields));
     }
 
     private static List<DefaultableVariable> getFields(BLangNode node, List<BLangSimpleVariable> allFields,
