@@ -51,7 +51,7 @@ public class SQLTest {
     public void testSelectWithUntaintedQueryProducingTaintedReturn() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/connectors/sql-select-untainted-query-tainted-return.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 3);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
     }
 
     @Test (enabled = false)
