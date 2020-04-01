@@ -19,7 +19,12 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Solution;
-import io.ballerinalang.compiler.internal.parser.tree.*;
+import io.ballerinalang.compiler.internal.parser.tree.STCheckExpression;
+import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
+import io.ballerinalang.compiler.internal.parser.tree.STToken;
+import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -187,7 +192,7 @@ public class BallerinaParser {
             case AS_KEYWORD:
                 return parseAsKeyword();
             case RETURN_KEYWORD:
-                return parseReturnStatement();
+                return parseReturnKeyword();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -3545,13 +3550,13 @@ public class BallerinaParser {
         switch (tokenKind) {
             case SEMICOLON_TOKEN:
                 expr = STNodeFactory.createEmptyNode();
-                semicolon = parseSemicolon();
                 break;
             default:
                 expr = parseExpression();
-                semicolon = parseSemicolon();
+                break;
         }
 
+        semicolon = parseSemicolon();
         return STNodeFactory.createReturnStatement(SyntaxKind.RETURN_STATEMENT,returnKeyword, expr, semicolon);
     }
 }

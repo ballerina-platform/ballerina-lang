@@ -115,10 +115,7 @@ public class STNodeFactory {
         return new STVariableDeclaration(kind, typeName, variableName, equalsToken, initializer, semicolonToken);
     }
 
-    public static STNode createReturnStatement(SyntaxKind kind,
-                                                   STNode returnKeyword,
-                                                   STNode actionOrExpr,
-                                                   STNode semicolonToken) {
+    public static STNode createReturnStatement(SyntaxKind kind, STNode returnKeyword, STNode actionOrExpr, STNode semicolonToken) {
         return new STReturnStatement(kind, returnKeyword, actionOrExpr, semicolonToken);
     }
 
