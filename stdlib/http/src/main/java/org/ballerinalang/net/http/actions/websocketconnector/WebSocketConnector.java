@@ -46,7 +46,7 @@ public class WebSocketConnector {
                                                              WebSocketConstants.RESOURCE_NAME_PUSH_TEXT);
         try {
             ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text, finalFrame);
-            WebSocketUtil.handleWebSocketCallback(callback, future, log);
+            WebSocketUtil.handleWebSocketCallback(callback, future, log, connectionInfo);
             WebSocketObservabilityUtil.observeSend(WebSocketObservabilityConstants.MESSAGE_TYPE_TEXT,
                                                    connectionInfo);
         } catch (Exception e) {
@@ -55,7 +55,7 @@ public class WebSocketConnector {
                                                     WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_SENT,
                                                     WebSocketObservabilityConstants.MESSAGE_TYPE_TEXT,
                                                     e.getMessage());
-            callback.notifyFailure(WebSocketUtil.createErrorByType(e));
+            WebSocketUtil.setCallbackFunctionBehaviour(connectionInfo, callback, e);
         }
         return null;
     }
@@ -71,7 +71,7 @@ public class WebSocketConnector {
         try {
             ChannelFuture webSocketChannelFuture = connectionInfo.getWebSocketConnection().pushBinary(
                     ByteBuffer.wrap(binaryData.getBytes()), finalFrame);
-            WebSocketUtil.handleWebSocketCallback(callback, webSocketChannelFuture, log);
+            WebSocketUtil.handleWebSocketCallback(callback, webSocketChannelFuture, log, connectionInfo);
             WebSocketObservabilityUtil.observeSend(WebSocketObservabilityConstants.MESSAGE_TYPE_BINARY,
                                                    connectionInfo);
         } catch (Exception e) {
@@ -80,7 +80,7 @@ public class WebSocketConnector {
                                                     WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_SENT,
                                                     WebSocketObservabilityConstants.MESSAGE_TYPE_BINARY,
                                                     e.getMessage());
-            callback.notifyFailure(WebSocketUtil.createErrorByType(e));
+            WebSocketUtil.setCallbackFunctionBehaviour(connectionInfo, callback, e);
         }
         return null;
     }
@@ -94,7 +94,7 @@ public class WebSocketConnector {
                                                              WebSocketConstants.RESOURCE_NAME_PING);
         try {
             ChannelFuture future = connectionInfo.getWebSocketConnection().ping(ByteBuffer.wrap(binaryData.getBytes()));
-            WebSocketUtil.handleWebSocketCallback(callback, future, log);
+            WebSocketUtil.handleWebSocketCallback(callback, future, log, connectionInfo);
             WebSocketObservabilityUtil.observeSend(WebSocketObservabilityConstants.MESSAGE_TYPE_PING,
                                                    connectionInfo);
         } catch (Exception e) {
@@ -103,8 +103,7 @@ public class WebSocketConnector {
                                                     WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_SENT,
                                                     WebSocketObservabilityConstants.MESSAGE_TYPE_PING,
                                                     e.getMessage());
-
-            callback.notifyFailure(WebSocketUtil.createErrorByType(e));
+            WebSocketUtil.setCallbackFunctionBehaviour(connectionInfo, callback, e);
         }
         return null;
     }
@@ -118,7 +117,7 @@ public class WebSocketConnector {
                                                              WebSocketConstants.RESOURCE_NAME_PONG);
         try {
             ChannelFuture future = connectionInfo.getWebSocketConnection().pong(ByteBuffer.wrap(binaryData.getBytes()));
-            WebSocketUtil.handleWebSocketCallback(callback, future, log);
+            WebSocketUtil.handleWebSocketCallback(callback, future, log, connectionInfo);
             WebSocketObservabilityUtil.observeSend(WebSocketObservabilityConstants.MESSAGE_TYPE_PONG,
                                                    connectionInfo);
         } catch (Exception e) {
@@ -127,7 +126,7 @@ public class WebSocketConnector {
                                                     WebSocketObservabilityConstants.ERROR_TYPE_MESSAGE_SENT,
                                                     WebSocketObservabilityConstants.MESSAGE_TYPE_PONG,
                                                     e.getMessage());
-            callback.notifyFailure(WebSocketUtil.createErrorByType(e));
+            WebSocketUtil.setCallbackFunctionBehaviour(connectionInfo, callback, e);
         }
         return null;
     }
