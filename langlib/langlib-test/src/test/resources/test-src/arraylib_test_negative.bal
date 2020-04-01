@@ -43,3 +43,12 @@ function testUnShiftOnFixedLengthTuple() {
     [int, int] fixedLengthTuple = [1, 2];
     fixedLengthTuple.unshift();
 }
+
+// inferred fixed length arrays
+function testPushPopShiftUnshitOnInferredFixedLengthArray() {
+    int[*] fixedLengthArray = [1, 2];
+    fixedLengthArray.push(4);
+    int x = fixedLengthArray.pop();
+    x = fixedLengthArray.shift();
+    fixedLengthArray.unshift();
+}
