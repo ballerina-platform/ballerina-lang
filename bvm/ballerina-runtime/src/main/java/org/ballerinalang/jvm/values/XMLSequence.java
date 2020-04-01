@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -180,6 +179,7 @@ public final class XMLSequence extends XMLValue {
     }
 
     @Override
+    @Deprecated
     public void setAttributes(BMap<String, ?> attributes) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
@@ -425,11 +425,6 @@ public final class XMLSequence extends XMLValue {
         return BLangConstants.STRING_NULL_VALUE;
     }
 
-    @Override
-    public BString bStringValue() {
-        return null;
-    }
-
 
     /**
      * {@inheritDoc}
@@ -552,13 +547,22 @@ public final class XMLSequence extends XMLValue {
     }
 
     @Override
+    public synchronized boolean isFrozen() {
+        if (freezeStatus.isFrozen()) {
+            return true;
+        }
+        for (BXML child : this.children) {
+            if (!child.isFrozen()) {
+                return false;
+            }
+        }
+        freezeStatus.setFrozen();
+        return true;
+    }
+
+    @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
-            @Override
-            public BString bStringValue() {
-                return null;
-            }
-
             Iterator<BXML> iterator = children.iterator();
 
             @Override

@@ -1,30 +1,33 @@
+import ballerina/io;
 import ballerina/kafka;
-import ballerina/log;
 
-kafka:ProducerConfiguration producerConfigs = {
-    // Here, we create the configs of a producer with optional parameters.
-    // client.id - used for broker-side logging.
-    // `acks` - number of acknowledgments to complete the request.
-    // `noRetries` - number of retries if record sending fails.
-    // `bootstrapServers` is the list of remote server endpoints of
-    // the Kafka brokers
+kafka:ProducerConfiguration producerConfiguration = {
+    // The `bootstrapServers` is the list of remote server endpoints of the
+    // Kafka brokers.
     bootstrapServers: "localhost:9092",
     clientId: "basic-producer",
     acks: "all",
-    retryCount: 3
+    retryCount: 3,
+    // Uses the builtin string serializer for the values.
+    valueSerializerType: kafka:SER_STRING,
+    // Uses the builtin int serializer for the keys.
+    keySerializerType: kafka:SER_INT
 };
 
-kafka:Producer kafkaProducer = new (producerConfigs);
+kafka:Producer kafkaProducer = new (producerConfiguration);
 
 public function main() {
-    string msg = "Hello World, Ballerina";
-    byte[] serializedMsg = msg.toBytes();
-    var sendResult = kafkaProducer->send(serializedMsg, "test-kafka-topic");
+    string message = "Hello World, Ballerina";
+    var sendResult = kafkaProducer->send(message, "test-kafka-topic", key = 1);
     if (sendResult is error) {
-        log:printError("Kafka producer failed to send data", sendResult);
+        io:println("Error occurred while sending data: " + sendResult.toString());
+    } else {
+        io:println("Message sent successfully.");
     }
     var flushResult = kafkaProducer->flushRecords();
     if (flushResult is error) {
-        log:printError("Kafka producer failed to flush the records", flushResult);
+        io:println("Error occurred while flishing the data: " + flushResult.toString());
+    } else {
+        io:println("Records were flushed successfully.");
     }
 }

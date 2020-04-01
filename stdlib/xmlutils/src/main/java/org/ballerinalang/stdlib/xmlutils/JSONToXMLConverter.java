@@ -119,10 +119,6 @@ public class JSONToXMLConverter {
                 }
                 if (parentElement != null) {
                     String attributeKey = nodeName.substring(1);
-                    // Validate whether the attribute name is an XML supported qualified name, according to the XML
-                    // recommendation.
-                    XMLValidator.validateXMLName(attributeKey);
-
                     parentElement.setAttribute(attributeKey, null, null, json.toString());
                 }
                 return parentElement;

@@ -46,7 +46,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStringSubType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -109,7 +108,6 @@ public class SymbolTable {
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null);
     public final BType jsonType = new BJSONType(TypeTags.JSON, null);
     public final BType xmlType = new BXMLType(TypeTags.XML, null);
-    public final BType tableType = new BTableType(TypeTags.TABLE, noType, null);
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BType anydataType = new BAnydataType(TypeTags.ANYDATA, null);
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
@@ -212,7 +210,6 @@ public class SymbolTable {
         initializeType(booleanType, TypeKind.BOOLEAN.typeName());
         initializeType(jsonType, TypeKind.JSON.typeName());
         initializeType(xmlType, TypeKind.XML.typeName());
-        initializeType(tableType, TypeKind.TABLE.typeName());
         initializeType(streamType, TypeKind.STREAM.typeName());
         initializeType(mapType, TypeKind.MAP.typeName());
         initializeType(mapStringType, TypeKind.MAP.typeName());
@@ -276,8 +273,6 @@ public class SymbolTable {
                 return xmlElementType;
             case TypeTags.XML_TEXT:
                 return xmlTextType;
-            case TypeTags.TABLE:
-                return tableType;
             case TypeTags.STREAM:
                 return streamType;
             case TypeTags.NIL:
