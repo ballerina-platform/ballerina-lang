@@ -29,7 +29,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.COMPONENT_IDENTIF
 /**
  * This class represents the "ballerina bindgen" command.
  *
- * @since 1.20
+ * @since 1.2.0
  */
 @CommandLine.Command(
         name = "bindgen",

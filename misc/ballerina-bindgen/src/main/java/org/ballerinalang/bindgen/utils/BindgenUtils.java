@@ -81,6 +81,8 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.TEMPLATES_DIR_PAT
 
 /**
  * Class containing the util methods of the Ballerina Bindgen CLI tool.
+ *
+ * @since 1.2.0
  */
 public class BindgenUtils {
 

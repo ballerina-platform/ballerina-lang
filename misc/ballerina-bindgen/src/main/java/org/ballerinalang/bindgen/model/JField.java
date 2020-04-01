@@ -32,6 +32,8 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticField;
 
 /**
  * Class for storing details pertaining to a specific Java field used for Ballerina bridge code generation.
+ *
+ * @since 1.2.0
  */
 public class JField {
 

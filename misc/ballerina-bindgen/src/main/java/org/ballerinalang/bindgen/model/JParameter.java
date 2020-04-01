@@ -29,6 +29,8 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.getPrimitiveArrayType
 
 /**
  * Class for storing specific parameter details of a Java method used for Ballerina bridge code generation.
+ *
+ * @since 1.2.0
  */
 public class JParameter {
 

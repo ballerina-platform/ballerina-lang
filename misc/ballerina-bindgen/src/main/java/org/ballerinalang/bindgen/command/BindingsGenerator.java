@@ -55,6 +55,8 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
 
 /**
  * Class for generating Ballerina bindings for Java APIs.
+ *
+ * @since 1.2.0
  */
 public class BindingsGenerator {
 
