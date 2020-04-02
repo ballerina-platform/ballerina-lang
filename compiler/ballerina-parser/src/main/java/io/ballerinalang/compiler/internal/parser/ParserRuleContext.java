@@ -144,6 +144,7 @@ public enum ParserRuleContext {
     BOOLEAN_LITERAL("boolean-literal"),
     CHECKING_KEYWORD("checking-keyword"),
     COMPOUND_ASSIGNMENT_OPERATOR("compound-assignment-operator"),
+    COMPOUND_BINARY_OPERATOR("compound-binary-operator"),
 
     // Expressions
     EXPRESSION("expression"),

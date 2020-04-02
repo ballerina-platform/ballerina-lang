@@ -2299,7 +2299,7 @@ public class BallerinaParser {
                 }
             default:
                 // If its a binary oerator then this can be a compound assignment statement
-                if (isBinaryOperator(nextTokenKind)) {
+                if (isCompoundBinaryOperator(nextTokenKind)) {
                     return parseCompoundAssignmentStmtRhs(identifier);
                 }
                 STToken token = peek();
@@ -3496,13 +3496,12 @@ public class BallerinaParser {
     /**
      * Parse CompoundAssignmentOperator.
      * <code>CompoundAssignmentOperator := BinaryOperator =</code>
-     * <code>BinaryOperator := + | - | * | / | & | | | ^ | << | >> | >>></code>
      * 
      * @return CompoundAssignmentOperator
      */
     private STNode parseCompoundAssignmentOperator() {
         startContext(ParserRuleContext.COMPOUND_ASSIGNMENT_OPERATOR);
-        STNode binaryOperator = parseBinaryOperator();
+        STNode binaryOperator = parseCompoundBinaryOperator();
         STNode equalsToken = parseAssignOp();
         endContext();
         return STNodeFactory.createCompoundAssignmentOperator(binaryOperator, equalsToken);
@@ -3539,5 +3538,40 @@ public class BallerinaParser {
         STNode semicolon = parseSemicolon();
         return STNodeFactory.createCompoundAssignmentStatement(expression, compoundAssignmentOperator,
              expr, semicolon);
+    }
+
+    /**
+     * Parse compound binary operator.
+     * <code>BinaryOperator := + | - | * | / | & | | | ^ | << | >> | >>></code>
+     * @return Parsed node
+     */
+    private STNode parseCompoundBinaryOperator() {
+        STToken token = peek();
+        if (isCompoundBinaryOperator(token.kind)) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.COMPOUND_BINARY_OPERATOR);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Check whether the given token kind is a compound binary operator.
+     * 
+     * @param kind STToken kind
+     * @return <code>true</code> if the token kind refers to a binary operator. <code>false</code> otherwise
+     */
+    private boolean isCompoundBinaryOperator(SyntaxKind kind) {
+        switch (kind) {
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+            case SLASH_TOKEN:
+            case ASTERISK_TOKEN:
+            case GT_TOKEN:
+            case LT_TOKEN:
+                return true;
+            default:
+                return false;
+        }
     }
 }
