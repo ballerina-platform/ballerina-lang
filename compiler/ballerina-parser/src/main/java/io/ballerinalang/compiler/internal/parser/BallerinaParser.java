@@ -2388,6 +2388,7 @@ public class BallerinaParser {
         switch (kind) {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
+            case STRING_LITERAL:
                 return parseLiteral();
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_NAME);
@@ -2778,6 +2779,7 @@ public class BallerinaParser {
             // Any other expression goes here
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
+            case STRING_LITERAL:
             case OPEN_PAREN_TOKEN:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
@@ -2814,6 +2816,7 @@ public class BallerinaParser {
             // expression-parsing will recover it.
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
+            case STRING_LITERAL:
             case IDENTIFIER_TOKEN:
             case OPEN_PAREN_TOKEN:
             case TRUE_KEYWORD:
