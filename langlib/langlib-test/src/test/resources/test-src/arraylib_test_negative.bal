@@ -59,7 +59,7 @@ function testPushOnFixedLengthArrayUnions() {
 }
 
 function testPushOnFixedLengthTupleUnion() {
-    [int, int][1] | [float, float][1] fixedLengthArray = <[float, float][1]> [[1.0, 2.3]];
+    [int, int][1]|[float, float][1] fixedLengthArray = <[float, float][1]> [[1.0, 2.3]];
     fixedLengthArray.push(<[float, float]>[1, 2]);
 }
 
