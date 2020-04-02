@@ -19,6 +19,7 @@ package org.ballerinalang.packerina.writer;
 
 import com.moandjiezana.toml.TomlWriter;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.packerina.ListUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.model.BaloToml;
@@ -309,13 +310,17 @@ public class BaloFileWriter {
                     .filter(lib -> lib.getModules() == null || Arrays.asList(lib.getModules()).contains(moduleName))
                     .map(lib -> Paths.get(lib.getPath())).collect(Collectors.toList());
 
+            List<Path> nonDefaultScopeLibs = ListUtils.getNonDefaultScopeLibraries(manifest);
+
             for (Path lib : libs) {
                 Path nativeFile = projectDirectory.resolve(lib);
                 Path libFileName = lib.getFileName();
                 if (null != libFileName) {
                     Path targetPath = platformLibsDir.resolve(libFileName.toString());
                     try {
-                        Files.copy(nativeFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                        if (!nonDefaultScopeLibs.contains(lib.toAbsolutePath())) {
+                            Files.copy(nativeFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                        }
                         moduleDependencyList.add(nativeFile);
                     } catch (IOException e) {
                         throw new BLangCompilerException("Dependency jar not found : " + lib.toString());

@@ -20,8 +20,11 @@ package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.packerina.ListUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.BackendDriver;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -74,6 +77,8 @@ public class CreateJarTask implements Task {
 
         BackendDriver backendDriver = BackendDriver.getInstance(context);
 
+        Manifest manifest = ManifestProcessor.getInstance(context).getManifest();
+
         List<BLangPackage> moduleBirMap = buildContext.getModules();
         Set<PackageID> alreadyImportedModuleSet = new HashSet<>();
         for (BLangPackage module : moduleBirMap) {
@@ -89,6 +94,7 @@ public class CreateJarTask implements Task {
             if (!skipCopyLibsFromDist) {
                 moduleDependencies.add(runtimeJar);
             }
+
             // write module child imports jars
             writeImportJar(backendDriver, bLangPackage.symbol.imports, sourceRoot, buildContext, runtimeJar,
                            alreadyImportedModuleSet, balHomePath);
@@ -96,7 +102,8 @@ public class CreateJarTask implements Task {
             // get the jar path of the module.
             Path jarOutput = buildContext.getJarPathFromTargetCache(module.packageID);
             if (!Files.exists(jarOutput)) {
-                backendDriver.execute(bLangPackage.symbol.bir, dumpBir, jarOutput, moduleDependencies);
+                HashSet<Path> moduleLibs = ListUtils.removeTestScopeLibraries(manifest, moduleDependencies);
+                backendDriver.execute(bLangPackage.symbol.bir, dumpBir, jarOutput, moduleLibs);
                 alreadyImportedModuleSet.add(module.packageID);
             }
 

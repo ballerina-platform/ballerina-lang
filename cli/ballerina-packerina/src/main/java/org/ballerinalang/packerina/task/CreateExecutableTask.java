@@ -22,10 +22,13 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.ballerinalang.packerina.ListUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -51,6 +54,8 @@ public class CreateExecutableTask implements Task {
 
     @Override
     public void execute(BuildContext buildContext) {
+        Manifest manifest = ManifestProcessor.getInstance(buildContext.get(BuildContextField.COMPILER_CONTEXT)).
+                getManifest();
         Optional<BLangPackage> modulesWithEntryPoints = buildContext.getModules().stream()
                 .filter(m -> m.symbol.entryPointExists)
                 .findAny();
@@ -64,8 +69,9 @@ public class CreateExecutableTask implements Task {
                     Path jarFromCachePath = buildContext.getJarPathFromTargetCache(module.packageID);
                     try (ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(new BufferedOutputStream(
                             new FileOutputStream(String.valueOf(executablePath))))) {
-                        assembleExecutable(jarFromCachePath,
-                                buildContext.moduleDependencyPathMap.get(module.packageID).moduleLibs, outStream);
+                        HashSet<Path> moduleDependencies = ListUtils.removeNonDefaultScopeLibraries(manifest,
+                                buildContext.moduleDependencyPathMap.get(module.packageID).moduleLibs);
+                        assembleExecutable(jarFromCachePath, moduleDependencies, outStream);
                     } catch (IOException e) {
                         throw createLauncherException("unable to extract the uber jar :" + e.getMessage());
                     }

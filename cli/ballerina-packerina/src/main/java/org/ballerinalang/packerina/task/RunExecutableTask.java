@@ -18,10 +18,13 @@
 
 package org.ballerinalang.packerina.task;
 
+import org.ballerinalang.packerina.ListUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.tool.util.BFileUtil;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -32,6 +35,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -148,12 +152,15 @@ public class RunExecutableTask implements Task {
     }
 
     private String getAllClassPaths(BLangPackage executableModule, BuildContext buildContext) {
+        Manifest manifest = ManifestProcessor.getInstance(buildContext.get(BuildContextField.COMPILER_CONTEXT)).
+                getManifest();
         StringJoiner cp = new StringJoiner(File.pathSeparator);
         // Adds executable thin jar path.
         cp.add(this.executableJarPath.toString());
-        // Adds all the dependency paths for modules.
-        buildContext.moduleDependencyPathMap.get(executableModule.packageID).moduleLibs.forEach(path ->
-                cp.add(path.toString()));
+        HashSet<Path> moduleDependencies = ListUtils.removeNonDefaultScopeLibraries(manifest,
+                buildContext.moduleDependencyPathMap.get(executableModule.packageID).moduleLibs);
+        // Adds all the dependency paths.
+        moduleDependencies.forEach(path -> cp.add(path.toString()));
         // Adds bre/lib/* to the class-path since we need to have ballerina runtime related dependencies
         // when running single bal files
         if (buildContext.getSourceType().equals(SINGLE_BAL_FILE)) {

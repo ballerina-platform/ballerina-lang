@@ -18,11 +18,17 @@
 package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -52,5 +58,64 @@ public class ListUtils {
 
         Compiler compiler = Compiler.getInstance(context);
         compiler.list();
+    }
+
+    /**
+     * Get the non-default scope libraries defined in toml File.
+     *
+     * @param manifest Manifest object for a ballerina project.
+     * @return Non-default scope module dependencies.
+     */
+    public static List<Path> getNonDefaultScopeLibraries(Manifest manifest) {
+        List<Path> nonDefaultScopeLibs = new ArrayList<>();
+        if (null != manifest.getPlatform().libraries) {
+            nonDefaultScopeLibs = manifest.getPlatform().libraries.stream()
+                    .filter(lib -> (lib.getScope() != null && (lib.getScope().equals("compile") ||
+                            lib.getScope().equals("test"))))
+                    .map(lib -> Paths.get(lib.getPath()).toAbsolutePath()).collect(Collectors.toList());
+        }
+        return nonDefaultScopeLibs;
+    }
+
+    /**
+     * Remove the non-default scope libraries from module dependencies.
+     *
+     * @param manifest Manifest object for a ballerina project.
+     * @param moduleDependencies Dependencies of a module.
+     * @return Module dependencies without non default libraries.
+     */
+    public static HashSet<Path> removeNonDefaultScopeLibraries(Manifest manifest, HashSet<Path> moduleDependencies) {
+        List<Path> nonDefaultScopeLibs = getNonDefaultScopeLibraries(manifest);
+        HashSet<Path> moduleLibs = new HashSet<>();
+        for (Path lib: moduleDependencies) {
+            if (!nonDefaultScopeLibs.contains(lib)) {
+                moduleLibs.add(lib);
+            }
+        }
+        return moduleLibs;
+    }
+
+    /**
+     * Remove the test-default scope libraries from module dependencies.
+     *
+     * @param manifest Manifest object for a ballerina project.
+     * @param moduleDependencies Dependencies of a module.
+     * @return Module dependencies without test scope libraries.
+     */
+    public static HashSet<Path> removeTestScopeLibraries(Manifest manifest, HashSet<Path> moduleDependencies) {
+        HashSet<Path> moduleLibs = new HashSet<>();
+        List<Path> testScopeLibs = new ArrayList<>();
+        if (null != manifest.getPlatform().libraries) {
+            testScopeLibs = manifest.getPlatform().libraries.stream()
+                    .filter(lib -> lib.getScope() != null && lib.getScope().equals("test"))
+                    .map(lib -> Paths.get(lib.getPath()).toAbsolutePath()).collect(Collectors.toList());
+        }
+
+        for (Path lib : moduleDependencies) {
+            if (!testScopeLibs.contains(lib)) {
+                moduleLibs.add(lib);
+            }
+        }
+        return moduleLibs;
     }
 }
