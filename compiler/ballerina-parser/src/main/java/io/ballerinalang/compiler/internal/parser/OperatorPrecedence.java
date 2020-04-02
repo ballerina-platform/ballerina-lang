@@ -30,7 +30,8 @@ public enum OperatorPrecedence {
     ADDITIVE(3),        //  (x + y), (x - y)
     SHIFT(4),           //  (x << y), (x >> y), (x >>> y)
     RANGE(5),           //  (x ... y), (x ..< y)
-    BINARY_COMPARE(6)   //  (x < y), (x > y), (x <= y), (x >= y), (x is y)
+    BINARY_COMPARE(6),  //  (x < y), (x > y), (x <= y), (x >= y), (x is y)
+    EQUALITY(7),        //  (x == y), (x != y), (x == y), (x === y), (x !== y)
     ;
 
     private int level = 0;
