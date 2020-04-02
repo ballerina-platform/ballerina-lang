@@ -171,6 +171,9 @@ public class BallerinaLexer {
                     token = getSyntaxToken(SyntaxKind.GT_TOKEN);
                 }
                 break;
+            case LexerTerminals.EXCLAMATION_MARK:
+                token = processExclamationMarkOperator();
+                break;
 
             // Numbers
             case '0':
@@ -866,5 +869,28 @@ public class BallerinaLexer {
 
     private void reportLexerError(String message) {
         this.errorListener.reportInvalidNodeError(null, message);
+    }
+
+    /**
+     * Process any token that starts with '!'.
+     *
+     * @return One of the tokens: <code>'!', '!=', '!=='</code>
+     */
+    private STToken processExclamationMarkOperator() {
+        switch (peek()) { // check for the second char
+            case LexerTerminals.EQUAL:
+                reader.advance();
+                if (peek() == LexerTerminals.EQUAL) {
+                    // this is '!=='
+                    reader.advance();
+                    return getSyntaxToken(SyntaxKind.EM_DOUBLE_EQUAL_TOKEN);
+                } else {
+                    // this is '!='
+                    return getSyntaxToken(SyntaxKind.EM_EQUAL_TOKEN);
+                }
+            default:
+                // this is '!'
+                return getSyntaxToken(SyntaxKind.EXCLAMATION_MARK_TOKEN);
+        }
     }
 }

@@ -1614,6 +1614,8 @@ public class BallerinaParser {
             case TRIPPLE_EQUAL_TOKEN:
             case LT_EQUAL_TOKEN:
             case GT_EQUAL_TOKEN:
+            case EM_EQUAL_TOKEN:
+            case EM_DOUBLE_EQUAL_TOKEN:
                 return true;
             default:
                 return false;
@@ -1643,6 +1645,11 @@ public class BallerinaParser {
             case OPEN_BRACKET_TOKEN:
             case OPEN_PAREN_TOKEN:
                 return OperatorPrecedence.MEMBER_ACCESS;
+            case DOUBLE_EQUAL_TOKEN:
+            case TRIPPLE_EQUAL_TOKEN:
+            case EM_EQUAL_TOKEN:
+            case EM_DOUBLE_EQUAL_TOKEN:
+                return OperatorPrecedence.EQUALITY;
             default:
                 throw new UnsupportedOperationException("Unsupported binary operator '" + binaryOpKind + "'");
         }
@@ -1664,6 +1671,8 @@ public class BallerinaParser {
                 return SyntaxKind.PLUS_TOKEN;
             case BINARY_COMPARE:
                 return SyntaxKind.LT_TOKEN;
+            case EQUALITY:
+                return SyntaxKind.DOUBLE_EQUAL_TOKEN;
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported operator precedence level'" + opPrecedenceLevel + "'");
@@ -2361,7 +2370,7 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseExpression() {
-        return parseExpression(OperatorPrecedence.BINARY_COMPARE, false);
+        return parseExpression(OperatorPrecedence.EQUALITY, false);
     }
 
     /**

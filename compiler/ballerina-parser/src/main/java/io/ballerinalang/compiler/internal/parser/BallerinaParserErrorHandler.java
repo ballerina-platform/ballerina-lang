@@ -1666,6 +1666,10 @@ public class BallerinaParserErrorHandler {
             case EQUAL_GT_TOKEN:
             case DOUBLE_EQUAL_TOKEN:
             case TRIPPLE_EQUAL_TOKEN:
+            case LT_EQUAL_TOKEN:
+            case GT_EQUAL_TOKEN:
+            case EM_EQUAL_TOKEN:
+            case EM_DOUBLE_EQUAL_TOKEN:
                 return true;
             default:
                 return false;

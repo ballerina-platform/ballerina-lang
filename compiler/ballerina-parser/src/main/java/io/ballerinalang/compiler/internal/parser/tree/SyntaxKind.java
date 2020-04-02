@@ -79,11 +79,14 @@ public enum SyntaxKind {
     LT_TOKEN(558, "<"),
     LT_EQUAL_TOKEN(559, "<="),
     GT_TOKEN(560, ">"),
-    GT_EQUAL_TOKEN(559, ">="),
     EQUAL_GT_TOKEN(561, "=>"),
     QUESTION_MARK_TOKEN(562, "?"),
     PIPE_TOKEN(563, "|"),
-    
+    GT_EQUAL_TOKEN(564, ">="),
+    EXCLAMATION_MARK_TOKEN(565, "!"),
+    EM_EQUAL_TOKEN(566, "!="),
+    EM_DOUBLE_EQUAL_TOKEN(567, "!=="),
+
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
     DECIMAL_INTEGER_LITERAL(1002),
