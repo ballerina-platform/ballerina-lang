@@ -82,6 +82,9 @@ public class StandardLibraryDefinitionTest extends DefinitionTest {
         log.info("Test textDocument/definition for Basic Cases");
         return new Object[][]{
                 {"defObjectTypeDef1.json", "stdlib"},
+                {"defObjectTypeDef2.json", "stdlib"},
+                {"defObjectTypeDef3.json", "stdlib"},
+                {"defObjectTypeDef4.json", "stdlib"},
                 {"defStdLibFunctionInvocation1.json", "stdlib"},
                 {"defStdLibActionInvocation1.json", "stdlib"},
                 {"defLangLibFunction1.json", "stdlib"},

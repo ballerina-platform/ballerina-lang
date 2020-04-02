@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -26,6 +27,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
@@ -34,26 +37,34 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -73,7 +84,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private final Names names;
     private final Types types;
-    private BLangForeach parentForeach = null;
+    private BLangBlockStmt parentBlock = null;
+    private SymbolEnv env;
 
     private QueryDesugar(CompilerContext context) {
         context.put(QUERY_DESUGAR_KEY, this);
@@ -96,78 +108,123 @@ public class QueryDesugar extends BLangNodeVisitor {
         return desugar;
     }
 
+    // Create While statement
+    //
+    // Below query expression :
+    //    Person[]|error outputDataArray = from var person in personList
+    //                                        select person;
+    //
+    // changes as,
+    //    Person[]|error outputDataArray = ();
+    //    Person[] $tempDataArray$ = [];
+    //
+    //    Person[] $data$ = personList;
+    //    abstract object {public function next() returns record {|Person value;|}? $iterator$ = $data$.iterator();
+    //    record {|Person value;|}|error? $result$ = $iterator$.next();
+    //
+    //    while (true) {
+    //        if ($result$ is ()) {
+    //            break;
+    //        } else if ($result$ is error) {
+    //            outputDataArray = $result$;
+    //            break;
+    //        } else {
+    //            var $value$ = $result$.value;
+    //            $tempDataArray$.push($value$);
+    //        }
+    //        $result$ = $iterator$.next();
+    //    }
+    //
+    //    if (outputDataArray is ()) {
+    //        outputDataArray = tempDataArray;
+    //    }
     BLangStatementExpression desugarQueryExpr(BLangQueryExpr queryExpr, SymbolEnv env) {
+        this.env = env;
         List<BLangFromClause> fromClauseList = queryExpr.fromClauseList;
         BLangFromClause fromClause = fromClauseList.get(0);
         BLangSelectClause selectClause = queryExpr.selectClause;
         List<BLangWhereClause> whereClauseList = queryExpr.whereClauseList;
         List<BLangLetClause> letClauseList = queryExpr.letClausesList;
         DiagnosticPos pos = fromClause.pos;
+        parentBlock = ASTBuilderUtil.createBlockStmt(fromClause.pos);
 
-        // Create Foreach statement
-        //
-        // Below query expression :
-        //      from var person in personList
-        //
-        // changes as,
-        //      foreach var person in personList {
-        //          ....
-        //      }
-        BLangForeach leafForeach = buildFromClauseBlock(fromClauseList);
-        BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
+        // Create output data array variable
+        // Person[]|error $outputDataArray$ = ();
+        BType queryExpOutputType = queryExpr.type;
+        BType outputType = types.getSafeType(queryExpOutputType, true, true);
+        if (outputType.tag == TypeTags.ARRAY) {
+            BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name("$outputDataArray$"),
+                    env.scope.owner.pkgID, queryExpOutputType, env.scope.owner);
+            BLangExpression outputInitExpression = ASTBuilderUtil.createLiteral(fromClause.pos, symTable.nilType,
+                    null);
+            BLangSimpleVariable outputVariable =
+                    ASTBuilderUtil.createVariable(pos, "$outputDataArray$", queryExpOutputType,
+                            outputInitExpression, outputVarSymbol);
+            BLangSimpleVariableDef outputVariableDef =
+                    ASTBuilderUtil.createVariableDef(pos, outputVariable);
+            BLangSimpleVarRef outputVarRef = ASTBuilderUtil.createVariableRef(pos, outputVariable.symbol);
 
-        BArrayType outputArrayType = new BArrayType(selectClause.expression.type);
-        BLangListConstructorExpr emptyArrayExpr = ASTBuilderUtil.createEmptyArrayLiteral(pos,
-                outputArrayType);
-        BVarSymbol emptyArrayVarSymbol = new BVarSymbol(0, new Name("$outputDataArray$"),
-                env.scope.owner.pkgID, outputArrayType, env.scope.owner);
-        BLangSimpleVariable outputArrayVariable =
-                ASTBuilderUtil.createVariable(pos, "$outputDataArray$", outputArrayType,
-                        emptyArrayExpr, emptyArrayVarSymbol);
+            // Create temp array variable
+            // Person[] $tempDataArray$ = [];
+            BVarSymbol tempArrayVarSymbol = new BVarSymbol(0, new Name("$tempDataArray$"),
+                    env.scope.owner.pkgID, outputType, env.scope.owner);
+            BLangListConstructorExpr emptyArrayExpr = ASTBuilderUtil.createEmptyArrayLiteral(pos,
+                    (BArrayType) outputType);
+            BLangSimpleVariable tempArrayVariable = ASTBuilderUtil.createVariable(pos, "$tempDataArray$",
+                    outputType, emptyArrayExpr, tempArrayVarSymbol);
+            BLangSimpleVariableDef tempArrayVariableDef =
+                    ASTBuilderUtil.createVariableDef(pos, tempArrayVariable);
+            BLangSimpleVarRef tempArrayVarRef = ASTBuilderUtil.createVariableRef(pos, tempArrayVariable.symbol);
 
-        // Create temp array variable
-        //      Person[] x = [];
+            parentBlock.addStatement(outputVariableDef);
+            parentBlock.addStatement(tempArrayVariableDef);
 
-        BLangSimpleVariableDef outputVariableDef =
-                ASTBuilderUtil.createVariableDef(pos, outputArrayVariable);
-        BLangSimpleVarRef outputVarRef = ASTBuilderUtil.createVariableRef(pos, outputArrayVariable.symbol);
+            BLangBlockStmt leafElseBlock = buildFromClauseBlock(fromClauseList, outputVarRef);
 
-        // Create indexed based access expression statement
-        //      x[x.length()] = {
-        //         firstName: person.firstName,
-        //         lastName: person.lastName
-        //      };
+            // Create indexed based access expression statement
+            //      $tempDataArray$.push({
+            //         firstName: person.firstName,
+            //         lastName: person.lastName
+            //      });
+            BLangBlockStmt bodyBlock = ASTBuilderUtil.createBlockStmt(pos);
+            BLangInvocation arrPushInvocation = createLangLibInvocation("push", tempArrayVarRef,
+                    new ArrayList<>(), Lists.of(ASTBuilderUtil.generateConversionExpr(selectClause.expression,
+                            symTable.anyOrErrorType, symResolver)), symTable.nilType, pos);
+            BLangExpressionStmt pushInvocationStmt = ASTBuilderUtil.createExpressionStmt(pos, bodyBlock);
+            pushInvocationStmt.expr = arrPushInvocation;
 
-        BLangInvocation lengthInvocation = createLengthInvocation(selectClause.pos, outputArrayVariable.symbol);
-        lengthInvocation.expr = outputVarRef;
-        BLangIndexBasedAccess indexAccessExpr = ASTBuilderUtil.createIndexAccessExpr(outputVarRef, lengthInvocation);
-        indexAccessExpr.type = selectClause.expression.type;
+            buildWhereClauseBlock(whereClauseList, letClauseList, leafElseBlock, bodyBlock, selectClause.pos);
 
-        buildWhereClauseBlock(whereClauseList, letClauseList, leafForeach, foreachBody, selectClause.pos);
+            // if (outputDataArray is ()) {
+            //     outputDataArray = tempDataArray;
+            // }
+            BLangBlockStmt nullCheckIfBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
+            BLangAssignment outputAssignment = ASTBuilderUtil
+                    .createAssignmentStmt(fromClause.pos, outputVarRef, tempArrayVarRef);
+            nullCheckIfBody.addStatement(outputAssignment);
+            BLangIf nullCheckIf = createTypeCheckIfNode(fromClause.pos, outputVarRef,
+                    desugar.getNillTypeNode(), nullCheckIfBody);
 
-        // Set the indexed based access expression statement as foreach body
-        BLangAssignment outputVarAssignment = ASTBuilderUtil.createAssignmentStmt(pos, indexAccessExpr,
-                selectClause.expression);
-        foreachBody.addStatement(outputVarAssignment);
+            parentBlock.addStatement(nullCheckIf);
 
-        // Create block statement with temp variable definition statement & foreach statement
-        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos);
-        blockStmt.addStatement(outputVariableDef);
-        blockStmt.addStatement(parentForeach);
-        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, outputVarRef);
+            // Create statement expression with temp variable definition statements & while statement
+            BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(parentBlock, outputVarRef);
 
-        stmtExpr.type = outputArrayType;
-        return stmtExpr;
+            stmtExpr.type = queryExpOutputType;
+            return stmtExpr;
+        }
+        throw new IllegalStateException();
     }
 
     BLangStatementExpression desugarQueryAction(BLangQueryAction queryAction, SymbolEnv env) {
-        BLangBlockStmt blockNode = ASTBuilderUtil.createBlockStmt(queryAction.pos);
+        this.env = env;
         List<BLangFromClause> fromClauseList = queryAction.fromClauseList;
         List<BLangLetClause> letClauseList = queryAction.letClauseList;
         BLangFromClause fromClause = fromClauseList.get(0);
         BLangDoClause doClause = queryAction.doClause;
         List<BLangWhereClause> whereClauseList = queryAction.whereClauseList;
         DiagnosticPos pos = fromClause.pos;
+        parentBlock = ASTBuilderUtil.createBlockStmt(fromClause.pos);
 
         BLangExpression nilExpression = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
         BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name("$outputVar$"),
@@ -178,17 +235,144 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangSimpleVariableDef outputVariableDef =
                 ASTBuilderUtil.createVariableDef(pos, outputVariable);
         BLangSimpleVarRef outputVarRef = ASTBuilderUtil.createVariableRef(pos, outputVariable.symbol);
+        parentBlock.addStatement(outputVariableDef);
 
-        BLangForeach leafForeach = buildFromClauseBlock(fromClauseList);
-        BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
-        buildWhereClauseBlock(whereClauseList, letClauseList, leafForeach, foreachBody, doClause.pos);
-        foreachBody.addStatement(doClause.body);
-        blockNode.stmts.add(outputVariableDef);
-        blockNode.stmts.add(parentForeach);
+        BLangBlockStmt leafElseBlock = buildFromClauseBlock(fromClauseList, outputVarRef);
+        buildWhereClauseBlock(whereClauseList, letClauseList, leafElseBlock, doClause.body, doClause.pos);
 
-        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockNode, outputVarRef);
+        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(parentBlock, outputVarRef);
         stmtExpr.type = symTable.errorOrNilType;
         return stmtExpr;
+    }
+
+    private BLangBlockStmt buildFromClauseBlock(List<BLangFromClause> fromClauseList, BLangSimpleVarRef outputVarRef) {
+        BLangBlockStmt leafElseBody = null;
+        for (BLangFromClause fromClause : fromClauseList) {
+            // int[] $data$ = personList;
+            BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString("$data$"), env.scope.owner.pkgID,
+                    fromClause.collection.type, this.env.scope.owner);
+            BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(fromClause.pos, "$data$",
+                    fromClause.collection.type, fromClause.collection, dataSymbol);
+            BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(fromClause.pos, dataVariable);
+
+            // abstract object {public function next() returns record {|Person value;|}? $iterator$ = $data$.iterator();
+            BVarSymbol collectionSymbol = dataVariable.symbol;
+            BInvokableSymbol iteratorInvSymbol;
+            BLangSimpleVariableDef iteratorVarDef;
+            if (collectionSymbol.type.tag == TypeTags.OBJECT) {
+                iteratorInvSymbol = desugar.getIterableObjectIteratorInvokableSymbol(collectionSymbol);
+                iteratorVarDef = desugar.getIteratorVariableDefinition(fromClause.pos,
+                        collectionSymbol, iteratorInvSymbol, false);
+            } else {
+                iteratorInvSymbol = desugar.getLangLibIteratorInvokableSymbol(collectionSymbol);
+                iteratorVarDef = desugar.getIteratorVariableDefinition(fromClause.pos,
+                        collectionSymbol, iteratorInvSymbol, true);
+            }
+            BVarSymbol iteratorSymbol = iteratorVarDef.var.symbol;
+
+            // Create a new symbol for the $result$.
+            BVarSymbol resultSymbol = new BVarSymbol(0, names.fromString("$result$"),
+                    this.env.scope.owner.pkgID, fromClause.nillableResultType, this.env.scope.owner);
+
+            // Note - map<T>? $result$ = $iterator$.next();
+            BLangSimpleVariableDef resultVariableDefinition = desugar.getIteratorNextVariableDefinition(fromClause.pos,
+                    fromClause.nillableResultType, iteratorSymbol, resultSymbol);
+            BLangSimpleVarRef resultReferenceInWhile = ASTBuilderUtil.createVariableRef(fromClause.pos, resultSymbol);
+
+            // create while loop: while (true)
+            BLangLiteral conditionLiteral = ASTBuilderUtil.createLiteral(fromClause.pos, symTable.booleanType,
+                    true);
+            BLangGroupExpr whileCondition = new BLangGroupExpr();
+            whileCondition.type = symTable.booleanType;
+            whileCondition.expression = conditionLiteral;
+
+            BLangWhile whileNode = (BLangWhile) TreeBuilder.createWhileNode();
+            whileNode.expr = whileCondition;
+
+            // if ($result$ is ()){
+            //     break;
+            // }
+            BLangBlockStmt nullCheckIfBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
+            nullCheckIfBody.addStatement(TreeBuilder.createBreakNode());
+            BLangIf nullCheckIf = createTypeCheckIfNode(fromClause.pos, resultReferenceInWhile,
+                    desugar.getNillTypeNode(), nullCheckIfBody);
+
+            // if ($result$ is error){
+            //    outputDataArray = $result$;
+            //    break;
+            // }
+            BLangBlockStmt errorCheckIfBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
+            BLangAssignment errorValueAssignment = ASTBuilderUtil.createAssignmentStmt(fromClause.pos,
+                    outputVarRef, resultReferenceInWhile);
+            errorCheckIfBody.addStatement(errorValueAssignment);
+            errorCheckIfBody.addStatement(TreeBuilder.createBreakNode());
+            BLangIf errorCheckIf = createTypeCheckIfNode(fromClause.pos, resultReferenceInWhile,
+                    desugar.getErrorTypeNode(), errorCheckIfBody);
+
+            nullCheckIf.elseStmt = errorCheckIf;
+
+            // else{
+            //     var value = $result$.value;
+            //     $tempDataArray$[$tempDataArray$.length()] = value;
+            // }
+            BLangBlockStmt elseBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
+            // Note - $result$ = $iterator$.next(); < this should go after initial assignment of `value`
+            BLangAssignment resultAssignment = desugar.getIteratorNextAssignment(fromClause.pos,
+                    iteratorSymbol, resultSymbol);
+            VariableDefinitionNode variableDefinitionNode = fromClause.variableDefinitionNode;
+
+            // var $value$ = $result$.value;
+            BLangFieldBasedAccess valueAccessExpr = desugar.getValueAccessExpression(fromClause.pos,
+                    fromClause.varType, resultSymbol);
+            valueAccessExpr.expr = desugar.addConversionExprIfRequired(valueAccessExpr.expr,
+                    types.getSafeType(valueAccessExpr.expr.type, true, false));
+            variableDefinitionNode.getVariable()
+                    .setInitialExpression(desugar.addConversionExprIfRequired(valueAccessExpr, fromClause.varType));
+
+            elseBody.stmts.add(0, (BLangStatement) variableDefinitionNode);
+            errorCheckIf.elseStmt = elseBody;
+
+            // if($outputDataArray$ is error) {
+            //     break;
+            // }
+            BLangBlockStmt outputErrorCheckIfBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
+            outputErrorCheckIfBody.addStatement(TreeBuilder.createBreakNode());
+            BLangIf outputErrorCheckIf = createTypeCheckIfNode(fromClause.pos, outputVarRef, desugar.getErrorTypeNode(),
+                    outputErrorCheckIfBody);
+
+            BLangBlockStmt whileBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
+            whileBody.addStatement(nullCheckIf);
+            whileBody.addStatement(outputErrorCheckIf);
+            whileBody.addStatement(resultAssignment);
+            whileNode.body = whileBody;
+
+            if (leafElseBody != null) {
+                BLangBlockStmt childBlock = ASTBuilderUtil.createBlockStmt(fromClause.pos);
+                childBlock.addStatement(dataVarDef);
+                childBlock.addStatement(iteratorVarDef);
+                childBlock.addStatement(resultVariableDefinition);
+                childBlock.addStatement(whileNode);
+                leafElseBody.addStatement(childBlock);
+            } else {
+                parentBlock.addStatement(dataVarDef);
+                parentBlock.addStatement(iteratorVarDef);
+                parentBlock.addStatement(resultVariableDefinition);
+                parentBlock.addStatement(whileNode);
+            }
+            leafElseBody = elseBody;
+        }
+        return leafElseBody;
+    }
+
+    private BLangIf createTypeCheckIfNode(DiagnosticPos pos, BLangExpression expr, BLangType type,
+                                          BLangBlockStmt body) {
+        BLangTypeTestExpr testExpr = ASTBuilderUtil.createTypeTestExpr(pos, expr, type);
+        testExpr.type = symTable.booleanType;
+        BLangIf typeCheckIf = (BLangIf) TreeBuilder.createIfElseStatementNode();
+        typeCheckIf.pos = pos;
+        typeCheckIf.expr = testExpr;
+        typeCheckIf.body = body;
+        return typeCheckIf;
     }
 
     private void buildLetClauseBlock(List<BLangLetClause> letClauseList, BLangBlockStmt bLangBlockStmt) {
@@ -202,33 +386,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangForeach buildFromClauseBlock(List<BLangFromClause> fromClauseList) {
-        BLangForeach leafForeach = null;
-        for (BLangFromClause fromClause : fromClauseList) {
-            BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
-            foreach.pos = fromClause.pos;
-            foreach.collection = fromClause.collection;
-            types.setForeachTypedBindingPatternType(foreach);
-
-            foreach.variableDefinitionNode = fromClause.variableDefinitionNode;
-            foreach.isDeclaredWithVar = fromClause.isDeclaredWithVar;
-
-            if (leafForeach != null) {
-                BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
-                foreachBody.addStatement(foreach);
-                leafForeach.setBody(foreachBody);
-            } else {
-                parentForeach = foreach;
-            }
-
-            leafForeach = foreach;
-        }
-
-        return leafForeach;
-    }
-
     private void buildWhereClauseBlock(List<BLangWhereClause> whereClauseList, List<BLangLetClause> letClauseList,
-                                       BLangForeach leafForEach, BLangBlockStmt foreachBody, DiagnosticPos pos) {
+                                       BLangBlockStmt elseBlock, BLangBlockStmt bodyBlock, DiagnosticPos pos) {
+        BLangBlockStmt stmtBlock = ASTBuilderUtil.createBlockStmt(pos);
         if (whereClauseList.size() > 0) {
             // Create If Statement with Where expression and foreach body
             BLangIf outerIf = null;
@@ -246,26 +406,44 @@ public class QueryDesugar extends BLangNodeVisitor {
                 }
                 innerIf = bLangIf;
             }
-            innerIf.setBody(foreachBody);
-            BLangBlockStmt bLangBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
-            buildLetClauseBlock(letClauseList, bLangBlockStmt);
-            bLangBlockStmt.addStatement(outerIf);
-            leafForEach.setBody(bLangBlockStmt);
+            innerIf.setBody(bodyBlock);
+
+            buildLetClauseBlock(letClauseList, stmtBlock);
+            stmtBlock.addStatement(outerIf);
         } else {
-            buildLetClauseBlock(letClauseList, foreachBody);
-            leafForEach.setBody(foreachBody);
+            buildLetClauseBlock(letClauseList, stmtBlock);
+            stmtBlock.stmts.addAll(bodyBlock.getStatements());
         }
+        elseBlock.getStatements().addAll(stmtBlock.getStatements());
     }
 
-    private BLangInvocation createLengthInvocation(DiagnosticPos pos, BVarSymbol collectionSymbol) {
-        BInvokableSymbol lengthInvokableSymbol =
-                (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionSymbol.type,
-                        names.fromString("length"));
-        BLangSimpleVarRef collection = ASTBuilderUtil.createVariableRef(pos, collectionSymbol);
-        BLangInvocation lengthInvocation = ASTBuilderUtil.createInvocationExprForMethod(pos, lengthInvokableSymbol,
-                Lists.of(collection), symResolver);
-        lengthInvocation.type = lengthInvokableSymbol.type.getReturnType();
-        // Note: No need to set lengthInvocation.expr for langLib functions as they are in requiredArgs
-        return lengthInvocation;
+    private BLangInvocation createLangLibInvocation(String functionName, BLangExpression onExpr,
+                                                    List<BLangExpression> requiredArgs,
+                                                    List<BLangExpression> restArgs,
+                                                    BType retType,
+                                                    DiagnosticPos pos) {
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        invocationNode.pos = pos;
+        BLangIdentifier name = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        name.setLiteral(false);
+        name.setValue(functionName);
+        name.pos = pos;
+        invocationNode.name = name;
+        invocationNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+
+        invocationNode.symbol = symResolver.lookupLangLibMethod(onExpr.type, names.fromString(functionName));
+
+        invocationNode.argExprs = new ArrayList<BLangExpression>() {{
+            add(onExpr);
+            addAll(requiredArgs);
+            addAll(restArgs);
+        }};
+        invocationNode.requiredArgs = new ArrayList<BLangExpression>() {{
+            add(onExpr);
+            addAll(requiredArgs);
+        }};
+        invocationNode.restArgs = restArgs;
+        invocationNode.type = retType != null ? retType : ((BInvokableSymbol) invocationNode.symbol).retType;
+        return invocationNode;
     }
 }

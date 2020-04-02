@@ -203,6 +203,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     // Required variables for Mock function implementation
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
+    private static final String MOCK_OBJECT_DELIMITER = ":";
 
     public static BIRGen getInstance(CompilerContext context) {
         BIRGen birGen = context.get(BIR_GEN);
@@ -297,16 +298,32 @@ public class BIRGen extends BLangNodeVisitor {
             for (BIRBasicBlock functionBasicBlock : functionBasicBlocks) {
                 BIRTerminator bbTerminator = functionBasicBlock.terminator;
                 if (bbTerminator.kind.equals(InstructionKind.CALL)) {
-                    //We get the callee and the name and generate 'calleepackage#name'
                     BIRTerminator.Call callTerminator = (BIRTerminator.Call) bbTerminator;
-                    String functionKey = callTerminator.calleePkg.toString() + MOCK_ANNOTATION_DELIMITER
-                            + callTerminator.name.toString();
-                    if (mockFunctionMap.get(functionKey) != null) {
-                        // Just "get" the reference. If this doesnt work then it doesnt exist
-                        String mockfunctionName = mockFunctionMap.get(functionKey);
-                        callTerminator.name = new Name(mockfunctionName);
-                        callTerminator.calleePkg = function.pos.src.pkgID;
+                    String functionKey = null;
+
+                    // Generate the function key
+                    if (callTerminator.isVirtual) {
+                        // Function key for object methods
+                        String objectPkg = callTerminator.args.get(0).variableDcl.type.toString();
+                        functionKey = objectPkg + MOCK_ANNOTATION_DELIMITER + callTerminator.name.toString();
+                    } else {
+                        // Function key for normal functions
+                        functionKey = callTerminator.calleePkg.toString() + MOCK_ANNOTATION_DELIMITER
+                                + callTerminator.name.toString();
                     }
+
+                    // Get the mock function from the Mock function map and replace where necessary
+                    if (mockFunctionMap.get(functionKey) != null) {
+                        String mockFunctionName = mockFunctionMap.get(functionKey);
+                        callTerminator.name = new Name(mockFunctionName);
+                        callTerminator.calleePkg = function.pos.src.pkgID;
+
+                        if (callTerminator.isVirtual) {
+                            callTerminator.isVirtual = false;
+                            callTerminator.args.remove(0);
+                        }
+                    }
+
                 }
             }
         }

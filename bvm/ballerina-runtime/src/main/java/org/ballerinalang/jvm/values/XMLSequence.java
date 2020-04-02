@@ -552,6 +552,20 @@ public final class XMLSequence extends XMLValue {
     }
 
     @Override
+    public synchronized boolean isFrozen() {
+        if (freezeStatus.isFrozen()) {
+            return true;
+        }
+        for (BXML child : this.children) {
+            if (!child.isFrozen()) {
+                return false;
+            }
+        }
+        freezeStatus.setFrozen();
+        return true;
+    }
+
+    @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
             @Override

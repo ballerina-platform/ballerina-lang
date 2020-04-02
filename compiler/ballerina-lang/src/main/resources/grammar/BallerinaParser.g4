@@ -1097,7 +1097,7 @@ reservedWord
 
 // Markdown documentation
 documentationString
-    :   documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine? deprecatedAnnotationDocumentationLine?
+    :   documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine? deprecatedParametersDocumentationLine? deprecatedAnnotationDocumentationLine?
     ;
 
 documentationLine
@@ -1114,6 +1114,10 @@ returnParameterDocumentationLine
 
 deprecatedAnnotationDocumentationLine
     :   deprecatedAnnotationDocumentation deprecateAnnotationDescriptionLine*
+    ;
+
+deprecatedParametersDocumentationLine
+    :   deprecatedParametersDocumentation parameterDocumentationLine+
     ;
 
 documentationContent
@@ -1162,6 +1166,10 @@ returnParameterDocumentation
 
 deprecatedAnnotationDocumentation
     :   DeprecatedDocumentation
+    ;
+
+deprecatedParametersDocumentation
+    :   DeprecatedParametersDocumentation
     ;
 
 docParameterName

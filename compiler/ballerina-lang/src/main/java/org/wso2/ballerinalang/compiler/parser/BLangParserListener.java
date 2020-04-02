@@ -2779,6 +2779,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterFromClause(BallerinaParser.FromClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startFromClause();
+    }
+
+    @Override
     public void exitFromClause(BallerinaParser.FromClauseContext ctx) {
         if (isInErrorState) {
             return;
@@ -2815,7 +2824,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (isInErrorState) {
             return;
         }
-        this.pkgBuilder.addLetClause(getCurrentPos(ctx));
+        this.pkgBuilder.addLetClause(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override
@@ -3399,6 +3408,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
         String description = ctx.documentationText() != null ? ctx.documentationText().getText() : "";
         this.pkgBuilder.endDeprecateAnnotationDocumentationDescription(getWS(ctx), description);
+    }
+
+    @Override
+    public void exitDeprecatedParametersDocumentation(BallerinaParser.DeprecatedParametersDocumentationContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.endDeprecatedParametersDocumentation(getCurrentPos(ctx.getParent()), getWS(ctx));
     }
 
     @Override

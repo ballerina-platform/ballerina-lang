@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
+import org.ballerinalang.langserver.util.TokensUtil;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -40,7 +41,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
@@ -169,7 +169,7 @@ public class ReferencesUtil {
 
             // With the sub-rule parser, find the token
             String documentContent = docManager.getFileContent(compilationPath);
-            ReferencesSubRuleParser.parseCompilationUnit(documentContent, context, position);
+            TokensUtil.searchTokenAtCursor(documentContent, context, position);
 
             if (context.get(NodeContextKeys.NODE_NAME_KEY) == null && !isQuiteMode) {
                 throw new IllegalStateException("Couldn't find a valid identifier token at cursor!");
@@ -239,14 +239,10 @@ public class ReferencesUtil {
         BSymbol cursorSymbol = symbolAtCursor.getSymbol();
         symbolReferencesModel.getDefinitions()
                 .removeIf(reference -> reference.getSymbol() != cursorSymbol
-                        && (reference.getSymbol().type.tsymbol != cursorSymbol)
-                        && !(cursorSymbol.type.tag == TypeTags.ERROR
-                        && reference.getSymbol().type.tsymbol == cursorSymbol.type.tsymbol));
+                        && (reference.getSymbol().type.tsymbol != cursorSymbol));
         symbolReferencesModel.getReferences()
                 .removeIf(reference -> reference.getSymbol() != cursorSymbol
-                        && (reference.getSymbol().type.tsymbol != cursorSymbol
-                        && !(cursorSymbol.type.tag == TypeTags.ERROR
-                        && reference.getSymbol().type.tsymbol == cursorSymbol.type.tsymbol)));
+                        && (reference.getSymbol().type.tsymbol != cursorSymbol));
     }
 
     public static List<Location> getLocations(List<SymbolReferencesModel.Reference> references, String sourceRoot) {
