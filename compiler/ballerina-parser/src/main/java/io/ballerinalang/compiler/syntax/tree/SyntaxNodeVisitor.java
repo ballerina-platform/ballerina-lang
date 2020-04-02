@@ -184,6 +184,14 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(spreadField);
     }
 
+    public void visit(ServiceBody serviceBody) {
+        visitSyntaxNode(serviceBody);
+    }
+
+    public void visit(ServiceDeclarationNode serviceDecl) {
+        visitSyntaxNode(serviceDecl);
+    }
+
     protected void visitSyntaxNode(Node node) {
         // TODO Find a better way to check for token
         if (node instanceof Token) {

@@ -190,6 +190,14 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(spreadField);
     }
 
+    public T transform(ServiceBody serviceBody) {
+        return transformSyntaxNode(serviceBody);
+    }
+
+    public T transform(ServiceDeclarationNode serviceDecl) {
+        return transformSyntaxNode(serviceDecl);
+    }
+
     /**
      * Transforms the given {@code Node} into an object of type T.
      * <p>

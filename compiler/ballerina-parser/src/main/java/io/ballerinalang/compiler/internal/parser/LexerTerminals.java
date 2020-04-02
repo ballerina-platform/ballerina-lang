@@ -48,6 +48,8 @@ public class LexerTerminals {
     public static final String IMPORT = "import";
     public static final String VERSION = "version";
     public static final String AS = "as";
+    public static final String ON = "on";
+    public static final String RESOURCE = "resource";
 
     // Types
     public static final String INT = "int";

@@ -558,7 +558,8 @@ public class BallerinaParserErrorHandler {
                     break;
                 case SIMPLE_TYPE_DESCRIPTOR:
                     hasMatch =
-                            nextToken.kind == SyntaxKind.SIMPLE_TYPE || nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
+                            nextToken.kind == SyntaxKind.SIMPLE_TYPE || nextToken.kind == SyntaxKind.SERVICE_KEYWORD ||
+                                    nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case FUNC_BODY:
                     return seekInFuncBodies(lookahead, currentDepth, matchingRulesCount);
@@ -777,6 +778,10 @@ public class BallerinaParserErrorHandler {
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, MAPPING_FIELD_START);
                 case SPECIFIC_FIELD_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, SPECIFIC_FIELD_RHS);
+                case SERVICE_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.SERVICE_KEYWORD;
+                    break;
+
                 // productions
                 case COMP_UNIT:
                 case FUNC_DEFINITION:

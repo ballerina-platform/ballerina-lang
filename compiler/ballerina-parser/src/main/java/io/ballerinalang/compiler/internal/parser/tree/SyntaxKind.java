@@ -39,6 +39,8 @@ public enum SyntaxKind {
     OBJECT_KEYWORD(109, "object"),
     VERSION_KEYWORD(110, "version"),
     AS_KEYWORD(111, "as"),
+    ON_KEYWORD(112, "on"),
+    RESOURCE_KEYWORD(113, "resource"),
 
     RETURNS_KEYWORD(200, "returns"),
     RETURN_KEYWORD(201, "return"),
@@ -95,11 +97,12 @@ public enum SyntaxKind {
     WHITESPACE_TRIVIA(1500),
     END_OF_LINE_TRIVIA(1501),
     COMMENT(1502),
-    
+
     // module-level declarations
     IMPORT_DECLARATION(2000),
     FUNCTION_DEFINITION(2001),
     TYPE_DEFINITION(2002),
+    SERVICE_DECLARATION(2003),
 
     // Statements
     BLOCK_STATEMENT(1200),
@@ -148,6 +151,8 @@ public enum SyntaxKind {
     SPECIFIC_FIELD(3017),
     COMPUTED_NAME_FIELD(3018),
     SPREAD_FIELD(3019),
+    LISTENER_REF(3020),
+    SERVICE_BODY(3021),
 
     INVALID(4),
     MODULE_PART(3),

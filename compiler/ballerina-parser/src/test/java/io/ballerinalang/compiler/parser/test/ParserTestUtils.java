@@ -327,6 +327,12 @@ public class ParserTestUtils {
                 return SyntaxKind.AS_KEYWORD;
             case "RETURN_KEYWORD":
                 return SyntaxKind.RETURN_KEYWORD;
+            case "SERVICE_KEYWORD":
+                return SyntaxKind.SERVICE_KEYWORD;
+            case "ON_KEYWORD":
+                return SyntaxKind.ON_KEYWORD;
+            case "RESOURCE_KEYWORD":
+                return SyntaxKind.RESOURCE_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
