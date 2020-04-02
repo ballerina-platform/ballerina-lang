@@ -274,7 +274,6 @@ builtInReferenceTypeName
     |   TYPE_FUTURE LT typeName GT
     |   TYPE_XML (LT typeName GT)?
     |   TYPE_JSON
-    |   TYPE_TABLE LT typeName GT
     |   TYPE_DESC LT typeName GT
     |   SERVICE
     |   errorTypeName
@@ -363,31 +362,6 @@ recordKey
     :   Identifier
     |   LEFT_BRACKET expression RIGHT_BRACKET
     |   expression
-    ;
-
-tableLiteral
-    :   TYPE_TABLE LEFT_BRACE tableColumnDefinition? (COMMA tableDataArray)? RIGHT_BRACE
-    ;
-
-tableColumnDefinition
-    :   LEFT_BRACE (tableColumn (COMMA tableColumn)*)? RIGHT_BRACE
-    ;
-
-tableColumn
-    :   Identifier? Identifier
-    ;
-
-tableDataArray
-    :   LEFT_BRACKET tableDataList? RIGHT_BRACKET
-    ;
-
-tableDataList
-    :   tableData (COMMA tableData)*
-    |   expressionList
-    ;
-
-tableData
-    :   LEFT_BRACE expressionList RIGHT_BRACE
     ;
 
 listConstructorExpr
@@ -806,7 +780,6 @@ expression
     |   listConstructorExpr                                                 # listConstructorExpression
     |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
-    |   tableLiteral                                                        # tableLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   (annotationAttachment* START)? variableReference                    # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
@@ -1226,7 +1199,6 @@ documentationIdentifier
     |   TYPE_MAP
     |   TYPE_JSON
     |   TYPE_XML
-    |   TYPE_TABLE
     |   TYPE_STREAM
     |   TYPE_ANY
     |   TYPE_DESC

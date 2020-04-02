@@ -75,6 +75,10 @@ public class STNodeFactory {
         return new STWhileStatement(whileKeyword, condition, whileBody);
     }
 
+    public static STNode createPanicStatement(STNode panicKeyword, STNode expression, STNode semicolonToken) {
+        return new STPanicStatement(panicKeyword, expression, semicolonToken);
+    }
+
     public static STNode createBlockStatement(STNode openBraceToken, STNode statements, STNode closeBraceToken) {
         return new STBlockStatement(openBraceToken, statements, closeBraceToken);
     }
@@ -109,6 +113,10 @@ public class STNodeFactory {
                                                    STNode initializer,
                                                    STNode semicolonToken) {
         return new STVariableDeclaration(kind, typeName, variableName, equalsToken, initializer, semicolonToken);
+    }
+
+    public static STNode createReturnStatement(SyntaxKind kind, STNode returnKeyword, STNode actionOrExpr, STNode semicolonToken) {
+        return new STReturnStatement(kind, returnKeyword, actionOrExpr, semicolonToken);
     }
 
     // Expressions
@@ -302,5 +310,55 @@ public class STNodeFactory {
 
     public static STNode createSyntaxTrivia(SyntaxKind kind, String text) {
         return new SyntaxTrivia(kind, text);
+    }
+
+    public static STNode createImportDecl(STNode importKeyword,
+                                          STNode orgName,
+                                          STNode moduleName,
+                                          STNode version,
+                                          STNode alias,
+                                          STNode semicolon) {
+        return new STImportDeclaration(importKeyword, orgName, moduleName, version, alias, semicolon);
+    }
+
+    public static STNode createOrgName(STNode identifier, STNode slashToken) {
+        return new STImportOrgName(identifier, slashToken);
+    }
+
+    public static STNode createModuleNamePart(STNode dotToken, STNode identifier) {
+        return new STSubModuleName(dotToken, identifier);
+    }
+
+    public static STNode createImportVersion(STNode versionKeyword, STNode versionNumber) {
+        return new STImportVersion(versionKeyword, versionNumber);
+    }
+
+    public static STNode createVersionPart(STNode leadingDot, STNode versionNumber) {
+        return new STImportSubVersion(leadingDot, versionNumber);
+    }
+
+    public static STNode createImportPrefix(STNode asKeyword, STNode prefix) {
+        return new STImportPrefix(asKeyword, prefix);
+    }
+
+    public static STNode createMappingContructorExpr(STNode openBrace, STNode fields, STNode closeBrace) {
+        return new STMappingConstructorExpression(openBrace, fields, closeBrace);
+    }
+
+    public static STNode createSpreadField(STNode leadingComma, STNode ellipsis, STNode expr) {
+        return new STSpreadField(leadingComma, ellipsis, expr);
+    }
+
+    public static STNode createSpecificField(STNode leadingComma, STNode key, STNode colon, STNode valueExpr) {
+        return new STSpecificField(leadingComma, key, colon, valueExpr);
+    }
+
+    public static STNode createComputedNameField(STNode leadingComma,
+                                                 STNode openBracket,
+                                                 STNode fieldNameExpr,
+                                                 STNode closeBracket,
+                                                 STNode colon,
+                                                 STNode valueExpr) {
+        return new STComputedNameField(leadingComma, openBracket, fieldNameExpr, closeBracket, colon, valueExpr);
     }
 }

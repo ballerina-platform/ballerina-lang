@@ -248,8 +248,13 @@ public class ParserTestUtils {
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
                 return ((STIdentifier) token).text;
-            case STRING_LITERAL_TOKEN:
-            case NUMERIC_LITERAL_TOKEN:
+            case STRING_LITERAL:
+                String val = ((STLiteralValueToken) token).text;
+                int stringLen = val.length();
+                int lastCharPosition = val.endsWith("\"") ? stringLen - 1 : stringLen;
+                return val.substring(1, lastCharPosition);
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
                 return ((STLiteralValueToken) token).text;
             case SIMPLE_TYPE:
                 return ((STTypeToken) token).text;
@@ -272,6 +277,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_DEFINITION;
             case "FUNCTION_DEFINITION":
                 return SyntaxKind.FUNCTION_DEFINITION;
+            case "IMPORT_DECLARATION":
+                return SyntaxKind.IMPORT_DECLARATION;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -310,6 +317,16 @@ public class ParserTestUtils {
                 return SyntaxKind.CHECK_KEYWORD;
             case "CHECKPANIC_KEYWORD":
                 return SyntaxKind.CHECKPANIC_KEYWORD;
+            case "PANIC_KEYWORD":
+                return SyntaxKind.PANIC_KEYWORD;
+            case "IMPORT_KEYWORD":
+                return SyntaxKind.IMPORT_KEYWORD;
+            case "VERSION_KEYWORD":
+                return SyntaxKind.VERSION_KEYWORD;
+            case "AS_KEYWORD":
+                return SyntaxKind.AS_KEYWORD;
+            case "RETURN_KEYWORD":
+                return SyntaxKind.RETURN_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -330,14 +347,22 @@ public class ParserTestUtils {
                 return SyntaxKind.TRIPPLE_EQUAL_TOKEN;
             case "PERCENT_TOKEN":
                 return SyntaxKind.PERCENT_TOKEN;
-            case "EQUAL_LT_TOKEN":
-                return SyntaxKind.EQUAL_LT_TOKEN;
             case "GT_TOKEN":
                 return SyntaxKind.GT_TOKEN;
             case "EQUAL_GT_TOKEN":
                 return SyntaxKind.EQUAL_GT_TOKEN;
             case "QUESTION_MARK_TOKEN":
                 return SyntaxKind.QUESTION_MARK_TOKEN;
+            case "LT_EQUAL_TOKEN":
+                return SyntaxKind.LT_EQUAL_TOKEN;
+            case "GT_EQUAL_TOKEN":
+                return SyntaxKind.GT_EQUAL_TOKEN;
+            case "EXCLAMATION_MARK_TOKEN":
+                return SyntaxKind.EXCLAMATION_MARK_TOKEN;
+            case "NOT_EQUAL_TOKEN":
+                return SyntaxKind.NOT_EQUAL_TOKEN;
+            case "NOT_DOUBLE_EQUAL_TOKEN":
+                return SyntaxKind.NOT_DOUBLE_EQUAL_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
@@ -374,10 +399,16 @@ public class ParserTestUtils {
                 return SyntaxKind.BRACED_EXPRESSION;
             case "BINARY_EXPRESSION":
                 return SyntaxKind.BINARY_EXPRESSION;
-            case "STRING_LITERAL_TOKEN":
-                return SyntaxKind.STRING_LITERAL_TOKEN;
-            case "NUMERIC_LITERAL_TOKEN":
-                return SyntaxKind.NUMERIC_LITERAL_TOKEN;
+            case "STRING_LITERAL":
+                return SyntaxKind.STRING_LITERAL;
+            case "DECIMAL_INTEGER_LITERAL":
+                return SyntaxKind.DECIMAL_INTEGER_LITERAL;
+            case "HEX_INTEGER_LITERAL":
+                return SyntaxKind.HEX_INTEGER_LITERAL;
+            case "DECIMAL_FLOATING_POINT_LITERAL":
+                return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
+            case "HEX_FLOATING_POINT_LITERAL":
+                return SyntaxKind.HEX_FLOATING_POINT_LITERAL;
             case "FUNCTION_CALL":
                 return SyntaxKind.FUNCTION_CALL;
             case "POSITIONAL_ARG":
@@ -396,6 +427,8 @@ public class ParserTestUtils {
                 return SyntaxKind.MEMBER_ACCESS;
             case "CHECK_EXPRESSION":
                 return SyntaxKind.CHECK_EXPRESSION;
+            case "MAPPING_CONSTRUCTOR":
+                return SyntaxKind.MAPPING_CONSTRUCTOR;
 
             // Statements
             case "BLOCK_STATEMENT":
@@ -412,6 +445,10 @@ public class ParserTestUtils {
                 return SyntaxKind.WHILE_STATEMENT;
             case "CALL_STATEMENT":
                 return SyntaxKind.CALL_STATEMENT;
+            case "PANIC_STATEMENT":
+                return SyntaxKind.PANIC_STATEMENT;
+            case "RETURN_STATEMENT":
+                return SyntaxKind.RETURN_STATEMENT;
 
             // Others
             case "SIMPLE_TYPE":
@@ -438,6 +475,24 @@ public class ParserTestUtils {
                 return SyntaxKind.OBJECT_FIELD;
             case "OBJECT_TYPE_DESCRIPTOR":
                 return SyntaxKind.OBJECT_TYPE_DESCRIPTOR;
+            case "IMPORT_ORG_NAME":
+                return SyntaxKind.IMPORT_ORG_NAME;
+            case "MODULE_NAME":
+                return SyntaxKind.MODULE_NAME;
+            case "SUB_MODULE_NAME":
+                return SyntaxKind.SUB_MODULE_NAME;
+            case "IMPORT_VERSION":
+                return SyntaxKind.IMPORT_VERSION;
+            case "IMPORT_SUB_VERSION":
+                return SyntaxKind.IMPORT_SUB_VERSION;
+            case "IMPORT_PREFIX":
+                return SyntaxKind.IMPORT_PREFIX;
+            case "SPECIFIC_FIELD":
+                return SyntaxKind.SPECIFIC_FIELD;
+            case "COMPUTED_NAME_FIELD":
+                return SyntaxKind.COMPUTED_NAME_FIELD;
+            case "SPREAD_FIELD":
+                return SyntaxKind.SPREAD_FIELD;
 
             // Trivia
             case "EOF_TOKEN":

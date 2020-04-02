@@ -34,6 +34,8 @@ public class BallerinaLexer {
 
     private CharReader reader;
     private List<STNode> leadingTriviaList;
+    private ParserMode mode = ParserMode.DEFAULT;
+    private final BallerinaParserErrorListener errorListener = new BallerinaParserErrorListener();
 
     public BallerinaLexer(CharReader charReader) {
         this.reader = charReader;
@@ -52,6 +54,26 @@ public class BallerinaLexer {
     public void reset(int offset) {
         reader.reset(offset);
     }
+
+    /**
+     * Switch the mode of the lexer to the given mode.
+     * 
+     * @param mode Mode to switch on to
+     */
+    public void switchMode(ParserMode mode) {
+        this.mode = mode;
+    }
+
+    /**
+     * Switch the mode of the lexer to {@link ParserMode#DEFAULT}.
+     */
+    public void resetMode() {
+        this.mode = ParserMode.DEFAULT;
+    }
+
+    /*
+     * Private Methods
+     */
 
     private STToken readToken() {
         reader.mark();
@@ -110,28 +132,47 @@ public class BallerinaLexer {
             case LexerTerminals.QUESTION_MARK:
                 token = getSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
                 break;
+            case LexerTerminals.DOUBLE_QUOTE:
+                token = processStringLiteral();
+                break;
 
             // Arithmetic operators
             case LexerTerminals.EQUAL:
                 token = processEqualOperator();
                 break;
-            case LexerTerminals.ADD:
+            case LexerTerminals.PLUS:
                 token = getSyntaxToken(SyntaxKind.PLUS_TOKEN);
                 break;
-            case LexerTerminals.SUB:
+            case LexerTerminals.MINUS:
                 token = getSyntaxToken(SyntaxKind.MINUS_TOKEN);
                 break;
-            case LexerTerminals.MUL:
+            case LexerTerminals.ASTERISK:
                 token = getSyntaxToken(SyntaxKind.ASTERISK_TOKEN);
                 break;
-            case LexerTerminals.DIV:
+            case LexerTerminals.SLASH:
                 token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
                 break;
-            case LexerTerminals.MOD:
+            case LexerTerminals.PERCENT:
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
                 break;
             case LexerTerminals.LT:
-                token = getSyntaxToken(SyntaxKind.LT_TOKEN);
+                if (peek() == LexerTerminals.EQUAL) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
+                } else {
+                    token = getSyntaxToken(SyntaxKind.LT_TOKEN);
+                }
+                break;
+            case LexerTerminals.GT:
+                if (peek() == LexerTerminals.EQUAL) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.GT_EQUAL_TOKEN);
+                } else {
+                    token = getSyntaxToken(SyntaxKind.GT_TOKEN);
+                }
+                break;
+            case LexerTerminals.EXCLAMATION_MARK:
+                token = processExclamationMarkOperator();
                 break;
 
             // Numbers
@@ -286,8 +327,8 @@ public class BallerinaLexer {
                         break;
                     }
                     return;
-                case LexerTerminals.DIV:
-                    if (reader.peek(1) == LexerTerminals.DIV) {
+                case LexerTerminals.SLASH:
+                    if (reader.peek(1) == LexerTerminals.SLASH) {
                         triviaList.add(processComment());
                         break;
                     }
@@ -449,6 +490,11 @@ public class BallerinaLexer {
                 case '.':
                 case 'e':
                 case 'E':
+                    // In sem-var mode, only decimal integer literals are supported
+                    if (this.mode == ParserMode.IMPORT) {
+                        break;
+                    }
+
                     // TODO: handle float
                     reader.advance();
                     processInvalidToken();
@@ -472,7 +518,7 @@ public class BallerinaLexer {
             return readToken();
         }
 
-        return getLiteral(SyntaxKind.NUMERIC_LITERAL_TOKEN);
+        return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL);
     }
 
     /**
@@ -498,8 +544,7 @@ public class BallerinaLexer {
             reader.advance();
         }
 
-        // TODO: can send syntax kind as HEX_LITERAL ??
-        return getLiteral(SyntaxKind.NUMERIC_LITERAL_TOKEN);
+        return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL);
     }
 
     /**
@@ -564,6 +609,14 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.CHECK_KEYWORD);
             case LexerTerminals.CHECKPANIC:
                 return getSyntaxToken(SyntaxKind.CHECKPANIC_KEYWORD);
+            case LexerTerminals.PANIC:
+                return getSyntaxToken(SyntaxKind.PANIC_KEYWORD);
+            case LexerTerminals.IMPORT:
+                return getSyntaxToken(SyntaxKind.IMPORT_KEYWORD);
+            case LexerTerminals.VERSION:
+                return getSyntaxToken(SyntaxKind.VERSION_KEYWORD);
+            case LexerTerminals.AS:
+                return getSyntaxToken(SyntaxKind.AS_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
@@ -718,5 +771,125 @@ public class BallerinaLexer {
      */
     private String getLexeme() {
         return reader.getMarkedChars();
+    }
+
+    /**
+     * Process and return double-quoted string literal.
+     * <p>
+     * <code>string-literal := DoubleQuotedStringLiteral
+     * <br/>
+     * DoubleQuotedStringLiteral := " (StringChar | StringEscape)* "
+     * <br/>
+     * StringChar := ^ ( 0xA | 0xD | \ | " )
+     * <br/>
+     * StringEscape := StringSingleEscape | StringNumericEscape
+     * <br/>
+     * StringSingleEscape := \t | \n | \r | \\ | \"
+     * <br/>
+     * StringNumericEscape := \ u{ CodePoint }
+     * <br/>
+     * CodePoint := HexDigit+
+     * </code>
+     * 
+     * @return String literal token
+     */
+    private STToken processStringLiteral() {
+        int nextChar;
+        while (true) {
+            nextChar = peek();
+            switch (nextChar) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                    reportLexerError("missing double-quote");
+                    break;
+                case LexerTerminals.DOUBLE_QUOTE:
+                    this.reader.advance();
+                    break;
+                case LexerTerminals.BACKSLASH:
+                    switch (this.reader.peek(1)) {
+                        case 'n':
+                        case 't':
+                        case 'r':
+                        case LexerTerminals.BACKSLASH:
+                        case LexerTerminals.DOUBLE_QUOTE:
+                            this.reader.advance(2);
+                            continue;
+                        case 'u':
+                            if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
+                                processStringNumericEscape();
+                            } else {
+                                reportLexerError("invalid string numeric escape sequence");
+                                this.reader.advance(2);
+                            }
+                            continue;
+                        default:
+                            reportLexerError("invalid escape sequence");
+                            this.reader.advance();
+                            continue;
+                    }
+                default:
+                    this.reader.advance();
+                    continue;
+            }
+            break;
+        }
+
+        return getLiteral(SyntaxKind.STRING_LITERAL);
+    }
+
+    /**
+     * Process string numeric escape.
+     * <p>
+     * <code>StringNumericEscape := \ u { CodePoint }</code>
+     */
+    private void processStringNumericEscape() {
+        // Process '\ u {'
+        this.reader.advance(3);
+
+        // Process code-point
+        if (!isHexDigit(peek())) {
+            reportLexerError("invalid string numeric escape sequence");
+            return;
+        }
+
+        reader.advance();
+        while (isHexDigit(peek())) {
+            reader.advance();
+        }
+
+        // Process close brace
+        if (peek() != LexerTerminals.CLOSE_BRACE) {
+            reportLexerError("invalid string numeric escape sequence");
+            return;
+        }
+
+        this.reader.advance();
+    }
+
+    private void reportLexerError(String message) {
+        this.errorListener.reportInvalidNodeError(null, message);
+    }
+
+    /**
+     * Process any token that starts with '!'.
+     *
+     * @return One of the tokens: <code>'!', '!=', '!=='</code>
+     */
+    private STToken processExclamationMarkOperator() {
+        switch (peek()) { // check for the second char
+            case LexerTerminals.EQUAL:
+                reader.advance();
+                if (peek() == LexerTerminals.EQUAL) {
+                    // this is '!=='
+                    reader.advance();
+                    return getSyntaxToken(SyntaxKind.NOT_DOUBLE_EQUAL_TOKEN);
+                } else {
+                    // this is '!='
+                    return getSyntaxToken(SyntaxKind.NOT_EQUAL_TOKEN);
+                }
+            default:
+                // this is '!'
+                return getSyntaxToken(SyntaxKind.EXCLAMATION_MARK_TOKEN);
+        }
     }
 }

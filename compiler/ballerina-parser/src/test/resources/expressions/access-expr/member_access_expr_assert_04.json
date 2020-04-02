@@ -62,7 +62,7 @@
             "kind": "OPEN_BRACKET_TOKEN"
         },
         {
-            "kind": "NUMERIC_LITERAL_TOKEN",
+            "kind": "DECIMAL_INTEGER_LITERAL",
             "value": "3"
         },
         {

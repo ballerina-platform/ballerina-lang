@@ -17,10 +17,8 @@
  */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BTypedesc;
 
 import java.util.Map;
@@ -61,11 +59,6 @@ public class TypedescValue implements RefValue, BTypedesc {
     @Override
     public String stringValue() {
         return "typedesc " + describingType.toString();
-    }
-
-    @Override
-    public BString bStringValue() {
-        return StringUtils.fromString(stringValue());
     }
 
     @Override

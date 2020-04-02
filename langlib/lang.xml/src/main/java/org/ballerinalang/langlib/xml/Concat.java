@@ -70,4 +70,7 @@ public class Concat {
         }
         return new XMLSequence(backingArray);
     }
+    public static XMLValue concat_bstring(Strand strand, ArrayValue arrayValue) {
+        return concat(strand, arrayValue);
+    }
 }

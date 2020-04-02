@@ -1,5 +1,5 @@
 {
-    "line": 15,
+    "line": 26,
     "character": 4,
     "expected": {
         "title": "Create Local Variable",
@@ -7,11 +7,11 @@
             {
                 "range": {
                     "start": {
-                        "line": 15,
+                        "line": 26,
                         "character": 4
                     },
                     "end": {
-                        "line": 15,
+                        "line": 26,
                         "character": 4
                     }
                 },

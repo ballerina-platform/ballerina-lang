@@ -23,12 +23,17 @@ import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 import java.nio.file.Paths;
 
 /**
- * Test parsing expressions.
+ * Test parsing module level declaration.
  */
-public class AbstractDeclarationTest {
+public abstract class AbstractDeclarationTest {
 
     void test(String sourceFilePath, String filePath) {
         ParserTestUtils.test(Paths.get("declarations/", sourceFilePath), ParserRuleContext.TOP_LEVEL_NODE,
+                Paths.get("declarations/", filePath));
+    }
+
+    void testFile(String path, String filePath) {
+        ParserTestUtils.test(Paths.get("declarations/", path), ParserRuleContext.COMP_UNIT,
                 Paths.get("declarations/", filePath));
     }
 }
