@@ -52,6 +52,7 @@ public class UpdateStatement extends AbstractSQLStatement {
     private final String query;
     private final ArrayValue parameters;
     private final boolean isKeyRetrievalSupported;
+    private static final BMapType anydataMapType = new BMapType(BTypes.typeAnydata);
 
     public UpdateStatement(ObjectValue client, SQLDatasource datasource, String query, ArrayValue parameters,
                            Strand strand) {
@@ -111,7 +112,7 @@ public class UpdateStatement extends AbstractSQLStatement {
     }
 
     private MapValue<String, Object> getGeneratedKeys(ResultSet rs) throws SQLException {
-        MapValue<String, Object> generatedKeys = new MapValueImpl<>(new BMapType(BTypes.typeAnydata));
+        MapValue<String, Object> generatedKeys = new MapValueImpl<>(anydataMapType);
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
         Object value;
