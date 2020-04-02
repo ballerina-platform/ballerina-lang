@@ -156,7 +156,20 @@ public class BallerinaLexer {
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
                 break;
             case LexerTerminals.LT:
-                token = getSyntaxToken(SyntaxKind.LT_TOKEN);
+                if (peek() == LexerTerminals.EQUAL) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
+                } else {
+                    token = getSyntaxToken(SyntaxKind.LT_TOKEN);
+                }
+                break;
+            case LexerTerminals.GT:
+                if (peek() == LexerTerminals.EQUAL) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.GT_EQUAL_TOKEN);
+                } else {
+                    token = getSyntaxToken(SyntaxKind.GT_TOKEN);
+                }
                 break;
 
             // Numbers

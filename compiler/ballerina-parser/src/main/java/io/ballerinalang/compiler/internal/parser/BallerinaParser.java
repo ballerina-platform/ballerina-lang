@@ -1612,6 +1612,8 @@ public class BallerinaParser {
             case EQUAL_GT_TOKEN:
             case DOUBLE_EQUAL_TOKEN:
             case TRIPPLE_EQUAL_TOKEN:
+            case LT_EQUAL_TOKEN:
+            case GT_EQUAL_TOKEN:
                 return true;
             default:
                 return false;
@@ -1634,6 +1636,8 @@ public class BallerinaParser {
                 return OperatorPrecedence.ADDITIVE;
             case GT_TOKEN:
             case LT_TOKEN:
+            case GT_EQUAL_TOKEN:
+            case LT_EQUAL_TOKEN:
                 return OperatorPrecedence.BINARY_COMPARE;
             case DOT_TOKEN:
             case OPEN_BRACKET_TOKEN:
