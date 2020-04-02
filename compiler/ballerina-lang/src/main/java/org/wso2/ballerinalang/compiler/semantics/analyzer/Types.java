@@ -2892,8 +2892,8 @@ public class Types {
         return defaultFillValuePresent;
     }
 
-    private boolean hasImplicitDefaultValue(BFiniteType finiteType) {
-        for (BLangExpression expression : finiteType.getValueSpace()) {
+    private boolean hasImplicitDefaultValue(Set<BLangExpression> valueSpace) {
+        for (BLangExpression expression : valueSpace) {
             if (isImplicitDefaultValue(expression)) {
                 return true;
             }
@@ -2909,15 +2909,15 @@ public class Types {
         Set<BType> memberTypes = new HashSet<>();
         boolean hasFillerValue = false;
         boolean defaultValuePresent = false;
-        boolean valueTypePresent = false;
+        boolean finiteTypePresent = false;
         for (BType member : type.getMemberTypes()) {
             if (member.tag == TypeTags.FINITE) {
-                Set<BType> uniqueValues = getUniqueValues((BFiniteType) member);
+                Set<BType> uniqueValues = getValueTypes(((BFiniteType)member).getValueSpace());
                 memberTypes.addAll(uniqueValues);
-                if (!defaultValuePresent && hasImplicitDefaultValue((BFiniteType) member)) {
+                if (!defaultValuePresent && hasImplicitDefaultValue(((BFiniteType) member).getValueSpace())) {
                     defaultValuePresent = true;
                 }
-                valueTypePresent = true;
+                finiteTypePresent = true;
             } else {
                 memberTypes.add(member);
             }
@@ -2937,7 +2937,7 @@ public class Types {
             }
         }
 
-        if (valueTypePresent) {
+        if (finiteTypePresent) {
             return defaultValuePresent;
         }
         return false;
@@ -2945,7 +2945,7 @@ public class Types {
 
     private Set<BType> getValueTypes(Set<BLangExpression> valueSpace) {
         Set<BType> uniqueType = new HashSet<>();
-        for (BLangExpression expression : member.getValueSpace()) {
+        for (BLangExpression expression : valueSpace) {
             uniqueType.add(expression.type);
         }
         return uniqueType;
