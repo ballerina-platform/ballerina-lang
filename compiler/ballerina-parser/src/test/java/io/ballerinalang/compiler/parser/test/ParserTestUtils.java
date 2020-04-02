@@ -331,6 +331,7 @@ public class ParserTestUtils {
                 return SyntaxKind.BREAK_KEYWORD;
             case "RETURN_KEYWORD":
                 return SyntaxKind.RETURN_KEYWORD;
+
             // Operators
             case "PLUS_TOKEN":
                 return SyntaxKind.PLUS_TOKEN;

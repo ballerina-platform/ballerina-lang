@@ -150,8 +150,8 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] AFTER_IMPORT_MODULE_NAME = { ParserRuleContext.DOT,
             ParserRuleContext.VERSION_KEYWORD, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
 
-    private static final ParserRuleContext[] MAJOR_MINOR_VERSION_END =
-                { ParserRuleContext.DOT, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
+    private static final ParserRuleContext[] MAJOR_MINOR_VERSION_END = { ParserRuleContext.DOT,
+            ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] RETURN_RHS = { ParserRuleContext.SEMICOLON, ParserRuleContext.EXPRESSION };
 

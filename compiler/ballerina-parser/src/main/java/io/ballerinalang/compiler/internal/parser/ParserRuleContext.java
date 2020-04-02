@@ -99,7 +99,6 @@ public enum ParserRuleContext {
     RETURN_STMT("return-stmt"),
     RETURN_STMT_RHS("return-stmt-rhs"),
 
-
     // Keywords
     RETURNS_KEYWORD("returns"),
     TYPE_KEYWORD("type"),

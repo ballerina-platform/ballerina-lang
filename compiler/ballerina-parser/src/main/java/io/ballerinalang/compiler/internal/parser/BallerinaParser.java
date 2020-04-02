@@ -209,10 +209,8 @@ public class BallerinaParser {
                 return parseColon();
             case OPEN_BRACKET:
                 return parseOpenBracket();
-
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
-
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }

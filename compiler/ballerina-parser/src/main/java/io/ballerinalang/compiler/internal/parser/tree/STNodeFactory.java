@@ -319,9 +319,6 @@ public class STNodeFactory {
         return new SyntaxTrivia(kind, text);
     }
 
-
-
-
     public static STNode createImportDecl(STNode importKeyword,
                                           STNode orgName,
                                           STNode moduleName,
@@ -349,7 +346,6 @@ public class STNodeFactory {
 
     public static STNode createImportPrefix(STNode asKeyword, STNode prefix) {
         return new STImportPrefix(asKeyword, prefix);
-
     }
 
     public static STNode createMappingContructorExpr(STNode openBrace, STNode fields, STNode closeBrace) {

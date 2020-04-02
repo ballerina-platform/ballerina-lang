@@ -26,7 +26,6 @@ public enum SyntaxKind {
     REMOTE_KEYWORD(52, "remote"),
     ABSTRACT_KEYWORD(53, "abstract"),
     CLIENT_KEYWORD(54, "client"),
-
     IMPORT_KEYWORD(100, "import"),
     FUNCTION_KEYWORD(101, "function"),
     CONST_KEYWORD(102, "const"),
@@ -53,7 +52,6 @@ public enum SyntaxKind {
     PANIC_KEYWORD(210, "panic"),
     CONTINUE_KEYWORD(212,"continue"),
     BREAK_KEYWORD(213,"break"),
-
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -116,7 +114,6 @@ public enum SyntaxKind {
     RETURN_STATEMENT(1208),
     CONTINUE_STATEMENT(1209),
     BREAK_STATEMENT(1210),
-
 
     // Expressions
     BINARY_EXPRESSION(1300),

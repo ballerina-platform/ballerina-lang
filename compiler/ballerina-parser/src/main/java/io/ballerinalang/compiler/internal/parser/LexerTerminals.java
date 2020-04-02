@@ -51,7 +51,6 @@ public class LexerTerminals {
     public static final String VERSION = "version";
     public static final String AS = "as";
 
-
     // Types
     public static final String INT = "int";
     public static final String FLOAT = "float";
