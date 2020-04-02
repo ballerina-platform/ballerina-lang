@@ -78,11 +78,11 @@ public enum SyntaxKind {
     ASTERISK_TOKEN(557, "*"),
     LT_TOKEN(558, "<"),
     EQUAL_LT_TOKEN(559, "<="),
-    GT_TOKEN(560, "<"),
+    GT_TOKEN(560, ">"),
     EQUAL_GT_TOKEN(561, "=>"),
     QUESTION_MARK_TOKEN(562, "?"),
     PIPE_TOKEN(563, "|"),
-    
+
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
     DECIMAL_INTEGER_LITERAL(1002),
@@ -121,6 +121,7 @@ public enum SyntaxKind {
     FIELD_ACCESS(1305),
     METHOD_CALL(1306),
     CHECK_EXPRESSION(1307),
+    MAPPING_CONSTRUCTOR(1308),
 
     // Type descriptors
     RECORD_TYPE_DESCRIPTOR(2000),
@@ -144,6 +145,9 @@ public enum SyntaxKind {
     IMPORT_VERSION(3014),
     IMPORT_SUB_VERSION(3015),
     IMPORT_PREFIX(3016),
+    SPECIFIC_FIELD(3017),
+    COMPUTED_NAME_FIELD(3018),
+    SPREAD_FIELD(3019),
 
     INVALID(4),
     MODULE_PART(3),

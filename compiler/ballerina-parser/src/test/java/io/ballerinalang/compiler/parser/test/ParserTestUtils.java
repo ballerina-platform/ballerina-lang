@@ -249,6 +249,10 @@ public class ParserTestUtils {
             case IDENTIFIER_TOKEN:
                 return ((STIdentifier) token).text;
             case STRING_LITERAL:
+                String val = ((STLiteralValueToken) token).text;
+                int stringLen = val.length();
+                int lastCharPosition = val.endsWith("\"") ? stringLen - 1 : stringLen;
+                return val.substring(1, lastCharPosition);
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
                 return ((STLiteralValueToken) token).text;
@@ -415,6 +419,8 @@ public class ParserTestUtils {
                 return SyntaxKind.MEMBER_ACCESS;
             case "CHECK_EXPRESSION":
                 return SyntaxKind.CHECK_EXPRESSION;
+            case "MAPPING_CONSTRUCTOR":
+                return SyntaxKind.MAPPING_CONSTRUCTOR;
 
             // Statements
             case "BLOCK_STATEMENT":
@@ -473,6 +479,12 @@ public class ParserTestUtils {
                 return SyntaxKind.IMPORT_SUB_VERSION;
             case "IMPORT_PREFIX":
                 return SyntaxKind.IMPORT_PREFIX;
+            case "SPECIFIC_FIELD":
+                return SyntaxKind.SPECIFIC_FIELD;
+            case "COMPUTED_NAME_FIELD":
+                return SyntaxKind.COMPUTED_NAME_FIELD;
+            case "SPREAD_FIELD":
+                return SyntaxKind.SPREAD_FIELD;
 
             // Trivia
             case "EOF_TOKEN":

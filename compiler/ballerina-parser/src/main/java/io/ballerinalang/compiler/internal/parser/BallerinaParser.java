@@ -193,6 +193,16 @@ public class BallerinaParser {
                 return parseAsKeyword();
             case RETURN_KEYWORD:
                 return parseReturnKeyword();
+            case MAPPING_FIELD:
+                return parseMappingField(parsedNodes[0]);
+            case SPECIFIC_FIELD_RHS:
+                return parseSpecificFieldRhs(parsedNodes[0], parsedNodes[1]);
+            case STRING_LITERAL:
+                return parseStringLiteral();
+            case COLON:
+                return parseColon();
+            case OPEN_BRACKET:
+                return parseOpenBracket();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -2400,6 +2410,8 @@ public class BallerinaParser {
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
                 return parseCheckExpression();
+            case OPEN_BRACE_TOKEN:
+                return parseMappingConstructorExpr();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.EXPRESSION);
                 return solution.recoveredNode;
@@ -3561,5 +3573,227 @@ public class BallerinaParser {
 
         semicolon = parseSemicolon();
         return STNodeFactory.createReturnStatement(SyntaxKind.RETURN_STATEMENT, returnKeyword, expr, semicolon);
+    }
+
+    /**
+     * Parse mapping constructor expression.
+     * <p>
+     * <code>mapping-constructor-expr := { [field (, field)*] }</code>
+     * 
+     * @return Parsed node
+     */
+    private STNode parseMappingConstructorExpr() {
+        startContext(ParserRuleContext.MAPPING_CONSTRUCTOR);
+        STNode openBrace = parseOpenBrace();
+        STNode fields = parseMapingConstructorFields();
+        STNode closeBrace = parseCloseBrace();
+        endContext();
+        return STNodeFactory.createMappingContructorExpr(openBrace, fields, closeBrace);
+    }
+
+    /**
+     * Parse mapping constructor fields.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseMapingConstructorFields() {
+        List<STNode> fields = new ArrayList<>();
+        STToken nextToken = peek();
+        if (isEndOfMappingConstructor(nextToken.kind)) {
+            return STNodeFactory.createNodeList(fields);
+        }
+
+        // Parse first field mapping, that has no leading comma
+        STNode leadingComma = STNodeFactory.createEmptyNode();
+        STNode field = parseMappingField(leadingComma);
+        fields.add(field);
+
+        // Parse the remaining field mappings
+        nextToken = peek();
+        while (!isEndOfMappingConstructor(nextToken.kind)) {
+            leadingComma = parseComma();
+            field = parseMappingField(leadingComma);
+            fields.add(field);
+            nextToken = peek();
+        }
+
+        return STNodeFactory.createNodeList(fields);
+    }
+
+    private boolean isEndOfMappingConstructor(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case CLOSE_BRACE_TOKEN:
+            case CLOSE_PAREN_TOKEN:
+            case CLOSE_BRACKET_TOKEN:
+            case OPEN_BRACE_TOKEN:
+            case SEMICOLON_TOKEN:
+            case PUBLIC_KEYWORD:
+            case FUNCTION_KEYWORD:
+            case EOF_TOKEN:
+            case RETURNS_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Parse mapping constructor field.
+     * <p>
+     * <code>field := specific-field | computed-name-field | spread-field</code>
+     * 
+     * @param leadingComma Leading comma
+     * @return Parsed node
+     */
+    private STNode parseMappingField(STNode leadingComma) {
+        STToken nextToken = peek();
+        return parseMappingField(nextToken.kind, leadingComma);
+    }
+
+    private STNode parseMappingField(SyntaxKind tokenKind, STNode leadingComma) {
+        switch (tokenKind) {
+            case IDENTIFIER_TOKEN:
+                return parseSpecificFieldWithOptionValue(leadingComma);
+            case STRING_LITERAL:
+                STNode key = parseStringLiteral();
+                STNode colon = parseColon();
+                STNode valueExpr = parseExpression();
+                return STNodeFactory.createSpecificField(leadingComma, key, colon, valueExpr);
+            case OPEN_BRACKET_TOKEN:
+                return parseComputedField(leadingComma);
+            case ELLIPSIS_TOKEN:
+                STNode ellipsis = parseEllipsis();
+                STNode expr = parseExpression();
+                return STNodeFactory.createSpreadField(leadingComma, ellipsis, expr);
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.MAPPING_FIELD, leadingComma);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseMappingField(solution.tokenKind, leadingComma);
+        }
+    }
+
+    /**
+     * Parse mapping constructor specific-field with an optional value.
+     * 
+     * @param leadingComma
+     * @return Parsed node
+     */
+    private STNode parseSpecificFieldWithOptionValue(STNode leadingComma) {
+        STNode key = parseIdentifier(ParserRuleContext.MAPPING_FIELD_NAME);
+        return parseSpecificFieldRhs(leadingComma, key);
+    }
+
+    private STNode parseSpecificFieldRhs(STNode leadingComma, STNode key) {
+        STToken nextToken = peek();
+        return parseSpecificFieldRhs(nextToken.kind, leadingComma, key);
+    }
+
+    private STNode parseSpecificFieldRhs(SyntaxKind tokenKind, STNode leadingComma, STNode key) {
+        STNode colon;
+        STNode valueExpr;
+
+        switch (tokenKind) {
+            case COLON_TOKEN:
+                colon = parseColon();
+                valueExpr = parseExpression();
+                break;
+            case COMMA_TOKEN:
+                colon = STNodeFactory.createEmptyNode();
+                valueExpr = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                if (isEndOfMappingConstructor(tokenKind)) {
+                    colon = STNodeFactory.createEmptyNode();
+                    valueExpr = STNodeFactory.createEmptyNode();
+                    break;
+                }
+
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.SPECIFIC_FIELD_RHS, leadingComma, key);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseSpecificFieldRhs(solution.tokenKind, leadingComma, key);
+
+        }
+        return STNodeFactory.createSpecificField(leadingComma, key, colon, valueExpr);
+    }
+
+    /**
+     * Parse string literal.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseStringLiteral() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.STRING_LITERAL) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.STRING_LITERAL);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse colon token.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseColon() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.COLON_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.COLON);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse computed-name-field of a mapping constructor expression.
+     * <p>
+     * <code>computed-name-field := [ field-name-expr ] : value-expr</code>
+     * 
+     * @param leadingComma Leading comma
+     * @return Parsed node
+     */
+    private STNode parseComputedField(STNode leadingComma) {
+        startContext(ParserRuleContext.COMPUTED_FIELD_NAME);
+        STNode openBracket = parseOpenBracket();
+        STNode fieldNameExpr = parseExpression();
+        STNode closeBracket = parseCloseBracket();
+        STNode colon = parseColon();
+        STNode valueExpr = parseExpression();
+        endContext();
+        return STNodeFactory.createComputedNameField(leadingComma, openBracket, fieldNameExpr, closeBracket, colon,
+                valueExpr);
+    }
+
+    /**
+     * Parse open bracket.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseOpenBracket() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.OPEN_BRACKET);
+            return sol.recoveredNode;
+        }
     }
 }

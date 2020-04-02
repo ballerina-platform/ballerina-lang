@@ -64,7 +64,7 @@ public abstract class SyntaxNodeVisitor {
     public void visit(BlockStatement blockStatement) {
         visitSyntaxNode(blockStatement);
     }
-    
+
     public void visit(PanicStatement panicStatement) {
         visitSyntaxNode(panicStatement);
     }
@@ -166,6 +166,22 @@ public abstract class SyntaxNodeVisitor {
 
     public void visit(ImportOrgName importOrgName) {
         visitSyntaxNode(importOrgName);
+    }
+
+    public void visit(ComputedNameField computedNameField) {
+        visitSyntaxNode(computedNameField);
+    }
+
+    public void visit(MappingConstructorExpression mappingConstructorExpr) {
+        visitSyntaxNode(mappingConstructorExpr);
+    }
+
+    public void visit(SpecificField specificField) {
+        visitSyntaxNode(specificField);
+    }
+
+    public void visit(SpreadField spreadField) {
+        visitSyntaxNode(spreadField);
     }
 
     protected void visitSyntaxNode(Node node) {
