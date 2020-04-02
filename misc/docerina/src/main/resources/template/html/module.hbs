@@ -58,7 +58,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{#if isAnonymous}}Anonymous record{{else}}{{{ description }}}{{/if}}
                             </td>
                         </tr>
                     {{/each}}

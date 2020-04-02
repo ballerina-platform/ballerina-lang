@@ -169,6 +169,10 @@ public class Type {
         if (type.type instanceof BNilType) {
             typeModel.name = "()";
         }
+        // If anonymous type substitute the name
+        if (typeModel.name != null && typeModel.name.contains("$anonType$")) {
+            typeModel.name = "T" + typeModel.name.substring(typeModel.name.lastIndexOf('$') + 1);;
+        }
         return typeModel;
     }
 
