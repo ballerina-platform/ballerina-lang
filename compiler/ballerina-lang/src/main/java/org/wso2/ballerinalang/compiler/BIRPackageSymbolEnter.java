@@ -834,7 +834,7 @@ public class BIRPackageSymbolEnter {
                     return symTable.jsonType;
                 case TypeTags.XML:
                     BType constraintType = readTypeFromCp();
-                    return new BXMLType(TypeTags.XML, constraintType, false, symTable.xmlType.tsymbol);
+                    return new BXMLType(constraintType, symTable.xmlType.tsymbol);
                 case TypeTags.NIL:
                     return symTable.nilType;
                 case TypeTags.ANYDATA:

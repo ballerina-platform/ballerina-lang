@@ -64,7 +64,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -154,8 +153,8 @@ public class SymbolTable {
     public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT);
     public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT);
 
-    public final BType xmlType = new BXMLType(TypeTags.XML,
-            BUnionType.create(null, xmlElementType, xmlCommentType, xmlPIType, xmlTextType), true,  null);
+    public final BType xmlType = new BXMLType(BUnionType.create(null, xmlElementType, xmlCommentType, xmlPIType,
+            xmlTextType),  null);
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
@@ -353,7 +352,7 @@ public class SymbolTable {
         defineIntegerArithmeticOperations();
 
         // XML arithmetic operators
-        defineXmlArithmaticOperations();
+        defineXmlStringConcatanationOperations();
         defineBinaryOperator(OperatorKind.ADD, stringType, stringType, stringType);
         defineBinaryOperator(OperatorKind.ADD, stringType, charStringType, stringType);
         defineBinaryOperator(OperatorKind.ADD, charStringType, stringType, stringType);
@@ -513,21 +512,7 @@ public class SymbolTable {
 
     }
 
-    private void defineXmlArithmaticOperations() {
-        defineBinaryOperator(OperatorKind.ADD, xmlType, xmlType, xmlType);
-        List<BType> xmlSubTypes = Arrays.asList(xmlElementType, xmlCommentType, xmlPIType, xmlTextType);
-        for (int i = 0; i < xmlSubTypes.size(); i++) {
-            BType subType = xmlSubTypes.get(i);
-            defineBinaryOperator(OperatorKind.ADD, subType, subType, subType);
-            for (int j = 0; j < xmlSubTypes.size(); j++) {
-                if (i != j) {
-                    BType otherType = xmlSubTypes.get(j);
-                    defineBinaryOperator(OperatorKind.ADD, subType, otherType, xmlType);
-                    defineBinaryOperator(OperatorKind.ADD, otherType, subType, xmlType);
-                }
-            }
-        }
-
+    private void defineXmlStringConcatanationOperations() {
         defineBinaryOperator(OperatorKind.ADD, xmlType, stringType, xmlType);
         defineBinaryOperator(OperatorKind.ADD, xmlType, charStringType, xmlType);
 

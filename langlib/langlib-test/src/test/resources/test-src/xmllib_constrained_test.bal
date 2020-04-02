@@ -37,6 +37,13 @@ public function xmlConstraintMultipleElement() {
     assert(elementSequence.length(), 2);
     assert((elementSequence[0]/*).toString(),"xml element 1");
     assert((elementSequence[1]/*).toString(),"xml element 2");
+
+    'xml:Comment comment = xml `<!-- this is a comment text -->`;
+    'xml:ProcessingInstruction pi = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
+     xml commentPISeq = comment + pi;
+     assert(commentPISeq.length(), 2);
+     assert((commentPISeq[0]).toString(),"<!-- this is a comment text -->");
+     assert((commentPISeq[1]).toString(),"<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>");
 }
 
 public function xmlConstraintRuntimeCast() {

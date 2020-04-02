@@ -56,7 +56,6 @@ public class LangLibXMLTest {
 
     @Test(dataProvider = "XMLDataProvider")
     public void testLength(BValue val, long expectedLength) {
-
         BValue[] returns = BRunUtil.invoke(compileResult, "testLength", new BValue[]{val});
         assertEquals(((BInteger) returns[0]).intValue(), expectedLength);
     }
@@ -298,9 +297,11 @@ public class LangLibXMLTest {
                 29, 26);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml:Comment'",
                 32, 41);
-        validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Comment>', found 'xml:Element'",
+        validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Comment>'," +
+                        " found 'xml<xml:Element>'",
                 38, 41);
-        validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml'", 41, 29);
+        validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Element>'," +
+                " found 'xml<(xml:Element|xml:Comment)>'", 41, 29);
         assertEquals(constraintNegative.getErrorCount(), i);
     }
 }

@@ -299,7 +299,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // check for undeclared namespaces.
         checkXMLNamespacePrefixes(xmlElementAccess.filters);
         checkExpr(xmlElementAccess.expr, env, symTable.xmlType);
-        resultType = new BXMLType(TypeTags.XML, symTable.xmlElementType, false, null);
+        resultType = new BXMLType(symTable.xmlElementType, null);
     }
 
     @Override
@@ -315,7 +315,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
             resultType = symTable.xmlType;
         } else {
-            resultType = new BXMLType(TypeTags.XML, symTable.xmlElementType, false, null);
+            resultType = new BXMLType(symTable.xmlElementType, null);
         }
     }
 
@@ -2298,44 +2298,55 @@ public class TypeChecker extends BLangNodeVisitor {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
 
-        // Do not lookup operator symbol for xml sequence additions
-        if (binaryExpr.opKind == OperatorKind.ADD &&
-                (lhsType.tag == TypeTags.XML && TypeTags.isXMLNonSequenceType(rhsType.tag))) {
-            actualType = new BXMLType(TypeTags.XML, BUnionType.create(null, ((BXMLType) lhsType).constraint, rhsType),
-                    false,
-                    null);
-        } else if (binaryExpr.opKind == OperatorKind.ADD &&
-                (rhsType.tag == TypeTags.XML && TypeTags.isXMLNonSequenceType(lhsType.tag))) {
-            actualType = new BXMLType(TypeTags.XML, BUnionType.create(null, ((BXMLType) rhsType).constraint, lhsType),
-                    false, null);
-        } else if (binaryExpr.opKind == OperatorKind.ADD &&
-                rhsType.tag == TypeTags.XML && lhsType.tag == TypeTags.XML) {
-            actualType = new BXMLType(TypeTags.XML, BUnionType.create(null, ((BXMLType) lhsType).constraint,
-                    ((BXMLType) rhsType).constraint), false, null);
-        } else if (lhsType != symTable.semanticError && rhsType != symTable.semanticError) {
-            // Look up operator symbol if both rhs and lhs types aren't error or xml types
-            BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
+        //noinspection SwitchStatementWithTooFewBranches
+        switch (binaryExpr.opKind) {
+            // Do not lookup operator symbol for xml sequence additions
+            case ADD:
+                BType leftConstituent = getXMLConstituents(lhsType);
+                BType rightConstituent = getXMLConstituents(rhsType);
 
-            if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType, binaryExpr);
-            }
-
-            if (opSymbol == symTable.notFoundSymbol) {
-                dlog.error(binaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES, binaryExpr.opKind,
-                           lhsType, rhsType);
-            } else {
-                if ((binaryExpr.opKind == OperatorKind.EQUAL || binaryExpr.opKind == OperatorKind.NOT_EQUAL) &&
-                        (couldHoldTableValues(lhsType, new ArrayList<>()) &&
-                                 couldHoldTableValues(rhsType, new ArrayList<>()))) {
-                    dlog.error(binaryExpr.pos, DiagnosticCode.EQUALITY_NOT_YET_SUPPORTED, TABLE_TNAME);
+                if (leftConstituent != null && rightConstituent != null) {
+                    actualType = new BXMLType(BUnionType.create(null, leftConstituent, rightConstituent), null);
+                    break;
                 }
+                // Fall through
+            default:
+                if (lhsType != symTable.semanticError && rhsType != symTable.semanticError) {
+                    // Look up operator symbol if both rhs and lhs types aren't error or xml types
+                    BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
 
-                binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
-                actualType = opSymbol.type.getReturnType();
-            }
+                    if (opSymbol == symTable.notFoundSymbol) {
+                        opSymbol = symResolver.getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType,
+                                binaryExpr);
+                    }
+
+                    if (opSymbol == symTable.notFoundSymbol) {
+                        dlog.error(binaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES, binaryExpr.opKind,
+                                lhsType, rhsType);
+                    } else {
+                        if ((binaryExpr.opKind == OperatorKind.EQUAL || binaryExpr.opKind == OperatorKind.NOT_EQUAL) &&
+                                (couldHoldTableValues(lhsType, new ArrayList<>()) &&
+                                        couldHoldTableValues(rhsType, new ArrayList<>()))) {
+                            dlog.error(binaryExpr.pos, DiagnosticCode.EQUALITY_NOT_YET_SUPPORTED, TABLE_TNAME);
+                        }
+
+                        binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
+                        actualType = opSymbol.type.getReturnType();
+                    }
+                }
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
+    }
+
+    private BType getXMLConstituents(BType type) {
+        BType constituent = null;
+        if (type.tag == TypeTags.XML) {
+            constituent = ((BXMLType) type).constraint;
+        } else if (TypeTags.isXMLNonSequenceType(type.tag)) {
+            constituent = type;
+        }
+        return constituent;
     }
 
     private void checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(BLangBinaryExpr binaryExpr) {

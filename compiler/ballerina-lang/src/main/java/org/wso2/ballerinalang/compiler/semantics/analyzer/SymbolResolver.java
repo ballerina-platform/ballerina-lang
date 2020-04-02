@@ -1012,7 +1012,16 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else if (type.tag == TypeTags.TYPEDESC) {
             constrainedType = new BTypedescType(constraintType, null);
         } else if (type.tag == TypeTags.XML) {
-            constrainedType = getXMLConstrainedType(constraintType, constrainedTypeNode.pos);
+            if (constraintType.tag != TypeTags.UNION) {
+                if (!TypeTags.isXMLTypeTag(constraintType.tag)) {
+                    dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType,
+                            constraintType);
+                }
+                constrainedType = new BXMLType(constraintType, null);
+            } else {
+                checkUnionTypeForXMLSubTypes((BUnionType) constraintType, constrainedTypeNode.pos);
+                constrainedType = new BXMLType(constraintType, null);
+            }
         } else {
             return;
         }
@@ -1023,29 +1032,13 @@ public class SymbolResolver extends BLangNodeVisitor {
         resultType = constrainedType;
     }
 
-    private BType getXMLConstrainedType(BType constraintType, DiagnosticPos pos) {
-        BType constrainedType;
-        if (constraintType.tag != TypeTags.UNION) {
-            if (!TypeTags.isXMLTypeTag(constraintType.tag)) {
-                dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT,
-                        symTable.xmlType, constraintType);
-            }
-            constrainedType = new BXMLType(TypeTags.XML, constraintType, false, null);
-        } else {
-            checkUnionTypeForXMLSubTypes((BUnionType) constraintType, pos);
-            constrainedType = new BXMLType(TypeTags.XML, constraintType, false, null);
-        }
-        return constrainedType;
-    }
-
     private void checkUnionTypeForXMLSubTypes(BUnionType constraintUnionType, DiagnosticPos pos) {
         for (BType memberType : constraintUnionType.getMemberTypes()) {
             if (memberType.tag == TypeTags.UNION) {
                 checkUnionTypeForXMLSubTypes((BUnionType) memberType, pos);
             }
             if (!TypeTags.isXMLTypeTag(memberType.tag)) {
-                dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT,
-                        symTable.xmlType, constraintUnionType);
+                dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType, constraintUnionType);
             }
         }
     }

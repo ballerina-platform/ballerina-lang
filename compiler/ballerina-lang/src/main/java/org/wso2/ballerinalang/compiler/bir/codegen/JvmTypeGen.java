@@ -1153,7 +1153,7 @@ class JvmTypeGen {
      * @param bType xml type to load
      */
     private static void loadXmlType(MethodVisitor mv, BXMLType bType) {
-        // Create an new map type
+        // Create an new xml type
         mv.visitTypeInsn(NEW, XML_TYPE);
         mv.visitInsn(DUP);
 

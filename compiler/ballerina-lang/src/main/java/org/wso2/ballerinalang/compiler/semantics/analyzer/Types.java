@@ -488,10 +488,6 @@ public class Types {
             return true;
         }
 
-        if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING) {
-            return true;
-        }
-
         if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.XML_TEXT) {
             return true;
         }

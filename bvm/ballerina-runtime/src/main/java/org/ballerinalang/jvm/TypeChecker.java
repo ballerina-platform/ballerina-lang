@@ -576,24 +576,6 @@ public class TypeChecker {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
                 }
                 return sourceType.getTag() == targetType.getTag();
-            case TypeTags.XML_TAG:
-                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-                    return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
-                }
-                BXMLType target = ((BXMLType) targetType);
-                if (sourceType.getTag() == TypeTags.XML_TAG) {
-                    BType targetConstraint = target.constraint;
-                    // TODO: Revisit and check why xml<xml<constraint>>> on chained iteration
-                    while (target.constraint.getTag() == TypeTags.XML_TAG) {
-                        target = (BXMLType) target.constraint;
-                        targetConstraint = target.constraint;
-                    }
-                    return checkIsType(((BXMLType) sourceType).constraint, targetConstraint,
-                            unresolvedTypes);
-                } else if (TypeTags.isXMLTypeTag(sourceType.getTag())) {
-                    return checkIsType(sourceType, target.constraint, unresolvedTypes);
-                }
-                return false;
             case TypeTags.INT_TAG:
                 if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
@@ -653,6 +635,8 @@ public class TypeChecker {
                 return checkIsErrorType(sourceType, (BErrorType) targetType, unresolvedTypes);
             case TypeTags.TYPEDESC_TAG:
                 return checkTypeDescType(sourceType, (BTypedescType) targetType, unresolvedTypes);
+            case TypeTags.XML_TAG:
+                return checkIsXMLType(sourceType, targetType, unresolvedTypes);
             default:
                 // other non-recursive types shouldn't reach here
                 return false;
@@ -707,6 +691,26 @@ public class TypeChecker {
             default:
                 return false;
         }
+    }
+
+    private static boolean checkIsXMLType(BType sourceType, BType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
+        }
+        BXMLType target = ((BXMLType) targetType);
+        if (sourceType.getTag() == TypeTags.XML_TAG) {
+            BType targetConstraint = target.constraint;
+            // TODO: Revisit and check why xml<xml<constraint>>> on chained iteration
+            while (target.constraint.getTag() == TypeTags.XML_TAG) {
+                target = (BXMLType) target.constraint;
+                targetConstraint = target.constraint;
+            }
+            return checkIsType(((BXMLType) sourceType).constraint, targetConstraint,
+                    unresolvedTypes);
+        } else if (TypeTags.isXMLTypeTag(sourceType.getTag())) {
+            return checkIsType(sourceType, target.constraint, unresolvedTypes);
+        }
+        return false;
     }
 
     private static List<BType> getWideTypeComponents(BRecordType recType) {
