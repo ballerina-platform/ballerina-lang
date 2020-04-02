@@ -2943,7 +2943,7 @@ public class Types {
         return false;
     }
 
-    private Set<BType> getUniqueValues(BFiniteType member) {
+    private Set<BType> getValueTypes(Set<BLangExpression> valueSpace) {
         Set<BType> uniqueType = new HashSet<>();
         for (BLangExpression expression : member.getValueSpace()) {
             uniqueType.add(expression.type);
