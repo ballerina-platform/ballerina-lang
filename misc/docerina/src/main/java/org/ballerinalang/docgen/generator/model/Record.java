@@ -24,9 +24,12 @@ import java.util.List;
 public class Record extends Construct {
 
     public List<DefaultableVariable> fields  = new ArrayList<>();
+    public boolean isAnonymous = false;
 
-    public Record(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields) {
+    public Record(String name, String description, boolean isDeprecated, boolean isAnonymous,
+                  List<DefaultableVariable> fields) {
         super(name, description, isDeprecated);
+        this.isAnonymous = isAnonymous;
         this.fields = fields;
     }
 }

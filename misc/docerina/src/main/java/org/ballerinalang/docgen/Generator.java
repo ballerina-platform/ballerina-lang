@@ -131,9 +131,6 @@ public class Generator {
             added = true;
         } else if (kind == NodeKind.RECORD_TYPE) {
             BLangRecordTypeNode recordNode = (BLangRecordTypeNode) typeNode;
-            if (recordNode.isAnonymous) {
-                return;
-            }
             addDocForRecordType(typeDefinition, recordNode, module);
             added = true;
         } else if (kind == NodeKind.UNION_TYPE_NODE) {
@@ -269,13 +266,13 @@ public class Generator {
         String recordName = typeDefinition.getName().getValue();
         // Check if its an anonymous struct
         if (recordType.isAnonymous) {
-            recordName = "Anonymous Record " + recordName.substring(recordName.lastIndexOf('$') + 1);
+            recordName = "T" + recordName.substring(recordName.lastIndexOf('$') + 1);
         }
         BLangMarkdownDocumentation documentationNode = typeDefinition.getMarkdownDocumentationAttachment();
         List<DefaultableVariable> fields = getFields(recordType, recordType.fields, documentationNode, module);
 
         module.records.add(new Record(recordName, description(typeDefinition),
-                isDeprecated(typeDefinition.getAnnotationAttachments()), fields));
+                isDeprecated(typeDefinition.getAnnotationAttachments()), recordType.isAnonymous, fields));
     }
 
     private static List<DefaultableVariable> getFields(BLangNode node, List<BLangSimpleVariable> allFields,
