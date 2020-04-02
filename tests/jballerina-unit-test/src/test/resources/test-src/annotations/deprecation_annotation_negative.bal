@@ -175,3 +175,54 @@ type Bar record {
     # Docs for s
     string s;
 };
+
+# Define a constant
+# # Deprecated parameters
+# + CONST5 - deprecated CONST5          // Compile error
+# # Deprecated
+@deprecated
+const string CONST5 = "CONST5";
+
+# Define a type
+# # Deprecated parameters
+# + TypeFoo - deprecated TypeFoo          // Compile error
+# # Deprecated
+@deprecated
+public type TypeFoo CONST2;
+
+# Define a type
+# # Deprecated parameters
+# + i - deprecated i                    // Compile error
+int i = 0;
+
+type Listener object {
+
+    public function __attach(service s, string? name) returns error? {
+
+    }
+
+    public function __detach(service s) returns error? {
+
+    }
+
+    public function __start() returns error? {
+
+    }
+
+    public function __gracefulStop() returns error? {
+
+    }
+
+    public function __immediateStop() returns error? {
+
+    }
+};
+
+# This is a test service
+#
+# # Deprecated parameters
+# + x - deprecated x
+# # Deprecated
+service s on new Listener() {
+
+}
