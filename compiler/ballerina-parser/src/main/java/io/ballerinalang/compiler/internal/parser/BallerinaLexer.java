@@ -822,7 +822,6 @@ public class BallerinaLexer {
                                 this.reader.advance(2);
                             }
                             continue;
-                        // else fall through
                         default:
                             reportLexerError("invalid escape sequence");
                             this.reader.advance();

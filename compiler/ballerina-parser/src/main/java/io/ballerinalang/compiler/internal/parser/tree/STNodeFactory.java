@@ -340,4 +340,25 @@ public class STNodeFactory {
     public static STNode createImportPrefix(STNode asKeyword, STNode prefix) {
         return new STImportPrefix(asKeyword, prefix);
     }
+
+    public static STNode createMappingContructorExpr(STNode openBrace, STNode fields, STNode closeBrace) {
+        return new STMappingConstructorExpression(openBrace, fields, closeBrace);
+    }
+
+    public static STNode createSpreadField(STNode leadingComma, STNode ellipsis, STNode expr) {
+        return new STSpreadField(leadingComma, ellipsis, expr);
+    }
+
+    public static STNode createSpecificField(STNode leadingComma, STNode key, STNode colon, STNode valueExpr) {
+        return new STSpecificField(leadingComma, key, colon, valueExpr);
+    }
+
+    public static STNode createComputedNameField(STNode leadingComma,
+                                                 STNode openBracket,
+                                                 STNode fieldNameExpr,
+                                                 STNode closeBracket,
+                                                 STNode colon,
+                                                 STNode valueExpr) {
+        return new STComputedNameField(leadingComma, openBracket, fieldNameExpr, closeBracket, colon, valueExpr);
+    }
 }

@@ -75,4 +75,14 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
     public void testMissingCloseBracketInMemberAccess() {
         test("x[y[z].call()[3]", "access-expr/member_access_expr_assert_05.json");
     }
+
+    @Test
+    public void testMissingFieldNameInMemberAccess() {
+        test("foo.bar.[baz]", "access-expr/member_access_expr_assert_06.json");
+    }
+    
+    @Test
+    public void testMissingFuncNameInMethodCall() {
+        test("foo.bar.(baz)", "access-expr/member_access_expr_assert_07.json");
+    }
 }

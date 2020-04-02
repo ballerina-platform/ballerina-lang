@@ -21,6 +21,8 @@ import org.testng.annotations.Test;
 
 /**
  * Test parsing quoted string literals.
+ * 
+ * @since 1.3.0
  */
 public class QuotedStringLiteralTest extends AbstractExpressionsTest {
 

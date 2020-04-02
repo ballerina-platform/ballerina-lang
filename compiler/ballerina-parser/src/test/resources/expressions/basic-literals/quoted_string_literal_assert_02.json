@@ -44,7 +44,7 @@
                                 },
                                 {
                                     "kind": "STRING_LITERAL",
-                                    "value": "\"hello world;"
+                                    "value": "hello world;"
                                 },
                                 {
                                     "kind": "SEMICOLON_TOKEN",
@@ -68,7 +68,7 @@
                                 },
                                 {
                                     "kind": "STRING_LITERAL",
-                                    "value": "\"how are you?\""
+                                    "value": "how are you?"
                                 },
                                 {
                                     "kind": "SEMICOLON_TOKEN"
