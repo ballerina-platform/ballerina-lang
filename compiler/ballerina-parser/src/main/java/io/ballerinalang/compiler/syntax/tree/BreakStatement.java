@@ -41,7 +41,7 @@ public class BreakStatement extends Statement{
             return semicolonToken;
         }
 
-        semicolonToken = createToken(2);
+        semicolonToken = createToken(1);
         return semicolonToken;
     }
 
