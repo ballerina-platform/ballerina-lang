@@ -2928,7 +2928,7 @@ public class Types {
         boolean finiteTypePresent = false;
         for (BType member : type.getMemberTypes()) {
             if (member.tag == TypeTags.FINITE) {
-                Set<BType> uniqueValues = getValueTypes(((BFiniteType)member).getValueSpace());
+                Set<BType> uniqueValues = getValueTypes(((BFiniteType) member).getValueSpace());
                 memberTypes.addAll(uniqueValues);
                 if (!defaultValuePresent && hasImplicitDefaultValue(((BFiniteType) member).getValueSpace())) {
                     defaultValuePresent = true;
