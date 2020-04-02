@@ -1550,8 +1550,6 @@ public class BallerinaParserErrorHandler {
             case MINUS_TOKEN:
             case SLASH_TOKEN:
             case ASTERISK_TOKEN:
-            case GT_TOKEN:
-            case LT_TOKEN:
                 return true;
             default:
                 return false;
