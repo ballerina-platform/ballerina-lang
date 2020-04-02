@@ -59,6 +59,7 @@ import org.ballerinalang.model.tree.expressions.LambdaFunctionNode;
 import org.ballerinalang.model.tree.expressions.LetExpressionNode;
 import org.ballerinalang.model.tree.expressions.ListConstructorExprNode;
 import org.ballerinalang.model.tree.expressions.LiteralNode;
+import org.ballerinalang.model.tree.expressions.MarkDownDocumentationDeprecatedParametersAttributeNode;
 import org.ballerinalang.model.tree.expressions.MarkDownDocumentationDeprecationAttributeNode;
 import org.ballerinalang.model.tree.expressions.MarkdownDocumentationParameterAttributeNode;
 import org.ballerinalang.model.tree.expressions.MarkdownDocumentationReturnParameterAttributeNode;
@@ -181,6 +182,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
@@ -652,6 +654,11 @@ public class TreeBuilder {
 
     public static MarkDownDocumentationDeprecationAttributeNode createMarkDownDeprecationAttributeNode() {
         return new BLangMarkDownDeprecationDocumentation();
+    }
+
+    public static MarkDownDocumentationDeprecatedParametersAttributeNode
+                                                                createMarkDownDeprecatedParametersAttributeNode() {
+        return new BLangMarkDownDeprecatedParametersDocumentation();
     }
 
     public static IfNode createIfElseStatementNode() {

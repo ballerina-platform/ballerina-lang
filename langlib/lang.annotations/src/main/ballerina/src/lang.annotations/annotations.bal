@@ -41,7 +41,8 @@ annotation ArgsData DefaultableArgs on function;
 #
 # The usage of a deprecated program element is not recommended due to
 # various reasons. Hence, the compiler issues a warning when such an element is used.
-public const annotation deprecated on source type, source object type, source const, source function, source object function;
+public const annotation deprecated on source type, source object type, source const, source annotation,
+                source function, source parameter, source object function, source object field;
 
 //# Defines a disptcher to be used for concurrent execution of strands.
 //#

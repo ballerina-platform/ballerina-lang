@@ -3484,6 +3484,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDeprecatedParametersDocumentationLine(BallerinaParser.DeprecatedParametersDocumentationLineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDeprecatedParametersDocumentationLine(BallerinaParser.DeprecatedParametersDocumentationLineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterDocumentationContent(BallerinaParser.DocumentationContentContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -3599,6 +3611,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitDeprecatedAnnotationDocumentation(BallerinaParser.DeprecatedAnnotationDocumentationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterDeprecatedParametersDocumentation(BallerinaParser.DeprecatedParametersDocumentationContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDeprecatedParametersDocumentation(BallerinaParser.DeprecatedParametersDocumentationContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
