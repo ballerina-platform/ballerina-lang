@@ -37,4 +37,4 @@ type Tst record {
 };
 
 # Documentation for Test annotation
-annotation Tst Test on function;
+public annotation Tst Test on function;

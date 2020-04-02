@@ -5,6 +5,6 @@ function testDocDummy() returns (boolean) {
     return test:open("testt");
 }
 
-@test:Test
+@test:Test{}
 function testAnnotation() {
 }

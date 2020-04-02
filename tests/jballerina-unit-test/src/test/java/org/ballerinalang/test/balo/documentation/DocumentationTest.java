@@ -19,7 +19,6 @@
 package org.ballerinalang.test.balo.documentation;
 
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
-import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -38,22 +37,21 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public class DocumentationTest {
 
-    private CompileResult result;
     private static final String CARRIAGE_RETURN_CHAR = "\r";
     private static final String EMPTY_STRING = "";
+    private BPackageSymbol symbol;
 
     @BeforeClass
     public void setup() {
         BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_documentation", "testDocOrg", "test");
-        result = BCompileUtil.compile("test-src/balo/test_balo/documentation/test_documentation.bal");
+        CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/documentation/test_documentation.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+        symbol = ((BLangPackage) result.getAST()).symbol;
     }
 
     @Test(description = "Test Doc attachments in Balo.")
     public void testDocAttachmentBalo() {
-        PackageNode packageNode = result.getAST();
-        BPackageSymbol symbol = ((BLangPackage) packageNode).symbol;
-
         BPackageSymbol testOrgPackage = (BPackageSymbol) symbol.scope.lookup(new Name("test")).symbol;
         BSymbol functionSymbol = testOrgPackage.scope.lookup(new Name("open")).symbol;
 
@@ -107,9 +105,6 @@ public class DocumentationTest {
 
     @Test(description = "Test doc attachments in annotations")
     public void testAnnotationDoc() {
-        PackageNode packageNode = result.getAST();
-        BPackageSymbol symbol = ((BLangPackage) packageNode).symbol;
-
         BPackageSymbol testOrgPackage = (BPackageSymbol) symbol.scope.lookup(new Name("test")).symbol;
         BSymbol annotationSymbol = testOrgPackage.scope.lookup(new Name("Test")).symbol;
 
