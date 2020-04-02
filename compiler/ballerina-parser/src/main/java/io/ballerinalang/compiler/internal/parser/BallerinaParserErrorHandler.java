@@ -64,7 +64,8 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] STATEMENTS = { ParserRuleContext.ASSIGNMENT_STMT,
             ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK, ParserRuleContext.WHILE_BLOCK,
-            ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE, ParserRuleContext.PANIC_STMT };
+            ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE, ParserRuleContext.PANIC_STMT,
+            ParserRuleContext.COMPOUND_ASSIGNMENT_STMT};
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -151,6 +152,9 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] MAJOR_MINOR_VERSION_END =
             { ParserRuleContext.DOT, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
+
+    private static final ParserRuleContext[] COMPOUND_ASSIGNMENT_STATEMENT =
+            { ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.ASSIGN_OP };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -1127,6 +1131,7 @@ public class BallerinaParserErrorHandler {
             case PANIC_STMT:
             case CALL_STMT:
             case IMPORT_DECL:
+            case COMPOUND_ASSIGNMENT_STMT:
                 // case EXPRESSION:
                 startContext(currentCtx);
                 break;
@@ -1164,6 +1169,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.CLOSE_BRACE;
             case ASSIGN_OP:
                 return getNextRuleForEqualOp();
+            case COMPOUND_BINARY_OPERATOR:
+                return ParserRuleContext.ASSIGN_OP;
             case CLOSE_BRACE:
                 return getNextRuleForCloseBrace(nextLookahead);
             case CLOSE_PARENTHESIS:
@@ -1225,6 +1232,8 @@ public class BallerinaParserErrorHandler {
                 }
                 return ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR;
             case ASSIGNMENT_STMT:
+                return ParserRuleContext.VARIABLE_NAME;
+            case COMPOUND_ASSIGNMENT_STMT:
                 return ParserRuleContext.VARIABLE_NAME;
             case VAR_DECL_STMT:
                 return ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR;
@@ -1504,19 +1513,19 @@ public class BallerinaParserErrorHandler {
                 // Currently processing a required param, but now switch
                 // to a defaultable param
                 switchContext(ParserRuleContext.DEFAULTABLE_PARAM);
-                return ParserRuleContext.ASSIGN_OP;
+                return compoundOrNot(nextToken);
             }
         } else if (parentCtx == ParserRuleContext.DEFAULTABLE_PARAM) {
             if (isEndOfParametersList(nextToken)) {
                 return ParserRuleContext.CLOSE_PARENTHESIS;
             } else {
-                return ParserRuleContext.ASSIGN_OP;
+                return compoundOrNot(nextToken);
             }
         } else if (isStatement(parentCtx)) {
             if (isEndOfExpression(nextToken)) { // end of expression can be treated as end of a statement too
                 return ParserRuleContext.SEMICOLON;
             } else {
-                return ParserRuleContext.ASSIGN_OP;
+                return compoundOrNot(nextToken);
             }
         } else if (parentCtx == ParserRuleContext.RECORD_FIELD) {
             return ParserRuleContext.FIELD_DESCRIPTOR_RHS;
@@ -1526,6 +1535,35 @@ public class BallerinaParserErrorHandler {
             return ParserRuleContext.OBJECT_FIELD_RHS;
         } else {
             throw new IllegalStateException();
+        }
+    }
+
+    /**
+     * Check whether the given token kind is a compound binary operator.
+     * 
+     * @param kind STToken kind
+     * @return <code>true</code> if the token kind refers to a binary operator. <code>false</code> otherwise
+     */
+    private boolean isCompoundBinaryOperator(SyntaxKind kind) {
+        switch (kind) {
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+            case SLASH_TOKEN:
+            case ASTERISK_TOKEN:
+            case GT_TOKEN:
+            case LT_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    //return whether we choose a assignment op or a compund binary one
+    private ParserRuleContext compoundOrNot(STToken token) {
+        if (isCompoundBinaryOperator(token.kind)) {
+            return ParserRuleContext.COMPOUND_BINARY_OPERATOR;        
+        }else {
+            return ParserRuleContext.ASSIGN_OP;
         }
     }
 
@@ -1613,6 +1651,7 @@ public class BallerinaParserErrorHandler {
             case WHILE_BLOCK:
             case CALL_STMT:
             case PANIC_STMT:
+            case COMPOUND_ASSIGNMENT_STMT:
                 return true;
             default:
                 return false;
