@@ -956,7 +956,7 @@ public class BallerinaParserErrorHandler {
         }
 
         ParserRuleContext[] alternatives = { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
-                ParserRuleContext.OPEN_BRACKET, nextContext };
+                ParserRuleContext.OPEN_BRACKET, ParserRuleContext.OPEN_PARENTHESIS, nextContext };
         return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives);
     }
 
@@ -1228,7 +1228,11 @@ public class BallerinaParserErrorHandler {
 
                 return ParserRuleContext.STATEMENT;
             case OPEN_PARENTHESIS:
-                return ParserRuleContext.PARAM_LIST;
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.FUNC_DEFINITION) {
+                    return ParserRuleContext.PARAM_LIST;
+                }
+                return ParserRuleContext.ARG;
             case RETURNS_KEYWORD:
                 if (this.tokenReader.peek(nextLookahead).kind != SyntaxKind.RETURNS_KEYWORD) {
                     // If there are no matches in the optional rule, then continue from the

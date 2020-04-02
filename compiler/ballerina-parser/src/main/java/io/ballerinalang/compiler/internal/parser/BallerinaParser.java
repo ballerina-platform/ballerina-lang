@@ -170,6 +170,8 @@ public class BallerinaParser {
                 return parseImportPrefix();
             case IMPORT_MODULE_NAME:
             case IMPORT_ORG_OR_MODULE_NAME:
+            case VARIABLE_REF:
+            case FIELD_OR_FUNC_NAME:
                 return parseIdentifier(context);
             case IMPORT_KEYWORD:
                 return parseImportKeyword();
@@ -2504,10 +2506,10 @@ public class BallerinaParser {
                 newLhsExpr = parseMemberAccessExpr(lhsExpr);
                 break;
             case DOT_TOKEN:
-                if (peek(2).kind == SyntaxKind.IDENTIFIER_TOKEN) {
+//                if (peek(2).kind == SyntaxKind.IDENTIFIER_TOKEN) {
                     newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr);
                     break;
-                }
+//                }
                 // else fall through
             default:
                 STNode operator = parseBinaryOperator();
@@ -2581,10 +2583,8 @@ public class BallerinaParser {
      * @return One of <code>field-access-expression</code> or <code>method-call-expression</code>.
      */
     private STNode parseFieldAccessOrMethodCall(STNode lhsExpr) {
-        // Next two tokens are already validated before coming here.
-        // Hence just consume.
-        STNode dotToken = consume();
-        STNode fieldOrMethodName = consume();
+        STNode dotToken = parseDotToken();
+        STNode fieldOrMethodName = parseIdentifier(ParserRuleContext.FIELD_OR_FUNC_NAME);
 
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
