@@ -46,7 +46,7 @@ function createIntDefaultSealedArray() {
 
 function createSealedArraysOfIntSubtypes() {
     ('int:Unsigned16|'int:Signed32)[2] sealedArray = [];
-    isEqualPanic("0 0", sealedArray);
+    assertArrayLengthPanic(2, sealedArray);
 }
 
 // Boolean Arrays
