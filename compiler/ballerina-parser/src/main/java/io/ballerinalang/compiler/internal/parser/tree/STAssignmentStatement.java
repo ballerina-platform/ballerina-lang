@@ -39,12 +39,7 @@ public class STAssignmentStatement extends STStatement {
         this.expr = expr;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(lhsExpression, 0);
-        this.addChildNode(equalsToken, 1);
-        this.addChildNode(expr, 2);
-        this.addChildNode(semicolonToken, 3);
+        addChildren(lhsExpression, equalsToken, expr, semicolonToken);
     }
 
     @Override

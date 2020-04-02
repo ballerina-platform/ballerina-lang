@@ -38,12 +38,7 @@ public class STExternalFuncBody extends STStatement {
         this.externalKeyword = externalKeyword;
         this.semicolon = semicolon;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(assign, 0);
-        this.addChildNode(annotation, 1);
-        this.addChildNode(externalKeyword, 2);
-        this.addChildNode(semicolon, 3);
+        addChildren(assign, annotation, externalKeyword, semicolon);
     }
 
     @Override

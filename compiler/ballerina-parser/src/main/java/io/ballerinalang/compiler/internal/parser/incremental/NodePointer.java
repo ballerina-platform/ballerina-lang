@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser.incremental;
 
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
+import io.ballerinalang.compiler.syntax.tree.ChildNodeList;
 import io.ballerinalang.compiler.syntax.tree.ModulePart;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
@@ -64,13 +65,14 @@ class NodePointer {
 
     NodePointer nextChild() {
         NonTerminalNode nonTerminalNode = (NonTerminalNode) current;
-        for (int bucket = 0; bucket < nonTerminalNode.bucketCount(); bucket++) {
-            Node child = nonTerminalNode.childInBucket(bucket);
+        int childIndex = 0;
+        for (Node child : nonTerminalNode.children()) {
             if (!isZeroWidthNode(child) || isEOFToken(child)) {
                 current = child;
-                childBucketIndex = bucket;
+                childBucketIndex = childIndex;
                 return this;
             }
+            childIndex++;
         }
         return new NodePointer(null);
     }
@@ -81,15 +83,15 @@ class NodePointer {
         }
 
         NonTerminalNode parent = current.getParent();
-        for (int bucket = childBucketIndex + 1; bucket < parent.bucketCount(); bucket++) {
-            Node sibling = parent.childInBucket(bucket);
+        ChildNodeList childNodeList = parent.children();
+        for (int childIndex = childBucketIndex + 1; childIndex < childNodeList.size(); childIndex++) {
+            Node sibling = childNodeList.get(childIndex);
             if (!isZeroWidthNode(sibling) || isEOFToken(sibling)) {
                 current = sibling;
-                childBucketIndex = bucket;
+                childBucketIndex = childIndex;
                 return this;
             }
         }
-
         return moveToParent().nextSibling();
     }
 
@@ -125,12 +127,14 @@ class NodePointer {
         }
 
         NonTerminalNode ancestor = parent.getParent();
-        for (int i = 0; i < ancestor.bucketCount(); i++) {
-            if (parent == ancestor.childInBucket(i)) {
+        int childIndex = 0;
+        for (Node sibling : ancestor.children()) {
+            if (parent == sibling) {
                 current = parent;
-                childBucketIndex = i;
+                childBucketIndex = childIndex;
                 return this;
             }
+            childIndex++;
         }
 
         // This line cannot be reachable;

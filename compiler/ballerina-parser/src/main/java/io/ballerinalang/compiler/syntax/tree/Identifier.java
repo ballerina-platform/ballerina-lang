@@ -17,32 +17,22 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STIdentifier;
 
-public class RecordRestDescriptorNode extends NonTerminalNode {
+/**
+ * Represents an identifier in the syntax tree.
+ *
+ * @since 1.3.0
+ */
+public class Identifier extends Token {
+    private final String value;
 
-    public RecordRestDescriptorNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public Identifier(STIdentifier token, int position, NonTerminalNode parent) {
+        super(token, position, parent);
+        this.value = token.text;
     }
 
-    public Node fieldType() {
-        return childInBucket(0);
-    }
-
-    public Token ellipsis() {
-        return childInBucket(1);
-    }
-
-    public Token semicolon() {
-        return childInBucket(2);
-    }
-    @Override
-    public void accept(SyntaxNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
-        return visitor.transform(this);
+    public String value() {
+        return value;
     }
 }

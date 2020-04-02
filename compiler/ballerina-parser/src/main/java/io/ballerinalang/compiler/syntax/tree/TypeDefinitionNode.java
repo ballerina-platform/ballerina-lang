@@ -21,76 +21,28 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class TypeDefinitionNode extends ModuleMemberDeclaration {
 
-    private Token visibilityQual;
-    private Token typeKeyword;
-    private Token typeName;
-    private Node typeDescriptor;
-    private Token comma;
-
     public TypeDefinitionNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token visibilityQualifier() {
-        if (visibilityQual != null) {
-            return visibilityQual;
-        }
-
-        visibilityQual = createToken(0);
-        return visibilityQual;
+        return childInBucket(0);
     }
 
     public Token typeKeyword() {
-        if (typeKeyword != null) {
-            return typeKeyword;
-        }
-
-        typeKeyword = createToken(1);
-        return typeKeyword;
+        return childInBucket(1);
     }
 
     public Token typeName() {
-        if (typeName != null) {
-            return typeName;
-        }
-
-        typeName = createToken(2);
-        return typeName;
+        return childInBucket(2);
     }
 
     public Node typeDescriptor() {
-        if (typeDescriptor != null) {
-            return typeDescriptor;
-        }
-
-        typeDescriptor = node.childInBucket(3).createFacade(getChildPosition(3), this);
-        childBuckets[3] = typeDescriptor;
-        return typeDescriptor;
+        return childInBucket(3);
     }
 
     public Token comma() {
-        if (comma != null) {
-            return comma;
-        }
-
-        this.comma = createToken(4);
-        return this.comma;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return visibilityQualifier();
-            case 1:
-                return typeKeyword();
-            case 2:
-                return typeName();
-            case 3:
-                return typeDescriptor();
-            case 4:
-                return comma();
-        }
-        return null;
+        return childInBucket(4);
     }
 
     @Override

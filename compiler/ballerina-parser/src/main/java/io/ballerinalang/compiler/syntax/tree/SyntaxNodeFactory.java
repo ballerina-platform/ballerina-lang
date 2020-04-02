@@ -17,32 +17,11 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
-
-public class RecordRestDescriptorNode extends NonTerminalNode {
-
-    public RecordRestDescriptorNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
-    }
-
-    public Node fieldType() {
-        return childInBucket(0);
-    }
-
-    public Token ellipsis() {
-        return childInBucket(1);
-    }
-
-    public Token semicolon() {
-        return childInBucket(2);
-    }
-    @Override
-    public void accept(SyntaxNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
-        return visitor.transform(this);
-    }
+/**
+ *
+ */
+public class SyntaxNodeFactory {
 }
+
+
+// TODO Need a way to create a new tree by updating a single token or a node.

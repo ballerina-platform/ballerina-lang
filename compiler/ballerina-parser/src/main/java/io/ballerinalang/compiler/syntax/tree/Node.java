@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  */
 public abstract class Node {
 
-    protected final STNode node;
+    protected final STNode internalNode;
     protected final int position;
     protected final NonTerminalNode parent;
 
@@ -36,14 +36,14 @@ public abstract class Node {
     // SpanWithMinutiae - starting startOffset and widthWithMinutiae
     protected final Span spanWithMinutiae;
 
-    public Node(STNode node, int position, NonTerminalNode parent) {
-        this.node = node;
+    public Node(STNode internalNode, int position, NonTerminalNode parent) {
+        this.internalNode = internalNode;
         this.position = position;
         this.parent = parent;
 
         // TODO Set the width excluding the minutiae.
-        this.span = new Span(position, node.width());
-        this.spanWithMinutiae = new Span(position, node.width());
+        this.span = new Span(position, internalNode.width());
+        this.spanWithMinutiae = new Span(position, internalNode.width());
     }
 
     public int getPosition() {
@@ -63,7 +63,7 @@ public abstract class Node {
     }
 
     public SyntaxKind getKind() {
-        return node.kind;
+        return internalNode.kind;
     }
 
     /**
@@ -86,11 +86,11 @@ public abstract class Node {
 
     // TODO Temp method. We need to find a way to get the green node from a red node.
     public STNode getInternalNode() {
-        return node;
+        return internalNode;
     }
 
     @Override
     public String toString() {
-        return node.toString();
+        return internalNode.toString();
     }
 }

@@ -15,34 +15,22 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.syntax.tree;
+package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.syntax.tree.EmptyToken;
+import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
-public class RecordRestDescriptorNode extends NonTerminalNode {
+import java.util.ArrayList;
 
-    public RecordRestDescriptorNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
-    }
+public class STEmptyToken extends STToken {
 
-    public Node fieldType() {
-        return childInBucket(0);
-    }
-
-    public Token ellipsis() {
-        return childInBucket(1);
-    }
-
-    public Token semicolon() {
-        return childInBucket(2);
-    }
-    @Override
-    public void accept(SyntaxNodeVisitor visitor) {
-        visitor.visit(this);
+    STEmptyToken() {
+        super(SyntaxKind.NONE, new STNodeList(new ArrayList<>()), new STNodeList(new ArrayList<>()));
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
-        return visitor.transform(this);
+    public Node createFacade(int position, NonTerminalNode parent) {
+        return new EmptyToken(this, position, parent);
     }
 }

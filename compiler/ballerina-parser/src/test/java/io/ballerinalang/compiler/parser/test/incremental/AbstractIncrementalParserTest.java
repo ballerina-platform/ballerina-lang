@@ -79,8 +79,7 @@ public class AbstractIncrementalParserTest {
             return;
         }
 
-        for (int bucket = 0; bucket < node.bucketCount(); bucket++) {
-            Node child = node.childInBucket(bucket);
+        for (Node child : node.children()) {
             if (SyntaxUtils.isToken(child)) {
                 if (!oldNodeSet.contains(child.getInternalNode())) {
                     // TODO Checking for width seems not correct in this situation. Double check!!!
@@ -99,8 +98,7 @@ public class AbstractIncrementalParserTest {
     }
 
     private static void populateNodes(NonTerminalNode node, Set<STNode> nodeSet) {
-        for (int bucket = 0; bucket < node.bucketCount(); bucket++) {
-            Node child = node.childInBucket(bucket);
+        for (Node child : node.children()) {
             if (SyntaxUtils.isToken(child)) {
                 // TODO Checking for width seems not correct in this situation. Double check!!!
                 if (child.getSpanWithMinutiae().width() != 0) {

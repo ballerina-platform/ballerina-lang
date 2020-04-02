@@ -73,7 +73,7 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(binaryExpression);
     }
 
-    public T transform(FunctionCallNode functionCallNode) {
+    public T transform(FunctionCallExpressionNode functionCallNode) {
         return transformSyntaxNode(functionCallNode);
     }
 
@@ -128,10 +128,6 @@ public abstract class SyntaxNodeTransformer<T> {
 
     public T transform(RecordRestDescriptorNode recordRestDescriptorNode) {
         return transformSyntaxNode(recordRestDescriptorNode);
-    }
-
-    public T transform(NodeList nodeList) {
-        return transformSyntaxNode(nodeList);
     }
 
     public T transform(RecordTypeDescriptorNode recordTypeDescriptorNode) {

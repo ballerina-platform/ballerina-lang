@@ -37,12 +37,7 @@ public class STIfElseStatement extends STStatement {
         this.ifBody = ifBody;
         this.elseBody = elseBody;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(ifKeyword, 0);
-        this.addChildNode(condition, 1);
-        this.addChildNode(ifBody, 2);
-        this.addChildNode(elseBody, 3);
+        addChildren(ifKeyword, condition, ifBody, elseBody);
     }
 
     @Override

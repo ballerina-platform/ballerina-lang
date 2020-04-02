@@ -19,23 +19,28 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class RecordRestDescriptorNode extends NonTerminalNode {
+public class FunctionCallExpressionNode extends ExpressionTree {
 
-    public RecordRestDescriptorNode(STNode node, int position, NonTerminalNode parent) {
+    public FunctionCallExpressionNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
-    public Node fieldType() {
+    public Node functionName() {
         return childInBucket(0);
     }
 
-    public Token ellipsis() {
+    public Token openParenToken() {
         return childInBucket(1);
     }
 
-    public Token semicolon() {
-        return childInBucket(2);
+    public NodeList<FunctionArgumentNode> arguments() {
+        return new NodeList<>(childInBucket(2));
     }
+
+    public Token closeParenToken() {
+        return childInBucket(3);
+    }
+
     @Override
     public void accept(SyntaxNodeVisitor visitor) {
         visitor.visit(this);
