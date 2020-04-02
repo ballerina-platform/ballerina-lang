@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -53,7 +52,6 @@ import java.util.stream.Collectors;
  * Default implementation of ObserverbilitySymbolCollector.
  */
 public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolCollector {
-    private final PrintStream console = System.out;
 
     private static final String NAME = "name";
     private static final String ORG_NAME = "orgName";
