@@ -84,8 +84,8 @@ public enum SyntaxKind {
     PIPE_TOKEN(563, "|"),
     GT_EQUAL_TOKEN(564, ">="),
     EXCLAMATION_MARK_TOKEN(565, "!"),
-    EM_EQUAL_TOKEN(566, "!="),
-    EM_DOUBLE_EQUAL_TOKEN(567, "!=="),
+    NOT_EQUAL_TOKEN(566, "!="),
+    NOT_DOUBLE_EQUAL_TOKEN(567, "!=="),
     
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),

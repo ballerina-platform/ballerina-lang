@@ -1626,8 +1626,8 @@ public class BallerinaParser {
             case TRIPPLE_EQUAL_TOKEN:
             case LT_EQUAL_TOKEN:
             case GT_EQUAL_TOKEN:
-            case EM_EQUAL_TOKEN:
-            case EM_DOUBLE_EQUAL_TOKEN:
+            case NOT_EQUAL_TOKEN:
+            case NOT_DOUBLE_EQUAL_TOKEN:
                 return true;
             default:
                 return false;
@@ -1659,8 +1659,8 @@ public class BallerinaParser {
                 return OperatorPrecedence.MEMBER_ACCESS;
             case DOUBLE_EQUAL_TOKEN:
             case TRIPPLE_EQUAL_TOKEN:
-            case EM_EQUAL_TOKEN:
-            case EM_DOUBLE_EQUAL_TOKEN:
+            case NOT_EQUAL_TOKEN:
+            case NOT_DOUBLE_EQUAL_TOKEN:
                 return OperatorPrecedence.EQUALITY;
             default:
                 throw new UnsupportedOperationException("Unsupported binary operator '" + binaryOpKind + "'");

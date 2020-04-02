@@ -882,10 +882,10 @@ public class BallerinaLexer {
                 if (peek() == LexerTerminals.EQUAL) {
                     // this is '!=='
                     reader.advance();
-                    return getSyntaxToken(SyntaxKind.EM_DOUBLE_EQUAL_TOKEN);
+                    return getSyntaxToken(SyntaxKind.NOT_DOUBLE_EQUAL_TOKEN);
                 } else {
                     // this is '!='
-                    return getSyntaxToken(SyntaxKind.EM_EQUAL_TOKEN);
+                    return getSyntaxToken(SyntaxKind.NOT_EQUAL_TOKEN);
                 }
             default:
                 // this is '!'

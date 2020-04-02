@@ -359,10 +359,10 @@ public class ParserTestUtils {
                 return SyntaxKind.GT_EQUAL_TOKEN;
             case "EXCLAMATION_MARK_TOKEN":
                 return SyntaxKind.EXCLAMATION_MARK_TOKEN;
-            case "EM_EQUAL_TOKEN":
-                return SyntaxKind.EM_EQUAL_TOKEN;
-            case "EM_DOUBLE_EQUAL_TOKEN":
-                return SyntaxKind.EM_DOUBLE_EQUAL_TOKEN;
+            case "NOT_EQUAL_TOKEN":
+                return SyntaxKind.NOT_EQUAL_TOKEN;
+            case "NOT_DOUBLE_EQUAL_TOKEN":
+                return SyntaxKind.NOT_DOUBLE_EQUAL_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
