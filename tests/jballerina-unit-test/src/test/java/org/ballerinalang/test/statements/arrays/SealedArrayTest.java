@@ -53,6 +53,7 @@ public class SealedArrayTest {
         BRunUtil.invoke(compileResult, "createIntAutoFilledSealedArray");
         BRunUtil.invoke(compileResult, "createIntSealedArrayWithLabel");
         BRunUtil.invoke(compileResult, "createIntDefaultSealedArray");
+        BRunUtil.invoke(compileResult, "createSealedArraysOfIntSubtypes");
     }
 
     @Test

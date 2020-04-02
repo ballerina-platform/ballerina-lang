@@ -2948,7 +2948,7 @@ public class Types {
         if (finiteTypePresent) {
             return defaultValuePresent;
         }
-        return false;
+        return true;
     }
 
     private Set<BType> getValueTypes(Set<BLangExpression> valueSpace) {
