@@ -25,12 +25,14 @@ import org.testng.annotations.Test;
 public class ContinueStatementTest extends AbstractStatementTest {
 
     //Valid source test
+
     @Test
     public void testValidContinueStatement() {
         test("continue;", "continue-stmt/continue_stmt_assert_1.json");
     }
 
     //Recovery source test
+
     @Test
     public void testInvalidContinueStatement() {
         test("continue", "continue-stmt/continue_stmt_assert_2.json");
