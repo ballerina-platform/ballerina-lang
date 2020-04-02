@@ -71,7 +71,7 @@ public class NodeVisitorTest extends AbstractSyntaxTreeAPITest {
         List<SyntaxKind> tokenList = new ArrayList<>();
 
         public void visit(Token token) {
-            tokenList.add(token.getKind());
+            tokenList.add(token.kind());
         }
     }
 

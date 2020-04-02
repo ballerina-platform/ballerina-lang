@@ -78,11 +78,11 @@ class NodePointer {
     }
 
     NodePointer nextSibling() {
-        if (current.getParent() == null) {
+        if (current.parent() == null) {
             return new NodePointer(null);
         }
 
-        NonTerminalNode parent = current.getParent();
+        NonTerminalNode parent = current.parent();
         ChildNodeList childNodeList = parent.children();
         for (int childIndex = childBucketIndex + 1; childIndex < childNodeList.size(); childIndex++) {
             Node sibling = childNodeList.get(childIndex);
@@ -119,14 +119,14 @@ class NodePointer {
     }
 
     private NodePointer moveToParent() {
-        NonTerminalNode parent = current.getParent();
-        if (parent.getParent() == null) {
+        NonTerminalNode parent = current.parent();
+        if (parent.parent() == null) {
             childBucketIndex = 0;
             current = parent;
             return this;
         }
 
-        NonTerminalNode ancestor = parent.getParent();
+        NonTerminalNode ancestor = parent.parent();
         int childIndex = 0;
         for (Node sibling : ancestor.children()) {
             if (parent == sibling) {
@@ -142,10 +142,10 @@ class NodePointer {
     }
 
     private boolean isEOFToken(Node node) {
-        return node.getKind() == SyntaxKind.EOF_TOKEN;
+        return node.kind() == SyntaxKind.EOF_TOKEN;
     }
 
     private boolean isZeroWidthNode(Node node) {
-        return node.getSpanWithMinutiae().width() == 0;
+        return node.spanWithMinutiae().width() == 0;
     }
 }

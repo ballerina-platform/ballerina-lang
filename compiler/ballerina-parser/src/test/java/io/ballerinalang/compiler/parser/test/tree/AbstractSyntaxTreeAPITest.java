@@ -28,10 +28,17 @@ import java.nio.file.Paths;
  *
  * @since 1.3.0
  */
-public abstract class AbstractSyntaxTreeAPITest {
+abstract class AbstractSyntaxTreeAPITest {
 
-    public static SyntaxTree parseFile(String sourceFilePath) {
-        Path sourcePath = Paths.get("tree", sourceFilePath);
-        return ParserTestUtils.parseFile(sourcePath);
+    SyntaxTree parseFile(String sourceFilePath) {
+        return ParserTestUtils.parseFile(getPath(sourceFilePath));
+    }
+
+    String getSourceText(String sourceFilePath) {
+        return ParserTestUtils.getSourceText(getPath(sourceFilePath));
+    }
+
+    Path getPath(String sourceFilePath) {
+        return Paths.get("tree", sourceFilePath);
     }
 }

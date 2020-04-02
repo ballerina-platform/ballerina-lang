@@ -36,7 +36,7 @@ public class ChildNodeList implements Iterable<Node> {
 
     ChildNodeList(NonTerminalNode parent) {
         this.parent = parent;
-        this.size = getChildCount(parent.getInternalNode());
+        this.size = getChildCount(parent.internalNode());
         this.childNodes = new Node[this.size];
     }
 

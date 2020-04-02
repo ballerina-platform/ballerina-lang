@@ -46,23 +46,23 @@ public abstract class Node {
         this.spanWithMinutiae = new Span(position, internalNode.width());
     }
 
-    public int getPosition() {
+    public int position() {
         return position;
     }
 
-    public NonTerminalNode getParent() {
+    public NonTerminalNode parent() {
         return parent;
     }
 
-    public Span getSpan() {
+    public Span span() {
         return span;
     }
 
-    public Span getSpanWithMinutiae() {
+    public Span spanWithMinutiae() {
         return spanWithMinutiae;
     }
 
-    public SyntaxKind getKind() {
+    public SyntaxKind kind() {
         return internalNode.kind;
     }
 
@@ -85,7 +85,7 @@ public abstract class Node {
     public abstract <T> T apply(SyntaxNodeTransformer<T> transformer);
 
     // TODO Temp method. We need to find a way to get the green node from a red node.
-    public STNode getInternalNode() {
+    public STNode internalNode() {
         return internalNode;
     }
 
