@@ -24,7 +24,6 @@ import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
@@ -121,7 +120,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -257,8 +255,6 @@ public class BLangPackageBuilder {
     private Stack<Set<Whitespace>> invocationWsStack = new Stack<>();
 
     private Stack<BLangRecordLiteral> recordLiteralNodes = new Stack<>();
-
-    private Stack<BLangTableLiteral> tableLiteralNodes = new Stack<>();
 
     private Stack<BLangWaitForAllExpr> waitCollectionStack = new Stack<>();
 
@@ -1605,82 +1601,6 @@ public class BLangPackageBuilder {
         recordTypeLiteralNode.pos = pos;
         recordTypeLiteralNode.addWS(ws);
         addExpressionNode(recordTypeLiteralNode);
-    }
-
-    void startTableLiteral() {
-        final BLangTableLiteral tableLiteral = (BLangTableLiteral) TreeBuilder.createTableLiteralNode();
-        tableLiteralNodes.push(tableLiteral);
-    }
-
-    void endTableColumnDefinition(Set<Whitespace> ws) {
-        BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
-        tableLiteral.addWS(ws);
-    }
-
-    void addTableColumn(String columnName, DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangTableLiteral.BLangTableColumn tableColumn = new BLangTableLiteral.BLangTableColumn(columnName);
-        tableColumn.pos = pos;
-        tableColumn.addWS(ws);
-        this.tableLiteralNodes.peek().columns.add(tableColumn);
-    }
-
-    void markPrimaryKeyColumn(String columnName) {
-        BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
-        BLangTableLiteral.BLangTableColumn column = tableLiteral.getColumn(columnName);
-        if (column != null) {
-            column.flagSet.add(TableColumnFlag.PRIMARYKEY);
-        }
-    }
-
-    void endTableDataList(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
-        List<BLangTableLiteral.BLangTableColumn> keyNames = tableLiteralNodes.peek().columns;
-        List<ExpressionNode> recordValues = exprNodeListStack.pop();
-        int index = 0;
-        for (ExpressionNode expr : recordValues) {
-            BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
-            //Value
-            keyValue.valueExpr = (BLangExpression) expr;
-            //key
-            BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-            keyExpr.pos = pos;
-            BLangTableLiteral.BLangTableColumn key = keyNames.get(index);
-            BLangIdentifier identifierNode = createIdentifier(key.pos, key.columnName);
-            keyExpr.variableName = identifierNode;
-            keyValue.key = new BLangRecordKey(keyExpr);
-            //Key-Value pair
-            recordLiteral.fields.add(keyValue);
-            ++index;
-        }
-        recordLiteral.addWS(ws);
-        recordLiteral.pos = pos;
-        if (commaWsStack.size() > 0) {
-            recordLiteral.addWS(commaWsStack.pop());
-        }
-        this.tableLiteralNodes.peek().tableDataRows.add(recordLiteral);
-    }
-
-    void endTableDataArray(Set<Whitespace> ws) {
-        BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
-        tableLiteral.addWS(ws);
-    }
-
-    void endTableDataRow(Set<Whitespace> ws) {
-        List<ExpressionNode> argExprList = exprNodeListStack.pop();
-        BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
-        tableLiteral.addWS(ws);
-        if (commaWsStack.size() > 0) {
-            tableLiteral.addWS(commaWsStack.pop());
-        }
-        tableLiteral.tableDataRows = argExprList.stream().map(expr -> (BLangExpression) expr)
-                .collect(Collectors.toList());
-    }
-
-    void addTableLiteral(DiagnosticPos pos, Set<Whitespace> ws) {
-        final BLangTableLiteral tableLiteral = tableLiteralNodes.pop();
-        tableLiteral.addWS(ws);
-        tableLiteral.pos = pos;
-        addExpressionNode(tableLiteral);
     }
 
     void startMapStructLiteral() {

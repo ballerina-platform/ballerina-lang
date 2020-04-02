@@ -47,5 +47,11 @@ public const FILE_NOT_FOUND_ERROR = "{ballerina/system}FileNotFoundError";
 # Represents an `FileNotFoundError` with a detailed message.
 public type FileNotFoundError error<FILE_NOT_FOUND_ERROR, Detail>;
 
+# Represents the error code for process execute error.
+public const PROCESS_EXEC_ERROR = "{ballerina/system}ProcessExecError";
+
+# Represents an `ProcessExecError` with a detailed message.
+public type ProcessExecError error<PROCESS_EXEC_ERROR, Detail>;
+
 # Represents System related errors.
-public type Error InvalidOperationError|PermissionError|FileSystemError|FileNotFoundError;
+public type Error InvalidOperationError|PermissionError|FileSystemError|FileNotFoundError|ProcessExecError;

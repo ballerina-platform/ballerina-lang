@@ -107,18 +107,19 @@ function testJSONAssignment() returns anydata {
     return adj;
 }
 
-function testTableAssignment() returns anydata {
-    table<Employee> t = table {
-        { key id, name, salary },
-        [
-          { 1, "Mary", 300.5 },
-          { 2, "John", 200.5 },
-          { 3, "Jim", 330.5 }
-        ]
-    };
-    anydata adt = t;
-    return adt;
-}
+//TODO Table remove - Fix
+//function testTableAssignment() returns anydata {
+//    table<Employee> t = table {
+//        { key id, name, salary },
+//        [
+//          { 1, "Mary", 300.5 },
+//          { 2, "John", 200.5 },
+//          { 3, "Jim", 330.5 }
+//        ]
+//    };
+//    anydata adt = t;
+//    return adt;
+//}
 
 function testMapAssignment() {
     anydata ad;
@@ -150,9 +151,6 @@ function testMapAssignment() {
     map<ClosedFoo> mcr = {};
     ad = mcr;
 
-    map<table<any>> mt = {};
-    ad = mt;
-
     map<map<anydata>> mmad = {};
     ad = mmad;
 
@@ -174,13 +172,6 @@ function testConstrainedMaps() returns map<anydata> {
     Foo foo = {a: 15};
     json j = {name: "apple", color: "red", price: 40};
     xml x = xml `<book>The Lost World</book>`;
-    table<Employee> t = table {
-            { key id, name, salary },
-            [ { 1, "Mary",  300.5 },
-              { 2, "John",  200.5 },
-              { 3, "Jim", 330.5 }
-            ]
-        };
     map<string> smap = {};
 
     smap["foo"] = "foo";
@@ -196,7 +187,6 @@ function testConstrainedMaps() returns map<anydata> {
     adm["float"] = 23.45;
     adm["boolean"] = true;
     adm["map"] = smap;
-    adm["table"] = t;
     adm["nil"] = ();
 
     return adm;
@@ -232,15 +222,15 @@ function testArrayAssignment() {
     ClosedFoo[] acr = [{ca:10}, {ca:20}];
     ad = acr;
 
-    table<Employee> t = table {
-                { key id, name, salary },
-                [ { 1, "Mary",  300.5 },
-                  { 2, "John",  200.5 },
-                  { 3, "Jim", 330.5 }
-                ]
-            };
-    table<Employee>[] at = [t];
-    ad = at;
+    //table<Employee> t = table {
+    //            { key id, name, salary },
+    //            [ { 1, "Mary",  300.5 },
+    //              { 2, "John",  200.5 },
+    //              { 3, "Jim", 330.5 }
+    //            ]
+    //        };
+    //table<Employee>[] at = [t];
+    //ad = at;
 
     map<anydata> m = {};
     map<anydata>[] amad = [m];
@@ -266,7 +256,7 @@ function testAnydataArray() returns anydata[] {
 }
 
 type ValueType int|float|string|boolean|byte;
-type DataType ValueType|table<any>|json|xml|ClosedFoo|Foo|map<anydata>|anydata[]|();
+type DataType ValueType|json|xml|ClosedFoo|Foo|map<anydata>|anydata[]|();
 
 function testUnionAssignment() returns anydata[] {
     anydata[] rets = [];
@@ -304,16 +294,16 @@ function testUnionAssignment2() returns anydata[] {
     rets[i] = dt;
     i += 1;
 
-    table<Employee> t = table {
-                { key id, name, salary },
-                [ { 1, "Mary",  300.5 },
-                  { 2, "John",  200.5 },
-                  { 3, "Jim", 330.5 }
-                ]
-            };
-    dt = t;
-    rets[i] = dt;
-    i += 1;
+    //table<Employee> t = table {
+    //            { key id, name, salary },
+    //            [ { 1, "Mary",  300.5 },
+    //              { 2, "John",  200.5 },
+    //              { 3, "Jim", 330.5 }
+    //            ]
+    //        };
+    //dt = t;
+    //rets[i] = dt;
+    //i += 1;
 
     json j = {name: "apple", color: "red", price: 40};
     dt = j;
@@ -540,12 +530,12 @@ function testAnydataToMap() {
         convertedMCfoo = ad;
     }
 
-    map<table<any>> mt = {};
-    ad = mt;
-    map<table<any>> convertedMt;
-    if (ad is map<table<any>>) {
-        convertedMt = ad;
-    }
+    //map<table<any>> mt = {};
+    //ad = mt;
+    //map<table<any>> convertedMt;
+    //if (ad is map<table<any>>) {
+    //    convertedMt = ad;
+    //}
 
     map<map<anydata>> mmad = {};
     ad = mmad;
@@ -583,21 +573,22 @@ function testAnydataToMap() {
     }
 }
 
-function testAnydataToTable() returns table<Employee>? {
-    table<Employee> t = table {
-                { key id, name, salary },
-                [ { 1, "Mary",  300.5 },
-                  { 2, "John",  200.5 },
-                  { 3, "Jim", 330.5 }
-                ]
-            };
-    anydata ad = t;
-    table<Employee>|() convertedT = ();
-    if (ad is table<Employee>) {
-        convertedT = ad;
-    }
-    return convertedT;
-}
+// TODO Table remove - Fix
+//function testAnydataToTable() returns table<Employee>? {
+//    table<Employee> t = table {
+//                { key id, name, salary },
+//                [ { 1, "Mary",  300.5 },
+//                  { 2, "John",  200.5 },
+//                  { 3, "Jim", 330.5 }
+//                ]
+//            };
+//    anydata ad = t;
+//    table<Employee>|() convertedT = ();
+//    if (ad is table<Employee>) {
+//        convertedT = ad;
+//    }
+//    return convertedT;
+//}
 
 function testAnydataToUnion() returns ValueType?[] {
     anydata ad = 10;
@@ -651,19 +642,6 @@ function testAnydataToUnion2() returns DataType[] {
 
     xml x = xml `<book>The Lost World</book>`;
     ad = x;
-    if (ad is DataType) {
-        dt[i] = ad;
-        i += 1;
-    }
-
-    table<Employee> t = table {
-                    { key id, name, salary },
-                    [ { 1, "Mary",  300.5 },
-                      { 2, "John",  200.5 },
-                      { 3, "Jim", 330.5 }
-                    ]
-                };
-    ad = t;
     if (ad is DataType) {
         dt[i] = ad;
         i += 1;

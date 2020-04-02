@@ -89,20 +89,20 @@ type Employee record {
     float salary;
 };
 
-function testTableArrayFill(int index) returns [table<Employee>[], string] {
-    table<Employee> tbEmployee = table { { key id, name, salary }, [{1, "John", 50000}] };
-    table<Employee>[] ar = [];
-    ar[index] = tbEmployee;
-
-    string name = "";
-    foreach var tab in ar {
-        foreach var row in tab {
-            name += row.name;
-        }
-    }
-
-    return [ar, name];
-}
+//function testTableArrayFill(int index) returns [table<Employee>[], string] {
+//    table<Employee> tbEmployee = table { { key id, name, salary }, [{1, "John", 50000}] };
+//    table<Employee>[] ar = [];
+//    ar[index] = tbEmployee;
+//
+//    string name = "";
+//    foreach var tab in ar {
+//        foreach var row in tab {
+//            name += row.name;
+//        }
+//    }
+//
+//    return [ar, name];
+//}
 
 function testXMLArrayFill(int index) returns xml[] {
     xml value = xml `<name>Pubudu</name>`;

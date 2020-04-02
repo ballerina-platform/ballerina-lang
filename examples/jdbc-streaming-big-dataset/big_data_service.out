@@ -1,9 +1,0 @@
-# At the command line, navigate to the directory that contains the
-# `.bal` files and run the `ballerina run` command.
-$ ballerina run data_setup.bal
-$ ballerina run big_data_service.bal
-
-$ curl http://localhost:9090/dataService/getData > /tmp/response-data.txt
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100  199M    0  199M    0     0  90.0M      0 --:--:--  0:00:02 --:--:-- 90.0M

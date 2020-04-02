@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
@@ -140,14 +139,6 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
             this.addSymbol(literalExpr, literalExpr.type.tsymbol, false, literalExpr.pos);
         }
         super.visit(literalExpr);
-    }
-
-    @Override
-    public void visit(BLangTableLiteral tableLiteral) {
-        if (isWithinNode.test(CommonUtil.toZeroBasedPosition(tableLiteral.pos))) {
-            this.addSymbol(tableLiteral, tableLiteral.type.tsymbol, false, tableLiteral.pos);
-        }
-        super.visit(tableLiteral);
     }
 
     @Override
