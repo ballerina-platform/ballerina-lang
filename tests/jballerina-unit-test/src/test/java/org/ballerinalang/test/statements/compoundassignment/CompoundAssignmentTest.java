@@ -390,7 +390,7 @@ public class CompoundAssignmentTest {
         BXMLSequence sequence = (BXMLSequence) returns[0];
         Assert.assertEquals(sequence.size(), 3);
         Assert.assertEquals(sequence.stringValue(),
-                "hello<hello xmlns:ns0=\"http://sample.com/wso2/a1\">hi</hello>hahblah");
+                "hello<hello>hi</hello>hahblah");
     }
 
     @Test

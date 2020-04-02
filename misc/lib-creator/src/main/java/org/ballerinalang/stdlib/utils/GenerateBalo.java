@@ -1,24 +1,27 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.stdlib.utils;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
+import org.ballerinalang.docgen.model.ModuleDoc;
+import org.ballerinalang.packerina.utils.EmptyPrintStream;
 import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -26,16 +29,25 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.bir.BackendDriver;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringJoiner;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
@@ -43,6 +55,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURE
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
+import static org.ballerinalang.util.diagnostic.DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_EXT;
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG_PROP;
@@ -62,6 +75,7 @@ public class GenerateBalo {
         String libDir = args[3];
         boolean skipReportingWarnings = args.length > 4 && Boolean.parseBoolean(args[4]);
         String jvmTarget = args[5]; //TODO temp fix, remove this - rajith
+        String moduleFilter = args[6];
 
         String originalShouldCompileBalOrg = System.getProperty(COMPILE_BALLERINA_ORG_PROP);
         String originalIsBuiltin = System.getProperty(LOAD_BUILTIN_FROM_SOURCE_PROP);
@@ -74,7 +88,8 @@ public class GenerateBalo {
 
             boolean reportWarnings = !skipReportingWarnings;
 
-            genBalo(targetDir, sourceDir, reportWarnings, Boolean.parseBoolean(jvmTarget));
+            genBalo(targetDir, sourceDir, reportWarnings, Boolean.parseBoolean(jvmTarget),
+                    new HashSet<>(Arrays.asList(moduleFilter.split(","))));
         } finally {
             unsetProperty(COMPILE_BALLERINA_ORG_PROP, originalShouldCompileBalOrg);
             unsetProperty(LOAD_BUILTIN_FROM_SOURCE_PROP, originalIsBuiltin);
@@ -82,7 +97,7 @@ public class GenerateBalo {
         }
     }
 
-    private static void unsetProperty(String key, String val) throws IOException {
+    private static void unsetProperty(String key, String val) {
         if (val == null) {
             System.clearProperty(key);
         } else {
@@ -90,8 +105,8 @@ public class GenerateBalo {
         }
     }
 
-    private static void genBalo(String targetDir, String sourceRootDir, boolean reportWarnings, boolean jvmTarget)
-            throws IOException {
+    private static void genBalo(String targetDir, String sourceRootDir, boolean reportWarnings, boolean jvmTarget,
+                                Set<String> docModuleFilter) throws IOException {
         Files.createDirectories(Paths.get(targetDir));
 
         CompilerContext context = new CompilerContext();
@@ -101,7 +116,7 @@ public class GenerateBalo {
 
         context.put(SourceDirectory.class, new MvnSourceDirectory(sourceRootDir, targetDir));
 
-        CompilerPhase compilerPhase = jvmTarget ? CompilerPhase.BIR_GEN : CompilerPhase.CODE_GEN;
+        CompilerPhase compilerPhase = CompilerPhase.CODE_GEN;
 
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootDir);
@@ -113,17 +128,75 @@ public class GenerateBalo {
 
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> buildPackages = compiler.compilePackages(false);
+        BackendDriver backendDriver = BackendDriver.getInstance(context);
+        BallerinaDocGenerator.setPrintStream(new EmptyPrintStream());
 
         List<Diagnostic> diagnostics = diagListner.getDiagnostics();
-        if (diagListner.getErrorCount() > 0 || (reportWarnings && diagListner.getWarnCount() > 0)) {
+        printErrors(reportWarnings, diagListner, diagnostics);
+
+        compiler.write(buildPackages);
+
+        for (BLangPackage pkg : buildPackages) {
+            String suffix = "";
+            String bStringProp = System.getProperty("ballerina.bstring");
+            if (bStringProp != null && !"".equals(bStringProp)) {
+                suffix = "-bstring";
+            }
+            Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.orgName + "." + pkg.packageID.name +
+                                       suffix + ".jar");
+            Path parent = jarOutput.getParent();
+            if (parent != null) {
+                Files.createDirectories(parent);
+            }
+
+            backendDriver.execute(pkg.symbol.bir, false, jarOutput, readModuleDependencies());
+            printErrors(reportWarnings, diagListner, diagnostics);
+        }
+
+        // Generate api doc
+        genApiDoc(sourceRootDir, docModuleFilter, buildPackages);
+    }
+
+    private static void genApiDoc(String sourceRootDir, Set<String> docModuleFilter, List<BLangPackage> buildPackages)
+            throws IOException {
+        Map<String, ModuleDoc> moduleDocMap =
+                BallerinaDocGenerator.generateModuleDocs(sourceRootDir, buildPackages,
+                                                         docModuleFilter);
+        String apiDocPath = "./build/generated-apidocs/";
+        Files.createDirectories(Paths.get(apiDocPath));
+        BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap, apiDocPath);
+    }
+
+    private static void printErrors(boolean reportWarnings, CompileResult.CompileResultDiagnosticListener diagListner,
+                                    List<Diagnostic> diagnostics) {
+        int deprecatedWarnCount = 0;
+        if (reportWarnings && diagListner.getWarnCount() > 0) {
+            for (Diagnostic diagnostic : diagListner.getDiagnostics()) {
+                if (diagnostic.getCode() == USAGE_OF_DEPRECATED_CONSTRUCT) {
+                    deprecatedWarnCount++;
+                }
+            }
+        }
+        if (diagListner.getErrorCount() > 0 ||
+                (reportWarnings && (diagListner.getWarnCount() - deprecatedWarnCount) > 0)) {
             StringJoiner sj = new StringJoiner("\n  ");
             diagnostics.forEach(e -> sj.add(e.toString()));
             String warnMsg = reportWarnings ? " and " + diagListner.getWarnCount() + " warning(s)" : "";
             throw new BLangCompilerException("Compilation failed with " + diagListner.getErrorCount() +
                                              " error(s)" + warnMsg + " " + "\n  " + sj.toString());
         }
+    }
 
-        compiler.write(buildPackages);
+    private static HashSet<Path> readModuleDependencies() throws IOException {
+        HashSet<Path> moduleDependencies = new HashSet<>();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(
+                new FileInputStream("build/interopJars.txt"), Charset.forName("UTF-8")))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                moduleDependencies.add(Paths.get(line));
+            }
+        }
+        return moduleDependencies;
     }
 
     private static class MvnSourceDirectory extends FileSystemProjectDirectory {

@@ -43,11 +43,12 @@ dependencies {
     dist project(path: ':ballerina-lang:object', configuration: 'birJar')
     dist project(path: ':ballerina-lang:stream', configuration: 'birJar')
     dist project(path: ':ballerina-lang:string', configuration: 'birJar')
-    dist project(path: ':ballerina-lang:table', configuration: 'birJar')
     dist project(path: ':ballerina-lang:typedesc', configuration: 'birJar')
     dist project(path: ':ballerina-lang:value', configuration: 'birJar')
     dist project(path: ':ballerina-lang:xml', configuration: 'birJar')
+    dist project(path: ':ballerina-lang:bool', configuration: 'birJar')
     dist project(path: ':ballerina-observability', configuration: 'birJar')
+    dist project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'birJar')
 
     // Lang libs
     dist project(':ballerina-lang:internal')
@@ -62,10 +63,10 @@ dependencies {
     dist project(':ballerina-lang:object')
     dist project(':ballerina-lang:stream')
     dist project(':ballerina-lang:string')
-    dist project(':ballerina-lang:table')
     dist project(':ballerina-lang:typedesc')
     dist project(':ballerina-lang:value')
     dist project(':ballerina-lang:xml')
+    dist project(':ballerina-lang:bool')
     dist project(':ballerina-observability')
     
     // Third party jars
@@ -75,8 +76,8 @@ dependencies {
     dist 'com.moandjiezana.toml:toml4j:0.7.2'
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
     dist 'org.apache.commons:commons-lang3:3.8.1'
-//    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
-//    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
+    dist 'org.codehaus.woodstox:woodstox-core-asl:4.4.1'
+    dist 'org.codehaus.woodstox:stax2-api:4.2'
 
     // runtime
     dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
@@ -95,7 +96,6 @@ dependencies {
     //// metrics
     dist project(':metrics-extensions:ballerina-metrics-extension')
     dist project(':metrics-extensions:ballerina-prometheus-extension')
-    dist project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
     //// tracing
     dist project(':tracing-extensions:ballerina-jaeger-extension')
     dist 'io.jaegertracing:jaeger-core:0.31.0'

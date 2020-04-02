@@ -54,7 +54,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -62,6 +61,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
@@ -73,12 +73,10 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -88,7 +86,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -137,16 +134,12 @@ public class CommonUtil {
 
     public static final Pattern MD_NEW_LINE_PATTERN = Pattern.compile("\\s\\s\\r\\n?|\\s\\s\\n|\\r\\n?|\\n");
 
-    public static final boolean LS_DEBUG_ENABLED;
-
-    public static final boolean LS_TRACE_ENABLED;
-
     public static final String BALLERINA_HOME;
 
     public static final String BALLERINA_CMD;
 
     public static final String MARKDOWN_MARKUP_KIND = "markdown";
-    
+
     public static final String BALLERINA_ORG_NAME = "ballerina";
 
     public static final String BALLERINAX_ORG_NAME = "ballerinax";
@@ -156,8 +149,6 @@ public class CommonUtil {
     public static final Path LS_STDLIB_CACHE_DIR = TEMP_DIR.resolve("ls_stdlib_cache").resolve(SDK_VERSION);
 
     static {
-        LS_DEBUG_ENABLED = Boolean.parseBoolean(System.getProperty("ballerina.debugLog"));
-        LS_TRACE_ENABLED = Boolean.parseBoolean(System.getProperty("ballerina.traceLog"));
         BALLERINA_HOME = System.getProperty("ballerina.home");
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "ballerina" +
                 (SystemUtils.IS_OS_WINDOWS ? ".bat" : "");
@@ -286,7 +277,8 @@ public class CommonUtil {
         if (pkgAliasMap.containsKey(packageID.toString())) {
             // Check if the imported packages contains the particular package with the alias
             aliasComponent = pkgAliasMap.get(packageID.toString());
-        } else if (!currentPkgID.name.value.equals(packageID.name.value)) {
+        } else if (currentPkgID != null && !currentPkgID.name.value.equals(packageID.name.value)
+                && !isLangLib(packageID)) {
             aliasComponent = CommonUtil.getLastItem(packageID.getNameComps()).getValue();
         }
 
@@ -319,9 +311,9 @@ public class CommonUtil {
                 })
                 .findAny();
         // if the particular import statement not available we add the additional text edit to auto import
-        if (!pkgImport.isPresent()) {
+        if (!pkgImport.isPresent() && !isLangLib(packageID)) {
             annotationItem.setAdditionalTextEdits(getAutoImportTextEdits(packageID.orgName.getValue(),
-                    packageID.name.getValue(), ctx));
+                                                                         packageID.name.getValue(), ctx));
         }
         return new SymbolCompletionItem(ctx, annotationSymbol, annotationItem);
     }
@@ -702,6 +694,11 @@ public class CommonUtil {
     private static String getArrayTypeName(BArrayType arrayType, LSContext ctx, boolean doSimplify) {
         return getBTypeName(arrayType.eType, ctx, doSimplify) + "[]";
     }
+    
+    private static boolean isLangLib(PackageID packageID) {
+        return packageID.getOrgName().getValue().equals("ballerina")
+                && packageID.getName().getValue().startsWith("lang.");
+    }
 
     /**
      * Get the constraint type name.
@@ -742,11 +739,8 @@ public class CommonUtil {
         if (bType instanceof BStreamType) {
             return ((BStreamType) bType).constraint;
         }
-        if (bType instanceof BTypedescType) {
-            return ((BTypedescType) bType).constraint;
-        }
-        return ((BTableType) bType).constraint;
 
+        return ((BTypedescType) bType).constraint;
     }
 
     /**
@@ -856,8 +850,8 @@ public class CommonUtil {
         String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
                 .filter(cUnit ->
-                        cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR)
-                                .equals(relativeFilePath))
+                                cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR)
+                                        .equals(relativeFilePath))
                 .findAny().orElse(null);
         List<TopLevelNode> topLevelNodes = filteredCUnit == null
                 ? new ArrayList<>()
@@ -1113,17 +1107,6 @@ public class CommonUtil {
     }
 
     /**
-     * Generate variable code.
-     *
-     * @param variableName variable name
-     * @param variableType variable type
-     * @return {@link String}       generated function signature
-     */
-    public static String createVariableDeclaration(String variableName, String variableType) {
-        return variableType + " " + variableName + " = ";
-    }
-
-    /**
      * Generates a random name.
      *
      * @param value    index of the argument
@@ -1278,55 +1261,14 @@ public class CommonUtil {
     /**
      * Get all available name entries.
      *
-     * @param bLangNode {@link BLangNode}
      * @param context   {@link CompilerContext}
      * @return set of strings
      */
-    public static Set<String> getAllNameEntries(BLangNode bLangNode, CompilerContext context) {
+    public static Set<String> getAllNameEntries(CompilerContext context) {
         Set<String> strings = new HashSet<>();
-        BLangPackage packageNode = null;
-        BLangNode parent = bLangNode.parent;
-        // Retrieve package node
-        while (parent != null) {
-            if (parent instanceof BLangPackage) {
-                packageNode = (BLangPackage) parent;
-                break;
-            }
-            if (parent instanceof BLangFunction) {
-                BLangFunction bLangFunction = (BLangFunction) parent;
-                bLangFunction.requiredParams.forEach(var -> strings.add(var.name.value));
-            }
-            parent = parent.parent;
-        }
-
-        if (packageNode != null) {
-            packageNode.getGlobalVariables().forEach(globalVar -> strings.add(globalVar.name.value));
-            packageNode.getGlobalEndpoints().forEach(endpoint -> strings.add(endpoint.getName().getValue()));
-            packageNode.getServices().forEach(service -> strings.add(service.name.value));
-            packageNode.getFunctions().forEach(func -> strings.add(func.name.value));
-        }
-        // Retrieve block stmt
-        parent = bLangNode.parent;
-        while (parent != null && !(parent instanceof BLangBlockStmt) && !(parent instanceof BLangBlockFunctionBody)) {
-            parent = parent.parent;
-        }
-        if (parent != null && packageNode != null) {
-            SymbolResolver symbolResolver = SymbolResolver.getInstance(context);
-            SymbolTable symbolTable = SymbolTable.getInstance(context);
-            SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(packageNode.symbol);
-            SymbolEnv blockEnv;
-            if (parent instanceof BLangBlockStmt) {
-                BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
-                blockEnv = SymbolEnv.createBlockEnv(blockStmt, symbolEnv);
-            } else {
-                BLangBlockFunctionBody block = (BLangBlockFunctionBody) parent;
-                blockEnv = SymbolEnv.createFuncBodyEnv(block, symbolEnv);
-            }
-            Map<Name, List<Scope.ScopeEntry>> entries = symbolResolver
-                    .getAllVisibleInScopeSymbols(blockEnv);
-            entries.forEach((name, scopeEntries) ->
-                    scopeEntries.forEach(scopeEntry -> strings.add(scopeEntry.symbol.name.value)));
-        }
+        SymbolTable symbolTable = SymbolTable.getInstance(context);
+        Map<BPackageSymbol, SymbolEnv> pkgEnvMap = symbolTable.pkgEnvMap;
+        pkgEnvMap.values().forEach(env -> env.scope.entries.keySet().forEach(key -> strings.add(key.value)));
         return strings;
     }
 

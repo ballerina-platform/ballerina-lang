@@ -496,10 +496,10 @@ function testObjectEqualityWithDefaultConstructor() returns [ObjectWithNew, Obje
 
 type A object {
 
-    public string field = "";
+    public string 'field = "";
     
     function __init () {
-        self.field = "value A"; 
+        self.'field = "value A";
     }
 
     function foo(C c) returns A {
@@ -509,10 +509,10 @@ type A object {
 
 type B object {
 
-    public string field = "";
+    public string 'field = "";
     
     function __init () {
-        self.field = "value B"; 
+        self.'field = "value B";
     }
 
     function foo(D d) returns B {

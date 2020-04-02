@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
 /**
  * {@code BAnydataType} represents the data types in Ballerina.
@@ -44,10 +43,6 @@ public class BAnydataType extends BBuiltInRefType {
     public BAnydataType(int tag, BTypeSymbol tsymbol, boolean nullable) {
         super(tag, tsymbol);
         this.nullable = nullable;
-    }
-
-    public String getDesc() {
-        return TypeDescriptor.SIG_ANYDATA;
     }
 
     @Override

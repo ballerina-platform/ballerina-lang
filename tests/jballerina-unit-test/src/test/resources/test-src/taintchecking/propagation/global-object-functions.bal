@@ -1,11 +1,11 @@
 type TestObject object {
-    string field = "";
+    string 'field = "";
     function testFunction (string input) returns string {
         return input;
     }
 
     function setField(string newVal) {
-        self.field = newVal;
+        self.'field = newVal;
     }
 };
 

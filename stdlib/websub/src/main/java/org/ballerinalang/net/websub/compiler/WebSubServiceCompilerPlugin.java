@@ -30,6 +30,7 @@ import java.util.List;
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SPECIFIC_SUBSCRIBER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.BALLERINA;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.GENERIC_SUBSCRIBER_SERVICE_TYPE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.RESOURCE_NAME_ON_NOTIFICATION;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB;
@@ -57,8 +58,6 @@ import static org.ballerinalang.net.websub.WebSubSubscriberServiceValidator.vali
 public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
 
     private DiagnosticLog dlog = null;
-    private static final String WEBSUB_LISTENER = "T".concat(WEBSUB_PACKAGE).concat(":")
-            .concat(WEBSUB_SERVICE_LISTENER).concat(";");
 
     @Override
     public void init(DiagnosticLog diagnosticLog) {
@@ -89,7 +88,10 @@ public class WebSubServiceCompilerPlugin extends AbstractCompilerPlugin {
                             ANN_NAME_WEBSUB_SPECIFIC_SUBSCRIBER.equals(annotation.getAnnotationName().getValue()))) {
                 return;
             }
-        } else if (!WEBSUB_LISTENER.equals(listenerType.getDesc())) {
+        } else if (listenerType.tsymbol == null ||
+                !listenerType.tsymbol.pkgID.orgName.value.equals(BALLERINA) ||
+                !listenerType.tsymbol.pkgID.name.value.equals(WEBSUB) ||
+                !listenerType.tsymbol.name.value.equals(WEBSUB_SERVICE_LISTENER)) {
             return;
         }
 

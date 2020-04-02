@@ -27,11 +27,7 @@ import java.util.List;
  */
 public class CollectDiagnosticListener implements DiagnosticListener {
 
-    private List<Diagnostic> diagnostics;
-
-    public CollectDiagnosticListener(List<Diagnostic> diagnostics) {
-        this.diagnostics = diagnostics;
-    }
+    private List<Diagnostic> diagnostics = new ArrayList<>();
 
     @Override
     public synchronized void received(Diagnostic diagnostic) {

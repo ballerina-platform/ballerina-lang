@@ -71,7 +71,6 @@ public enum InstructionKind {
     XML_LOAD_ALL((byte) 48),
     XML_ATTRIBUTE_LOAD((byte) 49),
     XML_ATTRIBUTE_STORE((byte) 50),
-    NEW_TABLE((byte) 51),
     NEW_TYPEDESC((byte) 52),
     NEW_STREAM((byte) 53),
 
@@ -104,7 +103,9 @@ public enum InstructionKind {
     BITWISE_XOR((byte) 85),
     BITWISE_LEFT_SHIFT((byte) 86),
     BITWISE_RIGHT_SHIFT((byte) 87),
-    BITWISE_UNSIGNED_RIGHT_SHIFT((byte) 88);
+    BITWISE_UNSIGNED_RIGHT_SHIFT((byte) 88),
+
+    PLATFORM((byte) 128);
 
     byte value;
 

@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
+import org.ballerinalang.langserver.util.TokensUtil;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -40,7 +41,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
-import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
@@ -78,10 +78,10 @@ public class ReferencesUtil {
         context.put(DocumentServiceKeys.POSITION_KEY, pos);
         context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
         context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
-        List<BLangPackage> modules = ReferencesUtil.findCursorTokenAndCompileModules(context);
-        fillReferences(modules, context);
+        List<BLangPackage> modules = ReferencesUtil.findCursorTokenAndCompileModules(context, false);
+        findReferences(modules, context);
         context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, modules);
-        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        SymbolReferencesModel referencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
         return symbolAtCursor.orElse(null);
     }
@@ -97,22 +97,22 @@ public class ReferencesUtil {
      */
     public static WorkspaceEdit getRenameWorkspaceEdits(LSContext context, String newName)
             throws WorkspaceDocumentException, CompilationFailedException {
-        List<BLangPackage> modules = findCursorTokenAndCompileModules(context);
-        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        List<BLangPackage> modules = findCursorTokenAndCompileModules(context, false);
+        SymbolReferencesModel referencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
         String nodeName = context.get(NodeContextKeys.NODE_NAME_KEY);
         if (CommonKeys.NEW_KEYWORD_KEY.equals(nodeName)) {
             throw new IllegalStateException("Symbol at cursor '" + nodeName + "' not supported or could not find!");
         }
-        fillReferences(modules, context);
+        findReferences(modules, context);
         fillAllReferences(modules, context);
         return getWorkspaceEdit(referencesModel, context, newName);
     }
 
     public static List<Location> getReferences(LSContext context, boolean includeDeclaration)
             throws WorkspaceDocumentException, CompilationFailedException {
-        List<BLangPackage> modules = findCursorTokenAndCompileModules(context);
-        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
-        fillReferences(modules, context);
+        List<BLangPackage> modules = findCursorTokenAndCompileModules(context, false);
+        SymbolReferencesModel referencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
+        findReferences(modules, context);
         fillAllReferences(modules, context);
         List<SymbolReferencesModel.Reference> references = new ArrayList<>();
         if (includeDeclaration) {
@@ -135,9 +135,12 @@ public class ReferencesUtil {
      * @throws CompilationFailedException when compilation failed
      */
     public static Hover getHover(LSContext context) throws WorkspaceDocumentException, CompilationFailedException {
-        List<BLangPackage> modules = findCursorTokenAndCompileModules(context);
-        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
-        fillReferences(modules, context);
+        List<BLangPackage> modules = findCursorTokenAndCompileModules(context, true);
+        if (context.get(NodeContextKeys.NODE_NAME_KEY) == null) {
+            return HoverUtil.getDefaultHoverObject();
+        }
+        SymbolReferencesModel referencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
+        findReferences(modules, context);
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
 
         // Ignore the optional check since it has been handled during prepareReference and throws exception
@@ -147,7 +150,7 @@ public class ReferencesUtil {
                 : HoverUtil.getDefaultHoverObject();
     }
 
-    public static List<BLangPackage> findCursorTokenAndCompileModules(LSContext context)
+    public static List<BLangPackage> findCursorTokenAndCompileModules(LSContext context, boolean isQuiteMode)
             throws WorkspaceDocumentException, CompilationFailedException {
         String fileUri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
@@ -162,13 +165,13 @@ public class ReferencesUtil {
         Class<LSCustomErrorStrategy> errStrategy = LSCustomErrorStrategy.class;
         try {
             context.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-            context.put(NodeContextKeys.REFERENCES_KEY, new SymbolReferencesModel());
+            context.put(ReferencesKeys.REFERENCES_KEY, new SymbolReferencesModel());
 
             // With the sub-rule parser, find the token
             String documentContent = docManager.getFileContent(compilationPath);
-            ReferencesSubRuleParser.parseCompilationUnit(documentContent, context, position);
+            TokensUtil.searchTokenAtCursor(documentContent, context, position);
 
-            if (context.get(NodeContextKeys.NODE_NAME_KEY) == null) {
+            if (context.get(NodeContextKeys.NODE_NAME_KEY) == null && !isQuiteMode) {
                 throw new IllegalStateException("Couldn't find a valid identifier token at cursor!");
             }
 
@@ -179,7 +182,7 @@ public class ReferencesUtil {
     }
 
     private static void fillAllReferences(List<BLangPackage> modules, LSContext context) {
-        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        SymbolReferencesModel referencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
         Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
         // Ignore the optional check since it has been handled during prepareReference and throws exception
         String symbolOwnerPkg = symbolAtCursor.get().getSymbol().pkgID.toString();
@@ -201,7 +204,7 @@ public class ReferencesUtil {
         });
     }
 
-    public static void fillReferences(List<BLangPackage> modules, LSContext context) {
+    public static void findReferences(List<BLangPackage> modules, LSContext context) {
         String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
         /*
         In windows platform, relative file path key components are separated with "\" while antlr always uses "/"
@@ -226,7 +229,7 @@ public class ReferencesUtil {
         refVisitor.visit(currentCUnit.get());
 
         // Prune the found symbol references
-        SymbolReferencesModel symbolReferencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        SymbolReferencesModel symbolReferencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
         if (!symbolReferencesModel.getReferenceAtCursor().isPresent()) {
             String nodeName = context.get(NodeContextKeys.NODE_NAME_KEY);
             throw new IllegalStateException("Symbol at cursor '" + nodeName + "' not supported or could not find!");
@@ -236,14 +239,10 @@ public class ReferencesUtil {
         BSymbol cursorSymbol = symbolAtCursor.getSymbol();
         symbolReferencesModel.getDefinitions()
                 .removeIf(reference -> reference.getSymbol() != cursorSymbol
-                        && (reference.getSymbol().type.tsymbol != cursorSymbol)
-                        && !(cursorSymbol.type.tag == TypeTags.ERROR
-                        && reference.getSymbol().type.tsymbol == cursorSymbol.type.tsymbol));
+                        && (reference.getSymbol().type.tsymbol != cursorSymbol));
         symbolReferencesModel.getReferences()
                 .removeIf(reference -> reference.getSymbol() != cursorSymbol
-                        && (reference.getSymbol().type.tsymbol != cursorSymbol
-                        && !(cursorSymbol.type.tag == TypeTags.ERROR
-                        && reference.getSymbol().type.tsymbol == cursorSymbol.type.tsymbol)));
+                        && (reference.getSymbol().type.tsymbol != cursorSymbol));
     }
 
     public static List<Location> getLocations(List<SymbolReferencesModel.Reference> references, String sourceRoot) {

@@ -205,4 +205,49 @@ public class QueryExpressionWithVarTypeTest {
         Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 33);
         Assert.assertEquals(person3.get("teacherId").stringValue(), "TER1200");
     }
+
+    @Test(description = "Test simple select clause - with spread operator ")
+    public void testSimpleSelectQueryWithSpreadOperator() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleSelectQueryWithSpreadOperator");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
+        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
+
+        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
+        Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 33);
+    }
+
+    @Test(description = "Test simple select clause - with spread operator v2 ")
+    public void testQueryExpressionWithSpreadOperatorV2() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExpressionWithSpreadOperatorV2");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> person2 = (BMap<String, BValue>) returnValues[1];
+        BMap<String, BValue> person3 = (BMap<String, BValue>) returnValues[2];
+
+        Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
+        Assert.assertEquals(person2.get("lastName").stringValue(), "Fonseka");
+        Assert.assertEquals(((BInteger) person3.get("age")).intValue(), 33);
+        Assert.assertEquals(person3.get("teacherId").stringValue(), "TER1200");
+    }
+
+    @Test(description = "Use a stream with query expression")
+    public void testQueryWithStream() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryWithStream");
+        Assert.assertNotNull(returnValues);
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(returnValues[0] instanceof BValueArray, "Expected BValueArray type value");
+
+        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(0), 1);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(1), 3);
+        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(2), 5);
+    }
 }

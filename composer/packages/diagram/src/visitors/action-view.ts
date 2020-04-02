@@ -17,27 +17,33 @@ function isOrdinaryStatement(node: ASTNode): boolean {
         && !ASTUtil.isActionInvocation(node);
 }
 
-export const visitor: Visitor = {
+function beginVisitBlock(node: Block) {
+    let hiddenSet = false;
+    node.statements.forEach((element) => {
+        if (isOrdinaryStatement(element)) {
+            if (element.viewState) {
+                element.viewState.hidden = actionView && hiddenSet;
+                element.viewState.hiddenBlock = !hiddenSet && actionView;
+                hiddenSet = true;
+            }
+        } else {
+            if (!ASTUtil.isWorker(element)) {
+                hiddenSet = false;
+            }
+        }
+        const viewState = element.viewState as StmntViewState;
+        if (viewState.expandContext && actionView) {
+            viewState.expandContext = undefined;
+        }
+    });
+}
 
+export const visitor: Visitor = {
     beginVisitBlock(node: Block) {
-        let hiddenSet = false;
-        node.statements.forEach((element) => {
-            if (isOrdinaryStatement(element)) {
-                if (element.viewState) {
-                    element.viewState.hidden = actionView && hiddenSet;
-                    element.viewState.hiddenBlock = !hiddenSet && actionView;
-                    hiddenSet = true;
-                }
-            } else {
-                if (!ASTUtil.isWorker(element)) {
-                    hiddenSet = false;
-                }
-            }
-            const viewState = element.viewState as StmntViewState;
-            if (viewState.expandContext && actionView) {
-                viewState.expandContext = undefined;
-            }
-        });
+        beginVisitBlock(node);
+    },
+    beginVisitBlockFunctionBody(node) {
+        beginVisitBlock(node);
     }
 };
 

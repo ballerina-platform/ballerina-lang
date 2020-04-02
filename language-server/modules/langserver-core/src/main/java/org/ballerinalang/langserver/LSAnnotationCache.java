@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.AnnotationNodeKind;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -94,9 +95,6 @@ public class LSAnnotationCache {
 
         // Annotation cache will only load the sk packages initially and the others will load in the runtime
         for (BallerinaPackage sdkPackage : LSPackageLoader.getSdkPackages()) {
-            if (isLangLibModule(sdkPackage)) {
-                continue;
-            }
             PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getOrgName()),
                     new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getPackageName()), Names.DEFAULT_VERSION);
             try {
@@ -168,6 +166,9 @@ public class LSAnnotationCache {
             case WORKER:
                 annotationMap = workerAnnotations;
                 break;
+            case CONSTANT:
+                annotationMap = constAnnotations;
+                break;
             default:
                 annotationMap = new HashMap<>();
                 break;
@@ -208,7 +209,8 @@ public class LSAnnotationCache {
         List<Scope.ScopeEntry> scopeEntries = extractAnnotationDefinitions(bPackageSymbol.scope.entries);
 
         scopeEntries.forEach(annotationEntry -> {
-            if (annotationEntry.symbol instanceof BAnnotationSymbol) {
+            if (annotationEntry.symbol instanceof BAnnotationSymbol
+                    && ((annotationEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC)) {
                 BAnnotationSymbol annotationSymbol = ((BAnnotationSymbol) annotationEntry.symbol);
                 int attachPoints = ((BAnnotationSymbol) annotationEntry.symbol).maskedPoints;
 
@@ -274,9 +276,5 @@ public class LSAnnotationCache {
         return processedPackages
                 .stream()
                 .anyMatch(processedPkgId -> processedPkgId.toString().equals(packageID.toString()));
-    }
-    
-    private static boolean isLangLibModule(BallerinaPackage ballerinaPackage) {
-        return ballerinaPackage.getOrgName().equals("ballerina") && ballerinaPackage.getPackageName().contains("lang.");
     }
 }

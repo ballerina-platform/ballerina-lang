@@ -56,7 +56,7 @@ function readMultiRootedXml(string xmlFilePath, string xslFilePath) returns @tai
     if (xmlValue is xml) {
         var xslValue = readXml(xslFilePath);
         if (xslValue is xml) {
-            var result = xslt:transform(xmlValue.*, xslValue);
+            var result = xslt:transform(xmlValue/*, xslValue);
             if (result is xml) {
                 return result;
             } else {

@@ -14,10 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # ReadableByteChannel represents an input resource (i.e file). which could be used to source bytes.
 public type ReadableByteChannel object {
+
+    # Adding default __init function to prevent object getting initialized from the user code.
+    function __init() {}
 
     # Source bytes from a given input/output resource.
     #

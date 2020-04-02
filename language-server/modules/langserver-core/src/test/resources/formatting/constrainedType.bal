@@ -19,10 +19,6 @@ function name3() {
     "cherry"});
 }
 
-function  tableReturnFunction ()   returns    (   table<any>  )   {
-    return;
-}
-
 public function main() {
     string text = "Sample String";
     int number = 34;
@@ -44,4 +40,24 @@ public function test1() {
          >
   number
        ;
+
+   string   anotherText1=
+                    <
+                      @untainted     string
+        >
+                        text   ;
+                    int   anotherNumber2=
+      <
+                               @untainted
+            int
+                       >
+         number
+                   ;
+
+       string  anotherText2 =     <
+          @untainted
+                            string
+     >
+                         text
+          ;
 }

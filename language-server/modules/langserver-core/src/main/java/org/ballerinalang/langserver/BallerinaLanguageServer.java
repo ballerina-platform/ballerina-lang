@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.client.ExtendedLanguageClientAware;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
@@ -90,8 +89,6 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
         lsGlobalContext.put(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY, DiagnosticsHelper.getInstance());
-        lsGlobalContext.put(LSGlobalContextKeys.ENABLE_STDLIB_DEFINITION,
-                Boolean.valueOf(System.getProperty("ballerina.goToDefinition.enableStandardLibraries")));
 
         this.textService = new BallerinaTextDocumentService(lsGlobalContext);
         this.workspaceService = new BallerinaWorkspaceService(lsGlobalContext);
@@ -210,7 +207,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     @Override
     public void connect(ExtendedLanguageClient languageClient) {
         this.client = languageClient;
-        LSClientLogger.init(this.client, CommonUtil.LS_DEBUG_ENABLED, CommonUtil.LS_TRACE_ENABLED);
+        LSClientLogger.initialize(this.client);
     }
 
     public BallerinaSymbolService getBallerinaSymbolService() {

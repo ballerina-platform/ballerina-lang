@@ -179,7 +179,7 @@ function handleContent(mime:Entity bodyPart) returns @tainted string {
         if (mime:APPLICATION_XML == baseType || mime:TEXT_XML == baseType) {
             var payload = bodyPart.getXml();
             if (payload is xml) {
-                return payload.getTextValue();
+                return (payload/*).toString();
             } else {
                 return "Error in getting xml payload";
             }

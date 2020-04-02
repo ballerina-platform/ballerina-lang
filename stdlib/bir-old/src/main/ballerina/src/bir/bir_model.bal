@@ -385,6 +385,7 @@ public type BTableType record {|
 public type BStreamType record {|
     STREAM_TYPE_NAME typeName = STREAM_TYPE_NAME;
     BType sConstraint;
+    BType? sError = ();
 |};
 
 
@@ -757,7 +758,6 @@ public type NewXMLElement record {|
     InstructionKind kind;
     VarRef lhsOp;
     VarRef startTagOp;
-    VarRef endTagOp;
     VarRef defaultNsURIOp;
 |};
 

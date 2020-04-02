@@ -28,16 +28,18 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
-import io.ballerina.plugins.idea.psi.BallerinaCallableUnitBody;
+import io.ballerina.plugins.idea.psi.BallerinaBlockFunctionBody;
 import io.ballerina.plugins.idea.psi.BallerinaDocumentationString;
 import io.ballerina.plugins.idea.psi.BallerinaExclusiveRecordTypeDescriptor;
 import io.ballerina.plugins.idea.psi.BallerinaFieldDescriptor;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinitionBody;
 import io.ballerina.plugins.idea.psi.BallerinaImportDeclaration;
 import io.ballerina.plugins.idea.psi.BallerinaInclusiveRecordTypeDescriptor;
+import io.ballerina.plugins.idea.psi.BallerinaMethodDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaObjectBody;
-import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaObjectMethod;
 import io.ballerina.plugins.idea.psi.BallerinaObjectTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
 import io.ballerina.plugins.idea.psi.BallerinaRecordLiteral;
@@ -147,27 +149,42 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
                 BallerinaFunctionDefinition.class);
         for (BallerinaFunctionDefinition functionNode : functionNodes) {
             // Get the function body. This is used to calculate the start offset.
-            BallerinaCallableUnitBody callableUnitBodyNode = PsiTreeUtil.getChildOfType(functionNode,
-                    BallerinaCallableUnitBody.class);
-            if (callableUnitBodyNode == null) {
+            BallerinaFunctionDefinitionBody functionBodyNode = PsiTreeUtil.getChildOfType(functionNode,
+                    BallerinaFunctionDefinitionBody.class);
+            if (functionBodyNode == null) {
+                continue;
+            }
+            BallerinaBlockFunctionBody functionBlockNode = PsiTreeUtil.getChildOfType(functionBodyNode,
+                    BallerinaBlockFunctionBody.class);
+            if (functionBlockNode == null) {
                 continue;
             }
             // Add folding descriptor.
-            addFoldingDescriptor(descriptors, functionNode, callableUnitBodyNode, false);
+            addFoldingDescriptor(descriptors, functionNode, functionBlockNode, false);
         }
 
-        // Get object function nodes.
-        Collection<BallerinaObjectFunctionDefinition> objectFunctions = PsiTreeUtil.findChildrenOfType(root,
-                BallerinaObjectFunctionDefinition.class);
-        for (BallerinaObjectFunctionDefinition objectFunction : objectFunctions) {
-            // Get the function body. This is used to calculate the start offset.
-            BallerinaCallableUnitBody callableUnitBodyNode = PsiTreeUtil.getChildOfType(objectFunction,
-                    BallerinaCallableUnitBody.class);
-            if (callableUnitBodyNode == null) {
+        // Get all object method nodes.
+        Collection<BallerinaObjectMethod> objectFunctions = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaObjectMethod.class);
+        for (BallerinaObjectMethod objectMethod : objectFunctions) {
+            // Get the object method body. This is used to calculate the start offset.
+            BallerinaMethodDefinition methodDefinition = PsiTreeUtil.getChildOfType(objectMethod,
+                    BallerinaMethodDefinition.class);
+            if (methodDefinition == null) {
+                continue;
+            }
+            BallerinaFunctionDefinitionBody functionDefBody = PsiTreeUtil.getChildOfType(methodDefinition,
+                    BallerinaFunctionDefinitionBody.class);
+            if (functionDefBody == null) {
+                continue;
+            }
+            BallerinaBlockFunctionBody blockFunctionBody = PsiTreeUtil.getChildOfType(functionDefBody,
+                    BallerinaBlockFunctionBody.class);
+            if (blockFunctionBody == null) {
                 continue;
             }
             // Add folding descriptor.
-            addFoldingDescriptor(descriptors, objectFunction, callableUnitBodyNode, false);
+            addFoldingDescriptor(descriptors, objectMethod, blockFunctionBody, false);
         }
     }
 

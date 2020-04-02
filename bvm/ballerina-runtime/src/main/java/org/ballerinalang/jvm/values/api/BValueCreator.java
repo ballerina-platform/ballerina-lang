@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BStreamType;
-import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -38,7 +37,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.jvm.values.StringValue;
-import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -225,7 +223,7 @@ import javax.xml.namespace.QName;
       * @return function pointer
       */
      public static BFunctionPointer createFPValue(Function function, BFunctionType type) {
-         return new FPValue(function, type);
+         return new FPValue(function, type, false);
      }
 
      /**
@@ -246,63 +244,6 @@ import javax.xml.namespace.QName;
       */
      public static BStream createStreamValue(BStreamType type) {
          return new StreamValue(type);
-     }
-
-     /**
-      * Create a table value.
-      *
-      * @return {@code TableValue}
-      */
-     public static BTable createTableValue() {
-         return new TableValue();
-     }
-
-     /**
-      * Create a table with given name and structure type.
-      *
-      * @param tableName name of the table
-      * @param constraintType structure type of the table
-      * @return {@code TableValue}
-      */
-     public static BTable createTableValue(String tableName, BStructureType constraintType) {
-         return new TableValue(tableName, constraintType);
-     }
-
-     /**
-      * Create a table with given structure type.
-      *
-      * @param constraintType structure type of the table
-      * @return {@code TableValue}
-      */
-     public static BTable createTableValue(BStructureType constraintType) {
-         return new TableValue(constraintType);
-     }
-
-     /**
-      * Create a table based on given parameters.
-      *
-      * @param query string query for table creation
-      * @param fromTable from {@code TableValue}
-      * @param joinTable join {@code TableValue}
-      * @param constraintType structure type of the table
-      * @param params parameters for the query
-      * @return {@code TableValue}
-      */
-     public static BTable createTableValue(String query, TableValue fromTable, TableValue joinTable,
-                                               BStructureType constraintType, ArrayValue params) {
-         return new TableValue(query, fromTable, joinTable, constraintType, params);
-     }
-
-     /**
-      * Create a table with given initial values.
-      *
-      * @param constraintType structure type of the table
-      * @param keyColumns column keys of the data set
-      * @param dataRows initial daya set
-      * @return {@code TableValue} with initial data
-      */
-     public static BTable createTableValue(BType constraintType, ArrayValue keyColumns, ArrayValue dataRows) {
-         return new TableValue(constraintType, keyColumns, dataRows);
      }
 
      /**

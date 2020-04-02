@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,26 +44,8 @@ public class BallerinaSelectClauseImpl extends ASTWrapperPsiElement implements B
 
   @Override
   @Nullable
-  public BallerinaGroupByClause getGroupByClause() {
-    return findChildByClass(BallerinaGroupByClause.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaHavingClause getHavingClause() {
-    return findChildByClass(BallerinaHavingClause.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaSelectExpressionList getSelectExpressionList() {
-    return findChildByClass(BallerinaSelectExpressionList.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getMul() {
-    return findChildByType(MUL);
+  public BallerinaExpression getExpression() {
+    return findChildByClass(BallerinaExpression.class);
   }
 
   @Override

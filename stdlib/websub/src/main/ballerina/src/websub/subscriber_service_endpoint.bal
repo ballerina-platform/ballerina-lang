@@ -19,7 +19,7 @@ import ballerina/http;
 import ballerina/lang.'object as lang;
 import ballerina/log;
 
-import ballerinax/java;
+import ballerina/java;
 
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
@@ -35,6 +35,10 @@ public type Listener object {
 
     private http:Listener? serviceEndpoint = ();
 
+    # The initialization method for the Listener.
+    #
+    # + port - The port to listen on
+    # + config - The configuration for the listener
     public function __init(int port, SubscriberListenerConfiguration? config = ()) {
         self.init(port, config);
     }

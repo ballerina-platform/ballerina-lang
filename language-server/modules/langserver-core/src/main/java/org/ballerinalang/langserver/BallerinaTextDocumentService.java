@@ -36,6 +36,7 @@ import org.ballerinalang.langserver.compiler.LSCompilerCache;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.LSDocumentIdentifierImpl;
+import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
@@ -127,7 +128,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     private final WorkspaceDocumentManager docManager;
     private final DiagnosticsHelper diagnosticsHelper;
     private LSClientCapabilities clientCapabilities;
-    private final boolean enableStdlibDefinition;
+    private boolean enableStdlibDefinition = true;
 
     private final Debouncer diagPushDebouncer;
 
@@ -135,7 +136,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
         this.languageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
         this.docManager = globalContext.get(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY);
         this.diagnosticsHelper = globalContext.get(LSGlobalContextKeys.DIAGNOSTIC_HELPER_KEY);
-        this.enableStdlibDefinition = globalContext.get(LSGlobalContextKeys.ENABLE_STDLIB_DEFINITION);
+        LSClientConfigHolder.getInstance().register((oldConfig, newConfig) -> {
+            this.enableStdlibDefinition = newConfig.getGoToDefinition().isEnableStdlib();
+        });
         this.diagPushDebouncer = new Debouncer(DIAG_PUSH_DEBOUNCE_DELAY);
     }
 

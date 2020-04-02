@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 
 /**
  * LHS token traverser.
- * 
+ *
  * @since 0.995.0
  */
 class LHSCompletionsTokenTraverser extends AbstractTokenTraverser {
@@ -46,6 +46,7 @@ class LHSCompletionsTokenTraverser extends AbstractTokenTraverser {
     private int ltSymbolCount;
     private int gtSymbolCount;
     private boolean capturedAssignToken;
+    private boolean capturedEqualOrGTToken;
     private SourcePruneContext sourcePruneContext;
     private boolean forcedProcessedToken;
 
@@ -79,12 +80,14 @@ class LHSCompletionsTokenTraverser extends AbstractTokenTraverser {
             }
             if (this.blockRemoveKWTerminals.contains(type)) {
                 this.removeBlock = true;
-            } else if (type == BallerinaParser.ASSIGN) {
+            } else if (BallerinaParser.ASSIGN == type) {
                 this.capturedAssignToken = true;
             } else if (BallerinaParser.RIGHT_BRACKET == type) {
                 rightBracketCount++;
             } else if (BallerinaParser.GT == type) {
                 this.gtSymbolCount++;
+            } else if (BallerinaParser.EQUAL_GT == type) {
+                this.capturedEqualOrGTToken = true;
             }
             if (!this.forcedProcessedToken) {
                 processToken(token.get());
@@ -215,7 +218,12 @@ class LHSCompletionsTokenTraverser extends AbstractTokenTraverser {
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                 .collect(Collectors.toList());
         int processedTokenSize = processedDefaultTokens.size();
-        if (this.capturedAssignToken) {
+        if (this.capturedAssignToken || this.capturedEqualOrGTToken) {
+            /*
+            Cover both the following
+            Eg: function hello() returns a = <cursor>
+                function hello() returns a => <cursor>
+             */
             return true;
         }
         if (processedTokenSize <= 2) {
@@ -227,23 +235,21 @@ class LHSCompletionsTokenTraverser extends AbstractTokenTraverser {
                 Same applies for worker
              */
             Optional<Token> nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream,
-                                                                              processedDefaultTokens.get(0)
-                                                                                      .getTokenIndex());
+                    processedDefaultTokens.get(0).getTokenIndex());
             return nextDefaultToken.isPresent() && nextDefaultToken.get().getType() != BallerinaParser.ASSIGN
                     && nextDefaultToken.get().getType() != BallerinaParser.LEFT_BRACE;
         }
         if (processedTokenSize <= 4) {
             /*
             Captures the following
-            Eg: function hello() returns
-                function hello() returns a
+            Eg: function hello() returns a:
+                function hello() returns a:b
                 tokens upto returns keyword removed from RHS
                 Same applies for worker
              */
 
             Optional<Token> nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream,
-                                                                              processedDefaultTokens.get(0)
-                                                                                      .getTokenIndex());
+                    processedDefaultTokens.get(0).getTokenIndex());
             return nextDefaultToken.isPresent() && nextDefaultToken.get().getType() != BallerinaParser.ASSIGN
                     && nextDefaultToken.get().getType() != BallerinaParser.LEFT_BRACE;
         }
@@ -261,7 +267,7 @@ class LHSCompletionsTokenTraverser extends AbstractTokenTraverser {
 
         if (nextTokenType == BallerinaParser.RIGHT_PARENTHESIS) {
             Optional<Token> tokenTwoToRight = CommonUtil.getNextDefaultToken(tokenStream,
-                                                                             tokenOneToRight.get().getTokenIndex());
+                    tokenOneToRight.get().getTokenIndex());
 
             if (tokenTwoToRight.isPresent()) {
                 /*
@@ -276,8 +282,8 @@ class LHSCompletionsTokenTraverser extends AbstractTokenTraverser {
                 Eg: function (int , int ) returns (s<cursor>) sumFunction = ...
                  */
                 Optional<Token> tokenThreeToRight = CommonUtil.getNextDefaultToken(tokenStream,
-                                                                                   tokenTwoToRight.get()
-                                                                                           .getTokenIndex());
+                        tokenTwoToRight.get()
+                                .getTokenIndex());
                 if (tokenThreeToRight.isPresent() && tokenThreeToRight.get().getType() == BallerinaParser.ASSIGN) {
                     return false;
                 }

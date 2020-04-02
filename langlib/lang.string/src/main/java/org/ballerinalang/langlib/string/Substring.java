@@ -16,10 +16,12 @@
 
 package org.ballerinalang.langlib.string;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.langlib.string.utils.StringUtils;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -42,6 +44,30 @@ public class Substring {
 
     public static String substring(Strand strand, String value, long startIndex, long endIndex) {
         StringUtils.checkForNull(value);
+        if (startIndex != (int) startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
+        }
+        if (endIndex != (int) endIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, endIndex);
+        }
+
+        if (startIndex < 0 || endIndex > value.length()) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                    RuntimeErrors.STRING_INDEX_OUT_OF_RANGE, value.length(), startIndex, endIndex);
+        }
+        if (endIndex < startIndex) {
+            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
+                    RuntimeErrors.INVALID_SUBSTRING_RANGE, value.length(), startIndex, endIndex);
+        }
+        return value.substring((int) startIndex, (int) endIndex);
+    }
+
+    public static BString substring_bstring(Strand strand, BString value, long startIndex, long endIndex) {
+        if (value == null) {
+            throw BallerinaErrors.createNullReferenceError();
+        }
         if (startIndex != (int) startIndex) {
             throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
                     RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);

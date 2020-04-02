@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.service.http.sample;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
@@ -25,6 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 /**
  * Testing the default behaviour of SSL cipher support.
@@ -36,14 +38,14 @@ public class CipherStrengthSSLTestCase extends HttpBaseTest {
     private final String weakCipherServiceUrl = "https://localhost:9227";
     private String strongCipherClient;
     private String weakCipherClient;
-    
+
     @BeforeClass
     public void init() {
         strongCipherClient = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "mutualSSL"
+                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "ssl"
                         + File.separator + "ssl_client_with_strong_cipher.bal").getAbsolutePath();
         weakCipherClient = new File(
-                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "mutualSSL"
+                "src" + File.separator + "test" + File.separator + "resources" + File.separator + "ssl"
                         + File.separator + "ssl_client_with_weak_cipher.bal").getAbsolutePath();
     }
 
@@ -74,7 +76,7 @@ public class CipherStrengthSSLTestCase extends HttpBaseTest {
     }
 
     private void validateClientExecution(String serverMessage, String serverResponse, String clientProgram,
-            String serverUrl) throws BallerinaTestException {
+                                         String serverUrl) throws BallerinaTestException {
         LogLeecher serverLeecher = new LogLeecher(serverMessage);
         serverInstance.addLogLeecher(serverLeecher);
         validateClientExecution(serverResponse, clientProgram, serverUrl);
@@ -85,8 +87,16 @@ public class CipherStrengthSSLTestCase extends HttpBaseTest {
             throws BallerinaTestException {
         BMainInstance ballerinaClient = new BMainInstance(balServer);
         LogLeecher clientLeecher = new LogLeecher(serverResponse);
-        ballerinaClient.runMain(clientProgram, null, new String[] { serverUrl }, null, new String[]{},
-                new LogLeecher[] { clientLeecher });
+
+        String keyStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaKeystore.p12").toAbsolutePath()
+                        .toString());
+        String trustStore = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
+                        .toString());
+        String[] flags = new String[]{"--keystore=" + keyStore, "--truststore=" + trustStore};
+
+        ballerinaClient.runMain(clientProgram, flags, new String[]{serverUrl}, new LogLeecher[]{clientLeecher});
         clientLeecher.waitForText(20000);
     }
 }

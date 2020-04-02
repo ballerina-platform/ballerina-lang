@@ -54,12 +54,11 @@ public type TypeParser object {
     public int TYPE_TAG_ITERATOR =28;
     public int TYPE_TAG_TUPLE =29;
     public int TYPE_TAG_FUTURE =30;
-    public int TYPE_TAG_INTERMEDIATE_COLLECTION =31;
-    public int TYPE_TAG_FINITE =32;
-    public int TYPE_TAG_OBJECT =33;
-    public int TYPE_TAG_BYTE_ARRAY =34;
-    public int TYPE_TAG_FUNCTION_POINTER =35;
-    public int TYPE_TAG_HANDLE = 36;
+    public int TYPE_TAG_FINITE =31;
+    public int TYPE_TAG_OBJECT =32;
+    public int TYPE_TAG_BYTE_ARRAY =33;
+    public int TYPE_TAG_FUNCTION_POINTER =34;
+    public int TYPE_TAG_HANDLE = 35;
 
     public int TYPE_TAG_SELF = 50;
 
@@ -190,8 +189,12 @@ public type TypeParser object {
     }
 
     function parseStreamType() returns BStreamType {
-        BStreamType obj = { sConstraint:TYPE_NIL }; // Dummy constraint until actual constraint is read
+        BStreamType obj = { sConstraint:TYPE_NIL, sError:TYPE_NIL }; // Dummy constraint until actual constraint is read
         obj.sConstraint = self.parseTypeCpRef();
+        boolean hasError = self.readBoolean();
+        if (hasError) {
+            obj.sError = self.parseTypeCpRef();
+        }
         return obj;
     }
 

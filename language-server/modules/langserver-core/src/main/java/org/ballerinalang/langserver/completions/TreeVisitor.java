@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
@@ -62,6 +63,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
@@ -72,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -81,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -439,6 +443,12 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangExprFunctionBody exprFuncBody) {
+        SymbolEnv exprBodyEnv = SymbolEnv.createFuncBodyEnv(exprFuncBody, symbolEnv);
+        this.acceptNode(exprFuncBody.expr, exprBodyEnv);
+    }
+
+    @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
         boolean isFuture = varDefNode.getVariable().expr != null
                 && varDefNode.getVariable().expr.type instanceof BFutureType;
@@ -584,17 +594,28 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        this.blockOwnerStack.push(transactionNode);
+        SymbolEnv transactionEnv = SymbolEnv.createTransactionEnv(transactionNode, symbolEnv);
+        this.blockOwnerStack.push(transactionNode.transactionBody);
         this.isCurrentNodeTransactionStack.push(true);
         this.transactionCount++;
-        this.acceptNode(transactionNode.transactionBody, symbolEnv);
+        this.acceptNode(transactionNode.transactionBody, transactionEnv);
         this.blockOwnerStack.pop();
         this.isCurrentNodeTransactionStack.pop();
         this.transactionCount--;
 
         if (transactionNode.onRetryBody != null) {
-            this.blockOwnerStack.push(transactionNode);
-            this.acceptNode(transactionNode.onRetryBody, symbolEnv);
+            this.blockOwnerStack.push(transactionNode.onRetryBody);
+            this.acceptNode(transactionNode.onRetryBody, transactionEnv);
+            this.blockOwnerStack.pop();
+        }
+        if (transactionNode.committedBody != null) {
+            this.blockOwnerStack.push(transactionNode.committedBody);
+            this.acceptNode(transactionNode.committedBody, transactionEnv);
+            this.blockOwnerStack.pop();
+        }
+        if (transactionNode.abortedBody != null) {
+            this.blockOwnerStack.push(transactionNode.abortedBody);
+            this.acceptNode(transactionNode.abortedBody, transactionEnv);
             this.blockOwnerStack.pop();
         }
     }
@@ -890,6 +911,16 @@ public class TreeVisitor extends LSNodeVisitor {
         cpr.isCursorBeforeNode(bLangErrorVariableDef.getPosition(), this, this.lsContext, bLangErrorVariableDef, null);
     }
 
+    @Override
+    public void visit(BLangQueryAction queryAction) {
+        this.acceptNode(queryAction.doClause, symbolEnv);
+    }
+
+    @Override
+    public void visit(BLangDoClause doClause) {
+        this.acceptNode(doClause.body, symbolEnv);
+    }
+
     ///////////////////////////////////
     /////   Other Public Methods  /////
     ///////////////////////////////////
@@ -957,6 +988,8 @@ public class TreeVisitor extends LSNodeVisitor {
             lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.TYPE);
         } else if (symbol instanceof AnnotationSymbol) {
             lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.ANNOTATION);
+        } else if (symbol instanceof BConstantSymbol) {
+            lsContext.put(CompletionKeys.NEXT_NODE_KEY, AnnotationNodeKind.CONSTANT);
         }
     }
 
