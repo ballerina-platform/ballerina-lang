@@ -64,7 +64,8 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] STATEMENTS = { ParserRuleContext.ASSIGNMENT_STMT,
             ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK, ParserRuleContext.WHILE_BLOCK,
-            ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE, ParserRuleContext.PANIC_STMT };
+            ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE, ParserRuleContext.PANIC_STMT,
+            ParserRuleContext.CONTINUE_STATEMENT, ParserRuleContext.BREAK_STATEMENT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -150,7 +151,7 @@ public class BallerinaParserErrorHandler {
             ParserRuleContext.VERSION_KEYWORD, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] MAJOR_MINOR_VERSION_END =
-            { ParserRuleContext.DOT, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
+                { ParserRuleContext.DOT, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -742,6 +743,12 @@ public class BallerinaParserErrorHandler {
                 case VERSION_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.VERSION_KEYWORD;
                     break;
+                case CONTINUE_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.CONTINUE_KEYWORD;
+                    break;
+                case BREAK_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.BREAK_KEYWORD;
+                    break;
                 case IMPORT_PREFIX_DECL:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, IMPORT_PREFIX_DECL);
                 case IMPORT_VERSION_DECL:
@@ -1127,6 +1134,8 @@ public class BallerinaParserErrorHandler {
             case PANIC_STMT:
             case CALL_STMT:
             case IMPORT_DECL:
+            case CONTINUE_STATEMENT:
+            case BREAK_STATEMENT:
                 // case EXPRESSION:
                 startContext(currentCtx);
                 break;
@@ -1327,6 +1336,14 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.IMPORT_PREFIX_DECL;
             case IMPORT_DECL:
                 return ParserRuleContext.IMPORT_KEYWORD;
+            case CONTINUE_STATEMENT:
+                return ParserRuleContext.CONTINUE_KEYWORD;
+            case BREAK_STATEMENT:
+                return ParserRuleContext.BREAK_KEYWORD;
+            case CONTINUE_KEYWORD:
+            case BREAK_KEYWORD:
+                return ParserRuleContext.SEMICOLON;
+
 
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
@@ -1613,6 +1630,8 @@ public class BallerinaParserErrorHandler {
             case WHILE_BLOCK:
             case CALL_STMT:
             case PANIC_STMT:
+            case CONTINUE_STATEMENT:
+            case BREAK_STATEMENT:
                 return true;
             default:
                 return false;

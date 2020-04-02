@@ -191,8 +191,13 @@ public class BallerinaParser {
                 return parseImportPrefixDecl();
             case AS_KEYWORD:
                 return parseAsKeyword();
+            case CONTINUE_KEYWORD:
+                return parseContinueKeyword();
+            case BREAK_KEYWORD:
+                return parseBreakKeyword();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
+
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
