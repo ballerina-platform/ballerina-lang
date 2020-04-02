@@ -1837,37 +1837,33 @@ public class TypeChecker extends BLangNodeVisitor {
         checkIllegalStorageSizeChangeMethodCall(iExpr, varRefType);
     }
 
-    private boolean isPureSealed(BType type) {
+    private boolean isFixedLengthList(BType type) {
         switch(type.tag) {
             case TypeTags.ARRAY:
-                return isPureSealed((BArrayType) type);
+                return (((BArrayType) type).state == BArrayState.CLOSED_SEALED);
             case TypeTags.TUPLE:
-                return isPureSealed((BTupleType) type);
+                return (((BTupleType) type).restType == null);
             case TypeTags.UNION:
-                return isPureSealed((BUnionType) type);
+                BUnionType unionType = (BUnionType) type;
+                for (BType member : unionType.getMemberTypes()) {
+                    if (!isFixedLengthList(member)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false;
         }
-        return false;
-    }
-
-    private boolean isPureSealed(BArrayType arrayType) {
-        return (arrayType.state == BArrayState.CLOSED_SEALED);
-    }
-
-    private boolean isPureSealed(BTupleType tupleType) {
-        return (tupleType.restType == null);
-    }
-
-    private boolean isPureSealed(BUnionType unionType) {
-        return unionType.getMemberTypes().stream().allMatch(type -> isPureSealed(type));
     }
 
     private void checkIllegalStorageSizeChangeMethodCall(BLangInvocation iExpr, BType varRefType) {
-        if (!modifierFunctions.contains(iExpr.name.getValue())) {
+        String invocationName = iExpr.name.getValue();
+        if (!modifierFunctions.contains(invocationName)) {
             return;
         }
 
-        if (isPureSealed(varRefType)) {
-            dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_LIST_SIZE, iExpr.name.value, varRefType);
+        if (isFixedLengthList(varRefType)) {
+            dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_LIST_SIZE, invocationName, varRefType);
             resultType = symTable.semanticError;
         }
     }
