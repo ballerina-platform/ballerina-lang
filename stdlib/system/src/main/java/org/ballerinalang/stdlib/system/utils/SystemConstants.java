@@ -55,7 +55,7 @@ public class SystemConstants {
     static final String PROCESS_FIELD = "ProcessField";
 
     // System error codes
-    public static final String PROCESS_EXEC_ERROR = "{ballerina/system}ProcessExecError";
+    public static final String PROCESS_EXEC_ERROR = "{ballerina/system}InvalidOperationError";
     static final String ERROR_DETAILS = "Detail";
     static final String ERROR_MESSAGE = "message";
 

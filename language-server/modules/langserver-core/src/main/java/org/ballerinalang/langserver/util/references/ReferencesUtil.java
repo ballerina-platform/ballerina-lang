@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
+import org.ballerinalang.langserver.util.TokensUtil;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
@@ -168,7 +169,7 @@ public class ReferencesUtil {
 
             // With the sub-rule parser, find the token
             String documentContent = docManager.getFileContent(compilationPath);
-            ReferencesSubRuleParser.parseCompilationUnit(documentContent, context, position);
+            TokensUtil.searchTokenAtCursor(documentContent, context, position);
 
             if (context.get(NodeContextKeys.NODE_NAME_KEY) == null && !isQuiteMode) {
                 throw new IllegalStateException("Couldn't find a valid identifier token at cursor!");
