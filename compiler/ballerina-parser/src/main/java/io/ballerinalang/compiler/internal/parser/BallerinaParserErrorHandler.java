@@ -1562,7 +1562,7 @@ public class BallerinaParserErrorHandler {
     private ParserRuleContext compoundOrNot(STToken token) {
         if (isCompoundBinaryOperator(token.kind)) {
             return ParserRuleContext.COMPOUND_BINARY_OPERATOR;        
-        }else {
+        } else {
             return ParserRuleContext.ASSIGN_OP;
         }
     }
