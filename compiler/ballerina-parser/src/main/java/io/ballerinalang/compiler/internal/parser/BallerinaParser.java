@@ -2506,11 +2506,8 @@ public class BallerinaParser {
                 newLhsExpr = parseMemberAccessExpr(lhsExpr);
                 break;
             case DOT_TOKEN:
-//                if (peek(2).kind == SyntaxKind.IDENTIFIER_TOKEN) {
-                    newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr);
-                    break;
-//                }
-                // else fall through
+                newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr);
+                break;
             default:
                 STNode operator = parseBinaryOperator();
 
