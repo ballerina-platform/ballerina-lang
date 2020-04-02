@@ -2834,6 +2834,18 @@ public class Types {
                 BTupleType tupleType = (BTupleType) type;
                 return tupleType.getTupleTypes().stream().allMatch(eleType -> hasFillerValue(eleType));
             default:
+                // filler value is 0
+                if (TypeTags.isIntegerTypeTag(type.tag)) {
+                    return true;
+                }
+                // filler value is ""
+                if (TypeTags.isStringTypeTag(type.tag)) {
+                    return true;
+                }
+                // filler value is xml``
+                if (TypeTags.isXMLTypeTag(type.tag)) {
+                    return true;
+                }
                 return false;
         }
     }
@@ -2881,7 +2893,7 @@ public class Types {
 
         while (iterator.hasNext()) {
             BLangExpression value = (BLangExpression) iterator.next();
-            if (!isSameType(value.type, firstElement.type)) {
+            if (!isSameBasicType(value.type, firstElement.type)) {
                 return false;
             }
             if (!defaultFillValuePresent && isImplicitDefaultValue(value)) {
@@ -2932,7 +2944,7 @@ public class Types {
         Iterator<BType> iterator = memberTypes.iterator();
         BType firstMember = iterator.next();
         while (iterator.hasNext()) {
-            if (!isSameType(firstMember, iterator.next())) {
+            if (!isSameBasicType(firstMember, iterator.next())) {
                 return false;
             }
         }
@@ -2941,6 +2953,22 @@ public class Types {
             return defaultValuePresent;
         }
         return true;
+    }
+
+    private boolean isSameBasicType(BType source, BType target) {
+        if (isSameType(source, target)) {
+            return true;
+        }
+        if (TypeTags.isIntegerTypeTag(source.tag) && TypeTags.isIntegerTypeTag(target.tag)) {
+            return true;
+        }
+        if (TypeTags.isStringTypeTag(source.tag) && TypeTags.isStringTypeTag(target.tag)) {
+            return true;
+        }
+        if (TypeTags.isXMLTypeTag(source.tag) && TypeTags.isXMLTypeTag(target.tag)) {
+            return true;
+        }
+        return false;
     }
 
     private Set<BType> getValueTypes(Set<BLangExpression> valueSpace) {
