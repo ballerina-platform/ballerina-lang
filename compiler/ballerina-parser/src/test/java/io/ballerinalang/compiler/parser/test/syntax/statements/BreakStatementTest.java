@@ -17,5 +17,22 @@
  */
 package io.ballerinalang.compiler.parser.test.syntax.statements;
 
-public class BreakStatementTest {
+import org.testng.annotations.Test;
+
+/**
+ * Test parsing break statements.
+ */
+
+public class BreakStatementTest extends AbstractStatementTest {
+    //Valid source test
+    @Test
+    public void testValidBreakStatement(){
+        test("break;", "break-stmt/break_stmt_assert_1.json");
+    }
+
+    //Recovery source test
+    @Test
+    public void testInvalidBreakStatement(){
+        test("break", "break-stmt/break_stmt_assert_2.json");
+    }
 }

@@ -321,7 +321,10 @@ public class ParserTestUtils {
                 return SyntaxKind.VERSION_KEYWORD;
             case "AS_KEYWORD":
                 return SyntaxKind.AS_KEYWORD;
-
+            case "CONTINUE_KEYWORD":
+                return SyntaxKind.CONTINUE_KEYWORD;
+            case "BREAK_KEYWORD":
+                return SyntaxKind.BREAK_KEYWORD;
             // Operators
             case "PLUS_TOKEN":
                 return SyntaxKind.PLUS_TOKEN;
@@ -431,6 +434,10 @@ public class ParserTestUtils {
                 return SyntaxKind.CALL_STATEMENT;
             case "PANIC_STATEMENT":
                 return SyntaxKind.PANIC_STATEMENT;
+            case "CONTINUE_STATEMENT":
+                return SyntaxKind.CONTINUE_STATEMENT;
+            case "BREAK_STATEMENT":
+                return SyntaxKind.BREAK_STATEMENT;
 
             // Others
             case "SIMPLE_TYPE":
