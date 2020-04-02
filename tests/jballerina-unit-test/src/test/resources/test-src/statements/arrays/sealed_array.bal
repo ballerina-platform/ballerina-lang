@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.'int;
 
 // Int Arrays
 
@@ -41,6 +42,11 @@ function createIntDefaultSealedArray() {
     int[5] sealedArray = [0, 0, 0, 0, 0];
     assertArrayLengthPanic(5, sealedArray);
     isEqualPanic("0 0 0 0 0", sealedArray);
+}
+
+function testSealedArraysOfIntSubtypes() {
+    ('int:Unsigned16|'int:Signed32)[2] sealedArray = [];
+    isEqualPanic("0 0", sealedArray);
 }
 
 // Boolean Arrays
