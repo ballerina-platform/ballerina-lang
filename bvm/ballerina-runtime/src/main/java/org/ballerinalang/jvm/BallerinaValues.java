@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.ValueCreator;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 import java.util.Map.Entry;
@@ -105,6 +106,29 @@ public class BallerinaValues {
                 continue;
             }
             mapValue.put(fieldEntry.getKey(), value);
+        }
+        return mapValue;
+    }
+
+    /**
+     * Method to populate a runtime record value with given field values.
+     *
+     * @param record which needs to get populated
+     * @param values field values of the record.
+     * @return value of the record.
+     */
+    public static MapValue<BString, Object> createRecord_bstring(MapValue<BString, Object> record, Object... values) {
+        BRecordType recordType = (BRecordType) record.getType();
+        MapValue<BString, Object> mapValue = new MapValueImpl<>(recordType);
+        int i = 0;
+        for (Map.Entry<String, BField> fieldEntry : recordType.getFields().entrySet()) {
+            Object value = values[i++];
+            if (Flags.isFlagOn(fieldEntry.getValue().flags, Flags.OPTIONAL) && value == null) {
+                continue;
+            }
+
+            mapValue.put(StringUtils.fromString(fieldEntry.getKey()), value instanceof String ?
+                    StringUtils.fromString((String) value) : value);
         }
         return mapValue;
     }

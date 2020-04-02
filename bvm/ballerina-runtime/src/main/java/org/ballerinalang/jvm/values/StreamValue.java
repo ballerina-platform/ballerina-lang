@@ -22,7 +22,6 @@ import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.api.BStream;
-import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 import java.util.UUID;
@@ -42,7 +41,7 @@ public class StreamValue implements RefValue, BStream {
     private BType type;
     private BType constraintType;
     private BType iteratorNextReturnType;
-    private FPValue<Object, Object> genFunc;
+    private ObjectValue iteratorObj;
 
 
     /**
@@ -55,22 +54,22 @@ public class StreamValue implements RefValue, BStream {
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
         this.streamId = UUID.randomUUID().toString();
-        this.genFunc = null;
+        this.iteratorObj = null;
     }
 
-    public StreamValue(BType type, FPValue<Object, Object> genFunc) {
+    public StreamValue(BType type, ObjectValue iteratorObj) {
         this.constraintType = ((BStreamType) type).getConstrainedType();
         this.type = new BStreamType(constraintType);
         this.streamId = UUID.randomUUID().toString();
-        this.genFunc = genFunc;
+        this.iteratorObj = iteratorObj;
     }
 
     public String getStreamId() {
         return streamId;
     }
 
-    public FPValue<Object, Object> getGenFunc() {
-        return genFunc;
+    public ObjectValue getIteratorObj() {
+        return iteratorObj;
     }
 
     public BType getIteratorNextReturnType() {
@@ -86,11 +85,6 @@ public class StreamValue implements RefValue, BStream {
      */
     public String stringValue() {
         return "stream <" + getType().toString() + ">";
-    }
-
-    @Override
-    public BString bStringValue() {
-        return null;
     }
 
     @Override

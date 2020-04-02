@@ -296,14 +296,14 @@ function testRecordVariableWithOnlyRestParam() returns map<anydata|error> {
 }
 
 type Object object {
-    private int field;
+    private int 'field;
 
     public function __init() {
-        self.field = 12;
+        self.'field = 12;
     }
 
     public function getField() returns int {
-        return self.field;
+        return self.'field;
     }
 };
 

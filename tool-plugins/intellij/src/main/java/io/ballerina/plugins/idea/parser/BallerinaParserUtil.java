@@ -111,6 +111,8 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                 && !(rawLookup == BallerinaTypes.LEFT_BRACE && rawLookup2 == BallerinaTypes.COLON)
                                 // Connection conn = new({initialContextFactory:config.initialContextFactory});
                                 && !(rawLookup == BallerinaTypes.LEFT_BRACE && rawLookup2 == BallerinaTypes.NEW)
+                                // Expression bodied function with record literal
+                                & !(rawLookup == BallerinaTypes.LEFT_BRACE && rawLookup2 == BallerinaTypes.EQUAL_GT)
                                 // {message:"Notification failed for topic [" + topic + "]",  cause:httpConnectorError }
                                 && !(rawLookup == BallerinaTypes.COMMA && rawLookup2 == BallerinaTypes.ADD)
                                 && !(rawLookup == BallerinaTypes.QUESTION_MARK
@@ -158,7 +160,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                             } else if (rawLookup == BallerinaTypes.COMMA && rawLookup2 == BallerinaTypes.DOT) {
                                 // EmployeeSalary s = {id:e.id, salary:e.salary};
                                 if (latestDoneMarker != null
-                                        && latestDoneMarker.getTokenType() == BallerinaTypes.RECORD_KEY_VALUE) {
+                                        && latestDoneMarker.getTokenType() == BallerinaTypes.RECORD_FIELD) {
                                     return false;
                                 }
                                 // return (variable:^"person 1".^"first name", variable2:^"person 2".^"current age2");
@@ -169,7 +171,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                     IElementType tokenType = latestDoneMarker.getTokenType();
                                     if (tokenType == BallerinaTypes.INVOCATION_ARG) {
                                         return true;
-                                    } else if (tokenType == BallerinaTypes.RECORD_KEY_VALUE) {
+                                    } else if (tokenType == BallerinaTypes.RECORD_FIELD) {
                                         return false;
                                     }
                                 }
@@ -179,7 +181,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                     && rawLookup2 == BallerinaTypes.QUOTED_STRING_LITERAL) {
                                 if (latestDoneMarker != null) {
                                     IElementType tokenType = latestDoneMarker.getTokenType();
-                                    if (tokenType == BallerinaTypes.RECORD_KEY_VALUE) {
+                                    if (tokenType == BallerinaTypes.RECORD_FIELD) {
                                         return false;
                                     }
                                     return true;
@@ -190,7 +192,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                     IElementType tokenType = latestDoneMarker.getTokenType();
                                     // io:println(jwtToken); as the first statement in a function.
                                     // runtime:sleepCurrentWorker(20); in the first statement as the second worker
-                                    if (tokenType == BallerinaTypes.CALLABLE_UNIT_SIGNATURE
+                                    if (tokenType == BallerinaTypes.FUNCTION_SIGNATURE
                                             || tokenType == BallerinaTypes.WORKER_DEFINITION
                                             || tokenType == BallerinaTypes.UNARY_EXPRESSION
                                             || tokenType == BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION
@@ -206,6 +208,13 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                     || rawLookup2 == BallerinaTypes.OCTAL_INTEGER_LITERAL
                                     || rawLookup2 == BallerinaTypes.BINARY_INTEGER_LITERAL)) {
                                 return true;
+                            } else if (rawLookup == BallerinaTypes.LEFT_BRACE &&
+                                    rawLookup2 == BallerinaTypes.EQUAL_GT) {
+                                // Eg:
+                                // function toEmployee(Person p) returns Employee => {
+                                //     name: p.fname
+                                // };
+                                return false;
                             } else if (rawLookup == BallerinaTypes.LINE_COMMENT &&
                                     rawLookup2 == BallerinaTypes.LINE_COMMENT) {
                                 if (next1Element == BallerinaTypes.COLON && next3Element == BallerinaTypes.COLON) {
@@ -228,7 +237,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                             } else if (rawLookup == BallerinaTypes.LINE_COMMENT && rawLookup2 == BallerinaTypes.COMMA) {
                                 if (next1Element == BallerinaTypes.COLON && next2Element == BallerinaTypes.IDENTIFIER) {
                                     IElementType tokenType = latestDoneMarker.getTokenType();
-                                    if (tokenType == BallerinaTypes.RECORD_KEY_VALUE) {
+                                    if (tokenType == BallerinaTypes.RECORD_FIELD) {
                                         return false;
                                     }
                                     return false;
@@ -241,7 +250,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                     LighterASTNode latestDoneMarker = builder.getLatestDoneMarker();
                     // EmployeeSalary s = {id:e.id, salary:e.salary};
                     if (latestDoneMarker != null
-                            && latestDoneMarker.getTokenType() == BallerinaTypes.RECORD_KEY_VALUE) {
+                            && latestDoneMarker.getTokenType() == BallerinaTypes.RECORD_FIELD) {
                         return false;
                     }
                     return true;

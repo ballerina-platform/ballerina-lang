@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.InstructionGenerator;
@@ -29,13 +28,10 @@ import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JErr
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Panic;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.io.PrintStream;
 import java.util.List;
 
 import static org.objectweb.asm.Opcodes.ASTORE;
@@ -69,27 +65,15 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.gene
  */
 public class JvmErrorGen {
 
-    static @Nilable
+    private static @Nilable
     BIRErrorEntry findErrorEntry(@Nilable List<BIRErrorEntry> errors, BIRBasicBlock currentBB) {
 
         for (BIRErrorEntry err : errors) {
-            if (err instanceof BIRErrorEntry && err.endBB.id.value.equals(currentBB.id.value)) {
+            if (err != null && err.endBB.id.value.equals(currentBB.id.value)) {
                 return err;
             }
         }
         return null;
-    }
-
-    static void print(String message) {
-
-        PrintStream errStream = getSystemErrorStream();
-        errStream.println(message);
-//       printToErrorStream(errStream, message);
-    }
-
-    private static PrintStream getSystemErrorStream() {
-
-        return System.err;
     }
 
     /**
@@ -140,11 +124,10 @@ public class JvmErrorGen {
         void generateTryCatch(BIRFunction func, String funcName, BIRBasicBlock currentBB,
                               InstructionGenerator instGen, TerminatorGenerator termGen, LabelGenerator labelGen) {
 
-            @Nilable BIRErrorEntry nilableEE = findErrorEntry(func.errorTable, currentBB);
-            if (nilableEE == null) {
+            @Nilable BIRErrorEntry currentEE = findErrorEntry(func.errorTable, currentBB);
+            if (currentEE == null) {
                 return;
             }
-            BIRErrorEntry currentEE = (BIRErrorEntry) nilableEE;
 
             Label startLabel = labelGen.getLabel(funcName + currentEE.trapBB.id.value);
             Label endLabel = new Label();
@@ -154,7 +137,7 @@ public class JvmErrorGen {
             this.mv.visitJumpInsn(GOTO, jumpLabel);
             if (currentEE instanceof JErrorEntry) {
                 JErrorEntry jCurrentEE = ((JErrorEntry) currentEE);
-                BIRVariableDcl retVarDcl = (BIRVariableDcl) currentEE.errorOp.variableDcl;
+                BIRVariableDcl retVarDcl = currentEE.errorOp.variableDcl;
                 int retIndex = this.indexMap.getIndex(retVarDcl);
                 boolean exeptionExist = false;
                 for (CatchIns catchIns : jCurrentEE.catchIns) {
@@ -197,7 +180,7 @@ public class JvmErrorGen {
             this.mv.visitTryCatchBlock(startLabel, endLabel, otherErrorLabel, STACK_OVERFLOW_ERROR);
             this.mv.visitLabel(errorValueLabel);
 
-            BIRVariableDcl varDcl = (BIRVariableDcl) currentEE.errorOp.variableDcl;
+            BIRVariableDcl varDcl = currentEE.errorOp.variableDcl;
             int lhsIndex = this.indexMap.getIndex(varDcl);
             generateVarStore(this.mv, varDcl, this.currentPackageName, lhsIndex);
             this.mv.visitJumpInsn(GOTO, jumpLabel);
@@ -212,74 +195,5 @@ public class JvmErrorGen {
 
             return this.indexMap.getIndex(varDcl);
         }
-    }
-
-//    static class DiagnosticLogger {
-//        List<DiagnosticLog> errors = new ArrayList<>();
-//
-//        int getErrorCount() {
-//            return this.errors.size();
-//        }
-//
-//        void printErrors() {
-//            for (DiagnosticLog log : this.errors) {
-//                String fileName = log.pos.getSource().cUnitName;
-//                String orgName = log.module.org.value;
-//                String moduleName = log.module.name.value;
-//
-//                String pkgIdStr;
-//                if (moduleName.equals(".") && orgName.equals("$anon")) {
-//                    pkgIdStr = ".";
-//                } else {
-//                    pkgIdStr = orgName + ":" + moduleName;
-//                }
-//
-//                String positionStr;
-//                if (fileName.equals(".")) {
-//                    positionStr = String.format("%s:%s:%s", pkgIdStr, log.pos.sLine, log.pos.sCol);
-//                } else {
-//                    positionStr = String.format("%s:%s:%s:%s", pkgIdStr, fileName, log.pos.sLine, log.pos.sCol);
-//                }
-//
-//                String errorStr;
-//                String detail = log.err.getCause() != null ? log.err.getCause().getMessage() : "";
-//                if (detail.equals("")) {
-//                    errorStr = String.format("error: %s: %s", positionStr, log.err.getMessage());
-//                } else {
-//                    errorStr = String.format("error: %s: %s %s", positionStr, log.err.getMessage(), detail);
-//                }
-//                print(errorStr);
-//            }
-//        }
-//
-//        void logError(BLangCompilerException err, DiagnosticPos pos, BIRPackage module) {
-//            this.errors.add(new DiagnosticLog(err, pos, module));
-//        }
-//    }
-
-//   public static printToErrorStream(Object receiver , Object message) {
-//       PrintStream.
-//    name:"println",
-//    klass:"java/io/PrintStream",
-//    paramTypes:["java.lang.String"]
-//    }
-
-//   public static /* = @java:Method exit(int status */) {
-//    klass:"java/lang/System"
-//} external;
-
-    static class DiagnosticLog {
-
-        BLangCompilerException err;
-        DiagnosticPos pos;
-        BIRPackage module;
-
-        public DiagnosticLog(BLangCompilerException err, DiagnosticPos pos, BIRPackage module) {
-
-            this.err = err;
-            this.pos = pos;
-            this.module = module;
-        }
-
     }
 }

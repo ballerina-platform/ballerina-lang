@@ -36,7 +36,7 @@ public class AnnotationAttachmentPointTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 231);
+        Assert.assertEquals(compileResult.getErrorCount(), 243);
     }
 
     @Test
@@ -400,5 +400,22 @@ public class AnnotationAttachmentPointTest {
         validateError(compileResult, index++, "annotation 'v11' is not allowed on worker", line += 3, 1);
         validateError(compileResult, index++, "annotation 'v12' is not allowed on worker", line += 3, 1);
         validateError(compileResult, index, "annotation 'v13' is not allowed on worker", line + 3, 1);
+    }
+
+    @Test
+    public void testInvalidAttachmentForField() {
+        int index = 231;
+        validateError(compileResult, index++, "annotation 'v16' is not allowed on var", 819, 1);
+        validateError(compileResult, index++, "annotation 'v16' is not allowed on function", 821, 1);
+        validateError(compileResult, index++, "annotation 'v17' is not allowed on function", 822, 1);
+        validateError(compileResult, index++, "annotation 'v18' is not allowed on function", 823, 1);
+        validateError(compileResult, index++, "annotation 'v16' is not allowed on type", 828, 1);
+        validateError(compileResult, index++, "annotation 'v17' is not allowed on type", 829, 1);
+        validateError(compileResult, index++, "annotation 'v18' is not allowed on type", 830, 1);
+        validateError(compileResult, index++, "annotation 'v17' is not allowed on record_field, field", 832, 5);
+        validateError(compileResult, index++, "annotation 'v16' is not allowed on object, type", 835, 1);
+        validateError(compileResult, index++, "annotation 'v17' is not allowed on object, type", 836, 1);
+        validateError(compileResult, index++, "annotation 'v18' is not allowed on object, type", 837, 1);
+        validateError(compileResult, index, "annotation 'v18' is not allowed on object_field, field", 839, 5);
     }
 }

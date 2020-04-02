@@ -155,7 +155,7 @@ public class RecordValueTest {
         Object result = BRunUtil.invokeAndGetJVMResult(compileResult, "getDefaultPerson");
         Assert.assertTrue(result instanceof MapValue);
         MapValue<String, Object> person = (MapValue<String, Object>) result;
-        person.remove("someKey");
+        person.remove("name");
     }
 
     @Test(expectedExceptions = { UnsupportedOperationException.class })

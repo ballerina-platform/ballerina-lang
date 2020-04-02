@@ -40,7 +40,7 @@ import java.util.HashMap;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.__internal", functionName = "setNarrowType",
         args = {@Argument(name = "td", type = TypeKind.TYPEDESC), @Argument(name = "val", type = TypeKind.RECORD)},
-        returnType = {@ReturnType(type = TypeKind.UNION)}
+        returnType = {@ReturnType(type = TypeKind.RECORD)}
 )
 public class SetNarrowType {
 

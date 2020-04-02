@@ -33,6 +33,7 @@
             <run>
                 <exclude name="brokenOnJBallerina"/>
                 <exclude name="brokenOnSpecDeviation"/>
+                <exclude name="brokenOnXMLLangLibChange"/>
             </run>
         </groups>
         <packages>
@@ -151,7 +152,6 @@
                     <exclude name="testLockInRecords"/>
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.types.table.TableLiteralSyntaxTest"/>
             <!--<class name="org.ballerinalang.test.types.table.TableLiteralIterableTest"/>-->
             <!--<class name="org.ballerinalang.test.types.TypeUnificationTest"/>-->
             <!--<class name="org.ballerinalang.test.error.ErrorTest" />-->

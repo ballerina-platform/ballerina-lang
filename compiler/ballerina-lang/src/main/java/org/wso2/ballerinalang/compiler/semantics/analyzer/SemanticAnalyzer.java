@@ -19,9 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.LetClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -81,10 +78,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
@@ -123,7 +116,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -147,13 +139,14 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -190,7 +183,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private TypeChecker typeChecker;
     private Types types;
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
     private TypeNarrower typeNarrower;
     private ConstantAnalyzer constantAnalyzer;
     private ConstantValueResolver constantValueResolver;
@@ -223,7 +216,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.typeNarrower = TypeNarrower.getInstance(context);
         this.constantAnalyzer = ConstantAnalyzer.getInstance(context);
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
@@ -263,7 +256,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
             BLangFunction function = lambdaFunction.function;
             lambdaFunction.type = function.symbol.type;
-            analyzeDef(lambdaFunction.function, lambdaFunction.cachedEnv);
+            analyzeDef(lambdaFunction.function, lambdaFunction.capturedClosureEnv);
         }
 
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
@@ -389,6 +382,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             annotationAttachment.accept(this);
         });
         validateAnnotationAttachmentCount(typeDefinition.annAttachments);
+        validateBuiltinTypeAnnotationAttachment(typeDefinition.annAttachments);
     }
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
@@ -480,6 +474,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
         recordTypeNode.fields.forEach(field -> analyzeDef(field, recordEnv));
         validateDefaultable(recordTypeNode);
+        recordTypeNode.analyzed = true;
     }
 
     @Override
@@ -585,23 +580,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             // This is a variable declared in a function, let expression, an action or a resource
             // If the variable is parameter then the variable symbol is already defined
             if (varNode.symbol == null) {
-                symbolEnter.defineNode(varNode, env);
-
-                // When 'var' is used, the typeNode is null
-                if (varNode.typeNode != null && varNode.typeNode.getKind() == NodeKind.RECORD_TYPE) {
-                    analyzeDef(varNode.typeNode, env);
-                }
-
-                varNode.annAttachments.forEach(annotationAttachment -> {
-                    annotationAttachment.attachPoints.add(AttachPoint.Point.VAR);
-                    annotationAttachment.accept(this);
-                });
+                analyzeVarNode(varNode, env, AttachPoint.Point.VAR);
             } else {
-                varNode.annAttachments.forEach(annotationAttachment -> {
-                    annotationAttachment.attachPoints.add(AttachPoint.Point.PARAMETER);
-                    annotationAttachment.accept(this);
-                });
+                analyzeVarNode(varNode, env, AttachPoint.Point.PARAMETER);
             }
+        } else if ((ownerSymTag & SymTag.OBJECT) == SymTag.OBJECT) {
+            analyzeVarNode(varNode, env, AttachPoint.Point.OBJECT_FIELD, AttachPoint.Point.FIELD);
+        } else if ((ownerSymTag & SymTag.RECORD) == SymTag.RECORD) {
+            analyzeVarNode(varNode, env, AttachPoint.Point.RECORD_FIELD, AttachPoint.Point.FIELD);
         } else {
             varNode.annAttachments.forEach(annotationAttachment -> {
                 if (Symbols.isFlagOn(varNode.symbol.flags, Flags.LISTENER)) {
@@ -647,6 +633,25 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         transferForkFlag(varNode);
+    }
+
+    private void analyzeVarNode(BLangSimpleVariable varNode, SymbolEnv env, AttachPoint.Point... attachPoints) {
+        if (varNode.symbol == null) {
+            symbolEnter.defineNode(varNode, env);
+        }
+
+        // When 'var' is used, the typeNode is null. Need to analyze the record type node here if it's a locally
+        // defined record type.
+        if (varNode.typeNode != null && varNode.typeNode.getKind() == NodeKind.RECORD_TYPE &&
+                !((BLangRecordTypeNode) varNode.typeNode).analyzed) {
+            analyzeDef(varNode.typeNode, env);
+        }
+
+        List<AttachPoint.Point> attachPointsList = Arrays.asList(attachPoints);
+        for (BLangAnnotationAttachment annotationAttachment : varNode.annAttachments) {
+            annotationAttachment.attachPoints.addAll(attachPointsList);
+            annotationAttachment.accept(this);
+        }
     }
 
     private void transferForkFlag(BLangSimpleVariable varNode) {
@@ -2307,32 +2312,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangQueryAction queryAction) {
-        List<? extends FromClauseNode> fromClauseList = queryAction.fromClauseList;
-        List<? extends WhereClauseNode> whereClauseList = queryAction.whereClauseList;
-        List<? extends LetClauseNode> letClauseList = queryAction.letClauseList;
-        BLangDoClause doClauseNode = queryAction.doClause;
-
-        SymbolEnv parentEnv = env;
-        for (FromClauseNode fromClause : fromClauseList) {
-            parentEnv = typeChecker.typeCheckFromClause((BLangFromClause) fromClause, parentEnv);
-        }
-        for (LetClauseNode letClauseNode : letClauseList) {
-            parentEnv = typeChecker.typeCheckLetClause((BLangLetClause) letClauseNode, parentEnv);
-        }
-        SymbolEnv whereEnv = parentEnv;
-        for (WhereClauseNode whereClauseNode : whereClauseList) {
-            BLangWhereClause whereClause = (BLangWhereClause) whereClauseNode;
-            typeChecker.checkExpr(whereClause.expression, parentEnv);
-            whereEnv = typeNarrower.evaluateTruth(whereClause.expression, doClauseNode, parentEnv);
-        }
-
-        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(doClauseNode.body, whereEnv);
-        // Analyze foreach node's statements.
-        analyzeStmt(doClauseNode.body, blockEnv);
-    }
-
-    @Override
     public void visit(BLangWhile whileNode) {
         typeChecker.checkExpr(whileNode.expr, env, symTable.booleanType);
 
@@ -2851,14 +2830,35 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         attachmentCounts.forEach((symbol, count) -> {
             if ((symbol.attachedType == null || symbol.attachedType.type.tag != TypeTags.ARRAY) && count > 1) {
-                this.dlog.error(attachments.stream()
-                                        .filter(attachment -> attachment.annotationSymbol.equals(symbol))
-                                        .findFirst()
-                                        .get().pos,
-                                DiagnosticCode.ANNOTATION_ATTACHMENT_CANNOT_SPECIFY_MULTIPLE_VALUES,
-                                symbol.name);
+                Optional<BLangAnnotationAttachment> found = Optional.empty();
+                for (BLangAnnotationAttachment attachment : attachments) {
+                    if (attachment.annotationSymbol.equals(symbol)) {
+                        found = Optional.of(attachment);
+                        break;
+                    }
+                }
+                this.dlog.error(found.get().pos,
+                        DiagnosticCode.ANNOTATION_ATTACHMENT_CANNOT_SPECIFY_MULTIPLE_VALUES, symbol.name);
             }
         });
+    }
+
+    private void validateBuiltinTypeAnnotationAttachment(List<BLangAnnotationAttachment> attachments) {
+
+        if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
+            return;
+        }
+        for (BLangAnnotationAttachment attachment : attachments) {
+            if (!attachment.annotationSymbol.pkgID.equals(PackageID.ANNOTATIONS)) {
+                continue;
+            }
+            String annotationName = attachment.annotationName.value;
+            if (annotationName.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
+                dlog.error(attachment.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
+            } else if (annotationName.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
+                dlog.error(attachment.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
+            }
+        }
     }
 
     // TODO: Check if the below method can be removed. This doesn't seem necessary.

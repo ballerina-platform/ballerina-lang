@@ -89,10 +89,10 @@ function testQueryActionWithMutableParams() returns Person[]{
 
     Person[] personList = [p1, p2, p3];
 
-    from var person in personList
-    do {
-            person = {firstName: "XYZ", lastName: "George", age: 30};
-    }
+    var x = from var person in personList
+            do {
+                person = {firstName: "XYZ", lastName: "George", age: 30};
+            };
 
     return personList;
 }

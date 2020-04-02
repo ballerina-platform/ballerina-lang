@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,8 +44,8 @@ public class BallerinaRecordLiteralBodyImpl extends ASTWrapperPsiElement impleme
 
   @Override
   @NotNull
-  public List<BallerinaRecordKeyValue> getRecordKeyValueList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaRecordKeyValue.class);
+  public List<BallerinaRecordField> getRecordFieldList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaRecordField.class);
   }
 
 }

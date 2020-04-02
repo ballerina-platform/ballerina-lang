@@ -70,6 +70,9 @@ public class BalGenerationUtils {
             case ".google.protobuf.BytesValue": {
                 return "byte[]";
             }
+            case ".google.protobuf.Any": {
+                return "anydata";
+            }
             case ".google.protobuf.Empty": {
                 return null;
             }
@@ -97,5 +100,26 @@ public class BalGenerationUtils {
                     .toLowerCase(Locale.ENGLISH));
         }
         return camelCaseString.toString();
+    }
+
+    /**
+     * This function checks if the input type is a primitive type or not.
+     *
+     * @param inputType .proto data type
+     * @return true or false.
+     */
+    public static boolean checkPrimitiveType(String inputType) {
+        switch (inputType) {
+            case "string":
+            case "int":
+            case "float":
+            case "boolean":
+            case "byte[]": {
+                return true;
+            }
+            default: { // for null and structs
+                return false;
+            }
+        }
     }
 }

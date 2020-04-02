@@ -46,9 +46,7 @@ public type InboundBasicAuthProvider object {
         if (credential == "") {
             return false;
         }
-        string username;
-        string password;
-        [username, password] = check extractUsernameAndPassword(credential);
+        [string, string] [username, password] = check extractUsernameAndPassword(credential);
         string passwordFromConfig = readPassword(username);
         boolean authenticated = false;
         // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
@@ -125,9 +123,8 @@ function getConfigAuthValue(string instanceId, string property) returns string {
 # + groupString - Comma separated string of groups
 # + return - Array of groups, nil if the groups string is empty/nil
 function getArray(string groupString) returns string[] {
-    string[] groupsArr = [];
     if (groupString.length() == 0) {
-        return groupsArr;
+        return [];
     }
     return stringutils:split(groupString, ",");
 }

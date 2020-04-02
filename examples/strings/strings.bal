@@ -1,5 +1,5 @@
 import ballerina/io;
-import ballerina/lang.'string as strings;
+import ballerina/lang.'string;
 
 public function main() {
 
@@ -42,7 +42,7 @@ public function main() {
     byte[] bArray = hello.toBytes();
 
     // Convert a `byte` array to a `string`.
-    string|error s6 = strings:fromBytes(bArray);
+    string|error s6 = 'string:fromBytes(bArray);
     if (s6 is string) {
         io:println("From bytes: ", s6);
     }

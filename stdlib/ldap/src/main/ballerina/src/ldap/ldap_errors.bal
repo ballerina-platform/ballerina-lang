@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/auth;
+import ballerina/log;
+
 type Detail record {
     string message;
     error cause?;
@@ -24,3 +27,19 @@ public const LDAP_ERROR = "{ballerina/ldap}Error";
 
 # Represents the LDAP error type with details.
 public type Error error<LDAP_ERROR, Detail>;
+
+# Log and prepare `error` as a `auth:Error`.
+#
+# + message - Error message
+# + err - `error` instance
+# + return - Prepared `auth:Error` instance
+function prepareAuthError(string message, error? err = ()) returns auth:Error {
+    log:printError(message, err);
+    auth:Error authError;
+    if (err is error) {
+        authError = error(auth:AUTH_ERROR, message = message, cause = err);
+    } else {
+        authError = error(auth:AUTH_ERROR, message = message);
+    }
+    return authError;
+}

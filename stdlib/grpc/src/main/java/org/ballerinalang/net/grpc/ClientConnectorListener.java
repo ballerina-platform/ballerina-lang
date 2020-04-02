@@ -66,7 +66,8 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
 
         workerExecutor.execute(() -> {
             try {
-                HttpContent httpContent = inboundMessage.getHttpCarbonMessage().getHttpContent();
+                HttpCarbonMessage httpCarbonMessage = inboundMessage.getHttpCarbonMessage();
+                HttpContent httpContent = httpCarbonMessage.getHttpContent();
                 while (true) {
                     if (httpContent == null) {
                         break;
@@ -93,7 +94,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                                     .isFailure()) {
                                 transportError = Status.Code.ABORTED.toStatus().withDescription(lastHttpContent
                                         .decoderResult().cause().getMessage());
-                            } else if (lastHttpContent.trailingHeaders().isEmpty()) {
+                            } else if (httpCarbonMessage.getTrailerHeaders().isEmpty()) {
                                 // This is a protocol violation as we expect to receive trailer headers with Last Http
                                 // content.
                                 transportError = Status.Code.INTERNAL.toStatus().withDescription("Received unexpected" +
@@ -102,12 +103,12 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                                 stateListener.transportReportStatus(transportError, false, transportErrorMetadata);
                             } else {
                                 // Read Trailer header to get gRPC response status.
-                                transportTrailersReceived(lastHttpContent.trailingHeaders());
+                                transportTrailersReceived(httpCarbonMessage.getTrailerHeaders());
                             }
                             break;
                         }
                     }
-                    httpContent = inboundMessage.getHttpCarbonMessage().getHttpContent();
+                    httpContent = httpCarbonMessage.getHttpContent();
                 }
             } catch (RuntimeException e) {
                 if (transportError != null) {

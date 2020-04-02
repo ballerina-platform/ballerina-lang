@@ -24,8 +24,8 @@ import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BFuture;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BObject;
+import org.ballerinalang.jvm.values.api.BStream;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BTable;
 import org.ballerinalang.jvm.values.api.BTypedesc;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -243,13 +243,19 @@ class JMethodResolver {
                 case TypeTags.NIL:
                     return jTypeName.equals(J_VOID_TNAME);
                 case TypeTags.INT:
+                case TypeTags.SIGNED32_INT:
+                case TypeTags.SIGNED16_INT:
+                case TypeTags.SIGNED8_INT:
+                case TypeTags.UNSIGNED32_INT:
+                case TypeTags.UNSIGNED16_INT:
+                case TypeTags.UNSIGNED8_INT:
                 case TypeTags.BYTE:
                 case TypeTags.FLOAT:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
 
-                    if (bType.tag == TypeTags.INT && jTypeName.equals(J_LONG_OBJ_TNAME)) {
+                    if (TypeTags.isIntegerTypeTag(bType.tag) && jTypeName.equals(J_LONG_OBJ_TNAME)) {
                         return true;
                     }
 
@@ -273,6 +279,7 @@ class JMethodResolver {
                 case TypeTags.DECIMAL:
                     return this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STRING:
+                case TypeTags.CHAR_STRING:
                     return this.classLoader.loadClass(BString.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.MAP:
                 case TypeTags.RECORD:
@@ -283,9 +290,11 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.ERROR:
                     return this.classLoader.loadClass(BError.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TABLE:
-                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.XML:
+                case TypeTags.XML_ELEMENT:
+                case TypeTags.XML_PI:
+                case TypeTags.XML_COMMENT:
+                case TypeTags.XML_TEXT:
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
@@ -326,6 +335,8 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BFuture.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEDESC:
                     return this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.STREAM:
+                    return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }
@@ -350,6 +361,12 @@ class JMethodResolver {
                 case TypeTags.NIL:
                     return jTypeName.equals(J_VOID_TNAME);
                 case TypeTags.INT:
+                case TypeTags.SIGNED32_INT:
+                case TypeTags.SIGNED16_INT:
+                case TypeTags.SIGNED8_INT:
+                case TypeTags.UNSIGNED32_INT:
+                case TypeTags.UNSIGNED16_INT:
+                case TypeTags.UNSIGNED8_INT:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
@@ -392,6 +409,7 @@ class JMethodResolver {
                 case TypeTags.DECIMAL:
                     return this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STRING:
+                case TypeTags.CHAR_STRING:
                     return this.classLoader.loadClass(BString.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.MAP:
                 case TypeTags.RECORD:
@@ -412,9 +430,11 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.ERROR:
                     return this.classLoader.loadClass(BError.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TABLE:
-                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.XML:
+                case TypeTags.XML_ELEMENT:
+                case TypeTags.XML_PI:
+                case TypeTags.XML_COMMENT:
+                case TypeTags.XML_TEXT:
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
@@ -455,6 +475,8 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BFuture.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TYPEDESC:
                     return this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.STREAM:
+                    return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }
@@ -468,7 +490,7 @@ class JMethodResolver {
         return new BType[]{
                 this.symbolTable.nilType, this.symbolTable.stringType, this.symbolTable.intType,
                 this.symbolTable.floatType, this.symbolTable.booleanType, this.symbolTable.mapJsonType,
-                this.symbolTable.jsonArrayType};
+                this.symbolTable.arrayJsonType};
     }
 
     private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind,

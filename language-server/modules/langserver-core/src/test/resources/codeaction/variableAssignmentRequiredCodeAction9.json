@@ -1,0 +1,22 @@
+{
+    "line": 2,
+    "character": 4,
+    "expected": {
+        "title": "Create Local Variable",
+        "edits": [
+            {
+                "range": {
+                    "start": {
+                        "line": 2,
+                        "character": 4
+                    },
+                    "end": {
+                        "line": 2,
+                        "character": 4
+                    }
+                },
+                "newText": "string stringResult = "
+            }
+        ]
+    }
+}

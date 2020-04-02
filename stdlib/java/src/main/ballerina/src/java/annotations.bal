@@ -70,7 +70,7 @@ public type FieldData record {|
 # The following code snippet shows an example usage of this annotation. Here, the `newJavaLinkedList` Ballerina function's
 # implementation is provided by the default constructor of the `java.util.LinkedList` class.
 # ```ballerina
-# import ballerinax/java;
+# import ballerina/java;
 #
 # function newJavaLinkedList() returns handle = @java:Constructor {
 #      class: "java.util.LinkedList"
@@ -86,7 +86,7 @@ public const annotation ConstructorData Constructor on source external;
 # The following code snippet shows an example usage of this annotation. Here, the `getUUID` Ballerina function's
 # implementation is provided by the `java.util.UUID.randomUUID` static method.
 # ```ballerina
-# import ballerinax/java;
+# import ballerina/java;
 #
 # function getUUID() returns handle = @java:Method {
 #     name: "randomUUID",

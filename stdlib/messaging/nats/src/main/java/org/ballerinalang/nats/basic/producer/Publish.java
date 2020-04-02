@@ -27,7 +27,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
-import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsMetricsReporter;
 import org.ballerinalang.nats.observability.NatsObservabilityConstants;
 import org.ballerinalang.nats.observability.NatsTracingUtil;
 
@@ -46,9 +46,10 @@ public class Publish {
         if (TypeChecker.getType(connection).getTag() == TypeTags.OBJECT_TYPE_TAG) {
             ObjectValue connectionObject = (ObjectValue) connection;
             Connection natsConnection = (Connection) connectionObject.getNativeData(Constants.NATS_CONNECTION);
-            String url = connectionObject.getStringValue(Constants.URL);
+            NatsMetricsReporter natsMetricsReporter =
+                    (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
             if (natsConnection == null) {
-                NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
+                natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
                         ". NATS connection doesn't exist.");
             }
@@ -61,8 +62,8 @@ public class Publish {
                             getSubscriptionConfig(((ObjectValue) replyTo).getType().getAnnotation(
                                     Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
                     if (subscriptionConfig == null) {
-                        NatsMetricsUtil.reportProducerError(url, subject,
-                                                            NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
+                        natsMetricsReporter.reportProducerError(subject,
+                                                                NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
                         return Utils.createNatsError("Cannot find subscription configuration");
                     }
                     String replyToSubject = subscriptionConfig.getStringValue(Constants.SUBJECT);
@@ -70,14 +71,14 @@ public class Publish {
                 } else {
                     natsConnection.publish(subject, byteContent);
                 }
-                NatsMetricsUtil.reportPublish(natsConnection.getConnectedUrl(), subject, byteContent.length);
+                natsMetricsReporter.reportPublish(subject, byteContent.length);
             } catch (IllegalArgumentException | IllegalStateException ex) {
-                NatsMetricsUtil.reportProducerError(url, subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
+                natsMetricsReporter.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
                 return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
                         ". " + ex.getMessage());
             }
         } else {
-            NatsMetricsUtil.reportProducerError(NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
+            NatsMetricsReporter.reportProducerError(NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
             return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, Constants.PRODUCER_ERROR + subject +
                     ". Producer is logically disconnected.");
         }

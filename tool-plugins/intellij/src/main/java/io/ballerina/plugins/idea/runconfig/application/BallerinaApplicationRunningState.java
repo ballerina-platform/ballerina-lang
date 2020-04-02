@@ -28,12 +28,12 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
+import io.ballerina.plugins.idea.configuration.BallerinaProjectSettings;
+import io.ballerina.plugins.idea.preloading.BallerinaCmdException;
 import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import io.ballerina.plugins.idea.runconfig.BallerinaRunningState;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
-import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
-import io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureSettings;
 import io.ballerina.plugins.idea.util.BallerinaExecutor;
 import io.ballerina.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
@@ -138,16 +138,21 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             ballerinaExecutor.withParameters("--sourceroot").withParameters(projectRoot)
                     .withParameterString(myConfiguration.getBallerinaToolParams());
 
-            if (BallerinaExperimentalFeatureSettings.getInstance(project).isAllowedExperimental()) {
+            if (BallerinaProjectSettings.getStoredSettings(project).isAllowExperimental()) {
                 ballerinaExecutor.withParameters("--experimental");
             }
 
             // Tries to get the ballerina executable path using the SDK.
             String balSdkPath = BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module);
             // If any sdk is not found and user has chosen to auto detect ballerina home.
-            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaAutoDetectionSettings.getInstance(project).
-                    isAutoDetectionEnabled()) {
-                balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
+            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaProjectSettings.getStoredSettings(project).
+                    isAutodetect()) {
+                try {
+                    balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
+                } catch (BallerinaCmdException e) {
+                    throw new ExecutionException(String.format("cannot find ballerina SDK/auto-detected ballerina " +
+                            "home to run the file '%s'", file.getVirtualFile().getPath()));
+                }
             }
             ballerinaExecutor.withBallerinaPath(balSdkPath);
 
@@ -163,7 +168,7 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
                 ballerinaExecutor.withParameters("--debug", String.valueOf(myDebugPort));
             }
 
-            if (BallerinaExperimentalFeatureSettings.getInstance(project).isAllowedExperimental()) {
+            if (BallerinaProjectSettings.getStoredSettings(project).isAllowExperimental()) {
                 ballerinaExecutor.withParameters("--experimental");
             }
 
@@ -172,9 +177,14 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
             // Tries to get the ballerina executable path using the SDK.
             String balSdkPath = BallerinaSdkService.getInstance(getConfiguration().getProject()).getSdkHomePath(module);
             // If any sdk is not found and user has chosen to auto detect ballerina home.
-            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaAutoDetectionSettings.getInstance(project)
-                    .isAutoDetectionEnabled()) {
-                balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
+            if (Strings.isNullOrEmpty(balSdkPath) && BallerinaProjectSettings.getStoredSettings(project)
+                    .isAutodetect()) {
+                try {
+                    balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
+                } catch (BallerinaCmdException e) {
+                    throw new ExecutionException(String.format("cannot find ballerina SDK/auto-detected ballerina " +
+                            "home to run the file '%s'", file.getVirtualFile().getPath()));
+                }
             }
             ballerinaExecutor.withBallerinaPath(balSdkPath);
 

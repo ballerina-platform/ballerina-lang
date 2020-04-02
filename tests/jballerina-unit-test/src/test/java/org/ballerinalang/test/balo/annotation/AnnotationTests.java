@@ -18,6 +18,7 @@ package org.ballerinalang.test.balo.annotation;
 
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.balo.BaloCreator;
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -38,6 +39,20 @@ public class AnnotationTests {
         BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
         result = BCompileUtil.compile("test-src/balo/test_balo/annotations/annotation.bal");
+    }
+
+    @Test(description = "Test the deprecated construct from external module")
+    public void testDeprecation() {
+        CompileResult result = BCompileUtil.compile("test-src/balo/test_balo/annotations/deprecation_annotation.bal");
+        Assert.assertEquals(result.getWarnCount(), 5);
+
+        int i = 0;
+        BAssertUtil.validateWarning(result, i++, "usage of construct 'DummyObject1' is deprecated", 3, 23);
+        BAssertUtil.validateWarning(result, i++, "usage of construct 'Bar' is deprecated", 3, 45);
+        BAssertUtil.validateWarning(result, i++, "usage of construct 'C1' is deprecated", 3, 69);
+        BAssertUtil.validateWarning(result, i++, "usage of construct 'DummyObject2.doThatOnObject' is deprecated", 8
+                , 5);
+        BAssertUtil.validateWarning(result, i, "usage of construct 'deprecated_func' is deprecated", 9, 18);
     }
 
     @Test

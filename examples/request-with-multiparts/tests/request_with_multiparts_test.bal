@@ -2,7 +2,7 @@ import ballerina/mime;
 import ballerina/http;
 import ballerina/test;
 
-@test:Config
+@test:Config {}
 function testFunc() {
     http:Client httpEP = new("http://localhost:9090");
 

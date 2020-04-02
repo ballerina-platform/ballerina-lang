@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Type for XML options.
 #
@@ -31,23 +31,30 @@ public type XmlOptions record {
 # + options - XmlOptions record for XML to JSON conversion properties
 # + return - JSON representation of the given XML, or an error if the conversion fails
 public function fromXML(xml x, XmlOptions options = {}) returns json|error {
-    return externFromXML(x, options);
+    json|error|handle result = externFromXML(x, options);
+    if (result is handle) {
+        return java:toString(result);
+    } else {
+        return result;
+    }
 }
 
-function externFromXML(xml x, XmlOptions options = {}) returns json|error = @java:Method {
+function externFromXML(xml x, XmlOptions options = {}) returns json|error|handle = @java:Method {
     name: "fromXML",
     class: "org.ballerinalang.stdlib.jsonutils.FromXML"
 } external;
 
-# Converts a table to its json representation.
-#
-# + tbl - The source table
-# + return - JSON representation of source table
-public function fromTable(table<record{}> tbl) returns json {
-    return externFromTable(tbl);
-}
 
-function externFromTable(table<record{}> tbl) returns json = @java:Method {
-    name: "fromTable",
-    class: "org.ballerinalang.stdlib.jsonutils.FromTable"
-} external;
+//TODO Table remove - Fix
+//# Converts a table to its json representation.
+//#
+//# + tbl - The source table
+//# + return - JSON representation of source table
+//public function fromTable(table<record{}> tbl) returns json {
+//    return externFromTable(tbl);
+//}
+//
+//function externFromTable(table<record{}> tbl) returns json = @java:Method {
+//    name: "fromTable",
+//    class: "org.ballerinalang.stdlib.jsonutils.FromTable"
+//} external;
