@@ -79,6 +79,7 @@ public class LexerTerminals {
     public static final char CLOSE_BRACKET = ']';
     public static final char PIPE = '|';
     public static final char QUESTION_MARK = '?';
+    public static final char DOUBLE_QUOTE = '"';
 
     // Arithmetic operators
     public static final char EQUAL = '=';
@@ -89,6 +90,7 @@ public class LexerTerminals {
     public static final char PERCENT = '%';
     public static final char GT = '>';
     public static final char LT = '<';
+    public static final char BACKSLASH = '\\';
 
     // Other
     public static final char NEWLINE = '\n'; // equivalent to 0xA

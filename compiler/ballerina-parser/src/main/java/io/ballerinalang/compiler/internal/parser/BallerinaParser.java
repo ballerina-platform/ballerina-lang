@@ -170,6 +170,8 @@ public class BallerinaParser {
                 return parseImportPrefix();
             case IMPORT_MODULE_NAME:
             case IMPORT_ORG_OR_MODULE_NAME:
+            case VARIABLE_REF:
+            case FIELD_OR_FUNC_NAME:
                 return parseIdentifier(context);
             case IMPORT_KEYWORD:
                 return parseImportKeyword();
@@ -195,6 +197,19 @@ public class BallerinaParser {
                 return parseContinueKeyword();
             case BREAK_KEYWORD:
                 return parseBreakKeyword();
+            case RETURN_KEYWORD:
+                return parseReturnKeyword();
+            case MAPPING_FIELD:
+                return parseMappingField(parsedNodes[0]);
+            case SPECIFIC_FIELD_RHS:
+                return parseSpecificFieldRhs(parsedNodes[0], parsedNodes[1]);
+            case STRING_LITERAL:
+                return parseStringLiteral();
+            case COLON:
+                return parseColon();
+            case OPEN_BRACKET:
+                return parseOpenBracket();
+
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
 
@@ -369,7 +384,7 @@ public class BallerinaParser {
      * Parse import declaration.
      * <p>
      * <code>import-decl :=  import [org-name /] module-name [version sem-ver] [as import-prefix] ;</code>
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseImportDecl() {
@@ -387,7 +402,7 @@ public class BallerinaParser {
 
     /**
      * Parse import keyword.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseImportKeyword() {
@@ -402,7 +417,7 @@ public class BallerinaParser {
 
     /**
      * Parse identifier.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseIdentifier(ParserRuleContext currentCtx) {
@@ -418,7 +433,7 @@ public class BallerinaParser {
     /**
      * Parse RHS of the import declaration. This includes the components after the
      * starting identifier (org-name/module-name) of the import decl.
-     * 
+     *
      * @param importKeyword Import keyword
      * @param identifier Org-name or the module name
      * @return Parsed node
@@ -479,7 +494,7 @@ public class BallerinaParser {
 
     /**
      * parse slash token.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseSlashToken() {
@@ -494,7 +509,7 @@ public class BallerinaParser {
 
     /**
      * Parse dot token.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseDotToken() {
@@ -513,7 +528,7 @@ public class BallerinaParser {
 
     /**
      * Parse module name of a import declaration.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseModuleName() {
@@ -523,7 +538,7 @@ public class BallerinaParser {
 
     /**
      * Parse import module name of a import declaration, given the module name start identifier.
-     * 
+     *
      * @param moduleNameStart Starting identifier of the module name
      * @return Parsed node
      */
@@ -567,7 +582,7 @@ public class BallerinaParser {
      * Parse version component of a import declaration.
      * <p>
      * <code>version-decl := version sem-ver</code>
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseVersion() {
@@ -606,7 +621,7 @@ public class BallerinaParser {
 
     /**
      * Parse version keywrod.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseVersionKeywrod() {
@@ -630,7 +645,7 @@ public class BallerinaParser {
      * <br/>
      * patch-num := DecimalNumber
      * </code>
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseVersionNumber() {
@@ -689,7 +704,7 @@ public class BallerinaParser {
 
     /**
      * Parse decimal literal.
-     * 
+     *
      * @param context Context in which the decimal literal is used.
      * @return Parsed node
      */
@@ -705,7 +720,7 @@ public class BallerinaParser {
 
     /**
      * Parse sub version. i.e: minor-version/patch-version.
-     * 
+     *
      * @param context Context indicating what kind of sub-version is being parsed.
      * @return Parsed node
      */
@@ -745,7 +760,7 @@ public class BallerinaParser {
      * <br/>
      * import-prefix := a identifier | _
      * </code>
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseImportPrefixDecl() {
@@ -782,7 +797,7 @@ public class BallerinaParser {
 
     /**
      * Parse <code>as</code> keyword.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseAsKeyword() {
@@ -797,7 +812,7 @@ public class BallerinaParser {
 
     /**
      * Parse import prefix.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseImportPrefix() {
@@ -2145,6 +2160,8 @@ public class BallerinaParser {
                 return parseContinueStatement();
             case BREAK_KEYWORD:
                 return parseBreakStatement();
+            case RETURN_KEYWORD:
+                return parseReturnStatement();
             default:
                 // If the next token in the token stream does not match to any of the statements and
                 // if it is not the end of statement, then try to fix it and continue.
@@ -2393,6 +2410,7 @@ public class BallerinaParser {
         switch (kind) {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
+            case STRING_LITERAL:
                 return parseLiteral();
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_NAME);
@@ -2404,6 +2422,8 @@ public class BallerinaParser {
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
                 return parseCheckExpression();
+            case OPEN_BRACE_TOKEN:
+                return parseMappingConstructorExpr();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.EXPRESSION);
                 return solution.recoveredNode;
@@ -2496,11 +2516,8 @@ public class BallerinaParser {
                 newLhsExpr = parseMemberAccessExpr(lhsExpr);
                 break;
             case DOT_TOKEN:
-                if (peek(2).kind == SyntaxKind.IDENTIFIER_TOKEN) {
-                    newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr);
-                    break;
-                }
-                // else fall through
+                newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr);
+                break;
             default:
                 STNode operator = parseBinaryOperator();
 
@@ -2573,10 +2590,8 @@ public class BallerinaParser {
      * @return One of <code>field-access-expression</code> or <code>method-call-expression</code>.
      */
     private STNode parseFieldAccessOrMethodCall(STNode lhsExpr) {
-        // Next two tokens are already validated before coming here.
-        // Hence just consume.
-        STNode dotToken = consume();
-        STNode fieldOrMethodName = consume();
+        STNode dotToken = parseDotToken();
+        STNode fieldOrMethodName = parseIdentifier(ParserRuleContext.FIELD_OR_FUNC_NAME);
 
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
@@ -2783,6 +2798,7 @@ public class BallerinaParser {
             // Any other expression goes here
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
+            case STRING_LITERAL:
             case OPEN_PAREN_TOKEN:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
@@ -2819,6 +2835,7 @@ public class BallerinaParser {
             // expression-parsing will recover it.
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
+            case STRING_LITERAL:
             case IDENTIFIER_TOKEN:
             case OPEN_PAREN_TOKEN:
             case TRUE_KEYWORD:
@@ -3348,7 +3365,7 @@ public class BallerinaParser {
     /**
      * Parse panic statement.
      * <code>panic-stmt := panic expression ;</code>
-     * 
+     *
      * @return Panic statement
      */
     private STNode parsePanicStatement() {
@@ -3362,7 +3379,7 @@ public class BallerinaParser {
 
     /**
      * Parse panic-keyword.
-     * 
+     *
      * @return Panic-keyword node
      */
     private STNode parsePanicKeyword() {
@@ -3374,6 +3391,7 @@ public class BallerinaParser {
             return sol.recoveredNode;
         }
     }
+
     /**
      * Parse boolean literal.
      * 
@@ -3497,6 +3515,7 @@ public class BallerinaParser {
     }
 
     /**
+
      * Parse continue statement.
      * <code>continue-stmt := continue ; </code>
      *
@@ -3521,6 +3540,35 @@ public class BallerinaParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.CONTINUE_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+  
+    /**
+     * Parse return statement.
+     * <code>return-stmt := return [ action-or-expr ] ;</code>
+     *
+     * @return Return statement
+     */
+    private STNode parseReturnStatement() {
+        startContext(ParserRuleContext.RETURN_STMT);
+        STNode returnKeyword = parseReturnKeyword();
+        STNode returnRhs = parseReturnStatementRhs(returnKeyword);
+        endContext();
+        return returnRhs;
+    }
+
+    /**
+     * Parse return-keyword.
+     *
+     * @return Return-keyword node
+     */
+    private STNode parseReturnKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.RETURN_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.RETURN_KEYWORD);
             return sol.recoveredNode;
         }
     }
@@ -3550,6 +3598,266 @@ public class BallerinaParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.BREAK_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+    /**
+     * <p>
+     * Parse the right hand side of a return statement.
+     * </p>
+     * <code>
+     * return-stmt-rhs := ; |  action-or-expr ;
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseReturnStatementRhs(STNode returnKeyword) {
+        STToken token = peek();
+        return parseReturnStatementRhs(token.kind, returnKeyword);
+    }
+
+    /**
+     * Parse the right hand side of a return statement, given the
+     * next token kind.
+     *
+     * @param tokenKind Next token kind
+     * @return Parsed node
+     */
+    private STNode parseReturnStatementRhs(SyntaxKind tokenKind, STNode returnKeyword) {
+        STNode expr;
+        STNode semicolon;
+
+        switch (tokenKind) {
+            case SEMICOLON_TOKEN:
+                expr = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                expr = parseExpression();
+                break;
+        }
+
+        semicolon = parseSemicolon();
+        return STNodeFactory.createReturnStatement(SyntaxKind.RETURN_STATEMENT, returnKeyword, expr, semicolon);
+    }
+
+    /**
+     * Parse mapping constructor expression.
+     * <p>
+     * <code>mapping-constructor-expr := { [field (, field)*] }</code>
+     * 
+     * @return Parsed node
+     */
+    private STNode parseMappingConstructorExpr() {
+        startContext(ParserRuleContext.MAPPING_CONSTRUCTOR);
+        STNode openBrace = parseOpenBrace();
+        STNode fields = parseMapingConstructorFields();
+        STNode closeBrace = parseCloseBrace();
+        endContext();
+        return STNodeFactory.createMappingContructorExpr(openBrace, fields, closeBrace);
+    }
+
+    /**
+     * Parse mapping constructor fields.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseMapingConstructorFields() {
+        List<STNode> fields = new ArrayList<>();
+        STToken nextToken = peek();
+        if (isEndOfMappingConstructor(nextToken.kind)) {
+            return STNodeFactory.createNodeList(fields);
+        }
+
+        // Parse first field mapping, that has no leading comma
+        STNode leadingComma = STNodeFactory.createEmptyNode();
+        STNode field = parseMappingField(leadingComma);
+        fields.add(field);
+
+        // Parse the remaining field mappings
+        nextToken = peek();
+        while (!isEndOfMappingConstructor(nextToken.kind)) {
+            leadingComma = parseComma();
+            field = parseMappingField(leadingComma);
+            fields.add(field);
+            nextToken = peek();
+        }
+
+        return STNodeFactory.createNodeList(fields);
+    }
+
+    private boolean isEndOfMappingConstructor(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case CLOSE_BRACE_TOKEN:
+            case CLOSE_PAREN_TOKEN:
+            case CLOSE_BRACKET_TOKEN:
+            case OPEN_BRACE_TOKEN:
+            case SEMICOLON_TOKEN:
+            case PUBLIC_KEYWORD:
+            case FUNCTION_KEYWORD:
+            case EOF_TOKEN:
+            case RETURNS_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Parse mapping constructor field.
+     * <p>
+     * <code>field := specific-field | computed-name-field | spread-field</code>
+     * 
+     * @param leadingComma Leading comma
+     * @return Parsed node
+     */
+    private STNode parseMappingField(STNode leadingComma) {
+        STToken nextToken = peek();
+        return parseMappingField(nextToken.kind, leadingComma);
+    }
+
+    private STNode parseMappingField(SyntaxKind tokenKind, STNode leadingComma) {
+        switch (tokenKind) {
+            case IDENTIFIER_TOKEN:
+                return parseSpecificFieldWithOptionValue(leadingComma);
+            case STRING_LITERAL:
+                STNode key = parseStringLiteral();
+                STNode colon = parseColon();
+                STNode valueExpr = parseExpression();
+                return STNodeFactory.createSpecificField(leadingComma, key, colon, valueExpr);
+            case OPEN_BRACKET_TOKEN:
+                return parseComputedField(leadingComma);
+            case ELLIPSIS_TOKEN:
+                STNode ellipsis = parseEllipsis();
+                STNode expr = parseExpression();
+                return STNodeFactory.createSpreadField(leadingComma, ellipsis, expr);
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.MAPPING_FIELD, leadingComma);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseMappingField(solution.tokenKind, leadingComma);
+        }
+    }
+
+    /**
+     * Parse mapping constructor specific-field with an optional value.
+     * 
+     * @param leadingComma
+     * @return Parsed node
+     */
+    private STNode parseSpecificFieldWithOptionValue(STNode leadingComma) {
+        STNode key = parseIdentifier(ParserRuleContext.MAPPING_FIELD_NAME);
+        return parseSpecificFieldRhs(leadingComma, key);
+    }
+
+    private STNode parseSpecificFieldRhs(STNode leadingComma, STNode key) {
+        STToken nextToken = peek();
+        return parseSpecificFieldRhs(nextToken.kind, leadingComma, key);
+    }
+
+    private STNode parseSpecificFieldRhs(SyntaxKind tokenKind, STNode leadingComma, STNode key) {
+        STNode colon;
+        STNode valueExpr;
+
+        switch (tokenKind) {
+            case COLON_TOKEN:
+                colon = parseColon();
+                valueExpr = parseExpression();
+                break;
+            case COMMA_TOKEN:
+                colon = STNodeFactory.createEmptyNode();
+                valueExpr = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                if (isEndOfMappingConstructor(tokenKind)) {
+                    colon = STNodeFactory.createEmptyNode();
+                    valueExpr = STNodeFactory.createEmptyNode();
+                    break;
+                }
+
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.SPECIFIC_FIELD_RHS, leadingComma, key);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseSpecificFieldRhs(solution.tokenKind, leadingComma, key);
+
+        }
+        return STNodeFactory.createSpecificField(leadingComma, key, colon, valueExpr);
+    }
+
+    /**
+     * Parse string literal.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseStringLiteral() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.STRING_LITERAL) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.STRING_LITERAL);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse colon token.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseColon() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.COLON_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.COLON);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse computed-name-field of a mapping constructor expression.
+     * <p>
+     * <code>computed-name-field := [ field-name-expr ] : value-expr</code>
+     * 
+     * @param leadingComma Leading comma
+     * @return Parsed node
+     */
+    private STNode parseComputedField(STNode leadingComma) {
+        startContext(ParserRuleContext.COMPUTED_FIELD_NAME);
+        STNode openBracket = parseOpenBracket();
+        STNode fieldNameExpr = parseExpression();
+        STNode closeBracket = parseCloseBracket();
+        STNode colon = parseColon();
+        STNode valueExpr = parseExpression();
+        endContext();
+        return STNodeFactory.createComputedNameField(leadingComma, openBracket, fieldNameExpr, closeBracket, colon,
+                valueExpr);
+    }
+
+    /**
+     * Parse open bracket.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseOpenBracket() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.OPEN_BRACKET);
             return sol.recoveredNode;
         }
     }

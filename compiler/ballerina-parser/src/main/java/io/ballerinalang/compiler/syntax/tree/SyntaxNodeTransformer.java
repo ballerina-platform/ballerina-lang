@@ -78,6 +78,9 @@ public abstract class SyntaxNodeTransformer<T> {
     public T transform(BreakStatement breakStatement) {
         return transformSyntaxNode(breakStatement);
     }
+    public T transform(ReturnStatement returnStatement) {
+        return transformSyntaxNode(returnStatement);
+    }
 
     // Expressions
 
@@ -176,6 +179,22 @@ public abstract class SyntaxNodeTransformer<T> {
 
     public T transform(ImportOrgName importOrgName) {
         return transformSyntaxNode(importOrgName);
+    }
+
+    public T transform(ComputedNameField computedNameField) {
+        return transformSyntaxNode(computedNameField);
+    }
+
+    public T transform(MappingConstructorExpression mappingConstructorExpr) {
+        return transformSyntaxNode(mappingConstructorExpr);
+    }
+
+    public T transform(SpecificField specificField) {
+        return transformSyntaxNode(specificField);
+    }
+
+    public T transform(SpreadField spreadField) {
+        return transformSyntaxNode(spreadField);
     }
 
     /**

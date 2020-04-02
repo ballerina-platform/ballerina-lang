@@ -248,7 +248,11 @@ public class ParserTestUtils {
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
                 return ((STIdentifier) token).text;
-            case STRING_LITERAL_TOKEN:
+            case STRING_LITERAL:
+                String val = ((STLiteralValueToken) token).text;
+                int stringLen = val.length();
+                int lastCharPosition = val.endsWith("\"") ? stringLen - 1 : stringLen;
+                return val.substring(1, lastCharPosition);
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
                 return ((STLiteralValueToken) token).text;
@@ -325,6 +329,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CONTINUE_KEYWORD;
             case "BREAK_KEYWORD":
                 return SyntaxKind.BREAK_KEYWORD;
+            case "RETURN_KEYWORD":
+                return SyntaxKind.RETURN_KEYWORD;
             // Operators
             case "PLUS_TOKEN":
                 return SyntaxKind.PLUS_TOKEN;
@@ -388,8 +394,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BRACED_EXPRESSION;
             case "BINARY_EXPRESSION":
                 return SyntaxKind.BINARY_EXPRESSION;
-            case "STRING_LITERAL_TOKEN":
-                return SyntaxKind.STRING_LITERAL_TOKEN;
+            case "STRING_LITERAL":
+                return SyntaxKind.STRING_LITERAL;
             case "DECIMAL_INTEGER_LITERAL":
                 return SyntaxKind.DECIMAL_INTEGER_LITERAL;
             case "HEX_INTEGER_LITERAL":
@@ -416,6 +422,8 @@ public class ParserTestUtils {
                 return SyntaxKind.MEMBER_ACCESS;
             case "CHECK_EXPRESSION":
                 return SyntaxKind.CHECK_EXPRESSION;
+            case "MAPPING_CONSTRUCTOR":
+                return SyntaxKind.MAPPING_CONSTRUCTOR;
 
             // Statements
             case "BLOCK_STATEMENT":
@@ -438,6 +446,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CONTINUE_STATEMENT;
             case "BREAK_STATEMENT":
                 return SyntaxKind.BREAK_STATEMENT;
+            case "RETURN_STATEMENT":
+                return SyntaxKind.RETURN_STATEMENT;
 
             // Others
             case "SIMPLE_TYPE":
@@ -476,6 +486,12 @@ public class ParserTestUtils {
                 return SyntaxKind.IMPORT_SUB_VERSION;
             case "IMPORT_PREFIX":
                 return SyntaxKind.IMPORT_PREFIX;
+            case "SPECIFIC_FIELD":
+                return SyntaxKind.SPECIFIC_FIELD;
+            case "COMPUTED_NAME_FIELD":
+                return SyntaxKind.COMPUTED_NAME_FIELD;
+            case "SPREAD_FIELD":
+                return SyntaxKind.SPREAD_FIELD;
 
             // Trivia
             case "EOF_TOKEN":
