@@ -83,3 +83,10 @@ function testExecInUnixLike4() returns string|error {
     var result = check toString(x3out);
     return result;
 }
+
+function testExecWithError() returns string|error {
+    system:Process x1 = check system:exec("eee", {}, (), "BAL_EXEC_TEST_VAR");
+    var x3out = x1.stdout();
+    var result = check toString(x3out);
+    return result;
+}
