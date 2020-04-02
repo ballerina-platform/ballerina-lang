@@ -3497,10 +3497,10 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse Continue statement.
+     * Parse continue statement.
      * <code>continue-stmt := continue ; </code>
      *
-     * @return Continue statement
+     * @return continue statement
      */
     private STNode parseContinueStatement() {
         startContext(ParserRuleContext.CONTINUE_STATEMENT);
@@ -3511,9 +3511,9 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse Continue-keyword.
+     * Parse continue-keyword.
      *
-     * @return Continue-keyword node
+     * @return continue-keyword node
      */
     private STNode parseContinueKeyword() {
         STToken token = peek();
@@ -3526,10 +3526,10 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse Break statement.
+     * Parse break statement.
      * <code>break-stmt := break ; </code>
      *
-     * @return Break statement
+     * @return break statement
      */
     private STNode parseBreakStatement() {
         startContext(ParserRuleContext.BREAK_STATEMENT);
@@ -3540,9 +3540,9 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse Continue-keyword.
+     * Parse break-keyword.
      *
-     * @return Continue-keyword node
+     * @return break-keyword node
      */
     private STNode parseBreakKeyword() {
         STToken token = peek();

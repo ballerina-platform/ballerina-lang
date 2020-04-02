@@ -50,9 +50,9 @@ public enum SyntaxKind {
     WHILE_KEYWORD(207, "while"),
     CHECK_KEYWORD(208, "check"),
     CHECKPANIC_KEYWORD(209, "checkpanic"),
+    PANIC_KEYWORD(210, "panic"),
     CONTINUE_KEYWORD(212,"continue"),
     BREAK_KEYWORD(213,"break"),
-    PANIC_KEYWORD(210, "panic"),
 
 
     // Separators

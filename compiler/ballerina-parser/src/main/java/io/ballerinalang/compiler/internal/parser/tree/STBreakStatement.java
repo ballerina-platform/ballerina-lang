@@ -25,9 +25,7 @@ public class STBreakStatement extends STStatement{
     public final STNode breakKeyword;
     public final STNode semicolonToken;
 
-
-    STBreakStatement(STNode breakKeyword,
-                        STNode semicolonToken) {
+    STBreakStatement(STNode breakKeyword, STNode semicolonToken) {
         super(SyntaxKind.BREAK_STATEMENT);
         this.breakKeyword = breakKeyword;
         this.semicolonToken = semicolonToken;
@@ -42,7 +40,6 @@ public class STBreakStatement extends STStatement{
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-
         return new BreakStatement(this,position,parent);
     }
 }

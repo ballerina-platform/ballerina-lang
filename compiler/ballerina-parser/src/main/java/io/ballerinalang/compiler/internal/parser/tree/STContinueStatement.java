@@ -26,9 +26,7 @@ public class STContinueStatement extends STStatement {
     public final STNode continueKeyword;
     public final STNode semicolonToken;
 
-
-    STContinueStatement(STNode continueKeyword,
-                     STNode semicolonToken) {
+    STContinueStatement(STNode continueKeyword, STNode semicolonToken) {
         super(SyntaxKind.CONTINUE_STATEMENT);
         this.continueKeyword = continueKeyword;
         this.semicolonToken = semicolonToken;
@@ -43,7 +41,6 @@ public class STContinueStatement extends STStatement {
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-
         return new ContinueStatement(this,position,parent);
     }
 
