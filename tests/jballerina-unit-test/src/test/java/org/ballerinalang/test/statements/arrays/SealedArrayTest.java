@@ -251,7 +251,7 @@ public class SealedArrayTest {
 
     @Test()
     public void testSemanticsNegativeSealedArrays() {
-        Assert.assertEquals(semanticsNegative.getErrorCount(), 22);
+        Assert.assertEquals(semanticsNegative.getErrorCount(), 23);
         int i = 0;
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 19, 30);
         BAssertUtil.validateError(semanticsNegative, i++, "list index out of range: index: '5'", 25, 33);
