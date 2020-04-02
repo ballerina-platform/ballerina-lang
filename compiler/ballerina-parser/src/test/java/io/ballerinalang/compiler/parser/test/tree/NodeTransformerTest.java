@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.parser.test.visitors;
+package io.ballerinalang.compiler.parser.test.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  *
  * @since 1.3.0
  */
-public class NodeTransformerTest extends AbstractVisitorTest {
+public class NodeTransformerTest extends AbstractSyntaxTreeAPITest {
 
     @Test(description = "This test case proves that SyntaxNodeTransformer traverses through " +
             "the whole tree from the given node.")

@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.parser.test.visitors;
+package io.ballerinalang.compiler.parser.test.tree;
 
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
@@ -28,10 +28,10 @@ import java.nio.file.Paths;
  *
  * @since 1.3.0
  */
-public abstract class AbstractVisitorTest {
+public abstract class AbstractSyntaxTreeAPITest {
 
     public static SyntaxTree parseFile(String sourceFilePath) {
-        Path sourcePath = Paths.get("visitors", sourceFilePath);
+        Path sourcePath = Paths.get("tree", sourceFilePath);
         return ParserTestUtils.parseFile(sourcePath);
     }
 }
