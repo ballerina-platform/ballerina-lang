@@ -130,6 +130,31 @@ type NoFillerObject object {
     }
 };
 
+const MyFloatConst = 1.0;
+const MyIntZeroConst = 0;
+
+type unionWithIntFloatConsts MyIntZeroConst | MyFloatConst ;
+
+function createUnionWithIntFloatConstTypesSealedArray() {
+    unionWithIntFloatConsts[2] unionArr = [];
+}
+
+const INT_ONE = 1;
+const INT_TWO = 2;
+type INT_ONE_TWO INT_ONE | INT_TWO;
+function createUnionWithIntOneIntTwoConstTypesSealedArray() {
+    INT_ONE_TWO[2] unionArr = [];
+}
+
+const FOO = "foo";
+const BAR = "bar";
+
+type FooBar FOO|BAR;
+
+public function unionOfMapsWithoutProperInherantTypeForEmptyMapping() {
+    (map<FooBar>|map<string>)[2] x = [];
+}
+
 // same type unions
 type LiteralConstAndIntType int|CONST_TWO; // We currently allow this
 
