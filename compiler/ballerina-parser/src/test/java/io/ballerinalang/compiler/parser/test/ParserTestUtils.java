@@ -347,8 +347,6 @@ public class ParserTestUtils {
                 return SyntaxKind.TRIPPLE_EQUAL_TOKEN;
             case "PERCENT_TOKEN":
                 return SyntaxKind.PERCENT_TOKEN;
-            case "EQUAL_LT_TOKEN":
-                return SyntaxKind.LT_EQUAL_TOKEN;
             case "GT_TOKEN":
                 return SyntaxKind.GT_TOKEN;
             case "EQUAL_GT_TOKEN":
