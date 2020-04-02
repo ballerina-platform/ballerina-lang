@@ -20,9 +20,9 @@ package org.ballerinalang.net.http.nativeimpl;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.TupleValueImpl;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.mime.util.HeaderUtil;
-import org.ballerinalang.net.http.HttpErrorType;
 import org.ballerinalang.net.http.HttpUtil;
 
 import java.util.Arrays;
@@ -31,6 +31,7 @@ import static org.ballerinalang.mime.util.MimeConstants.COMMA;
 import static org.ballerinalang.mime.util.MimeConstants.PARSER_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.READING_HEADER_FAILED;
 import static org.ballerinalang.mime.util.MimeConstants.SEMICOLON;
+import static org.ballerinalang.net.http.HttpErrorType.GENERIC_CLIENT_ERROR;
 
 /**
  * Extern function to parse header value and get value with parameter map.
@@ -43,36 +44,27 @@ public class ParseHeader {
             Arrays.asList(BTypes.typeString, BTypes.typeMap));
 
     public static Object parseHeader(String headerValue) {
-        String errMsg;
-        if (headerValue != null) {
-            try {
-
-                if (headerValue.contains(COMMA)) {
-                    headerValue = headerValue.substring(0, headerValue.indexOf(COMMA));
-                }
-
-                // Set value and param map
-                String value = headerValue.trim();
-                if (headerValue.contains(SEMICOLON)) {
-                    value = HeaderUtil.getHeaderValue(value);
-                }
-                TupleValueImpl contentTuple = new TupleValueImpl(parseHeaderTupleType);
-                contentTuple.add(0, (Object) value);
-                contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
-                return contentTuple;
-
-            } catch (Exception ex) {
-                if (ex instanceof ErrorValue) {
-                    errMsg = PARSER_ERROR + ex.toString();
-                } else {
-                    errMsg = PARSER_ERROR + ex.getMessage();
-                }
-            }
-        } else {
-            errMsg = PARSER_ERROR + "header value cannot be null";
+        if (headerValue == null) {
+            return HttpUtil.createHttpError(GENERIC_CLIENT_ERROR.getReason(), GENERIC_CLIENT_ERROR.getErrorName(),
+                                            READING_HEADER_FAILED, PARSER_ERROR + "header value cannot be null");
         }
-        return HttpUtil.createHttpError(HttpErrorType.GENERIC_CLIENT_ERROR.getReason(),
-                                        HttpErrorType.GENERIC_CLIENT_ERROR.getErrorName(), READING_HEADER_FAILED,
-                                        errMsg);
+        try {
+            if (headerValue.contains(COMMA)) {
+                headerValue = headerValue.substring(0, headerValue.indexOf(COMMA));
+            }
+            // Set value and param map
+            String value = headerValue.trim();
+            if (headerValue.contains(SEMICOLON)) {
+                value = HeaderUtil.getHeaderValue(value);
+            }
+            BArray contentTuple = BValueCreator.createTupleValue(parseHeaderTupleType);
+            contentTuple.add(0, (Object) value);
+            contentTuple.add(1, HeaderUtil.getParamMap(headerValue));
+            return contentTuple;
+        } catch (Exception ex) {
+            String errMsg = ex instanceof ErrorValue ? PARSER_ERROR + ex.toString() : PARSER_ERROR + ex.getMessage();
+            return HttpUtil.createHttpError(GENERIC_CLIENT_ERROR.getReason(), GENERIC_CLIENT_ERROR.getErrorName(),
+                                            READING_HEADER_FAILED, errMsg);
+        }
     }
 }

@@ -44,6 +44,9 @@ import static org.ballerinalang.mime.util.MimeConstants.LEADING_HEADER;
  * @since 1.1.0
  */
 public class EntityHeaders {
+
+    private static final BArrayType bArrayType = new BArrayType(BTypes.typeHandle);
+
     public static void addHeader(ObjectValue entityObj, String headerName, String headerValue, Object position) {
         if (headerName == null || headerValue == null) {
             return;
@@ -67,17 +70,16 @@ public class EntityHeaders {
         HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
         HandleValue[] handleValues = new HandleValue[0];
         if (httpHeaders == null || httpHeaders.isEmpty()) {
-            return (ArrayValue) BValueCreator.createArrayValue(handleValues, new BArrayType(BTypes.typeHandle));
+            return (ArrayValue) BValueCreator.createArrayValue(handleValues, bArrayType);
         }
         int i = 0;
         Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
         distinctNames.addAll(httpHeaders.names());
         handleValues = new HandleValue[distinctNames.size()];
         for (String headerName : distinctNames) {
-            handleValues[i] = new HandleValue(headerName);
-            i++;
+            handleValues[i++] = new HandleValue(headerName);
         }
-        return (ArrayValue) BValueCreator.createArrayValue(handleValues, new BArrayType(BTypes.typeHandle));
+        return (ArrayValue) BValueCreator.createArrayValue(handleValues, bArrayType);
     }
 
     public static ArrayValue getHeaders(ObjectValue entityObj, String headerName, Object position) {
@@ -95,7 +97,7 @@ public class EntityHeaders {
             handleValues[i] = new HandleValue(headerValue);
             i++;
         }
-        return (ArrayValue) BValueCreator.createArrayValue(handleValues, new BArrayType(BTypes.typeHandle));
+        return (ArrayValue) BValueCreator.createArrayValue(handleValues, bArrayType);
     }
 
     public static boolean hasHeader(ObjectValue entityObj, String headerName, Object position) {

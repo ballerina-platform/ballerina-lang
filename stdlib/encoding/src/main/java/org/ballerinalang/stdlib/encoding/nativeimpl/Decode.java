@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.encoding.nativeimpl;
 
-import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.stdlib.encoding.EncodingUtil;
 
 import java.io.UnsupportedEncodingException;
@@ -35,7 +35,7 @@ public class Decode {
     public static Object decodeBase64Url(String input) {
         try {
             byte[] output = Base64.getUrlDecoder().decode(input);
-            return new ArrayValueImpl(output);
+            return BValueCreator.createArrayValue(output);
         } catch (IllegalArgumentException e) {
             return EncodingUtil.createError("Input is not a valid Base64 URL encoded value");
         }

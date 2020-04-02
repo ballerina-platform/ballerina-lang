@@ -53,9 +53,6 @@ public class WebSocketResourceCallback implements CallableUnitCallback {
         //Observe error
         WebSocketObservabilityUtil.observeError(connectionInfo,
                                                 WebSocketObservabilityConstants.ERROR_TYPE_RESOURCE_INVOCATION,
-                                                resource,
-                                                error.getMessage());
-
+                                                resource, error.getMessage());
     }
-
 }
