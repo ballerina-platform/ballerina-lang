@@ -21,6 +21,9 @@ configurations {
     dist {
         transitive false
     }
+    reportTools {
+        transitive false
+    }
 }
 
 dependencies {
@@ -34,6 +37,8 @@ dependencies {
     dist 'org.ow2.asm:asm-commons:7.2'
     dist 'org.ow2.asm:asm-tree:7.2'
 
+    reportTools project(path: ':testerina:report-tools', configuration: 'reportTpl')
+
     compile group: 'org.jacoco', name: 'org.jacoco.core', version: '0.8.5'
     compile group: 'org.jacoco', name: 'org.jacoco.report', version: '0.8.5'
     compile group: 'org.ow2.asm', name: 'asm', version: '7.2'
@@ -41,8 +46,12 @@ dependencies {
     compile group: 'org.ow2.asm', name: 'asm-tree', version: '7.2'
 
     jar {
+        dependsOn ':testerina:report-tools:build'
         from {
             configurations.dist.collect { it.isDirectory() ? it : zipTree(it) }
+        }
+        from {
+            configurations.reportTools.collect {it}
         }
     }
 }
