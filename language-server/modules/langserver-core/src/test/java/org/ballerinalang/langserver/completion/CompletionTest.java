@@ -77,7 +77,7 @@ public abstract class CompletionTest {
         boolean result = CompletionTestUtil.isSubList(expectedList, responseItemList);
         if (!result) {
             // Fix test cases replacing expected using responses
-//            JsonObject obj = new JsonObject();
+            JsonObject obj = new JsonObject();
 //            obj.add("position", configJsonObject.get("position"));
 //            obj.add("source", configJsonObject.get("source"));
 //            obj.add("items", resultList);
