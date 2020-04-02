@@ -26,6 +26,7 @@ import com.intellij.openapi.util.Pair;
 import io.ballerina.plugins.idea.extensions.BallerinaLSPExtensionManager;
 import io.ballerina.plugins.idea.notifiers.BallerinaAutoDetectNotifier;
 import io.ballerina.plugins.idea.sdk.BallerinaSdk;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import io.ballerina.plugins.idea.settings.experimental.BallerinaExperimentalFeatureSettings;
@@ -54,10 +55,6 @@ import static io.ballerina.plugins.idea.BallerinaConstants.LAUNCHER_SCRIPT_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_EXPERIMENTAL;
 import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_LS_DEBUG;
 import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_LS_TRACE;
-import static io.ballerina.plugins.idea.sdk.BallerinaSdkService.getBallerinaExecutablePath;
-import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.execBalHomeCmd;
-import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.getMajorVersion;
-import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.getMinorVersion;
 
 /**
  * Language server protocol related utils.
@@ -170,7 +167,8 @@ public class LSPUtils {
      * @param project Project instance.
      * @return SDK location path string and a flag which indicates whether the location is auto detected.
      */
-    public static Pair<String, Boolean> getOrDetectBalSdkHome(Project project, boolean verboseMode) throws BallerinaCmdException {
+    public static Pair<String, Boolean> getOrDetectBalSdkHome(Project project, boolean verboseMode)
+            throws BallerinaCmdException {
 
         //If the project does not have a ballerina SDK attached, ballerinaSdkPath will be null.
         BallerinaSdk balSdk = BallerinaSdkUtils.getBallerinaSdkFor(project);
@@ -289,10 +287,10 @@ public class LSPUtils {
         try {
             // If the user has configured an SDK.
             if (!autoDetected) {
-                String balExecPath = getBallerinaExecutablePath(balSdkPath);
+                String balExecPath = BallerinaSdkService.getBallerinaExecutablePath(balSdkPath);
                 String homeCmd = OSUtils.isWindows() ? String.format("\"%s\" %s", balExecPath, BALLERINA_HOME_CMD) :
                         String.format("%s %s", balExecPath, BALLERINA_HOME_CMD);
-                String ballerinaPath = execBalHomeCmd(homeCmd);
+                String ballerinaPath = BallerinaSdkUtils.execBalHomeCmd(homeCmd);
                 if (!ballerinaPath.isEmpty()) {
                     cmdArgs.add(balExecPath);
                     cmdArgs.add(BALLERINA_LS_CMD);
@@ -300,7 +298,8 @@ public class LSPUtils {
                 }
             } else {
                 // Checks if the ballerina command works.
-                String ballerinaPath = execBalHomeCmd(String.format("%s %s", BALLERINA_CMD, BALLERINA_HOME_CMD));
+                String ballerinaPath = BallerinaSdkUtils.execBalHomeCmd(String.format("%s %s", BALLERINA_CMD,
+                        BALLERINA_HOME_CMD));
                 if (!ballerinaPath.isEmpty()) {
                     cmdArgs.add(BALLERINA_CMD);
                     cmdArgs.add(BALLERINA_LS_CMD);
@@ -328,16 +327,16 @@ public class LSPUtils {
     }
 
     private static boolean hasLangServerCmdSupport(String balVersion) {
-        int majorV = Integer.parseInt(getMajorVersion(balVersion));
-        int minorV = Integer.parseInt(getMinorVersion(balVersion));
+        int majorV = Integer.parseInt(BallerinaSdkUtils.getMajorVersion(balVersion));
+        int minorV = Integer.parseInt(BallerinaSdkUtils.getMinorVersion(balVersion));
 
         // returns true if the ballerina version >= 1.2.0.
         return majorV == 1 && minorV >= 2;
     }
 
     public static boolean hasDidChangeConfigSupport(String balVersion) {
-        int majorV = Integer.parseInt(getMajorVersion(balVersion));
-        int minorV = Integer.parseInt(getMinorVersion(balVersion));
+        int majorV = Integer.parseInt(BallerinaSdkUtils.getMajorVersion(balVersion));
+        int minorV = Integer.parseInt(BallerinaSdkUtils.getMinorVersion(balVersion));
 
         // returns true if the ballerina version >= 1.2.0.
         return majorV == 1 && minorV >= 2;
