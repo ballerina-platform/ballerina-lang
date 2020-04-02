@@ -109,10 +109,10 @@ function createObjectWithErrorTypeReturningInitializerSealedArray() {
     ObjError [2] y = [];
 }
 
-const MyConst = "HELLO";
-const MyIntConst = 2;
+const CONST_HELLO = "HELLO";
+const CONST_TWO = 2;
 
-type unionWithConst MyConst | MyIntConst ;
+type unionWithConst CONST_HELLO | CONST_TWO ;
 
 function createUnionWithConstTypesSealedArray() {
     unionWithConst[2] unionArr = [];
@@ -130,27 +130,9 @@ type NoFillerObject object {
     }
 };
 
-const MyFloatConst = 1.0;
-const MyIntZeroConst = 0;
+// same type unions
+type LiteralConstAndIntType int|CONST_TWO; // We currently allow this
 
-type unionWithIntFloatConsts MyIntZeroConst | MyFloatConst ;
-
-function createUnionWithIntFloatConstTypesSealedArray() {
-    unionWithIntFloatConsts[2] unionArr = [];
-}
-
-const FINITE_1 = 1;
-type FiniteOneAndTwo FINITE_1 | 2;
-
-function createUnionWithConstTypesWithoutDefaultValueSealedArray() {
-    FiniteOneAndTwo[2] unionArr = [];
-}
-
-const FOO = "foo";
-const BAR = "bar";
-
-type FooBar FOO|BAR;
-
-function createUnionOfMapValuesWithoutProperInherantEmptyMapping() {
-    (map<FooBar>|map<string>)[2] x = [];
+function testLiteralConstAndIntType() {
+    LiteralConstAndIntType[2] x = [];
 }
