@@ -65,6 +65,6 @@ function testPushOnFixedLengthTupleUnion() {
 
 // run time panic no compile time error
 function testPushOnFixedLengthAndDynamicTupleUnion() {
-    [int, int][1] | [float, float][] fixedLengthArray = <[float, float][1]> [[1, 2]];
+    [int, int][1]|[float, float][] fixedLengthArray = <[float, float][1]> [[1, 2]];
     fixedLengthArray.push(<[float, float]>[1, 2]);
 }
