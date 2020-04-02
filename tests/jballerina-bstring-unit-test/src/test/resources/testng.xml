@@ -37,17 +37,20 @@
             </run>
         </groups>
         <packages>
-            <package name="org.ballerinalang.test.types.any.*"/>
-            <package name="org.ballerinalang.test.types.anydata.*"/>
-            <package name="org.ballerinalang.test.types.bytetype.*"/>
-            <package name="org.ballerinalang.test.types.constant.*"/>
-            <package name="org.ballerinalang.test.types.errors.*"/>
+            <package name="org.ballerinalang.test.types.any.*" />
+            <package name="org.ballerinalang.test.types.anydata.*" />
+            <package name="org.ballerinalang.test.types.bytetype.*" />
+            <package name="org.ballerinalang.test.types.constant.*" />
+            <package name="org.ballerinalang.test.types.decimaltype.*" />
+            <package name="org.ballerinalang.test.types.errors.*" />
             <package name="org.ballerinalang.test.types.finaltypes.*" />
             <package name="org.ballerinalang.test.types.finite.*" />
             <package name="org.ballerinalang.test.types.floattype.*" />
-            <package name="org.ballerinalang.test.types.decimaltype.*" />
-            <package name="org.ballerinalang.test.types.string.*"/>
-            <package name="org.ballerinalang.test.types.xml.*"/>
+            <package name="org.ballerinalang.test.types.handle.*" />
+            <package name="org.ballerinalang.test.types.integer.*" />
+            <package name="org.ballerinalang.test.types.json.*" />
+            <package name="org.ballerinalang.test.types.string.*" />
+            <package name="org.ballerinalang.test.types.xml.*" />
         </packages>
 
     </test>

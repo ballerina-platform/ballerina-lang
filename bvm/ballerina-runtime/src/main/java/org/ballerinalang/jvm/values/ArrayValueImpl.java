@@ -223,6 +223,9 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 return floatValues[(int) index];
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
+                if (useBString) {
+                    return bStringValues[(int) index];
+                }
                 return stringValues[(int) index];
             default:
                 return refValues[(int) index];
@@ -391,6 +394,11 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 return;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
+                if (useBString) {
+                    prepareForAdd(index, value, type, bStringValues.length);
+                    this.bStringValues[(int) index] = (BString) value;
+                    return;
+                }
                 prepareForAdd(index, value, type, stringValues.length);
                 this.stringValues[(int) index] = (String) value;
                 return;

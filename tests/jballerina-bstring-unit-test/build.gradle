@@ -31,6 +31,7 @@ dependencies {
     implementation project(':ballerina-lang')
 
     testCompile project(':ballerina-http')
+    testCompile project(':ballerina-io')
     testCompile project(':ballerina-java')
     testCompile project(':ballerina-lang:annotations')
     testCompile project(':ballerina-lang:array')
@@ -45,6 +46,7 @@ dependencies {
     testCompile project(':ballerina-system')
 
     implementation 'com.h2database:h2'
+    testCompile 'org.mockito:mockito-all'
     implementation 'org.testng:testng'
     testCompile 'org.testng:testng'
     testCompile 'org.wso2.transport.http:org.wso2.transport.http.netty'
@@ -54,6 +56,7 @@ dependencies {
 
     birJar project(path: ':ballerina-http', configuration: 'bStringBirJar')
     birJar project(path: ':ballerina-java', configuration: 'bStringBirJar')
+    birJar project(path: ':ballerina-io', configuration: 'bStringBirJar')
     birJar project(path: ':ballerina-lang:annotations', configuration: 'bStringBirJar')
     birJar project(path: ':ballerina-lang:array', configuration: 'bStringBirJar')
     birJar project(path: ':ballerina-lang:decimal', configuration: 'bStringBirJar')
@@ -73,10 +76,10 @@ dependencies {
     baloImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
 
     balHome project(path: ':ballerina-http', configuration: 'baloImplementation')
     balHome project(path: ':ballerina-java', configuration: 'baloImplementation')
+    balHome project(path: ':ballerina-io', configuration: 'baloImplementation')
     balHome project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     balHome project(path: ':ballerina-lang:array', configuration: 'baloImplementation')
     balHome project(path: ':ballerina-lang:decimal', configuration: 'baloImplementation')
