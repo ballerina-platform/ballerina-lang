@@ -347,14 +347,22 @@ public class ParserTestUtils {
                 return SyntaxKind.TRIPPLE_EQUAL_TOKEN;
             case "PERCENT_TOKEN":
                 return SyntaxKind.PERCENT_TOKEN;
-            case "EQUAL_LT_TOKEN":
-                return SyntaxKind.EQUAL_LT_TOKEN;
             case "GT_TOKEN":
                 return SyntaxKind.GT_TOKEN;
             case "EQUAL_GT_TOKEN":
                 return SyntaxKind.EQUAL_GT_TOKEN;
             case "QUESTION_MARK_TOKEN":
                 return SyntaxKind.QUESTION_MARK_TOKEN;
+            case "LT_EQUAL_TOKEN":
+                return SyntaxKind.LT_EQUAL_TOKEN;
+            case "GT_EQUAL_TOKEN":
+                return SyntaxKind.GT_EQUAL_TOKEN;
+            case "EXCLAMATION_MARK_TOKEN":
+                return SyntaxKind.EXCLAMATION_MARK_TOKEN;
+            case "NOT_EQUAL_TOKEN":
+                return SyntaxKind.NOT_EQUAL_TOKEN;
+            case "NOT_DOUBLE_EQUAL_TOKEN":
+                return SyntaxKind.NOT_DOUBLE_EQUAL_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
