@@ -20,52 +20,21 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class ReturnStatement extends Statement{
-    private Token returnToken;
-    private Node actionOrExpr;
-    private Token semicolonToken;
 
     public ReturnStatement(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token returnToken() {
-        if (returnToken != null) {
-            return returnToken;
-        }
-
-        returnToken = createToken(0);
-        return returnToken;
+        return childInBucket(0);
     }
 
     public Node actionOrExpr() {
-        if (actionOrExpr != null) {
-            return actionOrExpr;
-        }
-
-        actionOrExpr = node.childInBucket(1).createFacade(getChildPosition(1), this);
-        childBuckets[1] = actionOrExpr;
-        return actionOrExpr;
+        return childInBucket(1);
     }
 
     public Token semicolonToken() {
-        if (semicolonToken != null) {
-            return semicolonToken;
-        }
-
-        semicolonToken = createToken(2);
-        return semicolonToken;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return returnToken();
-            case 1:
-                return actionOrExpr();
-            case 2:
-                return semicolonToken();
-        }
-        return null;
+        return childInBucket(2);
     }
 
     @Override

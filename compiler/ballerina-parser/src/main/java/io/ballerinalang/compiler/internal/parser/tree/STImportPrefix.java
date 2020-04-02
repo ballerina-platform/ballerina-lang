@@ -33,10 +33,7 @@ public class STImportPrefix extends STNode {
         this.asKeyword = asKeyword;
         this.prefix = importPrefix;
 
-        this.bucketCount = 2;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(asKeyword, 0);
-        this.addChildNode(importPrefix, 1);
+        addChildren(asKeyword, importPrefix);
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {

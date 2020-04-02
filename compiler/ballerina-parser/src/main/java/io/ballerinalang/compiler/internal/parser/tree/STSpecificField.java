@@ -37,12 +37,7 @@ public class STSpecificField extends STMappingField {
         this.colon = colon;
         this.valueExpr = valueExpr;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingComma, 0);
-        this.addChildNode(key, 1);
-        this.addChildNode(colon, 2);
-        this.addChildNode(valueExpr, 3);
+        addChildren(leadingComma, key, colon, valueExpr);
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
