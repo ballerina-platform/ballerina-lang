@@ -814,6 +814,10 @@
                 "url": "websocket-chat-application"
             },
             {
+                "name": "Failover",
+                "url": "websocket-failover"
+            },
+            {
                 "name": "Retry",
                 "url": "websocket-retry"
             }
