@@ -20,7 +20,9 @@ package io.ballerinalang.compiler.parser.test.syntax.expressions;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing quoted string literals.
+ * Test parsing mapping constructor expression.
+ * 
+ * @since 1.3.0
  */
 public class MappingConstructorTest extends AbstractExpressionsTest {
 

@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SpreadField;
 
 /**
  * @since 1.3.0
@@ -42,6 +43,6 @@ public class STSpreadField extends STMappingField {
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new SpreadField(this, position, parent);
     }
 }

@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpression;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 /**
@@ -42,6 +43,6 @@ public class STMappingConstructorExpression extends STNode {
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new MappingConstructorExpression(this, position, parent);
     }
 }

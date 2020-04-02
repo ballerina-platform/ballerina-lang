@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.ComputedNameField;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 /**
@@ -56,6 +57,6 @@ public class STComputedNameField extends STMappingField {
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new ComputedNameField(this, position, parent);
     }
 }
