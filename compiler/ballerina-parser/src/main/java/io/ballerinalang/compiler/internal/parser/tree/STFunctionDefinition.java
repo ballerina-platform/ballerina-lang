@@ -54,16 +54,8 @@ public class STFunctionDefinition extends STNode {
         this.returnTypeDesc = returnTypeDesc;
         this.functionBody = functionBody;
 
-        this.bucketCount = 8;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(visibilityQualifier, 0);
-        this.addChildNode(functionKeyword, 1);
-        this.addChildNode(functionName, 2);
-        this.addChildNode(openParenToken, 3);
-        this.addChildNode(parameters, 4);
-        this.addChildNode(closeParenToken, 5);
-        this.addChildNode(returnTypeDesc, 6);
-        this.addChildNode(functionBody, 7);
+        addChildren(visibilityQualifier, functionKeyword, functionName,
+                openParenToken, parameters, closeParenToken, returnTypeDesc, functionBody);
     }
 
     @Override

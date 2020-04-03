@@ -24,65 +24,24 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  */
 public class SpecificField extends NonTerminalNode {
 
-    private Token leadingComma;
-    private Node fieldName;
-    private Token colonToken;
-    private Node valueExpr;
-
     public SpecificField(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token leadingComma() {
-        if (leadingComma != null) {
-            return leadingComma;
-        }
-
-        leadingComma = createToken(0);
-        return leadingComma;
+        return childInBucket(0);
     }
 
     public Node fieldName() {
-        if (fieldName != null) {
-            return fieldName;
-        }
-
-        fieldName = node.childInBucket(1).createFacade(getChildPosition(1), this);
-        childBuckets[1] = fieldName;
-        return fieldName;
+        return childInBucket(1);
     }
 
     public Token colonToken() {
-        if (colonToken != null) {
-            return colonToken;
-        }
-
-        colonToken = createToken(2);
-        return colonToken;
+        return childInBucket(2);
     }
 
     public Node valueExpr() {
-        if (valueExpr != null) {
-            return valueExpr;
-        }
-
-        valueExpr = node.childInBucket(3).createFacade(getChildPosition(3), this);
-        childBuckets[3] = valueExpr;
-        return valueExpr;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return leadingComma();
-            case 1:
-                return fieldName();
-            case 2:
-                return colonToken();
-            case 3:
-                return valueExpr();
-        }
-        return null;
+        return childInBucket(3);
     }
 
     @Override

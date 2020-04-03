@@ -20,77 +20,29 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class LocalVariableDeclaration extends Statement {
-    private Node typeName;
-    private Token variableName;
-    private Token equalsToken;
-    private Node initializer;
-    private Token semicolonToken;
 
     public LocalVariableDeclaration(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Node typeName() {
-        if (typeName != null) {
-            return typeName;
-        }
-
-        typeName = node.childInBucket(0).createFacade(getChildPosition(0), this);
-        childBuckets[0] = typeName;
-        return typeName;
+        return childInBucket(0);
     }
 
     public Token variableName() {
-        if (variableName != null) {
-            return variableName;
-        }
-
-        variableName = createToken(1);
-        return variableName;
+        return childInBucket(1);
     }
 
     public Token equalsToken() {
-        if (equalsToken != null) {
-            return equalsToken;
-        }
-
-        equalsToken = createToken(2);
-        return equalsToken;
+        return childInBucket(2);
     }
 
     public Node initializer() {
-        if (initializer != null) {
-            return initializer;
-        }
-
-        initializer = node.childInBucket(3).createFacade(getChildPosition(3), this);
-        childBuckets[3] = initializer;
-        return initializer;
+        return childInBucket(3);
     }
 
     public Token semicolonToken() {
-        if (semicolonToken != null) {
-            return semicolonToken;
-        }
-
-        semicolonToken = createToken(4);
-        return semicolonToken;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return typeName();
-            case 1:
-                return variableName();
-            case 2:
-                return equalsToken();
-            case 3:
-                return initializer();
-            case 4:
-                return semicolonToken();
-        }
-        return null;
+        return childInBucket(4);
     }
 
     @Override

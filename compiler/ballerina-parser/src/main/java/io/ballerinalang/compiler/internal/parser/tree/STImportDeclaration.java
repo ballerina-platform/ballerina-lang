@@ -48,14 +48,7 @@ public class STImportDeclaration extends STNode {
         this.prefix = prefix;
         this.semicolon = semicolon;
 
-        this.bucketCount = 6;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(importKeyword, 0);
-        this.addChildNode(orgName, 1);
-        this.addChildNode(moduleName, 2);
-        this.addChildNode(version, 3);
-        this.addChildNode(prefix, 4);
-        this.addChildNode(semicolon, 5);
+        addChildren(importKeyword, orgName, moduleName, version, prefix, semicolon);
     }
 
     @Override

@@ -36,6 +36,6 @@ public class ModuleLevelDeclarationTest extends AbstractIncrementalParserTest {
         Node[] newNodes = populateNewNodes(oldTree, newTree);
 
         // TODO This is fragile way to test. Improve
-        Assert.assertEquals(newNodes.length, 6);
+        Assert.assertEquals(newNodes.length, 5);
     }
 }

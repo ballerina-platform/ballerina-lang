@@ -369,6 +369,14 @@ public class ParserTestUtils {
                 return SyntaxKind.NOT_EQUAL_TOKEN;
             case "NOT_DOUBLE_EQUAL_TOKEN":
                 return SyntaxKind.NOT_DOUBLE_EQUAL_TOKEN;
+            case "BITWISE_AND_TOKEN":
+                return SyntaxKind.BITWISE_AND_TOKEN;
+            case "BITWISE_XOR_TOKEN":
+                return SyntaxKind.BITWISE_XOR_TOKEN;
+            case "LOGICAL_AND_TOKEN":
+                return SyntaxKind.LOGICAL_AND_TOKEN;
+            case "LOGICAL_OR_TOKEN":
+                return SyntaxKind.LOGICAL_OR_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
@@ -397,6 +405,8 @@ public class ParserTestUtils {
                 return SyntaxKind.OPEN_BRACE_PIPE_TOKEN;
             case "CLOSE_BRACE_PIPE_TOKEN":
                 return SyntaxKind.CLOSE_BRACE_PIPE_TOKEN;
+            case "PIPE_TOKEN":
+                return SyntaxKind.PIPE_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":

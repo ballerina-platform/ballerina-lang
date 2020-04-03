@@ -32,10 +32,7 @@ public class STSubModuleName extends STNode {
         this.leadingDot = dotToken;
         this.moduleName = identifier;
 
-        this.bucketCount = 2;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(dotToken, 0);
-        this.addChildNode(identifier, 1);
+        addChildren(dotToken, identifier);
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {

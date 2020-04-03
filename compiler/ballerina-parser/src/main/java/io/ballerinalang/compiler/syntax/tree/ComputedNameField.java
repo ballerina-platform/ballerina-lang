@@ -24,89 +24,32 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  */
 public class ComputedNameField extends NonTerminalNode {
 
-    private Token leadingComma;
-    private Token openBracket;
-    private Node fieldNameExpr;
-    private Token closeBracket;
-    private Token colonToken;
-    private Node valueExpr;
-
     public ComputedNameField(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token leadingComma() {
-        if (leadingComma != null) {
-            return leadingComma;
-        }
-
-        leadingComma = createToken(0);
-        return leadingComma;
+        return childInBucket(0);
     }
 
     public Node openBracket() {
-        if (openBracket != null) {
-            return openBracket;
-        }
-
-        openBracket = createToken(1);
-        return openBracket;
+        return childInBucket(1);
     }
 
     public Node fieldNameExpr() {
-        if (fieldNameExpr != null) {
-            return fieldNameExpr;
-        }
-
-        fieldNameExpr = node.childInBucket(2).createFacade(getChildPosition(2), this);
-        childBuckets[2] = fieldNameExpr;
-        return fieldNameExpr;
+        return childInBucket(2);
     }
 
     public Token closeBracket() {
-        if (closeBracket != null) {
-            return closeBracket;
-        }
-
-        closeBracket = createToken(3);
-        return this.closeBracket;
+        return childInBucket(3);
     }
 
     public Token colonToken() {
-        if (colonToken != null) {
-            return colonToken;
-        }
-
-        colonToken = createToken(4);
-        return colonToken;
+        return childInBucket(4);
     }
 
     public Node valueExpr() {
-        if (valueExpr != null) {
-            return valueExpr;
-        }
-
-        valueExpr = node.childInBucket(5).createFacade(getChildPosition(5), this);
-        childBuckets[5] = valueExpr;
-        return valueExpr;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return leadingComma();
-            case 1:
-                return openBracket();
-            case 2:
-                return fieldNameExpr();
-            case 3:
-                return closeBracket();
-            case 4:
-                return colonToken();
-            case 5:
-                return valueExpr();
-        }
-        return null;
+        return childInBucket(5);
     }
 
     @Override

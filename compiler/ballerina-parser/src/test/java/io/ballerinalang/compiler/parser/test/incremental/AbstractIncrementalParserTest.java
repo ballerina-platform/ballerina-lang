@@ -75,16 +75,15 @@ public class AbstractIncrementalParserTest {
     }
 
     private static void populateNewNodes(Set<STNode> oldNodeSet, NonTerminalNode node, List<Node> newNodeList) {
-        if (oldNodeSet.contains(node.getInternalNode())) {
+        if (oldNodeSet.contains(node.internalNode())) {
             return;
         }
 
-        for (int bucket = 0; bucket < node.bucketCount(); bucket++) {
-            Node child = node.childInBucket(bucket);
+        for (Node child : node.children()) {
             if (SyntaxUtils.isToken(child)) {
-                if (!oldNodeSet.contains(child.getInternalNode())) {
+                if (!oldNodeSet.contains(child.internalNode())) {
                     // TODO Checking for width seems not correct in this situation. Double check!!!
-                    if (child.getSpanWithMinutiae().width() != 0) {
+                    if (child.spanWithMinutiae().width() != 0) {
                         newNodeList.add(child);
                     }
                 }
@@ -93,25 +92,24 @@ public class AbstractIncrementalParserTest {
             }
         }
 
-        if (node.getSpanWithMinutiae().width() != 0) {
+        if (node.spanWithMinutiae().width() != 0) {
             newNodeList.add(node);
         }
     }
 
     private static void populateNodes(NonTerminalNode node, Set<STNode> nodeSet) {
-        for (int bucket = 0; bucket < node.bucketCount(); bucket++) {
-            Node child = node.childInBucket(bucket);
+        for (Node child : node.children()) {
             if (SyntaxUtils.isToken(child)) {
                 // TODO Checking for width seems not correct in this situation. Double check!!!
-                if (child.getSpanWithMinutiae().width() != 0) {
-                    nodeSet.add(child.getInternalNode());
+                if (child.spanWithMinutiae().width() != 0) {
+                    nodeSet.add(child.internalNode());
                 }
             } else {
                 populateNodes((NonTerminalNode) child, nodeSet);
             }
         }
-        if (node.getSpanWithMinutiae().width() != 0) {
-            nodeSet.add(node.getInternalNode());
+        if (node.spanWithMinutiae().width() != 0) {
+            nodeSet.add(node.internalNode());
         }
     }
 

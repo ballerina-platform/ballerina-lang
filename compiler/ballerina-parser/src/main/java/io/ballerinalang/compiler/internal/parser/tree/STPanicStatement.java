@@ -35,11 +35,7 @@ public class STPanicStatement extends STStatement {
         this.expression = expression;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(panicKeyword, 0);
-        this.addChildNode(expression, 1);
-        this.addChildNode(semicolonToken, 2);
+        addChildren(panicKeyword, expression, semicolonToken);
     }
 
     @Override

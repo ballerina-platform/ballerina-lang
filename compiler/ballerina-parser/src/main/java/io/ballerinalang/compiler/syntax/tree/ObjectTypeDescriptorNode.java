@@ -21,75 +21,28 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class ObjectTypeDescriptorNode extends NonTerminalNode {
 
-    private Node qualifiers;
-    private Token objectKeyword;
-    private Token openBrace;
-    private Node members;
-    private Token closeBrace;
-
     public ObjectTypeDescriptorNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Node qualifiers() {
-        if (qualifiers != null) {
-            return qualifiers;
-        }
-
-        qualifiers = createListNode(0);
-        return qualifiers;
+        return childInBucket(0);
     }
 
     public Token objectKeyword() {
-        if (objectKeyword != null) {
-            return objectKeyword;
-        }
-
-        objectKeyword = createToken(1);
-        return objectKeyword;
+        return childInBucket(1);
     }
 
     public Token openBrace() {
-        if (openBrace != null) {
-            return openBrace;
-        }
-
-        openBrace = createToken(2);
-        return openBrace;
+        return childInBucket(2);
     }
 
     public Node members() {
-        if (members != null) {
-            return members;
-        }
-
-        members = createListNode(3);
-        return members;
+        return childInBucket(3);
     }
 
     public Token closeBrace() {
-        if (closeBrace != null) {
-            return closeBrace;
-        }
-
-        closeBrace = createToken(4);
-        return closeBrace;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return qualifiers();
-            case 1:
-                return objectKeyword();
-            case 2:
-                return openBrace();
-            case 3:
-                return members();
-            case 4:
-                return closeBrace();
-        }
-        return null;
+        return childInBucket(4);
     }
 
     @Override

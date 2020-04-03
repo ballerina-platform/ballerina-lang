@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionCallNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
@@ -38,16 +38,11 @@ public class STFunctionCallExpression extends STExpression {
         this.arguments = arguments;
         this.closeParen = closeParen;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(functionName, 0);
-        this.addChildNode(openParen, 1);
-        this.addChildNode(arguments, 2);
-        this.addChildNode(closeParen, 3);
+        addChildren(functionName, openParen, arguments, closeParen);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new FunctionCallNode(this, position, parent);
+        return new FunctionCallExpressionNode(this, position, parent);
     }
 }

@@ -39,12 +39,7 @@ public class STRequiredParameter extends STParameter {
         this.type = type;
         this.paramName = paramName;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingComma, 0);
-        this.addChildNode(accessModifier, 1);
-        this.addChildNode(type, 2);
-        this.addChildNode(paramName, 3);
+        addChildren(leadingComma, accessModifier, type, paramName);
     }
 
     @Override

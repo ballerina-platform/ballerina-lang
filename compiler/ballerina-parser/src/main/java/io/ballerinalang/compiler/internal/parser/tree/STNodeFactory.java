@@ -341,7 +341,7 @@ public class STNodeFactory {
         return new STImportPrefix(asKeyword, prefix);
     }
 
-    public static STNode createMappingContructorExpr(STNode openBrace, STNode fields, STNode closeBrace) {
+    public static STNode createMappingConstructorExpr(STNode openBrace, STNode fields, STNode closeBrace) {
         return new STMappingConstructorExpression(openBrace, fields, closeBrace);
     }
 

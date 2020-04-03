@@ -32,10 +32,7 @@ public class STImportOrgName extends STNode {
         this.orgName = identifier;
         this.slashToken = slashToken;
 
-        this.bucketCount = 2;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(identifier, 0);
-        this.addChildNode(slashToken, 1);
+        addChildren(identifier, slashToken);
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {

@@ -21,89 +21,32 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class ObjectFieldNode extends NonTerminalNode {
 
-    private Token visibilityQualifier;
-    private Node fieldType;
-    private Token fieldName;
-    private Token equalsToken;
-    private Node defaultValue;
-    private Token semicolon;
-
     public ObjectFieldNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token visibilityQualifier() {
-        if (visibilityQualifier != null) {
-            return visibilityQualifier;
-        }
-
-        visibilityQualifier = createToken(0);
-        return visibilityQualifier;
+        return childInBucket(0);
     }
 
     public Node fieldType() {
-        if (fieldType != null) {
-            return fieldType;
-        }
-
-        fieldType = node.childInBucket(1).createFacade(getChildPosition(1), this);
-        childBuckets[1] = fieldType;
-        return fieldType;
+        return childInBucket(1);
     }
 
     public Token fieldName() {
-        if (fieldName != null) {
-            return fieldName;
-        }
-
-        fieldName = createToken(2);
-        return fieldName;
+        return childInBucket(2);
     }
 
     public Token questionMark() {
-        if (equalsToken != null) {
-            return equalsToken;
-        }
-
-        equalsToken = createToken(3);
-        return equalsToken;
+        return childInBucket(3);
     }
 
     public Node defaultValue() {
-        if (defaultValue != null) {
-            return defaultValue;
-        }
-
-        defaultValue = node.childInBucket(4).createFacade(getChildPosition(4), this);
-        childBuckets[4] = defaultValue;
-        return defaultValue;
+        return childInBucket(4);
     }
 
     public Token semicolon() {
-        if (semicolon != null) {
-            return semicolon;
-        }
-
-        semicolon = createToken(5);
-        return semicolon;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return visibilityQualifier();
-            case 1:
-                return fieldType();
-            case 2:
-                return fieldName();
-            case 3:
-                return questionMark();
-            case 4:
-                return defaultValue();
-            case 5:
-                return semicolon();
-        }
-        return null;
+        return childInBucket(5);
     }
 
     @Override

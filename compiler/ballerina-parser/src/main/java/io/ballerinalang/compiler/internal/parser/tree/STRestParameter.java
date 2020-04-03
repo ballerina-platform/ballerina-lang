@@ -38,12 +38,7 @@ public class STRestParameter extends STParameter {
         this.ellipsis = ellipsis;
         this.paramName = paramName;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingComma, 0);
-        this.addChildNode(type, 1);
-        this.addChildNode(ellipsis, 2);
-        this.addChildNode(paramName, 3);
+        addChildren(leadingComma, type, ellipsis, paramName);
     }
 
     @Override
