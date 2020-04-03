@@ -30,10 +30,7 @@ public class STCheckExpression extends STExpression {
         this.checkingKeyword = checkingKeyword;
         this.rhsExpr = rhsExpr;
 
-        this.bucketCount = 2;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(checkingKeyword, 0);
-        this.addChildNode(rhsExpr, 1);
+        addChildren(checkingKeyword, rhsExpr);
     }
 
     @Override

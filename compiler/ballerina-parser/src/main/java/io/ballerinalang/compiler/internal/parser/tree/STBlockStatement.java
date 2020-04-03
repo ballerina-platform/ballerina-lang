@@ -35,11 +35,7 @@ public class STBlockStatement extends STStatement {
         this.statements = statements;
         this.closeBraceToken = closeBraceToken;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(openBraceToken, 0);
-        this.addChildNode(statements, 1);
-        this.addChildNode(closeBraceToken, 2);
+        this.addChildren(openBraceToken, statements, closeBraceToken);
     }
 
     @Override

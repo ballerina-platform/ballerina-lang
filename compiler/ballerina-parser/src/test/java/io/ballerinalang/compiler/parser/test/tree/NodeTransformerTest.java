@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.parser.test.visitors;
+package io.ballerinalang.compiler.parser.test.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  *
  * @since 1.3.0
  */
-public class NodeTransformerTest extends AbstractVisitorTest {
+public class NodeTransformerTest extends AbstractSyntaxTreeAPITest {
 
     @Test(description = "This test case proves that SyntaxNodeTransformer traverses through " +
             "the whole tree from the given node.")
@@ -49,7 +49,7 @@ public class NodeTransformerTest extends AbstractVisitorTest {
         DeepestTokenFinder deepestTokenFinder = new DeepestTokenFinder();
         TokenWrapper deepestToken = syntaxTree.getModulePart().apply(deepestTokenFinder);
 
-        Assert.assertEquals(deepestToken.depth, 12);
+        Assert.assertEquals(deepestToken.depth, 10);
         Assert.assertEquals(deepestToken.token.toString(), "a");
     }
 
@@ -73,9 +73,7 @@ public class NodeTransformerTest extends AbstractVisitorTest {
 
             int tokenCount = 0;
             NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
-            int bucketCount = nonTerminalNode.bucketCount();
-            for (int bucket = 0; bucket < bucketCount; bucket++) {
-                Node child = nonTerminalNode.childInBucket(bucket);
+            for (Node child : nonTerminalNode.children()) {
                 tokenCount += child.apply(this);
             }
             return tokenCount;
@@ -118,9 +116,7 @@ public class NodeTransformerTest extends AbstractVisitorTest {
 
             TokenWrapper deepestToken = null;
             NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
-            int bucketCount = nonTerminalNode.bucketCount();
-            for (int bucket = 0; bucket < bucketCount; bucket++) {
-                Node child = nonTerminalNode.childInBucket(bucket);
+            for (Node child : nonTerminalNode.children()) {
                 TokenWrapper tokenWrapper = child.apply(this);
                 if (tokenWrapper == null) {
                     continue;

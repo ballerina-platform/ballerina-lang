@@ -15,23 +15,24 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.parser.test.visitors;
+package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.parser.test.ParserTestUtils;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import io.ballerinalang.compiler.internal.parser.tree.STIdentifier;
 
 /**
- * An abstract class that contains utilities for {@code SyntaxNodeVisitor} tests.
+ * Represents an identifier in the syntax tree.
  *
  * @since 1.3.0
  */
-public abstract class AbstractVisitorTest {
+public class Identifier extends Token {
+    private final String value;
 
-    public static SyntaxTree parseFile(String sourceFilePath) {
-        Path sourcePath = Paths.get("visitors", sourceFilePath);
-        return ParserTestUtils.parseFile(sourcePath);
+    public Identifier(STIdentifier token, int position, NonTerminalNode parent) {
+        super(token, position, parent);
+        this.value = token.text;
+    }
+
+    public String value() {
+        return value;
     }
 }

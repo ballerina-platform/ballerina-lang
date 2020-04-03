@@ -33,10 +33,7 @@ public class STImportSubVersion extends STNode {
         this.leadingDot = leadingDot;
         this.versionNumber = versionNumber;
 
-        this.bucketCount = 2;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingDot, 0);
-        this.addChildNode(versionNumber, 1);
+        addChildren(leadingDot, versionNumber);
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {

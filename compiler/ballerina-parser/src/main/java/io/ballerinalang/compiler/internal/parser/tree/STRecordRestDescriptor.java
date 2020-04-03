@@ -35,11 +35,7 @@ public class STRecordRestDescriptor extends STNode {
         this.ellipsis = ellipsis;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(type, 0);
-        this.addChildNode(ellipsis, 1);
-        this.addChildNode(semicolonToken, 2);
+        addChildren(type, ellipsis, semicolonToken);
     }
 
     @Override

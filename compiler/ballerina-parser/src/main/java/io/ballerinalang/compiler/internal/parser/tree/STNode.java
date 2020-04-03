@@ -25,10 +25,9 @@ public abstract class STNode {
     protected int width;
 
     protected final static STNode[] EMPTY_BUCKET = new STNode[0];
-
-    // The following two fields allow us to navigate the tree without the knowledge of the particular tree nodes
-    protected STNode[] childBuckets = EMPTY_BUCKET;
+    // The following fields allow us to navigate the tree without the knowledge of the particular tree nodes
     protected int bucketCount;
+    protected STNode[] childBuckets = EMPTY_BUCKET;
 
     STNode(SyntaxKind kind) {
         this.kind = kind;
@@ -39,20 +38,8 @@ public abstract class STNode {
         this.width = width;
     }
 
-    protected void addChildNode(STNode node, int bucket) {
-        if (node == null) {
-            return;
-        }
-        this.width += node.width;
-        this.childBuckets[bucket] = node;
-    }
-
-    protected void addTrivia(STNode trivia) {
-        if (trivia == null) {
-            return;
-        }
-
-        this.width += trivia.width;
+    public STNode childInBucket(int bucket) {
+        return childBuckets[bucket];
     }
 
     public int width() {
@@ -63,18 +50,6 @@ public abstract class STNode {
         return bucketCount;
     }
 
-    public STNode childInBucket(int bucket) {
-        if (bucket < 0 || bucket >= bucketCount) {
-            return null;
-        }
-
-        return childBuckets[bucket];
-    }
-
-    public Node createFacade() {
-        return createFacade(0, null);
-    }
-
     public abstract Node createFacade(int position, NonTerminalNode parent);
 
     public String toString() {
@@ -83,5 +58,21 @@ public abstract class STNode {
             sb.append(child != null ? child.toString() : "");
         }
         return sb.toString();
+    }
+
+    protected void addChildren(STNode... children) {
+        this.bucketCount = children.length;
+        this.childBuckets = children;
+        for (STNode child : children) {
+            this.width += child.width;
+        }
+    }
+
+    protected void addTrivia(STNode trivia) {
+        if (trivia == null) {
+            return;
+        }
+
+        this.width += trivia.width;
     }
 }

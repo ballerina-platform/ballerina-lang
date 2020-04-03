@@ -24,39 +24,16 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  */
 public class ImportPrefix extends NonTerminalNode {
 
-    private Token asKeyword;
-    private Token prefix;
-
     public ImportPrefix(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token asKeyword() {
-        if (asKeyword != null) {
-            return asKeyword;
-        }
-
-        asKeyword = createToken(0);
-        return asKeyword;
+        return childInBucket(0);
     }
 
     public Token prefix() {
-        if (prefix != null) {
-            return prefix;
-        }
-
-        prefix = createToken(1);
-        return prefix;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return asKeyword();
-            case 1:
-                return prefix();
-        }
-        return null;
+        return childInBucket(1);
     }
 
     @Override

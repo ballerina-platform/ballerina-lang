@@ -30,10 +30,7 @@ public class STElseBlock extends STStatement {
         this.elseKeyword = elseKeyword;
         this.elseBody = elseBody;
 
-        this.bucketCount = 2;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(elseKeyword, 0);
-        this.addChildNode(elseBody, 1);
+        addChildren(elseKeyword, elseBody);
     }
 
     @Override

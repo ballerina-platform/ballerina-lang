@@ -35,11 +35,7 @@ public class STMappingConstructorExpression extends STNode {
         this.fields = fields;
         this.closeBrace = closeBrace;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(openBrace, 0);
-        this.addChildNode(fields, 1);
-        this.addChildNode(closeBrace, 2);
+        addChildren(openBrace, fields, closeBrace);
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {

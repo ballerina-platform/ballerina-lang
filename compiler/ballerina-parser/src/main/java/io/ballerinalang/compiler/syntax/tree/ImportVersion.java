@@ -24,39 +24,16 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  */
 public class ImportVersion extends NonTerminalNode {
 
-    private Token versionKeyword;
-    private Node versionNumber;
-
     public ImportVersion(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token versionKeyword() {
-        if (versionKeyword != null) {
-            return versionKeyword;
-        }
-
-        versionKeyword = createToken(0);
-        return versionKeyword;
+        return childInBucket(0);
     }
 
     public Node versionNumber() {
-        if (versionNumber != null) {
-            return versionNumber;
-        }
-
-        versionNumber = createListNode(1);
-        return versionNumber;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return versionKeyword();
-            case 1:
-                return versionNumber();
-        }
-        return null;
+        return childInBucket(1);
     }
 
     @Override

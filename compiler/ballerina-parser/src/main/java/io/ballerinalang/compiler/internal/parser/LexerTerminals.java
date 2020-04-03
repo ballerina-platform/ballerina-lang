@@ -90,6 +90,7 @@ public class LexerTerminals {
     public static final char GT = '>';
     public static final char LT = '<';
     public static final char BACKSLASH = '\\';
+    public static final char EXCLAMATION_MARK = '!';
 
     // Other
     public static final char NEWLINE = '\n'; // equivalent to 0xA

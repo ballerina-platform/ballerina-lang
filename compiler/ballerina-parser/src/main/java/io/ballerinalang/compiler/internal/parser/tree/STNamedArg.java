@@ -38,12 +38,7 @@ public class STNamedArg extends STNode {
         this.equalsToken = equalsToken;
         this.expression = expression;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingComma, 0);
-        this.addChildNode(variableName, 1);
-        this.addChildNode(equalsToken, 2);
-        this.addChildNode(expression, 3);
+        addChildren(leadingComma, variableName, equalsToken, expression);
     }
 
     @Override

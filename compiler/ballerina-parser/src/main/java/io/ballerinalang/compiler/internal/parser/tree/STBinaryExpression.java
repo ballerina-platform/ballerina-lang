@@ -36,11 +36,7 @@ public class STBinaryExpression extends STExpression {
         this.operator = operator;
         this.rhsExpr = rhsExpr;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(lhsExpr, 0);
-        this.addChildNode(operator, 1);
-        this.addChildNode(rhsExpr, 2);
+        this.addChildren(lhsExpr, operator, rhsExpr);
     }
 
     @Override

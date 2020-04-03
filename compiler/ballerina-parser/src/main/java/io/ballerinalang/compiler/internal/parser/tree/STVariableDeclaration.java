@@ -42,13 +42,7 @@ public class STVariableDeclaration extends STStatement {
         this.initializer = initializer;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 5;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(typeName, 0);
-        this.addChildNode(variableName, 1);
-        this.addChildNode(equalsToken, 2);
-        this.addChildNode(initializer, 3);
-        this.addChildNode(semicolonToken, 4);
+        addChildren(typeName, variableName, equalsToken, initializer, semicolonToken);
     }
 
     @Override

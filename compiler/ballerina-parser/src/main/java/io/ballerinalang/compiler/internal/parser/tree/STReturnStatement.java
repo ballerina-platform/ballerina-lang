@@ -33,11 +33,7 @@ public class STReturnStatement extends STStatement {
         this.actionOrExpr = actionOrExpr;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(returnKeyword, 0);
-        this.addChildNode(actionOrExpr, 1);
-        this.addChildNode(semicolonToken, 2);
+        addChildren(returnKeyword, actionOrExpr, semicolonToken);
     }
 
     @Override

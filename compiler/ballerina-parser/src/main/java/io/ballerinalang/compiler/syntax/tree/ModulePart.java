@@ -26,51 +26,20 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 //  In both these we need to lazily crete the child nodes.
 public class ModulePart extends NonTerminalNode {
 
-    private NodeList<ImportDeclaration> imports;
-    private NodeList<ModuleMemberDeclaration> members;
-    private Token eofToken;
-
     public ModulePart(STNode syntaxNode, int position, NonTerminalNode parent) {
         super(syntaxNode, position, parent);
     }
 
-    public NodeList<ImportDeclaration> getImports() {
-        if (this.imports != null) {
-            return this.imports;
-        }
-
-        this.imports = createListNode(0);
-        return this.imports;
+    public NodeList<ImportDeclaration> imports() {
+        return new NodeList<>(childInBucket(0));
     }
 
-    public NodeList<ModuleMemberDeclaration> getMembers() {
-        if (this.members != null) {
-            return this.members;
-        }
-
-        this.members = createListNode(1);
-        return this.members;
+    public NodeList<ModuleMemberDeclaration> members() {
+        return new NodeList<>(childInBucket(1));
     }
 
-    public Token getEofToken() {
-        if (this.eofToken != null) {
-            return this.eofToken;
-        }
-
-        this.eofToken = createToken(2);
-        return this.eofToken;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return getImports();
-            case 1:
-                return getMembers();
-            case 2:
-                return getEofToken();
-        }
-        return null;
+    public Token eofToken() {
+        return childInBucket(2);
     }
 
     @Override

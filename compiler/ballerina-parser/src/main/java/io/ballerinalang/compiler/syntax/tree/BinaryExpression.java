@@ -21,53 +21,20 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class BinaryExpression extends ExpressionTree {
 
-    private Node lhsExpr;
-    private Token operator;
-    private Node rhsExpr;
-
     public BinaryExpression(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Node lhsExpr() {
-        if (lhsExpr != null) {
-            return lhsExpr;
-        }
-
-        lhsExpr = node.childInBucket(0).createFacade(getChildPosition(0), this);
-        childBuckets[0] = lhsExpr;
-        return lhsExpr;
+        return childInBucket(0);
     }
 
     public Token operator() {
-        if (operator != null) {
-            return operator;
-        }
-
-        operator = createToken(1);
-        return operator;
+        return (Token) childInBucket(1);
     }
 
     public Node rhsExpr() {
-        if (rhsExpr != null) {
-            return rhsExpr;
-        }
-
-        rhsExpr = node.childInBucket(2).createFacade(getChildPosition(2), this);
-        childBuckets[2] = rhsExpr;
-        return rhsExpr;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return lhsExpr();
-            case 1:
-                return operator();
-            case 2:
-                return rhsExpr();
-        }
-        return null;
+        return childInBucket(2);
     }
 
     @Override

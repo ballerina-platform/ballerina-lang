@@ -34,11 +34,7 @@ public class STQualifiedIdentifier extends STExpression {
         this.colon = colon;
         this.identifier = identifier;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(modulePrefix, 0);
-        this.addChildNode(colon, 1);
-        this.addChildNode(identifier, 2);
+        addChildren(modulePrefix, colon, identifier);
     }
 
     @Override

@@ -34,11 +34,7 @@ public class STWhileStatement extends STStatement {
         this.condition = condition;
         this.whileBody = whileBody;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(whileKeyword, 0);
-        this.addChildNode(condition, 1);
-        this.addChildNode(whileBody, 2);
+        addChildren(whileKeyword, condition, whileBody);
     }
 
     @Override

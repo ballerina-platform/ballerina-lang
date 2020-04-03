@@ -85,7 +85,7 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(binaryExpression);
     }
 
-    public void visit(FunctionCallNode functionCallNode) {
+    public void visit(FunctionCallExpressionNode functionCallNode) {
         visitSyntaxNode(functionCallNode);
     }
 
@@ -138,9 +138,9 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(recordRestDescriptorNode);
     }
 
-    public void visit(NodeList nodeList) {
-        visitSyntaxNode(nodeList);
-    }
+//    public void visit(NodeList nodeList) {
+//        visitSyntaxNode(nodeList);
+//    }
 
     public void visit(RecordTypeDescriptorNode recordTypeDescriptorNode) {
         visitSyntaxNode(recordTypeDescriptorNode);
@@ -198,9 +198,7 @@ public abstract class SyntaxNodeVisitor {
         }
 
         NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
-        int bucketCount = nonTerminalNode.bucketCount();
-        for (int bucket = 0; bucket < bucketCount; bucket++) {
-            Node child = nonTerminalNode.childInBucket(bucket);
+        for (Node child : nonTerminalNode.children()) {
             child.accept(this);
         }
     }

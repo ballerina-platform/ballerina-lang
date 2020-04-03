@@ -35,11 +35,7 @@ public class STSpreadField extends STMappingField {
         this.ellipsis = ellipsis;
         this.expr = expr;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingComma, 0);
-        this.addChildNode(ellipsis, 1);
-        this.addChildNode(expr, 2);
+        addChildren(leadingComma, ellipsis, expr);
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {

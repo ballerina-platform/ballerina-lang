@@ -78,12 +78,16 @@ public enum SyntaxKind {
     PERCENT_TOKEN(556, "%"),
     ASTERISK_TOKEN(557, "*"),
     LT_TOKEN(558, "<"),
-    EQUAL_LT_TOKEN(559, "<="),
+    LT_EQUAL_TOKEN(559, "<="),
     GT_TOKEN(560, ">"),
     EQUAL_GT_TOKEN(561, "=>"),
     QUESTION_MARK_TOKEN(562, "?"),
     PIPE_TOKEN(563, "|"),
-
+    GT_EQUAL_TOKEN(564, ">="),
+    EXCLAMATION_MARK_TOKEN(565, "!"),
+    NOT_EQUAL_TOKEN(566, "!="),
+    NOT_DOUBLE_EQUAL_TOKEN(567, "!=="),
+    
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
     DECIMAL_INTEGER_LITERAL(1002),

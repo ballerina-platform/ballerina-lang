@@ -24,52 +24,20 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  */
 public class MappingConstructorExpression extends NonTerminalNode {
 
-    private Token openBrace;
-    private Node fields;
-    private Token closeBrace;
-
     public MappingConstructorExpression(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Node openBrace() {
-        if (openBrace != null) {
-            return openBrace;
-        }
-
-        openBrace = createToken(0);
-        return openBrace;
+        return childInBucket(0);
     }
 
     public Node fields() {
-        if (fields != null) {
-            return fields;
-        }
-
-        fields = node.childInBucket(1).createFacade(getChildPosition(1), this);
-        childBuckets[1] = fields;
-        return fields;
+        return childInBucket(1);
     }
 
     public Token closeBrace() {
-        if (closeBrace != null) {
-            return closeBrace;
-        }
-
-        closeBrace = createToken(2);
-        return this.closeBrace;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return openBrace();
-            case 1:
-                return fields();
-            case 2:
-                return closeBrace();
-        }
-        return null;
+        return childInBucket(2);
     }
 
     @Override

@@ -38,12 +38,7 @@ public class STRecordField extends STNode {
         this.questionMarkToken = questionMarkToken;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(type, 0);
-        this.addChildNode(fieldName, 1);
-        this.addChildNode(questionMarkToken, 2);
-        this.addChildNode(semicolonToken, 3);
+        addChildren(type, fieldName, questionMarkToken, semicolonToken);
     }
 
     @Override

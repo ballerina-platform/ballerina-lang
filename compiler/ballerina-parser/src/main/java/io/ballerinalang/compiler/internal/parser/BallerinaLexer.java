@@ -156,7 +156,23 @@ public class BallerinaLexer {
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
                 break;
             case LexerTerminals.LT:
-                token = getSyntaxToken(SyntaxKind.LT_TOKEN);
+                if (peek() == LexerTerminals.EQUAL) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.LT_EQUAL_TOKEN);
+                } else {
+                    token = getSyntaxToken(SyntaxKind.LT_TOKEN);
+                }
+                break;
+            case LexerTerminals.GT:
+                if (peek() == LexerTerminals.EQUAL) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.GT_EQUAL_TOKEN);
+                } else {
+                    token = getSyntaxToken(SyntaxKind.GT_TOKEN);
+                }
+                break;
+            case LexerTerminals.EXCLAMATION_MARK:
+                token = processExclamationMarkOperator();
                 break;
 
             // Numbers
@@ -856,5 +872,28 @@ public class BallerinaLexer {
 
     private void reportLexerError(String message) {
         this.errorListener.reportInvalidNodeError(null, message);
+    }
+
+    /**
+     * Process any token that starts with '!'.
+     *
+     * @return One of the tokens: <code>'!', '!=', '!=='</code>
+     */
+    private STToken processExclamationMarkOperator() {
+        switch (peek()) { // check for the second char
+            case LexerTerminals.EQUAL:
+                reader.advance();
+                if (peek() == LexerTerminals.EQUAL) {
+                    // this is '!=='
+                    reader.advance();
+                    return getSyntaxToken(SyntaxKind.NOT_DOUBLE_EQUAL_TOKEN);
+                } else {
+                    // this is '!='
+                    return getSyntaxToken(SyntaxKind.NOT_EQUAL_TOKEN);
+                }
+            default:
+                // this is '!'
+                return getSyntaxToken(SyntaxKind.EXCLAMATION_MARK_TOKEN);
+        }
     }
 }

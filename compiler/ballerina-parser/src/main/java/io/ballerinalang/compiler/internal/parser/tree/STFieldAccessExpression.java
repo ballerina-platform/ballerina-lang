@@ -34,11 +34,7 @@ public class STFieldAccessExpression extends STExpression {
         this.dotToken = dotToken;
         this.fieldName = fieldName;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(expression, 0);
-        this.addChildNode(dotToken, 1);
-        this.addChildNode(fieldName, 2);
+        addChildren(expression, dotToken, fieldName);
     }
 
     @Override
