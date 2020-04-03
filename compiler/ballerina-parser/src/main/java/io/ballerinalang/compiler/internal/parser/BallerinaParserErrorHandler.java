@@ -1725,6 +1725,11 @@ public class BallerinaParserErrorHandler {
             case GT_EQUAL_TOKEN:
             case NOT_EQUAL_TOKEN:
             case NOT_DOUBLE_EQUAL_TOKEN:
+            case BITWISE_AND_TOKEN:
+            case BITWISE_XOR_TOKEN:
+            case PIPE_TOKEN:
+            case LOGICAL_AND_TOKEN:
+            case LOGICAL_OR_TOKEN:
                 return true;
             default:
                 return false;

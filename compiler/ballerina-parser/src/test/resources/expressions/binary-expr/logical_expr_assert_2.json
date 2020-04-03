@@ -6,7 +6,7 @@
             "value": "a"
         },
         {
-            "kind": "NOT_EQUAL_TOKEN"
+            "kind": "LOGICAL_OR_TOKEN"
         },
         {
             "kind": "IDENTIFIER_TOKEN",

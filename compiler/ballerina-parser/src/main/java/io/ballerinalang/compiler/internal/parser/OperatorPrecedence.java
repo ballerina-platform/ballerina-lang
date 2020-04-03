@@ -32,6 +32,11 @@ public enum OperatorPrecedence {
     RANGE(5),           //  (x ... y), (x ..< y)
     BINARY_COMPARE(6),  //  (x < y), (x > y), (x <= y), (x >= y), (x is y)
     EQUALITY(7),        //  (x == y), (x != y), (x == y), (x === y), (x !== y)
+    BITWISE_AND(8),     //  (x & y)
+    BITWISE_XOR(9),     //  (x ^ y)
+    BITWISE_OR(10),     //  (x | y)
+    LOGICAL_AND(11),    //  (x && y)
+    LOGICAL_OR(12),     //  (x || y)
     ;
 
     private int level = 0;

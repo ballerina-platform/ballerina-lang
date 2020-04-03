@@ -122,12 +122,7 @@ public class BallerinaLexer {
                 token = getSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
                 break;
             case LexerTerminals.PIPE:
-                if (peek() == LexerTerminals.CLOSE_BRACE) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.CLOSE_BRACE_PIPE_TOKEN);
-                } else {
-                    token = getSyntaxToken(SyntaxKind.PIPE_TOKEN);
-                }
+                token = processPipeOperator();
                 break;
             case LexerTerminals.QUESTION_MARK:
                 token = getSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
@@ -173,6 +168,17 @@ public class BallerinaLexer {
                 break;
             case LexerTerminals.EXCLAMATION_MARK:
                 token = processExclamationMarkOperator();
+                break;
+            case LexerTerminals.BITWISE_AND:
+                if (peek() == LexerTerminals.BITWISE_AND) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.LOGICAL_AND_TOKEN);
+                } else {
+                    token = getSyntaxToken(SyntaxKind.BITWISE_AND_TOKEN);
+                }
+                break;
+            case LexerTerminals.BITWISE_XOR:
+                token = getSyntaxToken(SyntaxKind.BITWISE_XOR_TOKEN);
                 break;
 
             // Numbers
@@ -890,6 +896,24 @@ public class BallerinaLexer {
             default:
                 // this is '!'
                 return getSyntaxToken(SyntaxKind.EXCLAMATION_MARK_TOKEN);
+        }
+    }
+
+    /**
+     * Process any token that starts with '|'.
+     *
+     * @return One of the tokens: <code>'|', '|}', '||'</code>
+     */
+    private STToken processPipeOperator() {
+        switch (peek()) { // check for the second char
+            case LexerTerminals.CLOSE_BRACE:
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.CLOSE_BRACE_PIPE_TOKEN);
+            case LexerTerminals.PIPE:
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.LOGICAL_OR_TOKEN);
+            default:
+                return getSyntaxToken(SyntaxKind.PIPE_TOKEN);
         }
     }
 }
