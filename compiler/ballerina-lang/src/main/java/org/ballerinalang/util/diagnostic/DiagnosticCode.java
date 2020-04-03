@@ -498,6 +498,7 @@ public enum DiagnosticCode {
     INVALID_ATTRIBUTE_REFERENCE("invalid.attribute.reference"),
 
     ILLEGAL_FUNCTION_CHANGE_LIST_SIZE("illegal.function.change.list.size"),
+    ILLEGAL_FUNCTION_CHANGE_TUPLE_SHAPE("illegal.function.change.tuple.shape"),
     ;
     private String value;
 

@@ -70,17 +70,33 @@ function testPushPopShiftUnshitOnInferredFixedLengthArray() {
 }
 
 function testPushOnFixedLengthArrayUnions() {
-    int[1]|float[1] fixedLengthArray = <int[1]> [1];
+    int[1] | float[1] fixedLengthArray = <int[1]> [1];
     fixedLengthArray.push(4);
 }
 
 function testPushOnFixedLengthTupleUnion() {
-    [int, int][1]|[float, float][1] fixedLengthArray = <[float, float][1]> [[1.0, 2.3]];
+    [int, int][1] | [float, float][1] fixedLengthArray = <[float, float][1]> [[1.0, 2.3]];
     fixedLengthArray.push(<[float, float]>[1, 2]);
+}
+
+function testShiftOnTupleWithStringRestParamFixedInherantShapeWithInt() {
+    [int, string...] a = [1, "hello","world"];
+    int | string x = a.shift();
+}
+
+function testShiftOnTupleWithIntRestParamFixedInherantShapeWithIntString() {
+    [int, string, int...] a = [1, "hello", 5];
+    int | string x = a.shift();
 }
 
 // run time panic no compile time error
 function testPushOnFixedLengthAndDynamicTupleUnion() {
-    [int, int][1]|[float, float][] fixedLengthArray = <[float, float][1]> [[1, 2]];
+    [int, int][1] | [float, float][] fixedLengthArray = <[float, float][1]> [[1, 2]];
     fixedLengthArray.push(<[float, float]>[1, 2]);
+}
+
+// run time panic no compile time error
+function testShiftOnTupleWithIntRestParamFixedInherantShapeWithInt() {
+    [int, int...] a = [1];
+    int x = a.shift();
 }

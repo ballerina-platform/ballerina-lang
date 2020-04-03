@@ -432,6 +432,12 @@ public class LangLibArrayTest {
                                   "cannot call 'push' on fixed length list(s) of type '([int,int][1]|[float," +
                                           "float][1])'",
                                   79, 22);
-        Assert.assertEquals(negativeResult.getErrorCount(), 14);
+        BAssertUtil.validateError(negativeResult, 14,
+                                  "cannot call 'shift' on tuple of type '[int,string...]': change inherent shape",
+                                  84, 24);
+        BAssertUtil.validateError(negativeResult, 15,
+                                  "cannot call 'shift' on tuple of type '[int,string,int...]': change inherent shape",
+                                  89, 24);
+        Assert.assertEquals(negativeResult.getErrorCount(), 16);
     }
 }

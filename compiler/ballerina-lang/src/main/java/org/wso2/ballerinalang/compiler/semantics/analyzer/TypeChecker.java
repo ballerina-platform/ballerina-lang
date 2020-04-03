@@ -181,6 +181,10 @@ public class TypeChecker extends BLangNodeVisitor {
     private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY =
             new CompilerContext.Key<>();
     private static final String TABLE_TNAME = "table";
+    private static final String FUNCTION_PUSH_NAME = "push";
+    private static final String FUNCTION_POP_NAME = "pop";
+    private static final String FUNCTION_SHIFT_NAME = "shift";
+    private static final String FUNCTION_UNSHIFT_NAME = "unshift";
 
     private Names names;
     private SymbolTable symTable;
@@ -235,10 +239,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void initModifierFunctions() {
-        this.modifierFunctions.add("push");
-        this.modifierFunctions.add("pop");
-        this.modifierFunctions.add("shift");
-        this.modifierFunctions.add("unshift");
+        this.modifierFunctions.add(FUNCTION_PUSH_NAME);
+        this.modifierFunctions.add(FUNCTION_POP_NAME);
+        this.modifierFunctions.add(FUNCTION_SHIFT_NAME);
+        this.modifierFunctions.add(FUNCTION_UNSHIFT_NAME);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -1866,6 +1870,25 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_LIST_SIZE, invocationName, varRefType);
             resultType = symTable.semanticError;
         }
+
+        if ((varRefType.tag == TypeTags.TUPLE) && hasDifferentTypeThanRest((BTupleType) varRefType) &&
+                (invocationName.compareTo(FUNCTION_SHIFT_NAME) == 0)) {
+            dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_TUPLE_SHAPE, invocationName, varRefType);
+            resultType = symTable.semanticError;
+        }
+    }
+
+    private boolean hasDifferentTypeThanRest(BTupleType tupleType) {
+        if (tupleType.restType == null) {
+            return false;
+        }
+
+        for (BType member : tupleType.getTupleTypes()) {
+            if (!types.isSameType(tupleType.restType, member)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean checkFieldFunctionPointer(BLangInvocation iExpr, SymbolEnv env) {
