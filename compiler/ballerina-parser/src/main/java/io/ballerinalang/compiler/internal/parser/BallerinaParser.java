@@ -1631,6 +1631,8 @@ public class BallerinaParser {
             case BITWISE_AND_TOKEN:
             case BITWISE_XOR_TOKEN:
             case PIPE_TOKEN:
+            case LOGICAL_AND_TOKEN:
+            case LOGICAL_OR_TOKEN:
                 return true;
             default:
                 return false;
@@ -1671,6 +1673,10 @@ public class BallerinaParser {
                 return OperatorPrecedence.BITWISE_XOR;
             case PIPE_TOKEN:
                 return OperatorPrecedence.BITWISE_OR;
+            case LOGICAL_AND_TOKEN:
+                return OperatorPrecedence.LOGICAL_AND;
+            case LOGICAL_OR_TOKEN:
+                return OperatorPrecedence.LOGICAL_OR;
             default:
                 throw new UnsupportedOperationException("Unsupported binary operator '" + binaryOpKind + "'");
         }
@@ -1700,6 +1706,10 @@ public class BallerinaParser {
                 return SyntaxKind.BITWISE_XOR_TOKEN;
             case BITWISE_OR:
                 return SyntaxKind.PIPE_TOKEN;
+            case LOGICAL_AND:
+                return SyntaxKind.LOGICAL_AND_TOKEN;
+            case LOGICAL_OR:
+                return SyntaxKind.LOGICAL_OR_TOKEN;
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported operator precedence level'" + opPrecedenceLevel + "'");
@@ -2397,7 +2407,7 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseExpression() {
-        return parseExpression(OperatorPrecedence.BITWISE_OR, false);
+        return parseExpression(OperatorPrecedence.LOGICAL_OR, false);
     }
 
     /**
@@ -2449,7 +2459,7 @@ public class BallerinaParser {
     }
 
     private STNode parseExpressionRhs(STNode lhsExpr) {
-        return parseExpressionRhs(OperatorPrecedence.BINARY_COMPARE, lhsExpr, false);
+        return parseExpressionRhs(OperatorPrecedence.LOGICAL_OR, lhsExpr, false);
     }
 
     /**
@@ -2458,7 +2468,7 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseExpressionRhs(STNode lhsExpr, boolean isAssignmentLhs) {
-        return parseExpressionRhs(OperatorPrecedence.BINARY_COMPARE, lhsExpr, isAssignmentLhs);
+        return parseExpressionRhs(OperatorPrecedence.LOGICAL_OR, lhsExpr, isAssignmentLhs);
     }
 
     /**

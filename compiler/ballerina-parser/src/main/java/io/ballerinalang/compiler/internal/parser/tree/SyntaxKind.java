@@ -88,6 +88,8 @@ public enum SyntaxKind {
     NOT_DOUBLE_EQUAL_TOKEN(567, "!=="),
     BITWISE_AND_TOKEN(568, "&"),
     BITWISE_XOR_TOKEN(569, "^"),
+    LOGICAL_AND_TOKEN(569, "&&"),
+    LOGICAL_OR_TOKEN(569, "||"),
     
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
