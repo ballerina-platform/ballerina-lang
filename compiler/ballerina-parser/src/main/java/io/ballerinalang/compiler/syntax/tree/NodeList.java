@@ -17,15 +17,52 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-public class NodeList<T extends Node> {
+import java.util.Iterator;
 
-    private NonTerminalNode node;
+/**
+ * Represents a list of {@code Node}s.
+ *
+ * @param <T> the type of the node instance
+ */
+public class NodeList<T extends Node> implements Iterable<T> {
+
+    private final NonTerminalNode node;
+    private final int size;
 
     public NodeList(NonTerminalNode node) {
         this.node = node;
+        this.size = node.bucketCount();
     }
 
     public T get(int index) {
-        return null;
+        return this.node.childInBucket(index);
+    }
+
+    public int size() {
+        return this.size;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new NodeListIterator();
+    }
+
+    /**
+     * An iterator for this list of nodes.
+     *
+     * @since 1.3.0
+     */
+    private class NodeListIterator implements Iterator<T> {
+        private int currentIndex = 0;
+
+        @Override
+        public boolean hasNext() {
+            return this.currentIndex > size;
+        }
+
+        @Override
+        public T next() {
+            return get(currentIndex++);
+        }
     }
 }
