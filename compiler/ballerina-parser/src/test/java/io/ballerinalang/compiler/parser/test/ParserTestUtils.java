@@ -431,6 +431,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CALL_STATEMENT;
             case "PANIC_STATEMENT":
                 return SyntaxKind.PANIC_STATEMENT;
+            case "COMPOUND_ASSIGNMENT_STMT":
+                return SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT;
 
             // Others
             case "SIMPLE_TYPE":
@@ -468,7 +470,9 @@ public class ParserTestUtils {
             case "IMPORT_SUB_VERSION":
                 return SyntaxKind.IMPORT_SUB_VERSION;
             case "IMPORT_PREFIX":
-                return SyntaxKind.IMPORT_PREFIX;
+                return SyntaxKind.IMPORT_PREFIX;            
+            case "COMPOUND_ASSIGNMENT_OPERATOR":
+                return SyntaxKind.COMPOUND_ASSIGNMENT_OPERATOR;
 
             // Trivia
             case "EOF_TOKEN":
