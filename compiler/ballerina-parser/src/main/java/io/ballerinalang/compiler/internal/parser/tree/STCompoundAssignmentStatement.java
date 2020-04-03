@@ -32,7 +32,7 @@ public class STCompoundAssignmentStatement extends STStatement {
                           STNode compoundAssignmentOperator,
                           STNode expr,
                           STNode semicolonToken) {
-        super(SyntaxKind.COMPOUND_ASSIGNMENT_STMT);
+        super(SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT);
         this.lhsExpression = lhsExpression;
         this.compoundAssignmentOperator = compoundAssignmentOperator;
         this.expr = expr;
