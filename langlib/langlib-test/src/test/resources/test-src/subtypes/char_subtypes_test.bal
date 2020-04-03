@@ -15,21 +15,21 @@
 // under the License.
 
 import ballerina/lang.'string as s;
-import ballerina/lang.test as comp;
+import ballerina/lang.test as test;
 
 function testValueAssignment() {
     s:Char a1 = "a";
     string t1 = a1;
-    comp:assertValueEqual("a", t1);
-    comp:assertNotError(trap <s:Char> t1);
+    test:assertValueEqual("a", t1);
+    test:assertNotError(trap <s:Char> t1);
 
     s:Char a2 = "µ";
     string t2 = a2;
-    comp:assertValueEqual("µ", t2);
-    comp:assertNotError(trap <s:Char> t2);
+    test:assertValueEqual("µ", t2);
+    test:assertNotError(trap <s:Char> t2);
 
     string b = "ab";
-    comp:assertError(trap <s:Char> b);
+    test:assertError(trap <s:Char> b);
 }
 
 type Char s:Char;
@@ -38,8 +38,8 @@ function testTypeAlias() {
     Char value = "a";
     string a = value;
     s:Char b = value;
-    comp:assertValueEqual("a", a);
-    comp:assertValueEqual("a", b);
+    test:assertValueEqual("a", a);
+    test:assertValueEqual("a", b);
 }
 
 function testConcat() {
@@ -47,23 +47,23 @@ function testConcat() {
     Char b = "b";
     string c = "c";
     xml x = xml `<x/>`;
-    comp:assertTrue("a" == a);
-    comp:assertTrue("b" != a);
-    comp:assertTrue(a.length() == 1);
+    test:assertTrue("a" == a);
+    test:assertTrue("b" != a);
+    test:assertTrue(a.length() == 1);
 
     string t1 = a + b;
     string t2 = a + c;
     string t3 = c + b;
     xml t4 = a + x;
     xml t5 = x + a;
-    comp:assertValueEqual("ab", t1);
-    comp:assertValueEqual("ac", t2);
-    comp:assertValueEqual("cb", t3);
+    test:assertValueEqual("ab", t1);
+    test:assertValueEqual("ac", t2);
+    test:assertValueEqual("cb", t3);
     string sa = "a";
     xml xa = sa + x;
     xml ax = x + sa;
-    comp:assertTrue(xa == t4);
-    comp:assertTrue(ax == t5);
+    test:assertTrue(xa == t4);
+    test:assertTrue(ax == t5);
 }
 
 function testCharLangLib() {
@@ -71,40 +71,40 @@ function testCharLangLib() {
     int x = s.getCodePoint(0);
     s:Char|error result = s:fromCodePointInt(x);
     if(result is s:Char){
-        comp:assertValueEqual("h", result);
+        test:assertValueEqual("h", result);
     } else {
-        comp:assertNotError(result); // Should fail.
+        test:assertNotError(result); // Should fail.
     }
 
     s:Char h = <s:Char> result;
-    comp:assertValueEqual("h", h);
+    test:assertValueEqual("h", h);
 
     int y = h.toCodePointInt();
-    comp:assertValueEqual(x, y);
+    test:assertValueEqual(x, y);
 }
 
 function testList(){
     s:Char[] chars = ["a", "b", "c"];
     string[] strings = chars;
 
-    comp:assertNotError(trap <s:Char> chars[0]);
-    comp:assertValueEqual("a", chars[0]);
-    comp:assertNotError(trap <s:Char[]> strings);
-    comp:assertError(trap insertListValue(chars, 5, "b")); // Error due to no filler value;
-    comp:assertNotError(trap insertListValue(chars, 3, "b"));
-    comp:assertError(trap insertListValue(chars, 3, "ab"));
+    test:assertNotError(trap <s:Char> chars[0]);
+    test:assertValueEqual("a", chars[0]);
+    test:assertNotError(trap <s:Char[]> strings);
+    test:assertError(trap insertListValue(chars, 5, "b")); // Error due to no filler value;
+    test:assertNotError(trap insertListValue(chars, 3, "b"));
+    test:assertError(trap insertListValue(chars, 3, "ab"));
 
     string[] notChars = ["a", "ab", "c"];
-    comp:assertError(trap <s:Char[]> notChars);
+    test:assertError(trap <s:Char[]> notChars);
     string[] someChars = ["a", "p", "q"];
-    comp:assertError(trap <s:Char[]> someChars);
-    comp:assertTrue(!(someChars is s:Char[]));
+    test:assertError(trap <s:Char[]> someChars);
+    test:assertTrue(!(someChars is s:Char[]));
 
     [string, s:Char] x = ["ab", "c"];
     s:Char t1 = x[1];
     string t2 = x[1];
-    comp:assertValueEqual("c", t1);
-    comp:assertValueEqual("c", t2);
+    test:assertValueEqual("c", t1);
+    test:assertValueEqual("c", t2);
 }
 
 function testMapping() {
@@ -112,19 +112,19 @@ function testMapping() {
     map<s:Char> m1 = {};
     m1["k1"] = "a";
     string? t0 = m1["k1"];
-    comp:assertValueEqual("a", t0);
+    test:assertValueEqual("a", t0);
     map<string> t1 = m1;
 
-    comp:assertError(trap insertMapValue(t1, "k2", "abc"));
+    test:assertError(trap insertMapValue(t1, "k2", "abc"));
 
     record {
         s:Char i;
     } rec = { i : "a"};
     rec.i = "b";
-    comp:assertValueEqual("b", rec.i);
+    test:assertValueEqual("b", rec.i);
 
     record { string i;} t3 = rec;
-    comp:assertError(trap updateRecord(t3, "abc"));
+    test:assertError(trap updateRecord(t3, "abc"));
 }
 function insertListValue(string[] list, int pos, string value) {
     list[pos] = value;

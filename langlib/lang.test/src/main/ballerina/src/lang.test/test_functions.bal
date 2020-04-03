@@ -14,28 +14,28 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Tests whether passed values are equal .
+# Tests value equality for two values.
 #
 # + expected - expected value
 # + actual - actual value
 public function assertValueEqual(anydata expected, anydata actual) = external;
 
-# Tests whether passed value has error type.
+# Tests whether a value is of type 'error'.
 #
 # + value - the passed value to be asserted
-public function assertError(anydata|error value) = external;
+public function assertError(any|error value) = external;
 
-# Tests whether passed value has not error type.
+# Tests whether a value is of a non-error type.
 #
 # + value - the passed value to be asserted
-public function assertNotError(anydata|error value) = external;
+public function assertNotError(any|error value) = external;
 
-# Tests whether passed value is True.
+# Tests whether a value is 'true'.
 #
 # + value - the passed value to be asserted
 public function assertTrue(boolean value) = external;
 
-# Tests whether passed value is False.
+# Tests whether a value is 'false'.
 #
 # + value - the passed value to be asserted
 public function assertFalse(boolean value) = external;

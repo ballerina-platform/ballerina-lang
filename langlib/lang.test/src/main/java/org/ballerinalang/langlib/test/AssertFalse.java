@@ -37,7 +37,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class AssertFalse {
     public static void assertFalse(Strand strand, boolean value) {
         if (value) {
-            throw BallerinaErrors.createError("Not False");
+            throw BallerinaErrors.createError("{ballerina/lang.test}AssertionError",
+                    "expected a false value");
         }
     }
 }

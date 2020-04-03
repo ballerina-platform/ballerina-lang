@@ -38,9 +38,10 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 public class AssertValueEqual {
     public static void assertValueEqual(Strand strand, Object expected, Object actual) {
-        if (TypeChecker.isEqual(expected, actual)) {
-        } else {
-            throw BallerinaErrors.createError("Not Equal");
+        if (!TypeChecker.isEqual(expected, actual)) {
+            String reason = "{ballerina/lang.test}AssertionError";
+            String msg = "expected " + expected.toString() + " but found " + actual.toString();
+            throw BallerinaErrors.createError(reason, msg);
         }
     }
 }
