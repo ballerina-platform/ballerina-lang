@@ -30,11 +30,7 @@ public class STBreakStatement extends STStatement{
         this.breakKeyword = breakKeyword;
         this.semicolonToken = semicolonToken;
 
-
-        this.bucketCount = 2;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(breakKeyword, 0);
-        this.addChildNode(semicolonToken, 1);
+        addChildren(breakKeyword, semicolonToken);
 
     }
 

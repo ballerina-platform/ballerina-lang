@@ -28,32 +28,13 @@ public class ContinueStatement extends Statement{
     }
 
     public Token continueToken() {
-        if (continueToken != null) {
-            return continueToken;
-        }
-
-        continueToken = createToken(0);
-        return continueToken;
+        return childInBucket(0);
     }
 
     public Token semicolonToken() {
-        if (semicolonToken != null) {
-            return semicolonToken;
-        }
-
-        semicolonToken = createToken(1);
-        return semicolonToken;
+        return childInBucket(1);
     }
 
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return continueToken();
-            case 1:
-                return semicolonToken();
-        }
-        return null;
-    }
     @Override
     public void accept(SyntaxNodeVisitor visitor) {
         visitor.visit(this);

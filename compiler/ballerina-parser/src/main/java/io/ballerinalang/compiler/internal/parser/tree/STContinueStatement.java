@@ -31,11 +31,7 @@ public class STContinueStatement extends STStatement {
         this.continueKeyword = continueKeyword;
         this.semicolonToken = semicolonToken;
 
-
-        this.bucketCount = 2;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(continueKeyword, 0);
-        this.addChildNode(semicolonToken, 1);
+        addChildren(continueKeyword, semicolonToken);
 
     }
 

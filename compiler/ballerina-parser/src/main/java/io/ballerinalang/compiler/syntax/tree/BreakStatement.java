@@ -28,32 +28,13 @@ public class BreakStatement extends Statement{
     }
 
     public Token breakToken() {
-        if (breakToken != null) {
-            return breakToken;
-        }
-
-        breakToken = createToken(0);
-        return breakToken;
+        return childInBucket(0);
     }
 
     public Token semicolonToken() {
-        if (semicolonToken != null) {
-            return semicolonToken;
-        }
-
-        semicolonToken = createToken(1);
-        return semicolonToken;
+        return childInBucket(1);
     }
 
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return breakToken();
-            case 1:
-                return semicolonToken();
-        }
-        return null;
-    }
     @Override
     public void accept(SyntaxNodeVisitor visitor) {
         visitor.visit(this);
