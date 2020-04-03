@@ -982,13 +982,13 @@ public class BallerinaParserErrorHandler {
         }
 
         if (parentCtx == ParserRuleContext.COMPUTED_FIELD_NAME) {
-            // Here we give high priority to the comma. Therefore order of the below array matters.
             ParserRuleContext[] next = { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.BINARY_OPERATOR,
                     ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET };
             return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next);
         }
 
         if (parentCtx == ParserRuleContext.LISTENERS_LIST) {
+            // Here we give high priority to the comma. Therefore order of the below array matters.
             ParserRuleContext[] next = { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
                     ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.OPEN_BRACE };
             return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next);

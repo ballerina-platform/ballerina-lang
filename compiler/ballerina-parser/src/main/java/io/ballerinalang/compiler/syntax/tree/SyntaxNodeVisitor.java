@@ -72,9 +72,11 @@ public abstract class SyntaxNodeVisitor {
     public void visit(ContinueStatement continueStatement) {
         visitSyntaxNode(continueStatement);
     }
+
     public void visit(BreakStatement breakStatement) {
         visitSyntaxNode(breakStatement);
     }
+
     public void visit(ReturnStatement returnStatement) {
         visitSyntaxNode(returnStatement);
     }
@@ -196,6 +198,10 @@ public abstract class SyntaxNodeVisitor {
 
     public void visit(ServiceDeclarationNode serviceDecl) {
         visitSyntaxNode(serviceDecl);
+    }
+
+    public void visit(ExpressionListItem expressionListItem) {
+        visitSyntaxNode(expressionListItem);
     }
 
     protected void visitSyntaxNode(Node node) {

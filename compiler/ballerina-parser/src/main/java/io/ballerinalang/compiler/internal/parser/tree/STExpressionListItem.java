@@ -17,19 +17,20 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.ExpressionListItem;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 /**
  * @since 1.3.0
  */
-public class STListenerRef extends STNode {
+public class STExpressionListItem extends STNode {
 
     public final STNode leadingComma;
     public final STNode expression;
 
-    STListenerRef(STNode leadingComma, STNode expression) {
-        super(SyntaxKind.LISTENER_REF);
+    STExpressionListItem(STNode leadingComma, STNode expression) {
+        super(SyntaxKind.EXPRESSION_LIST_ITEM);
         this.leadingComma = leadingComma;
         this.expression = expression;
         addChildren(leadingComma, expression);
@@ -37,6 +38,6 @@ public class STListenerRef extends STNode {
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new ExpressionListItem(this, position, parent);
     }
 }

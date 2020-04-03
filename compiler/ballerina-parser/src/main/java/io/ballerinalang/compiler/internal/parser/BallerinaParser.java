@@ -4034,15 +4034,15 @@ public class BallerinaParser {
 
         // Parse first field mapping, that has no leading comma
         STNode leadingComma = STNodeFactory.createEmptyNode();
-        STNode listenerRef = parseListenerRef(leadingComma);
-        listeners.add(listenerRef);
+        STNode exprListItem = parseExpressionListItem(leadingComma);
+        listeners.add(exprListItem);
 
         // Parse the remaining field mappings
         nextToken = peek();
         while (!isEndOfListenersList(nextToken.kind)) {
             leadingComma = parseComma();
-            listenerRef = parseListenerRef(leadingComma);
-            listeners.add(listenerRef);
+            exprListItem = parseExpressionListItem(leadingComma);
+            listeners.add(exprListItem);
             nextToken = peek();
         }
 
@@ -4068,14 +4068,14 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse listener reference item.
+     * Parse expression list item.
      * 
      * @param leadingComma Leading comma
      * @return Parsed node
      */
-    private STNode parseListenerRef(STNode leadingComma) {
+    private STNode parseExpressionListItem(STNode leadingComma) {
         STNode expr = parseExpression();
-        return STNodeFactory.createListnerRef(leadingComma, expr);
+        return STNodeFactory.createExpressionListItem(leadingComma, expr);
     }
 
     /**

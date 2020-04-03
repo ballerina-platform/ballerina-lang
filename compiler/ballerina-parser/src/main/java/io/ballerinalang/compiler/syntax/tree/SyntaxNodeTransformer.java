@@ -201,6 +201,10 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(serviceDecl);
     }
 
+    public T transform(ExpressionListItem expressionListItem) {
+        return transformSyntaxNode(expressionListItem);
+    }
+
     /**
      * Transforms the given {@code Node} into an object of type T.
      * <p>

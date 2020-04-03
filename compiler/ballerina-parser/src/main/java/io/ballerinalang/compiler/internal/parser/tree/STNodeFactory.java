@@ -377,8 +377,8 @@ public class STNodeFactory {
         return new STServiceDeclaration(serviceKeyword, serviceName, onKeyword, listenerList, serviceBody);
     }
 
-    public static STNode createListnerRef(STNode leadingComma, STNode expr) {
-        return new STListenerRef(leadingComma, expr);
+    public static STNode createExpressionListItem(STNode leadingComma, STNode expr) {
+        return new STExpressionListItem(leadingComma, expr);
     }
 
     public static STNode createServiceBody(STNode openBraceToken, STNode resources, STNode closeBraceToken) {
