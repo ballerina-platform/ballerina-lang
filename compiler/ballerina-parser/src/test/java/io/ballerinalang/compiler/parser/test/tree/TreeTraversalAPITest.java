@@ -53,7 +53,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(actualToken.toString(), expectedLexeme);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testGetParentOfToken() {
         SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
         ModulePart modulePart = syntaxTree.getModulePart();
