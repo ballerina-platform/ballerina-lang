@@ -367,6 +367,10 @@ public class ParserTestUtils {
                 return SyntaxKind.BITWISE_AND_TOKEN;
             case "BITWISE_XOR_TOKEN":
                 return SyntaxKind.BITWISE_XOR_TOKEN;
+            case "LOGICAL_AND_TOKEN":
+                return SyntaxKind.LOGICAL_AND_TOKEN;
+            case "LOGICAL_OR_TOKEN":
+                return SyntaxKind.LOGICAL_OR_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
