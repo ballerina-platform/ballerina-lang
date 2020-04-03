@@ -1,0 +1,174 @@
+{
+    "kind": "SERVICE_DECLARATION",
+    "children": [
+        {
+            "kind": "SERVICE_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "helloWorld"
+        },
+        {
+            "kind": "ON_KEYWORD"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "LISTENER_REF",
+                    "children": [
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "listner1"
+                        }
+                    ]
+                },
+                {
+                    "kind": "LISTENER_REF",
+                    "children": [
+                        {
+                            "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "BINARY_EXPRESSION",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "a"
+                                },
+                                {
+                                    "kind": "PLUS_TOKEN"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "b"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "LISTENER_REF",
+                    "children": [
+                        {
+                            "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "QUALIFIED_IDENTIFIER",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "c"
+                                },
+                                {
+                                    "kind": "COLON_TOKEN"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "d"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "SERVICE_BODY",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "FUNCTION_DEFINITION",
+                            "children": [
+                                {
+                                    "kind": "FUNCTION_KEYWORD"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "foo"
+                                },
+                                {
+                                    "kind": "OPEN_PAREN_TOKEN"
+                                },
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                },
+                                {
+                                    "kind": "CLOSE_PAREN_TOKEN"
+                                },
+                                {
+                                    "kind": "BLOCK_STATEMENT",
+                                    "children": [
+                                        {
+                                            "kind": "OPEN_BRACE_TOKEN"
+                                        },
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                            ]
+                                        },
+                                        {
+                                            "kind": "CLOSE_BRACE_TOKEN"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "FUNCTION_DEFINITION",
+                            "children": [
+                                {
+                                    "kind": "RESOURCE_KEYWORD"
+                                },
+                                {
+                                    "kind": "FUNCTION_KEYWORD"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "bar"
+                                },
+                                {
+                                    "kind": "OPEN_PAREN_TOKEN"
+                                },
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                },
+                                {
+                                    "kind": "CLOSE_PAREN_TOKEN"
+                                },
+                                {
+                                    "kind": "BLOCK_STATEMENT",
+                                    "children": [
+                                        {
+                                            "kind": "OPEN_BRACE_TOKEN"
+                                        },
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                            ]
+                                        },
+                                        {
+                                            "kind": "CLOSE_BRACE_TOKEN"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}

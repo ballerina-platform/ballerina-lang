@@ -77,7 +77,8 @@ public enum ParserRuleContext {
     IMPORT_DECL_RHS("import-decl-rhs"),
     AFTER_IMPORT_MODULE_NAME("after-import-module-name"),
     MAJOR_MINOR_VERSION_END("major-minor-version-end"),
-    SERVICE_RHS("service-rhs"),
+    SERVICE_DECL("service-decl"),
+    OPTIONAL_SERVICE_NAME("service-rhs"),
     LISTENERS_LIST("listeners-list"),
     RESOURCE_DEF("resource-def"),
 

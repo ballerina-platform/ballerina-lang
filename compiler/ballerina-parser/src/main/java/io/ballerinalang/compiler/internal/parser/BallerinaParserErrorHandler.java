@@ -77,7 +77,8 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE =
             new ParserRuleContext[] { ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.FUNC_DEFINITION,
-                    ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.IMPORT_DECL, ParserRuleContext.EOF };
+                    ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.IMPORT_DECL,
+                    ParserRuleContext.SERVICE_DECL, ParserRuleContext.EOF };
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
             { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.VARIABLE_NAME };
@@ -163,6 +164,12 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] SPECIFIC_FIELD_RHS =
             { ParserRuleContext.COLON, ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
+
+    private static final ParserRuleContext[] OPTIONAL_SERVICE_NAME =
+            { ParserRuleContext.SERVICE_NAME, ParserRuleContext.ON_KEYWORD };
+
+    private static final ParserRuleContext[] RESOURCE_DEF_START =
+            { ParserRuleContext.RESOURCE_KEYWORD, ParserRuleContext.FUNC_DEFINITION };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -374,6 +381,7 @@ public class BallerinaParserErrorHandler {
         ParserRuleContext enclosingContext = getParentContext();
         switch (enclosingContext) {
             case OBJECT_TYPE_DESCRIPTOR:
+            case SERVICE_DECL:
                 switch (token.kind) {
                     case CLOSE_BRACE_TOKEN:
                     case EOF_TOKEN:
@@ -404,6 +412,8 @@ public class BallerinaParserErrorHandler {
                     case TYPE_KEYWORD:
                     case PUBLIC_KEYWORD:
                     case FUNCTION_KEYWORD:
+                    case SERVICE_KEYWORD:
+                    case RESOURCE_KEYWORD:
                         return true;
                     default:
                         return false;
@@ -418,6 +428,7 @@ public class BallerinaParserErrorHandler {
             case EOF_TOKEN:
             case CLOSE_BRACE_PIPE_TOKEN:
             case TYPE_KEYWORD:
+            case SERVICE_KEYWORD:
                 return true;
             default:
                 STToken nextNextToken = this.tokenReader.peek(nextLookahead + 1);
@@ -426,6 +437,7 @@ public class BallerinaParserErrorHandler {
                     case EOF_TOKEN:
                     case CLOSE_BRACE_PIPE_TOKEN:
                     case TYPE_KEYWORD:
+                    case SERVICE_KEYWORD:
                         return true;
                     default:
                         return false;
@@ -540,6 +552,7 @@ public class BallerinaParserErrorHandler {
                 case IMPORT_PREFIX:
                 case VARIABLE_REF:
                 case MAPPING_FIELD_NAME:
+                case SERVICE_NAME:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case OPEN_PARENTHESIS:
@@ -564,6 +577,11 @@ public class BallerinaParserErrorHandler {
                 case FUNC_BODY:
                     return seekInFuncBodies(lookahead, currentDepth, matchingRulesCount);
                 case OPEN_BRACE:
+                    // Listener-list in a service definition ends when the open-brace is reached.
+                    if (getParentContext() == ParserRuleContext.LISTENERS_LIST) {
+                        endContext();
+                    }
+
                     hasMatch = nextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN;
                     break;
                 case CLOSE_BRACE:
@@ -781,6 +799,16 @@ public class BallerinaParserErrorHandler {
                 case SERVICE_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.SERVICE_KEYWORD;
                     break;
+                case ON_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.ON_KEYWORD;
+                    break;
+                case OPTIONAL_SERVICE_NAME:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, OPTIONAL_SERVICE_NAME);
+                case RESOURCE_DEF:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RESOURCE_DEF_START);
+                case RESOURCE_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.RESOURCE_KEYWORD;
+                    break;
 
                 // productions
                 case COMP_UNIT:
@@ -811,6 +839,9 @@ public class BallerinaParserErrorHandler {
                 case MAPPING_CONSTRUCTOR:
                 case PANIC_STMT:
                 case COMPUTED_FIELD_NAME:
+                case RETURN_STMT:
+                case LISTENERS_LIST:
+                case SERVICE_DECL:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -945,8 +976,15 @@ public class BallerinaParserErrorHandler {
         }
 
         if (parentCtx == ParserRuleContext.COMPUTED_FIELD_NAME) {
+            // Here we give high priority to the comma. Therefore order of the below array matters.
             ParserRuleContext[] next = { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.BINARY_OPERATOR,
                     ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET };
+            return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next);
+        }
+
+        if (parentCtx == ParserRuleContext.LISTENERS_LIST) {
+            ParserRuleContext[] next = { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
+                    ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.OPEN_BRACE };
             return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next);
         }
 
@@ -1165,6 +1203,8 @@ public class BallerinaParserErrorHandler {
             case IMPORT_DECL:
             case RETURN_STMT:
             case COMPUTED_FIELD_NAME:
+            case LISTENERS_LIST:
+            case SERVICE_DECL:
                 startContext(currentCtx);
                 break;
             default:
@@ -1391,10 +1431,22 @@ public class BallerinaParserErrorHandler {
             case COLON:
                 return ParserRuleContext.EXPRESSION;
             case STRING_LITERAL:
-                // We assume string literal is specifically used in the mapping constructor key.
+                // We assume string literal is specifically used only in the mapping constructor key.
                 return ParserRuleContext.COLON;
             case COMPUTED_FIELD_NAME:
                 return ParserRuleContext.OPEN_BRACKET;
+            case LISTENERS_LIST:
+                return ParserRuleContext.OPEN_BRACKET;
+            case ON_KEYWORD:
+                return ParserRuleContext.LISTENERS_LIST;
+            case RESOURCE_KEYWORD:
+                return ParserRuleContext.FUNC_DEFINITION;
+            case SERVICE_DECL:
+                return ParserRuleContext.SERVICE_KEYWORD;
+            case SERVICE_KEYWORD:
+                return ParserRuleContext.OPTIONAL_SERVICE_NAME;
+            case SERVICE_NAME:
+                return ParserRuleContext.ON_KEYWORD;
 
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
@@ -1431,6 +1483,9 @@ public class BallerinaParserErrorHandler {
             case MAPPING_CONSTRUCTOR:
             case MAPPING_FIELD:
             case SPECIFIC_FIELD_RHS:
+            case RETURN_STMT_RHS:
+            case OPTIONAL_SERVICE_NAME:
+            case RESOURCE_DEF:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -1471,6 +1526,8 @@ public class BallerinaParserErrorHandler {
                 return parentCtx;
             case MAPPING_CONSTRUCTOR:
                 return ParserRuleContext.MAPPING_FIELD;
+            case LISTENERS_LIST:
+                return ParserRuleContext.EXPRESSION;
             default:
                 throw new IllegalStateException();
         }
@@ -1529,12 +1586,13 @@ public class BallerinaParserErrorHandler {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
             case FUNC_BODY_BLOCK:
+            case SERVICE_DECL:
                 endContext(); // end body block
                 STToken nextToken = this.tokenReader.peek(nextLookahead);
                 if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
                     return ParserRuleContext.EOF;
                 }
-                return ParserRuleContext.TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER;
+                return ParserRuleContext.TOP_LEVEL_NODE;
             case OBJECT_MEMBER:
                 endContext(); // end object member
                 // fall through
@@ -1545,7 +1603,7 @@ public class BallerinaParserErrorHandler {
                 if (parentCtx == ParserRuleContext.MODULE_TYPE_DEFINITION) {
                     return ParserRuleContext.SEMICOLON;
                 }
-                return ParserRuleContext.TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER;
+                return ParserRuleContext.TOP_LEVEL_NODE;
             case BLOCK_STMT:
                 endContext(); // end block stmt
                 parentCtx = getParentContext();
@@ -1886,6 +1944,7 @@ public class BallerinaParserErrorHandler {
             case IMPORT_PREFIX:
             case VARIABLE_REF:
             case BASIC_LITERAL: // return var-ref for any kind of terminal expression
+            case SERVICE_NAME:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -1909,6 +1968,14 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.PANIC_KEYWORD;
             case STRING_LITERAL:
                 return SyntaxKind.STRING_LITERAL;
+            case ON_KEYWORD:
+                return SyntaxKind.ON_KEYWORD;
+            case RESOURCE_KEYWORD:
+                return SyntaxKind.RESOURCE_KEYWORD;
+            case RETURN_KEYWORD:
+                return SyntaxKind.RETURN_KEYWORD;
+            case SERVICE_KEYWORD:
+                return SyntaxKind.SERVICE_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
@@ -1953,6 +2020,13 @@ public class BallerinaParserErrorHandler {
             case MAPPING_CONSTRUCTOR:
             case PANIC_STMT:
             case SPECIFIC_FIELD_RHS:
+            case COMPUTED_FIELD_NAME:
+            case LISTENERS_LIST:
+            case RESOURCE_DEF:
+            case RETURN_STMT:
+            case RETURN_STMT_RHS:
+            case SERVICE_DECL:
+            case OPTIONAL_SERVICE_NAME:
             default:
                 break;
         }

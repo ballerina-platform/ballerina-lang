@@ -172,6 +172,7 @@ public class BallerinaParser {
             case IMPORT_ORG_OR_MODULE_NAME:
             case VARIABLE_REF:
             case FIELD_OR_FUNC_NAME:
+            case SERVICE_NAME:
                 return parseIdentifier(context);
             case IMPORT_KEYWORD:
                 return parseImportKeyword();
@@ -207,6 +208,14 @@ public class BallerinaParser {
                 return parseOpenBracket();
             case RESOURCE_DEF:
                 return parseResource();
+            case OPTIONAL_SERVICE_NAME:
+                return parseServiceName();
+            case SERVICE_KEYWORD:
+                return parseServiceKeyword();
+            case ON_KEYWORD:
+                return parseOnKeyword();
+            case RESOURCE_KEYWORD:
+                return parseResourceKeyword();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -570,6 +579,7 @@ public class BallerinaParser {
             case ABSTRACT_KEYWORD:
             case CONST_KEYWORD:
             case EOF_TOKEN:
+            case SERVICE_KEYWORD:
                 return true;
             default:
                 return false;
@@ -1433,6 +1443,8 @@ public class BallerinaParser {
             case PUBLIC_KEYWORD:
             case FUNCTION_KEYWORD:
             case ELSE_KEYWORD:
+            case SERVICE_KEYWORD:
+            case RESOURCE_KEYWORD:
                 return true;
             default:
                 return false;
@@ -1450,6 +1462,7 @@ public class BallerinaParser {
             case EOF_TOKEN:
             case CLOSE_BRACE_PIPE_TOKEN:
             case TYPE_KEYWORD:
+            case SERVICE_KEYWORD:
                 return true;
             default:
                 switch (nextNextTokenKind) {
@@ -1457,6 +1470,7 @@ public class BallerinaParser {
                     case EOF_TOKEN:
                     case CLOSE_BRACE_PIPE_TOKEN:
                     case TYPE_KEYWORD:
+                    case SERVICE_KEYWORD:
                         return true;
                     default:
                         return false;
@@ -3868,22 +3882,31 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseServiceRhs(STNode serviceKeyword) {
-        STToken nextToken = peek();
-        return parseServiceRhs(nextToken.kind, serviceKeyword);
+        startContext(ParserRuleContext.SERVICE_DECL);
+        STNode serviceName = parseServiceName();
+        STNode onKeyword = parseOnKeyword();
+        STNode listenerList = parseListeners();
+        STNode serviceBody = parseServiceBody();
+        STNode service =
+                STNodeFactory.createServiceDecl(serviceKeyword, serviceName, onKeyword, listenerList, serviceBody);
+        endContext();
+        return service;
     }
 
-    private STNode parseServiceRhs(SyntaxKind kind, STNode serviceKeyword) {
-        STNode serviceName;
+    private STNode parseServiceName() {
+        STToken nextToken = peek();
+        return parseServiceName(nextToken.kind);
+    }
+
+    private STNode parseServiceName(SyntaxKind kind) {
         switch (kind) {
             case IDENTIFIER_TOKEN:
-                serviceName = parseIdentifier(ParserRuleContext.SERVICE_NAME);
-                break;
+                return parseIdentifier(ParserRuleContext.SERVICE_NAME);
             case ON_KEYWORD:
-                serviceName = STNodeFactory.createEmptyNode();
-                break;
+                return STNodeFactory.createEmptyNode();
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.SERVICE_RHS, serviceKeyword);
+                Solution solution = recover(token, ParserRuleContext.OPTIONAL_SERVICE_NAME);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -3892,13 +3915,8 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseServiceRhs(solution.tokenKind, serviceKeyword);
+                return parseServiceName(solution.tokenKind);
         }
-
-        STNode onKeyword = parseOnKeyword();
-        STNode listenerList = parseListeners();
-        STNode serviceBody = parseServiceBody();
-        return STNodeFactory.createServiceDecl(serviceKeyword, serviceName, onKeyword, listenerList, serviceBody);
     }
 
     /**
@@ -3944,7 +3962,8 @@ public class BallerinaParser {
 
         STToken nextToken = peek();
         if (isEndOfListenersList(nextToken.kind)) {
-            return STNodeFactory.createNodeList(listeners);
+            this.errorHandler.reportMissingTokenError("missing expression");
+            return STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
         }
 
         // Parse first field mapping, that has no leading comma

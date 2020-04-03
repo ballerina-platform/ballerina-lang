@@ -279,6 +279,8 @@ public class ParserTestUtils {
                 return SyntaxKind.FUNCTION_DEFINITION;
             case "IMPORT_DECLARATION":
                 return SyntaxKind.IMPORT_DECLARATION;
+            case "SERVICE_DECLARATION":
+                return SyntaxKind.SERVICE_DECLARATION;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -333,6 +335,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ON_KEYWORD;
             case "RESOURCE_KEYWORD":
                 return SyntaxKind.RESOURCE_KEYWORD;
+            case "LISTENER_KEYWORD":
+                return SyntaxKind.LISTENER_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -509,6 +513,10 @@ public class ParserTestUtils {
                 return SyntaxKind.COMPUTED_NAME_FIELD;
             case "SPREAD_FIELD":
                 return SyntaxKind.SPREAD_FIELD;
+            case "SERVICE_BODY":
+                return SyntaxKind.SERVICE_BODY;
+            case "LISTENER_REF":
+                return SyntaxKind.LISTENER_REF;
 
             // Trivia
             case "EOF_TOKEN":
