@@ -49,6 +49,7 @@ public class Tokens {
     public static final String DIV = "/";
     public static final String AT = "@";
     public static final String PIPE = "|";
+    public static final String UNDERSCORE = "_";
 
     // Keywords.
     public static final String VAR = "var";
