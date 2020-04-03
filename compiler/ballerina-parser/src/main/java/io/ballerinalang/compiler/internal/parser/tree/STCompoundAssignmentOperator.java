@@ -32,10 +32,7 @@ public class STCompoundAssignmentOperator extends STNode {
         this.binaryOperator = binaryOperator;
         this.equalsToken = equalsToken;
 
-        this.bucketCount = 2;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(binaryOperator, 0);
-        this.addChildNode(equalsToken, 1);
+        addChildren(binaryOperator, equalsToken);
     }
 
     @Override

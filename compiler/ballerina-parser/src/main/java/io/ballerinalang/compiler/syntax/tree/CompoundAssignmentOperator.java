@@ -28,31 +28,11 @@ public class CompoundAssignmentOperator extends Statement {
     }
 
     public Token binaryOperator() {
-        if (binaryOperator != null) {
-            return binaryOperator;
-        }
-
-        binaryOperator = createToken(0);
-        return binaryOperator;
+        return (Token) childInBucket(0);
     }
 
     public Token equalsToken() {
-        if (equalsToken != null) {
-            return equalsToken;
-        }
-
-        equalsToken = createToken(1);
-        return equalsToken;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return binaryOperator();
-            case 1:
-                return equalsToken();
-        }
-        return null;
+        return (Token) childInBucket(1);
     }
 
     @Override

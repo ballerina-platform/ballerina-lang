@@ -30,54 +30,19 @@ public class CompoundAssignmentStatement extends Statement {
     }
 
     public Token variableName() {
-        if (variableName != null) {
-            return variableName;
-        }
-
-        variableName = createToken(0);
-        return variableName;
+        return (Token) childInBucket(0);
     }
 
     public Node compoundAssignmentOperator() {
-        if (compoundAssignmentOperator != null) {
-            return compoundAssignmentOperator;
-        }
-
-        compoundAssignmentOperator = node.childInBucket(1).createFacade(getChildPosition(1), this);
-        return compoundAssignmentOperator;
+        return childInBucket(1);
     }
 
     public Node expression() {
-        if (expression != null) {
-            return expression;
-        }
-
-        expression = node.childInBucket(2).createFacade(getChildPosition(2), this);
-        childBuckets[2] = expression;
-        return expression;
+        return childInBucket(2);
     }
 
     public Token semicolonToken() {
-        if (semicolonToken != null) {
-            return semicolonToken;
-        }
-
-        semicolonToken = createToken(3);
-        return semicolonToken;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return variableName();
-            case 1:
-                return compoundAssignmentOperator();
-            case 2:
-                return expression();
-            case 3:
-                return semicolonToken();
-        }
-        return null;
+        return (Token) childInBucket(3);
     }
 
     @Override

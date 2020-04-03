@@ -38,12 +38,7 @@ public class STCompoundAssignmentStatement extends STStatement {
         this.expr = expr;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(lhsExpression, 0);
-        this.addChildNode(compoundAssignmentOperator, 1);
-        this.addChildNode(expr, 2);
-        this.addChildNode(semicolonToken, 3);
+        addChildren(lhsExpression, compoundAssignmentOperator, expr, semicolonToken);
     }
 
     @Override
