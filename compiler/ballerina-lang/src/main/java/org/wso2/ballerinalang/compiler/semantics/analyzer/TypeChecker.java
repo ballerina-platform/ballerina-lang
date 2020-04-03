@@ -1840,7 +1840,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean isFixedLengthList(BType type) {
         switch(type.tag) {
             case TypeTags.ARRAY:
-                return (((BArrayType) type).state == BArrayState.CLOSED_SEALED);
+                return (((BArrayType) type).state != BArrayState.UNSEALED);
             case TypeTags.TUPLE:
                 return (((BTupleType) type).restType == null);
             case TypeTags.UNION:
