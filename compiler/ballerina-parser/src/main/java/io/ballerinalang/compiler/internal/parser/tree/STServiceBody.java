@@ -36,11 +36,7 @@ public class STServiceBody extends STStatement {
         this.resources = resources;
         this.closeBraceToken = closeBraceToken;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(openBraceToken, 0);
-        this.addChildNode(resources, 1);
-        this.addChildNode(closeBraceToken, 2);
+        addChildren(openBraceToken, resources, closeBraceToken);
     }
 
     @Override

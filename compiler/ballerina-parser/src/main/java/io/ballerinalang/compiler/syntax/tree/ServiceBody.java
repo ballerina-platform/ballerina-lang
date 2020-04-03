@@ -19,53 +19,25 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+/**
+ * @since 1.3.0
+ */
 public class ServiceBody extends NonTerminalNode {
-
-    private Token openBraceToken;
-    private NodeList<Node> resources;
-    private Token closeBraceToken;
 
     public ServiceBody(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token openBraceToken() {
-        if (openBraceToken != null) {
-            return openBraceToken;
-        }
-
-        openBraceToken = createToken(0);
-        return openBraceToken;
+        return childInBucket(0);
     }
 
     public NodeList<Node> resources() {
-        if (resources != null) {
-            return resources;
-        }
-
-        resources = createListNode(1);
-        return resources;
+        return new NodeList<>(childInBucket(1));
     }
 
     public Token closeBraceToken() {
-        if (closeBraceToken != null) {
-            return closeBraceToken;
-        }
-
-        closeBraceToken = createToken(2);
-        return closeBraceToken;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return openBraceToken();
-            case 1:
-                return resources();
-            case 2:
-                return closeBraceToken();
-        }
-        return null;
+        return childInBucket(2);
     }
 
     @Override

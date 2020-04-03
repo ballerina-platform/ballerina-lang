@@ -19,8 +19,10 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 
+/**
+ * @since 1.3.0
+ */
 public class STListenerRef extends STNode {
 
     public final STNode leadingComma;
@@ -30,11 +32,7 @@ public class STListenerRef extends STNode {
         super(SyntaxKind.LISTENER_REF);
         this.leadingComma = leadingComma;
         this.expression = expression;
-
-        this.bucketCount = 2;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingComma, 0);
-        this.addChildNode(expression, 1);
+        addChildren(leadingComma, expression);
     }
 
     @Override

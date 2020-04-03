@@ -45,13 +45,7 @@ public class STServiceDeclaration extends STNode {
         this.listenerList = listenerList;
         this.serviceBody = serviceBody;
 
-        this.bucketCount = 5;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(serviceKeyword, 0);
-        this.addChildNode(serviceName, 1);
-        this.addChildNode(onKeyword, 2);
-        this.addChildNode(listenerList, 3);
-        this.addChildNode(serviceBody, 4);
+        addChildren(serviceKeyword, serviceName, onKeyword, listenerList, serviceBody);
     }
 
     @Override

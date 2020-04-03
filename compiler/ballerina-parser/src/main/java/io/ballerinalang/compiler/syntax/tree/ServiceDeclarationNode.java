@@ -24,76 +24,28 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  */
 public class ServiceDeclarationNode extends ModuleMemberDeclaration {
 
-    private Token serviceKeyword;
-    private Token serviceName;
-    private Token onKeyword;
-    private Node listenerList;
-    private Node serviceBody;
-
     public ServiceDeclarationNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token serviceKeyword() {
-        if (serviceKeyword != null) {
-            return serviceKeyword;
-        }
-
-        serviceKeyword = createToken(0);
-        return serviceKeyword;
+        return childInBucket(0);
     }
 
     public Token serviceName() {
-        if (serviceName != null) {
-            return serviceName;
-        }
-
-        serviceName = createToken(1);
-        return serviceName;
+        return childInBucket(1);
     }
 
     public Token onKeyword() {
-        if (onKeyword != null) {
-            return onKeyword;
-        }
-
-        onKeyword = createToken(2);
-        return onKeyword;
+        return childInBucket(2);
     }
 
-    public Node listenerList() {
-        if (listenerList != null) {
-            return listenerList;
-        }
-
-        this.listenerList = createListNode(3);
-        return this.listenerList;
+    public NodeList<Node> listenerList() {
+        return new NodeList<>(childInBucket(3));
     }
 
     public Node returnTypeDesc() {
-        if (serviceBody != null) {
-            return serviceBody;
-        }
-
-        serviceBody = node.childInBucket(4).createFacade(getChildPosition(4), this);
-        childBuckets[4] = serviceBody;
-        return serviceBody;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return serviceKeyword();
-            case 1:
-                return serviceName();
-            case 2:
-                return onKeyword();
-            case 3:
-                return listenerList();
-            case 4:
-                return returnTypeDesc();
-        }
-        return null;
+        return childInBucket(4);
     }
 
     @Override
