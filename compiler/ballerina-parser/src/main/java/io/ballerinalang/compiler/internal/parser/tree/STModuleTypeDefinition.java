@@ -42,13 +42,7 @@ public class STModuleTypeDefinition extends STNode {
         this.typeDescriptor = typeDescriptor;
         this.comma = comma;
 
-        this.bucketCount = 5;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(visibilityQualifier, 0);
-        this.addChildNode(typeKeyword, 1);
-        this.addChildNode(typeName, 2);
-        this.addChildNode(typeDescriptor, 3);
-        this.addChildNode(comma, 4);
+        addChildren(visibilityQualifier, typeKeyword, typeName, typeDescriptor, comma);
     }
 
     @Override

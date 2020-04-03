@@ -25,52 +25,21 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  * @since 1.3.0
  */
 public class BracedExpression extends NonTerminalNode {
-    private Token openParen;
-    private Node expression;
-    private Token closeParen;
 
     public BracedExpression(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token openParen() {
-        if (openParen != null) {
-            return openParen;
-        }
-
-        openParen = createToken(0);
-        return openParen;
+        return (Token) childInBucket(0);
     }
 
     public Node expression() {
-        if (expression != null) {
-            return expression;
-        }
-
-        expression = node.childInBucket(1).createFacade(getChildPosition(1), this);
-        childBuckets[1] = expression;
-        return expression;
+        return childInBucket(1);
     }
 
     public Token closeParen() {
-        if (closeParen != null) {
-            return closeParen;
-        }
-
-        closeParen = createToken(2);
-        return closeParen;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return openParen();
-            case 1:
-                return expression();
-            case 2:
-                return closeParen();
-        }
-        return null;
+        return (Token) childInBucket(2);
     }
 
     @Override

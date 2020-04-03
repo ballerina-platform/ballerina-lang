@@ -17,41 +17,15 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
+public class NodeList<T extends Node> {
 
-public class NodeList<T extends Node> extends NonTerminalNode {
-    public NodeList(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    private NonTerminalNode node;
+
+    public NodeList(NonTerminalNode node) {
+        this.node = node;
     }
 
-    public T childInBucket(int bucket) {
-        // TODO Fix warnings with generics
-        T childNode = (T) super.childInBucket(bucket);
-        if (childNode != null) {
-            return childNode;
-        }
-
-        STNode internalChild = node.childInBucket(bucket);
-        if (internalChild == null) {
-            return null;
-        }
-
-        childNode = (T) internalChild.createFacade(getChildPosition(bucket), this);
-        this.childBuckets[bucket] = childNode;
-        return childNode;
-    }
-
-    public int size() {
-        return this.node.bucketCount();
-    }
-
-    @Override
-    public void accept(SyntaxNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
-        return visitor.transform(this);
+    public T get(int index) {
+        return null;
     }
 }

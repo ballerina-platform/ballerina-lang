@@ -3595,10 +3595,10 @@ public class BallerinaParser {
     private STNode parseMappingConstructorExpr() {
         startContext(ParserRuleContext.MAPPING_CONSTRUCTOR);
         STNode openBrace = parseOpenBrace();
-        STNode fields = parseMapingConstructorFields();
+        STNode fields = parseMappingConstructorFields();
         STNode closeBrace = parseCloseBrace();
         endContext();
-        return STNodeFactory.createMappingContructorExpr(openBrace, fields, closeBrace);
+        return STNodeFactory.createMappingConstructorExpr(openBrace, fields, closeBrace);
     }
 
     /**
@@ -3606,7 +3606,7 @@ public class BallerinaParser {
      * 
      * @return Parsed node
      */
-    private STNode parseMapingConstructorFields() {
+    private STNode parseMappingConstructorFields() {
         List<STNode> fields = new ArrayList<>();
         STToken nextToken = peek();
         if (isEndOfMappingConstructor(nextToken.kind)) {

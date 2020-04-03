@@ -30,10 +30,7 @@ public class STCallStatement extends STStatement {
         this.expression = expression;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 2;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(expression, 0);
-        this.addChildNode(semicolonToken, 1);
+        addChildren(expression, semicolonToken);
     }
 
     @Override

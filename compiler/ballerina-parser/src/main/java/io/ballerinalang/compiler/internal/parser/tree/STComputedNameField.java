@@ -46,14 +46,7 @@ public class STComputedNameField extends STMappingField {
         this.colon = colon;
         this.valueExpr = valueExpr;
 
-        this.bucketCount = 6;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingComma, 0);
-        this.addChildNode(openBracket, 1);
-        this.addChildNode(fieldNameExpr, 2);
-        this.addChildNode(closeBracket, 3);
-        this.addChildNode(colon, 4);
-        this.addChildNode(valueExpr, 5);
+        addChildren(leadingComma, openBracket, fieldNameExpr, closeBracket, colon, valueExpr);
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {

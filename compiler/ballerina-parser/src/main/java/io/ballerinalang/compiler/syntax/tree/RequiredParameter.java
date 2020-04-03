@@ -20,63 +20,25 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class RequiredParameter extends Parameter {
-    private Token leadingComma;
-    private Token visibilityQualifier;
-    private Token type;
-    private Token paramName;
 
     public RequiredParameter(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token leadingComma() {
-        if (leadingComma != null) {
-            return leadingComma;
-        }
-
-        leadingComma = createToken(0);
-        return leadingComma;
+        return childInBucket(0);
     }
 
     public Token visibilityQualifier() {
-        if (visibilityQualifier != null) {
-            return visibilityQualifier;
-        }
-
-        visibilityQualifier = createToken(1);
-        return visibilityQualifier;
+        return childInBucket(1);
     }
 
     public Token type() {
-        if (type != null) {
-            return type;
-        }
-
-        type = createToken(2);
-        return type;
+        return childInBucket(2);
     }
 
     public Token paramName() {
-        if (paramName != null) {
-            return paramName;
-        }
-
-        paramName = createToken(3);
-        return paramName;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return leadingComma();
-            case 1:
-                return visibilityQualifier();
-            case 2:
-                return type();
-            case 3:
-                return paramName();
-        }
-        return null;
+        return childInBucket(3);
     }
 
     @Override

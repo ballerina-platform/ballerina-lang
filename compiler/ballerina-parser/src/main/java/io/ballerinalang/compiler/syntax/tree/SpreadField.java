@@ -24,52 +24,20 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  */
 public class SpreadField extends NonTerminalNode {
 
-    private Token leadingComma;
-    private Token ellipsis;
-    private Node expression;
-
     public SpreadField(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token leadingComma() {
-        if (leadingComma != null) {
-            return leadingComma;
-        }
-
-        leadingComma = createToken(0);
-        return leadingComma;
+        return childInBucket(0);
     }
 
     public Token ellipsis() {
-        if (ellipsis != null) {
-            return ellipsis;
-        }
-
-        ellipsis = createToken(1);
-        return ellipsis;
+        return childInBucket(1);
     }
 
     public Node expression() {
-        if (expression != null) {
-            return expression;
-        }
-
-        expression = node.childInBucket(2).createFacade(getChildPosition(2), this);
-        childBuckets[2] = expression;
-        return expression;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return leadingComma();
-            case 1:
-                return ellipsis();
-            case 2:
-                return expression();
-        }
-        return null;
+        return childInBucket(2);
     }
 
     @Override
