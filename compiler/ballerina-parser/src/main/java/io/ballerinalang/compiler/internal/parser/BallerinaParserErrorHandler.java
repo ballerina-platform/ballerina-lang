@@ -62,10 +62,10 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] FUNC_BODIES =
             { ParserRuleContext.FUNC_BODY_BLOCK, ParserRuleContext.EXTERNAL_FUNC_BODY };
 
-    private static final ParserRuleContext[] STATEMENTS =
-            { ParserRuleContext.ASSIGNMENT_STMT, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK,
-                    ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE,
-                    ParserRuleContext.PANIC_STMT, ParserRuleContext.RETURN_STMT };
+    private static final ParserRuleContext[] STATEMENTS = { ParserRuleContext.ASSIGNMENT_STMT,
+            ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK, ParserRuleContext.WHILE_BLOCK,
+            ParserRuleContext.CALL_STMT, ParserRuleContext.CLOSE_BRACE, ParserRuleContext.PANIC_STMT,
+            ParserRuleContext.CONTINUE_STATEMENT, ParserRuleContext.BREAK_STATEMENT, ParserRuleContext.RETURN_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -150,8 +150,8 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] AFTER_IMPORT_MODULE_NAME = { ParserRuleContext.DOT,
             ParserRuleContext.VERSION_KEYWORD, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
 
-    private static final ParserRuleContext[] MAJOR_MINOR_VERSION_END =
-            { ParserRuleContext.DOT, ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
+    private static final ParserRuleContext[] MAJOR_MINOR_VERSION_END = { ParserRuleContext.DOT,
+            ParserRuleContext.AS_KEYWORD, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] RETURN_RHS = { ParserRuleContext.SEMICOLON, ParserRuleContext.EXPRESSION };
 
@@ -744,6 +744,12 @@ public class BallerinaParserErrorHandler {
                 case VERSION_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.VERSION_KEYWORD;
                     break;
+                case CONTINUE_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.CONTINUE_KEYWORD;
+                    break;
+                case BREAK_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.BREAK_KEYWORD;
+                    break;
                 case IMPORT_PREFIX_DECL:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, IMPORT_PREFIX_DECL);
                 case IMPORT_VERSION_DECL:
@@ -1158,6 +1164,9 @@ public class BallerinaParserErrorHandler {
             case PANIC_STMT:
             case CALL_STMT:
             case IMPORT_DECL:
+            case CONTINUE_STATEMENT:
+            case BREAK_STATEMENT:
+                // case EXPRESSION:
             case RETURN_STMT:
             case COMPUTED_FIELD_NAME:
                 startContext(currentCtx);
@@ -1372,6 +1381,13 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.IMPORT_PREFIX_DECL;
             case IMPORT_DECL:
                 return ParserRuleContext.IMPORT_KEYWORD;
+            case CONTINUE_STATEMENT:
+                return ParserRuleContext.CONTINUE_KEYWORD;
+            case BREAK_STATEMENT:
+                return ParserRuleContext.BREAK_KEYWORD;
+            case CONTINUE_KEYWORD:
+            case BREAK_KEYWORD:
+                return ParserRuleContext.SEMICOLON;
             case RETURN_STMT:
                 return ParserRuleContext.RETURN_KEYWORD;
             case RETURN_KEYWORD:
@@ -1390,7 +1406,6 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.COLON;
             case COMPUTED_FIELD_NAME:
                 return ParserRuleContext.OPEN_BRACKET;
-
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
@@ -1687,6 +1702,8 @@ public class BallerinaParserErrorHandler {
             case WHILE_BLOCK:
             case CALL_STMT:
             case PANIC_STMT:
+            case CONTINUE_STATEMENT:
+            case BREAK_STATEMENT:
             case RETURN_STMT:
                 return true;
             default:

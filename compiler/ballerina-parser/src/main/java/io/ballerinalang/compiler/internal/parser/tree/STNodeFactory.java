@@ -115,6 +115,13 @@ public class STNodeFactory {
         return new STVariableDeclaration(kind, typeName, variableName, equalsToken, initializer, semicolonToken);
     }
 
+    public static STNode createContinueStatement(STNode continueKeyword, STNode semicolonToken) {
+        return new STContinueStatement(continueKeyword, semicolonToken);
+    }
+
+    public static STNode createBreakStatement(STNode breakKeyword, STNode semicolonToken) {
+        return new STBreakStatement(breakKeyword, semicolonToken);
+    }
     public static STNode createReturnStatement(SyntaxKind kind, STNode returnKeyword, STNode actionOrExpr, STNode semicolonToken) {
         return new STReturnStatement(kind, returnKeyword, actionOrExpr, semicolonToken);
     }
@@ -361,4 +368,5 @@ public class STNodeFactory {
                                                  STNode valueExpr) {
         return new STComputedNameField(leadingComma, openBracket, fieldNameExpr, closeBracket, colon, valueExpr);
     }
+  
 }

@@ -71,6 +71,13 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(panicStatement);
     }
 
+    public T transform(ContinueStatement continueStatement) {
+        return transformSyntaxNode(continueStatement);
+    }
+
+    public T transform(BreakStatement breakStatement) {
+        return transformSyntaxNode(breakStatement);
+    }
     public T transform(ReturnStatement returnStatement) {
         return transformSyntaxNode(returnStatement);
     }
