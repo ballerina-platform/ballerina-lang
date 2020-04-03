@@ -47,6 +47,13 @@ public class BinaryExpressionsTest extends AbstractExpressionsTest {
     }
 
     @Test
+    public void testSimpleBitwiseExpression() {
+        test("a & b", "binary-expr/binary_bitwise_expr_assert_1.json");
+        test("a ^ b ", "binary-expr/binary_bitwise_expr_assert_2.json");
+        test("a | b ", "binary-expr/binary_bitwise_expr_assert_3.json");
+    }
+
+    @Test
     public void testSimpleBinaryOpPrecedence() {
         test("a * b - c", "binary-expr/binary_expr_op_precedence_assert_1.json");
     }
