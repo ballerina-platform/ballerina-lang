@@ -25,12 +25,18 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class AnnotationExpressionNegative {
+/**
+ * Negative tests for validate annotation attachment expression.
+ *
+ * @since 1.2.1
+ */
+public class AnnotationExpressionCodeAnalysisNegative {
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/annotations/annot_attachment_expression_negative.bal");
+        compileResult = BCompileUtil.compile("test-src/annotations/annot_attachment_expression_code_analysis_negative" +
+                ".bal");
         Assert.assertEquals(compileResult.getErrorCount(), 4);
     }
 
@@ -38,11 +44,11 @@ public class AnnotationExpressionNegative {
     public void testAttachmentExpression() {
         int i = 0;
         BAssertUtil.validateError(compileResult, i++, "invalid key 'i': identifiers cannot be used as rest field " +
-                "keys, expected a string literal or an expression", 10, 5);
-        BAssertUtil.validateError(compileResult, i++, "'null' literal is only supported for 'json'", 24, 9);
+                "keys, expected a string literal or an expression", 26, 5);
+        BAssertUtil.validateError(compileResult, i++, "'null' literal is only supported for 'json'", 40, 9);
         BAssertUtil.validateError(compileResult, i++, "invalid usage of record literal: duplicate key 'i' via spread " +
-                "operator '...fl'", 48, 8);
-        BAssertUtil.validateError(compileResult, i, "invalid usage of record literal: duplicate key 's'", 49, 5);
+                "operator '...fl'", 64, 8);
+        BAssertUtil.validateError(compileResult, i, "invalid usage of record literal: duplicate key 's'", 65, 5);
     }
 
 }
