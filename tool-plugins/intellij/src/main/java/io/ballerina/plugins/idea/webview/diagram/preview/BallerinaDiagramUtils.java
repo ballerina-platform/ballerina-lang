@@ -30,6 +30,7 @@ import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import io.ballerina.plugins.idea.configuration.BallerinaProjectSettings;
+import io.ballerina.plugins.idea.preloading.BallerinaCmdException;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -88,7 +89,12 @@ public class BallerinaDiagramUtils {
         // Checks for the user-configured auto detection settings.
         if (Strings.isNullOrEmpty(balSdkPath)
                 &&  BallerinaProjectSettings.getStoredSettings(project).isAutodetect()) {
-            balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
+            try {
+                balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
+            } catch (BallerinaCmdException e) {
+                LOG.warn(String.format("failed to auto detect ballerina home for the project: %s", project.getName()));
+                return "";
+            }
         }
 
         if (Strings.isNullOrEmpty(balSdkPath)) {
