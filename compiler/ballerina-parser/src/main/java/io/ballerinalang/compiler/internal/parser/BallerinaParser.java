@@ -194,6 +194,10 @@ public class BallerinaParser {
                 return parseImportPrefixDecl();
             case AS_KEYWORD:
                 return parseAsKeyword();
+            case CONTINUE_KEYWORD:
+                return parseContinueKeyword();
+            case BREAK_KEYWORD:
+                return parseBreakKeyword();
             case RETURN_KEYWORD:
                 return parseReturnKeyword();
             case MAPPING_FIELD:
@@ -2209,6 +2213,10 @@ public class BallerinaParser {
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
                 return parseCallStatementWithCheck();
+            case CONTINUE_KEYWORD:
+                return parseContinueStatement();
+            case BREAK_KEYWORD:
+                return parseBreakStatement();
             case RETURN_KEYWORD:
                 return parseReturnStatement();
             default:
@@ -3567,6 +3575,36 @@ public class BallerinaParser {
     }
 
     /**
+
+     * Parse continue statement.
+     * <code>continue-stmt := continue ; </code>
+     *
+     * @return continue statement
+     */
+    private STNode parseContinueStatement() {
+        startContext(ParserRuleContext.CONTINUE_STATEMENT);
+        STNode continueKeyword = parseContinueKeyword();
+        STNode semicolon = parseSemicolon();
+        endContext();
+        return STNodeFactory.createContinueStatement(continueKeyword, semicolon);
+    }
+
+    /**
+     * Parse continue-keyword.
+     *
+     * @return continue-keyword node
+     */
+    private STNode parseContinueKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.CONTINUE_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.CONTINUE_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+  
+    /**
      * Parse return statement.
      * <code>return-stmt := return [ action-or-expr ] ;</code>
      *
@@ -3595,6 +3633,34 @@ public class BallerinaParser {
         }
     }
 
+    /**
+     * Parse break statement.
+     * <code>break-stmt := break ; </code>
+     *
+     * @return break statement
+     */
+    private STNode parseBreakStatement() {
+        startContext(ParserRuleContext.BREAK_STATEMENT);
+        STNode breakKeyword = parseBreakKeyword();
+        STNode semicolon = parseSemicolon();
+        endContext();
+        return STNodeFactory.createBreakStatement(breakKeyword, semicolon);
+    }
+
+    /**
+     * Parse break-keyword.
+     *
+     * @return break-keyword node
+     */
+    private STNode parseBreakKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.BREAK_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.BREAK_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
     /**
      * <p>
      * Parse the right hand side of a return statement.
