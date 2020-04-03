@@ -2290,6 +2290,10 @@ public class BallerinaParser {
                         return parseCallStatement(expr);
                     case FIELD_ACCESS:
                     case MEMBER_ACCESS:
+                        STToken nextToken = peek();
+                        if (isCompoundBinaryOperator(nextToken.kind)) {
+                            return parseCompoundAssignmentStmtRhs(expr);
+                        }
                         return parseAssignmentStmtRhs(expr);
                     default:
                         // TODO: Add proper error reporting
