@@ -431,7 +431,7 @@ public class ParserTestUtils {
                 return SyntaxKind.CALL_STATEMENT;
             case "PANIC_STATEMENT":
                 return SyntaxKind.PANIC_STATEMENT;
-            case "COMPOUND_ASSIGNMENT_STMT":
+            case "COMPOUND_ASSIGNMENT_STATEMENT":
                 return SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT;
 
             // Others
