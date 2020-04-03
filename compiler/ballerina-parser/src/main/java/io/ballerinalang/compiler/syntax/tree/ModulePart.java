@@ -30,15 +30,15 @@ public class ModulePart extends NonTerminalNode {
         super(syntaxNode, position, parent);
     }
 
-    public NodeList<ImportDeclaration> getImports() {
+    public NodeList<ImportDeclaration> imports() {
         return new NodeList<>(childInBucket(0));
     }
 
-    public NodeList<ModuleMemberDeclaration> getMembers() {
+    public NodeList<ModuleMemberDeclaration> members() {
         return new NodeList<>(childInBucket(1));
     }
 
-    public Token getEofToken() {
+    public Token eofToken() {
         return childInBucket(2);
     }
 

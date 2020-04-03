@@ -33,7 +33,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclaration {
         return childInBucket(1);
     }
 
-    public Token functionName() {
+    public Identifier functionName() {
         return childInBucket(2);
     }
 
