@@ -656,6 +656,14 @@
             {
                 "name": "Guarantee Test Execution Order",
                 "url": "testerina-guarantee-test-execution-order"
+            },
+            {
+                "name": "Function Mocks",
+                "url": "testerina-function-mocks"
+            },
+            {
+                "name": "Group Tests",
+                "url": "testerina-group-tests"
             }
         ]
     },
