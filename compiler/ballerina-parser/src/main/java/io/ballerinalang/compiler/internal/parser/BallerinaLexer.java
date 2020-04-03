@@ -174,6 +174,12 @@ public class BallerinaLexer {
             case LexerTerminals.EXCLAMATION_MARK:
                 token = processExclamationMarkOperator();
                 break;
+            case LexerTerminals.BITWISE_AND:
+                token = getSyntaxToken(SyntaxKind.BITWISE_AND_TOKEN);
+                break;
+            case LexerTerminals.BITWISE_XOR:
+                token = getSyntaxToken(SyntaxKind.BITWISE_XOR_TOKEN);
+                break;
 
             // Numbers
             case '0':
