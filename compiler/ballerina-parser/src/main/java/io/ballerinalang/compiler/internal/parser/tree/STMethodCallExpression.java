@@ -43,14 +43,7 @@ public class STMethodCallExpression extends STExpression {
         this.arguments = arguments;
         this.closeParen = closeParen;
 
-        this.bucketCount = 6;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(expression, 0);
-        this.addChildNode(dotToken, 1);
-        this.addChildNode(methodName, 2);
-        this.addChildNode(openParen, 3);
-        this.addChildNode(arguments, 4);
-        this.addChildNode(closeParen, 5);
+        addChildren(expression, dotToken, methodName, openParen, arguments, closeParen);
     }
 
     @Override

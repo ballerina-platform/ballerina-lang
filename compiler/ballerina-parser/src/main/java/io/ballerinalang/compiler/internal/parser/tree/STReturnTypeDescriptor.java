@@ -35,11 +35,7 @@ public class STReturnTypeDescriptor extends STNode {
         this.annotation = annotation;
         this.type = type;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(returnsKeyword, 0);
-        this.addChildNode(annotation, 1);
-        this.addChildNode(type, 2);
+        addChildren(returnsKeyword, annotation, type);
     }
 
     @Override

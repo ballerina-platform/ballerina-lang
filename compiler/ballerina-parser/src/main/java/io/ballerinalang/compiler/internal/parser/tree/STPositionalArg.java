@@ -32,10 +32,7 @@ public class STPositionalArg extends STNode {
         this.leadingComma = leadingComma;
         this.expression = expression;
 
-        this.bucketCount = 2;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingComma, 0);
-        this.addChildNode(expression, 1);
+        addChildren(leadingComma, expression);
     }
 
     @Override

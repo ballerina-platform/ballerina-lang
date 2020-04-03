@@ -24,39 +24,16 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  */
 public class SubModuleName extends NonTerminalNode {
 
-    private Token leadingDot;
-    private Token moduleName;
-
     public SubModuleName(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token leadingDot() {
-        if (leadingDot != null) {
-            return leadingDot;
-        }
-
-        leadingDot = createToken(0);
-        return leadingDot;
+        return childInBucket(0);
     }
 
     public Node moduleName() {
-        if (moduleName != null) {
-            return moduleName;
-        }
-
-        moduleName = createToken(1);
-        return moduleName;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return leadingDot();
-            case 1:
-                return moduleName();
-        }
-        return null;
+        return childInBucket(1);
     }
 
     @Override

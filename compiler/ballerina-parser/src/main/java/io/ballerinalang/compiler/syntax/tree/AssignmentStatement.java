@@ -20,64 +20,25 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class AssignmentStatement extends Statement {
-    private Token variableName;
-    private Token equalsToken;
-    private Node expression;
-    private Token semicolonToken;
 
     public AssignmentStatement(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token variableName() {
-        if (variableName != null) {
-            return variableName;
-        }
-
-        variableName = createToken(0);
-        return variableName;
+        return (Token) childInBucket(0);
     }
 
     public Token equalsToken() {
-        if (equalsToken != null) {
-            return equalsToken;
-        }
-
-        equalsToken = createToken(1);
-        return equalsToken;
+        return (Token) childInBucket(1);
     }
 
     public Node expression() {
-        if (expression != null) {
-            return expression;
-        }
-
-        expression = node.childInBucket(2).createFacade(getChildPosition(2), this);
-        childBuckets[2] = expression;
-        return expression;
+        return childInBucket(2);
     }
 
     public Token semicolonToken() {
-        if (semicolonToken != null) {
-            return semicolonToken;
-        }
-
-        semicolonToken = createToken(3);
-        return semicolonToken;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return variableName();
-            case 1:
-                return equalsToken();
-            case 2:
-                return expression();
-            case 3:
-                return semicolonToken();
-        }
-        return null;
+        return (Token) childInBucket(3);
     }
 
     @Override

@@ -21,64 +21,24 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class RecordFieldNode extends NonTerminalNode {
 
-    private Node fieldType;
-    private Token fieldName;
-    private Token questionMark;
-    private Token semicolon;
-
     public RecordFieldNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Node fieldType() {
-        if (fieldType != null) {
-            return fieldType;
-        }
-
-        fieldType = node.childInBucket(0).createFacade(getChildPosition(0), this);
-        childBuckets[0] = fieldType;
-        return fieldType;
+        return childInBucket(0);
     }
 
     public Token fieldName() {
-        if (fieldName != null) {
-            return fieldName;
-        }
-
-        fieldName = createToken(1);
-        return fieldName;
+        return childInBucket(1);
     }
 
     public Token questionMark() {
-        if (questionMark != null) {
-            return questionMark;
-        }
-
-        questionMark = createToken(2);
-        return questionMark;
+        return childInBucket(2);
     }
 
     public Token semicolon() {
-        if (semicolon != null) {
-            return semicolon;
-        }
-
-        semicolon = createToken(3);
-        return semicolon;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return fieldType();
-            case 1:
-                return fieldName();
-            case 2:
-                return questionMark();
-            case 3:
-                return semicolon();
-        }
-        return null;
+        return childInBucket(3);
     }
 
     @Override

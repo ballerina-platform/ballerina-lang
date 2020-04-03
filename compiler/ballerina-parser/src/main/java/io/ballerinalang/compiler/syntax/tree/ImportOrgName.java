@@ -24,39 +24,16 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  */
 public class ImportOrgName extends NonTerminalNode {
 
-    private Token orgName;
-    private Token slashToken;
-
     public ImportOrgName(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token versionKeyword() {
-        if (orgName != null) {
-            return orgName;
-        }
-
-        orgName = createToken(0);
-        return orgName;
+        return childInBucket(0);
     }
 
     public Token slashToken() {
-        if (slashToken != null) {
-            return slashToken;
-        }
-
-        slashToken = createToken(1);
-        return slashToken;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return versionKeyword();
-            case 1:
-                return slashToken();
-        }
-        return null;
+        return childInBucket(1);
     }
 
     @Override

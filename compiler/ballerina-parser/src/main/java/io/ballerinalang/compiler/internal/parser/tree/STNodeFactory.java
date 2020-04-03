@@ -115,6 +115,10 @@ public class STNodeFactory {
         return new STVariableDeclaration(kind, typeName, variableName, equalsToken, initializer, semicolonToken);
     }
 
+    public static STNode createReturnStatement(SyntaxKind kind, STNode returnKeyword, STNode actionOrExpr, STNode semicolonToken) {
+        return new STReturnStatement(kind, returnKeyword, actionOrExpr, semicolonToken);
+    }
+
     public static STNode createCompoundAssignmentStatement(STNode lhsExpression,
                                                    STNode compoundAssignmentOperator,
                                                    STNode expr,
@@ -344,9 +348,29 @@ public class STNodeFactory {
         return new STImportPrefix(asKeyword, prefix);
     }
 
+    public static STNode createMappingConstructorExpr(STNode openBrace, STNode fields, STNode closeBrace) {
+        return new STMappingConstructorExpression(openBrace, fields, closeBrace);
+    }
+
+    public static STNode createSpreadField(STNode leadingComma, STNode ellipsis, STNode expr) {
+        return new STSpreadField(leadingComma, ellipsis, expr);
+    }
+
+    public static STNode createSpecificField(STNode leadingComma, STNode key, STNode colon, STNode valueExpr) {
+        return new STSpecificField(leadingComma, key, colon, valueExpr);
+    }
+
+    public static STNode createComputedNameField(STNode leadingComma,
+                                                 STNode openBracket,
+                                                 STNode fieldNameExpr,
+                                                 STNode closeBracket,
+                                                 STNode colon,
+                                                 STNode valueExpr) {
+        return new STComputedNameField(leadingComma, openBracket, fieldNameExpr, closeBracket, colon, valueExpr);
+    }
+
     public static STNode createCompoundAssignmentOperator(STNode binaryOperator,
                                                    STNode equalsToken) {
         return new STCompoundAssignmentOperator(binaryOperator, equalsToken);
     }
-    
 }

@@ -37,12 +37,7 @@ public class STMemberAccessExpression extends STExpression {
         this.keyExpr = keyExpression;
         this.closeBracket = closeBracket;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(containerExpr, 0);
-        this.addChildNode(openBracket, 1);
-        this.addChildNode(keyExpression, 2);
-        this.addChildNode(closeBracket, 3);
+        addChildren(containerExpr, openBracket, keyExpression, closeBracket);
     }
 
     @Override

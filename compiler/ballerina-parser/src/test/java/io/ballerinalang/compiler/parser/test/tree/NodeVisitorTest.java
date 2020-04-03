@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.parser.test.visitors;
+package io.ballerinalang.compiler.parser.test.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatement;
@@ -33,7 +33,7 @@ import java.util.List;
  *
  * @since 1.3.0
  */
-public class NodeVisitorTest extends AbstractVisitorTest {
+public class NodeVisitorTest extends AbstractSyntaxTreeAPITest {
 
     @Test
     public void testTokenTraversal() {
@@ -71,7 +71,7 @@ public class NodeVisitorTest extends AbstractVisitorTest {
         List<SyntaxKind> tokenList = new ArrayList<>();
 
         public void visit(Token token) {
-            tokenList.add(token.getKind());
+            tokenList.add(token.kind());
         }
     }
 

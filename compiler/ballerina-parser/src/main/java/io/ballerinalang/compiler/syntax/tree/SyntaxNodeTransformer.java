@@ -71,6 +71,10 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(panicStatement);
     }
 
+    public T transform(ReturnStatement returnStatement) {
+        return transformSyntaxNode(returnStatement);
+    }
+
     public T transform(CompoundAssignmentStatement compoundAssignmentStatement) {
         return transformSyntaxNode(compoundAssignmentStatement);
     }
@@ -81,7 +85,7 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(binaryExpression);
     }
 
-    public T transform(FunctionCallNode functionCallNode) {
+    public T transform(FunctionCallExpressionNode functionCallNode) {
         return transformSyntaxNode(functionCallNode);
     }
 
@@ -138,10 +142,6 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(recordRestDescriptorNode);
     }
 
-    public T transform(NodeList nodeList) {
-        return transformSyntaxNode(nodeList);
-    }
-
     public T transform(RecordTypeDescriptorNode recordTypeDescriptorNode) {
         return transformSyntaxNode(recordTypeDescriptorNode);
     }
@@ -174,10 +174,25 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(importOrgName);
     }
 
+    public T transform(ComputedNameField computedNameField) {
+        return transformSyntaxNode(computedNameField);
+    }
+
+    public T transform(MappingConstructorExpression mappingConstructorExpr) {
+        return transformSyntaxNode(mappingConstructorExpr);
+    }
+
+    public T transform(SpecificField specificField) {
+        return transformSyntaxNode(specificField);
+    }
+
+    public T transform(SpreadField spreadField) {
+        return transformSyntaxNode(spreadField);
+    }
+
     public T transform(CompoundAssignmentOperator compoundAssignmentOperator) {
         return transformSyntaxNode(compoundAssignmentOperator);
     }
-
     /**
      * Transforms the given {@code Node} into an object of type T.
      * <p>

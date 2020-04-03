@@ -31,6 +31,35 @@ public class BinaryExpressionsTest extends AbstractExpressionsTest {
     }
 
     @Test
+    public void testSimpleNumericalComparisonExpression() {
+        test("a < b", "binary-expr/numerical_comparison_expr_assert_1.json");
+        test("a > b ", "binary-expr/numerical_comparison_expr_assert_2.json");
+        test("a <= b ", "binary-expr/numerical_comparison_expr_assert_3.json");
+        test("a >= b ", "binary-expr/numerical_comparison_expr_assert_4.json");
+    }
+
+    @Test
+    public void testSimpleEqualityExpression() {
+        test("a == b", "binary-expr/equality_expr_assert_1.json");
+        test("a != b ", "binary-expr/equality_expr_assert_2.json");
+        test("a === b ", "binary-expr/equality_expr_assert_3.json");
+        test("a !== b ", "binary-expr/equality_expr_assert_4.json");
+    }
+
+    @Test
+    public void testSimpleBitwiseExpression() {
+        test("a & b", "binary-expr/binary_bitwise_expr_assert_1.json");
+        test("a ^ b ", "binary-expr/binary_bitwise_expr_assert_2.json");
+        test("a | b ", "binary-expr/binary_bitwise_expr_assert_3.json");
+    }
+
+    @Test
+    public void testSimpleLogicalExpression() {
+        test("a && b", "binary-expr/logical_expr_assert_1.json");
+        test("a || b ", "binary-expr/logical_expr_assert_2.json");
+    }
+
+    @Test
     public void testSimpleBinaryOpPrecedence() {
         test("a * b - c", "binary-expr/binary_expr_op_precedence_assert_1.json");
     }
@@ -48,5 +77,15 @@ public class BinaryExpressionsTest extends AbstractExpressionsTest {
     @Test
     public void testComplexBinaryOpPrecedence() {
         test("a + b * c * d *g *h - e / f", "binary-expr/binary_expr_op_precedence_assert_4.json");
+    }
+
+    @Test
+    public void testComplexBinaryOpPrecedenceUpToEquality() {
+        test("a - b != c === d >= e + f * g < h", "binary-expr/binary_expr_op_precedence_assert_5.json");
+    }
+
+    @Test
+    public void testComplexBinaryOpPrecedenceUpToLogicalOr() {
+        test("a || b && c | d ^ e & f !== g >= h + i / j", "binary-expr/binary_expr_op_precedence_assert_6.json");
     }
 }

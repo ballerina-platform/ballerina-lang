@@ -248,7 +248,11 @@ public class ParserTestUtils {
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
                 return ((STIdentifier) token).text;
-            case STRING_LITERAL_TOKEN:
+            case STRING_LITERAL:
+                String val = ((STLiteralValueToken) token).text;
+                int stringLen = val.length();
+                int lastCharPosition = val.endsWith("\"") ? stringLen - 1 : stringLen;
+                return val.substring(1, lastCharPosition);
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
                 return ((STLiteralValueToken) token).text;
@@ -321,6 +325,8 @@ public class ParserTestUtils {
                 return SyntaxKind.VERSION_KEYWORD;
             case "AS_KEYWORD":
                 return SyntaxKind.AS_KEYWORD;
+            case "RETURN_KEYWORD":
+                return SyntaxKind.RETURN_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -341,14 +347,30 @@ public class ParserTestUtils {
                 return SyntaxKind.TRIPPLE_EQUAL_TOKEN;
             case "PERCENT_TOKEN":
                 return SyntaxKind.PERCENT_TOKEN;
-            case "EQUAL_LT_TOKEN":
-                return SyntaxKind.EQUAL_LT_TOKEN;
             case "GT_TOKEN":
                 return SyntaxKind.GT_TOKEN;
             case "EQUAL_GT_TOKEN":
                 return SyntaxKind.EQUAL_GT_TOKEN;
             case "QUESTION_MARK_TOKEN":
                 return SyntaxKind.QUESTION_MARK_TOKEN;
+            case "LT_EQUAL_TOKEN":
+                return SyntaxKind.LT_EQUAL_TOKEN;
+            case "GT_EQUAL_TOKEN":
+                return SyntaxKind.GT_EQUAL_TOKEN;
+            case "EXCLAMATION_MARK_TOKEN":
+                return SyntaxKind.EXCLAMATION_MARK_TOKEN;
+            case "NOT_EQUAL_TOKEN":
+                return SyntaxKind.NOT_EQUAL_TOKEN;
+            case "NOT_DOUBLE_EQUAL_TOKEN":
+                return SyntaxKind.NOT_DOUBLE_EQUAL_TOKEN;
+            case "BITWISE_AND_TOKEN":
+                return SyntaxKind.BITWISE_AND_TOKEN;
+            case "BITWISE_XOR_TOKEN":
+                return SyntaxKind.BITWISE_XOR_TOKEN;
+            case "LOGICAL_AND_TOKEN":
+                return SyntaxKind.LOGICAL_AND_TOKEN;
+            case "LOGICAL_OR_TOKEN":
+                return SyntaxKind.LOGICAL_OR_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
@@ -377,6 +399,8 @@ public class ParserTestUtils {
                 return SyntaxKind.OPEN_BRACE_PIPE_TOKEN;
             case "CLOSE_BRACE_PIPE_TOKEN":
                 return SyntaxKind.CLOSE_BRACE_PIPE_TOKEN;
+            case "PIPE_TOKEN":
+                return SyntaxKind.PIPE_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -385,8 +409,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BRACED_EXPRESSION;
             case "BINARY_EXPRESSION":
                 return SyntaxKind.BINARY_EXPRESSION;
-            case "STRING_LITERAL_TOKEN":
-                return SyntaxKind.STRING_LITERAL_TOKEN;
+            case "STRING_LITERAL":
+                return SyntaxKind.STRING_LITERAL;
             case "DECIMAL_INTEGER_LITERAL":
                 return SyntaxKind.DECIMAL_INTEGER_LITERAL;
             case "HEX_INTEGER_LITERAL":
@@ -413,6 +437,8 @@ public class ParserTestUtils {
                 return SyntaxKind.MEMBER_ACCESS;
             case "CHECK_EXPRESSION":
                 return SyntaxKind.CHECK_EXPRESSION;
+            case "MAPPING_CONSTRUCTOR":
+                return SyntaxKind.MAPPING_CONSTRUCTOR;
 
             // Statements
             case "BLOCK_STATEMENT":
@@ -431,6 +457,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CALL_STATEMENT;
             case "PANIC_STATEMENT":
                 return SyntaxKind.PANIC_STATEMENT;
+            case "RETURN_STATEMENT":
+                return SyntaxKind.RETURN_STATEMENT;
             case "COMPOUND_ASSIGNMENT_STATEMENT":
                 return SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT;
 
@@ -470,7 +498,13 @@ public class ParserTestUtils {
             case "IMPORT_SUB_VERSION":
                 return SyntaxKind.IMPORT_SUB_VERSION;
             case "IMPORT_PREFIX":
-                return SyntaxKind.IMPORT_PREFIX;            
+                return SyntaxKind.IMPORT_PREFIX;
+            case "SPECIFIC_FIELD":
+                return SyntaxKind.SPECIFIC_FIELD;
+            case "COMPUTED_NAME_FIELD":
+                return SyntaxKind.COMPUTED_NAME_FIELD;
+            case "SPREAD_FIELD":
+                return SyntaxKind.SPREAD_FIELD;
             case "COMPOUND_ASSIGNMENT_OPERATOR":
                 return SyntaxKind.COMPOUND_ASSIGNMENT_OPERATOR;
 

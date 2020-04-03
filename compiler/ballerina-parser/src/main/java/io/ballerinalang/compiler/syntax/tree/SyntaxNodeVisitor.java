@@ -64,9 +64,13 @@ public abstract class SyntaxNodeVisitor {
     public void visit(BlockStatement blockStatement) {
         visitSyntaxNode(blockStatement);
     }
-    
+
     public void visit(PanicStatement panicStatement) {
         visitSyntaxNode(panicStatement);
+    }
+
+    public void visit(ReturnStatement returnStatement) {
+        visitSyntaxNode(returnStatement);
     }
 
     public void visit(CompoundAssignmentStatement compoundAssignmentStatement) {
@@ -79,7 +83,7 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(binaryExpression);
     }
 
-    public void visit(FunctionCallNode functionCallNode) {
+    public void visit(FunctionCallExpressionNode functionCallNode) {
         visitSyntaxNode(functionCallNode);
     }
 
@@ -132,9 +136,9 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(recordRestDescriptorNode);
     }
 
-    public void visit(NodeList nodeList) {
-        visitSyntaxNode(nodeList);
-    }
+//    public void visit(NodeList nodeList) {
+//        visitSyntaxNode(nodeList);
+//    }
 
     public void visit(RecordTypeDescriptorNode recordTypeDescriptorNode) {
         visitSyntaxNode(recordTypeDescriptorNode);
@@ -168,6 +172,22 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(importOrgName);
     }
 
+    public void visit(ComputedNameField computedNameField) {
+        visitSyntaxNode(computedNameField);
+    }
+
+    public void visit(MappingConstructorExpression mappingConstructorExpr) {
+        visitSyntaxNode(mappingConstructorExpr);
+    }
+
+    public void visit(SpecificField specificField) {
+        visitSyntaxNode(specificField);
+    }
+
+    public void visit(SpreadField spreadField) {
+        visitSyntaxNode(spreadField);
+    }
+
     protected void visitSyntaxNode(Node node) {
         // TODO Find a better way to check for token
         if (node instanceof Token) {
@@ -176,9 +196,7 @@ public abstract class SyntaxNodeVisitor {
         }
 
         NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
-        int bucketCount = nonTerminalNode.bucketCount();
-        for (int bucket = 0; bucket < bucketCount; bucket++) {
-            Node child = nonTerminalNode.childInBucket(bucket);
+        for (Node child : nonTerminalNode.children()) {
             child.accept(this);
         }
     }

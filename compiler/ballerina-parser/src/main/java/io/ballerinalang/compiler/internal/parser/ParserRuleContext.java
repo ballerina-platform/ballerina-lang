@@ -94,6 +94,8 @@ public enum ParserRuleContext {
     CALL_STMT("call-statement"),
     CALL_STMT_START("call-statement-start"),
     PANIC_STMT("panic-statement"),    
+    RETURN_STMT("return-stmt"),
+    RETURN_STMT_RHS("return-stmt-rhs"),
     COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
 
     // Keywords
@@ -104,7 +106,6 @@ public enum ParserRuleContext {
     REMOTE_KEYWORD("remote"),
     FUNCTION_KEYWORD("function"),
     EXTERNAL_KEYWORD("external"), 
-    VARIABLE_NAME("variable"),
     RECORD_KEYWORD("record"),
     OBJECT_KEYWORD("object"),
     ABSTRACT_KEYWORD("abstract"),
@@ -116,6 +117,7 @@ public enum ParserRuleContext {
     IMPORT_KEYWORD("import"),
     VERSION_KEYWORD("version"),
     AS_KEYWORD("as"),
+    RETURN_KEYWORD("return"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -124,6 +126,7 @@ public enum ParserRuleContext {
     CLOSE_BRACE("}"),
     ASSIGN_OP("="),
     SEMICOLON(";"),
+    COLON(":"),
     COMMA(","),
     ELLIPSIS("..."),
     QUESTION_MARK("?"),
@@ -137,6 +140,7 @@ public enum ParserRuleContext {
 
     // Other terminals
     FUNC_NAME("function-name"),
+    VARIABLE_NAME("variable"),
     SIMPLE_TYPE_DESCRIPTOR("simple-type-desc"),
     BINARY_OPERATOR("binary-operator"),
     TYPE_NAME("type-name"),
@@ -150,8 +154,16 @@ public enum ParserRuleContext {
     EXPRESSION("expression"),
     EXPRESSION_RHS("expression-rhs"),
     FUNC_CALL("func-call"),
-    EXPRESSION_END("expr-end"),
+    BASIC_LITERAL("basic-literal"),
+    ACCESS_EXPRESSION("access-expr"),   // method-call, field-access, member-access
     DECIMAL_INTEGER_LITERAL("decimal-int-literal"),
+    VARIABLE_REF("var-ref"),
+    STRING_LITERAL("string-literal"),
+    MAPPING_CONSTRUCTOR("maping-constructor"),
+    MAPPING_FIELD("maping-field"),
+    MAPPING_FIELD_NAME("maping-field-name"),
+    SPECIFIC_FIELD_RHS("specific-field-rhs"),
+    COMPUTED_FIELD_NAME("computed-field-name")
     ;
 
     private String value;

@@ -21,52 +21,20 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class TypeReferenceNode extends NonTerminalNode {
 
-    private Token asterisk;
-    private Node type;
-    private Token semicolon;
-
     public TypeReferenceNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Node asterisk() {
-        if (asterisk != null) {
-            return asterisk;
-        }
-
-        asterisk = createToken(0);
-        return asterisk;
+        return childInBucket(0);
     }
 
     public Node type() {
-        if (type != null) {
-            return type;
-        }
-
-        type = node.childInBucket(1).createFacade(getChildPosition(1), this);
-        childBuckets[1] = type;
-        return type;
+        return childInBucket(1);
     }
 
     public Token semicolon() {
-        if (semicolon != null) {
-            return semicolon;
-        }
-
-        semicolon = createToken(2);
-        return semicolon;
-    }
-
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return asterisk();
-            case 1:
-                return type();
-            case 2:
-                return semicolon();
-        }
-        return null;
+        return childInBucket(2);
     }
 
     @Override

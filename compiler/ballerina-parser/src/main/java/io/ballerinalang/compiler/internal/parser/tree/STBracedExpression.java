@@ -41,11 +41,7 @@ public class STBracedExpression extends STExpression {
         this.expr = expr;
         this.closeParen = closeParen;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(openParen, 0);
-        this.addChildNode(expr, 1);
-        this.addChildNode(closeParen, 2);
+        addChildren(openParen, expr, closeParen);
     }
 
     @Override
