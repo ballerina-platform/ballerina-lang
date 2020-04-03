@@ -40,3 +40,27 @@ public function xmlConstraintMultipleElement() {
     'xml:Comment comment = xml `<!-- this is a comment text -->`;
     xml<'xml:Element> seq = elem1 + comment;
 }
+
+public function xmlSubtypeArrayNegative() {
+    'xml:Element[] ar = [xml `<!-- cmnt -->`];
+    ar.push(xml `<?Hello DATA ?>`);
+    ar.push(xml `abc`);
+
+    xml<'xml:Comment> commentSequence = xml `<!-- cmnt -->`;
+    ar.push(commentSequence);
+
+    xml<'xml:Comment>[] arrayOfCommentSeq = [xml `<hello>xml element 1</hello>`];
+
+    xml<'xml:Element> elementSequence = xml `<hello>xml content</hello>`;
+    arrayOfCommentSeq.push(elementSequence);
+}
+
+public function xmlSubtypeMapNegative() {
+    map<'xml:Element> eMap = {
+       "elementA" : xml `<!-- cmnt -->`
+    };
+    'xml:Element CommentA = xml `<!-- cmnt -->`;
+    xml<'xml:Comment> CommentSeq = xml `<!-- cmntseq -->`;
+    eMap["CommentA"] = CommentA;
+    eMap["seq"] = CommentSeq;
+}

@@ -255,7 +255,10 @@ public class LangLibXMLTest {
                 {"basicXMLConstrainedType"},
                 {"xmlConstraintMultipleElement"},
                 {"xmlConstraintRuntimeCast"},
-                {"xmlCastSingleElementAsConstrainedSequence"}
+                {"xmlCastSingleElementAsConstrainedSequence"},
+                {"xmlSubtypeArray"},
+                {"xmlSubtypeArrayTwo"},
+                {"xmlSubtypeMap"}
         };
     }
 
@@ -302,6 +305,25 @@ public class LangLibXMLTest {
                 38, 41);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Element>'," +
                 " found 'xml<(xml:Element|xml:Comment)>'", 41, 29);
+
+        validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml:Comment'",
+                45, 31);
+        validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element'," +
+                " found 'xml:ProcessingInstruction'", 46, 18);
+        validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml:Text'",
+                47, 18);
+        validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml<xml:Comment>'",
+                50, 13);
+        validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Comment>', found 'xml:Element'",
+                52, 51);
+        validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Comment>'," +
+                " found 'xml<xml:Element>'", 55, 28);
+        validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml:Comment'",
+                60, 26);
+        validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml:Comment'",
+                62, 34);
+        validateError(constraintNegative, i++, "incompatible types: expected 'xml:Element', found 'xml<xml:Comment>'",
+                65, 19);
         assertEquals(constraintNegative.getErrorCount(), i);
     }
 }

@@ -86,7 +86,78 @@ public function xmlElementToConstraintClassInvalid() {
     xml<'xml:Element> p = <xml<'xml:Element>> a;
 }
 
-function assert(anydata expected, anydata actual) {
+public function xmlSubtypeArray() {
+    xml[] ar = [xml `<elem>hello</elem>`];
+    ar.push(xml `<!-- cmnt -->`);
+    ar.push(xml `<?Hello DATA ?>`);
+
+    assert(ar.length(), 3);
+    assert(ar[0] is 'xml:Element, true);
+    assert((ar[0]/*).toString(), "hello");
+    assert(ar[1] is 'xml:Comment, true);
+    assert((ar[1]).toString(),"<!-- cmnt -->");
+
+    'xml:Element elem1 = <'xml:Element> ar[0];
+    assert((elem1/*).toString(), "hello");
+    xml<'xml:Comment> comSeq = <xml<'xml:Comment>> ar[1];
+    assert((comSeq[0]).toString(),"<!-- cmnt -->");
+}
+
+public function xmlSubtypeArrayTwo() {
+    'xml:Element[] ar = [xml `<elem>hello</elem>`];
+    ar.push(xml `<elem>second elem</elem>`);
+    assert(ar.length(), 2);
+    assert((ar[0]/*).toString(), "hello");
+
+    'xml:Element elem1 = ar[0];
+    assert((elem1/*).toString(), "hello");
+    xml<'xml:Element> elemSeq = ar[1];
+    assert((elemSeq[0]/*).toString(), "second elem");
+
+    xml<'xml:Element>[] arrayOfElementSeq = [];
+    'xml:Element elementA  = xml `<elem>AAA</elem>`;
+    xml<'xml:Element> elementSequence = xml `<hello>BBB</hello>`;
+    arrayOfElementSeq.push(elementA);
+    arrayOfElementSeq.push(elementSequence);
+    assert(arrayOfElementSeq.length(), 2);
+    assert((arrayOfElementSeq[0]/*).toString(), "AAA");
+    assert((arrayOfElementSeq[1]/*).toString(), "BBB");
+}
+
+public function xmlSubtypeMap() {
+   'xml:Comment comment = xml `<!-- cmnt -->`;
+   xml<'xml:Element> singleElementSequence = xml `<hello>SSS</hello>`;
+   map<xml> mp = {
+       "element1" : xml `<elem>element1</elem>`,
+       "sequnce1" : <'xml:Element> singleElementSequence
+   };
+   mp["comment"] = comment;
+   assert(mp.length(), 3);
+   assert((mp.get("element1")/*).toString(), "element1");
+   assert((mp.get("sequnce1")/*).toString(), "SSS");
+   assert((mp.get("comment")).toString(), "<!-- cmnt -->");
+
+   map<'xml:Element> eMap = {
+       "elementA" : xml `<hello>AAA</hello>`
+   };
+   'xml:Element elementB = xml `<hello>BBB</hello>`;
+   eMap["elementB"] = elementB;
+   eMap["elementS"] = <'xml:Element> singleElementSequence;
+   assert(eMap.length(), 3);
+   assert((eMap.get("elementA")/*).toString(), "AAA");
+   assert((eMap.get("elementB")/*).toString(), "BBB");
+   assert((eMap.get("elementS")/*).toString(), "SSS");
+
+   map<xml<'xml:Element>> eElemSeqMap = {
+       "seq1" : singleElementSequence
+   };
+   eElemSeqMap["seq2"] = elementB;
+   assert(eElemSeqMap.length(), 2);
+   assert((eElemSeqMap.get("seq1")/*).toString(), "SSS");
+   assert((eElemSeqMap.get("seq2")/*).toString(), "BBB");
+}
+
+function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
         typedesc<anydata> actT = typeof actual;
