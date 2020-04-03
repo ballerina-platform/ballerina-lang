@@ -178,8 +178,9 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
  */
 public class TypeChecker extends BLangNodeVisitor {
 
-    private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY =
-            new CompilerContext.Key<>();
+    private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY = new CompilerContext.Key<>();
+    private static Set<String> modifierFunctions = new HashSet<>();
+
     private static final String TABLE_TNAME = "table";
     private static final String FUNCTION_PUSH_NAME = "push";
     private static final String FUNCTION_POP_NAME = "pop";
@@ -200,10 +201,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private BLangAnonymousModelHelper anonymousModelHelper;
     private SemanticAnalyzer semanticAnalyzer;
     private boolean nonErrorLoggingCheck = false;
-    private Set<String> modifierFunctions = new HashSet<>();
-
-
     private int letCount = 0;
+
     /**
      * Expected types or inherited types.
      */
@@ -211,6 +210,13 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType resultType;
 
     private DiagnosticCode diagCode;
+
+    static {
+        modifierFunctions.add(FUNCTION_PUSH_NAME);
+        modifierFunctions.add(FUNCTION_POP_NAME);
+        modifierFunctions.add(FUNCTION_SHIFT_NAME);
+        modifierFunctions.add(FUNCTION_UNSHIFT_NAME);
+    }
 
     public static TypeChecker getInstance(CompilerContext context) {
         TypeChecker typeChecker = context.get(TYPE_CHECKER_KEY);
@@ -235,14 +241,6 @@ public class TypeChecker extends BLangNodeVisitor {
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
-        initModifierFunctions();
-    }
-
-    private void initModifierFunctions() {
-        this.modifierFunctions.add(FUNCTION_PUSH_NAME);
-        this.modifierFunctions.add(FUNCTION_POP_NAME);
-        this.modifierFunctions.add(FUNCTION_SHIFT_NAME);
-        this.modifierFunctions.add(FUNCTION_UNSHIFT_NAME);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
