@@ -30,7 +30,7 @@ public type Person object {
 # + a - 'field a' documentation
 # + b - 'field b' documentation
 # + c - 'field c' documentation
-type Tst record {
+public type Tst record {
     string a = "";
     string b = "";
     string c = "";
