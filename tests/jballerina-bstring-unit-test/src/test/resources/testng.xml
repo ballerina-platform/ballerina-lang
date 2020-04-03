@@ -49,6 +49,7 @@
             <package name="org.ballerinalang.test.types.handle.*" />
             <package name="org.ballerinalang.test.types.integer.*" />
             <package name="org.ballerinalang.test.types.json.*" />
+            <package name="org.ballerinalang.test.types.map.*" />
             <package name="org.ballerinalang.test.types.string.*" />
             <package name="org.ballerinalang.test.types.xml.*" />
         </packages>

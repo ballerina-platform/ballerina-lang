@@ -18,8 +18,6 @@
 
 package org.ballerinalang.test.types.decimaltype;
 
-import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.util.DecimalValueKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
@@ -99,8 +97,8 @@ public class BDecimalValueTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BDecimal.class);
         BDecimal value = (BDecimal) returns[0];
-        Assert.assertTrue(value.decimalValue().compareTo(new BigDecimal("1.465", MathContext.DECIMAL128)) == 0,
-                          "Invalid decimal value returned.");
+        Assert.assertEquals(value.decimalValue().compareTo(new BigDecimal("1.465", MathContext.DECIMAL128)), 0,
+                            "Invalid decimal value returned.");
     }
 
     @Test(description = "Test decimal multiplication")
@@ -227,8 +225,8 @@ public class BDecimalValueTest {
     public void testPositivelySignedLiteralAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testPositivelySignedLiteralAssignment");
         Assert.assertEquals(returns.length, 3);
-        for (int i = 0; i < returns.length; i++) {
-            Assert.assertSame(returns[i].getClass(), BDecimal.class);
+        for (BValue aReturn : returns) {
+            Assert.assertSame(aReturn.getClass(), BDecimal.class);
         }
         BDecimal value1 = (BDecimal) returns[0];
         BDecimal value2 = (BDecimal) returns[1];
@@ -268,14 +266,13 @@ public class BDecimalValueTest {
     @Test(description = "Test decimal inference for binary literal expressions")
     public void testDecimalTypeInferenceInBinaryLiteralExpressions() {
         BValue[] returns = BRunUtil.invoke(result, "testDecimalInferenceInMapContext", new BValue[]{});
-        BMap<BString, BDecimal> map = (BMap<BString, BDecimal>) returns[0];
+        BMap<String, BDecimal> map = (BMap<String, BDecimal>) returns[0];
 
-        Assert.assertEquals(map.get(StringUtils.fromString("a")), new BDecimal("33.3", DecimalValueKind.OTHER));
-        Assert.assertEquals(map.get(StringUtils.fromString("b")), new BDecimal("33.3", DecimalValueKind.OTHER));
-        Assert.assertEquals(map.get(StringUtils.fromString("c")), new BDecimal("0.1", DecimalValueKind.OTHER));
-        Assert.assertEquals(map.get(StringUtils.fromString("d")), new BDecimal("1", DecimalValueKind.OTHER));
-        Assert.assertEquals(map.get(StringUtils.fromString("e")), new BDecimal("10000000000000000000000.123",
-                                                                               DecimalValueKind.OTHER));
+        Assert.assertEquals(map.get("a"), new BDecimal("33.3", DecimalValueKind.OTHER));
+        Assert.assertEquals(map.get("b"), new BDecimal("33.3", DecimalValueKind.OTHER));
+        Assert.assertEquals(map.get("c"), new BDecimal("0.1", DecimalValueKind.OTHER));
+        Assert.assertEquals(map.get("d"), new BDecimal("1", DecimalValueKind.OTHER));
+        Assert.assertEquals(map.get("e"), new BDecimal("10000000000000000000000.123", DecimalValueKind.OTHER));
     }
 
     @Test(description = "Test decimal inference on binary literals")

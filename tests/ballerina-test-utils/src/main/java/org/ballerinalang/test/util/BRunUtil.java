@@ -43,7 +43,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -1075,21 +1074,17 @@ public class BRunUtil {
                 bvmValue = new BBoolean((boolean) value);
                 break;
             case org.ballerinalang.jvm.types.TypeTags.STRING_TAG:
-                if (value instanceof StringValue) {
-                    StringValue stringValue = (StringValue) value;
-                    bvmValue = new BString(stringValue.getValue());
+                if (value instanceof org.ballerinalang.jvm.values.api.BString) {
+                    bvmValue = new BString(((org.ballerinalang.jvm.values.api.BString) value).getValue());
                 } else {
-                    if (value instanceof org.ballerinalang.jvm.values.api.BString) {
-                        bvmValue = new BString(((org.ballerinalang.jvm.values.api.BString) value).getValue());
-                    } else {
-                        bvmValue = new BString((String) value);
-                    }
+                    bvmValue = new BString((String) value);
                 }
                 break;
             case org.ballerinalang.jvm.types.TypeTags.DECIMAL_TAG:
                 DecimalValue decimalValue = (DecimalValue) value;
                 bvmValue = new BDecimal(decimalValue.value().toString(),
-                        org.ballerinalang.model.util.DecimalValueKind.valueOf(decimalValue.valueKind.name()));
+                                        org.ballerinalang.model.util.DecimalValueKind
+                                                .valueOf(decimalValue.valueKind.name()));
                 break;
             case org.ballerinalang.jvm.types.TypeTags.TUPLE_TAG:
                 ArrayValue jvmTuple = ((ArrayValue) value);
@@ -1139,10 +1134,11 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.JSON_TAG:
             case org.ballerinalang.jvm.types.TypeTags.MAP_TAG:
                 MapValueImpl<?, ?> jvmMap = (MapValueImpl) value;
-                BMap<Object, BRefType> bmap = new BMap<Object, BRefType>(getBVMType(jvmMap.getType(), new Stack<>()));
+                BMap<Object, BRefType> bmap = new BMap<>(getBVMType(jvmMap.getType(), new Stack<>()));
                 bvmValueMap.put(String.valueOf(value.hashCode()), bmap);
                 for (Map.Entry entry : jvmMap.entrySet()) {
-                    bmap.put(entry.getKey(), getBVMValue(entry.getValue(), bvmValueMap));
+                    Object key = entry.getKey().toString();
+                    bmap.put(key, getBVMValue(entry.getValue(), bvmValueMap));
                 }
                 bmap.getNativeData().putAll(jvmMap.getNativeDataMap());
                 return bmap;

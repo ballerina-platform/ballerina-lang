@@ -18,7 +18,6 @@
 
 package org.ballerinalang.test.types.anydata;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
@@ -78,11 +77,11 @@ public class AnydataTest {
 
         BMap foo = (BMap) returns[0];
         assertEquals(foo.getType().getName(), "Foo");
-        assertEquals(((BInteger) foo.get(StringUtils.fromString("a"))).intValue(), 20);
+        assertEquals(((BInteger) foo.get("a")).intValue(), 20);
 
         BMap closedFoo = (BMap) returns[1];
         assertEquals(closedFoo.getType().getName(), "ClosedFoo");
-        assertEquals(((BInteger) closedFoo.get(StringUtils.fromString("ca"))).intValue(), 35);
+        assertEquals(((BInteger) closedFoo.get("ca")).intValue(), 35);
     }
 
     @Test(description = "Test cyclic record types assignment")
@@ -91,10 +90,9 @@ public class AnydataTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
         BMap bMap = (BMap) returns[0];
-        Assert.assertEquals(bMap.get(StringUtils.fromString("name")).stringValue(), "Child");
-        Assert.assertEquals(((BInteger) bMap.get(StringUtils.fromString("age"))).intValue(), 25);
-        Assert.assertEquals(((BMap) bMap.get(StringUtils.fromString("parent"))).get(
-                StringUtils.fromString("name")).stringValue(), "Parent");
+        Assert.assertEquals(bMap.get("name").stringValue(), "Child");
+        Assert.assertEquals(((BInteger) bMap.get("age")).intValue(), 25);
+        Assert.assertEquals(((BMap) bMap.get("parent")).get("name").stringValue(), "Parent");
     }
 
     @Test(description = "Test XML assignment")
@@ -134,15 +132,15 @@ public class AnydataTest {
     public void testConstrainedMaps() {
         BValue[] returns = BRunUtil.invoke(result, "testConstrainedMaps");
         BMap anydataMap = (BMap) returns[0];
-        assertEquals(((BInteger) anydataMap.get(StringUtils.fromString("int"))).intValue(), 1234);
-        assertEquals(((BFloat) anydataMap.get(StringUtils.fromString("float"))).floatValue(), 23.45);
-        assertTrue(((BBoolean) anydataMap.get(StringUtils.fromString("boolean"))).booleanValue());
-        assertEquals(anydataMap.get(StringUtils.fromString("string")).stringValue(), "Hello World");
-        assertEquals(((BByte) anydataMap.get(StringUtils.fromString("byte"))).byteValue(), 10);
-        assertEquals(anydataMap.get(StringUtils.fromString("xml")).stringValue(), "<book>The Lost World</book>");
-        assertEquals(anydataMap.get(StringUtils.fromString("record")).stringValue(), "{a:15}");
-        assertEquals(anydataMap.get(StringUtils.fromString("map")).stringValue(), "{\"foo\":\"foo\", \"bar\":\"bar\"}");
-        assertEquals(anydataMap.get(StringUtils.fromString("json")).stringValue(),
+        assertEquals(((BInteger) anydataMap.get("int")).intValue(), 1234);
+        assertEquals(((BFloat) anydataMap.get("float")).floatValue(), 23.45);
+        assertTrue(((BBoolean) anydataMap.get("boolean")).booleanValue());
+        assertEquals(anydataMap.get("string").stringValue(), "Hello World");
+        assertEquals(((BByte) anydataMap.get("byte")).byteValue(), 10);
+        assertEquals(anydataMap.get("xml").stringValue(), "<book>The Lost World</book>");
+        assertEquals(anydataMap.get("record").stringValue(), "{a:15}");
+        assertEquals(anydataMap.get("map").stringValue(), "{\"foo\":\"foo\", \"bar\":\"bar\"}");
+        assertEquals(anydataMap.get("json").stringValue(),
                      "{\"name\":\"apple\", \"color\":\"red\", \"price\":40}");
 
         //TODO Table remove - Fix
