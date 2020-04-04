@@ -77,6 +77,10 @@ public enum ParserRuleContext {
     IMPORT_DECL_RHS("import-decl-rhs"),
     AFTER_IMPORT_MODULE_NAME("after-import-module-name"),
     MAJOR_MINOR_VERSION_END("major-minor-version-end"),
+    SERVICE_DECL("service-decl"),
+    OPTIONAL_SERVICE_NAME("service-rhs"),
+    LISTENERS_LIST("listeners-list"),
+    RESOURCE_DEF("resource-def"),
 
     // Statements
     STATEMENT("statement"),
@@ -121,6 +125,9 @@ public enum ParserRuleContext {
     VERSION_KEYWORD("version"),
     AS_KEYWORD("as"),
     RETURN_KEYWORD("return"),
+    SERVICE_KEYWORD("service"),
+    ON_KEYWORD("on"),
+    RESOURCE_KEYWORD("resource"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -150,6 +157,7 @@ public enum ParserRuleContext {
     FIELD_OR_FUNC_NAME("field-or-func-name"),
     BOOLEAN_LITERAL("boolean-literal"),
     CHECKING_KEYWORD("checking-keyword"),
+    SERVICE_NAME("service-name"),
 
     // Expressions
     EXPRESSION("expression"),

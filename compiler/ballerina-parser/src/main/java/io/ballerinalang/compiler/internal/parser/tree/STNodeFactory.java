@@ -368,5 +368,20 @@ public class STNodeFactory {
                                                  STNode valueExpr) {
         return new STComputedNameField(leadingComma, openBracket, fieldNameExpr, closeBracket, colon, valueExpr);
     }
-  
+
+    public static STNode createServiceDecl(STNode serviceKeyword,
+                                           STNode serviceName,
+                                           STNode onKeyword,
+                                           STNode expressionList,
+                                           STNode serviceBody) {
+        return new STServiceDeclaration(serviceKeyword, serviceName, onKeyword, expressionList, serviceBody);
+    }
+
+    public static STNode createExpressionListItem(STNode leadingComma, STNode expr) {
+        return new STExpressionListItem(leadingComma, expr);
+    }
+
+    public static STNode createServiceBody(STNode openBraceToken, STNode resources, STNode closeBraceToken) {
+        return new STServiceBody(openBraceToken, resources, closeBraceToken);
+    }
 }

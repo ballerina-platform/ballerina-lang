@@ -195,8 +195,7 @@
                             "kind": "LOCAL_VARIABLE_DECL",
                             "children": [
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "service"
+                                    "kind": "SERVICE_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",

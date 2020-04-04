@@ -581,7 +581,6 @@ public class BallerinaLexer {
             case LexerTerminals.HANDLE:
             case LexerTerminals.ANY:
             case LexerTerminals.ANYDATA:
-            case LexerTerminals.SERVICE:
                 return getTypeToken(tokenText);
             case LexerTerminals.RETURN:
                 return getSyntaxToken(SyntaxKind.RETURN_KEYWORD);
@@ -627,6 +626,12 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.VERSION_KEYWORD);
             case LexerTerminals.AS:
                 return getSyntaxToken(SyntaxKind.AS_KEYWORD);
+            case LexerTerminals.SERVICE:
+                return getSyntaxToken(SyntaxKind.SERVICE_KEYWORD);
+            case LexerTerminals.ON:
+                return getSyntaxToken(SyntaxKind.ON_KEYWORD);
+            case LexerTerminals.RESOURCE:
+                return getSyntaxToken(SyntaxKind.RESOURCE_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
