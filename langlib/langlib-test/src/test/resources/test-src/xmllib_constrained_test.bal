@@ -19,7 +19,10 @@ import ballerina/lang.'xml;
 public function basicXMLConstrainedType() {
     'xml:Element elem1 = xml `<hello>xml content</hello>`;
     xml<'xml:Element> elementSequence = xml `<hello>xml content</hello>`;
-    'xml:Element refer = elementSequence[0];
+
+    'xml:Element refer = <'xml:Element> elementSequence[0];
+     xml two = elementSequence[1]; // returns an empty sequence
+
     assert(elementSequence.length(), 1);
     assert((elementSequence[0]/*).toString(),"xml content");
 

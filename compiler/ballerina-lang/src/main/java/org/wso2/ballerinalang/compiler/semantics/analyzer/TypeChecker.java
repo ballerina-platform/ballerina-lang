@@ -311,7 +311,9 @@ public class TypeChecker extends BLangNodeVisitor {
         if (xmlNavigation.childIndex != null) {
             checkExpr(xmlNavigation.childIndex, env, symTable.intType);
         }
-        BType exprType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
+        BType actualType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
+        types.checkType(xmlNavigation, actualType, expType);
+
         if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
             resultType = symTable.xmlType;
         } else {
@@ -4698,13 +4700,9 @@ public class TypeChecker extends BLangNodeVisitor {
             if (type == symTable.semanticError) {
                 return type;
             }
-            BXMLType xmlType = ((BXMLType) varRefType);
-            if (xmlType.constraint.tag == TypeTags.UNION) {
-                //TODO: index based expression on union constraint can be improved
-                actualType = varRefType;
-            } else {
-                actualType = ((BXMLType) varRefType).constraint;
-            }
+            // Note: out of range member access returns empty xml value unlike lists
+            // hence, this needs to be set to xml type
+            actualType = varRefType;
             indexBasedAccessExpr.originalType = actualType;
         } else if (varRefType == symTable.semanticError) {
             indexBasedAccessExpr.indexExpr.type = symTable.semanticError;

@@ -120,7 +120,7 @@ public class LangLibXMLTest {
     public void testXmlIsText() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testXmlIsText");
         assertTrue(((BBoolean) returns[0]).booleanValue());
-        assertFalse(((BBoolean) returns[1]).booleanValue());
+        assertTrue(((BBoolean) returns[1]).booleanValue());
     }
 
     @Test
@@ -296,7 +296,7 @@ public class LangLibXMLTest {
                 25, 33);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:ProcessingInstruction>'," +
                 " found 'xml:Element'", 26, 47);
-        validateError(constraintNegative, i++, "incompatible types: expected 'xml:Comment', found 'xml:Element'",
+        validateError(constraintNegative, i++, "incompatible types: expected 'xml:Comment', found 'xml<xml:Element>'",
                 29, 26);
         validateError(constraintNegative, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml:Comment'",
                 32, 41);

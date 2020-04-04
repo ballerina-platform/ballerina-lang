@@ -1303,7 +1303,9 @@ public class TypeChecker {
 
         if (xmlSource.getNodeType() == XMLNodeType.SEQUENCE) {
             XMLSequence seq = (XMLSequence) xmlSource;
-            return seq.size() == 1 && seq.getChildrenList().get(0).getNodeType() == nodeType;
+
+            return seq.size() == 1 && seq.getChildrenList().get(0).getNodeType() == nodeType ||
+                    (nodeType == XMLNodeType.TEXT && seq.isEmpty());
         }
         return false;
     }
