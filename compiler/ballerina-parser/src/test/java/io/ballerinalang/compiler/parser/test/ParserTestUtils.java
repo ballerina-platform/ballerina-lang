@@ -523,8 +523,8 @@ public class ParserTestUtils {
                 return SyntaxKind.SPREAD_FIELD;
             case "SERVICE_BODY":
                 return SyntaxKind.SERVICE_BODY;
-            case "LISTENER_REF":
-                return SyntaxKind.LISTENER_REF;
+            case "EXPRESSION_LIST_ITEM":
+                return SyntaxKind.EXPRESSION_LIST_ITEM;
 
             // Trivia
             case "EOF_TOKEN":

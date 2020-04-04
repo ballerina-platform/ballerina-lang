@@ -1446,10 +1446,13 @@ public class BallerinaParser {
             case CLOSE_BRACE_PIPE_TOKEN:
             case PUBLIC_KEYWORD:
             case FUNCTION_KEYWORD:
+                // TODO: statements can also start from function-keyword. handle
+                // this case similar to service-keyword.
             case ELSE_KEYWORD:
-            case SERVICE_KEYWORD:
             case RESOURCE_KEYWORD:
                 return true;
+            case SERVICE_KEYWORD:
+                return isServiceDeclStart();
             default:
                 return false;
         }
@@ -1466,16 +1469,18 @@ public class BallerinaParser {
             case EOF_TOKEN:
             case CLOSE_BRACE_PIPE_TOKEN:
             case TYPE_KEYWORD:
-            case SERVICE_KEYWORD:
                 return true;
+            case SERVICE_KEYWORD:
+                return isServiceDeclStart();
             default:
                 switch (nextNextTokenKind) {
                     case CLOSE_BRACE_TOKEN:
                     case EOF_TOKEN:
                     case CLOSE_BRACE_PIPE_TOKEN:
                     case TYPE_KEYWORD:
-                    case SERVICE_KEYWORD:
                         return true;
+                    case SERVICE_KEYWORD:
+                        return isServiceDeclStart();
                     default:
                         return false;
                 }
@@ -3575,7 +3580,7 @@ public class BallerinaParser {
     }
 
     /**
-
+     * 
      * Parse continue statement.
      * <code>continue-stmt := continue ; </code>
      *
@@ -3603,7 +3608,7 @@ public class BallerinaParser {
             return sol.recoveredNode;
         }
     }
-  
+
     /**
      * Parse return statement.
      * <code>return-stmt := return [ action-or-expr ] ;</code>
@@ -3661,6 +3666,7 @@ public class BallerinaParser {
             return sol.recoveredNode;
         }
     }
+
     /**
      * <p>
      * Parse the right hand side of a return statement.
@@ -3951,10 +3957,10 @@ public class BallerinaParser {
         startContext(ParserRuleContext.SERVICE_DECL);
         STNode serviceName = parseServiceName();
         STNode onKeyword = parseOnKeyword();
-        STNode listenerList = parseListeners();
+        STNode expressionList = parseListeners();
         STNode serviceBody = parseServiceBody();
         STNode service =
-                STNodeFactory.createServiceDecl(serviceKeyword, serviceName, onKeyword, listenerList, serviceBody);
+                STNodeFactory.createServiceDecl(serviceKeyword, serviceName, onKeyword, expressionList, serviceBody);
         endContext();
         return service;
     }
@@ -4173,6 +4179,56 @@ public class BallerinaParser {
         } else {
             Solution sol = recover(token, ParserRuleContext.RESOURCE_KEYWORD);
             return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Check whether next construct is a service declaration or not. This method is
+     * used to determine whether an end-of-block is reached, if the next token is
+     * a service-keyword. Because service-keyword can be used in statements as well
+     * as in top-level node (service-decl). We have reached a service-decl, then
+     * it could be due to missing close-brace at the end of the current block.
+     * 
+     * @return <code>true</code> if the next construct is a service declaration.
+     *         <code>false</code> otherwise
+     */
+    private boolean isServiceDeclStart() {
+        // Assume we always reach here after a peek()
+        switch (peek(2).kind) {
+            case IDENTIFIER_TOKEN:
+                SyntaxKind tokenAfterIdentifier = peek(3).kind;
+                switch (tokenAfterIdentifier) {
+                    case EQUAL_TOKEN: // service foo = ...
+                    case SEMICOLON_TOKEN: // service foo;
+                        return false;
+                    case ON_KEYWORD: // service foo on ...
+                        return true;
+                    default:
+                        // TODO handle compound assignment
+
+                        // If not any of above, this is not a valid syntax. Hence try to recover
+                        // silently and find whats the best token. From that recovered token try
+                        // to determine whether the next construct is a service decl or not.
+                        Solution sol = recover(peek(), ParserRuleContext.STATEMENT);
+
+                        // If the recovered token is an end-of block, then
+                        // next construct must be a service decl.
+                        return sol.tokenKind == SyntaxKind.CLOSE_BRACE_TOKEN;
+                }
+            case ON_KEYWORD:
+                // Next token sequence is similar to: `service foo on ...`.
+                // Then this is a service decl.
+                return true;
+            default:
+                // If not any of above, this is not a valid syntax. Hence try to recover
+                // silently and find whats the best token. From that recovered token try
+                // to determine whether the next construct is a service decl or not.
+
+                Solution sol = recover(peek(), ParserRuleContext.STATEMENT);
+
+                // If the recovered token is an end-of block, then
+                // next construct must be a service decl.
+                return sol.tokenKind == SyntaxKind.CLOSE_BRACE_TOKEN;
         }
     }
 }

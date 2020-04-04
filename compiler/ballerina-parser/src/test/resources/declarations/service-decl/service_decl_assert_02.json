@@ -15,7 +15,7 @@
             "kind": "LIST",
             "children": [
                 {
-                    "kind": "LISTENER_REF",
+                    "kind": "EXPRESSION_LIST_ITEM",
                     "children": [
                         {
                             "kind": "IDENTIFIER_TOKEN",
@@ -24,7 +24,7 @@
                     ]
                 },
                 {
-                    "kind": "LISTENER_REF",
+                    "kind": "EXPRESSION_LIST_ITEM",
                     "children": [
                         {
                             "kind": "COMMA_TOKEN"
@@ -48,7 +48,7 @@
                     ]
                 },
                 {
-                    "kind": "LISTENER_REF",
+                    "kind": "EXPRESSION_LIST_ITEM",
                     "children": [
                         {
                             "kind": "COMMA_TOKEN"

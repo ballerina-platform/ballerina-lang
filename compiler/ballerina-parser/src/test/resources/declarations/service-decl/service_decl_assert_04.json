@@ -16,7 +16,7 @@
             "kind": "LIST",
             "children": [
                 {
-                    "kind": "LISTENER_REF",
+                    "kind": "EXPRESSION_LIST_ITEM",
                     "children": [
                         {
                             "kind": "IDENTIFIER_TOKEN",

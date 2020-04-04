@@ -40,7 +40,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclaration {
         return childInBucket(2);
     }
 
-    public NodeList<Node> listenerList() {
+    public NodeList<Node> expressionList() {
         return new NodeList<>(childInBucket(3));
     }
 

@@ -29,23 +29,23 @@ public class STServiceDeclaration extends STNode {
     public final STNode serviceKeyword;
     public final STNode serviceName;
     public final STNode onKeyword;
-    public final STNode listenerList;
+    public final STNode expressionList;
     public final STNode serviceBody;
 
     STServiceDeclaration(STNode serviceKeyword,
                          STNode serviceName,
                          STNode onKeyword,
-                         STNode listenerList,
+                         STNode expressionList,
                          STNode serviceBody) {
 
         super(SyntaxKind.SERVICE_DECLARATION);
         this.serviceKeyword = serviceKeyword;
         this.serviceName = serviceName;
         this.onKeyword = onKeyword;
-        this.listenerList = listenerList;
+        this.expressionList = expressionList;
         this.serviceBody = serviceBody;
 
-        addChildren(serviceKeyword, serviceName, onKeyword, listenerList, serviceBody);
+        addChildren(serviceKeyword, serviceName, onKeyword, expressionList, serviceBody);
     }
 
     @Override

@@ -372,9 +372,9 @@ public class STNodeFactory {
     public static STNode createServiceDecl(STNode serviceKeyword,
                                            STNode serviceName,
                                            STNode onKeyword,
-                                           STNode listenerList,
+                                           STNode expressionList,
                                            STNode serviceBody) {
-        return new STServiceDeclaration(serviceKeyword, serviceName, onKeyword, listenerList, serviceBody);
+        return new STServiceDeclaration(serviceKeyword, serviceName, onKeyword, expressionList, serviceBody);
     }
 
     public static STNode createExpressionListItem(STNode leadingComma, STNode expr) {
