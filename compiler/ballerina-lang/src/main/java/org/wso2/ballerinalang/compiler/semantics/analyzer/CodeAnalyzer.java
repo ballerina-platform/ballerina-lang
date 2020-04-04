@@ -2326,9 +2326,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordTypeNode recordTypeNode) {
 
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
-//        if (recordTypeNode.isFieldAnalyseRequired) {
-//            recordTypeNode.fields.forEach(field -> analyzeNode(field, recordEnv));
-//        }
         recordTypeNode.fields.forEach(field -> analyzeNode(field, recordEnv));
     }
 
@@ -2336,9 +2333,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangObjectTypeNode objectTypeNode) {
 
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
-//        if (objectTypeNode.isFieldAnalyseRequired) {
-//            objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
-//        }
         objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
 
         // To ensure the order of the compile errors
