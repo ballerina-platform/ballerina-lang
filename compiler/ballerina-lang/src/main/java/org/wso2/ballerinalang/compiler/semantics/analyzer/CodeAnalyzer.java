@@ -2335,11 +2335,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
         objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
 
+        List<BLangFunction> bLangFunctionList = new ArrayList<>(objectTypeNode.functions);
+        if (objectTypeNode.initFunction != null) {
+            bLangFunctionList.add(objectTypeNode.initFunction);
+        }
+
         // To ensure the order of the compile errors
-        Stream.concat(objectTypeNode.functions.stream(),
-                Optional.ofNullable(objectTypeNode.initFunction).map(Stream::of).orElseGet(Stream::empty))
-                .sorted(Comparator.comparingInt(fn -> fn.pos.sLine))
-                .forEachOrdered(fn -> this.analyzeNode(fn, objectEnv));
+        bLangFunctionList.sort(Comparator.comparingInt(o -> o.pos.sLine));
+        bLangFunctionList.forEach(fn -> this.analyzeNode(fn, objectEnv));
     }
 
     @Override
