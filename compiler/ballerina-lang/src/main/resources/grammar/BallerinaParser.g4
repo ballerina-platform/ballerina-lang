@@ -246,6 +246,7 @@ simpleTypeName
     :   TYPE_ANY
     |   TYPE_ANYDATA
     |   TYPE_HANDLE
+    |   TYPE_READONLY
     |   valueTypeName
     |   referenceTypeName
     |   nilLiteral
@@ -1213,6 +1214,7 @@ documentationIdentifier
     |   TYPE_FUTURE
     |   TYPE_ANYDATA
     |   TYPE_HANDLE
+    |   TYPE_READONLY
     ;
 
 braket

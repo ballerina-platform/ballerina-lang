@@ -54,6 +54,7 @@ TYPE            : 'type' ;
 TYPE_FUTURE     : 'future' ;
 TYPE_ANYDATA    : 'anydata' ;
 TYPE_HANDLE     : 'handle' ;
+TYPE_READONLY   : 'readonly' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
