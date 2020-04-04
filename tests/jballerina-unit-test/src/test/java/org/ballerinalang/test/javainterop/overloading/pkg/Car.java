@@ -37,7 +37,7 @@ public class Car extends Vehicle {
     }
 
     @Override
-    public String gerDescription(String prefix) {
+    public String getDescription(String prefix) {
 
         return prefix + this.model;
     }
