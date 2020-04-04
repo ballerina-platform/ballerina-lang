@@ -68,10 +68,10 @@ public type RetryClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function post(string path, RequestMessage message, public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_POST, self);
@@ -88,7 +88,7 @@ public type RetryClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response or an `http:ClientError` if failed to establish communication with the upstream server
+    # + return - The response or an `http:ClientError` if failed to establish the communication with the upstream server
     public remote function head(@untainted string path, public RequestMessage message = ()) returns @tainted
             Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_HEAD, self);
@@ -105,10 +105,10 @@ public type RetryClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function put(string path, RequestMessage message, public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_PUT, self);
@@ -124,10 +124,10 @@ public type RetryClient client object {
     #
     # + path - Resource path
     # + request - An HTTP inbound request message
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function forward(string path, Request request, public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         var result = performRetryAction(path, request, HTTP_FORWARD, self);
@@ -146,10 +146,10 @@ public type RetryClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function execute(string httpVerb, string path, RequestMessage message, public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         var result = performRetryClientExecuteAction(path, <Request>message, httpVerb, self);
@@ -166,10 +166,10 @@ public type RetryClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function patch(string path, RequestMessage message, public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_PATCH, self);
@@ -186,10 +186,10 @@ public type RetryClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function delete(string path, public RequestMessage message = (), public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_DELETE, self);
@@ -206,10 +206,10 @@ public type RetryClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function get(string path, public RequestMessage message = (), public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_GET, self);
@@ -226,10 +226,10 @@ public type RetryClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function options(string path, public RequestMessage message = (), public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_OPTIONS, self);

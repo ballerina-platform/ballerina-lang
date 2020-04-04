@@ -187,20 +187,20 @@ public type CookieHandlingError error<COOKIE_HANDLING_ERROR, Detail>;
 
 # Represents the reason string for the `http:IllegalDataBindingStateError`
 public const ILLEGAL_DATA_BINDING_STATE_ERROR = "{ballerina/http}IllegalDataBindingStateError";
-# Represents a data binding illegal state error
+# Represents an illegal data-binding  state error
 public type IllegalDataBindingStateError error<ILLEGAL_DATA_BINDING_STATE_ERROR, Detail>;
 
 # Represents the reason string for the `http:ClientRequestError`
 public const CLIENT_REQUEST_ERROR = "{ballerina/http}ClientRequestError";
-# Represents an error that occurred due to bad syntax or incomplete info of client request(4xx HTTP response)
+# Represents an error, which occurred due to bad syntax or incomplete info in the client request(4xx HTTP response)
 public type ClientRequestError error<CLIENT_REQUEST_ERROR, Detail>;
 
 # Represents the reason string for the `http:RemoteServerError`
 public const REMOTE_SERVER_ERROR = "{ballerina/http}RemoteServerError";
-# Represents an error that occurred due to a failure of the remote server(5xx HTTP response)
+# Represents an error, which occurred due to a failure of the remote server(5xx HTTP response)
 public type RemoteServerError error<REMOTE_SERVER_ERROR, Detail>;
 
-// Ballerina HTTP Union Errors
+// Ballerina HTTP Union Errors.
 # Defines the resiliency error types that returned from client
 public type ResiliencyError FailoverAllEndpointsFailedError | FailoverActionFailedError |
                             UpstreamServiceUnavailableError | AllLoadBalanceEndpointsFailedError |

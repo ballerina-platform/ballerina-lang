@@ -76,10 +76,10 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function post(@untainted string path, RequestMessage message, TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
@@ -96,7 +96,7 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response or an `http:ClientError` if failed to establish communication with the upstream server
+    # + return - The response or an `http:ClientError` if failed to establish the communication with the upstream server
     public remote function head(@untainted string path, public RequestMessage message = ()) returns @tainted
             Response|ClientError {
         Request req = buildRequest(message);
@@ -113,10 +113,10 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function patch(string path, RequestMessage message, public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
@@ -133,10 +133,10 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function put(string path, RequestMessage message, public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
@@ -153,10 +153,10 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function options(string path, public RequestMessage message = (), public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
@@ -172,10 +172,10 @@ public type FailoverClient client object {
     #
     # + path - Resource path
     # + request - An HTTP request
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function forward(string path, Request request, public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         var result = performFailoverAction(path, request, HTTP_FORWARD, self);
@@ -192,10 +192,10 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function execute(string httpVerb, string path, RequestMessage message,
             public TargetType targetType = Response) returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
@@ -212,10 +212,10 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function delete(string path, public RequestMessage message = (), public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
@@ -232,10 +232,10 @@ public type FailoverClient client object {
     # + path - Resource path
     # + message - An optional HTTP request or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + targetType - HTTP response or the payload type, `string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}` or
-    #                `record {| anydata...; |}[]`, that is expected to be returned after data-binding
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
     # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
-    #            establish communication with the upstream server or a data binding failure
+    #            establish the communication with the upstream server or a data binding failure
     public remote function get(string path, public RequestMessage message = (), public TargetType targetType = Response)
             returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);

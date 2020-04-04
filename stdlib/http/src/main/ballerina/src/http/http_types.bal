@@ -17,13 +17,13 @@
 import ballerina/io;
 import ballerina/mime;
 
-# Represents HTTP/1.0 protocol
+# Represents the HTTP/1.0 protocol
 const string HTTP_1_0 = "1.0";
 
-# Represents HTTP/1.1 protocol
+# Represents the HTTP/1.1 protocol
 const string HTTP_1_1 = "1.1";
 
-# Represents HTTP/2.0 protocol
+# Represents the HTTP/2.0 protocol
 const string HTTP_2_0 = "2.0";
 
 # Defines the supported HTTP protocols.
@@ -33,13 +33,13 @@ const string HTTP_2_0 = "2.0";
 # `HTTP_2_0`: HTTP/2.0 protocol
 public type HttpVersion HTTP_1_0|HTTP_1_1|HTTP_2_0;
 
-# Represents http protocol scheme
+# Represents the HTTP protocol scheme
 const string HTTP_SCHEME = "http://";
 
-# Represents https protocol scheme
+# Represents the HTTPS protocol scheme
 const string HTTPS_SCHEME = "https://";
 
-# Constant for the http error code
+# Constant for the HTTP error code
 public const string HTTP_ERROR_CODE = "{ballerina/http}HTTPError";
 
 # Constant for the default listener endpoint timeout
@@ -48,10 +48,10 @@ const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 # Constant for the default failover starting index for failover endpoints
 const int DEFAULT_FAILOVER_EP_STARTING_INDEX = 0;
 
-# Maximum number of requests that can be processed at a given time on a single connection.
+# Maximum number of requests that can be processed at a given time on a single connection
 const int MAX_PIPELINED_REQUESTS = 10;
 
-# Represents multipart primary type
+# Represents the multipart primary type
 public const string MULTIPART_AS_PRIMARY_TYPE = "multipart/";
 
 # Constant for the HTTP FORWARD method
@@ -81,82 +81,82 @@ public const HTTP_HEAD = "HEAD";
 # constant for the HTTP SUBMIT method
 public const HTTP_SUBMIT = "SUBMIT";
 
-# Constant for the identify not an HTTP Operation
+# Constant to identify a none-HTTP operation
 public const HTTP_NONE = "NONE";
 
 # Defines the possible values for the chunking configuration in HTTP services and clients.
 #
 # `AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,
-#         otherwise chunking header is set in the outbound request/response
-# `ALWAYS`: Always set chunking header in the response
+#         Otherwise, the chunking header is set in the outbound request/response
+# `ALWAYS`: Always set the chunking header in the response
 # `NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response
 public type Chunking CHUNKING_AUTO|CHUNKING_ALWAYS|CHUNKING_NEVER;
 
-# If the payload is less than 8KB, content-length header is set in the outbound request/response,
-# otherwise chunking header is set in the outbound request/response.}
+# If the payload is less than 8KB, content-length header is set in the outbound request/response.
+# Otherwise, the chunking header is set in the outbound request/response
 public const CHUNKING_AUTO = "AUTO";
 
-# Always set chunking header in the response.
+# Always set the chunking header in the response.
 public const CHUNKING_ALWAYS = "ALWAYS";
 
-# Never set the chunking header even if the payload is larger than 8KB in the outbound request/response.
+# Never set the chunking header even if the payload is larger than 8KB in the outbound request/response
 public const CHUNKING_NEVER = "NEVER";
 
-# Options to compress using gzip or deflate.
+# Options to compress using GZIP or DEFLATE.
 #
-# `AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
-#         outbound request/response accept-encoding/content-encoding option
-# `ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response
-# `NEVER`: Never set accept-encoding/content-encoding header in outbound request/response
+# `AUTO`: When the service behaves as an HTTP gateway, the accept-encoding option of the inbound request/response is
+#         set as the accept-encoding/content-encoding option of the outbound request/response
+# `ALWAYS`: Always set the accept-encoding/content-encoding in the outbound request/response
+# `NEVER`: Never set the accept-encoding/content-encoding header in the outbound request/response
 public type Compression COMPRESSION_AUTO|COMPRESSION_ALWAYS|COMPRESSION_NEVER;
 
-# When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the
-# outbound request/response accept-encoding/content-encoding option.
+# When the service behaves as an HTTP gateway, the accept-encoding option of the inbound request/response is set as the
+# accept-encoding/content-encoding option of the outbound request/response
 public const COMPRESSION_AUTO = "AUTO";
 
-# Always set accept-encoding/content-encoding in outbound request/response.
+# Always set the accept-encoding/content-encoding option in the outbound request/response
 public const COMPRESSION_ALWAYS = "ALWAYS";
 
-# Never set accept-encoding/content-encoding header in outbound request/response.
+# Never set accept-encoding/content-encoding header in outbound request/response
 public const COMPRESSION_NEVER = "NEVER";
 
-# The types of messages that are accepted by HTTP `client` when sending out the outbound request.
+# The types of messages that are accepted by the HTTP `client` when sending out the outbound request
 public type RequestMessage Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
 
-# The types of messages that are accepted by HTTP `listener` when sending out the outbound response.
+# The types of messages that are accepted by the HTTP `listener` when sending out the outbound response
 public type ResponseMessage Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
 
-# The type of user defined custom record.
+# The type of the user-defined custom record
 private type CustomRecordType record {| anydata...; |};
 
-# The types of response payload that are returned by HTTP `client` after data binding operation.
+# The types of the response payload that are returned by the HTTP `client` after the data binding operation
 public type PayloadType string|xml|json|byte[]|CustomRecordType|CustomRecordType[];
 
-# The types of data values that are expected by HTTP `client` to return after data binding operation.
+# The types of data values that are expected by the HTTP `client` to return after the data binding operation
 public type TargetType typedesc<Response|string|xml|json|byte[]|CustomRecordType| CustomRecordType[]>;
 
-# Defines the HTTP operations related to circuit breaker, failover and load balancer.Read
+# Defines the HTTP operations related to the circuit breaker, failover and load balancer.
 #
-# `FORWARD`: Forward the specified payload
-# `GET`: Request a resource
-# `POST`: Create a new resource
+# `FORWARD`: Forwards the specified payload
+# `GET`: Requests a resource
+# `POST`: Creates a new resource
 # `DELETE`: Deletes the specified resource
-# `OPTIONS`: Request communication options available
-# `PUT`: Replace the target resource
-# `PATCH`: Apply partial modification to the resource
+# `OPTIONS`: Requests communication options that are available
+# `PUT`: Replaces the target resource
+# `PATCH`: Applies partial modification to the resource
 # `HEAD`: Identical to `GET` but no resource body should be returned
-# `SUBMIT`: Submits a http request and returns an HttpFuture object
+# `SUBMIT`: Submits an HTTP request and returns an `HttpFuture` object
 # `NONE`: No operation should be performed
 public type HttpOperation HTTP_FORWARD|HTTP_GET|HTTP_POST|HTTP_DELETE|HTTP_OPTIONS|HTTP_PUT|HTTP_PATCH|HTTP_HEAD
                                                                                                 |HTTP_SUBMIT|HTTP_NONE;
 
-// Common type used for HttpFuture and Response used for resiliency clients.
+# Common type used for the `HttpFuture` and Response used for resiliency clients
 type HttpResponse Response|HttpFuture;
 
-# A record for configuring SSL/TLS protocol and version to be used.
+# A record for configuring the SSL/TLS protocol and version to be used.
 #
-# + name - SSL Protocol to be used (e.g.: TLS1.2)
-# + versions - SSL/TLS protocols to be enabled (e.g.: TLSv1,TLSv1.1,TLSv1.2)
+# + name - SSL Protocol to be used (e.g., TLS1.2)
+# + versions - SSL/TLS protocols to be enabled (e.g., TLSv1,TLSv1.1,TLSv1.2)
 public type Protocols record {|
     string name = "";
     string[] versions = [];
@@ -166,7 +166,7 @@ public type Protocols record {|
 #
 # + enable - The status of `validateCertEnabled`
 # + cacheSize - Maximum size of the cache
-# + cacheValidityPeriod - The time period for which a cache entry is valid
+# + cacheValidityPeriod - The time period during which a cache entry is valid
 public type ValidateCert record {|
     boolean enable = false;
     int cacheSize = 0;
@@ -177,7 +177,7 @@ public type ValidateCert record {|
 #
 # + enable - The status of OCSP stapling
 # + cacheSize - Maximum size of the cache
-# + cacheValidityPeriod - The time period for which a cache entry is valid
+# + cacheValidityPeriod - The time period during which a cache entry is valid
 public type ListenerOcspStapling record {|
     boolean enable = false;
     int cacheSize = 0;
@@ -186,8 +186,8 @@ public type ListenerOcspStapling record {|
 
 # A record for providing configurations for content compression.
 #
-# + enable - The status of compression
-# + contentTypes - Content types which are allowed for compression
+# + enable - The status of the compression
+# + contentTypes - Content types, which are allowed for compression
 public type CompressionConfig record {|
     Compression enable = COMPRESSION_AUTO;
     string[] contentTypes = [];
@@ -200,18 +200,18 @@ type HTTPError record {
 # Common client configurations for the next level clients.
 #
 # + httpVersion - The HTTP version understood by the client
-# + http1Settings - Configurations related to HTTP/1.x protocol
-# + http2Settings - Configurations related to HTTP/2 protocol
+# + http1Settings - Configurations related to the HTTP/1.x protocol
+# + http2Settings - Configurations related to the HTTP/2 protocol
 # + timeoutInMillis - The maximum time to wait (in milliseconds) for a response before closing the connection
-# + forwarded - The choice of setting `forwarded`/`x-forwarded` header
-# + followRedirects - Configurations associated with Redirection
+# + forwarded - The choice of setting the `forwarded`/`x-forwarded` header
+# + followRedirects - Configurations associated with the Redirection
 # + poolConfig - Configurations associated with request pooling
 # + cache - HTTP caching related configurations
-# + compression - Specifies the way of handling compression (`accept-encoding`) header
+# + compression - Specifies the way of handling the compression (`accept-encoding`) header
 # + auth - HTTP authentication-related configurations
 # + circuitBreaker - Configurations associated with the behaviour of the Circuit Breaker
 # + retryConfig - Configurations associated with retrying
-# + cookieConfig - Configurations associated with cookies
+# + cookieConfig - Configurations associated with the cookies
 public type CommonClientConfiguration record {|
     string httpVersion = HTTP_1_1;
     ClientHttp1Settings http1Settings = {};
