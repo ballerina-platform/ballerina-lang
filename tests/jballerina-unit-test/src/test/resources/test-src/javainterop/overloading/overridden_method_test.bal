@@ -14,7 +14,7 @@ function getName(handle receiver) returns handle = @java:Method {
     class:"org.ballerinalang.test.javainterop.overloading.pkg.Car"
 } external;
 
-function gerDescription(handle receiver, handle inputStr) returns handle = @java:Method {
+function getDescription(handle receiver, handle inputStr) returns handle = @java:Method {
     class:"org.ballerinalang.test.javainterop.overloading.pkg.Car"
 } external;
 
@@ -28,6 +28,6 @@ public function testOverriddenMethods() returns [string?, string?] {
     handle car = newCar(strName2, strModel);
 
     handle carName = getName(car);
-    handle carDesc = gerDescription(car, java:fromString("Graze"));
+    handle carDesc = getDescription(car, java:fromString("Graze"));
     return [java:toString(carName), java:toString(carDesc)];
 }

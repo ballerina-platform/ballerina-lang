@@ -34,7 +34,7 @@ public class Vehicle {
         return this.name;
     }
 
-    public Object gerDescription(String prefix) {
+    public Object getDescription(String prefix) {
 
         return prefix + this.name;
     }
