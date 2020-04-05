@@ -120,8 +120,8 @@ public class TupleRestDescriptorTest {
                 19, 33);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'boolean', found 'string'",
                 19, 36);
-        BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match",
-                24, 12);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '([string,int,boolean]|string)'," +
+                                          " found '[string,int,boolean,boolean]'", 24, 12);
     }
 
 }

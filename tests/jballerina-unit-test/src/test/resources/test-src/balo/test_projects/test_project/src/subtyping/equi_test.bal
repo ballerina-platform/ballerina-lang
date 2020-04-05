@@ -14,15 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java.jdbc;
-
-public function getClient() returns jdbc:Client {
-    jdbc:Client dbClient = new({
-        url: "jdbc:mysql://localhost:3306/productsdb?useTimezone=true&serverTimezone=UTC",
-        username: "root",
-        password: "root",
-        poolOptions: { maximumPoolSize: 5 },
-        dbOptions: { useSSL: false }
-    });
-    return dbClient;
-}
+//TODO Table remove - Fix
+//import ballerinax/java.jdbc;
+//
+//public function getClient() returns jdbc:Client {
+//    jdbc:Client dbClient = new({
+//        url: "jdbc:mysql://localhost:3306/productsdb?useTimezone=true&serverTimezone=UTC",
+//        username: "root",
+//        password: "root",
+//        poolOptions: { maximumPoolSize: 5 },
+//        dbOptions: { useSSL: false }
+//    });
+//    return dbClient;
+//}

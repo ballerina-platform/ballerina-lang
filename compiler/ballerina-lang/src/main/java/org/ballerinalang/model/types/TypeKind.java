@@ -59,7 +59,6 @@ public enum TypeKind {
     BLOB("blob"),
 
     TYPEDESC("typedesc"),
-    TABLE("table"),
     STREAM("stream"),
     JSON("json"),
     XML("xml"),
@@ -80,7 +79,6 @@ public enum TypeKind {
     NONE(""),
     OTHER("other"),
     ERROR("error"),
-    INTERMEDIATE_COLLECTION("intermediate_collection"),
     TUPLE("tuple"),
     OBJECT("object"),
     RECORD("record"),

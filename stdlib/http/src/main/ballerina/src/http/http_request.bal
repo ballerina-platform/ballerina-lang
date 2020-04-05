@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/stringutils;
-import ballerinax/java;
+import ballerina/java;
 import ballerina/time;
 
 # Represents an HTTP request.
@@ -26,7 +26,7 @@ import ballerina/time;
 # + method - The HTTP request method
 # + httpVersion - The HTTP version supported by the client
 # + userAgent - The user-agent. This value is used when setting the `user-agent` header
-# + extraPathInfo - Additional information associated with the URL provided by the client
+# + extraPathInfo - The part of the URL, which matched to '*' if the request is dispatched to a wildcard resource
 # + cacheControl - The cache-control directives for the request. This needs to be explicitly initialized if intending
 #                  on utilizing HTTP caching.
 # + mutualSslHandshake - A record providing mutual ssl handshake results.
@@ -125,8 +125,8 @@ public type Request object {
     # these values is returned.
     #
     # + headerName - The header name
-    # + return - The first header value for the specified header name. An exception is thrown if no header is found. Use
-    #            `Request.hasHeader()` beforehand to check the existence of header.
+    # + return - The first header value for the specified header name. Panic if the header is not found. Use the
+    #            `Request.hasHeader()` beforehand to check the existence of a header.
     public function getHeader(string headerName) returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeader(headerName);
@@ -135,8 +135,8 @@ public type Request object {
     # Gets all the header values to which the specified header key maps to.
     #
     # + headerName - The header name
-    # + return - The header values the specified header key maps to. An exception is thrown if no header is found. Use
-    #            `Request.hasHeader()` beforehand to check the existence of header.
+    # + return - The header values the specified header key maps to. Panic if the header is not found. Use the
+    #            `Request.hasHeader()` beforehand to check the existence of a header.
     public function getHeaders(string headerName) returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.getHeaders(headerName);
@@ -615,8 +615,10 @@ function externCheckReqEntityBodyAvailability(Request request) returns boolean =
 # A record for providing mutual SSL handshake results.
 #
 # + status - Status of the handshake.
+# + base64EncodedCert - Base64 encoded certificate.
 public type MutualSslHandshake record {|
     MutualSslStatus status = ();
+    string? base64EncodedCert = ();
 |};
 
 # Defines the possible values for the mutual ssl status.

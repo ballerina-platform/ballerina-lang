@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # Provides the gRPC remote functions for interacting with caller.
 #
@@ -28,6 +28,9 @@ public type Caller client object {
 
     private int instanceId = -1;
 
+    # Returns the unique identification of the caller.
+    #
+    # + return - caller ID
     public function getId() returns int {
         return self.instanceId;
     }

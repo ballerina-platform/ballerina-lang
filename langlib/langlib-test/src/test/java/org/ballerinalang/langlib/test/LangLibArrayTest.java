@@ -248,6 +248,11 @@ public class LangLibArrayTest {
     }
 
     @Test
+    public void testLastIndexOf() {
+        BRunUtil.invoke(compileResult, "testLastIndexOf");
+    }
+
+    @Test
     public void testReverse() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReverse");
 
@@ -325,9 +330,8 @@ public class LangLibArrayTest {
     }
 
     @Test
-    public void testBytePush() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testBytePush");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    public void testPush() {
+        BRunUtil.invoke(compileResult, "testPush");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

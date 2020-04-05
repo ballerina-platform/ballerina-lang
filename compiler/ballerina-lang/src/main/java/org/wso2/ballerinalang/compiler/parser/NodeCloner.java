@@ -79,12 +79,14 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
@@ -97,9 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -117,7 +117,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
@@ -142,7 +145,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStat
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -164,6 +166,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -432,14 +435,6 @@ public class NodeCloner extends BLangNodeVisitor {
 
         clone.variableNode = clone(source.variableNode);
         clone.isAnonymousServiceValue = source.isAnonymousServiceValue;
-    }
-
-    @Override
-    public void visit(BLangStreamConstructorExpr source) {
-
-        BLangStreamConstructorExpr clone = new BLangStreamConstructorExpr();
-        source.cloneRef = clone;
-        clone.lambdaFunction = clone(source.lambdaFunction);
     }
 
     @Override
@@ -800,17 +795,6 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableLiteral source) {
-
-        BLangTableLiteral clone = new BLangTableLiteral();
-        source.cloneRef = clone;
-        clone.columns.addAll(source.columns);
-        clone.tableDataRows = cloneList(source.tableDataRows);
-        clone.indexColumnsArrayLiteral = clone(source.indexColumnsArrayLiteral);
-        clone.keyColumnsArrayLiteral = clone(source.keyColumnsArrayLiteral);
-    }
-
-    @Override
     public void visit(BLangRecordLiteral source) {
 
         BLangRecordLiteral clone = new BLangRecordLiteral();
@@ -868,7 +852,16 @@ public class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldBasedAccess source) {
 
-        BLangFieldBasedAccess clone = new BLangFieldBasedAccess();
+        BLangFieldBasedAccess clone;
+        if (source instanceof BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) {
+            BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess fieldBasedAccess =
+                    new BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess();
+            fieldBasedAccess.nsPrefix = ((BLangFieldBasedAccess.BLangNSPrefixedFieldBasedAccess) source).nsPrefix;
+            clone = fieldBasedAccess;
+        } else {
+            clone = new BLangFieldBasedAccess();
+        }
+
         source.cloneRef = clone;
         clone.field = source.field;
         clone.fieldKind = source.fieldKind;
@@ -979,7 +972,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangLetExpression clone = new BLangLetExpression();
         source.cloneRef = clone;
         clone.letVarDeclarations = cloneLetVarDeclarations(source.letVarDeclarations);
-        clone.expr = source.expr;
+        clone.expr = clone(source.expr);
     }
 
     @Override
@@ -1362,6 +1355,17 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangStreamType source) {
+
+        BLangStreamType clone = new BLangStreamType();
+        source.cloneRef = clone;
+        clone.type = clone(source.type);
+        clone.constraint = clone(source.constraint);
+        clone.error = clone(source.error);
+        cloneBLangType(source, clone);
+    }
+
+    @Override
     public void visit(BLangUserDefinedType source) {
 
         BLangUserDefinedType clone = new BLangUserDefinedType();
@@ -1414,6 +1418,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.sealed = source.sealed;
         clone.restFieldType = clone(source.restFieldType);
+        clone.analyzed = source.analyzed;
         cloneBLangStructureTypeNode(source, clone);
         cloneBLangType(source, clone);
     }
@@ -1603,6 +1608,15 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangMarkDownDeprecationDocumentation source) {
+        BLangMarkDownDeprecationDocumentation clone = new BLangMarkDownDeprecationDocumentation();
+        source.cloneRef = clone;
+        clone.deprecationLine = source.deprecationLine;
+        clone.deprecationDocumentationLines = source.deprecationDocumentationLines;
+        clone.isCorrectDeprecationLine = source.isCorrectDeprecationLine;
+    }
+
+    @Override
     public void visit(BLangMarkdownDocumentation source) {
 
         BLangMarkdownDocumentation clone = new BLangMarkdownDocumentation();
@@ -1611,6 +1625,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.parameters.addAll(cloneList(source.parameters));
         clone.references.addAll(cloneList(source.references));
         clone.returnParameter = clone(source.returnParameter);
+        clone.deprecationDocumentation = clone(source.deprecationDocumentation);
     }
 
     @Override
@@ -1762,5 +1777,39 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.key = source.key;
         clone.valueExpr = clone(source.valueExpr);
         clone.keyExpr = clone(source.keyExpr);
+    }
+
+    @Override
+    public void visit(BLangXMLElementFilter source) {
+        BLangXMLElementFilter clone = new BLangXMLElementFilter(
+                source.pos,
+                source.getWS(),
+                source.namespace,
+                source.nsPos,
+                source.name,
+                source.elemNamePos);
+        source.cloneRef = clone;
+    }
+
+    @Override
+    public void visit(BLangXMLElementAccess source) {
+        BLangXMLElementAccess clone = new BLangXMLElementAccess(
+                source.pos,
+                source.getWS(),
+                clone(source.expr),
+                cloneList(source.filters));
+        source.cloneRef = clone;
+    }
+
+    @Override
+    public void visit(BLangXMLNavigationAccess source) {
+        BLangXMLNavigationAccess clone = new BLangXMLNavigationAccess(
+                source.pos,
+                source.getWS(),
+                clone(source.expr),
+                cloneList(source.filters),
+                source.navAccessType,
+                clone(source.childIndex));
+        source.cloneRef = clone;
     }
 }

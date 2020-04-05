@@ -18,7 +18,7 @@ import ballerina/kafka;
 
 string topic = "service-no-resources-test";
 
-kafka:ConsumerConfig consumerConfigs = {
+kafka:ConsumerConfiguration consumerConfigs = {
     bootstrapServers: "localhost:9094",
     groupId: "service-test-no-resources-group",
     clientId: "service-no-resources-consumer",

@@ -11,7 +11,7 @@
           "documentation": {
             "right": {
               "kind": "markdown",
-              "value": "**Description**  \nSearches for one string in another string."
+              "value": "**Description**  \nFinds the first occurrence of one string in another string."
             }
           },
           "parameters": [

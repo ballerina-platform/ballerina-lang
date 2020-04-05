@@ -21,7 +21,6 @@ import org.ballerinalang.model.Name;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 
 /**
  * @since 0.94
@@ -44,10 +43,6 @@ public class BAnyType extends BBuiltInRefType {
     public BAnyType(int tag, BTypeSymbol tsymbol, boolean nullable) {
         super(tag, tsymbol);
         this.nullable = nullable;
-    }
-
-    public String getDesc() {
-        return TypeDescriptor.SIG_ANY;
     }
 
     @Override

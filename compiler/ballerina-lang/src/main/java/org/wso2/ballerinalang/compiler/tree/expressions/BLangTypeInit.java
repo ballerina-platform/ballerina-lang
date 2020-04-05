@@ -20,9 +20,8 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TypeInitNode;
-import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -35,7 +34,7 @@ import java.util.List;
  */
 public class BLangTypeInit extends BLangExpression implements TypeInitNode {
 
-    public BLangUserDefinedType userDefinedType;
+    public BLangType userDefinedType;
     public List<BLangExpression> argsExpr;
     public BLangInvocation initInvocation;
 
@@ -44,7 +43,7 @@ public class BLangTypeInit extends BLangExpression implements TypeInitNode {
     }
 
     @Override
-    public UserDefinedTypeNode getType() {
+    public BLangType getType() {
         return userDefinedType;
     }
 

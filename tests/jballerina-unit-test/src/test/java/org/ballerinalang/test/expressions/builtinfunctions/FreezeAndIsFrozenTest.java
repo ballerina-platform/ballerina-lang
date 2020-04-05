@@ -233,38 +233,18 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to add" +
-                    " children to xml element: modification not allowed on readonly value.*")
-    public void testFrozenXmlAppendChildren() {
-        BRunUtil.invoke(result, "testFrozenXmlAppendChildren", new BValue[0]);
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to " +
-                    "remove children from xml element: modification not allowed on readonly value.*")
-    public void testFrozenXmlRemoveChildren() {
-        BRunUtil.invoke(result, "testFrozenXmlRemoveChildren", new BValue[0]);
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to " +
-                    "remove attribute: modification not allowed on readonly value.*")
-    public void testFrozenXmlRemoveAttribute() {
-        BRunUtil.invoke(result, "testFrozenXmlRemoveAttribute", new BValue[0]);
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to set" +
-                    " attributes: modification not allowed on readonly value.*")
-    public void testFrozenXmlSetAttributes() {
-        BRunUtil.invoke(result, "testFrozenXmlSetAttributes", new BValue[0]);
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to set" +
                     " children to xml element: modification not allowed on readonly value.*")
     public void testFrozenXmlSetChildren() {
         BRunUtil.invoke(result, "testFrozenXmlSetChildren", new BValue[0]);
+    }
+
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml\\}XMLOperationError message=Failed to set" +
+                    " children to xml element: modification not allowed on readonly value.*")
+    public void testFrozenXmlSetChildrenDeep() {
+        BRunUtil.invoke(result, "testFrozenXmlSetChildrenDeep", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -353,14 +333,14 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InvalidUpdate message=Failed to add " +
-                    "data to the table: modification not allowed on readonly value.*")
+                    "data to the table: modification not allowed on readonly value.*", enabled = false)
     public void testFrozenTableAddition() {
         BRunUtil.invoke(result, "testFrozenTableAddition", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InvalidUpdate message=Failed to " +
-                    "remove data from the table: modification not allowed on readonly value.*")
+                    "remove data from the table: modification not allowed on readonly value.*", enabled = false)
     public void testFrozenTableRemoval() {
         BRunUtil.invoke(result, "testFrozenTableRemoval", new BValue[0]);
     }
@@ -454,6 +434,11 @@ public class FreezeAndIsFrozenTest {
         Assert.assertSame(returns[0].getClass(), BError.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                             "failed to set element to json: message=modification not allowed on readonly value");
+    }
+
+    @Test
+    public void testXMLItemsCloneReadOnly() {
+        BRunUtil.invoke(result, "testXMLItemsCloneReadOnly");
     }
 
     @Test

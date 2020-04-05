@@ -99,7 +99,7 @@ map<int|string|float> globalISFMap = {
     ...getStringMap()
 };
 
-public function testSpreadOpInGlobalMap() {
+function testSpreadOpInGlobalMap() {
     assertEquality(10, globalISFMap.length());
     assertEquality(4, globalISFMap["f"]);
     assertEquality(1, globalISFMap["a"]);
@@ -111,6 +111,53 @@ public function testSpreadOpInGlobalMap() {
     assertEquality("el", globalISFMap["l"]);
     assertEquality("em", globalISFMap["m"]);
     assertEquality("en", globalISFMap["n"]);
+}
+
+function testMappingConstrExprAsSpreadExpr() {
+    Foo f = {s: "hello", ...{i: 1, f: 2.0}, "oth": true};
+
+    assertEquality(4, f.length());
+    assertEquality("hello", f.s);
+    assertEquality(1, f.i);
+    assertEquality(2.0, f.f);
+    assertEquality(true, f["oth"]);
+}
+
+function testOrderWithSpreadOp() {
+    map<int> m1 = {a: 1, b: 2};
+    map<anydata> m2 = {b: "hi", c: 3};
+
+    map<any> m3 = {a: 0, ...m1, ...m2, c: 4};
+
+    assertEquality(3, m3.length());
+    assertEquality(1, m3["a"]);
+    assertEquality("hi", m3["b"]);
+    assertEquality(4, m3["c"]);
+}
+
+type Baz record {
+    int i;
+    string s;
+};
+
+type Qux record {|
+    int i;
+    boolean...;
+|};
+
+function testInherentTypeViolationViaSpreadOp() {
+    var fn = function() {
+        Qux q = {i: 1, "t": false, "s": true};
+        Baz b = {s: "hello", ...q};
+    };
+
+    error? res = trap fn();
+    assertEquality(true, res is error);
+
+    error resError = <error> res;
+    assertEquality("{ballerina/lang.map}InherentTypeViolation", resError.reason());
+    assertEquality("invalid value for record field 's': expected value of type 'string', found 'boolean'",
+                   resError.detail()?.message);
 }
 
 function assertEquality(any|error expected, any|error actual) {

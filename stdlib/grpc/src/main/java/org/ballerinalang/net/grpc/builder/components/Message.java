@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.toCamelCase;
-
 /**
  * Message Definition bean class.
  *
@@ -35,7 +33,7 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.toCame
 public class Message {
     private List<Field> fieldList;
     private String messageName;
-    private Map<String, List<Message>> oneofFieldMap;
+    private Map<String, List<Field>> oneofFieldMap;
     private List<EnumMessage> enumList;
     private List<Message> nestedMessageList;
     private List<Message> mapList;
@@ -45,11 +43,11 @@ public class Message {
         this.fieldList = fieldList;
     }
 
-    private void setOneofFieldMap(Map<String, List<Message>> oneofFieldMap) {
+    private void setOneofFieldMap(Map<String, List<Field>> oneofFieldMap) {
         this.oneofFieldMap = oneofFieldMap;
     }
 
-    public Map<String, List<Message>> getOneofFieldMap() {
+    public Map<String, List<Field>> getOneofFieldMap() {
         return oneofFieldMap;
     }
 
@@ -123,17 +121,13 @@ public class Message {
             }
 
             List<Field> fieldList = new ArrayList<>();
-            Map<String, List<Message>> oneofFieldMap = new HashMap<>();
+            Map<String, List<Field>> oneofFieldMap = new HashMap<>();
             for (DescriptorProtos.FieldDescriptorProto fieldDescriptorProto : messageDescriptor.getFieldList()) {
                 Field field = Field.newBuilder(fieldDescriptorProto).build();
                 if (fieldDescriptorProto.hasOneofIndex()) {
-                    List<Field> tempList = new ArrayList<>(1);
-                    tempList.add(field);
-                    Message message = new Message(messageDescriptor.getName() + "_" + toCamelCase
-                            (fieldDescriptorProto.getName()), tempList);
                     String oneofField = messageDescriptor.getOneofDecl(fieldDescriptorProto.getOneofIndex()).getName();
-                    List<Message> oneofMessageList = oneofFieldMap.computeIfAbsent(oneofField, k -> new ArrayList<>());
-                    oneofMessageList.add(message);
+                    List<Field> oneofMessageList = oneofFieldMap.computeIfAbsent(oneofField, k -> new ArrayList<>());
+                    oneofMessageList.add(field);
                 } else if (!mapNames.contains(field.getFieldType())) {
                     fieldList.add(field);
                 }

@@ -29,10 +29,15 @@ public type HttpSecureClient client object {
     public ClientConfiguration config = {};
     public HttpClient httpClient;
 
+    # Gets invoked to initialize the secure `client`. Due to the secure client releated configurations provided
+    # through the `config` record, the `HttpSecureClient` is initialized.
+    #
+    # + url - URL of the target service
+    # + config - The configurations to be used when initializing the `client`
     public function __init(string url, ClientConfiguration config) {
         self.url = url;
         self.config = config;
-        var simpleClient = createClient(url, self.config);
+        HttpClient|ClientError simpleClient = createClient(url, self.config);
         if (simpleClient is HttpClient) {
             self.httpClient = simpleClient;
         } else {
@@ -56,7 +61,7 @@ public type HttpSecureClient client object {
         req = check prepareSecureRequest(req, self.config);
         var result = check self.httpClient->post(path, req);
         Response res = <Response> result;
-        var inspection = check doInspection(req, res, self.config);
+        Request? inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->post(path, inspection);
         }
@@ -75,7 +80,7 @@ public type HttpSecureClient client object {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
         Response res = check self.httpClient->head(path, message = req);
-        var inspection = check doInspection(req, res, self.config);
+        Request? inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->head(path, message = inspection);
         }
@@ -98,7 +103,7 @@ public type HttpSecureClient client object {
         req = check prepareSecureRequest(req, self.config);
         var result = check self.httpClient->put(path, req);
         Response res = <Response> result;
-        var inspection = check doInspection(req, res, self.config);
+        Request? inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->put(path, inspection);
         }
@@ -122,7 +127,7 @@ public type HttpSecureClient client object {
         req = check prepareSecureRequest(req, self.config);
         var result = check self.httpClient->execute(httpVerb, path, req);
         Response res = <Response> result;
-        var inspection = check doInspection(req, res, self.config);
+        Request? inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->execute(httpVerb, path, inspection);
         }
@@ -145,7 +150,7 @@ public type HttpSecureClient client object {
         req = check prepareSecureRequest(req, self.config);
         var result = check self.httpClient->patch(path, req);
         Response res = <Response> result;
-        var inspection = check doInspection(req, res, self.config);
+        Request? inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->patch(path, inspection);
         }
@@ -168,7 +173,7 @@ public type HttpSecureClient client object {
         req = check prepareSecureRequest(req, self.config);
         var result = check self.httpClient->delete(path, req);
         Response res = <Response> result;
-        var inspection = check doInspection(req, res, self.config);
+        Request? inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->delete(path, inspection);
         }
@@ -191,7 +196,7 @@ public type HttpSecureClient client object {
         req = check prepareSecureRequest(req, self.config);
         var result = check self.httpClient->get(path, message = req);
         Response res = <Response> result;
-        var inspection = check doInspection(req, res, self.config);
+        Request? inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->get(path, message = inspection);
         }
@@ -214,7 +219,7 @@ public type HttpSecureClient client object {
         req = check prepareSecureRequest(req, self.config);
         var result = check self.httpClient->options(path, message = req);
         Response res = <Response> result;
-        var inspection = check doInspection(req, res, self.config);
+        Request? inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->options(path, message = inspection);
         }
@@ -236,7 +241,7 @@ public type HttpSecureClient client object {
         req = check prepareSecureRequest(request, self.config);
         var result = check self.httpClient->forward(path, request);
         Response res = <Response> result;
-        var inspection = check doInspection(req, res, self.config);
+        Request? inspection = check doInspection(req, res, self.config);
         if (inspection is Request) {
             return self.httpClient->forward(path, inspection);
         }
@@ -318,7 +323,7 @@ public function createHttpSecureClient(string url, ClientConfiguration config) r
 # + config - Client endpoint configurations
 # + return - Prepared HTTP request or `http:ClientError` if an error occurred at auth handler invocation
 function prepareSecureRequest(Request req, ClientConfiguration config) returns Request|ClientError {
-    var auth = config.auth;
+    OutboundAuthConfig? auth = config.auth;
     if (auth is OutboundAuthConfig) {
         OutboundAuthHandler authHandler = auth.authHandler;
         return authHandler.prepare(req);
@@ -334,7 +339,7 @@ function prepareSecureRequest(Request req, ClientConfiguration config) returns R
 # + config - Client endpoint configurations
 # + return - Prepared HTTP request or `()` if nothing to be done or `http:ClientError` if an error occurred at auth handler invocation
 function doInspection(Request req, Response res, ClientConfiguration config) returns Request|ClientError? {
-    var auth = config.auth;
+    OutboundAuthConfig? auth = config.auth;
     if (auth is OutboundAuthConfig) {
         OutboundAuthHandler authHandler = auth.authHandler;
         return authHandler.inspect(req, res);

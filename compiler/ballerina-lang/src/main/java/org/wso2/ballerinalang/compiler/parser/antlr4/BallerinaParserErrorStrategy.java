@@ -28,7 +28,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.BLangParserListener;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
@@ -36,11 +36,11 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
  */
 public class BallerinaParserErrorStrategy extends DefaultErrorStrategy {
 
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
     protected BDiagnosticSource diagnosticSrc;
     
     public BallerinaParserErrorStrategy(CompilerContext context, BDiagnosticSource diagnosticSrc) {
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.diagnosticSrc = diagnosticSrc;
     }
 

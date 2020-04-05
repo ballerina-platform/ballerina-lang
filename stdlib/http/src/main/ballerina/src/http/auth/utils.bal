@@ -42,6 +42,12 @@ public const NO_BEARER = "NO_BEARER";
 # Indicates the status code.
 public const STATUS_CODE = "STATUS_CODE";
 
+# Represents inbound auth handler patterns.
+public type InboundAuthHandlers InboundAuthHandler[]|InboundAuthHandler[][];
+
+# Represents scopes patterns.
+public type Scopes string[]|string[][];
+
 # Extracts the Authorization header value from the request.
 #
 # + req - Request instance
@@ -56,11 +62,11 @@ public function extractAuthorizationHeaderValue(Request req) returns @tainted st
 #
 # + context - The `FilterContext` instance
 # + return - Returns the authentication handlers or whether it is needed to engage listener-level handlers or not
-function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|InboundAuthHandler[][]|boolean {
+function getAuthHandlers(FilterContext context) returns InboundAuthHandlers|boolean {
     ResourceAuth? resourceLevelAuthAnn = getResourceAuthConfig(context);
     ServiceAuth? serviceLevelAuthAnn = getServiceAuthConfig(context);
 
-     // check if authentication is enabled for resource and service
+    // check if authentication is enabled for resource and service
     boolean? resourceSecured = isResourceSecured(resourceLevelAuthAnn);
     boolean serviceSecured = isServiceSecured(serviceLevelAuthAnn);
 
@@ -74,16 +80,16 @@ function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|Inb
         }
         // checks if Auth providers are given at the resource level.
         if (resourceLevelAuthAnn is ResourceAuth) {
-            var resourceAuthHandlers = resourceLevelAuthAnn?.authHandlers;
-            if (!(resourceAuthHandlers is ())) {
+            InboundAuthHandlers? resourceAuthHandlers = resourceLevelAuthAnn?.authHandlers;
+            if (resourceAuthHandlers is InboundAuthHandlers) {
                 return resourceAuthHandlers;
             } else {
                 // checks if service is secured.
                 if (serviceSecured) {
                     // Checks if Auth providers are given at the service level.
                     if (serviceLevelAuthAnn is ServiceAuth) {
-                        var serviceAuthHandlers = serviceLevelAuthAnn?.authHandlers;
-                        if (!(serviceAuthHandlers is ())) {
+                        InboundAuthHandlers? serviceAuthHandlers = serviceLevelAuthAnn?.authHandlers;
+                        if (serviceAuthHandlers is InboundAuthHandlers) {
                             return serviceAuthHandlers;
                         }
                     }
@@ -94,8 +100,8 @@ function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|Inb
             if (serviceSecured) {
                 // Checks if Auth providers are given at the service level.
                 if (serviceLevelAuthAnn is ServiceAuth) {
-                    var serviceAuthHandlers = serviceLevelAuthAnn?.authHandlers;
-                    if (!(serviceAuthHandlers is ())) {
+                    InboundAuthHandlers? serviceAuthHandlers = serviceLevelAuthAnn?.authHandlers;
+                    if (serviceAuthHandlers is InboundAuthHandlers) {
                         return serviceAuthHandlers;
                     }
                 }
@@ -104,8 +110,8 @@ function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|Inb
     } else {
         // checks if Auth providers are given at the resource level.
         if (resourceLevelAuthAnn is ResourceAuth) {
-            var resourceAuthHandlers = resourceLevelAuthAnn?.authHandlers;
-            if (!(resourceAuthHandlers is ())) {
+            InboundAuthHandlers? resourceAuthHandlers = resourceLevelAuthAnn?.authHandlers;
+            if (resourceAuthHandlers is InboundAuthHandlers) {
                 return resourceAuthHandlers;
             }
         }
@@ -118,8 +124,8 @@ function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|Inb
         }
         // Checks if Auth providers are given at the service level.
         if (serviceLevelAuthAnn is ServiceAuth) {
-            var serviceAuthHandlers = serviceLevelAuthAnn?.authHandlers;
-            if (!(serviceAuthHandlers is ())) {
+            InboundAuthHandlers? serviceAuthHandlers = serviceLevelAuthAnn?.authHandlers;
+            if (serviceAuthHandlers is InboundAuthHandlers) {
                 return serviceAuthHandlers;
             }
         }
@@ -132,7 +138,7 @@ function getAuthHandlers(FilterContext context) returns InboundAuthHandler[]|Inb
 #
 # + context - `FilterContext` instance
 # + return - Authorization scopes or whether it is needed to engage listener level scopes or not
-function getScopes(FilterContext context) returns string[]|string[][]|boolean {
+function getScopes(FilterContext context) returns Scopes|boolean {
     ResourceAuth? resourceLevelAuthAnn = getResourceAuthConfig(context);
     ServiceAuth? serviceLevelAuthAnn = getServiceAuthConfig(context);
 
@@ -150,16 +156,16 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
         }
         // checks if scopes are given at the resource level.
         if (resourceLevelAuthAnn is ResourceAuth) {
-            var resourceScopes = resourceLevelAuthAnn?.scopes;
-            if (!(resourceScopes is ())) {
+            Scopes? resourceScopes = resourceLevelAuthAnn?.scopes;
+            if (resourceScopes is Scopes) {
                 return resourceScopes;
             } else {
                 // checks if service is secured.
                 if (serviceSecured) {
                     // Checks if scopes are given at the service level.
                     if (serviceLevelAuthAnn is ServiceAuth) {
-                        var serviceScopes = serviceLevelAuthAnn?.scopes;
-                        if (!(serviceScopes is ())) {
+                        Scopes? serviceScopes = serviceLevelAuthAnn?.scopes;
+                        if (serviceScopes is Scopes) {
                             return serviceScopes;
                         }
                     }
@@ -170,8 +176,8 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
             if (serviceSecured) {
                 // Checks if scopes are given at the service level.
                 if (serviceLevelAuthAnn is ServiceAuth) {
-                    var serviceScopes = serviceLevelAuthAnn?.scopes;
-                    if (!(serviceScopes is ())) {
+                    Scopes? serviceScopes = serviceLevelAuthAnn?.scopes;
+                    if (serviceScopes is Scopes) {
                         return serviceScopes;
                     }
                 }
@@ -180,8 +186,8 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
     } else {
         // checks if scopes are given at the resource level.
         if (resourceLevelAuthAnn is ResourceAuth) {
-            var resourceScopes = resourceLevelAuthAnn?.scopes;
-            if (!(resourceScopes is ())) {
+            Scopes? resourceScopes = resourceLevelAuthAnn?.scopes;
+            if (resourceScopes is Scopes) {
                 return resourceScopes;
             }
         }
@@ -194,8 +200,8 @@ function getScopes(FilterContext context) returns string[]|string[][]|boolean {
         }
         // Checks if scopes are given at the service level.
         if (serviceLevelAuthAnn is ServiceAuth) {
-            var serviceScopes = serviceLevelAuthAnn?.scopes;
-            if (!(serviceScopes is ())) {
+            Scopes? serviceScopes = serviceLevelAuthAnn?.scopes;
+            if (serviceScopes is Scopes) {
                 return serviceScopes;
             }
         }
@@ -233,11 +239,10 @@ function getResourceAuthConfig(FilterContext context) returns ResourceAuth? {
 # + serviceAuth - Service auth annotation
 # + return - Whether the service is secured or not
 function isServiceSecured(ServiceAuth? serviceAuth) returns boolean {
-    boolean secured = true;
     if (serviceAuth is ServiceAuth) {
-        secured = serviceAuth.enabled;
+        return serviceAuth.enabled;
     }
-    return secured;
+    return true;
 }
 
 # Check for the resource is secured by evaluating the enabled flag configured by the user.

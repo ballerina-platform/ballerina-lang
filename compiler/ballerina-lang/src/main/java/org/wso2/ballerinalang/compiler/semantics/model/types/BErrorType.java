@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.types.ErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
@@ -62,11 +61,6 @@ public class BErrorType extends BType implements ErrorType {
     @Override
     public BType getDetailType() {
         return detailType;
-    }
-
-    @Override
-    public String getDesc() {
-        return TypeDescriptor.SIG_ERROR + getQualifiedTypeName() + ";";
     }
 
     @Override

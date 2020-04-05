@@ -197,4 +197,28 @@ public class MapAccessExprTest {
     public void testMapRemoveNegative() {
         BRunUtil.invoke(compileResult, "testMapRemoveNegative");
     }
+
+    @Test(description = "Test removeIfHasKey if key exists.")
+    public void testRemoveIfHasKeyPositive1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyPositive1");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    }
+
+    @Test(description = "Test removeIfHasKey if key does not exist.")
+    public void testRemoveIfHasKeyNegative1() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyNegative1");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    }
+
+    @Test(description = "Test removeIfHasKey if key exists.")
+    public void testRemoveIfHasKeyPositive2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyPositive2");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    }
+
+    @Test(description = "Test removeIfHasKey if key does not exist.")
+    public void testRemoveIfHasKeyNegative2() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testRemoveIfHasKeyNegative2");
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected booleans to be identified as equal");
+    }
 }

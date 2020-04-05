@@ -1,0 +1,32 @@
+{
+    "arguments": {
+        "node.line": 17,
+        "node.column": 17
+    },
+    "expected": {
+        "result": {
+            "edit": {
+                "documentChanges": [
+                    {
+                        "edits": [
+                            {
+                                "range": {
+                                    "start": {
+                                        "line": 27,
+                                        "character": 0
+                                    },
+                                    "end": {
+                                        "line": 27,
+                                        "character": 0
+                                    }
+                                },
+                                "newText": "\n\nfunction addAndGetResultOfTwoIntegers(int a, int b) returns int {\n    return 0;\n}\n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "jsonrpc": "2.0"
+    }
+}

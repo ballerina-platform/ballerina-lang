@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.File;
@@ -90,8 +91,8 @@ public class TextDocumentFormatUtil {
      * @param documentManager Workspace document manager instance
      * @param context         Document formatting context
      * @return {@link JsonObject}   AST as a Json Object
-     * @throws JSONGenerationException when AST build fails
-     * @throws CompilationFailedException     when compilation fails
+     * @throws JSONGenerationException    when AST build fails
+     * @throws CompilationFailedException when compilation fails
      */
     public static JsonObject getAST(Path file, WorkspaceDocumentManager documentManager, LSContext context)
             throws JSONGenerationException, CompilationFailedException {
@@ -102,7 +103,7 @@ public class TextDocumentFormatUtil {
         String relativePath = breakFromPackage[breakFromPackage.length - 1];
 
         final BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, documentManager,
-                                                                    FormatterCustomErrorStrategy.class, false, false);
+                FormatterCustomErrorStrategy.class, false, false);
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
         JsonObject result = new JsonObject();
@@ -300,6 +301,10 @@ public class TextDocumentFormatUtil {
                                 .getValue(), anonStructs, visibleEPsByNode));
                     } else if (listPropItem instanceof String) {
                         listPropJson.add((String) listPropItem);
+                    } else if (listPropItem instanceof BLangLetVariable) {
+                        // TODO: check with language team whether this is the correct way to handle LetVariable.
+                        BLangLetVariable variable = (BLangLetVariable) listPropItem;
+                        listPropJson.add(generateJSON(variable.definitionNode, anonStructs, visibleEPsByNode));
                     } else {
                         logger.debug("Can't serialize " + jsonName + ", has a an array of " + listPropItem);
                     }

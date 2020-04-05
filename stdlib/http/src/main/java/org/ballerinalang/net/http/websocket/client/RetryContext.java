@@ -30,7 +30,7 @@ public class RetryContext {
     private int maxInterval = 0;
     private int maxAttempts = 0;
     private int reconnectAttempts = 0;
-    private boolean firstConnectionMadeSuccessfully = false;
+    private boolean firstConnectionEstablished = false;
 
     /**
      * Gets the `interval`.
@@ -123,18 +123,18 @@ public class RetryContext {
     }
 
     /**
-     * Gets the `firstConnectionMadeSuccessfully`.
+     * Gets the `firstConnectionEstablished`.
      *
-     * @return firstConnectionMadeSuccessfully
+     * @return firstConnectionEstablished
      */
-    boolean isFirstConnectionMadeSuccessfully() {
-        return firstConnectionMadeSuccessfully;
+    public boolean isFirstConnectionEstablished() {
+        return firstConnectionEstablished;
     }
 
     /**
-     * Assigns the connection state of the `RetryContext` to the `firstConnectionMadeSuccessfully` variable.
+     * Assigns the connection state of the `RetryContext` to the `firstConnectionEstablished` variable.
      */
-    void setFirstConnectionMadeSuccessfully() {
-        this.firstConnectionMadeSuccessfully = true;
+    public void setFirstConnectionEstablished() {
+        this.firstConnectionEstablished = true;
     }
 }

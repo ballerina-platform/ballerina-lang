@@ -89,20 +89,20 @@ type Employee record {
     float salary;
 };
 
-function testTableArrayFill(int index) returns [table<Employee>[], string] {
-    table<Employee> tbEmployee = table { { key id, name, salary }, [{1, "John", 50000}] };
-    table<Employee>[] ar = [];
-    ar[index] = tbEmployee;
-
-    string name = "";
-    foreach var tab in ar {
-        foreach var row in tab {
-            name += row.name;
-        }
-    }
-
-    return [ar, name];
-}
+//function testTableArrayFill(int index) returns [table<Employee>[], string] {
+//    table<Employee> tbEmployee = table { { key id, name, salary }, [{1, "John", 50000}] };
+//    table<Employee>[] ar = [];
+//    ar[index] = tbEmployee;
+//
+//    string name = "";
+//    foreach var tab in ar {
+//        foreach var row in tab {
+//            name += row.name;
+//        }
+//    }
+//
+//    return [ar, name];
+//}
 
 function testXMLArrayFill(int index) returns xml[] {
     xml value = xml `<name>Pubudu</name>`;
@@ -133,14 +133,14 @@ function testUnionArrayFill3(int index) returns (Person|Person|())[] {
 }
 
 // disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/13612
-//type LiteralsAndType 1|2|int;
+type LiteralsAndType 1|2|int;
 
-//function testUnionArrayFill4(int index) returns LiteralsAndType[] {
-//    LiteralsAndType value = 1;
-//    LiteralsAndType[] ar = [];
-//    ar[index] = value;
-//    return ar;
-//}
+function testUnionArrayFill4(int index) returns LiteralsAndType[] {
+    LiteralsAndType value = 1;
+    LiteralsAndType[] ar = [];
+    ar[index] = value;
+    return ar;
+}
 
 function testOptionalTypeArrayFill(int index) returns string?[] {
     string? value = "Hello World!";
@@ -228,20 +228,18 @@ function testFiniteTypeArrayFill4(int index) returns state[] {
     return ar;
 }
 
-// disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/13612
+const decimal ZERO = 0.0;
+const decimal ONE_TWO = 1.2;
+const decimal TWO_THREE = 2.3;
 
-//const decimal ZERO = 0.0;
-//const decimal ONE_TWO = 1.2;
-//const decimal TWO_THREE = 2.3;
+type DEC ZERO|ONE_TWO|TWO_THREE;
 
-//type DEC ZERO|ONE_TWO|TWO_THREE;
-
-//function testFiniteTypeArrayFill5(int index) returns DEC[] {
-//    DEC value = 1.2;
-//    DEC[] ar = [];
-//    ar[index] = value;
-//    return ar;
-//}
+function testFiniteTypeArrayFill5(int index) returns DEC[] {
+    DEC value = 1.2;
+    DEC[] ar = [];
+    ar[index] = value;
+    return ar;
+}
 
 type One 1;
 
@@ -309,13 +307,6 @@ function testArrayFillWithObjs() returns Obj[][] {
     multiDimObjArray[2] = objArray;
     return multiDimObjArray;
 }
-
-const decimal ZERO = 0.0;
-const decimal ONE_TWO = 1.2;
-const decimal TWO_THREE = 2.3;
-
-type DEC ZERO|ONE_TWO|TWO_THREE;
-type LiteralsAndType 1|2|int;
 
 function testFiniteTypeArrayFill() returns DEC[] {
     DEC value = 1.2;

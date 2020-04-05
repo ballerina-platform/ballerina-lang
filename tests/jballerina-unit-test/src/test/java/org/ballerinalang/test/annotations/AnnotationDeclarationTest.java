@@ -35,15 +35,15 @@ public class AnnotationDeclarationTest {
                 "test-src/annotations/source_only_annot_without_source_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 6);
         BAssertUtil.validateError(compileResult, 0, "mismatched input 'var'. expecting {'service', 'resource', " +
-                "'function', 'object', " + "'parameter', 'worker', 'source', 'type', 'return', 'start'}", 17, 30);
+                "'function', 'object', 'record', 'parameter', 'source', 'field', 'type', 'return'}", 17, 30);
         BAssertUtil.validateError(compileResult, 1, "mismatched input 'annotation'. expecting {'service', 'resource'," +
-                " 'function', 'object', " + "'parameter', 'worker', 'source', 'type', 'return', 'start'}", 18, 28);
+                " 'function', 'object', 'record', 'parameter', 'source', 'field', 'type', 'return'}", 18, 28);
         BAssertUtil.validateError(compileResult, 2, "mismatched input 'const'. expecting {'service', 'resource', " +
-                "'function', 'object', " + "'parameter', 'worker', 'source', 'type', 'return', 'start'}", 19, 22);
+                "'function', 'object', 'record', 'parameter', 'source', 'field', 'type', 'return'}", 19, 22);
         BAssertUtil.validateError(compileResult, 4, "mismatched input 'external'. expecting {'service', 'resource', " +
-                "'function', 'object', " + "'parameter', 'worker', 'source', 'type', 'return', 'start'}", 20, 45);
+                "'function', 'object', 'record', 'parameter', 'source', 'field', 'type', 'return'}", 20, 45);
         BAssertUtil.validateError(compileResult, 5, "mismatched input 'listener'. expecting {'service', 'resource', " +
-                "'function', 'object', " + "'parameter', 'worker', 'source', 'type', 'return', 'start'}", 21, 37);
+                "'function', 'object', 'record', 'parameter', 'source', 'field', 'type', 'return'}", 21, 37);
     }
 
     @Test

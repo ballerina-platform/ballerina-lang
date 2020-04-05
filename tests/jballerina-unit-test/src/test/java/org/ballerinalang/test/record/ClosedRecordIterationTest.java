@@ -59,29 +59,29 @@ public class ClosedRecordIterationTest {
         // Test invalid foreach iterable operation
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected '[string,any]', found '(string|int|ClosedAddress)'",
-                47, 5);
+                47, 15);
 
         // Test invalid map iterable operation
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected '[string,any]', found '(string|int|ClosedAddress)'",
-                52, 21);
+                52, 28);
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected '[string,any]', found '(string|int|ClosedAddress)'",
-                56, 12);
+                56, 19);
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected '[string,any]', found '(string|int|ClosedAddress)'",
-                60, 12);
+                60, 19);
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected 'ClosedPerson', found 'map<[string,any]>'",
                 64, 27);
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected '[string,any]', found '(string|int|ClosedAddress)'",
-                64, 27);
+                64, 34);
 
         // Test invalid filter iterable operation
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected '[string,any]', found '(string|int|ClosedAddress)'",
-                70, 21);
+                70, 30);
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected 'function ((any|error)) returns (boolean)', found " +
                         "'function ([string,any]) returns (string)'", 74, 21);
@@ -90,21 +90,21 @@ public class ClosedRecordIterationTest {
                         "found 'map<(string|int|ClosedAddress)>'", 78, 27);
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected '[string,any]', found '(string|int|ClosedAddress)'", 78,
-                27);
+                36);
 
         // Test mismatching chained iterable op return values
-        BAssertUtil.validateError(closedRecNegatives, index++,
-                "incompatible types: expected '[string,int]', found 'int'",
-                86, 18);
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected 'map<int>', found 'map<[string,float]>'",
                 86, 18);
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected '[string,int]', found 'int'",
-                116, 16);
+                86, 25);
         BAssertUtil.validateError(closedRecNegatives, index++,
                 "incompatible types: expected 'int[]', found 'map<float>'",
                 116, 16);
+        BAssertUtil.validateError(closedRecNegatives, index++,
+                "incompatible types: expected '[string,int]', found 'int'",
+                116, 23);
 
         Assert.assertEquals(closedRecNegatives.getErrorCount(), index);
     }

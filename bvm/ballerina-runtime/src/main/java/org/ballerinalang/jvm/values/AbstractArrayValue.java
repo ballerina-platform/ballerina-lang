@@ -132,15 +132,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
     @Deprecated
     public abstract String getString(long index);
 
-    /**
-     * Get string value in the given index.
-     *
-     * @param index array index
-     * @return array element
-     */
-    @Override
-    public abstract BString getBString(long index);
-
     // ---------------------------- add methods --------------------------------------------------
 
     /**
@@ -446,11 +437,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
         @Override
         public boolean hasNext() {
             return cursor < length;
-        }
-
-        @Override
-        public BString bStringValue() {
-            return null;
         }
     }
 }

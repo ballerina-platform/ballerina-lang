@@ -115,7 +115,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(groups = "brokenOnJBallerina", description = "Case2: Test path between 2 projects where 3 modules are " +
+    @Test(description = "Case2: Test path between 2 projects where 3 modules are " +
             "involved and imported as a chain.")
     public void testBaloPathCase2() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case2");
@@ -199,7 +199,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(groups = "brokenOnJBallerina")
+    @Test()
     public void testBaloPathCase4() throws BallerinaTestException, IOException, InterruptedException {
         Path caseResources = tempTestResources.resolve("case4");
         // Build bee module of TestProject1
@@ -417,8 +417,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case7: Test platform dependency of two project with common module as an interop dependency",
-            groups = "brokenOnJBallerina")
+    @Test(description = "Case7: Test platform dependency of two project with common module as an interop dependency")
     public void testBaloPathCase7() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("case7");
         // Build all modules of TestProject3
@@ -455,7 +454,7 @@ public class PathDependencyTestCase extends BaseTest {
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Case8: Test single bal file using external module with interop dependency",
-    dependsOnMethods = "testBaloPathCase7", groups = "brokenOnJBallerina")
+    dependsOnMethods = "testBaloPathCase7")
     public void testBaloSingleBalFileCase8() throws BallerinaTestException, IOException {
 
         Path caseResources = tempTestResources.resolve("case8");
@@ -528,6 +527,34 @@ public class PathDependencyTestCase extends BaseTest {
     }
 
     /**
+     * Case10: Build and run TestProject1 which imports module with "ballerina" org name via balo path.
+     *
+     * @throws BallerinaTestException Error when executing the commands.
+     */
+    @Test(description = "Case10: Test build and run project which imports module with \"ballerina\" org name via" +
+            " balo path.")
+    public void testBaloPathCase10() throws BallerinaTestException {
+        Path caseResources = tempTestResources.resolve("case10");
+        String printBarLog = "Bar";
+        String buildLog = "target/bin/mod1.jar";
+        LogLeecher testLogeecher = new LogLeecher(printBarLog);
+        LogLeecher buildLogLeecher = new LogLeecher(buildLog);
+
+        // Build TestProject1 with tests
+        balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
+                          new LogLeecher[]{testLogeecher, buildLogLeecher},
+                          caseResources.resolve("TestProject1").toString());
+        testLogeecher.waitForText(5000);
+        buildLogLeecher.waitForText(5000);
+
+        // Run TestProject1
+        LogLeecher runLogLeecher = new LogLeecher(printBarLog);
+        balClient.runMain("run", new String[]{"mod1"}, envVariables, new String[]{},
+                          new LogLeecher[]{runLogLeecher}, caseResources.resolve("TestProject1").toString());
+        runLogLeecher.waitForText(5000);
+    }
+
+    /**
      * Build TestProject1. TestProject1 will fail as the given platform dependency does not have a valid path.
      *
      * @throws BallerinaTestException Error when executing the commands.
@@ -548,7 +575,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Test runtime test dependency from different modules", groups = "brokenOnJBallerina")
+    @Test(description = "Test runtime test dependency from different modules")
     public void testRuntimeTimeDependencyForExecutingModuleTests() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("test-dependency");
         String msg = "invoked fooFn";
@@ -566,6 +593,12 @@ public class PathDependencyTestCase extends BaseTest {
         buildLogLeecher = new LogLeecher(msg);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{}, new LogLeecher[]{buildLogLeecher},
                 caseResources.toString());
+        buildLogLeecher.waitForText(10000);
+
+        // Test ballerina test command with single module which has dependencies.
+        buildLogLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"bar"}, envVariables, new String[]{}, new LogLeecher[]{buildLogLeecher},
+                          caseResources.toString());
         buildLogLeecher.waitForText(10000);
     }
 

@@ -1,25 +1,30 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command with the --experimental option.
 $ ballerina run --experimental local_transactions_with_participants.bal
-2018-12-04 20:14:08,399 INFO  [ballerina/transactions] - Created transaction: c5fe74ef-da8c-41ab-8ba6-e7c6daceea93
-2018-12-04 20:14:08,416 INFO  [ballerina/transactions] - Registered local participant: ef90ded8-0a11-4509-b922-c2f3ba501f68:$anon$.$2 for transaction:c5fe74ef-da8c-41ab-8ba6-e7c6daceea93
+
+2020-03-18 11:57:09,328 INFO  [ballerina/transactions] - Created transaction: bf592603-4639-4c16-9daf-605b8e131470 
+2020-03-18 11:57:09,343 INFO  [ballerina/transactions] - Registered local participant: 5ca42804-876c-4a69-9b34-8bc537c8d87a:$anon$.$1 for transaction:bf592603-4639-4c16-9daf-605b8e131470 
+2020-03-18 11:57:09,344 INFO  [ballerina/transactions] - participant registered: bf592603-4639-4c16-9daf-605b8e131470 
 Invoke local participant function.
 Local participant panicked.
-2018-12-04 20:14:08,421 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: c5fe74ef-da8c-41ab-8ba6-e7c6daceea93:$anon$.$1
-2018-12-04 20:14:08,422 INFO  [ballerina/transactions] - Local prepare failed, aborting..
+2020-03-18 11:57:09,350 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: bf592603-4639-4c16-9daf-605b8e131470:$anon$.$0 
+2020-03-18 11:57:09,350 INFO  [ballerina/transactions] - Local prepare failed, aborting.. 
 Retrying transaction
-2018-12-04 20:14:08,428 INFO  [ballerina/transactions] - Created transaction: be71f53a-aab1-4b90-9174-b48c96a42a00
-2018-12-04 20:14:08,431 INFO  [ballerina/transactions] - Registered local participant: ef90ded8-0a11-4509-b922-c2f3ba501f68:$anon$.$2 for transaction:be71f53a-aab1-4b90-9174-b48c96a42a00
+2020-03-18 11:57:09,359 INFO  [ballerina/transactions] - Created transaction: 371da573-8e4f-436e-99b3-adc2b9e911a4 
+2020-03-18 11:57:09,360 INFO  [ballerina/transactions] - Registered local participant: 5ca42804-876c-4a69-9b34-8bc537c8d87a:$anon$.$1 for transaction:371da573-8e4f-436e-99b3-adc2b9e911a4 
+2020-03-18 11:57:09,361 INFO  [ballerina/transactions] - participant registered: 371da573-8e4f-436e-99b3-adc2b9e911a4 
 Invoke local participant function.
 Local participant panicked.
-2018-12-04 20:14:08,432 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: be71f53a-aab1-4b90-9174-b48c96a42a00:$anon$.$1
-2018-12-04 20:14:08,433 INFO  [ballerina/transactions] - Local prepare failed, aborting..
+2020-03-18 11:57:09,362 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: 371da573-8e4f-436e-99b3-adc2b9e911a4:$anon$.$0 
+2020-03-18 11:57:09,364 INFO  [ballerina/transactions] - Local prepare failed, aborting.. 
 Retrying transaction
-2018-12-04 20:14:08,435 INFO  [ballerina/transactions] - Created transaction: 2e0c1784-1b17-42e8-a864-ae20d3a25c65
-2018-12-04 20:14:08,437 INFO  [ballerina/transactions] - Registered local participant: ef90ded8-0a11-4509-b922-c2f3ba501f68:$anon$.$2 for transaction:2e0c1784-1b17-42e8-a864-ae20d3a25c65
+2020-03-18 11:57:09,366 INFO  [ballerina/transactions] - Created transaction: 9a792401-17fd-4486-bb8e-2fb0a79a04a8 
+2020-03-18 11:57:09,366 INFO  [ballerina/transactions] - Registered local participant: 5ca42804-876c-4a69-9b34-8bc537c8d87a:$anon$.$1 for transaction:9a792401-17fd-4486-bb8e-2fb0a79a04a8 
+2020-03-18 11:57:09,367 INFO  [ballerina/transactions] - participant registered: 9a792401-17fd-4486-bb8e-2fb0a79a04a8 
 Invoke local participant function.
 Local participant panicked.
-2018-12-04 20:14:08,437 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: 2e0c1784-1b17-42e8-a864-ae20d3a25c65:$anon$.$1
-2018-12-04 20:14:08,438 INFO  [ballerina/transactions] - Local prepare failed, aborting..
+2020-03-18 11:57:09,367 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: 9a792401-17fd-4486-bb8e-2fb0a79a04a8:$anon$.$0 
+2020-03-18 11:57:09,368 INFO  [ballerina/transactions] - Local prepare failed, aborting.. 
 Transaction aborted
-[ballerina/http] started HTTP/WS listener 10.100.7.118:64310
+[ballerina/http] started HTTP/WS listener 172.17.0.1:35909
+[ballerina/http] stopped HTTP/WS listener 172.17.0.1:35909
