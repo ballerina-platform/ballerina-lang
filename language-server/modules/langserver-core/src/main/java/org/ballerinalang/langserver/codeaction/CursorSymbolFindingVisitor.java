@@ -40,7 +40,10 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
@@ -159,6 +162,30 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
             this.addSymbol(xmlElementLiteral, xmlElementLiteral.type.tsymbol, false, xmlElementLiteral.parent.pos);
         }
         super.visit(xmlElementLiteral);
+    }
+
+    @Override
+    public void visit(BLangXMLTextLiteral xmlTextLiteral) {
+        if (isWithinNode.test(CommonUtil.toZeroBasedPosition(xmlTextLiteral.parent.pos))) {
+            this.addSymbol(xmlTextLiteral, xmlTextLiteral.type.tsymbol, false, xmlTextLiteral.parent.pos);
+        }
+        super.visit(xmlTextLiteral);
+    }
+
+    @Override
+    public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
+        if (isWithinNode.test(CommonUtil.toZeroBasedPosition(xmlCommentLiteral.parent.pos))) {
+            this.addSymbol(xmlCommentLiteral, xmlCommentLiteral.type.tsymbol, false, xmlCommentLiteral.parent.pos);
+        }
+        super.visit(xmlCommentLiteral);
+    }
+
+    @Override
+    public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
+        if (isWithinNode.test(CommonUtil.toZeroBasedPosition(xmlProcInsLiteral.parent.pos))) {
+            this.addSymbol(xmlProcInsLiteral, xmlProcInsLiteral.type.tsymbol, false, xmlProcInsLiteral.parent.pos);
+        }
+        super.visit(xmlProcInsLiteral);
     }
 
     @Override
