@@ -50,3 +50,54 @@ function testListConstructorAutoFillExpr() {
         panic error("Invalid sum of int array");
     }
 }
+
+const TYPEDESC_ARRAY_ANY = "typedesc any[]";
+
+function testListConstructorWithAnyACET() {
+    any a = [1, 2];
+    typedesc<any> ta = typeof a;
+    assertEquality(TYPEDESC_ARRAY_ANY, ta.toString());
+
+    any|any[] b = [];
+    ta = typeof b;
+    assertEquality(TYPEDESC_ARRAY_ANY, ta.toString());
+}
+
+const TYPEDESC_ARRAY_ANYDATA = "typedesc anydata[]";
+
+function testListConstructorWithAnydataACET() {
+    anydata a = [];
+    typedesc<any> ta = typeof a;
+    assertEquality(TYPEDESC_ARRAY_ANYDATA, ta.toString());
+
+    anydata|string[]|anydata[] b = ["hi", 1, 2.0];
+    ta = typeof b;
+    assertEquality(TYPEDESC_ARRAY_ANYDATA, ta.toString());
+}
+
+const TYPEDESC_ARRAY_JSON = "typedesc json[]";
+
+function testListConstructorWithJsonACET() {
+    json a = [true, 1, 2.0d];
+    typedesc<any> ta = typeof a;
+    assertEquality(TYPEDESC_ARRAY_JSON, ta.toString());
+
+    json|string b = ["hello", 1, 2.0, false];
+    ta = typeof b;
+    assertEquality(TYPEDESC_ARRAY_JSON, ta.toString());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

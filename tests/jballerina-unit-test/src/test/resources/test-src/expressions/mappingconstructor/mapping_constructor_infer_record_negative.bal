@@ -71,3 +71,57 @@ public function testRecordInferringForMappingConstructorWithRestFieldNegative2()
     int i = v.key;
     float f = v[key];
 }
+
+public function testInferringForVarNegative() {
+    string str = "str";
+    var x = {
+        a: 1,
+        [str]: "hello",
+        b: 23.0
+    };
+
+    record {|
+        int i;
+    |} r = x;
+}
+
+public function testInferringForVarNegative2() {
+    var x = {x: 1, y: 1};
+    int i = x;
+
+    string fieldName1 = "s1";
+    string fieldName2 = "s2";
+    var y = {x: 1, y: 2, [fieldName1]: "str", [fieldName2]: true };
+    record {| int...; |} b = y;
+
+    var z = {};
+    boolean c = z;
+}
+
+type Rec1 record {
+    int i;
+    boolean b;
+};
+
+type Rec2 record {
+    string i?;
+    float f?;
+};
+
+function testInferredRecordTypeWithOptionalTypeFieldViaSpreadOpNegative() {
+    Rec1 rec1 = {i: 1, b: true};
+    Rec2 rec2 = {i: "str"};
+
+    var r1 = {
+        ...rec1,
+        a: 0.1d,
+        ...rec2
+    };
+
+    record {
+        int i;
+        boolean b;
+        decimal a;
+        float f;
+    } r2 = r1;
+}

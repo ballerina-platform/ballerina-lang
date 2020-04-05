@@ -1,2 +1,2 @@
 // Java arrays are represented by the `handle` type in Ballerina. They can be manipulated using the
-// `getArrayElement`, `setArrayElement` and `getArrayLength` methods provided by the `ballerinax/java` module.
+// `getArrayElement`, `setArrayElement` and `getArrayLength` methods provided by the `ballerina/java` module.

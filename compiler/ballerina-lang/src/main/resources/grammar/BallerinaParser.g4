@@ -54,10 +54,6 @@ serviceBody
     :   LEFT_BRACE objectMethod* RIGHT_BRACE
     ;
 
-streamConstructorBody
-    :   LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
 blockFunctionBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
@@ -119,11 +115,11 @@ typeReference
     ;
 
 objectFieldDefinition
-    :   annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
     ;
 
 fieldDefinition
-    :   annotationAttachment* typeName Identifier QUESTION_MARK? (ASSIGN expression)? SEMICOLON
+    :   documentationString? annotationAttachment* typeName Identifier QUESTION_MARK? (ASSIGN expression)? SEMICOLON
     ;
 
 recordRestFieldDefinition
@@ -179,8 +175,7 @@ dualAttachPointIdent
     |   PARAMETER
     |   RETURN
     |   SERVICE
-    |   WORKER
-    |   START
+    |   (OBJECT | RECORD)? FIELD
     ;
 
 sourceOnlyAttachPoint
@@ -277,14 +272,17 @@ valueTypeName
 builtInReferenceTypeName
     :   TYPE_MAP LT typeName GT
     |   TYPE_FUTURE LT typeName GT
-    |   TYPE_XML
+    |   TYPE_XML (LT typeName GT)?
     |   TYPE_JSON
-    |   TYPE_TABLE LT typeName GT
-    |   TYPE_STREAM LT typeName GT
     |   TYPE_DESC LT typeName GT
     |   SERVICE
     |   errorTypeName
+    |   streamTypeName
     |   functionTypeName
+    ;
+
+streamTypeName
+    :   TYPE_STREAM (LT typeName (COMMA typeName)? GT)?
     ;
 
 functionTypeName
@@ -335,7 +333,6 @@ statement
     |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
-    |   queryActionStatement
     ;
 
 variableDefinitionStatement
@@ -367,37 +364,8 @@ recordKey
     |   expression
     ;
 
-tableLiteral
-    :   TYPE_TABLE LEFT_BRACE tableColumnDefinition? (COMMA tableDataArray)? RIGHT_BRACE
-    ;
-
-tableColumnDefinition
-    :   LEFT_BRACE (tableColumn (COMMA tableColumn)*)? RIGHT_BRACE
-    ;
-
-tableColumn
-    :   Identifier? Identifier
-    ;
-
-tableDataArray
-    :   LEFT_BRACKET tableDataList? RIGHT_BRACKET
-    ;
-
-tableDataList
-    :   tableData (COMMA tableData)*
-    |   expressionList
-    ;
-
-tableData
-    :   LEFT_BRACE expressionList RIGHT_BRACE
-    ;
-
 listConstructorExpr
     :   LEFT_BRACKET expressionList? RIGHT_BRACKET
-    ;
-
-streamConstructorExpr
-    :   TYPE_STREAM streamConstructorBody
     ;
 
 assignmentStatement
@@ -678,6 +646,7 @@ variableReference
     |   variableReference field                                                 # fieldVariableReference
     |   variableReference ANNOTATION_ACCESS nameReference                       # annotAccessExpression
     |   variableReference xmlAttrib                                             # xmlAttribVariableReference
+    |   variableReference xmlElementFilter                                      # xmlElementFilterReference
     |   functionInvocation                                                      # functionInvocationReference
     |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS field              # groupFieldVariableReference
     |   LEFT_PARENTHESIS variableReference RIGHT_PARENTHESIS invocation         # groupInvocationReference
@@ -687,10 +656,29 @@ variableReference
     |   QuotedStringLiteral invocation                                          # stringFunctionInvocationReference
     |   variableReference invocation                                            # invocationReference
     |   variableReference index                                                 # mapArrayVariableReference
+    |   variableReference xmlStepExpression                                     # xmlStepExpressionReference
     ;
 
 field
-    :   (DOT | OPTIONAL_FIELD_ACCESS) (Identifier | MUL)
+    :   (DOT | OPTIONAL_FIELD_ACCESS) ((Identifier COLON)? Identifier | MUL)
+    ;
+
+xmlElementFilter
+    :   DOT xmlElementNames
+    ;
+
+xmlStepExpression
+    : DIV xmlElementNames index?
+    | DIV MUL index?
+    | DIV MUL MUL DIV xmlElementNames index?
+    ;
+
+xmlElementNames
+    :  LT xmlElementAccessFilter (PIPE xmlElementAccessFilter)*  GT
+    ;
+
+xmlElementAccessFilter
+    : (Identifier COLON)? (Identifier | MUL)
     ;
 
 index
@@ -792,8 +780,6 @@ expression
     |   listConstructorExpr                                                 # listConstructorExpression
     |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
-    |   tableLiteral                                                        # tableLiteralExpression
-    |   streamConstructorExpr                                               # streamConstructorExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   (annotationAttachment* START)? variableReference                    # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
@@ -826,6 +812,7 @@ expression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
     |   queryExpr                                                           # queryExpression
+    |   queryAction                                                         # queryActionExpression
     |   letExpr                                                             # letExpression
     ;
 
@@ -851,7 +838,7 @@ typeDescExpr
 
 typeInitExpr
     :   NEW (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
-    |   NEW userDefineTypeName LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
+    |   NEW (userDefineTypeName | streamTypeName) LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS
     ;
 
 serviceConstructorExpr
@@ -898,7 +885,7 @@ queryExpr
     :   queryPipeline selectClause
     ;
 
-queryActionStatement
+queryAction
     :   queryPipeline doClause
     ;
 
@@ -1083,7 +1070,7 @@ reservedWord
 
 // Markdown documentation
 documentationString
-    :   documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
+    :   documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine? deprecatedAnnotationDocumentationLine?
     ;
 
 documentationLine
@@ -1098,6 +1085,10 @@ returnParameterDocumentationLine
     :   returnParameterDocumentation returnParameterDescriptionLine*
     ;
 
+deprecatedAnnotationDocumentationLine
+    :   deprecatedAnnotationDocumentation deprecateAnnotationDescriptionLine*
+    ;
+
 documentationContent
     :   documentationText?
     ;
@@ -1107,6 +1098,10 @@ parameterDescriptionLine
     ;
 
 returnParameterDescriptionLine
+    :   DocumentationLineStart documentationText?
+    ;
+
+deprecateAnnotationDescriptionLine
     :   DocumentationLineStart documentationText?
     ;
 
@@ -1136,6 +1131,10 @@ parameterDocumentation
 
 returnParameterDocumentation
     :   ReturnParameterDocumentationStart documentationText?
+    ;
+
+deprecatedAnnotationDocumentation
+    :   DeprecatedDocumentation
     ;
 
 docParameterName
@@ -1200,7 +1199,6 @@ documentationIdentifier
     |   TYPE_MAP
     |   TYPE_JSON
     |   TYPE_XML
-    |   TYPE_TABLE
     |   TYPE_STREAM
     |   TYPE_ANY
     |   TYPE_DESC

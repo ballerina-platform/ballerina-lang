@@ -44,6 +44,7 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
     public BLangMarkdownDocumentation markdownDocumentationAttachment;
     public Set<Flag> flagSet;
     public int precedence;
+    public boolean isBuiltinTypeDef;
 
     public BTypeSymbol symbol;
 

@@ -37,6 +37,7 @@ import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.api.BDecimal;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -52,6 +53,12 @@ import java.util.concurrent.atomic.AtomicLong;
  * @since 1.0.0
  */
 public class StaticMethods {
+
+    private static final BArrayType intArrayType = new BArrayType(BTypes.typeInt);
+    private static final BArrayType jsonArrayType = new BArrayType(BTypes.typeJSON);
+    private static final BTupleType tupleType = new BTupleType(
+            Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString));
+
     private StaticMethods() {
     }
 
@@ -84,7 +91,7 @@ public class StaticMethods {
 
     // This scenario is for map value to be passed to interop and return array value.
     public static ArrayValue getArrayValueFromMap(String key, MapValue mapValue) {
-        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
+        ArrayValue arrayValue = (ArrayValue) BValueCreator.createArrayValue(intArrayType);
         arrayValue.add(0, 1);
         long fromMap = mapValue.getIntValue(key);
         arrayValue.add(1, fromMap);
@@ -202,7 +209,7 @@ public class StaticMethods {
 
     public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(String key, MapValue mapValue)
             throws JavaInteropTestCheckedException {
-        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeInt));
+        ArrayValue arrayValue = (ArrayValue) BValueCreator.createArrayValue(intArrayType);
         arrayValue.add(0, 1);
         long fromMap = mapValue.getIntValue(key);
         arrayValue.add(1, fromMap);
@@ -317,9 +324,7 @@ public class StaticMethods {
 
     public static TupleValueImpl mockedNativeFuncWithOptionalParams(long a, double b, String c,
                                                                 long d, String e) {
-        BTupleType tupleType = new BTupleType(
-                Arrays.asList(BTypes.typeInt, BTypes.typeFloat, BTypes.typeString, BTypes.typeInt, BTypes.typeString));
-        TupleValueImpl tuple = new TupleValueImpl(tupleType);
+        TupleValueImpl tuple = (TupleValueImpl) BValueCreator.createTupleValue(tupleType);
         tuple.add(0, Long.valueOf(a));
         tuple.add(1, Double.valueOf(b));
         tuple.add(2, (Object) c);
@@ -346,7 +351,7 @@ public class StaticMethods {
     }
 
     public static ArrayValue getJsonArray() {
-        ArrayValue array = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
+        ArrayValue array = (ArrayValue) BValueCreator.createArrayValue(jsonArrayType);
         array.add(0, (Object) "John");
         return array;
     }

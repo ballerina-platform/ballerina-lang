@@ -40,7 +40,6 @@ import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_SPREAD_OP;
  *
  * @see BLangStructLiteral
  * @see BLangMapLiteral
- * @see BLangTableLiteral
  * @since 0.94
  */
 public class BLangRecordLiteral extends BLangExpression implements RecordLiteralNode {

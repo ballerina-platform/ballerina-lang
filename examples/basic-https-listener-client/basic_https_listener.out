@@ -1,4 +1,4 @@
 # To start the service and run the main function, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run basic_https_listener.bal
+# `.bal` file and use the `ballerina run` command along with the Ballerina home path as a config.
+$ ballerina run basic_https_listener.bal --b7a.home=<ballerina_home_path>
 [ballerina/http] started HTTPS/WSS listener 0.0.0.0:9095

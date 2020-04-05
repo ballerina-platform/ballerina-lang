@@ -1,1 +1,3 @@
-// The caching module caches all user-defined values.
+// The `ballerina/cache` module is provides capability to extend custom cache
+// storage and eviction policies while providing a in-memory storage and LRU
+// eviction policy by default.

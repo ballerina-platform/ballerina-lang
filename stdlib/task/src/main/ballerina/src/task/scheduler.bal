@@ -18,8 +18,13 @@
 public type Scheduler object {
     private Listener taskListener;
 
-    public function __init(TimerConfiguration|AppointmentConfiguration configs) {
-        self.taskListener = new(configs);
+    # Initializes a `task:Scheduler` object. This may panic if the initialization causes any error due to
+    # a configuration error.
+    #
+    # + configurations - A `task:TimerConfiguration` or `task:AppointmentConfiguration` record to define the
+    # `task:Sceduler` behavior
+    public function __init(TimerConfiguration|AppointmentConfiguration configurations) {
+        self.taskListener = new(configurations);
     }
 
     # Attaches the provided `service` to the task.

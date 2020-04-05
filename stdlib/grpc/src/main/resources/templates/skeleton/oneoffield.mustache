@@ -1,7 +1,18 @@
-public type {{camelcase @key}} {{#each this}}{{this.messageName}}{{#unless @last}}|{{/unless}}{{/each}};
-{{#each this}}
-public type {{this.messageName}} record {|
-    {{#this.fieldList}}{{fieldType}}{{fieldLabel}} {{fieldName}}{{#if defaultValue}} = {{defaultValue}}{{/if}};
-    {{/this.fieldList}}
-|};
+function isValid{{camelcase messageName}}({{messageName}} r) returns boolean {
+{{#each oneofFieldMap as |value key|}}    int {{@key}}Count = 0;
+    {{#each @value}}if !(r?.{{{fieldName}}} is ()) {
+        {{@key}}Count += 1;
+    }
+    {{/each}}
+{{/each}}    if ({{#each oneofFieldMap as |value key|}}{{#unless @first}}|| {{/unless}}{{@key}}Count > 1 {{/each}}) {
+        return false;
+    }
+    return true;
+}
+{{#each oneofFieldMap}}{{#each this}}
+function set{{messageName}}_{{{camelcase fieldName}}}({{messageName}} r, {{{fieldType}}} {{{fieldName}}}) {
+    r.{{{fieldName}}} = {{{fieldName}}};
+    {{#each ../this}}{{#not_equal fieldName ../fieldName}}_ = r.removeIfHasKey("{{fieldName}}");
+    {{/not_equal}}{{/each}}
+}{{/each}}
 {{/each}}

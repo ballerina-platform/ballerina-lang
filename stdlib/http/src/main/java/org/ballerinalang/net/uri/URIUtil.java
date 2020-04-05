@@ -40,6 +40,7 @@ public class URIUtil {
 
     public static final String URI_PATH_DELIMITER = "/";
     public static final char DOT_SEGMENT = '.';
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     public static String[] getPathSegments(String path) {
         if (path.startsWith(URI_PATH_DELIMITER)) {

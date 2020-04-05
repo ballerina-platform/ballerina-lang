@@ -1,4 +1,4 @@
-import ballerinax/java;
+import ballerina/java;
 
 public function interopWithArrayAndMap() returns byte[] | error {
     map<int> mapVal = { "keyVal":8};

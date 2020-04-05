@@ -125,6 +125,11 @@ public class LangLibStringTest {
         }
     }
 
+    @Test(description = "Test the lastIndexOf() method.")
+    public void testLastIndexOf() {
+        BRunUtil.invoke(compileResult, "testLastIndexOf");
+    }
+
     @Test(dataProvider = "codePointCompareProvider")
     public void testCodePointCompare(String st1, String st2, int expected) {
         BValue[] args = {new BString(st1), new BString(st2)};
@@ -244,6 +249,11 @@ public class LangLibStringTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSubstring", args);
         Assert.assertEquals(returns[0].stringValue(),
                             "{ballerina/lang.string}StringOperationError {message:\"" + result + "\"}");
+    }
+
+    @Test
+    public void testEqualsIgnoreCaseAscii() {
+        BRunUtil.invoke(compileResult, "testEqualsIgnoreCaseAscii");
     }
 
     @DataProvider(name = "testSubstringDataProvider")

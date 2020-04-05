@@ -562,3 +562,58 @@ function testConstRefsAsDefaultValue() returns (boolean) {
     [string , int, TYPE, TYPE ] details = s.getDetails();
     return details[0] == "Andrew" && details[1] == 11 && details[2] == "John" && details[3] == 11;
 }
+
+function getData(string n) returns string {
+    return n;
+}
+
+type Student11 object {
+    string name;
+    function __init(string n, function (string) returns string fn = (x) => "John") {
+        self.name = fn(n);
+    }
+
+    function getName() returns string {
+        return self.name;
+    }
+};
+
+function testFunctionPointerAsDefaultableParam1() {
+    Student11 s1 = new("Anne", getData);
+    if (s1.getName() != "Anne") {
+        panic error("Returned string should equal 'Anne'");
+    }
+
+    Student11 s2 = new("Anne");
+    if (s2.getName() != "John") {
+        panic error("Returned string should equal 'John'");
+    }
+}
+
+function getTotalMarks(int a, int b) returns int {
+    return a + b + 10;
+}
+
+type Student12 object {
+    int marks;
+    function __init(int x, int y, function (int, int) returns int fn =
+                                                        function(int a, int b) returns int {return 100;}) {
+        self.marks = fn(x, y);
+    }
+
+    function getMarks() returns int {
+        return self.marks;
+    }
+};
+
+function testFunctionPointerAsDefaultableParam2() {
+    Student12 s1 = new(10, 20, getTotalMarks);
+    if (s1.getMarks() != 40) {
+        panic error("Returned string should equal '40'");
+    }
+
+    Student12 s2 = new(10, 20);
+    if (s2.getMarks() != 100) {
+        panic error("Returned string should equal '100'");
+    }
+}

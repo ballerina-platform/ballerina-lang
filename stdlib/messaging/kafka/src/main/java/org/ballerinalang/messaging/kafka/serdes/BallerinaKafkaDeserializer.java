@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.messaging.kafka.utils.KafkaConstants;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.BALLERINA_STRAND;
 
@@ -47,7 +48,9 @@ public class BallerinaKafkaDeserializer implements Deserializer {
         } else {
             this.deserializerObject = (ObjectValue) configs.get(KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG);
         }
-        this.timeout = (int) configs.get(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG);
+        if (Objects.nonNull(configs.get(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG))) {
+            this.timeout = (int) configs.get(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG);
+        }
     }
 
     @Override

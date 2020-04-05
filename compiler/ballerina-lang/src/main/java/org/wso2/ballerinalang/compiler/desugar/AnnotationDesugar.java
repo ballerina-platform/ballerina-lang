@@ -18,12 +18,14 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -36,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SchedulerPolicy;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -60,12 +63,15 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -96,6 +102,7 @@ public class AnnotationDesugar {
     public static final String DEFAULTABLE_REC = "ArgsData";
     public static final String ARG_NAMES = "args";
     private static final String DOT = ".";
+    private static final String FIELD = "$field$";
     private static final String PARAM = "$param$";
     private static final String RETURNS = "$returns$";
     private BLangSimpleVariable annotationMap;
@@ -153,12 +160,22 @@ public class AnnotationDesugar {
 
     private void defineTypeAnnotations(BLangPackage pkgNode, SymbolEnv env, BLangFunction initFunction) {
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
+            if (typeDef.isBuiltinTypeDef) {
+                continue;
+            }
             PackageID pkgID = typeDef.symbol.pkgID;
             BSymbol owner = typeDef.symbol.owner;
 
-            SymbolEnv funcEnv = SymbolEnv.createTypeEnv(typeDef.typeNode, initFunction.symbol.scope, env);
-            BLangLambdaFunction lambdaFunction = defineAnnotations(typeDef, typeDef.pos, pkgNode, funcEnv, pkgID,
-                                                                   owner);
+            BLangType typeNode = typeDef.typeNode;
+            SymbolEnv typeEnv = SymbolEnv.createTypeEnv(typeNode, initFunction.symbol.scope, env);
+            BLangLambdaFunction lambdaFunction;
+
+            if (typeNode.getKind() == NodeKind.RECORD_TYPE || typeNode.getKind() == NodeKind.OBJECT_TYPE) {
+                lambdaFunction = defineAnnotations(typeDef, pkgNode, typeEnv, pkgID, owner);
+            } else {
+                lambdaFunction = defineAnnotations(typeDef, typeDef.pos, pkgNode, typeEnv, pkgID, owner);
+            }
+
             if (lambdaFunction != null) {
                 addInvocationToGlobalAnnotMap(typeDef.name.value, lambdaFunction, initFunction.body);
             }
@@ -197,6 +214,10 @@ public class AnnotationDesugar {
                 addVarArgsAnnotation(function);
             }
 
+            if (function.flagSet.contains(Flag.WORKER)) {
+                attachSchedulerPolicy(function);
+            }
+
             BLangLambdaFunction lambdaFunction = defineAnnotations(function, pkgNode, env, pkgID, owner);
             if (lambdaFunction != null) {
                 // Add the lambda/invocation in a temporary block.
@@ -216,6 +237,39 @@ public class AnnotationDesugar {
                 // Add the annotation assignment for resources to immediately before the service init.
                 for (BLangStatement stmt : target.stmts) {
                     initFnBody.stmts.add(index++, stmt);
+                }
+            }
+        }
+    }
+
+    private void attachSchedulerPolicy(BLangFunction function) {
+        for (BLangAnnotationAttachment annotation : function.annAttachments) {
+            if (!annotation.annotationName.value.equals("strand")) {
+                continue;
+            }
+            List<RecordLiteralNode.RecordField> fields = ((BLangRecordLiteral) annotation.expr).fields;
+            for (RecordLiteralNode.RecordField field : fields) {
+                if (field.getKind() != NodeKind.RECORD_LITERAL_KEY_VALUE) {
+                    continue;
+                }
+                BLangRecordLiteral.BLangRecordKeyValueField keyValue =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                BLangExpression expr = keyValue.key.expr;
+                if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                    continue;
+                }
+                BLangIdentifier variableName = ((BLangSimpleVarRef) expr).variableName;
+                if (!variableName.value.equals("thread")) {
+                    continue;
+                }
+                if (keyValue.valueExpr.getKind() != NodeKind.LITERAL) {
+                    continue;
+                }
+                Object value = ((BLangLiteral) keyValue.valueExpr).value;
+
+                if ("any".equals(value)) {
+                    function.symbol.schedulerPolicy = SchedulerPolicy.ANY;
+                    return;
                 }
             }
         }
@@ -247,6 +301,46 @@ public class AnnotationDesugar {
         }
 
         return addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
+    }
+
+    private BLangLambdaFunction defineAnnotations(BLangTypeDefinition typeDef, BLangPackage pkgNode, SymbolEnv env,
+                                                  PackageID pkgID, BSymbol owner) {
+        BLangFunction function = null;
+        BLangRecordLiteral mapLiteral = null;
+        BLangLambdaFunction lambdaFunction = null;
+
+        boolean annotFunctionDefined = false;
+
+        if (!typeDef.annAttachments.isEmpty()) {
+            function = defineFunction(typeDef.pos, pkgID, owner);
+            mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
+            addAnnotsToLiteral(typeDef.annAttachments, mapLiteral, function, env);
+            annotFunctionDefined = true;
+        }
+
+        for (BLangSimpleVariable field : ((BLangStructureTypeNode) typeDef.typeNode).fields) {
+            BLangLambdaFunction paramAnnotLambda = defineAnnotations(field.annAttachments, field.pos, pkgNode, env,
+                                                                     pkgID, owner);
+            if (paramAnnotLambda != null) {
+                if (!annotFunctionDefined) {
+                    function = defineFunction(typeDef.pos, pkgID, owner);
+                    mapLiteral = ASTBuilderUtil.createEmptyRecordLiteral(function.pos, symTable.mapType);
+                    annotFunctionDefined = true;
+                }
+
+                addInvocationToLiteral(mapLiteral, FIELD + DOT + field.name.value,
+                                       field.annAttachments.get(0).pos, paramAnnotLambda);
+            }
+        }
+
+        if (annotFunctionDefined) {
+            if (mapLiteral.fields.isEmpty()) {
+                return null;
+            }
+            lambdaFunction = addReturnAndDefineLambda(function, mapLiteral, pkgNode, env, pkgID, owner);
+        }
+
+        return lambdaFunction;
     }
 
     private BLangLambdaFunction defineAnnotations(BLangFunction bLangFunction, BLangPackage pkgNode, SymbolEnv env,
@@ -419,7 +513,7 @@ public class AnnotationDesugar {
 
         BInvokableSymbol lambdaFunctionSymbol = createInvokableSymbol(function, pkgID, owner);
         BLangLambdaFunction lambdaFunction = desugar.createLambdaFunction(function, lambdaFunctionSymbol);
-        lambdaFunction.cachedEnv = env.createClone();
+        lambdaFunction.capturedClosureEnv = env.createClone();
 
         pkgNode.functions.add(function);
         pkgNode.topLevelNodes.add(function);

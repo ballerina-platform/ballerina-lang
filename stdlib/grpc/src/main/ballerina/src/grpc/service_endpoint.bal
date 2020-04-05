@@ -16,7 +16,7 @@
 
 import ballerina/crypto;
 import ballerina/lang.'object as lang;
-import ballerinax/java;
+import ballerina/java;
 
 # Represents server listener where one or more services can be registered. so that ballerina program can offer
 # service through this listener.

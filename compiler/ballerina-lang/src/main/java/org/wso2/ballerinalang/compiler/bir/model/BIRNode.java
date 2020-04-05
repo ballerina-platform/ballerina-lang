@@ -413,6 +413,8 @@ public abstract class BIRNode {
 
         public boolean isLabel;
 
+        public boolean isBuiltin;
+
         public List<BType> referencedTypes;
 
         /**
@@ -421,12 +423,14 @@ public abstract class BIRNode {
          */
         public int index;
 
-        public BIRTypeDefinition(DiagnosticPos pos, Name name, int flags, boolean isLabel,
+        public BIRTypeDefinition(DiagnosticPos pos, Name name, int flags, boolean isLabel, boolean isBuiltin,
                                  BType type, List<BIRFunction> attachedFuncs) {
+
             super(pos);
             this.name = name;
             this.flags = flags;
             this.isLabel = isLabel;
+            this.isBuiltin = isBuiltin;
             this.type = type;
             this.attachedFuncs = attachedFuncs;
             this.referencedTypes = new ArrayList<>();

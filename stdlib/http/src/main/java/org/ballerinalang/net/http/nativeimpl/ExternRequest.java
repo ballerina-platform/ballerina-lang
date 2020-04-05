@@ -43,6 +43,8 @@ import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAva
  */
 public class ExternRequest {
 
+    private static final BMapType mapType = new BMapType(new BArrayType(BTypes.typeString));
+
     public static ObjectValue createNewEntity(ObjectValue requestObj) {
         return HttpUtil.createNewEntity(requestObj);
     }
@@ -51,6 +53,7 @@ public class ExternRequest {
         HttpUtil.setEntity(requestObj, entityObj, true);
     }
 
+    @SuppressWarnings("unchecked")
     public static MapValue<String, Object> getQueryParams(ObjectValue requestObj) {
         try {
             Object queryParams = requestObj.getNativeData(QUERY_PARAM_MAP);
@@ -59,7 +62,6 @@ public class ExternRequest {
             }
             HttpCarbonMessage httpCarbonMessage = (HttpCarbonMessage) requestObj
                     .getNativeData(HttpConstants.TRANSPORT_MESSAGE);
-            BMapType mapType = new BMapType(new BArrayType(BTypes.typeString));
             MapValue<String, Object> params = new MapValueImpl<>(mapType);
             Object rawQueryString = httpCarbonMessage.getProperty(HttpConstants.RAW_QUERY_STR);
             if (rawQueryString != null) {

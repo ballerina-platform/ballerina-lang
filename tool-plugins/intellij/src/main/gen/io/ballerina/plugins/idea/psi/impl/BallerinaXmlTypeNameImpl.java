@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -40,6 +40,24 @@ public class BallerinaXmlTypeNameImpl extends ASTWrapperPsiElement implements Ba
   public void accept(@NotNull PsiElementVisitor visitor) {
     if (visitor instanceof BallerinaVisitor) accept((BallerinaVisitor)visitor);
     else super.accept(visitor);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaTypeName getTypeName() {
+    return findChildByClass(BallerinaTypeName.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getGt() {
+    return findChildByType(GT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getLt() {
+    return findChildByType(LT);
   }
 
   @Override

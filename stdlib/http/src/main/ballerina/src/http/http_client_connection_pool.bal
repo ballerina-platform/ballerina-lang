@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/config;
-import ballerinax/java;
+import ballerina/java;
 
 # Configurations for managing HTTP client connection pool.
 #

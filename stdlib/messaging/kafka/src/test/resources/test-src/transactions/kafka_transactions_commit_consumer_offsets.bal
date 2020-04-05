@@ -19,7 +19,7 @@ import ballerina/kafka;
 
 string topic = "commit-consumer-offsets-topic";
 
-kafka:ProducerConfig producerConfigs = {
+kafka:ProducerConfiguration producerConfigs = {
     bootstrapServers: "localhost:14112, localhost:14113, localhost:14114",
     clientId: "commit-consumer-offsets-producer",
     acks: kafka:ACKS_ALL,
@@ -30,7 +30,7 @@ kafka:ProducerConfig producerConfigs = {
 
 kafka:Producer kafkaProducer = new(producerConfigs);
 
-kafka:ConsumerConfig consumerConfigs1 = {
+kafka:ConsumerConfiguration consumerConfigs1 = {
     bootstrapServers: "localhost:14112, localhost:14113, localhost:14114",
     groupId: "commit-consumer-offsets-test-group-1",
     offsetReset: "earliest",
@@ -40,7 +40,7 @@ kafka:ConsumerConfig consumerConfigs1 = {
 
 kafka:Consumer kafkaConsumer1 = new(consumerConfigs1);
 
-kafka:ConsumerConfig consumerConfigs2 = {
+kafka:ConsumerConfiguration consumerConfigs2 = {
     bootstrapServers: "localhost:14112, localhost:14113, localhost:14114",
     groupId: "commit-consumer-offsets-test-group-2",
     offsetReset: "earliest",

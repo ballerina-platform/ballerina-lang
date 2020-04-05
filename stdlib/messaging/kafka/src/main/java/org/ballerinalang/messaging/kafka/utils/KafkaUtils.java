@@ -28,16 +28,14 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.SslConfigs;
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
@@ -51,6 +49,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 import static org.ballerinalang.jvm.BallerinaValues.createRecord;
+import static org.ballerinalang.messaging.kafka.utils.AvroUtils.handleAvroConsumer;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_CONCURRENT_CONSUMERS;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_DECOUPLE_PROCESSING;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_OFFSET;
@@ -61,6 +60,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_TOPIC
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_TOPICS;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.BALLERINA_STRAND;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_CONFIG_FIELD_NAME;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_ERROR;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_KEY_DESERIALIZER_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.CONSUMER_VALUE_DESERIALIZER_CONFIG;
@@ -73,6 +73,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PRODUCER_VA
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PROPERTIES_ARRAY;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.PROTOCOL_CONFIG;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SECURE_SOCKET;
+import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERDES_AVRO;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.SERDES_CUSTOM;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.TRUSTSTORE_CONFIG;
 
@@ -141,8 +142,12 @@ public class KafkaUtils {
                                CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG);
         addDeserializerConfigs(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, configurations, properties,
                                KafkaConstants.CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG);
-        addCustomKeyDeserializer(properties, configurations);
-        addCustomValueDeserializer(properties, configurations);
+        addCustomDeserializer(CONSUMER_KEY_DESERIALIZER_CONFIG, CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG, properties,
+                              configurations);
+        addCustomDeserializer(CONSUMER_VALUE_DESERIALIZER_CONFIG, CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG, properties,
+                              configurations);
+        addStringParamIfPresent(KafkaConstants.SCHEMA_REGISTRY_URL, configurations, properties,
+                                KafkaConstants.CONSUMER_SCHEMA_REGISTRY_URL);
 
         addStringArrayParamIfPresent(ALIAS_TOPICS, configurations, properties,
                                      ALIAS_TOPICS);
@@ -206,6 +211,10 @@ public class KafkaUtils {
         if (Objects.nonNull(configurations.get(SECURE_SOCKET))) {
             processSSLProperties(configurations, properties);
         }
+        if (SERDES_AVRO.equals(configurations.get(CONSUMER_VALUE_DESERIALIZER_CONFIG)) ||
+                SERDES_AVRO.equals(configurations.get(CONSUMER_VALUE_DESERIALIZER_CONFIG))) {
+            properties.put(KafkaConstants.SPECIFIC_AVRO_READER, false);
+        }
         return properties;
     }
 
@@ -229,6 +238,8 @@ public class KafkaUtils {
                                 properties, KafkaConstants.PRODUCER_INTERCEPTOR_CLASSES_CONFIG);
         addStringParamIfPresent(ProducerConfig.TRANSACTIONAL_ID_CONFIG, configurations,
                                 properties, KafkaConstants.PRODUCER_TRANSACTIONAL_ID_CONFIG);
+        addStringParamIfPresent(KafkaConstants.SCHEMA_REGISTRY_URL, configurations, properties,
+                                KafkaConstants.PRODUCER_SCHEMA_REGISTRY_URL);
 
         addSerializerTypeConfigs(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, configurations,
                                  properties, PRODUCER_KEY_SERIALIZER_TYPE_CONFIG);
@@ -362,20 +373,12 @@ public class KafkaUtils {
         }
     }
 
-    private static void addCustomKeyDeserializer(Properties properties, MapValue<String, Object> configurations) {
-        Object deserializer = configurations.get(CONSUMER_KEY_DESERIALIZER_CONFIG);
-        String deserializerType = configurations.getStringValue(CONSUMER_KEY_DESERIALIZER_TYPE_CONFIG);
+    private static void addCustomDeserializer(String configParam, String typeConfig, Properties properties,
+                                              MapValue<String, Object> configurations) {
+        Object deserializer = configurations.get(configParam);
+        String deserializerType = configurations.getStringValue(typeConfig);
         if (Objects.nonNull(deserializer) && SERDES_CUSTOM.equals(deserializerType)) {
-            properties.put(CONSUMER_KEY_DESERIALIZER_CONFIG, configurations.get(CONSUMER_KEY_DESERIALIZER_CONFIG));
-            properties.put(BALLERINA_STRAND, BRuntime.getCurrentRuntime());
-        }
-    }
-
-    private static void addCustomValueDeserializer(Properties properties, MapValue<String, Object> configurations) {
-        Object deserializer = configurations.get(CONSUMER_VALUE_DESERIALIZER_CONFIG);
-        String deserializerType = configurations.getStringValue(CONSUMER_VALUE_DESERIALIZER_TYPE_CONFIG);
-        if (Objects.nonNull(deserializer) && SERDES_CUSTOM.equals(deserializerType)) {
-            properties.put(CONSUMER_VALUE_DESERIALIZER_CONFIG, configurations.get(CONSUMER_VALUE_DESERIALIZER_CONFIG));
+            properties.put(configParam, configurations.get(configParam));
             properties.put(BALLERINA_STRAND, BRuntime.getCurrentRuntime());
         }
     }
@@ -391,6 +394,8 @@ public class KafkaUtils {
                 return KafkaConstants.INT_SERIALIZER;
             case KafkaConstants.SERDES_FLOAT:
                 return KafkaConstants.FLOAT_SERIALIZER;
+            case KafkaConstants.SERDES_AVRO:
+                return KafkaConstants.AVRO_SERIALIZER;
             case SERDES_CUSTOM:
                 return KafkaConstants.CUSTOM_SERIALIZER;
             default:
@@ -409,6 +414,8 @@ public class KafkaUtils {
                 return KafkaConstants.INT_DESERIALIZER;
             case KafkaConstants.SERDES_FLOAT:
                 return KafkaConstants.FLOAT_DESERIALIZER;
+            case SERDES_AVRO:
+                return KafkaConstants.AVRO_DESERIALIZER;
             case SERDES_CUSTOM:
                 return KafkaConstants.CUSTOM_DESERIALIZER;
             default:
@@ -441,9 +448,9 @@ public class KafkaUtils {
                                              MapValue<String, Object> configs,
                                              Properties configParams,
                                              String key) {
-        long value = (long) configs.get(key);
-        if (value != -1) {
-            configParams.put(paramName, Long.valueOf(value).intValue());
+        Long value = (Long) configs.get(key);
+        if (Objects.nonNull(value)) {
+            configParams.put(paramName, value.intValue());
         }
     }
 
@@ -511,16 +518,12 @@ public class KafkaUtils {
 
     public static MapValue<String, Object> populateConsumerRecord(ConsumerRecord record, String keyType,
                                                                   String valueType) {
-        if (Objects.isNull(record)) {
-            return null;
-        }
-
         Object key = null;
         if (Objects.nonNull(record.key())) {
             key = getBValues(record.key(), keyType);
         }
-        Object value = getBValues(record.value(), valueType);
 
+        Object value = getBValues(record.value(), valueType);
         return createRecord(getConsumerRecord(), key, value, record.offset(), record.partition(), record.timestamp(),
                             record.topic());
     }
@@ -530,34 +533,42 @@ public class KafkaUtils {
             if (value instanceof byte[]) {
                 return BValueCreator.createArrayValue((byte[]) value);
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: byte[]");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: byte[]");
             }
         } else if (KafkaConstants.SERDES_STRING.equals(type)) {
             if (value instanceof String) {
-                return StringUtils.fromString((String) value);
+                // TODO: Workaround until #20644 is fixed
+                return value;
+                // return StringUtils.fromString((String) value);
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: string");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: string");
             }
         } else if (KafkaConstants.SERDES_INT.equals(type)) {
             if (value instanceof Long) {
                 return value;
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: int");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: int");
             }
         } else if (KafkaConstants.SERDES_FLOAT.equals(type)) {
             if (value instanceof Double) {
                 return value;
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: float");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: float");
             }
+        } else if (SERDES_AVRO.equals(type)) {
+            return handleAvroConsumer(value);
         } else if (SERDES_CUSTOM.equals(type)) {
             return value;
         }
-        throw createKafkaError("Unexpected type found for consumer record");
+        throw createKafkaError("Unexpected type found for consumer record", CONSUMER_ERROR);
     }
 
     public static MapValue<String, Object> getConsumerRecord() {
         return createKafkaRecord(KafkaConstants.CONSUMER_RECORD_STRUCT_NAME);
+    }
+
+    public static MapValue<String, Object> getAvroGenericRecord() {
+        return createKafkaRecord(KafkaConstants.AVRO_GENERIC_RECORD_NAME);
     }
 
     public static MapValue<String, Object> getPartitionOffsetRecord() {
@@ -568,20 +579,21 @@ public class KafkaUtils {
         return createKafkaRecord(KafkaConstants.TOPIC_PARTITION_STRUCT_NAME);
     }
 
-    public static ErrorValue createKafkaError(String message) {
-        return createKafkaError(message, KafkaConstants.CONSUMER_ERROR);
+    public static BError createKafkaError(String message, String reason) {
+        MapValue<String, Object> detail = createKafkaDetailRecord(message);
+        return BValueCreator.createErrorValue(StringUtils.fromString(reason), detail);
     }
 
-    public static ErrorValue createKafkaError(String message, String reason) {
-        MapValue<String, Object> detail = createKafkaDetailRecord(message);
-        return BallerinaErrors.createError(reason, detail);
+    public static BError createKafkaError(String message, String reason, BError cause) {
+        MapValue<String, Object> detail = createKafkaDetailRecord(message, cause);
+        return BValueCreator.createErrorValue(StringUtils.fromString(reason), detail);
     }
 
     private static MapValue<String, Object> createKafkaDetailRecord(String message) {
         return createKafkaDetailRecord(message, null);
     }
 
-    private static MapValue<String, Object> createKafkaDetailRecord(String message, ErrorValue cause) {
+    private static MapValue<String, Object> createKafkaDetailRecord(String message, BError cause) {
         MapValue<String, Object> detail = createKafkaRecord(KafkaConstants.DETAIL_RECORD_NAME);
         return BallerinaValues.createRecord(detail, message, cause);
     }

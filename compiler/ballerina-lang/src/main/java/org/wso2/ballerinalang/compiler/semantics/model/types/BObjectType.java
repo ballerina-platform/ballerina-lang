@@ -24,7 +24,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -49,10 +48,6 @@ public class BObjectType extends BStructureType implements ObjectType {
     public BObjectType(BTypeSymbol tSymbol) {
         super(TypeTags.OBJECT, tSymbol);
         this.fields = new ArrayList<>();
-    }
-
-    public String getDesc() {
-        return TypeDescriptor.SIG_STRUCT + getQualifiedTypeName() + ";";
     }
 
     @Override
