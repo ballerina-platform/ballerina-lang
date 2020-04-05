@@ -29,7 +29,7 @@ public enum ParserRuleContext {
     COMP_UNIT("comp-unit"),
     EOF("eof"),
     TOP_LEVEL_NODE("top-level-node"),
-    TOP_LEVEL_NODE_THAT_SUPPORTS_MODIFIER("top-level-node-that-supports-modifier"),
+    TOP_LEVEL_NODE_WITHOUT_MODIFIER("top-level-node-without-modifier"),
     FUNC_DEFINITION("func-definition"),
     PARAM_LIST("parameters"),
     REQUIRED_PARAM("parameter"),
@@ -81,6 +81,10 @@ public enum ParserRuleContext {
     OPTIONAL_SERVICE_NAME("service-rhs"),
     LISTENERS_LIST("listeners-list"),
     RESOURCE_DEF("resource-def"),
+    LISTENER_DECL("listener-decl"),
+    CONSTANT_DECL("const-decl"),
+    CONST_DECL_TYPE("const-decl-type"),
+    CONST_DECL_RHS("const-decl-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -128,6 +132,7 @@ public enum ParserRuleContext {
     SERVICE_KEYWORD("service"),
     ON_KEYWORD("on"),
     RESOURCE_KEYWORD("resource"),
+    FINAL_KEYWORD("final"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -158,6 +163,8 @@ public enum ParserRuleContext {
     BOOLEAN_LITERAL("boolean-literal"),
     CHECKING_KEYWORD("checking-keyword"),
     SERVICE_NAME("service-name"),
+    LISTENER_KEYWORD("const-keyword"),
+    CONST_KEYWORD("const-keyword"),
 
     // Expressions
     EXPRESSION("expression"),

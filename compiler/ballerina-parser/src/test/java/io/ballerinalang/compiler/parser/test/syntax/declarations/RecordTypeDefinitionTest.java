@@ -95,7 +95,7 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
 
     @Test
     public void testRecordTypeDefWithoutRecordKeywordAndName() {
-        test("record-type-def/record_type_def_source_10.bal", "record-type-def/record_type_def_assert_10.json");
+        testFile("record-type-def/record_type_def_source_10.bal", "record-type-def/record_type_def_assert_10.json");
     }
 
     @Test

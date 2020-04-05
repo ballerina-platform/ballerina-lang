@@ -19,30 +19,41 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class LocalVariableDeclaration extends Statement {
+/**
+ * @since 1.3.0
+ */
+public class ListenerDeclaration extends ModuleMemberDeclaration {
 
-    public LocalVariableDeclaration(STNode node, int position, NonTerminalNode parent) {
+    public ListenerDeclaration(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
-    public Node typeName() {
+    public Node qualifier() {
         return childInBucket(0);
     }
 
-    public Token variableName() {
+    public Node listenerKeyword() {
         return childInBucket(1);
     }
 
-    public Token equalsToken() {
+    public Node typeDescriptor() {
         return childInBucket(2);
     }
 
-    public Node initializer() {
+    public Token variableName() {
         return childInBucket(3);
     }
 
-    public Token semicolonToken() {
+    public Token equalsToken() {
         return childInBucket(4);
+    }
+
+    public Node initializer() {
+        return childInBucket(5);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(6);
     }
 
     @Override

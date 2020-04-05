@@ -52,6 +52,9 @@ public class LexerTerminals {
     public static final String AS = "as";
     public static final String ON = "on";
     public static final String RESOURCE = "resource";
+    public static final String LISTENER = "listener";
+    public static final String CONST = "const";
+    public static final String FINAL = "final";
 
     // Types
     public static final String INT = "int";

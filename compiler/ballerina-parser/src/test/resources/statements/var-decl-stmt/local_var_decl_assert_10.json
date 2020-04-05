@@ -1,5 +1,5 @@
 {
-    "kind": "LOCAL_VARIABLE_DECL",
+    "kind": "VARIABLE_DECL",
     "children": [
         {
             "kind": "QUALIFIED_IDENTIFIER",

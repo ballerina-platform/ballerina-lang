@@ -55,7 +55,7 @@ public abstract class SyntaxNodeTransformer<T> {
 
     // Statements
 
-    public T transform(LocalVariableDeclaration localVariableDeclaration) {
+    public T transform(VariableDeclaration localVariableDeclaration) {
         return transformSyntaxNode(localVariableDeclaration);
     }
 
@@ -203,6 +203,14 @@ public abstract class SyntaxNodeTransformer<T> {
 
     public T transform(ExpressionListItem expressionListItem) {
         return transformSyntaxNode(expressionListItem);
+    }
+
+    public T transform(ListenerDeclaration listenerDecl) {
+        return transformSyntaxNode(listenerDecl);
+    }
+
+    public T transform(ConstantDeclaration constantDecl) {
+        return transformSyntaxNode(constantDecl);
     }
 
     /**

@@ -1,0 +1,19 @@
+{
+    "kind": "VARIABLE_DECL",
+    "children": [
+        {
+            "kind": "FINAL_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "Person"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "p"
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}

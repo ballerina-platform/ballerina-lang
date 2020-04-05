@@ -281,6 +281,10 @@ public class ParserTestUtils {
                 return SyntaxKind.IMPORT_DECLARATION;
             case "SERVICE_DECLARATION":
                 return SyntaxKind.SERVICE_DECLARATION;
+            case "LISTENER_DECLARATION":
+                return SyntaxKind.LISTENER_DECLARATION;
+            case "CONST_DECLARATION":
+                return SyntaxKind.CONST_DECLARATION;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -341,6 +345,10 @@ public class ParserTestUtils {
                 return SyntaxKind.RESOURCE_KEYWORD;
             case "LISTENER_KEYWORD":
                 return SyntaxKind.LISTENER_KEYWORD;
+            case "CONST_KEYWORD":
+                return SyntaxKind.CONST_KEYWORD;
+            case "FINAL_KEYWORD":
+                return SyntaxKind.FINAL_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -457,8 +465,8 @@ public class ParserTestUtils {
             // Statements
             case "BLOCK_STATEMENT":
                 return SyntaxKind.BLOCK_STATEMENT;
-            case "LOCAL_VARIABLE_DECL":
-                return SyntaxKind.LOCAL_VARIABLE_DECL;
+            case "VARIABLE_DECL":
+                return SyntaxKind.VARIABLE_DECL;
             case "ASSIGNMENT_STATEMENT":
                 return SyntaxKind.ASSIGNMENT_STATEMENT;
             case "IF_ELSE_STATEMENT":
