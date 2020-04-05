@@ -147,7 +147,6 @@ public class CopyNativeLibTask implements Task {
             Path importJar = findImportBaloPath(buildContext, importz, project, platform);
             if (importJar != null && Files.exists(importJar)) {
                 copyLibsFromBalo(importJar, moduleDependencySet);
-                return;
             }
         }
 
