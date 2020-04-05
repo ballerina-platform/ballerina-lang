@@ -1,0 +1,115 @@
+{
+    "kind": "MODULE_PART",
+    "children": [
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "LISTENER_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "PUBLIC_KEYWORD"
+                        },
+                        {
+                            "kind": "LISTENER_KEYWORD"
+                        },
+                        {
+                            "kind": "SIMPLE_TYPE",
+                            "value": "string"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "s1"
+                        },
+                        {
+                            "kind": "EQUAL_TOKEN"
+                        },
+                        {
+                            "kind": "STRING_LITERAL",
+                            "value": "http://hello1.com"
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                },
+                {
+                    "kind": "VARIABLE_DECL",
+                    "children": [
+                        {
+                            "kind": "SIMPLE_TYPE",
+                            "value": "string"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "s2"
+                        },
+                        {
+                            "kind": "EQUAL_TOKEN"
+                        },
+                        {
+                            "kind": "STRING_LITERAL",
+                            "value": "http://hello2.com"
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                },
+                {
+                    "kind": "CONST_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "PUBLIC_KEYWORD"
+                        },
+                        {
+                            "kind": "CONST_KEYWORD"
+                        },
+                        {
+                            "kind": "SIMPLE_TYPE",
+                            "value": "string"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "s2"
+                        },
+                        {
+                            "kind": "EQUAL_TOKEN"
+                        },
+                        {
+                            "kind": "STRING_LITERAL",
+                            "value": "http://hello3.com"
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                },
+                {
+                    "kind": "VARIABLE_DECL",
+                    "children": [
+                        {
+                            "kind": "SIMPLE_TYPE",
+                            "value": "string"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "s2"
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "EOF_TOKEN"
+        }
+    ]
+}

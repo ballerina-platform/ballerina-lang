@@ -53,7 +53,7 @@ public abstract class SyntaxNodeVisitor {
 
     // Statements
 
-    public void visit(LocalVariableDeclaration localVariableDeclaration) {
+    public void visit(VariableDeclaration localVariableDeclaration) {
         visitSyntaxNode(localVariableDeclaration);
     }
 
@@ -202,6 +202,14 @@ public abstract class SyntaxNodeVisitor {
 
     public void visit(ExpressionListItem expressionListItem) {
         visitSyntaxNode(expressionListItem);
+    }
+
+    public void visit(ListenerDeclaration listenerDecl) {
+        visitSyntaxNode(listenerDecl);
+    }
+
+    public void visit(ConstantDeclaration constantDecl) {
+        visitSyntaxNode(constantDecl);
     }
 
     protected void visitSyntaxNode(Node node) {

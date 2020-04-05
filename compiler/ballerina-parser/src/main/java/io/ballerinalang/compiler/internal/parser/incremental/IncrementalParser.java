@@ -71,7 +71,7 @@ public class IncrementalParser extends BallerinaParser {
     private Predicate<SyntaxKind> isStatement = kind -> kind == SyntaxKind.BLOCK_STATEMENT ||
             kind == SyntaxKind.IF_ELSE_STATEMENT ||
             kind == SyntaxKind.CALL_STATEMENT ||
-            kind == SyntaxKind.LOCAL_VARIABLE_DECL ||
+            kind == SyntaxKind.VARIABLE_DECL ||
             kind == SyntaxKind.ASSIGNMENT_STATEMENT ||
             kind == SyntaxKind.WHILE_STATEMENT;
 }

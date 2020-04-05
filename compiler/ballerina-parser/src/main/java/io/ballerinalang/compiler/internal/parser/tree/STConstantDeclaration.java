@@ -17,39 +17,44 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.VariableDeclaration;
+import io.ballerinalang.compiler.syntax.tree.ConstantDeclaration;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
-public class STVariableDeclaration extends STStatement {
+/**
+ * @since 1.3.0
+ */
+public class STConstantDeclaration extends STStatement {
 
-    public final STNode finalKeyword;
-    public final STNode typeName;
+    public final STNode qualifier;
+    public final STNode listenerKeyword;
+    public final STNode typeDesc;
     public final STNode variableName;
     public final STNode equalsToken;
     public final STNode initializer;
     public final STNode semicolonToken;
 
-    STVariableDeclaration(SyntaxKind kind,
-                          STNode finalKeyword,
-                          STNode typeName,
-                          STNode variableName,
-                          STNode equalsToken,
-                          STNode initializer,
-                          STNode semicolonToken) {
-        super(kind);
-        this.finalKeyword = finalKeyword;
-        this.typeName = typeName;
+    STConstantDeclaration(STNode qualifier,
+                       STNode constKeyword,
+                       STNode typeDesc,
+                       STNode variableName,
+                       STNode equalsToken,
+                       STNode initializer,
+                       STNode semicolonToken) {
+        super(SyntaxKind.CONST_DECLARATION);
+        this.qualifier = qualifier;
+        this.listenerKeyword = constKeyword;
+        this.typeDesc = typeDesc;
         this.variableName = variableName;
         this.equalsToken = equalsToken;
         this.initializer = initializer;
         this.semicolonToken = semicolonToken;
 
-        addChildren(typeName, variableName, equalsToken, initializer, semicolonToken);
+        addChildren(qualifier, constKeyword, typeDesc, variableName, equalsToken, initializer, semicolonToken);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new VariableDeclaration(this, position, parent);
+        return new ConstantDeclaration(this, position, parent);
     }
 }
