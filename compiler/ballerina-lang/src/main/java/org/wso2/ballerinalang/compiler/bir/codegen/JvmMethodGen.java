@@ -610,7 +610,8 @@ public class JvmMethodGen {
                     bType.tag == TypeTags.ANYDATA ||
                     bType.tag == TypeTags.UNION ||
                     bType.tag == TypeTags.JSON ||
-                    bType.tag == TypeTags.FINITE) {
+                    bType.tag == TypeTags.FINITE ||
+                    bType.tag == TypeTags.READONLY) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", OBJECT));
                 mv.visitVarInsn(ASTORE, index);
@@ -741,7 +742,8 @@ public class JvmMethodGen {
                     bType.tag == TypeTags.ANYDATA ||
                     bType.tag == TypeTags.UNION ||
                     bType.tag == TypeTags.JSON ||
-                    bType.tag == TypeTags.FINITE) {
+                    bType.tag == TypeTags.FINITE ||
+                    bType.tag == TypeTags.READONLY) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", OBJECT));
@@ -841,7 +843,8 @@ public class JvmMethodGen {
                 || bType.tag == TypeTags.ANYDATA
                 || bType.tag == TypeTags.UNION
                 || bType.tag == TypeTags.JSON
-                || bType.tag == TypeTags.FINITE) {
+                || bType.tag == TypeTags.FINITE
+                || bType.tag == TypeTags.READONLY) {
             jvmType = String.format("L%s;", OBJECT);
         } else if (bType.tag == JTypeTags.JTYPE) {
             jvmType = getJTypeSignature((JType) bType);
@@ -1343,7 +1346,8 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
-                bType.tag == TypeTags.TYPEDESC) {
+                bType.tag == TypeTags.TYPEDESC ||
+                bType.tag == TypeTags.READONLY) {
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, index);
         } else if (bType.tag == JTypeTags.JTYPE) {
@@ -1413,7 +1417,8 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
-                bType.tag == TypeTags.TYPEDESC) {
+                bType.tag == TypeTags.TYPEDESC ||
+                bType.tag == TypeTags.READONLY) {
             mv.visitInsn(ACONST_NULL);
         } else if (bType.tag == JTypeTags.JTYPE) {
             loadDefaultJValue(mv, (JType) bType);
@@ -1515,7 +1520,8 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.UNION ||
                 bType.tag == TypeTags.JSON ||
                 bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.ANY) {
+                bType.tag == TypeTags.ANY ||
+                bType.tag == TypeTags.READONLY) {
             return String.format("L%s;", OBJECT);
         } else if (bType.tag == TypeTags.MAP || bType.tag == TypeTags.RECORD) {
             return String.format("L%s;", MAP_VALUE);
@@ -1575,7 +1581,8 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.UNION ||
                 bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.FINITE) {
+                bType.tag == TypeTags.FINITE ||
+                bType.tag == TypeTags.READONLY) {
             return String.format(")L%s;", OBJECT);
         } else if (bType.tag == TypeTags.OBJECT) {
             return String.format(")L%s;", OBJECT_VALUE);
@@ -2359,7 +2366,8 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.UNION ||
                 bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.FINITE) {
+                bType.tag == TypeTags.FINITE ||
+                bType.tag == TypeTags.READONLY) {
             typeSig = String.format("L%s;", OBJECT);
         } else if (bType.tag == TypeTags.INVOKABLE) {
             typeSig = String.format("L%s;", FUNCTION_POINTER);

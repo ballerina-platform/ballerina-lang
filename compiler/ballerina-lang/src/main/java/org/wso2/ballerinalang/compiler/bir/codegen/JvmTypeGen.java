@@ -1368,7 +1368,8 @@ class JvmTypeGen {
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.UNION ||
                 bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.FINITE) {
+                bType.tag == TypeTags.FINITE ||
+                bType.tag == TypeTags.READONLY) {
             return String.format("L%s;", OBJECT);
         } else if (bType.tag == TypeTags.INVOKABLE) {
             return String.format("L%s;", FUNCTION_POINTER);
