@@ -218,8 +218,8 @@ public class BallerinaParser {
                 return parseOnKeyword();
             case RESOURCE_KEYWORD:
                 return parseResourceKeyword();
-            case LISTENER_OR_CONST_KEYWORD:
-                return parseListenerOrConstKeyword();
+            case LISTENER_KEYWORD:
+                return parseListenerKeyword();
             case SERVICE_DECL:
                 return parseServiceDecl();
             case FUNC_DEFINITION:
@@ -894,8 +894,9 @@ public class BallerinaParser {
             case TYPE_KEYWORD:
                 return parseModuleTypeDefinition(getQualifier(qualifier));
             case LISTENER_KEYWORD:
+                return parseListenerDeclaration(getQualifier(qualifier));
             case CONST_KEYWORD:
-                return parseListenerOrConstDeclaration(getQualifier(qualifier));
+                return parseConstantDeclaration(getQualifier(qualifier));
             case IMPORT_KEYWORD:
                 validatePublicQualifier(qualifier);
                 return parseImportDecl();
@@ -4342,22 +4343,17 @@ public class BallerinaParser {
      * @param qualifier Qualifier that precedes the listener declaration
      * @return Parsed node
      */
-    private STNode parseListenerOrConstDeclaration(STNode qualifier) {
-        startContext(ParserRuleContext.LISTENER_OR_CONST_DECL);
-        STNode listenerOrConstKeyword = parseListenerOrConstKeyword();
+    private STNode parseListenerDeclaration(STNode qualifier) {
+        startContext(ParserRuleContext.LISTENER_DECL);
+        STNode listenerKeyword = parseListenerKeyword();
         STNode typeDesc = parseTypeDescriptor();
         STNode variableName = parseVariableName();
         STNode equalsToken = parseAssignOp();
         STNode initializer = parseExpression();
         STNode semicolonToken = parseSemicolon();
         endContext();
-        if (listenerOrConstKeyword.kind == SyntaxKind.LISTENER_KEYWORD) {
-            return STNodeFactory.createListenerDeclaration(qualifier, listenerOrConstKeyword, typeDesc, variableName,
-                    equalsToken, initializer, semicolonToken);
-        } else {
-            return STNodeFactory.createConstDeclaration(qualifier, listenerOrConstKeyword, typeDesc, variableName,
-                    equalsToken, initializer, semicolonToken);
-        }
+        return STNodeFactory.createListenerDeclaration(qualifier, listenerKeyword, typeDesc, variableName, equalsToken,
+                initializer, semicolonToken);
     }
 
     /**
@@ -4365,12 +4361,129 @@ public class BallerinaParser {
      * 
      * @return Parsed node
      */
-    private STNode parseListenerOrConstKeyword() {
+    private STNode parseListenerKeyword() {
         STToken token = peek();
-        if (token.kind == SyntaxKind.LISTENER_KEYWORD || token.kind == SyntaxKind.CONST_KEYWORD) {
+        if (token.kind == SyntaxKind.LISTENER_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.LISTENER_OR_CONST_KEYWORD);
+            Solution sol = recover(token, ParserRuleContext.LISTENER_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse constant declaration, given the qualifier.
+     * 
+     * @param qualifier Qualifier that precedes the listener declaration
+     * @return Parsed node
+     */
+    private STNode parseConstantDeclaration(STNode qualifier) {
+        startContext(ParserRuleContext.CONSTANT_DECL);
+        STNode constKeyword = parseConstantKeyword();
+        STNode constDecl = parseConstDecl(qualifier, constKeyword);
+        endContext();
+        return constDecl;
+    }
+
+    private STNode parseConstDecl(STNode qualifier, STNode constKeyword) {
+        STToken nextToken = peek();
+        return parseConstDeclFromType(nextToken.kind, qualifier, constKeyword);
+    }
+
+    private STNode parseConstDeclFromType(SyntaxKind nextTokenKind, STNode qualifier, STNode constKeyword) {
+        switch (nextTokenKind) {
+            // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
+            case SIMPLE_TYPE:
+            case SERVICE_KEYWORD:
+            case RECORD_KEYWORD:
+            case OBJECT_KEYWORD:
+            case ABSTRACT_KEYWORD:
+            case CLIENT_KEYWORD:
+                STNode typeDesc = parseTypeDescriptor();
+                STNode variableName = parseVariableName();
+                STNode equalsToken = parseAssignOp();
+                STNode initializer = parseExpression();
+                STNode semicolonToken = parseSemicolon();
+                return STNodeFactory.createConstDeclaration(qualifier, constKeyword, typeDesc, variableName,
+                        equalsToken, initializer, semicolonToken);
+            case IDENTIFIER_TOKEN:
+                return parseConstantDeclWithOptionalType(qualifier, constKeyword);
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.CONST_DECL_TYPE);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseConstDeclFromType(solution.tokenKind, qualifier, constKeyword);
+        }
+    }
+
+    /**
+     * @return
+     */
+    private STNode parseConstantDeclWithOptionalType(STNode qualifier, STNode constKeyword) {
+        STNode varNameOrTypeName = parseStatementStartIdentifier();
+        STNode constDecl = parseConstantDeclRhs(qualifier, constKeyword, varNameOrTypeName);
+
+        return constDecl;
+    }
+
+    private STNode parseConstantDeclRhs(STNode qualifier, STNode constKeyword, STNode typeOrVarName) {
+        STToken token = peek();
+        return parseConstantDeclRhs(token.kind, qualifier, constKeyword, typeOrVarName);
+    }
+
+    private STNode parseConstantDeclRhs(SyntaxKind nextTokenKind, STNode qualifier, STNode constKeyword,
+                                        STNode typeOrVarName) {
+        STNode type;
+        STNode variableName;
+        switch (nextTokenKind) {
+            case IDENTIFIER_TOKEN:
+                type = typeOrVarName;
+                variableName = parseVariableName();
+                break;
+            case EQUAL_TOKEN:
+                variableName = typeOrVarName;
+                type = STNodeFactory.createEmptyNode();
+                break;
+            default:
+                STToken token = peek();
+                Solution solution =
+                        recover(token, ParserRuleContext.CONST_DECL_RHS, qualifier, constKeyword, typeOrVarName);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseConstantDeclRhs(solution.tokenKind, qualifier, constKeyword, typeOrVarName);
+        }
+
+        STNode equalsToken = parseAssignOp();
+        STNode initializer = parseExpression();
+        STNode semicolonToken = parseSemicolon();
+        return STNodeFactory.createConstDeclaration(qualifier, constKeyword, type, variableName, equalsToken,
+                initializer, semicolonToken);
+    }
+
+    /**
+     * Parse const keyword.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseConstantKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.CONST_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.CONST_KEYWORD);
             return sol.recoveredNode;
         }
     }

@@ -81,7 +81,10 @@ public enum ParserRuleContext {
     OPTIONAL_SERVICE_NAME("service-rhs"),
     LISTENERS_LIST("listeners-list"),
     RESOURCE_DEF("resource-def"),
-    LISTENER_OR_CONST_DECL("listener-or-const-decl"),
+    LISTENER_DECL("listener-decl"),
+    CONSTANT_DECL("const-decl"),
+    CONST_DECL_TYPE("const-decl-type"),
+    CONST_DECL_RHS("const-decl-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -160,7 +163,8 @@ public enum ParserRuleContext {
     BOOLEAN_LITERAL("boolean-literal"),
     CHECKING_KEYWORD("checking-keyword"),
     SERVICE_NAME("service-name"),
-    LISTENER_OR_CONST_KEYWORD("listener-or-const-keyword"),
+    LISTENER_KEYWORD("const-keyword"),
+    CONST_KEYWORD("const-keyword"),
 
     // Expressions
     EXPRESSION("expression"),

@@ -45,7 +45,7 @@ public class STVariableDeclaration extends STStatement {
         this.initializer = initializer;
         this.semicolonToken = semicolonToken;
 
-        addChildren(typeName, variableName, equalsToken, initializer, semicolonToken);
+        addChildren(finalKeyword, typeName, variableName, equalsToken, initializer, semicolonToken);
     }
 
     @Override

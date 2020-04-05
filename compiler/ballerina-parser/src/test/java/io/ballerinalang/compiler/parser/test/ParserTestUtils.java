@@ -347,6 +347,8 @@ public class ParserTestUtils {
                 return SyntaxKind.LISTENER_KEYWORD;
             case "CONST_KEYWORD":
                 return SyntaxKind.CONST_KEYWORD;
+            case "FINAL_KEYWORD":
+                return SyntaxKind.FINAL_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":

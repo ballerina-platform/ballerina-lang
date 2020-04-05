@@ -36,45 +36,6 @@
                             "value": "c"
                         }
                     ]
-                },
-                {
-                    "kind": "SUB_MODULE_NAME",
-                    "children": [
-                        {
-                            "kind": "DOT_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "d"
-                        }
-                    ]
-                },
-                {
-                    "kind": "SUB_MODULE_NAME",
-                    "children": [
-                        {
-                            "kind": "DOT_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "e"
-                        }
-                    ]
-                },
-                {
-                    "kind": "SUB_MODULE_NAME",
-                    "children": [
-                        {
-                            "kind": "DOT_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "f"
-                        }
-                    ]
                 }
             ]
         },

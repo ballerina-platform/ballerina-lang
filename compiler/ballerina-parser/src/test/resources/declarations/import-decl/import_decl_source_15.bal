@@ -1,1 +1,1 @@
-import a b c d e f;
+import a b c;

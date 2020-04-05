@@ -51,6 +51,11 @@ public class VarDeclarationTest extends AbstractStatementTest {
         test("pkg:Person p;", "var-decl-stmt/local_var_decl_assert_10.json");
     }
 
+    @Test
+    public void testLocalVarDeclWithFinalKeyword() {
+        test("final Person p;", "var-decl-stmt/local_var_decl_assert_12.json");
+    }
+    
     // Recovery tests
 
     @Test

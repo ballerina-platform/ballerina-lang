@@ -35,12 +35,12 @@ public class STConstantDeclaration extends STStatement {
     public final STNode semicolonToken;
 
     STConstantDeclaration(STNode qualifier,
-                       STNode constKeyword,
-                       STNode typeDesc,
-                       STNode variableName,
-                       STNode equalsToken,
-                       STNode initializer,
-                       STNode semicolonToken) {
+                          STNode constKeyword,
+                          STNode typeDesc,
+                          STNode variableName,
+                          STNode equalsToken,
+                          STNode initializer,
+                          STNode semicolonToken) {
         super(SyntaxKind.CONST_DECLARATION);
         this.qualifier = qualifier;
         this.listenerKeyword = constKeyword;

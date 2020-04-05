@@ -73,12 +73,12 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_MODIFIER = { ParserRuleContext.FUNC_DEFINITION,
             ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.IMPORT_DECL, ParserRuleContext.SERVICE_DECL,
-            ParserRuleContext.LISTENER_OR_CONST_DECL, ParserRuleContext.EOF };
+            ParserRuleContext.LISTENER_DECL, ParserRuleContext.CONSTANT_DECL, ParserRuleContext.EOF };
 
-    private static final ParserRuleContext[] TOP_LEVEL_NODE =
-            new ParserRuleContext[] { ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.FUNC_DEFINITION,
-                    ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.IMPORT_DECL,
-                    ParserRuleContext.SERVICE_DECL, ParserRuleContext.LISTENER_OR_CONST_DECL, ParserRuleContext.EOF };
+    private static final ParserRuleContext[] TOP_LEVEL_NODE = new ParserRuleContext[] {
+            ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.FUNC_DEFINITION,
+            ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.IMPORT_DECL, ParserRuleContext.SERVICE_DECL,
+            ParserRuleContext.LISTENER_DECL, ParserRuleContext.CONSTANT_DECL, ParserRuleContext.EOF };
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
             { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.VARIABLE_NAME };
@@ -170,6 +170,9 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] RESOURCE_DEF_START =
             { ParserRuleContext.RESOURCE_KEYWORD, ParserRuleContext.FUNC_DEFINITION };
+
+    private static final ParserRuleContext[] CONST_DECL_RHS =
+            { ParserRuleContext.STATEMENT_START_IDENTIFIER, ParserRuleContext.ASSIGN_OP };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -548,6 +551,7 @@ public class BallerinaParserErrorHandler {
                     }
                     break;
                 case SIMPLE_TYPE_DESCRIPTOR:
+                case CONST_DECL_TYPE:
                     hasMatch =
                             nextToken.kind == SyntaxKind.SIMPLE_TYPE || nextToken.kind == SyntaxKind.SERVICE_KEYWORD ||
                                     nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
@@ -793,10 +797,17 @@ public class BallerinaParserErrorHandler {
                 case RESOURCE_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.RESOURCE_KEYWORD;
                     break;
-                case LISTENER_OR_CONST_KEYWORD:
-                    hasMatch =
-                            nextToken.kind == SyntaxKind.LISTENER_KEYWORD || nextToken.kind == SyntaxKind.CONST_KEYWORD;
+                case LISTENER_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.LISTENER_KEYWORD;
                     break;
+                case CONST_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.CONST_KEYWORD;
+                    break;
+                case FINAL_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.FINAL_KEYWORD;
+                    break;
+                case CONST_DECL_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, CONST_DECL_RHS);
 
                 // productions
                 case COMP_UNIT:
@@ -832,7 +843,8 @@ public class BallerinaParserErrorHandler {
                 case SERVICE_DECL:
                 case BREAK_STATEMENT:
                 case CONTINUE_STATEMENT:
-                case LISTENER_OR_CONST_DECL:
+                case LISTENER_DECL:
+                case CONSTANT_DECL:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -984,7 +996,8 @@ public class BallerinaParserErrorHandler {
         if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK) {
             nextContext = ParserRuleContext.BLOCK_STMT;
         } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.RECORD_FIELD ||
-                parentCtx == ParserRuleContext.OBJECT_MEMBER || parentCtx == ParserRuleContext.LISTENER_OR_CONST_DECL) {
+                parentCtx == ParserRuleContext.OBJECT_MEMBER || parentCtx == ParserRuleContext.LISTENER_DECL ||
+                parentCtx == ParserRuleContext.CONSTANT_DECL) {
             nextContext = ParserRuleContext.SEMICOLON;
         } else {
             throw new IllegalStateException();
@@ -1199,7 +1212,8 @@ public class BallerinaParserErrorHandler {
             case COMPUTED_FIELD_NAME:
             case LISTENERS_LIST:
             case SERVICE_DECL:
-            case LISTENER_OR_CONST_DECL:
+            case LISTENER_DECL:
+            case CONSTANT_DECL:
                 startContext(currentCtx);
                 break;
             default:
@@ -1449,12 +1463,18 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.OPTIONAL_SERVICE_NAME;
             case SERVICE_NAME:
                 return ParserRuleContext.ON_KEYWORD;
-            case LISTENER_OR_CONST_KEYWORD:
+            case LISTENER_KEYWORD:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
-            case LISTENER_OR_CONST_DECL:
-                return ParserRuleContext.LISTENER_OR_CONST_KEYWORD;
+            case LISTENER_DECL:
+                return ParserRuleContext.LISTENER_KEYWORD;
             case FINAL_KEYWORD:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
+            case CONSTANT_DECL:
+                return ParserRuleContext.CONST_KEYWORD;
+            case CONST_KEYWORD:
+                return ParserRuleContext.CONST_DECL_TYPE;
+            case CONST_DECL_TYPE:
+                return ParserRuleContext.CONST_DECL_RHS;
 
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
@@ -1494,6 +1514,7 @@ public class BallerinaParserErrorHandler {
             case RETURN_STMT_RHS:
             case OPTIONAL_SERVICE_NAME:
             case RESOURCE_DEF:
+            case CONST_DECL_RHS:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -1551,7 +1572,8 @@ public class BallerinaParserErrorHandler {
         switch (parentCtx) {
             case RECORD_FIELD:
             case OBJECT_MEMBER:
-            case LISTENER_OR_CONST_DECL:
+            case LISTENER_DECL:
+            case CONSTANT_DECL:
                 return ParserRuleContext.VARIABLE_NAME;
             case MODULE_TYPE_DEFINITION:
                 return ParserRuleContext.SEMICOLON;
@@ -1580,7 +1602,8 @@ public class BallerinaParserErrorHandler {
             case RECORD_FIELD:
             case ARG:
             case OBJECT_MEMBER:
-            case LISTENER_OR_CONST_DECL:
+            case LISTENER_DECL:
+            case CONSTANT_DECL:
                 return ParserRuleContext.EXPRESSION;
             default:
                 if (isStatement(parentCtx)) {
@@ -1663,7 +1686,8 @@ public class BallerinaParserErrorHandler {
             } else {
                 return ParserRuleContext.ASSIGN_OP;
             }
-        } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.LISTENER_OR_CONST_DECL) {
+        } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.LISTENER_DECL ||
+                parentCtx == ParserRuleContext.CONSTANT_DECL) {
             return ParserRuleContext.VAR_DECL_STMT_RHS;
         } else if (parentCtx == ParserRuleContext.RECORD_FIELD) {
             return ParserRuleContext.FIELD_DESCRIPTOR_RHS;
@@ -1737,7 +1761,7 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.EOF;
             }
             return ParserRuleContext.TOP_LEVEL_NODE;
-        } else if (parentCtx == ParserRuleContext.LISTENER_OR_CONST_DECL) {
+        } else if (parentCtx == ParserRuleContext.LISTENER_DECL || parentCtx == ParserRuleContext.CONSTANT_DECL) {
             endContext(); // end decl
             return ParserRuleContext.TOP_LEVEL_NODE;
         } else {
@@ -2000,8 +2024,16 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.SERVICE_KEYWORD;
             case BREAK_KEYWORD:
                 return SyntaxKind.BREAK_KEYWORD;
-            case LISTENER_OR_CONST_KEYWORD:
+            case LISTENER_KEYWORD:
                 return SyntaxKind.CONST_KEYWORD;
+            case CONTINUE_KEYWORD:
+                return SyntaxKind.CONTINUE_KEYWORD;
+            case CONST_KEYWORD:
+                return SyntaxKind.CONST_KEYWORD;
+            case FINAL_KEYWORD:
+                return SyntaxKind.FINAL_KEYWORD;
+            case CONST_DECL_TYPE:
+                return SyntaxKind.IDENTIFIER_TOKEN;
 
             // TODO:
             case COMP_UNIT:
@@ -2054,9 +2086,10 @@ public class BallerinaParserErrorHandler {
             case SERVICE_DECL:
             case OPTIONAL_SERVICE_NAME:
             case BREAK_STATEMENT:
-            case CONTINUE_KEYWORD:
             case CONTINUE_STATEMENT:
-            case LISTENER_OR_CONST_DECL:
+            case LISTENER_DECL:
+            case CONSTANT_DECL:
+            case CONST_DECL_RHS:
             default:
                 break;
         }
