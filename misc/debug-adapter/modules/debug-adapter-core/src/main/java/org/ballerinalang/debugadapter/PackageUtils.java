@@ -65,6 +65,7 @@ public class PackageUtils {
         if (packagePath.startsWith("src")) {
             packagePath = packagePath.replaceFirst("src" + File.separator, "");
         }
-        return packagePath.split(File.separator)[0];
+        // Directly using file separator as a regex will fail on windows.
+        return packagePath.split(File.separatorChar == '\\' ? "\\\\" : File.separator)[0];
     }
 }
