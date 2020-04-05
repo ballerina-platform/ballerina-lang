@@ -120,8 +120,8 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
                 .forEach(pkgEntry -> {
                     String commandTitle = CommandConstants.IMPORT_MODULE_TITLE + " "
                             + pkgEntry.getFullPackageNameAlias();
-                    CommandArgument pkgArgument = new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME,
-                                                                      pkgEntry.getFullPackageNameAlias());
+                    String importText = CommonUtil.escapeModuleName(context, pkgEntry.getFullPackageNameAlias());
+                    CommandArgument pkgArgument = new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME, importText);
                     CodeAction action = new CodeAction(commandTitle);
                     action.setKind(CodeActionKind.QuickFix);
                     action.setCommand(new Command(commandTitle, ImportModuleExecutor.COMMAND,
