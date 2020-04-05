@@ -19,9 +19,9 @@
 package org.ballerinalang.net.uri;
 
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
@@ -40,6 +40,7 @@ public class URIUtil {
 
     public static final String URI_PATH_DELIMITER = "/";
     public static final char DOT_SEGMENT = '.';
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     public static String[] getPathSegments(String path) {
         if (path.startsWith(URI_PATH_DELIMITER)) {
@@ -78,7 +79,8 @@ public class URIUtil {
 
         for (Map.Entry entry : tempParamMap.entrySet()) {
             List<String> entryValue = (List<String>) entry.getValue();
-            queryParamsMap.put(entry.getKey().toString(), new ArrayValueImpl(entryValue.toArray(new String[0])));
+            queryParamsMap.put(entry.getKey().toString(),
+                               BValueCreator.createArrayValue(entryValue.toArray(EMPTY_STRING_ARRAY)));
         }
     }
 

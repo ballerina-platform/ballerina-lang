@@ -61,11 +61,11 @@ public class ConnectionPoolTest {
 
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME1);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME1,
-                SQLDBUtils.getSQLResourceDir(poolSubDir, "connection_pool_test_data.sql"));
+                SQLDBUtils.getSQLResourceDir(poolSubDir, "connection-pool-test-data.sql"));
 
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME2);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME2,
-                SQLDBUtils.getSQLResourceDir(poolSubDir, "connection_pool_test_data.sql"));
+                SQLDBUtils.getSQLResourceDir(poolSubDir, "connection-pool-test-data.sql"));
     }
 
     @Test

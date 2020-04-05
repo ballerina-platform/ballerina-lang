@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
+import com.ctc.wstx.api.WstxOutputProperties;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.XMLComment;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -47,7 +48,7 @@ import javax.xml.stream.XMLStreamWriter;
  * @since 1.2.0
  */
 public class BallerinaXMLSerializer extends OutputStream {
-    private static final XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
+    private static final XMLOutputFactory xmlOutputFactory;
     private static final String XMLNS = "xmlns";
     private static final String EMPTY_STR = "";
     public static final String PARSE_XML_OP = "parse xml";
@@ -55,6 +56,14 @@ public class BallerinaXMLSerializer extends OutputStream {
     private XMLStreamWriter xmlStreamWriter;
     private Deque<Set<String>> parentNSSet;
     private int nsNumber;
+
+    static {
+        xmlOutputFactory = XMLOutputFactory.newInstance();
+        if (xmlOutputFactory.getClass().getName().equals("com.ctc.wstx.stax.WstxOutputFactory")) {
+            xmlOutputFactory.setProperty(WstxOutputProperties.P_OUTPUT_VALIDATE_STRUCTURE, false);
+        }
+    }
+
 
 
     public BallerinaXMLSerializer(OutputStream outputStream) {
@@ -224,7 +233,7 @@ public class BallerinaXMLSerializer extends OutputStream {
                     generateAndAddRandomNSPrefix(curNSSet, uri);
                 }
                 String localName = key.substring(closingCurlyPos + 1);
-                if (uri.equals(defaultNS)) {
+                if (uri.isEmpty() || uri.equals(defaultNS)) {
                     xmlStreamWriter.writeAttribute(localName, attributeEntry.getValue());
                 } else {
                     xmlStreamWriter.writeAttribute(uri, localName, attributeEntry.getValue());
@@ -271,6 +280,9 @@ public class BallerinaXMLSerializer extends OutputStream {
     }
 
     private void generateAndAddRandomNSPrefix(HashSet<String> curNSSet, String uri) throws XMLStreamException {
+        if (uri.isEmpty()) {
+            return;
+        }
         String randomNSPrefix = generateRandomPrefix(curNSSet, uri);
         String nsKey = concatNsPrefixURI(randomNSPrefix, uri);
         xmlStreamWriter.writeNamespace(randomNSPrefix, uri);

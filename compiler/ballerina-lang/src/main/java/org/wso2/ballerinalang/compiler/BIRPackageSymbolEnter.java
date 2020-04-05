@@ -66,7 +66,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -561,6 +560,8 @@ public class BIRPackageSymbolEnter {
                 this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
         annotationSymbol.type = new BAnnotationType(annotationSymbol);
 
+        defineMarkDownDocAttachment(annotationSymbol, readDocBytes(dataInStream));
+
         this.env.pkgSymbol.scope.define(annotationSymbol.name, annotationSymbol);
         if (annotationType != symTable.noType) { //TODO fix properly
             annotationSymbol.attachedType = annotationType.tsymbol;
@@ -832,10 +833,6 @@ public class BIRPackageSymbolEnter {
                     return symTable.jsonType;
                 case TypeTags.XML:
                     return symTable.xmlType;
-                case TypeTags.TABLE:
-                    BTableType bTableType = new BTableType(TypeTags.TABLE, null, symTable.tableType.tsymbol);
-                    bTableType.constraint = readTypeFromCp();
-                    return bTableType;
                 case TypeTags.NIL:
                     return symTable.nilType;
                 case TypeTags.ANYDATA:

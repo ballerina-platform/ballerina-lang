@@ -63,7 +63,7 @@ public class CreateDocsTask implements Task {
             // disable deprecated verbose logs from docerina
             BallerinaDocGenerator.setPrintStream(new EmptyPrintStream());
             Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator
-                    .generateModuleDocsFromBLangPackages(sourceRootPath.toString(), modules);
+                    .generateModuleDocs(sourceRootPath.toString(), modules);
             Files.createDirectories(outputPath);
             BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap,
                     outputPath.toString());

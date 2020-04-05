@@ -51,7 +51,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -152,7 +151,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else if ((expSymTag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
             foundSym = lookupSymbolInConstructorSpace(env, symbol.name);
         }  else if ((expSymTag & SymTag.MAIN) == SymTag.MAIN) {
-            foundSym = lookupSymbolInMainSpace(env, symbol.name);
+            // Using this method for looking up in the main symbol space since record field symbols lookup have
+            // different semantics depending on whether it's looking up a referenced symbol or looking up to see if
+            // the symbol is unique within the scope.
+            foundSym = lookupSymbolForDecl(env, symbol.name, SymTag.MAIN);
         }
 
         //if symbol is not found then it is unique for the current scope
@@ -301,7 +303,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
                 return entry.symbol;
             }
-            if ((entry.symbol.tag & expSymTag) == expSymTag) {
+            if ((entry.symbol.tag & expSymTag) == expSymTag && !isFieldRefFromWithinARecord(entry.symbol, env)) {
                 return entry.symbol;
             }
             entry = entry.next;
@@ -404,14 +406,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         return lookupMemberSymbol(pos, objectSymbol.methodScope, env, fieldName, SymTag.VARIABLE);
     }
 
-    public BType resolveTypeNodeWithDeprecationCheck(BLangType typeNode, SymbolEnv env) {
-        BType type = resolveTypeNode(typeNode, env);
-        if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(typeNode.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, type.tsymbol.name.value);
-        }
-        return type;
-    }
-
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
         return resolveTypeNode(typeNode, env, DiagnosticCode.UNKNOWN_TYPE);
     }
@@ -440,18 +434,17 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     /**
-     * Return the symbol associated with the given name in the current package.
-     * This method first searches the symbol in the current scope
-     * and proceeds the enclosing scope, if it is not there in the
-     * current scope. This process continues until the symbol is
-     * found or the root scope is reached.
+     * Return the symbol associated with the given name in the current package. This method first searches the symbol in
+     * the current scope and proceeds the enclosing scope, if it is not there in the current scope. This process
+     * continues until the symbol is found or the root scope is reached. This method is mainly meant for checking
+     * whether a given symbol is already defined in the scope hierarchy.
      *
      * @param env       current symbol environment
      * @param name      symbol name
      * @param expSymTag expected symbol type/tag
      * @return resolved symbol
      */
-    private BSymbol lookupSymbol(SymbolEnv env, Name name, int expSymTag) {
+    private BSymbol lookupSymbolForDecl(SymbolEnv env, Name name, int expSymTag) {
         ScopeEntry entry = env.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & expSymTag) == expSymTag) {
@@ -465,6 +458,47 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         return symTable.notFoundSymbol;
+    }
+
+    /**
+     * Return the symbol associated with the given name in the current package. This method first searches the symbol in
+     * the current scope and proceeds the enclosing scope, if it is not there in the current scope. This process
+     * continues until the symbol is found or the root scope is reached. This method is meant for looking up a symbol
+     * when they are referenced. If looking up a symbol from within a record type definition, this method ignores record
+     * fields. This is done so that default value expressions cannot refer to other record fields.
+     *
+     * @param env       current symbol environment
+     * @param name      symbol name
+     * @param expSymTag expected symbol type/tag
+     * @return resolved symbol
+     */
+    private BSymbol lookupSymbol(SymbolEnv env, Name name, int expSymTag) {
+        ScopeEntry entry = env.scope.lookup(name);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & expSymTag) == expSymTag && !isFieldRefFromWithinARecord(entry.symbol, env)) {
+                return entry.symbol;
+            }
+            entry = entry.next;
+        }
+
+        if (env.enclEnv != null) {
+            return lookupSymbol(env.enclEnv, name, expSymTag);
+        }
+
+        return symTable.notFoundSymbol;
+    }
+
+    /**
+     * Checks whether the specified symbol is a symbol of a record field and whether that field is referred to from
+     * within a record type definition (not necessarily the owner of the field).
+     *
+     * @param symbol symbol to be tested
+     * @param env    the environment in which the symbol was found
+     * @return returns `true` if the aboove described condition holds
+     */
+    private boolean isFieldRefFromWithinARecord(BSymbol symbol, SymbolEnv env) {
+        return (symbol.owner.tag & SymTag.RECORD) == SymTag.RECORD &&
+                env.enclType != null && env.enclType.getKind() == NodeKind.RECORD_TYPE;
     }
 
     public BSymbol lookupSymbolInMainSpace(SymbolEnv env, Name name) {
@@ -529,9 +563,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             case TypeTags.CHAR_STRING:
                 bSymbol = lookupLangLibMethodInModule(symTable.langStringModuleSymbol, name);
                 break;
-            case TypeTags.TABLE:
-                bSymbol = lookupLangLibMethodInModule(symTable.langTableModuleSymbol, name);
-                break;
             case TypeTags.TYPEDESC:
                 bSymbol = lookupLangLibMethodInModule(symTable.langTypedescModuleSymbol, name);
                 break;
@@ -589,7 +620,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
                 return entry.symbol;
             }
-            if ((entry.symbol.tag & expSymTag) == expSymTag) {
+            if ((entry.symbol.tag & expSymTag) == expSymTag && !isFieldRefFromWithinARecord(entry.symbol, env)) {
                 return entry.symbol;
             }
             entry = entry.next;
@@ -973,16 +1004,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         BType constrainedType = null;
-        if (type.tag == TypeTags.TABLE) {
-            if (constraintType.tag == TypeTags.OBJECT) {
-                dlog.error(constrainedTypeNode.pos, DiagnosticCode.OBJECT_TYPE_NOT_ALLOWED);
-                resultType = symTable.semanticError;
-                return;
-            }
-            // TODO: Fix to set type symbol with specified constraint, as with other constrained types.
-            resultType = new BTableType(TypeTags.TABLE, constraintType, type.tsymbol);
-            return;
-        } else if (type.tag == TypeTags.FUTURE) {
+        if (type.tag == TypeTags.FUTURE) {
             constrainedType = new BFutureType(TypeTags.FUTURE, constraintType, null);
         } else if (type.tag == TypeTags.MAP) {
             constrainedType = new BMapType(TypeTags.MAP, constraintType, null);

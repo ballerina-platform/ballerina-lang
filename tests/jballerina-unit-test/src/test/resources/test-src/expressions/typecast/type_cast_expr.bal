@@ -295,32 +295,34 @@ function testRecordCastNegative() {
     Lead e2 = <Lead> p;
 }
 
-function testTableCastPositive() returns boolean {
-    table<TableEmployee> t1 = table {
-        { key id, name },
-        [
-            { 1, "Mary" },
-            { 2, "John" },
-            { 3, "Jim" }
-        ]
-    };
-    anydata a = t1;
-    table<TableEmployee> t2 = <table<TableEmployee>> a;
-    return t1 === t2;
-}
+//TODO Table remove - Fix
 
-function testTableCastNegative() {
-    table<TableEmployee> t1 = table {
-        { key id, name },
-        [
-            { 1, "Mary" },
-            { 2, "John" },
-            { 3, "Jim" }
-        ]
-    };
-    anydata a = t1;
-    table<TableEmployeeTwo> t2 = <table<TableEmployeeTwo>> a;
-}
+//function testTableCastPositive() returns boolean {
+//    table<TableEmployee> t1 = table {
+//        { key id, name },
+//        [
+//            { 1, "Mary" },
+//            { 2, "John" },
+//            { 3, "Jim" }
+//        ]
+//    };
+//    anydata a = t1;
+//    table<TableEmployee> t2 = <table<TableEmployee>> a;
+//    return t1 === t2;
+//}
+//
+//function testTableCastNegative() {
+//    table<TableEmployee> t1 = table {
+//        { key id, name },
+//        [
+//            { 1, "Mary" },
+//            { 2, "John" },
+//            { 3, "Jim" }
+//        ]
+//    };
+//    anydata a = t1;
+//    table<TableEmployeeTwo> t2 = <table<TableEmployeeTwo>> a;
+//}
 
 function testXmlCastPositive() returns boolean {
     xml x1 = xml `<book>The Lost World</book>`;
@@ -629,7 +631,7 @@ function testSimpleTypeToUnionCastPositive() returns boolean {
 function testDirectlyUnmatchedUnionToUnionCastPositive() returns boolean {
     string s = "hello world";
     string|typedesc<anydata> v1 = s;
-    json|table<Lead> v2 = <json|table<Lead>> v1;
+    json v2 = <json> v1;
     boolean castSuccessful = s == v2;
 
     Lead lead = { name: "Em", id: 2000, rating: 10.0 };

@@ -70,7 +70,7 @@ public class URITemplate<DataType, InboundMsgType> {
         if (uri.startsWith("*")) {
             throw new URITemplateException("Invalid path literal");
         }
-        if (!"/".equals(uri) && uri.endsWith("/")) {
+        if (uri.endsWith("/")) {
             uri = uri.substring(0, uri.length() - 1);
         }
         if (uri.startsWith("/")) {

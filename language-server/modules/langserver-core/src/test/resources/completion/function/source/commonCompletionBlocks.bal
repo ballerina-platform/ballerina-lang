@@ -69,38 +69,24 @@ function initiateNestedTransactionInRemote(string nestingMethod) returns @tainte
     string s = "";
     transaction {
         s += " in initiator-trx";
+        int transactionVar = 12;
         
-        // this call sends the transaction context with it
-        var resp = remoteEp->post("/nestedTrx", nestingMethod);
-        if (resp is http:Response) {
-            if (resp.statusCode == 500) {
-                s += " remote1-excepted";
-                var payload = resp.getTextPayload();
-                if (payload is string) {
-                    s += ":[" + payload + "]";
-                }
-            } else {
-                var text = resp.getTextPayload();
-                if (text is string) {
-                    log:printInfo(text);
-                    s += " <" + text + ">";
-                } else {
-                    s += " error-in-remote-response " + text.reason();
-                    log:printError(text.reason());
-                }
-            }
-        } else {
-            s += " remote call error: " + resp.reason();
-        }
+        io:println("within transaction");
     } onretry {
         s += " onretry";
+        int onRetryVar = 12;
         
+        io:println("within on retry");
     } committed {
         s += " committed";
-
+        int onCommitedVar = 12;
+        
+        io:println("within on commited");
     } aborted {
         s += " aborted";
-
+        int abortedVar = 12;
+        
+        io:println("within aborted");
     }
     return s;
 }

@@ -126,16 +126,14 @@ public class WebSocketResourceDispatcher {
                 WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
                 WebSocketObservabilityUtil.observeError(connectionInfo,
                                                         WebSocketObservabilityConstants.ERROR_TYPE_RESOURCE_INVOCATION,
-                                                        WebSocketConstants.RESOURCE_NAME_ON_OPEN,
-                                                        error.getMessage());
+                                                        WebSocketConstants.RESOURCE_NAME_ON_OPEN, error.getMessage());
             }
         };
         executeResource(wsService, onOpenCallableUnitCallback, bValues, connectionInfo,
                         WebSocketConstants.RESOURCE_NAME_ON_OPEN);
     }
     public static void dispatchOnText(WebSocketConnectionInfo connectionInfo, WebSocketTextMessage textMessage) {
-        WebSocketObservabilityUtil.observeOnMessage(WebSocketObservabilityConstants.MESSAGE_TYPE_TEXT,
-                                                    connectionInfo);
+        WebSocketObservabilityUtil.observeOnMessage(WebSocketObservabilityConstants.MESSAGE_TYPE_TEXT, connectionInfo);
         try {
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
             WebSocketService wsService = connectionInfo.getService();
@@ -427,6 +425,7 @@ public class WebSocketResourceDispatcher {
                                                     "Unexpected error");
         }
         if (onErrorResource == null) {
+            ErrorHandlerUtils.printError(throwable.getCause());
             return;
         }
         Object[] bValues = new Object[onErrorResource.getParameterType().length * 2];

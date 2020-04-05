@@ -33,7 +33,7 @@ public function getProperty(@untainted string name) returns string {
     return externGetProperty(java:fromString(name)).toString();
 }
 
-public function externGetProperty(@untainted handle name) returns handle = @java:Method {
+function externGetProperty(@untainted handle name) returns handle = @java:Method {
     name: "getProperty",
     class: "org.ballerinalang.stdlib.runtime.nativeimpl.GetProperty"
 } external;

@@ -816,66 +816,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRecordKey(BallerinaParser.RecordKeyContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#tableLiteral}.
-	 * @param ctx the parse tree
-	 */
-	void enterTableLiteral(BallerinaParser.TableLiteralContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#tableLiteral}.
-	 * @param ctx the parse tree
-	 */
-	void exitTableLiteral(BallerinaParser.TableLiteralContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#tableColumnDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void enterTableColumnDefinition(BallerinaParser.TableColumnDefinitionContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#tableColumnDefinition}.
-	 * @param ctx the parse tree
-	 */
-	void exitTableColumnDefinition(BallerinaParser.TableColumnDefinitionContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#tableColumn}.
-	 * @param ctx the parse tree
-	 */
-	void enterTableColumn(BallerinaParser.TableColumnContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#tableColumn}.
-	 * @param ctx the parse tree
-	 */
-	void exitTableColumn(BallerinaParser.TableColumnContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#tableDataArray}.
-	 * @param ctx the parse tree
-	 */
-	void enterTableDataArray(BallerinaParser.TableDataArrayContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#tableDataArray}.
-	 * @param ctx the parse tree
-	 */
-	void exitTableDataArray(BallerinaParser.TableDataArrayContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#tableDataList}.
-	 * @param ctx the parse tree
-	 */
-	void enterTableDataList(BallerinaParser.TableDataListContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#tableDataList}.
-	 * @param ctx the parse tree
-	 */
-	void exitTableDataList(BallerinaParser.TableDataListContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#tableData}.
-	 * @param ctx the parse tree
-	 */
-	void enterTableData(BallerinaParser.TableDataContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#tableData}.
-	 * @param ctx the parse tree
-	 */
-	void exitTableData(BallerinaParser.TableDataContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#listConstructorExpr}.
 	 * @param ctx the parse tree
 	 */
@@ -2236,18 +2176,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTrapExpression(BallerinaParser.TrapExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code tableLiteralExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterTableLiteralExpression(BallerinaParser.TableLiteralExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code tableLiteralExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitTableLiteralExpression(BallerinaParser.TableLiteralExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code queryExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -3044,6 +2972,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitDeprecatedAnnotationDocumentationLine(BallerinaParser.DeprecatedAnnotationDocumentationLineContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#deprecatedParametersDocumentationLine}.
+	 * @param ctx the parse tree
+	 */
+	void enterDeprecatedParametersDocumentationLine(BallerinaParser.DeprecatedParametersDocumentationLineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#deprecatedParametersDocumentationLine}.
+	 * @param ctx the parse tree
+	 */
+	void exitDeprecatedParametersDocumentationLine(BallerinaParser.DeprecatedParametersDocumentationLineContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#documentationContent}.
 	 * @param ctx the parse tree
 	 */
@@ -3143,6 +3081,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitDeprecatedAnnotationDocumentation(BallerinaParser.DeprecatedAnnotationDocumentationContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#deprecatedParametersDocumentation}.
+	 * @param ctx the parse tree
+	 */
+	void enterDeprecatedParametersDocumentation(BallerinaParser.DeprecatedParametersDocumentationContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#deprecatedParametersDocumentation}.
+	 * @param ctx the parse tree
+	 */
+	void exitDeprecatedParametersDocumentation(BallerinaParser.DeprecatedParametersDocumentationContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#docParameterName}.
 	 * @param ctx the parse tree
