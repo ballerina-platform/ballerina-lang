@@ -197,8 +197,14 @@ public class BallerinaXMLSerializer extends OutputStream {
             xmlStreamWriter.writeStartElement(qName.getPrefix(), qName.getLocalPart(), qName.getNamespaceURI());
         }
 
-        if (defaultNamespaceUri != null) {
+        if (defaultNamespaceUri == null) {
+            return;
+        }
+
+        String defaultNsMapEntry = concatNsPrefixURI("", defaultNamespaceUri);
+        if (!currentNSLevel.contains(defaultNsMapEntry)) {
             xmlStreamWriter.writeDefaultNamespace(defaultNamespaceUri);
+            currentNSLevel.add(defaultNsMapEntry);
         }
     }
 
@@ -324,7 +330,7 @@ public class BallerinaXMLSerializer extends OutputStream {
             }
         }
 
-        nsPrefixMap.remove(XMLNS);
+        //nsPrefixMap.remove(XMLNS);
     }
 
     private void writeSeq(XMLSequence xmlValue) {

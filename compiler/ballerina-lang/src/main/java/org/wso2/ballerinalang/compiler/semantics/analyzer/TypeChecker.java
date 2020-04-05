@@ -2648,7 +2648,13 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv xmlAttributeEnv = SymbolEnv.getXMLAttributeEnv(bLangXMLAttribute, env);
 
         // check attribute name
-        checkExpr(bLangXMLAttribute.name, xmlAttributeEnv, symTable.stringType);
+        BLangXMLQName name = (BLangXMLQName) bLangXMLAttribute.name;
+        checkExpr(name, xmlAttributeEnv, symTable.stringType);
+        // XML attributes without a prefix does not belong to enclosing elements default namespace.
+        // https://www.w3.org/TR/xml-names/#uniqAttrs
+        if (name.prefix.value.isEmpty()) {
+            name.namespaceURI = null;
+        }
 
         // check attribute value
         checkExpr(bLangXMLAttribute.value, xmlAttributeEnv, symTable.stringType);

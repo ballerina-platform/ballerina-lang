@@ -171,10 +171,6 @@ public final class XMLItem extends XMLValue {
         if (namespace != null && !namespace.isEmpty()) {
             return attributes.get("{" + namespace + "}" + localName);
         }
-        String defaultNS = attributes.get("{http://www.w3.org/2000/xmlns/}xmlns");
-        if (defaultNS != null) {
-            return attributes.get("{" + defaultNS + "}" + localName);
-        }
         return attributes.get(localName);
     }
 
@@ -214,13 +210,6 @@ public final class XMLItem extends XMLValue {
                     "failed to add attribute '%s:%s'. prefix '%s' is already bound to namespace '%s'",
                     prefix, localName, prefix, nsOfPrefix);
             throw BallerinaErrors.createError(errorMsg);
-        }
-
-        if ((namespaceUri == null || namespaceUri.isEmpty())) {
-            String ns = attributes.get("{" + XMLConstants.XMLNS_ATTRIBUTE_NS_URI + "}" + XMLConstants.XMLNS_ATTRIBUTE);
-            if (ns != null) {
-                namespaceUri = ns;
-            }
         }
 
         // If the attribute already exists, update the value.
@@ -656,13 +645,13 @@ public final class XMLItem extends XMLValue {
     }
 
     private QName getQName(String localName, String namespaceUri, String prefix) {
-        QName qname;
-        if (prefix != null) {
-            qname = new QName(namespaceUri, localName, prefix);
+        if (namespaceUri == null || namespaceUri.isEmpty()) {
+            return new QName(localName);
+        } else if (prefix == null || prefix.isEmpty()) {
+            return new QName(namespaceUri, localName);
         } else {
-            qname = new QName(namespaceUri, localName);
+            return new QName(namespaceUri, localName, prefix);
         }
-        return qname;
     }
 
     public XMLSequence getChildrenSeq() {
