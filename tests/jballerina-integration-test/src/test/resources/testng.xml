@@ -77,6 +77,14 @@
         </classes>
     </test>
 
+    <test name="ballerina-http-v2-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.service.httpv2.HttpBaseTest" />
+            <class name="org.ballerinalang.test.service.httpv2.sample.HTTPClientDataBindingTestCase" />
+        </classes>
+    </test>
+
     <test name="ballerina-resiliency-tests" parallel="methods" thread-count="17">
         <parameter name="enableJBallerinaTests" value="true"/>
         <classes>

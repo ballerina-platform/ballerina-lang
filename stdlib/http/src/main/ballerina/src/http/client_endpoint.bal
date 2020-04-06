@@ -66,10 +66,18 @@ public type Client client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function post(@untainted string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function post(@untainted string path, RequestMessage message, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
-        return self.httpClient->post(path, req);
+        if (targetType is typedesc<Response>) {
+            return self.httpClient->post(path, req);
+        }
+        var result = self.httpClient->post(path, req);
+        return processResponse(result, targetType);
     }
 
     # The `Client.head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
@@ -77,8 +85,9 @@ public type Client client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function head(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + return - The response or an `http:ClientError` if failed to establish the communication with the upstream server
+    public remote function head(@untainted string path, public RequestMessage message = ()) returns @tainted
+            Response|ClientError {
         Request req = buildRequest(message);
         return self.httpClient->head(path, message = req);
     }
@@ -88,10 +97,18 @@ public type Client client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function put(@untainted string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function put(@untainted string path, RequestMessage message,
+            public TargetType targetType = Response) returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
-        return self.httpClient->put(path, req);
+        if (targetType is typedesc<Response>) {
+            return self.httpClient->put(path, req);
+        }
+        var result = self.httpClient->put(path, req);
+        return processResponse(result, targetType);
     }
 
     # Invokes an HTTP call with the specified HTTP verb.
@@ -100,10 +117,18 @@ public type Client client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function execute(@untainted string httpVerb, @untainted string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function execute(@untainted string httpVerb, @untainted string path, RequestMessage message,
+            public TargetType targetType = Response) returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
-        return self.httpClient->execute(httpVerb, path, req);
+        if (targetType is typedesc<Response>) {
+            return self.httpClient->execute(httpVerb, path, req);
+        }
+        var result = self.httpClient->execute(httpVerb, path, req);
+        return processResponse(result, targetType);
     }
 
     # The `Client.patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
@@ -111,10 +136,18 @@ public type Client client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function patch(@untainted string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function patch(@untainted string path, RequestMessage message,
+            public TargetType targetType = Response) returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
-        return self.httpClient->patch(path, req);
+        if (targetType is typedesc<Response>) {
+            return self.httpClient->patch(path, req);
+        }
+        var result = self.httpClient->patch(path, req);
+        return processResponse(result, targetType);
     }
 
     # The `Client.delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
@@ -122,10 +155,18 @@ public type Client client object {
     # + path - Resource path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function delete(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function delete(@untainted string path, public RequestMessage message = (),
+            public TargetType targetType = Response) returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
-        return self.httpClient->delete(path, req);
+        if (targetType is typedesc<Response>) {
+            return self.httpClient->delete(path, req);
+        }
+        var result = self.httpClient->delete(path, req);
+        return processResponse(result, targetType);
     }
 
     # The `Client.get()` function can be used to send HTTP GET requests to HTTP endpoints.
@@ -133,10 +174,18 @@ public type Client client object {
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function get(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function get(@untainted string path, public RequestMessage message = (),
+            public TargetType targetType = Response) returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
-        return self.httpClient->get(path, message = req);
+        if (targetType is typedesc<Response>) {
+            return self.httpClient->get(path, message = req);
+        }
+        var result = self.httpClient->get(path, message = req);
+        return processResponse(result, targetType);
     }
 
     # The `Client.options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
@@ -144,19 +193,35 @@ public type Client client object {
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function options(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function options(@untainted string path, public RequestMessage message = (),
+            public TargetType targetType = Response) returns @tainted Response|PayloadType|ClientError {
         Request req = buildRequest(message);
-        return self.httpClient->options(path, message = req);
+        if (targetType is typedesc<Response>) {
+            return self.httpClient->options(path, message = req);
+        }
+        var result = self.httpClient->options(path, message = req);
+        return processResponse(result, targetType);
     }
 
     # The `Client.forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
     #
     # + path - Request path
     # + request - An HTTP inbound request message
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function forward(@untainted string path, Request request) returns Response|ClientError {
-        return self.httpClient->forward(path, request);
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function forward(@untainted string path, Request request,
+            public TargetType targetType = Response) returns @tainted Response|PayloadType|ClientError {
+        if (targetType is typedesc<Response>) {
+            return self.httpClient->forward(path, request);
+        }
+        var result = self.httpClient->forward(path, request);
+        return processResponse(result, targetType);
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
@@ -524,4 +589,40 @@ function createDefaultClient(string url, ClientConfiguration configuration) retu
         return createHttpCachingClient(url, configuration, configuration.cache);
     }
     return createHttpSecureClient(url, configuration);
+}
+
+function processResponse(Response|PayloadType|ClientError result, TargetType targetType) returns @tainted
+        PayloadType|ClientError {
+    if (result is ClientError) {
+        return result;
+    }
+    Response response = <Response> result;
+    int statusCode = response.statusCode;
+    if (400 <= statusCode && statusCode < 500) {
+        string errorPayload = check response.getTextPayload();
+        ClientRequestError err = error(CLIENT_REQUEST_ERROR, message = errorPayload, statusCode = statusCode);
+        return err;
+    }
+    if (500 <= statusCode && statusCode < 600) {
+        string errorPayload = check response.getTextPayload();
+        RemoteServerError err = error(REMOTE_SERVER_ERROR, message = errorPayload, statusCode = statusCode);
+        return err;
+    }
+    return performDataBinding(response, targetType);
+}
+
+function performDataBinding(Response response, TargetType targetType) returns @tainted PayloadType|ClientError {
+    if (targetType is typedesc<string>) {
+        return response.getTextPayload();
+    } else if (targetType is typedesc<xml>) {
+        return response.getXmlPayload();
+    } else if (targetType is typedesc<byte[]>) {
+        return response.getBinaryPayload();
+    } else if (targetType is typedesc<CustomRecordType>) {
+        return <CustomRecordType> targetType.constructFrom(check response.getJsonPayload());
+    } else if (targetType is typedesc<CustomRecordType[]>) {
+        return <CustomRecordType[]> targetType.constructFrom(check response.getJsonPayload());
+    } else if (targetType is typedesc<json>) {
+        return response.getJsonPayload();
+    }
 }

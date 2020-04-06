@@ -43,8 +43,12 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
-    public remote function post(@untainted string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function post(@untainted string path, RequestMessage message, TargetType targetType = Response)
+                returns Response|PayloadType|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_POST));
     }
 
@@ -53,8 +57,9 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
-    public remote function head(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + return - The response or an `http:ClientError` if failed to establish the communication with the upstream server
+    public remote function head(@untainted string path, public RequestMessage message = ()) returns @tainted
+            Response|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_HEAD));
     }
 
@@ -63,8 +68,12 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
-    public remote function put(@untainted string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function put(@untainted string path, RequestMessage message, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_PUT));
     }
 
@@ -74,8 +83,12 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
-    public remote function execute(@untainted string httpVerb, @untainted string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function execute(@untainted string httpVerb, @untainted string path, RequestMessage message,
+            public TargetType targetType = Response) returns @tainted Response|PayloadType|ClientError {
         return externExecute(self, java:fromString(httpVerb), java:fromString(path), <Request>message);
     }
 
@@ -84,8 +97,12 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
-    public remote function patch(@untainted string path, RequestMessage message) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function patch(@untainted string path, RequestMessage message, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_PATCH));
     }
 
@@ -94,8 +111,12 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
-    public remote function delete(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function delete(@untainted string path, public RequestMessage message = (),
+            public TargetType targetType = Response) returns @tainted Response|PayloadType|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_DELETE));
     }
 
@@ -104,8 +125,12 @@ public type HttpClient client object {
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
-    public remote function get(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function get(@untainted string path, public RequestMessage message = (),
+            public TargetType targetType = Response) returns @tainted Response|PayloadType|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_GET));
     }
 
@@ -114,8 +139,12 @@ public type HttpClient client object {
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
-    public remote function options(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function options(@untainted string path, public RequestMessage message = (),
+            public TargetType targetType = Response) returns @tainted Response|PayloadType|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_OPTIONS));
     }
 
@@ -123,8 +152,12 @@ public type HttpClient client object {
     #
     # + path - Request path
     # + request - An HTTP inbound request message
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
-    public remote function forward(@untainted string path, Request request) returns Response|ClientError {
+    # + targetType - HTTP response or the payload type (`string`, `xml`, `json`, `byte[]`,`record {| anydata...; |}`, or
+    #                `record {| anydata...; |}[]`), which is expected to be returned after data binding
+    # + return - The response or the payload (if the `targetType` is configured) or an `http:ClientError` if failed to
+    #            establish the communication with the upstream server or a data binding failure
+    public remote function forward(@untainted string path, Request request, public TargetType targetType = Response)
+            returns @tainted Response|PayloadType|ClientError {
         return externForward(self, java:fromString(path), request);
     }
 
