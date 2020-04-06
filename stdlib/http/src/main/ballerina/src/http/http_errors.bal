@@ -18,9 +18,11 @@
 #
 # + message - Specific error message for the error
 # + cause - Cause of the error; If this error occurred due to another error (Probably from another module)
+# + statusCode - The status code, if the inbound error response exists
 public type Detail record {
     string message;
     error cause?;
+    int statusCode?;
 };
 
 // Ballerina HTTP Client Error Types
@@ -183,7 +185,22 @@ public const COOKIE_HANDLING_ERROR = "{ballerina/http}CookieHandlingError";
 # Represents a cookie error that occurred when using the cookies
 public type CookieHandlingError error<COOKIE_HANDLING_ERROR, Detail>;
 
-// Ballerina HTTP Union Errors
+# Represents the reason string for the `http:IllegalDataBindingStateError`
+public const ILLEGAL_DATA_BINDING_STATE_ERROR = "{ballerina/http}IllegalDataBindingStateError";
+# Represents an illegal data-binding  state error
+public type IllegalDataBindingStateError error<ILLEGAL_DATA_BINDING_STATE_ERROR, Detail>;
+
+# Represents the reason string for the `http:ClientRequestError`
+public const CLIENT_REQUEST_ERROR = "{ballerina/http}ClientRequestError";
+# Represents an error, which occurred due to bad syntax or incomplete info in the client request(4xx HTTP response)
+public type ClientRequestError error<CLIENT_REQUEST_ERROR, Detail>;
+
+# Represents the reason string for the `http:RemoteServerError`
+public const REMOTE_SERVER_ERROR = "{ballerina/http}RemoteServerError";
+# Represents an error, which occurred due to a failure of the remote server(5xx HTTP response)
+public type RemoteServerError error<REMOTE_SERVER_ERROR, Detail>;
+
+// Ballerina HTTP Union Errors.
 # Defines the resiliency error types that returned from client
 public type ResiliencyError FailoverAllEndpointsFailedError | FailoverActionFailedError |
                             UpstreamServiceUnavailableError | AllLoadBalanceEndpointsFailedError |
@@ -212,7 +229,8 @@ public type OutboundResponseError InitializingOutboundResponseError|WritingOutbo
 # Defines the possible client error types
 public type ClientError ResiliencyError|ClientAuthError|OutboundRequestError|
                             InboundResponseError|UnsupportedActionError|Http2ClientError|
-                            MaximumWaitTimeExceededError|SslError|GenericClientError|CookieHandlingError;
+                            MaximumWaitTimeExceededError|SslError|GenericClientError|CookieHandlingError|
+                            RemoteServerError|ClientRequestError|IllegalDataBindingStateError;
 
 # Defines the possible listener error types
 public type ListenerError GenericListenerError|InboundRequestError|OutboundResponseError;
