@@ -1,0 +1,90 @@
+{
+    "kind": "MODULE_PART",
+    "children": [
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "CONST_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "CONST_KEYWORD"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "s1"
+                        },
+                        {
+                            "kind": "EQUAL_TOKEN"
+                        },
+                        {
+                            "kind": "STRING_LITERAL",
+                            "value": "http://hello3.com"
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                },
+                {
+                    "kind": "CONST_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "CONST_KEYWORD"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "EQUAL_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "STRING_LITERAL",
+                            "value": "http://hello3.com"
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                },
+                {
+                    "kind": "CONST_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "CONST_KEYWORD"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "s2"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "EQUAL_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "EOF_TOKEN"
+        }
+    ]
+}

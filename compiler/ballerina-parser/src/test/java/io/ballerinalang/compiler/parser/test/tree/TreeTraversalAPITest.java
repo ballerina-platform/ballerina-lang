@@ -63,7 +63,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(parent.kind(), SyntaxKind.BINARY_EXPRESSION);
 
         parent = token.parent().parent().parent().parent().parent().parent().parent();
-        Assert.assertEquals(parent.kind(), SyntaxKind.LOCAL_VARIABLE_DECL);
+        Assert.assertEquals(parent.kind(), SyntaxKind.VARIABLE_DECL);
     }
 
     @Test

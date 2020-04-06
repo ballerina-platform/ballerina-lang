@@ -26,7 +26,6 @@ public enum SyntaxKind {
     REMOTE_KEYWORD(52, "remote"),
     ABSTRACT_KEYWORD(53, "abstract"),
     CLIENT_KEYWORD(54, "client"),
-
     IMPORT_KEYWORD(100, "import"),
     FUNCTION_KEYWORD(101, "function"),
     CONST_KEYWORD(102, "const"),
@@ -39,6 +38,9 @@ public enum SyntaxKind {
     OBJECT_KEYWORD(109, "object"),
     VERSION_KEYWORD(110, "version"),
     AS_KEYWORD(111, "as"),
+    ON_KEYWORD(112, "on"),
+    RESOURCE_KEYWORD(113, "resource"),
+    FINAL_KEYWORD(114, "final"),
 
     RETURNS_KEYWORD(200, "returns"),
     RETURN_KEYWORD(201, "return"),
@@ -51,6 +53,8 @@ public enum SyntaxKind {
     CHECK_KEYWORD(208, "check"),
     CHECKPANIC_KEYWORD(209, "checkpanic"),
     PANIC_KEYWORD(210, "panic"),
+    CONTINUE_KEYWORD(212,"continue"),
+    BREAK_KEYWORD(213,"break"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -103,15 +107,18 @@ public enum SyntaxKind {
     WHITESPACE_TRIVIA(1500),
     END_OF_LINE_TRIVIA(1501),
     COMMENT(1502),
-    
+
     // module-level declarations
     IMPORT_DECLARATION(2000),
     FUNCTION_DEFINITION(2001),
     TYPE_DEFINITION(2002),
+    SERVICE_DECLARATION(2003),
+    LISTENER_DECLARATION(2004),
+    CONST_DECLARATION(2005),
 
     // Statements
     BLOCK_STATEMENT(1200),
-    LOCAL_VARIABLE_DECL(1201),
+    VARIABLE_DECL(1201),
     ASSIGNMENT_STATEMENT(1202),
     IF_ELSE_STATEMENT(1203),
     ELSE_BLOCK(1204),
@@ -119,7 +126,9 @@ public enum SyntaxKind {
     CALL_STATEMENT(1206),
     PANIC_STATEMENT(1207),
     RETURN_STATEMENT(1208),
-    COMPOUND_ASSIGNMENT_STATEMENT(1209),
+    CONTINUE_STATEMENT(1209),
+    BREAK_STATEMENT(1210),
+    COMPOUND_ASSIGNMENT_STATEMENT(1211),
 
     // Expressions
     BINARY_EXPRESSION(1300),
@@ -157,7 +166,9 @@ public enum SyntaxKind {
     SPECIFIC_FIELD(3017),
     COMPUTED_NAME_FIELD(3018),
     SPREAD_FIELD(3019),
-    COMPOUND_ASSIGNMENT_OPERATOR(3020),
+    EXPRESSION_LIST_ITEM(3020),
+    SERVICE_BODY(3021),
+    COMPOUND_ASSIGNMENT_OPERATOR(3022),
 
     INVALID(4),
     MODULE_PART(3),

@@ -27,22 +27,22 @@ public class STModuleTypeDefinition extends STNode {
     public final STNode typeKeyword;
     public final STNode typeName;
     public final STNode typeDescriptor;
-    public final STNode comma;
+    public final STNode semicolon;
 
     STModuleTypeDefinition(STNode visibilityQualifier,
                            STNode typeKeyword,
                            STNode typeName,
                            STNode typeDescriptor,
-                           STNode comma) {
+                           STNode semicolon) {
 
         super(SyntaxKind.TYPE_DEFINITION);
         this.visibilityQualifier = visibilityQualifier;
         this.typeKeyword = typeKeyword;
         this.typeName = typeName;
         this.typeDescriptor = typeDescriptor;
-        this.comma = comma;
+        this.semicolon = semicolon;
 
-        addChildren(visibilityQualifier, typeKeyword, typeName, typeDescriptor, comma);
+        addChildren(visibilityQualifier, typeKeyword, typeName, typeDescriptor, semicolon);
     }
 
     @Override

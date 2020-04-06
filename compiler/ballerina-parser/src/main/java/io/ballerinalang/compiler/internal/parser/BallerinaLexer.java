@@ -581,7 +581,6 @@ public class BallerinaLexer {
             case LexerTerminals.HANDLE:
             case LexerTerminals.ANY:
             case LexerTerminals.ANYDATA:
-            case LexerTerminals.SERVICE:
                 return getTypeToken(tokenText);
             case LexerTerminals.RETURN:
                 return getSyntaxToken(SyntaxKind.RETURN_KEYWORD);
@@ -615,6 +614,10 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.CHECK_KEYWORD);
             case LexerTerminals.CHECKPANIC:
                 return getSyntaxToken(SyntaxKind.CHECKPANIC_KEYWORD);
+            case LexerTerminals.CONTINUE:
+                return getSyntaxToken(SyntaxKind.CONTINUE_KEYWORD);
+            case LexerTerminals.BREAK:
+                return getSyntaxToken(SyntaxKind.BREAK_KEYWORD);
             case LexerTerminals.PANIC:
                 return getSyntaxToken(SyntaxKind.PANIC_KEYWORD);
             case LexerTerminals.IMPORT:
@@ -623,6 +626,18 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.VERSION_KEYWORD);
             case LexerTerminals.AS:
                 return getSyntaxToken(SyntaxKind.AS_KEYWORD);
+            case LexerTerminals.SERVICE:
+                return getSyntaxToken(SyntaxKind.SERVICE_KEYWORD);
+            case LexerTerminals.ON:
+                return getSyntaxToken(SyntaxKind.ON_KEYWORD);
+            case LexerTerminals.RESOURCE:
+                return getSyntaxToken(SyntaxKind.RESOURCE_KEYWORD);
+            case LexerTerminals.LISTENER:
+                return getSyntaxToken(SyntaxKind.LISTENER_KEYWORD);
+            case LexerTerminals.CONST:
+                return getSyntaxToken(SyntaxKind.CONST_KEYWORD);
+            case LexerTerminals.FINAL:
+                return getSyntaxToken(SyntaxKind.FINAL_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

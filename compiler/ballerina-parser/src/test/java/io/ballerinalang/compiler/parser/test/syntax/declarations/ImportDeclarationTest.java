@@ -101,7 +101,7 @@ public class ImportDeclarationTest extends AbstractDeclarationTest {
     }
 
     @Test
-    public void testDotInModuleName() {
+    public void testMissingDotInModuleName() {
         test("import-decl/import_decl_source_15.bal", "import-decl/import_decl_assert_15.json");
     }
 

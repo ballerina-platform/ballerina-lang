@@ -53,7 +53,7 @@ public abstract class SyntaxNodeVisitor {
 
     // Statements
 
-    public void visit(LocalVariableDeclaration localVariableDeclaration) {
+    public void visit(VariableDeclaration localVariableDeclaration) {
         visitSyntaxNode(localVariableDeclaration);
     }
 
@@ -67,6 +67,14 @@ public abstract class SyntaxNodeVisitor {
 
     public void visit(PanicStatement panicStatement) {
         visitSyntaxNode(panicStatement);
+    }
+
+    public void visit(ContinueStatement continueStatement) {
+        visitSyntaxNode(continueStatement);
+    }
+
+    public void visit(BreakStatement breakStatement) {
+        visitSyntaxNode(breakStatement);
     }
 
     public void visit(ReturnStatement returnStatement) {
@@ -186,6 +194,26 @@ public abstract class SyntaxNodeVisitor {
 
     public void visit(SpreadField spreadField) {
         visitSyntaxNode(spreadField);
+    }
+
+    public void visit(ServiceBody serviceBody) {
+        visitSyntaxNode(serviceBody);
+    }
+
+    public void visit(ServiceDeclarationNode serviceDecl) {
+        visitSyntaxNode(serviceDecl);
+    }
+
+    public void visit(ExpressionListItem expressionListItem) {
+        visitSyntaxNode(expressionListItem);
+    }
+
+    public void visit(ListenerDeclaration listenerDecl) {
+        visitSyntaxNode(listenerDecl);
+    }
+
+    public void visit(ConstantDeclaration constantDecl) {
+        visitSyntaxNode(constantDecl);
     }
 
     protected void visitSyntaxNode(Node node) {

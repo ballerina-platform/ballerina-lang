@@ -45,9 +45,16 @@ public class LexerTerminals {
     public static final String FALSE = "false";
     public static final String CHECK = "check";
     public static final String CHECKPANIC = "checkpanic";
+    public static final String CONTINUE = "continue";
+    public static final String BREAK = "break";
     public static final String IMPORT = "import";
     public static final String VERSION = "version";
     public static final String AS = "as";
+    public static final String ON = "on";
+    public static final String RESOURCE = "resource";
+    public static final String LISTENER = "listener";
+    public static final String CONST = "const";
+    public static final String FINAL = "final";
 
     // Types
     public static final String INT = "int";
