@@ -98,7 +98,7 @@ public annotation WSServiceConfig WebSocketServiceConfig on service;
 # Configuration for an HTTP resource.
 #
 # + methods - The array of allowed HTTP methods
-# + path - The path of resource
+# + path - The path of resource. Only the string literal or the compile constant are allowed as field value type
 # + consumes - The media types which are accepted by resource
 # + produces - The media types which are produced by resource
 # + cors - The cross origin resource sharing configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service.

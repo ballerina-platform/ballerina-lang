@@ -38,7 +38,7 @@ service echo on echoEP {
         path:"/{person}"
     }
     resource function mismatchedBodyParam(http:Caller caller, http:Request req, @http:BodyParam json ballerina) {
-        //
+        // A compile time warning for unused path expression
     }
 
     resource function missedAnnotation(http:Caller caller, http:Request req, @tainted int p, @http:BodyParam json j) {
@@ -69,6 +69,6 @@ service echo on echoEP {
     }
     resource function sayHello2(http:Caller caller, http:Request req, @http:BodyParam json j,
                                 @http:PathParam string name, @http:QueryParam string[] q) {
-        // no compilation error - signature path params should be a subset of annotated path expressions
+        // A compile time warning for unused path expression
     }
 }

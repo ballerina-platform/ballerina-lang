@@ -29,7 +29,7 @@ const string SCENARIO_CB_FORCE_CLOSE = "cb-force-close-scenario";
 const string SCENARIO_REQUEST_VOLUME_THRESHOLD_SUCCESS = "request-volume-threshold-success-scenario";
 const string SCENARIO_REQUEST_VOLUME_THRESHOLD_FAILURE = "request-volume-threshold-failure-scenario";
 
-function testTypicalScenario() returns [http:Response[], error?[]] {
+function testTypicalScenario() returns @tainted [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", {
@@ -57,6 +57,10 @@ function testTypicalScenario() returns [http:Response[], error?[]] {
             var serviceResponse = backendClientEP->get("/hello", request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
+            } else if (serviceResponse is http:PayloadType) {
+                http:IllegalDataBindingStateError payloadRetrievalErr = error(http:ILLEGAL_DATA_BINDING_STATE_ERROR,
+                message = "Payload cannot be retrived");
+                panic payloadRetrievalErr;
             } else {
                 errs[counter] = serviceResponse;
             }
@@ -69,7 +73,7 @@ function testTypicalScenario() returns [http:Response[], error?[]] {
     return [responses, errs];
 }
 
-function testTrialRunFailure() returns [http:Response[], error?[]] {
+function testTrialRunFailure() returns @tainted [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", {
@@ -98,6 +102,10 @@ function testTrialRunFailure() returns [http:Response[], error?[]] {
             var serviceResponse = backendClientEP->get("/hello", request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
+            } else if (serviceResponse is http:PayloadType) {
+                http:IllegalDataBindingStateError payloadRetrievalErr = error(http:ILLEGAL_DATA_BINDING_STATE_ERROR,
+                message = "Payload cannot be retrived");
+                panic payloadRetrievalErr;
             } else {
                 errs[counter] = serviceResponse;
             }
@@ -110,7 +118,7 @@ function testTrialRunFailure() returns [http:Response[], error?[]] {
     return [responses, errs];
 }
 
-function testHttpStatusCodeFailure() returns [http:Response[], error?[]] {
+function testHttpStatusCodeFailure() returns @tainted [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", {
@@ -138,6 +146,10 @@ function testHttpStatusCodeFailure() returns [http:Response[], error?[]] {
             var serviceResponse = backendClientEP->get("/hello", request);
             if (serviceResponse is http:Response) {
                 responses[counter] = serviceResponse;
+            } else if (serviceResponse is http:PayloadType) {
+                http:IllegalDataBindingStateError payloadRetrievalErr = error(http:ILLEGAL_DATA_BINDING_STATE_ERROR,
+                message = "Payload cannot be retrived");
+                panic payloadRetrievalErr;
             } else {
                 errs[counter] = serviceResponse;
             }
@@ -146,7 +158,7 @@ function testHttpStatusCodeFailure() returns [http:Response[], error?[]] {
     return [responses, errs];
 }
 
-function testForceOpenScenario() returns [http:Response[], error?[]] {
+function testForceOpenScenario() returns @tainted [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", {
@@ -177,6 +189,10 @@ function testForceOpenScenario() returns [http:Response[], error?[]] {
         var serviceResponse = backendClientEP->get("/hello", request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
+        } else if (serviceResponse is http:PayloadType) {
+            http:IllegalDataBindingStateError payloadRetrievalErr = error(http:ILLEGAL_DATA_BINDING_STATE_ERROR,
+            message = "Payload cannot be retrived");
+            panic payloadRetrievalErr;
         } else {
             errs[counter] = serviceResponse;
         }
@@ -185,7 +201,7 @@ function testForceOpenScenario() returns [http:Response[], error?[]] {
     return [responses, errs];
 }
 
-function testForceCloseScenario() returns [http:Response[], error?[]] {
+function testForceCloseScenario() returns @tainted [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", {
@@ -217,6 +233,10 @@ function testForceCloseScenario() returns [http:Response[], error?[]] {
         var serviceResponse = backendClientEP->get("/hello", request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
+        } else if (serviceResponse is http:PayloadType) {
+            http:IllegalDataBindingStateError payloadRetrievalErr = error(http:ILLEGAL_DATA_BINDING_STATE_ERROR,
+            message = "Payload cannot be retrived");
+            panic payloadRetrievalErr;
         } else {
             errs[counter] = serviceResponse;
         }
@@ -225,7 +245,7 @@ function testForceCloseScenario() returns [http:Response[], error?[]] {
     return [responses, errs];
 }
 
-function testRequestVolumeThresholdSuccessResponseScenario() returns [http:Response[], error?[]] {
+function testRequestVolumeThresholdSuccessResponseScenario() returns @tainted [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", {
@@ -254,6 +274,10 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns [http:Respo
         var serviceResponse = backendClientEP->get("/hello", request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
+        } else if (serviceResponse is http:PayloadType) {
+            http:IllegalDataBindingStateError payloadRetrievalErr = error(http:ILLEGAL_DATA_BINDING_STATE_ERROR,
+            message = "Payload cannot be retrived");
+            panic payloadRetrievalErr;
         } else {
             errs[counter] = serviceResponse;
         }
@@ -262,7 +286,7 @@ function testRequestVolumeThresholdSuccessResponseScenario() returns [http:Respo
     return [responses, errs];
 }
 
-function testRequestVolumeThresholdFailureResponseScenario() returns [http:Response[], error?[]] {
+function testRequestVolumeThresholdFailureResponseScenario() returns @tainted [http:Response[], error?[]] {
     actualRequestNumber = 0;
     MockClient mockClient = new("http://localhost:8080");
     http:Client backendClientEP = new("http://localhost:8080", {
@@ -291,6 +315,10 @@ function testRequestVolumeThresholdFailureResponseScenario() returns [http:Respo
         var serviceResponse = backendClientEP->get("/hello", request);
         if (serviceResponse is http:Response) {
             responses[counter] = serviceResponse;
+        } else if (serviceResponse is http:PayloadType) {
+            http:IllegalDataBindingStateError payloadRetrievalErr = error(http:ILLEGAL_DATA_BINDING_STATE_ERROR,
+            message = "Payload cannot be retrived");
+            panic payloadRetrievalErr;
         } else {
             errs[counter] = serviceResponse;
         }
@@ -332,45 +360,40 @@ public type MockClient client object {
         self.httpClient = simpleClient;
     }
 
-    public remote function post(string path,
-                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                                                                returns http:Response|http:ClientError {
+    public remote function post(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity
+    []|() message, http:TargetType targetType = http:Response) returns http:Response|http:PayloadType|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function head(string path,
-                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                                                                                returns http:Response|http:ClientError {
+    public remote function head(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity
+    []|() message = ()) returns http:Response|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function put(string path,
-                               http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                                                                returns http:Response|http:ClientError {
+    public remote function put(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|
+    () message, http:TargetType targetType = http:Response) returns http:Response|http:PayloadType|http:ClientError {
         return getUnsupportedError();
     }
 
     public remote function execute(string httpVerb, string path,
-                                   http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message) returns http:Response|http:ClientError {
+    http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message,
+    http:TargetType targetType = http:Response) returns http:Response|http:PayloadType|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function patch(string path,
-                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                                                                returns http:Response|http:ClientError {
+    public remote function patch(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity
+    []|() message, http:TargetType targetType = http:Response) returns http:Response|http:PayloadType|http:ClientError {
         return getUnsupportedError();
     }
 
     public remote function delete(string path,
-                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                                                                                returns http:Response|http:ClientError {
+    http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = (),
+    http:TargetType targetType = http:Response) returns http:Response|http:PayloadType|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function get(string path,
-                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                                                                                returns http:Response|http:ClientError {
+    public remote function get(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|
+    () message = (), http:TargetType targetType = http:Response) returns http:Response|http:PayloadType|http:ClientError {
         http:Request req = buildRequest(message);
         http:Response response = new;
         actualRequestNumber = actualRequestNumber + 1;
@@ -427,12 +450,13 @@ public type MockClient client object {
     }
 
     public remote function options(string path,
-           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                                                                                returns http:Response|http:ClientError {
+    http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = (),
+    http:TargetType targetType = http:Response) returns http:Response|http:PayloadType|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function forward(string path, http:Request req) returns http:Response|http:ClientError {
+    public remote function forward(string path, http:Request req, http:TargetType targetType = http:Response) returns
+    http:Response|http:PayloadType|http:ClientError {
         return getUnsupportedError();
     }
 

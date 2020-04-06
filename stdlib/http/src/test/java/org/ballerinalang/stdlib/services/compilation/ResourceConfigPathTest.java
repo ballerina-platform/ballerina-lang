@@ -56,17 +56,20 @@ public class ResourceConfigPathTest {
         CompileResult compileResult = BCompileUtil
                 .compile("test-src/services/configuration/resource-arg--pathparam-match.bal");
         Diagnostic[] diag = compileResult.getDiagnostics();
-        Assert.assertEquals(diag.length, 5);
-        assertResponse(diag[0], "invalid path parameter: 'string age', missing segment '{age}' in the path config of" +
-                " the resource annotation", 15);
-        assertResponse(diag[1], "invalid path parameter: 'string ag', missing segment '{ag}' in the path config of " +
-                "the resource annotation", 24);
-        assertResponse(diag[2], "invalid path parameter: 'string go', missing segment '{go}' in the path config of " +
-                "the resource annotation", 49);
-        assertResponse(diag[3], "invalid path parameter: 'string go', missing segment '{go}' in the path config of " +
-                "the resource annotation", 65);
-        assertResponse(diag[4], "invalid path parameter: 'string name', missing segment '{name}' in the path config " +
-                "of the resource annotation", 74);
+        Assert.assertEquals(diag.length, 8);
+        assertResponse(diag[0], "unused path segment(s) '{ag}' in the 'path' field of the 'ResourceConfig'", 10);
+        assertResponse(diag[1], "invalid path parameter: 'string age', missing segment '{age}' in the 'path' field " +
+                "of the 'ResourceConfig'", 15);
+        assertResponse(diag[2], "unused path segment(s) '{age}' in the 'path' field of the 'ResourceConfig'", 19);
+        assertResponse(diag[3], "invalid path parameter: 'string ag', missing segment '{ag}' in the 'path' field of " +
+                "the 'ResourceConfig'", 24);
+        assertResponse(diag[4], "unused path segment(s) '{hi}, {age}' in the 'path' field of the 'ResourceConfig'", 28);
+        assertResponse(diag[5], "invalid path parameter: 'string go', missing segment '{go}' in the 'path' field of " +
+                "the 'ResourceConfig'", 49);
+        assertResponse(diag[6], "invalid path parameter: 'string go', missing segment '{go}' in the 'path' field of " +
+                "the 'ResourceConfig'", 65);
+        assertResponse(diag[7], "invalid path parameter: 'string name', missing segment '{name}' in the 'path' " +
+                "field of the 'ResourceConfig'", 74);
     }
 
     private void assertResponse(Diagnostic diag, String msg, int line) {

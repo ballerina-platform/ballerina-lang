@@ -5,6 +5,8 @@ import ballerina/stringutils;
 
 listener http:MockListener testEP = new(9090);
 
+const string pathAsConst = "/{foo}/info/{prodId}";
+
 @http:ServiceConfig {
     basePath:"/hello"
 }
@@ -536,7 +538,7 @@ service WildcardService on testEP {
     }
 
     @http:ResourceConfig {
-        path: "/{foo}/info/{prodId}"
+        path: pathAsConst
     }
     resource function allin1(http:Caller caller, http:Request req, @http:PathParam string foo,
                              @http:BodyParam string payload, @http:QueryParam string bar, @http:QueryParam string[] baz,

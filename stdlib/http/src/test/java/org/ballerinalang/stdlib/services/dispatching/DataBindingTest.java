@@ -204,7 +204,7 @@ public class DataBindingTest {
         int statusCode = response.getHttpStatusCode();
         Assert.assertEquals(statusCode, 400, "statusCode not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response),
-                            "data binding failed: error String payload is null ");
+                            "data binding failed: error String payload is null");
     }
 
     @Test()

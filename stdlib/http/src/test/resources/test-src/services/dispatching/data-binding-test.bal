@@ -45,7 +45,7 @@ service echo on testEP {
     @http:ResourceConfig {
         methods: ["POST"]
     }
-    resource function body4(http:Caller caller, http:Request req, @http:BodyParam xml person xml person) {
+    resource function body4(http:Caller caller, http:Request req, @http:BodyParam xml person) {
         xmllib:Element elem = <xmllib:Element> person;
         string name = <@untainted string> elem.getName();
         string team = <@untainted string> (person/*).toString();

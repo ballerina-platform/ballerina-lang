@@ -57,13 +57,16 @@ public class ResourceValidator {
             return;
         }
 
-        if (isInvalidResourceParam(signatureParams.get(0), CALLER_TYPE)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "first parameter should be of type '" + CALLER_TYPE + "'");
+        BLangSimpleVariable caller = signatureParams.get(0);
+        if (isInvalidResourceParam(caller, CALLER_TYPE)) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, caller.pos, "first parameter should be of type '" +
+                    CALLER_TYPE + "'");
             return;
         }
 
-        if (isInvalidResourceParam(signatureParams.get(1), HTTP_REQUEST_TYPE)) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, pos, "second parameter should be of type '" +
+        BLangSimpleVariable request = signatureParams.get(1);
+        if (isInvalidResourceParam(request, HTTP_REQUEST_TYPE)) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, request.pos, "second parameter should be of type '" +
                     HTTP_REQUEST_TYPE + "'");
             return;
         }
@@ -102,6 +105,14 @@ public class ResourceValidator {
                     // do not execute
             }
         }
+        if (!pathSegments.isEmpty()) {
+            List<String> expressions = new ArrayList<>();
+            for (String segment : pathSegments) {
+                expressions.add("{" + segment + "}");
+            }
+            dlog.logDiagnostic(Diagnostic.Kind.WARNING, pos, "unused path segment(s) '" +
+                    String.join(", ", expressions) + "' in the 'path' field of the 'ResourceConfig'");
+        }
     }
 
     private static boolean isInvalidResourceParam(BLangSimpleVariable param, String expectedType) {
@@ -133,10 +144,13 @@ public class ResourceValidator {
                     "'string', 'int', 'boolean', 'float', found '" + param.type + "'");
             return;
         }
-        if (!pathSegments.contains(param.name.value)) {
+        String paramName = param.name.value;
+        if (!pathSegments.contains(paramName)) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, param.pos, "invalid path parameter: '" + param.toString() +
-                    "', missing segment '{" + param.name.value + "}' in the path config of the resource annotation");
+                    "', missing segment '{" + paramName + "}' in the 'path' field of the 'ResourceConfig'");
+            return;
         }
+        pathSegments.remove(paramName);
     }
 
     private static void validateQueryParam(BLangSimpleVariable param, DiagnosticLog dlog) {
