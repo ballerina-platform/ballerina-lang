@@ -122,12 +122,7 @@ public class BallerinaLexer {
                 token = getSyntaxToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
                 break;
             case LexerTerminals.PIPE:
-                if (peek() == LexerTerminals.CLOSE_BRACE) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.CLOSE_BRACE_PIPE_TOKEN);
-                } else {
-                    token = getSyntaxToken(SyntaxKind.PIPE_TOKEN);
-                }
+                token = processPipeOperator();
                 break;
             case LexerTerminals.QUESTION_MARK:
                 token = getSyntaxToken(SyntaxKind.QUESTION_MARK_TOKEN);
@@ -173,6 +168,17 @@ public class BallerinaLexer {
                 break;
             case LexerTerminals.EXCLAMATION_MARK:
                 token = processExclamationMarkOperator();
+                break;
+            case LexerTerminals.BITWISE_AND:
+                if (peek() == LexerTerminals.BITWISE_AND) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.LOGICAL_AND_TOKEN);
+                } else {
+                    token = getSyntaxToken(SyntaxKind.BITWISE_AND_TOKEN);
+                }
+                break;
+            case LexerTerminals.BITWISE_XOR:
+                token = getSyntaxToken(SyntaxKind.BITWISE_XOR_TOKEN);
                 break;
 
             // Numbers
@@ -572,7 +578,6 @@ public class BallerinaLexer {
             case LexerTerminals.HANDLE:
             case LexerTerminals.ANY:
             case LexerTerminals.ANYDATA:
-            case LexerTerminals.SERVICE:
             case LexerTerminals.VAR:
             case LexerTerminals.NEVER:
                 return getTypeToken(tokenText);
@@ -629,6 +634,18 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.VERSION_KEYWORD);
             case LexerTerminals.AS:
                 return getSyntaxToken(SyntaxKind.AS_KEYWORD);
+            case LexerTerminals.SERVICE:
+                return getSyntaxToken(SyntaxKind.SERVICE_KEYWORD);
+            case LexerTerminals.ON:
+                return getSyntaxToken(SyntaxKind.ON_KEYWORD);
+            case LexerTerminals.RESOURCE:
+                return getSyntaxToken(SyntaxKind.RESOURCE_KEYWORD);
+            case LexerTerminals.LISTENER:
+                return getSyntaxToken(SyntaxKind.LISTENER_KEYWORD);
+            case LexerTerminals.CONST:
+                return getSyntaxToken(SyntaxKind.CONST_KEYWORD);
+            case LexerTerminals.FINAL:
+                return getSyntaxToken(SyntaxKind.FINAL_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
@@ -902,6 +919,24 @@ public class BallerinaLexer {
             default:
                 // this is '!'
                 return getSyntaxToken(SyntaxKind.EXCLAMATION_MARK_TOKEN);
+        }
+    }
+
+    /**
+     * Process any token that starts with '|'.
+     *
+     * @return One of the tokens: <code>'|', '|}', '||'</code>
+     */
+    private STToken processPipeOperator() {
+        switch (peek()) { // check for the second char
+            case LexerTerminals.CLOSE_BRACE:
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.CLOSE_BRACE_PIPE_TOKEN);
+            case LexerTerminals.PIPE:
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.LOGICAL_OR_TOKEN);
+            default:
+                return getSyntaxToken(SyntaxKind.PIPE_TOKEN);
         }
     }
 }

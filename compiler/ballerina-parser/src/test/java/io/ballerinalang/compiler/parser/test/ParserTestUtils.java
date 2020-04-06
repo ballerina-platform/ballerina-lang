@@ -279,6 +279,12 @@ public class ParserTestUtils {
                 return SyntaxKind.FUNCTION_DEFINITION;
             case "IMPORT_DECLARATION":
                 return SyntaxKind.IMPORT_DECLARATION;
+            case "SERVICE_DECLARATION":
+                return SyntaxKind.SERVICE_DECLARATION;
+            case "LISTENER_DECLARATION":
+                return SyntaxKind.LISTENER_DECLARATION;
+            case "CONST_DECLARATION":
+                return SyntaxKind.CONST_DECLARATION;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -331,6 +337,18 @@ public class ParserTestUtils {
                 return SyntaxKind.BREAK_KEYWORD;
             case "RETURN_KEYWORD":
                 return SyntaxKind.RETURN_KEYWORD;
+            case "SERVICE_KEYWORD":
+                return SyntaxKind.SERVICE_KEYWORD;
+            case "ON_KEYWORD":
+                return SyntaxKind.ON_KEYWORD;
+            case "RESOURCE_KEYWORD":
+                return SyntaxKind.RESOURCE_KEYWORD;
+            case "LISTENER_KEYWORD":
+                return SyntaxKind.LISTENER_KEYWORD;
+            case "CONST_KEYWORD":
+                return SyntaxKind.CONST_KEYWORD;
+            case "FINAL_KEYWORD":
+                return SyntaxKind.FINAL_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -367,6 +385,14 @@ public class ParserTestUtils {
                 return SyntaxKind.NOT_EQUAL_TOKEN;
             case "NOT_DOUBLE_EQUAL_TOKEN":
                 return SyntaxKind.NOT_DOUBLE_EQUAL_TOKEN;
+            case "BITWISE_AND_TOKEN":
+                return SyntaxKind.BITWISE_AND_TOKEN;
+            case "BITWISE_XOR_TOKEN":
+                return SyntaxKind.BITWISE_XOR_TOKEN;
+            case "LOGICAL_AND_TOKEN":
+                return SyntaxKind.LOGICAL_AND_TOKEN;
+            case "LOGICAL_OR_TOKEN":
+                return SyntaxKind.LOGICAL_OR_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
@@ -395,6 +421,8 @@ public class ParserTestUtils {
                 return SyntaxKind.OPEN_BRACE_PIPE_TOKEN;
             case "CLOSE_BRACE_PIPE_TOKEN":
                 return SyntaxKind.CLOSE_BRACE_PIPE_TOKEN;
+            case "PIPE_TOKEN":
+                return SyntaxKind.PIPE_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -437,8 +465,8 @@ public class ParserTestUtils {
             // Statements
             case "BLOCK_STATEMENT":
                 return SyntaxKind.BLOCK_STATEMENT;
-            case "LOCAL_VARIABLE_DECL":
-                return SyntaxKind.LOCAL_VARIABLE_DECL;
+            case "VARIABLE_DECL":
+                return SyntaxKind.VARIABLE_DECL;
             case "ASSIGNMENT_STATEMENT":
                 return SyntaxKind.ASSIGNMENT_STATEMENT;
             case "IF_ELSE_STATEMENT":
@@ -501,6 +529,10 @@ public class ParserTestUtils {
                 return SyntaxKind.COMPUTED_NAME_FIELD;
             case "SPREAD_FIELD":
                 return SyntaxKind.SPREAD_FIELD;
+            case "SERVICE_BODY":
+                return SyntaxKind.SERVICE_BODY;
+            case "EXPRESSION_LIST_ITEM":
+                return SyntaxKind.EXPRESSION_LIST_ITEM;
 
             // Trivia
             case "EOF_TOKEN":

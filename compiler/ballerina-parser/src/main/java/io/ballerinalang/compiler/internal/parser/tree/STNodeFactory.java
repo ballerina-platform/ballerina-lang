@@ -57,8 +57,8 @@ public class STNodeFactory {
                                                     STNode typeKeyword,
                                                     STNode typeName,
                                                     STNode typeDescriptor,
-                                                    STNode comma) {
-        return new STModuleTypeDefinition(visibilityQualifier, typeKeyword, typeName, typeDescriptor, comma);
+                                                    STNode semicolon) {
+        return new STModuleTypeDefinition(visibilityQualifier, typeKeyword, typeName, typeDescriptor, semicolon);
     }
 
     // Statements
@@ -107,12 +107,14 @@ public class STNodeFactory {
     }
 
     public static STNode createVariableDeclaration(SyntaxKind kind,
+                                                   STNode finalKeyword,
                                                    STNode typeName,
                                                    STNode variableName,
                                                    STNode equalsToken,
                                                    STNode initializer,
                                                    STNode semicolonToken) {
-        return new STVariableDeclaration(kind, typeName, variableName, equalsToken, initializer, semicolonToken);
+        return new STVariableDeclaration(kind, finalKeyword, typeName, variableName, equalsToken, initializer,
+                semicolonToken);
     }
 
     public static STNode createContinueStatement(STNode continueKeyword, STNode semicolonToken) {
@@ -368,5 +370,42 @@ public class STNodeFactory {
                                                  STNode valueExpr) {
         return new STComputedNameField(leadingComma, openBracket, fieldNameExpr, closeBracket, colon, valueExpr);
     }
-  
+
+    public static STNode createServiceDecl(STNode serviceKeyword,
+                                           STNode serviceName,
+                                           STNode onKeyword,
+                                           STNode expressionList,
+                                           STNode serviceBody) {
+        return new STServiceDeclaration(serviceKeyword, serviceName, onKeyword, expressionList, serviceBody);
+    }
+
+    public static STNode createExpressionListItem(STNode leadingComma, STNode expr) {
+        return new STExpressionListItem(leadingComma, expr);
+    }
+
+    public static STNode createServiceBody(STNode openBraceToken, STNode resources, STNode closeBraceToken) {
+        return new STServiceBody(openBraceToken, resources, closeBraceToken);
+    }
+
+    public static STNode createListenerDeclaration(STNode qualifier,
+                                                   STNode listenerKeyword,
+                                                   STNode typeDesc,
+                                                   STNode variableName,
+                                                   STNode equalsToken,
+                                                   STNode initializer,
+                                                   STNode semicolonToken) {
+        return new STListenerDeclaration(qualifier, listenerKeyword, typeDesc, variableName, equalsToken, initializer,
+                semicolonToken);
+    }
+    
+    public static STNode createConstDeclaration(STNode qualifier,
+                                                STNode constKeyword,
+                                                STNode typeDesc,
+                                                STNode variableName,
+                                                STNode equalsToken,
+                                                STNode initializer,
+                                                STNode semicolonToken) {
+        return new STConstantDeclaration(qualifier, constKeyword, typeDesc, variableName, equalsToken, initializer,
+                semicolonToken);
+    }
 }

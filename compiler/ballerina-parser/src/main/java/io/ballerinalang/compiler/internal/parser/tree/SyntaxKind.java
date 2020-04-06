@@ -38,6 +38,9 @@ public enum SyntaxKind {
     OBJECT_KEYWORD(109, "object"),
     VERSION_KEYWORD(110, "version"),
     AS_KEYWORD(111, "as"),
+    ON_KEYWORD(112, "on"),
+    RESOURCE_KEYWORD(113, "resource"),
+    FINAL_KEYWORD(114, "final"),
 
     RETURNS_KEYWORD(200, "returns"),
     RETURN_KEYWORD(201, "return"),
@@ -87,6 +90,10 @@ public enum SyntaxKind {
     EXCLAMATION_MARK_TOKEN(565, "!"),
     NOT_EQUAL_TOKEN(566, "!="),
     NOT_DOUBLE_EQUAL_TOKEN(567, "!=="),
+    BITWISE_AND_TOKEN(568, "&"),
+    BITWISE_XOR_TOKEN(569, "^"),
+    LOGICAL_AND_TOKEN(569, "&&"),
+    LOGICAL_OR_TOKEN(569, "||"),
     
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
@@ -100,15 +107,18 @@ public enum SyntaxKind {
     WHITESPACE_TRIVIA(1500),
     END_OF_LINE_TRIVIA(1501),
     COMMENT(1502),
-    
+
     // module-level declarations
     IMPORT_DECLARATION(2000),
     FUNCTION_DEFINITION(2001),
     TYPE_DEFINITION(2002),
+    SERVICE_DECLARATION(2003),
+    LISTENER_DECLARATION(2004),
+    CONST_DECLARATION(2005),
 
     // Statements
     BLOCK_STATEMENT(1200),
-    LOCAL_VARIABLE_DECL(1201),
+    VARIABLE_DECL(1201),
     ASSIGNMENT_STATEMENT(1202),
     IF_ELSE_STATEMENT(1203),
     ELSE_BLOCK(1204),
@@ -155,6 +165,8 @@ public enum SyntaxKind {
     SPECIFIC_FIELD(3017),
     COMPUTED_NAME_FIELD(3018),
     SPREAD_FIELD(3019),
+    EXPRESSION_LIST_ITEM(3020),
+    SERVICE_BODY(3021),
 
     INVALID(4),
     MODULE_PART(3),

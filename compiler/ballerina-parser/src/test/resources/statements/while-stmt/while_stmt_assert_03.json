@@ -50,7 +50,7 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
-                                                    "kind": "LOCAL_VARIABLE_DECL",
+                                                    "kind": "VARIABLE_DECL",
                                                     "children": [
                                                         {
                                                             "kind": "SIMPLE_TYPE",
@@ -92,7 +92,7 @@
                                                                     "kind": "LIST",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "LOCAL_VARIABLE_DECL",
+                                                                            "kind": "VARIABLE_DECL",
                                                                             "children": [
                                                                                 {
                                                                                     "kind": "SIMPLE_TYPE",

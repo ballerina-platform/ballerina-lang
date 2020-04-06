@@ -29,7 +29,7 @@
                     "kind": "LIST",
                     "children": [
                         {
-                            "kind": "LOCAL_VARIABLE_DECL",
+                            "kind": "VARIABLE_DECL",
                             "children": [
                                 {
                                     "kind": "RECORD_TYPE_DESCRIPTOR",
@@ -230,7 +230,7 @@
                             ]
                         },
                         {
-                            "kind": "LOCAL_VARIABLE_DECL",
+                            "kind": "VARIABLE_DECL",
                             "children": [
                                 {
                                     "kind": "SIMPLE_TYPE",

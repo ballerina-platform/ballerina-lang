@@ -50,6 +50,11 @@ public class LexerTerminals {
     public static final String IMPORT = "import";
     public static final String VERSION = "version";
     public static final String AS = "as";
+    public static final String ON = "on";
+    public static final String RESOURCE = "resource";
+    public static final String LISTENER = "listener";
+    public static final String CONST = "const";
+    public static final String FINAL = "final";
 
     // Types
     public static final String INT = "int";
@@ -93,6 +98,8 @@ public class LexerTerminals {
     public static final char LT = '<';
     public static final char BACKSLASH = '\\';
     public static final char EXCLAMATION_MARK = '!';
+    public static final char BITWISE_AND = '&';
+    public static final char BITWISE_XOR = '^';
 
     // Other
     public static final char NEWLINE = '\n'; // equivalent to 0xA
