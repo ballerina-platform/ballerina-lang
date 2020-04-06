@@ -1,6 +1,6 @@
 ## Module overview
 
-This module provides the necessary utilities that are required to encode and decode content using different encoding mechanisms and algorithms.
+This module provides the necessary utilities that are required to encode and decode content using different URL encoding mechanisms and algorithms.
 
 ### Samples
 
@@ -15,13 +15,13 @@ import ballerina/io;
 public function main() {
     string data = "abc123!?$*&()'-=@~";
     string urlEncodedValue = encoding:encodeBase64Url(data.toBytes());
-    io:println("Base64 URL encode value: " + urlEncodedValue);
+    io:println("Base64 URL encoded value: " + urlEncodedValue);
 }
 ```
 
 #### Decoding a Base64 URL encoded string into a byte array.
 
-The `decodeBase64Url` function decodes a base64 encoded `string` to a byte array.
+The `decodeBase64Url` function decodes a base64 encoded `string` to a `byte[]`.
 
 ```ballerina
 import ballerina/encoding;
@@ -31,13 +31,13 @@ import ballerina/lang.'string as str;
 public function main() returns error? {
     string data = "YWJjMTIzIT8kKiYoKSctPUB-";
     byte[] urlDecodedValue = check encoding:decodeBase64Url(data);
-    io:println("Base64 URL decode value: " + check str:fromBytes(urlDecodedValue));
+    io:println("Base64 URL decoded value: " + check str:fromBytes(urlDecodedValue));
 }
 ```
 
 #### Encoding a URI component into a string
 
-The `encodeUriComponent` function can be used to encode a URI into a string using a provided charset.
+The `encodeUriComponent` function can be used to encode a URI into a `string` using a provided charset.
 
 ```ballerina
 import ballerina/encoding;
@@ -52,7 +52,7 @@ public function main() returns error? {
 
 #### Decoding an encoded URI component into a string
 
-The `decodeUriComponent` function can be used to decode a URI into a string using a provided charset.
+The `decodeUriComponent` function can be used to decode a URI into a `string` using a provided charset.
 
 ```ballerina
 import ballerina/encoding;
