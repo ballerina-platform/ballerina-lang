@@ -222,6 +222,8 @@ public class BallerinaParser {
                 return parseListenerKeyword();
             case SERVICE_DECL:
                 return parseServiceDecl();
+            case TYPEOF_KEYWORD:
+                return parseTypeofKeyword();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -2589,6 +2591,8 @@ public class BallerinaParser {
                 return parseCheckExpression();
             case OPEN_BRACE_TOKEN:
                 return parseMappingConstructorExpr();
+            case TYPEOF_KEYWORD:
+                return parseTypeofExpression();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.EXPRESSION);
                 return solution.recoveredNode;
@@ -4484,6 +4488,36 @@ public class BallerinaParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.CONST_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse typeof expression.
+     * <p>
+     * <code>
+     * typeof-expr := typeof expression
+     * </code>
+     *
+     * @return Typeof expression node
+     */
+    private STNode parseTypeofExpression() {
+        STNode typeofKeyword = parseTypeofKeyword();
+        STNode expr = parseExpression(OperatorPrecedence.UNARY, false);
+        return STNodeFactory.createTypeofExpression(typeofKeyword, expr);
+    }
+
+    /**
+     * Parse typeof-keyword.
+     *
+     * @return Typeof-keyword node
+     */
+    private STNode parseTypeofKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.TYPEOF_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.TYPEOF_KEYWORD);
             return sol.recoveredNode;
         }
     }

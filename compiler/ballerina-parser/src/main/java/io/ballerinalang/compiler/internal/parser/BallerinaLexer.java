@@ -638,6 +638,8 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.CONST_KEYWORD);
             case LexerTerminals.FINAL:
                 return getSyntaxToken(SyntaxKind.FINAL_KEYWORD);
+            case LexerTerminals.TYPEOF:
+                return getSyntaxToken(SyntaxKind.TYPEOF_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

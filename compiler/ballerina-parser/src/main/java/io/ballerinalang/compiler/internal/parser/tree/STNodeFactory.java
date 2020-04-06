@@ -175,6 +175,10 @@ public class STNodeFactory {
         return new STMethodCallExpression(expression, dotToken, methodName, openParen, arguments, closeParen);
     }
 
+    public static STNode createTypeofExpression(STNode typeofKeyword, STNode rhsExpr) {
+        return new STTypeofExpression(typeofKeyword, rhsExpr);
+    }
+
     // Misc
 
     public static STNode createRequiredParameter(SyntaxKind kind,

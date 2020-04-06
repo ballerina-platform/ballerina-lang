@@ -165,6 +165,7 @@ public enum ParserRuleContext {
     SERVICE_NAME("service-name"),
     LISTENER_KEYWORD("const-keyword"),
     CONST_KEYWORD("const-keyword"),
+    TYPEOF_KEYWORD("typeof-keyword"),
 
     // Expressions
     EXPRESSION("expression"),

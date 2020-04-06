@@ -808,6 +808,9 @@ public class BallerinaParserErrorHandler {
                     break;
                 case CONST_DECL_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, CONST_DECL_RHS);
+                case TYPEOF_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.TYPEOF_KEYWORD;
+                    break;
 
                 // productions
                 case COMP_UNIT:
@@ -2034,6 +2037,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.FINAL_KEYWORD;
             case CONST_DECL_TYPE:
                 return SyntaxKind.IDENTIFIER_TOKEN;
+            case TYPEOF_KEYWORD:
+                return SyntaxKind.TYPEOF_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
