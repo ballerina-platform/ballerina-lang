@@ -403,7 +403,7 @@ public class XMLLiteralTest {
 
 
     @Test
-    public void XMLWithDefaultNamespaceToString() {
+    public void xmlWithDefaultNamespaceToString() {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "XMLWithDefaultNamespaceToString");
         Assert.assertEquals(returns[0].stringValue(),
                 "<Order xmlns=\"http://acme.company\" xmlns:acme=\"http://acme.company\">\n" +
