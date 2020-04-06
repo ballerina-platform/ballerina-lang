@@ -95,8 +95,7 @@ public enum SyntaxKind {
     BITWISE_XOR_TOKEN(569, "^"),
     LOGICAL_AND_TOKEN(570, "&&"),
     LOGICAL_OR_TOKEN(571, "||"),
-    TILDE_TOKEN(572, "~"),
-    
+
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
     DECIMAL_INTEGER_LITERAL(1002),
