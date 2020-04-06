@@ -2324,14 +2324,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordTypeNode recordTypeNode) {
 
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
-        recordTypeNode.fields.forEach(field -> analyzeNode(field, recordEnv));
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            analyzeNode(field, recordEnv);
+        }
     }
 
     @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
 
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
-        objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
+            analyzeNode(field, objectEnv);
+        }
 
         List<BLangFunction> bLangFunctionList = new ArrayList<>(objectTypeNode.functions);
         if (objectTypeNode.initFunction != null) {
@@ -2340,7 +2344,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         // To ensure the order of the compile errors
         bLangFunctionList.sort(Comparator.comparingInt(o -> o.pos.sLine));
-        bLangFunctionList.forEach(fn -> this.analyzeNode(fn, objectEnv));
+        for (BLangFunction function : bLangFunctionList) {
+            this.analyzeNode(function, objectEnv);
+        }
     }
 
     @Override
