@@ -273,6 +273,177 @@ function queryTypBitDoubleParam(string url, string user, string password) return
     return queryMockClient(url, user, password, sqlQuery);
 }
 
+function queryTypeIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_INTEGER,
+            value: 2147483647
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE int_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeTinyIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_TINYINT,
+            value: 127
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE tinyint_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeSmallIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_SMALLINT,
+            value: 32767
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE smallint_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeBigIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_BIGINT,
+            value: 9223372036854774807
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE bigint_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeDoubleDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_DOUBLE,
+            value: 1234.567
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeDoubleIntParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_DOUBLE,
+            value: 1234
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeDoubleDecimalParam(string url, string user, string password) returns @tainted record {}|error? {
+    decimal decimalVal = 1234.567;
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_DOUBLE,
+            value: decimalVal
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeFloatDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_FLOAT,
+            value: 1234.567
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeRealDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_REAL,
+            value: 1234.567
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE real_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeNumericDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_NUMERIC,
+            value: 1234.567
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE numeric_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeNumericIntParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_NUMERIC,
+            value: 1234
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE numeric_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeNumericDecimalParam(string url, string user, string password) returns @tainted record {}|error? {
+    decimal decimalVal = 1234.567;
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_NUMERIC,
+            value: decimalVal
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE numeric_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeDecimalDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_DECIMAL,
+            value: 1234.567
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE decimal_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeDecimalDecimalParam(string url, string user, string password) returns @tainted record {}|error? {
+    decimal decimalVal = 1234.567;
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_DECIMAL,
+            value: decimalVal
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE decimal_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
 function queryMockClient(string url, string user, string password, @untainted string|sql:ParameterizedString sqlQuery)
 returns @tainted record {}|error? {
     mockclient:Client dbClient = check new (url = url, user = user, password = password);

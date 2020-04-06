@@ -139,16 +139,18 @@ class Utils {
         String sqlType = typedValue.getStringValue(Constants.TypedValueFields.SQL_TYPE);
         Object value = typedValue.get(Constants.TypedValueFields.VALUE);
         switch (sqlType) {
-            case Constants.SqlTypes.TYPE_VARCHAR:
-            case Constants.SqlTypes.TYPE_CHAR:
-            case Constants.SqlTypes.TYPE_LONGNVARCHAR:
-            case Constants.SqlTypes.TYPE_LONGVARCHAR:
-            case Constants.SqlTypes.TYPE_NCHAR:
-            case Constants.SqlTypes.TYPE_NVARCHAR:
+            case Constants.SqlTypes.VARCHAR:
+            case Constants.SqlTypes.LONGVARCHAR:
+            case Constants.SqlTypes.CHAR:
                 preparedStatement.setString(index, value.toString());
                 break;
-            case Constants.SqlTypes.TYPE_BIT:
-            case Constants.SqlTypes.TYPE_BOOLEAN:
+            case Constants.SqlTypes.LONGNVARCHAR:
+            case Constants.SqlTypes.NCHAR:
+            case Constants.SqlTypes.NVARCHAR:
+                preparedStatement.setNString(index, value.toString());
+                break;
+            case Constants.SqlTypes.BIT:
+            case Constants.SqlTypes.BOOLEAN:
                 if (value instanceof String) {
                     preparedStatement.setBoolean(index, Boolean.parseBoolean(value.toString()));
                 } else if (value instanceof Integer || value instanceof Long) {
@@ -162,11 +164,68 @@ class Utils {
                 } else if (value instanceof Boolean) {
                     preparedStatement.setBoolean(index, (Boolean) value);
                 } else {
-                    throw new ApplicationError("Invalid parameter :" + value.getClass().getName()
-                            + " is passed as value for sql type : " + sqlType);
+                    throwInvalidParameterError(value, sqlType);
                 }
                 break;
+            case Constants.SqlTypes.TINYINT:
+                if (value instanceof Integer || value instanceof Long) {
+                    preparedStatement.setByte(index, ((Number) value).byteValue());
+                } else {
+                    throwInvalidParameterError(value, sqlType);
+                }
+                break;
+            case Constants.SqlTypes.INTEGER:
+                if (value instanceof Integer || value instanceof Long) {
+                    preparedStatement.setInt(index, ((Number) value).intValue());
+                } else {
+                    throwInvalidParameterError(value, sqlType);
+                }
+                break;
+            case Constants.SqlTypes.BIGINT:
+                if (value instanceof Integer || value instanceof Long) {
+                    preparedStatement.setLong(index, ((Number) value).longValue());
+                } else {
+                    throwInvalidParameterError(value, sqlType);
+                }
+                break;
+            case Constants.SqlTypes.SMALLINT:
+                if (value instanceof Integer || value instanceof Long) {
+                    preparedStatement.setShort(index, ((Number) value).shortValue());
+                } else {
+                    throwInvalidParameterError(value, sqlType);
+                }
+                break;
+            case Constants.SqlTypes.FLOAT:
+            case Constants.SqlTypes.REAL:
+            case Constants.SqlTypes.DOUBLE:
+                if (value instanceof Double || value instanceof Float
+                        || value instanceof Integer || value instanceof Long) {
+                    preparedStatement.setDouble(index, ((Number) value).doubleValue());
+                } else if (value instanceof DecimalValue) {
+                    preparedStatement.setDouble(index, ((DecimalValue) value).decimalValue().doubleValue());
+                } else {
+                    throwInvalidParameterError(value, sqlType);
+                }
+                break;
+            case Constants.SqlTypes.NUMERIC:
+            case Constants.SqlTypes.DECIMAL:
+                if (value instanceof Double || value instanceof Float
+                        || value instanceof Integer || value instanceof Long) {
+                    preparedStatement.setBigDecimal(index, new BigDecimal(((Number) value).doubleValue()));
+                } else if (value instanceof DecimalValue) {
+                    preparedStatement.setBigDecimal(index, ((DecimalValue) value).decimalValue());
+                } else {
+                    throwInvalidParameterError(value, sqlType);
+                }
+                break;
+            default:
+                throw new ApplicationError("Unsupported SQL type: " + sqlType);
         }
+    }
+
+    private static void throwInvalidParameterError(Object value, String sqlType) throws ApplicationError {
+        throw new ApplicationError("Invalid parameter :" + value.getClass().getName()
+                + " is passed as value for sql type : " + sqlType);
     }
 
 

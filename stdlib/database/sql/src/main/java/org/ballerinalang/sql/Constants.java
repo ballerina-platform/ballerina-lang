@@ -100,36 +100,36 @@ public final class Constants {
      * Constants related to SQL Types supported.
      */
     public static final class SqlTypes{
-        public static final String TYPE_VARCHAR = "VARCHAR";
-        public static final String TYPE_CHAR = "CHAR";
-        public static final String TYPE_LONGVARCHAR = "LONGVARCHAR";
-        public static final String TYPE_NCHAR = "NCHAR";
-        public static final String TYPE_LONGNVARCHAR = "LONGNVARCHAR";
-        public static final String TYPE_NVARCHAR = "NVARCHAR";
-        public static final String TYPE_BIT = "BIT";
-        public static final String TYPE_BOOLEAN = "BOOLEAN";
-        public static final String TYPE_TINYINT = "TINYINT";
-        public static final String TYPE_SMALLINT = "SMALLINT";
-        public static final String TYPE_INTEGER = "INTEGER";
-        public static final String TYPE_BIGINT = "BIGINT";
-        public static final String TYPE_NUMERIC = "NUMERIC";
-        public static final String TYPE_DECIMAL = "DECIMAL";
-        public static final String TYPE_REAL = "REAL";
-        public static final String TYPE_FLOAT = "FLOAT";
-        public static final String TYPE_DOUBLE = "DOUBLE";
-        public static final String TYPE_BINARY = "BINARY";
-        public static final String TYPE_BLOB = "BLOB";
-        public static final String TYPE_LONGVARBINARY = "LONGVARBINARY";
-        public static final String TYPE_VARBINARY = "VARBINARY";
-        public static final String TYPE_CLOB = "CLOB";
-        public static final String TYPE_NCLOB = "NCLOB";
-        public static final String TYPE_DATE = "DATE";
-        public static final String TYPE_TIME = "TIME";
-        public static final String TYPE_DATETIME = "DATETIME";
-        public static final String TYPE_TIMESTAMP = "TIMESTAMP";
-        public static final String TYPE_ARRAY = "ARRAY";
-        public static final String TYPE_STRUCT = "STRUCT";
-        public static final String TYPE_REFCURSOR = "REFCURSOR";
+        public static final String VARCHAR = "VARCHAR";
+        public static final String CHAR = "CHAR";
+        public static final String LONGVARCHAR = "LONGVARCHAR";
+        public static final String NCHAR = "NCHAR";
+        public static final String LONGNVARCHAR = "LONGNVARCHAR";
+        public static final String NVARCHAR = "NVARCHAR";
+        public static final String BIT = "BIT";
+        public static final String BOOLEAN = "BOOLEAN";
+        public static final String TINYINT = "TINYINT";
+        public static final String SMALLINT = "SMALLINT";
+        public static final String INTEGER = "INTEGER";
+        public static final String BIGINT = "BIGINT";
+        public static final String NUMERIC = "NUMERIC";
+        public static final String DECIMAL = "DECIMAL";
+        public static final String REAL = "REAL";
+        public static final String FLOAT = "FLOAT";
+        public static final String DOUBLE = "DOUBLE";
+        public static final String BINARY = "BINARY";
+        public static final String BLOB = "BLOB";
+        public static final String LONGVARBINARY = "LONGVARBINARY";
+        public static final String VARBINARY = "VARBINARY";
+        public static final String CLOB = "CLOB";
+        public static final String NCLOB = "NCLOB";
+        public static final String DATE = "DATE";
+        public static final String TIME = "TIME";
+        public static final String DATETIME = "DATETIME";
+        public static final String TIMESTAMP = "TIMESTAMP";
+        public static final String ARRAY = "ARRAY";
+        public static final String STRUCT = "STRUCT";
+        public static final String REFCURSOR = "REFCURSOR";
     }
 
     /**

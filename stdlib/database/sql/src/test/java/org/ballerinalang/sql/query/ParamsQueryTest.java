@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.sql.SQLException;
+import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 
 /**
@@ -208,6 +209,100 @@ public class ParamsQueryTest {
                 .stringValue().contains("Invalid parameter :java.lang.Double is passed as value for sql type : BIT"));
     }
 
+    @Test
+    public void testQueryTypeIntIntParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeIntIntParam", args);
+       validateNumericTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeTinyIntIntParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeTinyIntIntParam", args);
+        validateNumericTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeSmallIntIntParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeSmallIntIntParam", args);
+        validateNumericTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeBigIntIntParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeBigIntIntParam", args);
+        validateNumericTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeDoubleDoubleParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeDoubleDoubleParam", args);
+        validateNumericTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeDoubleIntParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeDoubleIntParam", args);
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        LinkedHashMap result = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(result.size(), 10);
+        Assert.assertEquals(result.get("ID"), new BInteger(2));
+        Assert.assertEquals(((BFloat) result.get("FLOAT_TYPE")).floatValue(), 1234.0);
+    }
+
+    @Test
+    public void testQueryTypeDoubleDecimalParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeDoubleDecimalParam", args);
+        validateNumericTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeFloatDoubleParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeFloatDoubleParam", args);
+        validateNumericTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeRealDoubleParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeRealDoubleParam", args);
+        validateNumericTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeNumericDoubleParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeNumericDoubleParam", args);
+        validateNumericTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeNumericIntParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeNumericIntParam", args);
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        LinkedHashMap result = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(result.size(), 10);
+        Assert.assertEquals(result.get("ID"), new BInteger(2));
+        Assert.assertEquals(((BFloat) result.get("FLOAT_TYPE")).floatValue(), 1234.0);
+    }
+
+    @Test
+    public void testQueryTypeNumericDecimalParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeNumericDecimalParam", args);
+        validateNumericTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeDecimalDoubleParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeDecimalDoubleParam", args);
+        validateNumericTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeDecimalDecimalParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeDecimalDecimalParam", args);
+        validateNumericTableResult(returns);
+    }
+
     private void validateDataTableResult(BValue[] returns) {
         SQLDBUtils.assertNotError(returns[0]);
         Assert.assertTrue(returns[0] instanceof BMap);
@@ -230,5 +325,23 @@ public class ParamsQueryTest {
         Assert.assertEquals(result.size(), 4);
         Assert.assertEquals(((BInteger) result.get("ROW_ID")).intValue(), 1);
         Assert.assertEquals(result.get("CLOB_TYPE").toString(), "very long text");
+    }
+
+    private void validateNumericTableResult(BValue[] returns){
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        LinkedHashMap result = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(result.size(), 10);
+        Assert.assertEquals(result.get("ID"), new BInteger(1));
+        Assert.assertEquals(result.get("INT_TYPE"), new BInteger(2147483647));
+        Assert.assertEquals(result.get("BIGINT_TYPE"), new BInteger(9223372036854774807L));
+        Assert.assertEquals(result.get("SMALLINT_TYPE"), new BInteger(32767));
+        Assert.assertEquals(result.get("TINYINT_TYPE"), new BInteger(127));
+        Assert.assertEquals(result.get("BIT_TYPE"), new BBoolean(true));
+        Assert.assertEquals(((BDecimal) result.get("DECIMAL_TYPE")).value().doubleValue(), 1234.567);
+        Assert.assertEquals(((BDecimal) result.get("NUMERIC_TYPE")).value().doubleValue(), 1234.567);
+        DecimalFormat df = new DecimalFormat("###.###");
+        Assert.assertEquals(df.format(((BFloat) result.get("FLOAT_TYPE")).floatValue()), "1234.567");
+        Assert.assertEquals(df.format(((BFloat) result.get("REAL_TYPE")).floatValue()), "1234.567");
     }
 }
