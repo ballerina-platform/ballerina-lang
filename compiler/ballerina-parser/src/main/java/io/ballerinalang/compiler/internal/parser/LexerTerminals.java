@@ -70,7 +70,9 @@ public class LexerTerminals {
     public static final String ANYDATA = "anydata";
     public static final String SERVICE = "service";
     public static final String NIL = "()";
-
+    public static final String VAR = "var";
+    public static final String NEVER = "never";
+    
     // Separators
     public static final char SEMICOLON = ';';
     public static final char COLON = ':';
