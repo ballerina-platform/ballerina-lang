@@ -845,18 +845,19 @@ public class Types {
         } else if (source.tag == TypeTags.ARRAY) {
             // Only the right-hand side is an array type
 
+            if (target.tag == TypeTags.UNION) {
+                return isAssignable(source, target, unresolvedTypes);
+            }
+
+            BType sourceElementType = ((BArrayType) source).getElementType();
             // If the target type is a JSON, then element type of the rhs array
             // should only be a JSON supported type.
             if (target.tag == TypeTags.JSON) {
-                return isAssignable(((BArrayType) source).getElementType(), target, unresolvedTypes);
-            }
-
-            if (target.tag == TypeTags.UNION) {
-                return isAssignable(source, target);
+                return isAssignable(sourceElementType, target, unresolvedTypes);
             }
 
             // Then lhs type should 'any' type
-            return target.tag == TypeTags.ANY;
+            return (target.tag == TypeTags.ANY) && (sourceElementType.tag != TypeTags.ERROR);
 
         } else if (target.tag == TypeTags.ARRAY) {
             // Only the left-hand side is an array type
@@ -873,7 +874,7 @@ public class Types {
         }
 
         // In this case, lhs type should be of type 'any' and the rhs type cannot be a value type
-        return target.tag == TypeTags.ANY && !isValueType(source);
+        return (target.tag == TypeTags.ANY) && !isValueType(source) && (source.tag != TypeTags.ERROR);
     }
 
     private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,
@@ -994,13 +995,12 @@ public class Types {
 
         BArrayType lhsArrayType = (BArrayType) target;
         BArrayType rhsArrayType = (BArrayType) source;
+        boolean hasSameTypeElements = isSameType(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
         if (lhsArrayType.state == BArrayState.UNSEALED) {
-            return rhsArrayType.state == BArrayState.UNSEALED &&
-                    isSameType(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
+            return (rhsArrayType.state == BArrayState.UNSEALED) && hasSameTypeElements;
         }
 
-        return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType)
-                && isSameType(lhsArrayType.eType, rhsArrayType.eType, unresolvedTypes);
+        return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType) && hasSameTypeElements;
     }
 
     public boolean checkSealedArraySizeEquality(BArrayType rhsArrayType, BArrayType lhsArrayType) {
