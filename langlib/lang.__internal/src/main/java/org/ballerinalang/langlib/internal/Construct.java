@@ -46,4 +46,8 @@ public class Construct {
     public static StreamValue construct(Strand strand, TypedescValue td, ObjectValue iteratorObj) {
         return new StreamValue(new BStreamType(td.getDescribingType()), iteratorObj);
     }
+
+    public static StreamValue construct_bstring(Strand strand, TypedescValue td, ObjectValue iteratorObj) {
+        return construct(strand, td, iteratorObj);
+    }
 }

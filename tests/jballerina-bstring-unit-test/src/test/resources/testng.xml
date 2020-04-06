@@ -50,9 +50,17 @@
             <package name="org.ballerinalang.test.types.integer.*" />
             <package name="org.ballerinalang.test.types.json.*" />
             <package name="org.ballerinalang.test.types.map.*" />
+            <package name="org.ballerinalang.test.types.nullable.*" />
+            <package name="org.ballerinalang.test.types.nullvalue.*" />
+            <package name="org.ballerinalang.test.types.stream.*" />
             <package name="org.ballerinalang.test.types.string.*" />
+            <package name="org.ballerinalang.test.types.tuples.*" />
+            <package name="org.ballerinalang.test.types.typedesc.*" />
+            <package name="org.ballerinalang.test.types.uniontypes.*" />
+            <package name="org.ballerinalang.test.types.var.*" />
             <package name="org.ballerinalang.test.types.xml.*" />
         </packages>
+        <!--<class name="org.ballerinalang.test.types.TypeUnificationTest"/>-->
 
     </test>
 </suite>
