@@ -1478,6 +1478,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.CONST_DECL_TYPE;
             case CONST_DECL_TYPE:
                 return ParserRuleContext.CONST_DECL_RHS;
+            case TYPEOF_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
 
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
