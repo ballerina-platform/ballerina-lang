@@ -206,6 +206,38 @@
                                     "kind": "SEMICOLON_TOKEN"
                                 }
                             ]
+                        },
+                        {
+                            "kind": "LOCAL_VARIABLE_DECL",
+                            "children": [
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "var"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "l"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "LOCAL_VARIABLE_DECL",
+                            "children": [
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "never"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "m"
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
                         }
                     ]
                 },
