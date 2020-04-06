@@ -121,3 +121,10 @@ function panicOnNonErrorMemberUnion() {
 function errorDefinitionNegative() {
     error<string, record { string message?; error cause?; int i;}> e  = 1;
 }
+
+function assignErrorArrayToAnyTypeArrayViseVersa() {
+    error[] ea = [];
+    any[] j = ea;
+    any[] anyArray = [];
+    error[] errorArray = anyArray;
+}
