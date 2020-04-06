@@ -54,6 +54,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import static org.ballerinalang.packerina.utils.DebugUtils.getDebugArgs;
+import static org.ballerinalang.packerina.utils.DebugUtils.isInDebugMode;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
@@ -67,6 +69,8 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
+
+;
 
 /**
  * Task for executing tests.
@@ -324,6 +328,9 @@ public class RunTestsTask implements Task {
 
             String classPath = getClassPath(getTestRuntimeJar(buildContext), testDependencies);
             cmdArgs.addAll(Lists.of("-cp", classPath, mainClassName, jsonPath.toString()));
+            if (isInDebugMode()) {
+                cmdArgs.add(getDebugArgs(buildContext));
+            }
             cmdArgs.addAll(Arrays.asList(args));
             cmdArgs.add(targetDir.toString());
             cmdArgs.add(testJarPath.toString());
