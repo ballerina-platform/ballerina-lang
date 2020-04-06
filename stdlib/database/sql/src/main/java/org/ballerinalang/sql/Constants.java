@@ -89,6 +89,50 @@ public final class Constants {
     }
 
     /**
+     * Constants related to TypedValue fields.
+     */
+    public static final class TypedValueFields {
+        public static final String SQL_TYPE = "sqlType";
+        public static final String VALUE = "value";
+    }
+
+    /**
+     * Constants related to SQL Types supported.
+     */
+    public static final class SqlTypes{
+        public static final String TYPE_VARCHAR = "VARCHAR";
+        public static final String TYPE_CHAR = "CHAR";
+        public static final String TYPE_LONGVARCHAR = "LONGVARCHAR";
+        public static final String TYPE_NCHAR = "NCHAR";
+        public static final String TYPE_LONGNVARCHAR = "LONGNVARCHAR";
+        public static final String TYPE_NVARCHAR = "NVARCHAR";
+        public static final String TYPE_BIT = "BIT";
+        public static final String TYPE_BOOLEAN = "BOOLEAN";
+        public static final String TYPE_TINYINT = "TINYINT";
+        public static final String TYPE_SMALLINT = "SMALLINT";
+        public static final String TYPE_INTEGER = "INTEGER";
+        public static final String TYPE_BIGINT = "BIGINT";
+        public static final String TYPE_NUMERIC = "NUMERIC";
+        public static final String TYPE_DECIMAL = "DECIMAL";
+        public static final String TYPE_REAL = "REAL";
+        public static final String TYPE_FLOAT = "FLOAT";
+        public static final String TYPE_DOUBLE = "DOUBLE";
+        public static final String TYPE_BINARY = "BINARY";
+        public static final String TYPE_BLOB = "BLOB";
+        public static final String TYPE_LONGVARBINARY = "LONGVARBINARY";
+        public static final String TYPE_VARBINARY = "VARBINARY";
+        public static final String TYPE_CLOB = "CLOB";
+        public static final String TYPE_NCLOB = "NCLOB";
+        public static final String TYPE_DATE = "DATE";
+        public static final String TYPE_TIME = "TIME";
+        public static final String TYPE_DATETIME = "DATETIME";
+        public static final String TYPE_TIMESTAMP = "TIMESTAMP";
+        public static final String TYPE_ARRAY = "ARRAY";
+        public static final String TYPE_STRUCT = "STRUCT";
+        public static final String TYPE_REFCURSOR = "REFCURSOR";
+    }
+
+    /**
      * Constants for SQL Params.
      */
     public static final class SQLParamsFields {

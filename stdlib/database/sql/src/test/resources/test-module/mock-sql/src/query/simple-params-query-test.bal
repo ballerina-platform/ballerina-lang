@@ -117,6 +117,162 @@ function getUntaintedData(record {}|error? value, string fieldName) returns @unt
     return {};
 }
 
+function queryTypeVarcharStringParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_VARCHAR,
+            value: "Hello"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DataTable WHERE string_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeCharStringParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_CHAR,
+            value: "Hello"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DataTable WHERE string_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeLongNVarcharStringParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_LONGNVARCHAR,
+            value: "Hello"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DataTable WHERE string_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeLongVarcharStringParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_LONGVARCHAR,
+            value: "Hello"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DataTable WHERE string_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeNCharStringParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_NCHAR,
+            value: "Hello"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DataTable WHERE string_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeNVarCharStringParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_NVARCHAR,
+            value: "Hello"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DataTable WHERE string_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeVarCharIntegerParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_VARCHAR,
+            value: 1
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DataTable WHERE string_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypBooleanBooleanParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_BOOLEAN,
+            value: true
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypBooleanIntParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_BOOLEAN,
+            value: 1
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypBitIntParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_BIT,
+            value: 1
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypBitStringParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_BIT,
+            value: "true"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypBitInvalidIntParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_BIT,
+            value: 12
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypBitDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+            sqlType: sql:TYPE_BIT,
+            value: 1.0
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
 function queryMockClient(string url, string user, string password, @untainted string|sql:ParameterizedString sqlQuery)
 returns @tainted record {}|error? {
     mockclient:Client dbClient = check new (url = url, user = user, password = password);

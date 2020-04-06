@@ -30,6 +30,8 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BValue;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.exception.ApplicationError;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
@@ -125,7 +127,45 @@ class Utils {
                     throw new ApplicationError("Only byte[] is supported can be set directly into " +
                             "ParameterizedString, any other array types should be wrapped as sql:Value");
                 }
+            } else if (object instanceof MapValue) {
+                MapValue<String, Object> recordValue = (MapValue<String, Object>) object;
+                setSqlTypedParam(preparedStatement, index, recordValue);
             }
+        }
+    }
+
+    private static void setSqlTypedParam(PreparedStatement preparedStatement, int index, MapValue<String, Object> typedValue)
+            throws SQLException, ApplicationError {
+        String sqlType = typedValue.getStringValue(Constants.TypedValueFields.SQL_TYPE);
+        Object value = typedValue.get(Constants.TypedValueFields.VALUE);
+        switch (sqlType) {
+            case Constants.SqlTypes.TYPE_VARCHAR:
+            case Constants.SqlTypes.TYPE_CHAR:
+            case Constants.SqlTypes.TYPE_LONGNVARCHAR:
+            case Constants.SqlTypes.TYPE_LONGVARCHAR:
+            case Constants.SqlTypes.TYPE_NCHAR:
+            case Constants.SqlTypes.TYPE_NVARCHAR:
+                preparedStatement.setString(index, value.toString());
+                break;
+            case Constants.SqlTypes.TYPE_BIT:
+            case Constants.SqlTypes.TYPE_BOOLEAN:
+                if (value instanceof String) {
+                    preparedStatement.setBoolean(index, Boolean.parseBoolean(value.toString()));
+                } else if (value instanceof Integer || value instanceof Long) {
+                    long lVal = ((Number) value).longValue();
+                    if (lVal == 1 || lVal == 0) {
+                        preparedStatement.setBoolean(index, lVal == 1);
+                    } else {
+                        throw new ApplicationError("Only 1 or 0 can be passed for " + sqlType
+                                + " SQL Type, but found :" + lVal);
+                    }
+                } else if (value instanceof Boolean) {
+                    preparedStatement.setBoolean(index, (Boolean) value);
+                } else {
+                    throw new ApplicationError("Invalid parameter :" + value.getClass().getName()
+                            + " is passed as value for sql type : " + sqlType);
+                }
+                break;
         }
     }
 

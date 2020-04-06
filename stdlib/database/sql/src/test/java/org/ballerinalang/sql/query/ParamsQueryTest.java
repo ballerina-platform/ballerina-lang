@@ -19,6 +19,7 @@ package org.ballerinalang.sql.query;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BDecimal;
+import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -31,12 +32,13 @@ import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 
 /**
- * This test class verifies the behaviour of the ParamterizedString passed into the query operation.
+ * This test class verifies the behaviour of the ParamterizedString passed into the testQuery operation.
  *
  * @since 1.3.0
  */
@@ -117,6 +119,93 @@ public class ParamsQueryTest {
     public void testQueryByteArrayParam() {
         BValue[] returns = BRunUtil.invokeFunction(result, "queryByteArrayParam", args);
         validateComplexTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeVarcharStringParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeVarcharStringParam", args);
+        validateDataTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeCharStringParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeCharStringParam", args);
+        validateDataTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeNCharStringParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeNCharStringParam", args);
+        validateDataTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeLongVarcharStringParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeLongVarcharStringParam", args);
+        validateDataTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeLongNVarcharStringParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeLongNVarcharStringParam", args);
+        validateDataTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeNVarCharStringParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeNVarCharStringParam", args);
+        validateDataTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeVarCharIntegerParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeVarCharIntegerParam", args);
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        LinkedHashMap result = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(result.size(), 8);
+        Assert.assertEquals(((BInteger) result.get("ROW_ID")).intValue(), 3);
+        Assert.assertEquals(((BString) result.get("STRING_TYPE")).stringValue(), "1");
+    }
+
+    @Test
+    public void testQueryTypBooleanBooleanParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypBooleanBooleanParam", args);
+        validateDataTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypBooleanIntParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypBooleanIntParam", args);
+        validateDataTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypBitIntParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypBitIntParam", args);
+        validateDataTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypBitStringParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypBitStringParam", args);
+        validateDataTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypBitInvalidIntParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypBitInvalidIntParam", args);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
+                .stringValue().contains("Only 1 or 0 can be passed for BIT"));
+    }
+
+    @Test
+    public void testQueryTypBitDoubleParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypBitDoubleParam", args);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
+                .stringValue().contains("Invalid parameter :java.lang.Double is passed as value for sql type : BIT"));
     }
 
     private void validateDataTableResult(BValue[] returns) {

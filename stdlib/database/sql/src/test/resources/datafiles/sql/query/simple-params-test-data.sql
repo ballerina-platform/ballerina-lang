@@ -15,6 +15,9 @@ INSERT INTO DataTable (row_id, int_type, long_type, float_type, double_type, boo
 /
 INSERT INTO DataTable (row_id) VALUES (2);
 /
+INSERT INTO DataTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type, decimal_type)
+  VALUES(3, 1, 9372036854774807, 124.34, 29095039, false, '1', 25.45);
+/
 CREATE TABLE IF NOT EXISTS ComplexTypes(
   row_id         INTEGER NOT NULL,
   blob_type      BLOB(1024),
