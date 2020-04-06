@@ -228,8 +228,4 @@ public abstract class SyntaxNodeVisitor {
             child.accept(this);
         }
     }
-
-    public void visit(CompoundAssignmentOperator compoundAssignmentOperator) {
-        visitSyntaxNode(compoundAssignmentOperator);
-    }
 }

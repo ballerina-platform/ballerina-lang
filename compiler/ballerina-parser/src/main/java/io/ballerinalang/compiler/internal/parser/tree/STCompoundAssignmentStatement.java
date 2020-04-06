@@ -24,21 +24,24 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 public class STCompoundAssignmentStatement extends STStatement {
 
     public final STNode lhsExpression;
-    public final STNode compoundAssignmentOperator;
+    public final STNode binaryOperator;
+    public final STNode equalsToken;
     public final STNode expr;
     public final STNode semicolonToken;
 
     STCompoundAssignmentStatement(STNode lhsExpression,
-                          STNode compoundAssignmentOperator,
+                          STNode binaryOperator,
+                          STNode equalsToken,
                           STNode expr,
                           STNode semicolonToken) {
         super(SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT);
         this.lhsExpression = lhsExpression;
-        this.compoundAssignmentOperator = compoundAssignmentOperator;
+        this.binaryOperator = binaryOperator;
+        this.equalsToken = equalsToken;
         this.expr = expr;
         this.semicolonToken = semicolonToken;
 
-        addChildren(lhsExpression, compoundAssignmentOperator, expr, semicolonToken);
+        addChildren(lhsExpression, binaryOperator, equalsToken, expr, semicolonToken);
     }
 
     @Override

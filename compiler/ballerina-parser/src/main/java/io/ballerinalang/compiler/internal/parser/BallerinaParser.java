@@ -3785,20 +3785,6 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse CompoundAssignmentOperator.
-     * <code>CompoundAssignmentOperator := BinaryOperator =</code>
-     * 
-     * @return CompoundAssignmentOperator
-     */
-    private STNode parseCompoundAssignmentOperator() {
-        startContext(ParserRuleContext.COMPOUND_ASSIGNMENT_OPERATOR);
-        STNode binaryOperator = parseCompoundBinaryOperator();
-        STNode equalsToken = parseAssignOp();
-        endContext();
-        return STNodeFactory.createCompoundAssignmentOperator(binaryOperator, equalsToken);
-    }
-
-    /**
      * <p>
      * Parse the right hand side of a return statement.
      * </p>
@@ -4085,11 +4071,12 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseCompoundAssignmentStmtRhs(STNode expression) {
-        STNode compoundAssignmentOperator = parseCompoundAssignmentOperator();
+        STNode binaryOperator = parseCompoundBinaryOperator();
+        STNode equalsToken = parseAssignOp();
         STNode expr = parseExpression();
         STNode semicolon = parseSemicolon();
-        return STNodeFactory.createCompoundAssignmentStatement(expression, compoundAssignmentOperator,
-             expr, semicolon);
+        return STNodeFactory.createCompoundAssignmentStatement(expression, binaryOperator,
+             equalsToken, expr, semicolon);
     }
 
     /**

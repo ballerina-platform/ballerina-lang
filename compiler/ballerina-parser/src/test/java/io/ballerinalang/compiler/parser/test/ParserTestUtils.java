@@ -535,8 +535,6 @@ public class ParserTestUtils {
                 return SyntaxKind.SERVICE_BODY;
             case "EXPRESSION_LIST_ITEM":
                 return SyntaxKind.EXPRESSION_LIST_ITEM;
-            case "COMPOUND_ASSIGNMENT_OPERATOR":
-                return SyntaxKind.COMPOUND_ASSIGNMENT_OPERATOR;
 
             // Trivia
             case "EOF_TOKEN":

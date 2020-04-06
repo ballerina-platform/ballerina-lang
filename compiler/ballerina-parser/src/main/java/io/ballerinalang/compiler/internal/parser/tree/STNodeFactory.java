@@ -129,10 +129,11 @@ public class STNodeFactory {
     }
 
     public static STNode createCompoundAssignmentStatement(STNode lhsExpression,
-                                                   STNode compoundAssignmentOperator,
+                                                   STNode binaryOperator,
+                                                   STNode equalsToken,
                                                    STNode expr,
                                                    STNode semicolonToken) {
-        return new STCompoundAssignmentStatement(lhsExpression, compoundAssignmentOperator, expr, semicolonToken);
+        return new STCompoundAssignmentStatement(lhsExpression, binaryOperator, equalsToken, expr, semicolonToken);
     }
 
     // Expressions
@@ -416,8 +417,4 @@ public class STNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createCompoundAssignmentOperator(STNode binaryOperator,
-                                                   STNode equalsToken) {
-        return new STCompoundAssignmentOperator(binaryOperator, equalsToken);
-    }
 }

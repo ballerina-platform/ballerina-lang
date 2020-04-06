@@ -166,7 +166,6 @@ public enum ParserRuleContext {
     SERVICE_NAME("service-name"),
     LISTENER_KEYWORD("const-keyword"),
     CONST_KEYWORD("const-keyword"),
-    COMPOUND_ASSIGNMENT_OPERATOR("compound-assignment-operator"),
     COMPOUND_BINARY_OPERATOR("compound-binary-operator"),
 
     // Expressions

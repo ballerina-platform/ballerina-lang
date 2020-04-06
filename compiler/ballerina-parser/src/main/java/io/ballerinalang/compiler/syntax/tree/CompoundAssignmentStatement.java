@@ -21,7 +21,8 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class CompoundAssignmentStatement extends Statement {
     private Token variableName;
-    private Node compoundAssignmentOperator;
+    private Token binaryOperator;
+    private Token equalsToken;
     private Node expression;
     private Token semicolonToken;
 
@@ -33,16 +34,20 @@ public class CompoundAssignmentStatement extends Statement {
         return (Token) childInBucket(0);
     }
 
-    public Node compoundAssignmentOperator() {
+    public Node binaryOperator() {
         return childInBucket(1);
     }
 
-    public Node expression() {
+    public Node equalsToken() {
         return childInBucket(2);
     }
 
+    public Node expression() {
+        return childInBucket(3);
+    }
+
     public Token semicolonToken() {
-        return (Token) childInBucket(3);
+        return (Token) childInBucket(4);
     }
 
     @Override
