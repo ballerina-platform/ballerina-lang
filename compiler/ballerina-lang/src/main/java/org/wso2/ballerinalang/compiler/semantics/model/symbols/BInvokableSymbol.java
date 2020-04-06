@@ -49,7 +49,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public String source;
     public SchedulerPolicy schedulerPolicy = SchedulerPolicy.PARENT;
 
-    public Set<BSymbol> dependentGlobalVars;
+    public Set<BVarSymbol> dependentGlobalVars;
 
     public BInvokableSymbol(int tag,
                             int flags,

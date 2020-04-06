@@ -24,6 +24,7 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -94,23 +95,25 @@ public class GlobalVariableRefAnalyzer {
 
         Set<BSymbol> dependentSet = this.globalNodeDependsOn.keySet();
         for (BSymbol dependent : dependentSet) {
-            if (dependent.getKind() != SymbolKind.FUNCTION) {
+            if (dependent.kind != SymbolKind.FUNCTION) {
                 continue;
             }
 
-            Set<BSymbol> providers = globalNodeDependsOn.get(dependent);
-            populateGlobalVariablesInInvokableSymbol((BInvokableSymbol) dependent, providers);
+            Set<BSymbol> providers = globalNodeDependsOn.getOrDefault(dependent,  new HashSet<>());
+            if (dependent instanceof BInvokableSymbol) { // Spotbugs BC issue fix.
+                populateGlobalVariablesInInvokableSymbol((BInvokableSymbol) dependent, providers);
+            }
         }
     }
 
     private void populateGlobalVariablesInInvokableSymbol(BInvokableSymbol dependent, Set<BSymbol> providers) {
         for (BSymbol symbol : providers) {
-            if (isGlobalVarSymbol(symbol)) {
-                dependent.dependentGlobalVars.add(symbol);
-            }
-            if (symbol.getKind() == SymbolKind.FUNCTION) {
-                Set<BSymbol> dependentsDependentSet = this.globalNodeDependsOn.get(symbol);
+            if (symbol.kind == SymbolKind.FUNCTION) {
+                Set<BSymbol> dependentsDependentSet = this.globalNodeDependsOn.getOrDefault(symbol, new HashSet<>());
                 populateGlobalVariablesInInvokableSymbol(dependent, dependentsDependentSet);
+            }
+            if (isGlobalVarSymbol(symbol)) {
+                dependent.dependentGlobalVars.add((BVarSymbol) symbol);
             }
         }
     }
