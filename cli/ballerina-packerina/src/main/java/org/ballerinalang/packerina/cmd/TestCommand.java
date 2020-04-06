@@ -57,6 +57,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.packerina.cmd.Constants.TEST_COMMAND;
 
@@ -160,8 +161,14 @@ public class TestCommand implements BLauncherCmd {
         } else {
             args = argList.subList(1, argList.size()).toArray(new String[0]);
         }
-        String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
 
+        // Sets the debug port as a system property, which will be used when setting up debug args before running the
+        // executable jar in a separate JVM process.
+        if (this.debugPort != null) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
+        }
+
+        String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
         // check if there are too many arguments.
         if (userArgs.length > 0) {
             CommandUtil.printError(this.errStream,
