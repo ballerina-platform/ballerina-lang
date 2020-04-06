@@ -98,7 +98,7 @@ public class AnydataStampInbuiltFunctionTest {
 
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testStampAnydataToXML() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampAnydataToXML");
