@@ -55,6 +55,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -404,14 +405,6 @@ public class SymbolResolver extends BLangNodeVisitor {
     public BSymbol resolveObjectMethod(DiagnosticPos pos, SymbolEnv env, Name fieldName,
                                        BObjectTypeSymbol objectSymbol) {
         return lookupMemberSymbol(pos, objectSymbol.methodScope, env, fieldName, SymTag.VARIABLE);
-    }
-
-    public BType resolveTypeNodeWithDeprecationCheck(BLangType typeNode, SymbolEnv env) {
-        BType type = resolveTypeNode(typeNode, env);
-        if (type.tsymbol != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(typeNode.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, type.tsymbol.name.value);
-        }
-        return type;
     }
 
     public BType resolveTypeNode(BLangType typeNode, SymbolEnv env) {
@@ -1019,7 +1012,16 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else if (type.tag == TypeTags.TYPEDESC) {
             constrainedType = new BTypedescType(constraintType, null);
         } else if (type.tag == TypeTags.XML) {
-            constrainedType = symTable.xmlType;
+            if (constraintType.tag != TypeTags.UNION) {
+                if (!TypeTags.isXMLTypeTag(constraintType.tag)) {
+                    dlog.error(constrainedTypeNode.pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType,
+                            constraintType);
+                }
+                constrainedType = new BXMLType(constraintType, null);
+            } else {
+                checkUnionTypeForXMLSubTypes((BUnionType) constraintType, constrainedTypeNode.pos);
+                constrainedType = new BXMLType(constraintType, null);
+            }
         } else {
             return;
         }
@@ -1028,6 +1030,17 @@ public class SymbolResolver extends BLangNodeVisitor {
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                                                            typeSymbol.pkgID, constrainedType, typeSymbol.owner);
         resultType = constrainedType;
+    }
+
+    private void checkUnionTypeForXMLSubTypes(BUnionType constraintUnionType, DiagnosticPos pos) {
+        for (BType memberType : constraintUnionType.getMemberTypes()) {
+            if (memberType.tag == TypeTags.UNION) {
+                checkUnionTypeForXMLSubTypes((BUnionType) memberType, pos);
+            }
+            if (!TypeTags.isXMLTypeTag(memberType.tag)) {
+                dlog.error(pos, DiagnosticCode.INCOMPATIBLE_TYPE_CONSTRAINT, symTable.xmlType, constraintUnionType);
+            }
+        }
     }
 
     public void visit(BLangStreamType streamTypeNode) {

@@ -15,21 +15,20 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.bindgen.components;
+package org.ballerinalang.bindgen.model;
 
-import java.io.PrintStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.ballerinalang.bindgen.command.BindingsGenerator.allClasses;
-import static org.ballerinalang.bindgen.command.BindingsGenerator.directJavaClass;
+import static org.ballerinalang.bindgen.command.BindingsGenerator.isDirectJavaClass;
+import static org.ballerinalang.bindgen.command.BindingsGenerator.setAllClasses;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ACCESS_FIELD;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_OBJECT_CLASS_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MUTATE_FIELD;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.handleOverloadedMethods;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isAbstractClass;
@@ -39,68 +38,66 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicMethod;
 
 /**
  * Class for storing details pertaining to a specific Java class used for Ballerina bridge code generation.
+ *
+ * @since 1.2.0
  */
 public class JClass {
 
-    public String shortClassName;
-    public String packageName;
-
     private String prefix;
     private String className;
+    private String packageName;
+    private String shortClassName;
 
-    private Boolean isInterface = false;
-    private Boolean directClass = false;
-    private Boolean isAbstractClass = false;
-    private Boolean singleConstructor = false;
-    private Boolean singleConstructorError = false;
+    private boolean isInterface = false;
+    private boolean isDirectClass = false;
+    private boolean isAbstract = false;
 
-    private Set<Class> superClassObjects = new HashSet<>();
-
+    private Set<String> superClasses = new HashSet<>();
     private List<JField> fieldList = new ArrayList<>();
     private List<JMethod> methodList = new ArrayList<>();
-    private List<String> superClasses = new ArrayList<>();
     private List<JConstructor> constructorList = new ArrayList<>();
     private List<JConstructor> initFunctionList = new ArrayList<>();
 
-    private static final PrintStream errStream = System.err;
-
     public JClass(Class c) {
+        className = c.getName();
+        prefix = className.replace(".", "_").replace("$", "_");
+        shortClassName = c.getSimpleName();
+        packageName = c.getPackage().getName();
 
-        this.className = c.getName();
-        this.prefix = this.className.replace(".", "_").replace("$", "_");
-        this.shortClassName = c.getSimpleName();
-        this.packageName = c.getPackage().getName();
+        setAllClasses(shortClassName);
+        if (c.isInterface()) {
+            isInterface = true;
+            setAllClasses(Object.class.getSimpleName());
+            superClasses.add(Object.class.getSimpleName());
+        }
+        populateImplementedInterfaces(c.getInterfaces());
 
         Class sClass = c.getSuperclass();
         while (sClass != null) {
-            String simpleClassName = c.getSimpleName().replace("$", "");
-            if (sClass.getName().equals(JAVA_OBJECT_CLASS_NAME)) {
-                superClasses.add(simpleClassName);
-                allClasses.add(simpleClassName);
-                break;
-            }
+            populateImplementedInterfaces(sClass.getInterfaces());
+            String simpleClassName = sClass.getSimpleName().replace("$", "");
+            superClasses.add(simpleClassName);
+            setAllClasses(simpleClassName);
             sClass = sClass.getSuperclass();
-            superClassObjects.add(sClass);
-        }
-        if (c.isInterface()) {
-            this.isInterface = true;
-        } else if (isAbstractClass(c)) {
-            this.isAbstractClass = true;
         }
 
-        if (directJavaClass) {
-            this.directClass = true;
+        if (isAbstractClass(c)) {
+            isAbstract = true;
+        }
+        if (isDirectJavaClass()) {
+            isDirectClass = true;
             populateConstructors(c.getConstructors());
             populateInitFunctions();
             populateMethods(getMethods(c));
+            methodList.sort(Comparator.comparing(JMethod::getParamTypes));
             handleOverloadedMethods(methodList);
+            methodList.sort(Comparator.comparing(JMethod::getJavaMethodName));
             populateFields(c.getFields());
         }
     }
 
     private List<Method> getMethods(Class classObject) {
-
-        Method[] declaredMethods = classObject.getDeclaredMethods();
+        Method[] declaredMethods = classObject.getMethods();
         List<Method> classMethods = new ArrayList<>();
         for (Method m : declaredMethods) {
             if (!m.isSynthetic() && (!m.getName().equals("toString"))) {
@@ -111,52 +108,66 @@ public class JClass {
     }
 
     private void populateConstructors(Constructor[] constructors) {
-
         int i = 1;
         for (Constructor constructor : constructors) {
             JConstructor jConstructor = new JConstructor(constructor);
-            jConstructor.setConstructorName("new" + this.shortClassName + i);
-            this.constructorList.add(jConstructor);
+            jConstructor.setConstructorName("new" + shortClassName + i);
+            constructorList.add(jConstructor);
             i++;
         }
     }
 
     private void populateInitFunctions() {
-
         int j = 1;
-        for (JConstructor constructor : this.constructorList) {
+        for (JConstructor constructor : constructorList) {
             JConstructor newCons = null;
             try {
                 newCons = (JConstructor) constructor.clone();
-            } catch (CloneNotSupportedException e) {
-                errStream.println(e);
+            } catch (CloneNotSupportedException ignore) {
+
             }
             if (newCons != null) {
-                newCons.setExternalFunctionName(constructor.constructorName);
+                newCons.setExternalFunctionName(constructor.getConstructorName());
                 newCons.setConstructorName("" + j);
-                this.initFunctionList.add(newCons);
+                initFunctionList.add(newCons);
             }
             j++;
         }
     }
 
     private void populateMethods(List<Method> declaredMethods) {
-
         for (Method method : declaredMethods) {
             if (isPublicMethod(method)) {
                 JMethod jMethod = new JMethod(method);
-                this.methodList.add(jMethod);
+                methodList.add(jMethod);
             }
         }
     }
 
     private void populateFields(Field[] fields) {
-
         for (Field field : fields) {
-            this.fieldList.add(new JField(field, ACCESS_FIELD));
+            fieldList.add(new JField(field, ACCESS_FIELD));
             if (!isFinalField(field) && isPublicField(field)) {
-                this.fieldList.add(new JField(field, MUTATE_FIELD));
+                fieldList.add(new JField(field, MUTATE_FIELD));
             }
         }
+    }
+
+    private void populateImplementedInterfaces(Class[] interfaces) {
+        for (Class interfaceClass : interfaces) {
+            setAllClasses(interfaceClass.getSimpleName());
+            superClasses.add(interfaceClass.getSimpleName());
+            if (interfaceClass.getInterfaces() != null) {
+                populateImplementedInterfaces(interfaceClass.getInterfaces());
+            }
+        }
+    }
+
+    public String getShortClassName() {
+        return shortClassName;
+    }
+
+    public String getPackageName() {
+        return packageName;
     }
 }
