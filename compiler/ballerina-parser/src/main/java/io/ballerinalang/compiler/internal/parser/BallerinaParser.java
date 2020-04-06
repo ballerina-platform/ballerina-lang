@@ -4373,6 +4373,8 @@ public class BallerinaParser {
 
     /**
      * Parse constant declaration, given the qualifier.
+     * <p>
+     * <code>module-const-decl := metadata [public] const [type-descriptor] identifier = const-expr ;</code>
      * 
      * @param qualifier Qualifier that precedes the listener declaration
      * @return Parsed node
@@ -4385,6 +4387,13 @@ public class BallerinaParser {
         return constDecl;
     }
 
+    /**
+     * Parse the components that follows after the const keyword of a constant declaration.
+     * 
+     * @param qualifier Qualifier that precedes the constant decl
+     * @param constKeyword Const keyword
+     * @return Parsed node
+     */
     private STNode parseConstDecl(STNode qualifier, STNode constKeyword) {
         STToken nextToken = peek();
         return parseConstDeclFromType(nextToken.kind, qualifier, constKeyword);
@@ -4423,9 +4432,6 @@ public class BallerinaParser {
         }
     }
 
-    /**
-     * @return
-     */
     private STNode parseConstantDeclWithOptionalType(STNode qualifier, STNode constKeyword) {
         STNode varNameOrTypeName = parseStatementStartIdentifier();
         STNode constDecl = parseConstantDeclRhs(qualifier, constKeyword, varNameOrTypeName);
@@ -4433,6 +4439,16 @@ public class BallerinaParser {
         return constDecl;
     }
 
+    /**
+     * Parse the component that follows the first identifier in a const decl. The identifier
+     * can be either the type-name (a user defined type) or the var-name there the type-name
+     * is not present.
+     * 
+     * @param qualifier Qualifier that precedes the constant decl
+     * @param constKeyword Const keyword
+     * @param typeOrVarName Identifier that follows the const-keywoord
+     * @return Parsed node
+     */
     private STNode parseConstantDeclRhs(STNode qualifier, STNode constKeyword, STNode typeOrVarName) {
         STToken token = peek();
         return parseConstantDeclRhs(token.kind, qualifier, constKeyword, typeOrVarName);
