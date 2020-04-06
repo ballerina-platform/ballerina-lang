@@ -152,11 +152,14 @@ class JMethodResolver {
 
     private Optional<JMethod> findCovariantReturnTypeMethod(List<JMethod> jMethods) {
 
-        for (JMethod ithMethod : jMethods) {
-            for (JMethod kthMethod : jMethods) {
-                if (ithMethod.equals(kthMethod)) {
+        for (int i = 0; i < jMethods.size(); i++) {
+            for (int k = i; k < jMethods.size(); k++) {
+                if (i == k) {
                     continue;
                 }
+
+                JMethod ithMethod = jMethods.get(i);
+                JMethod kthMethod = jMethods.get(k);
 
                 if (ithMethod.getReturnType().isAssignableFrom(kthMethod.getReturnType()) ||
                         kthMethod.getReturnType().isAssignableFrom(ithMethod.getReturnType())) {
