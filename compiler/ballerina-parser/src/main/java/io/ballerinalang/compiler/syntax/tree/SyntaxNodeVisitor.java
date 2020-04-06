@@ -95,6 +95,10 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(bracedExpression);
     }
 
+    public void visit(TypeofExpression typeofExpression) {
+        visitSyntaxNode(typeofExpression);
+    }
+
     // Tokens
 
     public void visit(Token token) {

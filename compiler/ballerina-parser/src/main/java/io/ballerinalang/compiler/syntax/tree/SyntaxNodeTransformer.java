@@ -96,6 +96,10 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(bracedExpression);
     }
 
+    public T transform(TypeofExpression typeofExpression) {
+        return transformSyntaxNode(typeofExpression);
+    }
+
     // Tokens
 
     public T transform(Token token) {

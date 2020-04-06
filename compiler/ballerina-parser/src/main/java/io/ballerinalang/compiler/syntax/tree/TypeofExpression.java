@@ -15,27 +15,31 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.internal.parser.tree;
+package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.TypeofExpression;
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class STTypeofExpression extends STExpression {
+public class TypeofExpression extends ExpressionTree {
 
-    public final STNode typeofKeyword;
-    public final STNode rhsExpr;
+    public TypeofExpression(STNode node, int position, NonTerminalNode parent) {
+        super(node, position, parent);
+    }
 
-    STTypeofExpression(STNode typeofKeyword, STNode rhsExpr) {
-        super(SyntaxKind.TYPEOF_EXPRESSION);
-        this.typeofKeyword = typeofKeyword;
-        this.rhsExpr = rhsExpr;
+    public Token typeofParen() {
+        return (Token) childInBucket(0);
+    }
 
-        addChildren(typeofKeyword, rhsExpr);
+    public Node expression() {
+        return childInBucket(1);
     }
 
     @Override
-    public Node createFacade(int position, NonTerminalNode parent) {
-        return new TypeofExpression(this, position, parent);
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+        return visitor.transform(this);
     }
 }
