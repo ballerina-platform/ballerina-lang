@@ -25,7 +25,7 @@ public class TypeofExpression extends ExpressionTree {
         super(node, position, parent);
     }
 
-    public Token typeofParen() {
+    public Token typeofToken() {
         return (Token) childInBucket(0);
     }
 

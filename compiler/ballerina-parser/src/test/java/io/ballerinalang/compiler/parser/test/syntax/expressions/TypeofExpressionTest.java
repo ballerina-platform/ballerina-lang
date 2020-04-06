@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 /**
  * Test parsing typeof expression.
  */
-public class TypeofExpressionTest extends AbstractExpressionsTest{
+public class TypeofExpressionTest extends AbstractExpressionsTest {
 
     @Test
     public void testSimpleTypeofExpr() {
