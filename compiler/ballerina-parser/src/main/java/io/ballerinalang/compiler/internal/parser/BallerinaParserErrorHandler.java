@@ -164,9 +164,6 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] SPECIFIC_FIELD_RHS =
             { ParserRuleContext.COLON, ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
 
-    private static final ParserRuleContext[] COMPOUND_ASSIGNMENT_STATEMENT =
-            { ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.ASSIGN_OP };
-
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
@@ -1164,7 +1161,6 @@ public class BallerinaParserErrorHandler {
             case RETURN_STMT:
             case COMPUTED_FIELD_NAME:
             case COMPOUND_ASSIGNMENT_STMT:
-                // case EXPRESSION:
                 startContext(currentCtx);
                 break;
             default:
@@ -1587,19 +1583,23 @@ public class BallerinaParserErrorHandler {
                 // Currently processing a required param, but now switch
                 // to a defaultable param
                 switchContext(ParserRuleContext.DEFAULTABLE_PARAM);
-                return compoundOrNot(nextToken);
+                return ParserRuleContext.ASSIGN_OP;
             }
         } else if (parentCtx == ParserRuleContext.DEFAULTABLE_PARAM) {
             if (isEndOfParametersList(nextToken)) {
                 return ParserRuleContext.CLOSE_PARENTHESIS;
             } else {
-                return compoundOrNot(nextToken);
+                return ParserRuleContext.ASSIGN_OP;
             }
         } else if (isStatement(parentCtx)) {
             if (isEndOfExpression(nextToken)) { // end of expression can be treated as end of a statement too
                 return ParserRuleContext.SEMICOLON;
             } else {
-                return compoundOrNot(nextToken);
+                if (isCompoundBinaryOperator(nextToken.kind)) {
+                    return ParserRuleContext.COMPOUND_BINARY_OPERATOR;        
+                } else {
+                    return ParserRuleContext.ASSIGN_OP;
+                }
             }
         } else if (parentCtx == ParserRuleContext.RECORD_FIELD) {
             return ParserRuleContext.FIELD_DESCRIPTOR_RHS;

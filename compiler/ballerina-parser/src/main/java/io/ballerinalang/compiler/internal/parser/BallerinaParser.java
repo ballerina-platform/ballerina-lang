@@ -3806,7 +3806,7 @@ public class BallerinaParser {
         }
     }
 
-    /*
+    /**
      * Parse colon token.
      * 
      * @return Parsed node
