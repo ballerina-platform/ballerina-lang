@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -82,6 +83,52 @@ public class GlobalVariableRefAnalyzer {
         this.cycles = new ArrayList<>();
         this.nodeInfoStack = new ArrayDeque<>();
         this.dependencyOrder = new ArrayList<>();
+    }
+
+    /**
+     * Populate the InvokableSymbols with the dependent global variables.
+     * @param globalNodeDependsOn symbol dependency relationship.
+     */
+    public void populateFunctionDependencies(Map<BSymbol, Set<BSymbol>> globalNodeDependsOn) {
+        this.globalNodeDependsOn = globalNodeDependsOn;
+
+        Set<BSymbol> dependentSet = this.globalNodeDependsOn.keySet();
+        for (BSymbol dependent : dependentSet) {
+            if (dependent.getKind() != SymbolKind.FUNCTION) {
+                continue;
+            }
+
+            Set<BSymbol> providers = globalNodeDependsOn.get(dependent);
+            populateGlobalVariablesInInvokableSymbol((BInvokableSymbol) dependent, providers);
+        }
+    }
+
+    private void populateGlobalVariablesInInvokableSymbol(BInvokableSymbol dependent, Set<BSymbol> providers) {
+        for (BSymbol symbol : providers) {
+            if (isGlobalVarSymbol(symbol)) {
+                dependent.dependentGlobalVars.add(symbol);
+            }
+            if (symbol.getKind() == SymbolKind.FUNCTION) {
+                Set<BSymbol> dependentsDependentSet = this.globalNodeDependsOn.get(symbol);
+                populateGlobalVariablesInInvokableSymbol(dependent, dependentsDependentSet);
+            }
+        }
+    }
+
+    private boolean isGlobalVarSymbol(BSymbol symbol) {
+        if (symbol == null) {
+            return false;
+        }
+        if (symbol.owner == null) {
+            return false;
+        }
+        if (symbol.owner.tag != SymTag.PACKAGE) {
+            return false;
+        }
+
+        return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) ||
+                ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT);
+
     }
 
     /**
