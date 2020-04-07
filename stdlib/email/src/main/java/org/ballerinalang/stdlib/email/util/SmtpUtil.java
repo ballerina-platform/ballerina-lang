@@ -226,7 +226,7 @@ public class SmtpUtil {
     }
 
     private static boolean stringIsNotNullOrEmpty(String string) {
-        return string != null && !string.equals("");
+        return string != null && !string.isEmpty();
     }
 
 }

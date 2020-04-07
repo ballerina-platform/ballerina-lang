@@ -25,11 +25,11 @@ import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TypedescValue;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpService;
@@ -83,6 +83,8 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
  * @since 1.1.0
  */
 public class SubscriberNativeOperationHandler {
+
+    private static final BArrayType mapArrayType = new BArrayType(new BMapType(BTypes.typeAny));
 
     /**
      * Initialize the WebSub subscriber endpoint.
@@ -287,7 +289,7 @@ public class SubscriberNativeOperationHandler {
      */
     @SuppressWarnings("unchecked")
     public static ArrayValue retrieveSubscriptionParameters(ObjectValue subscriberServiceListener) {
-        ArrayValue subscriptionDetailArray = new ArrayValueImpl(new BArrayType(new BMapType(BTypes.typeAny)));
+        ArrayValue subscriptionDetailArray = (ArrayValue) BValueCreator.createArrayValue(mapArrayType);
         ObjectValue serviceEndpoint = (ObjectValue) subscriberServiceListener.get(WEBSUB_HTTP_ENDPOINT);
         WebSubServicesRegistry webSubServicesRegistry = ((WebSubServicesRegistry) serviceEndpoint.getNativeData(
                 WEBSUB_SERVICE_REGISTRY));

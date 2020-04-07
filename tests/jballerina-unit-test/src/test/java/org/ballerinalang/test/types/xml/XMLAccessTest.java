@@ -24,7 +24,6 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -239,19 +238,6 @@ public class XMLAccessTest {
 
         Assert.assertTrue(returns[2] instanceof BXML);
         Assert.assertEquals(returns[2].stringValue(), "<name>supun</name>");
-    }
-    
-    @Test (groups = "brokenOnXMLLangLibChange", expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*index out of range: index: 1, size: 1.*")
-    public void testXMLAccessWithOutOfIndex() {
-        BRunUtil.invoke(result, "testXMLAccessWithOutOfIndex");
-    }
-
-    @Test (groups = "brokenOnXMLLangLibChange", expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.xml\\}XMLOperationError " +
-                    "message=IndexOutOfRange Index: 5, Size: 3.*")
-    public void testXMLSequenceAccessWithOutOfIndex() {
-        BRunUtil.invoke(result, "testXMLSequenceAccessWithOutOfIndex");
     }
 
     @Test

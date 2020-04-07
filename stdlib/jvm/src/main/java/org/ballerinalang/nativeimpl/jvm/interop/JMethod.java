@@ -20,7 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.interop;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -38,6 +38,7 @@ import static org.ballerinalang.nativeimpl.jvm.interop.JInteropException.CLASS_N
  */
 class JMethod {
     static final JMethod NO_SUCH_METHOD = new JMethod(null, null);
+    private static final BArrayType stringArrayType = new BArrayType(BTypes.typeString);
 
     private JMethodKind kind;
     private Executable method;
@@ -117,7 +118,7 @@ class JMethod {
         }
 
 
-        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeString), checkedExceptions.size());
+        ArrayValue arrayValue = (ArrayValue) BValueCreator.createArrayValue(stringArrayType, checkedExceptions.size());
         int i = 0;
         for (Class<?> exceptionType : checkedExceptions) {
             arrayValue.add(i++, exceptionType.getName().replace(".", "/"));

@@ -2,16 +2,18 @@ import ballerina/java;
 import ballerina/java.arrays as jarrays;
 
 public function getArrayFromHandle(handle arg) returns any[] {
-    int count = jarrays:getLength(arg);
     any[] returnArray = [];
-    foreach int i in 0 ... count-1 {
-        any element = jarrays:get(arg, i);
-        if (element is int|boolean|float|byte) {
-            returnArray[i] = element;
-        } else if (element is handle && !(java:toString(element) is ())){
-            returnArray[i] = element;
-        } else {
-            returnArray[i] = element;
+    if (!java:isNull(arg)) {
+        int count = jarrays:getLength(arg);
+        foreach int i in 0 ... count-1 {
+            any element = jarrays:get(arg, i);
+            if (element is int|boolean|float|byte) {
+                returnArray[i] = element;
+            } else if (element is handle && !(java:toString(element) is ())){
+                returnArray[i] = java:toString(element);
+            } else {
+                returnArray[i] = element;
+            }
         }
     }
     return returnArray;

@@ -13,6 +13,8 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.'xml;
+
 public type Person record {|
     int id;
     string name;
@@ -93,18 +95,15 @@ public function cloneString() returns [string, string, string] {
     return [a, x, y];
 }
 
-//public function cloneXML() returns [xml, xml, xml] {
-//    xml a = xml `<root><name>Alex</name><id>123</id><age>21</age></root>`;
-//    xml newName = xml `<name>Charlos</name>`;
-//    xml newId = xml `<id>5000</id>`;
-//    xml x = a.clone();
-//    xml y = a.clone();
-//    a.removeChildren("name");
-//    a.appendChildren(newName);
-//    y.removeChildren("id");
-//    y.appendChildren(newId);
-//    return [a, x, y];
-//}
+public function cloneXML() returns [xml, xml] {
+    'xml:Element a = <'xml:Element> xml `<root><name>Alex</name></root>`;
+    xml newName = xml `<name>Charlos</name>`;
+
+    'xml:Element x = <'xml:Element> a.clone();
+    a.setChildren(newName);
+
+    return [a, x];
+}
 
 public function cloneMap() returns [map<any>, map<any>, map<any>] {
 

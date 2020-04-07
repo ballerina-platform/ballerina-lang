@@ -35,7 +35,7 @@ public class DeprecationAnnotationNegativeTest {
     public void testDeprecationAnnotation() {
 
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/deprecation_annotation_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 5);
+        Assert.assertEquals(compileResult.getErrorCount(), 23);
         int i = 0;
         BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
                 "documentation", 4, 1);
@@ -45,7 +45,43 @@ public class DeprecationAnnotationNegativeTest {
                 "documentation", 18, 1);
         BAssertUtil.validateError(compileResult, i++, "invalid documentation: 'Deprecated' documentation is only " +
                 "allowed on constructs annotated as '@deprecated'", 23, 5);
-        BAssertUtil.validateError(compileResult, i, "constructs annotated as '@deprecated' must have 'Deprecated' " +
+        BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
                 "documentation", 36, 1);
+        BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
+                "documentation", 50, 60);
+        BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
+                "documentation", 59, 15);
+        BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
+                "documentation", 59, 41);
+        BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
+                "documentation", 59, 60);
+        BAssertUtil.validateError(compileResult, i++, "invalid documentation: 'Deprecated' documentation is only " +
+                "allowed on constructs annotated as '@deprecated'", 71, 5);
+        BAssertUtil.validateError(compileResult, i++, "'Deprecated parameters' documentation is not allowed here", 85
+                , 1);
+        BAssertUtil.validateError(compileResult, i++, "'Deprecated parameters' documentation is not allowed here",
+                104, 1);
+        BAssertUtil.validateError(compileResult, i++, "'Deprecated parameters' documentation is not allowed here",
+                121, 1);
+        BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
+                "documentation", 145, 43);
+        BAssertUtil.validateError(compileResult, i++, "invalid documentation: 'Deprecated' documentation is only " +
+                "allowed on constructs annotated as '@deprecated'", 153, 5);
+        BAssertUtil.validateError(compileResult, i++, "invalid documentation: 'Deprecated' documentation is only " +
+                "allowed on constructs annotated as '@deprecated'", 160, 5);
+        BAssertUtil.validateError(compileResult, i++, "constructs annotated as '@deprecated' must have 'Deprecated' " +
+                "documentation", 163, 5);
+        BAssertUtil.validateError(compileResult, i++, "'Deprecated parameters' documentation is not allowed here",
+                173, 1);
+        BAssertUtil.validateError(compileResult, i++, "'Deprecated parameters' documentation is not allowed here",
+                184, 1);
+        BAssertUtil.validateError(compileResult, i++, "'Deprecated parameters' documentation is not allowed here",
+                191, 1);
+        BAssertUtil.validateError(compileResult, i++, "'Deprecated parameters' documentation is not allowed here", 196,
+                1);
+        BAssertUtil.validateError(compileResult, i++, "'Deprecated parameters' documentation is not allowed here", 226,
+                1);
+        BAssertUtil.validateError(compileResult, i, "invalid documentation: 'Deprecated' documentation is only " +
+                "allowed on constructs annotated as '@deprecated'", 226, 1);
     }
 }

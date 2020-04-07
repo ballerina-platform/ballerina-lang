@@ -64,6 +64,7 @@ public class JvmConstants {
     public static final String BTYPES = "org/ballerinalang/jvm/types/BTypes";
     public static final String ARRAY_TYPE = "org/ballerinalang/jvm/types/BArrayType";
     public static final String MAP_TYPE = "org/ballerinalang/jvm/types/BMapType";
+    public static final String XML_TYPE = "org/ballerinalang/jvm/types/BXMLType";
     public static final String STREAM_TYPE = "org/ballerinalang/jvm/types/BStreamType";
     public static final String UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
     public static final String RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";

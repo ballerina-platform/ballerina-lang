@@ -48,8 +48,7 @@ public class WebSocketObservabilityUtil {
         WebSocketMetricsUtil.reportConnectionMetrics(observerContext);
 
         LOGGER.debug("WebSocket new connection established. connectionID: {}, service/url: {}",
-                     observerContext.getConnectionId(),
-                     observerContext.getServicePathOrClientUrl());
+                     observerContext.getConnectionId(), observerContext.getServicePathOrClientUrl());
     }
 
     /**
@@ -63,9 +62,7 @@ public class WebSocketObservabilityUtil {
         WebSocketMetricsUtil.reportSendMetrics(observerContext, type);
 
         LOGGER.debug("WebSocket message sent. connectionID: {}, service/url: {}, type: {}",
-                     observerContext.getConnectionId(),
-                     observerContext.getServicePathOrClientUrl(),
-                     type);
+                     observerContext.getConnectionId(), observerContext.getServicePathOrClientUrl(), type);
     }
 
     /**
@@ -79,9 +76,7 @@ public class WebSocketObservabilityUtil {
         WebSocketMetricsUtil.reportReceivedMetrics(observerContext, type);
 
         LOGGER.debug("WebSocket message received. connectionID: {}, service/url: {}, type:{}",
-                     observerContext.getConnectionId(),
-                     observerContext.getServicePathOrClientUrl(),
-                     type);
+                     observerContext.getConnectionId(), observerContext.getServicePathOrClientUrl(), type);
     }
 
     /**
@@ -94,8 +89,7 @@ public class WebSocketObservabilityUtil {
         WebSocketMetricsUtil.reportCloseMetrics(observerContext);
 
         LOGGER.debug("WebSocket connection closed. connectionID: {}, service/url: {}",
-                     observerContext.getConnectionId(),
-                     observerContext.getServicePathOrClientUrl());
+                     observerContext.getConnectionId(), observerContext.getServicePathOrClientUrl());
     }
 
     /**

@@ -40,7 +40,7 @@ function inferSimpleTuple() {
 function inferStructuredTuple() {
     var x = [f, b, xml `text`, j];
     typedesc<any> ta = typeof x;
-    assertEquality("typedesc [Foo,Bar,xml,json]", ta.toString());
+    assertEquality("typedesc [Foo,Bar,lang.xml:Text,json]", ta.toString());
 }
 
 function inferNestedTuple() {

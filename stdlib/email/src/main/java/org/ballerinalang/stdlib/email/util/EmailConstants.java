@@ -50,6 +50,7 @@ public class EmailConstants {
     public static final String PROPS_PASSWORD = "password";
     public static final String PROPS_STORE = "store";
     public static final String MAIL_STORE_PROTOCOL = "mail.store.protocol";
+    public static final String MIME_CONTENT_TYPE_PATTERN = "multipart/*";
     public static final String READ_CLIENT_INIT_ERROR = "{ballerina/email}ReadClientInitError";
     public static final String READ_ERROR = "{ballerina/email}ReadError";
 
