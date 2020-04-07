@@ -69,6 +69,8 @@ public class PopComplexEmailReceiveTest {
     private static final String ATTACHMENT2_TEXT = "{\"bodyPart\":\"jsonPart\"}";
     private static final String ATTACHMENT3_TEXT = "<name>Ballerina xml file part</name>";
     private static final byte[] ATTACHMENT4_BINARY = "This is a sample source of bytes.".getBytes();
+    private static final String ATTACHMENT1_HEADER1_NAME_TEXT = "H1";
+    private static final String ATTACHMENT1_HEADER1_VALUE_TEXT = "V1";
     private static final String[] EMAIL_TO_ADDRESSES = {"hascode1@localhost", "hascode2@localhost"};
     private static final String[] EMAIL_CC_ADDRESSES = {"hascode3@localhost", "hascode4@localhost"};
     private static final String[] EMAIL_BCC_ADDRESSES = {"hascode5@localhost", "hascode6@localhost"};
@@ -101,6 +103,7 @@ public class PopComplexEmailReceiveTest {
         MimeBodyPart attachment3 = new MimeBodyPart();
         MimeBodyPart attachment4 = new MimeBodyPart();
         attachment1.setContent(ATTACHMENT1_TEXT, MimeConstants.TEXT_PLAIN);
+        attachment1.addHeader(ATTACHMENT1_HEADER1_NAME_TEXT, ATTACHMENT1_HEADER1_VALUE_TEXT);
         attachment2.setContent(ATTACHMENT2_TEXT, MimeConstants.APPLICATION_JSON);
         attachment3.setContent(ATTACHMENT3_TEXT, MimeConstants.APPLICATION_XML);
         attachment4.setContent(ATTACHMENT4_BINARY, MimeConstants.OCTET_STREAM);
@@ -137,10 +140,12 @@ public class PopComplexEmailReceiveTest {
         assertEquals(ATTACHMENT2_TEXT, result[8]);
         assertEquals(ATTACHMENT3_TEXT, result[9]);
         assertEquals(new String(ATTACHMENT4_BINARY), result[10]);
+        assertEquals(ATTACHMENT1_HEADER1_VALUE_TEXT, result[11]);
+        Assert.assertTrue(result[12].startsWith(MimeConstants.TEXT_PLAIN));
     }
 
     private String concatAddresses(String[] addresses) {
-        StringBuilder stringBuilder = new StringBuilder("");
+        StringBuilder stringBuilder = new StringBuilder();
         for (String address : addresses) {
             stringBuilder.append(address);
         }
