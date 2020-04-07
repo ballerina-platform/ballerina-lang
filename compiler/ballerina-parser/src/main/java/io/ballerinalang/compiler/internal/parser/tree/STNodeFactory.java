@@ -408,4 +408,8 @@ public class STNodeFactory {
         return new STConstantDeclaration(qualifier, constKeyword, typeDesc, variableName, equalsToken, initializer,
                 semicolonToken);
     }
+
+    public static STNode createNilTypeDescriptor(STNode openParenthesisToken, STNode closeParenthesisToken) {
+        return new STNilTypeDescriptor(openParenthesisToken, closeParenthesisToken);
+    }
 }
