@@ -19,42 +19,49 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+/**
+ * @since 1.3.0
+ */
 public class FunctionDefinitionNode extends ModuleMemberDeclaration {
 
     public FunctionDefinitionNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
-    public Token visibilityQualifier() {
+    public Token metadata() {
         return childInBucket(0);
     }
 
-    public Token functionKeyword() {
+    public Token visibilityQualifier() {
         return childInBucket(1);
     }
 
-    public Identifier functionName() {
+    public Token functionKeyword() {
         return childInBucket(2);
     }
 
-    public Token openParenToken() {
+    public Identifier functionName() {
         return childInBucket(3);
     }
 
-    public Node parameters() {
+    public Token openParenToken() {
         return childInBucket(4);
     }
 
-    public Token closeParenToken() {
+    public Node parameters() {
         return childInBucket(5);
     }
 
-    public Node returnTypeDesc() {
+    public Token closeParenToken() {
         return childInBucket(6);
     }
 
-    public BlockStatement functionBody() {
+    public Node returnTypeDesc() {
         return childInBucket(7);
+    }
+
+    public BlockStatement functionBody() {
+        return childInBucket(8);
     }
 
     @Override

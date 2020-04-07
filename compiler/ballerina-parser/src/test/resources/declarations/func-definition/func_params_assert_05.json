@@ -55,6 +55,11 @@
                     "kind": "RETURNS_KEYWORD"
                 },
                 {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                },
+                {
                     "kind": "IDENTIFIER_TOKEN",
                     "value": "Student"
                 }

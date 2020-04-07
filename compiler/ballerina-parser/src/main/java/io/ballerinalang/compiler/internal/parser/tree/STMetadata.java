@@ -15,38 +15,30 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.syntax.tree;
+package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.syntax.tree.Metadata;
+import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 /**
  * @since 1.3.0
  */
-public class BinaryExpression extends ExpressionTree {
+public class STMetadata extends STNode {
 
-    public BinaryExpression(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
-    }
+    public final STNode documentationString;
+    public final STNode annotations;
 
-    public Node lhsExpr() {
-        return childInBucket(0);
-    }
+    STMetadata(STNode documentationString, STNode annotations) {
+        super(SyntaxKind.METADATA);
+        this.documentationString = documentationString;
+        this.annotations = annotations;
 
-    public Token operator() {
-        return (Token) childInBucket(1);
-    }
-
-    public Node rhsExpr() {
-        return childInBucket(2);
+        addChildren(documentationString, annotations);
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
-        return visitor.transform(this);
+    public Node createFacade(int position, NonTerminalNode parent) {
+        return new Metadata(this, position, parent);
     }
 }

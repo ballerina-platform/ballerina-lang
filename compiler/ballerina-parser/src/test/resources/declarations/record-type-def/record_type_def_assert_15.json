@@ -26,6 +26,11 @@
                     "kind": "RETURNS_KEYWORD"
                 },
                 {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                },
+                {
                     "kind": "RECORD_TYPE_DESCRIPTOR",
                     "children": [
                         {

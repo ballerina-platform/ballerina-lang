@@ -29,6 +29,7 @@ public enum ParserRuleContext {
     COMP_UNIT("comp-unit"),
     EOF("eof"),
     TOP_LEVEL_NODE("top-level-node"),
+    TOP_LEVEL_NODE_WITHOUT_METADATA("top-level-node-without-metadata"),
     TOP_LEVEL_NODE_WITHOUT_MODIFIER("top-level-node-without-modifier"),
     FUNC_DEFINITION("func-definition"),
     PARAM_LIST("parameters"),
@@ -37,7 +38,6 @@ public enum ParserRuleContext {
     REST_PARAM("rest-parameter"),
     AFTER_PARAMETER_TYPE("after-parameter-type"),
     PARAMETER_RHS("parameter-rhs"),
-    ANNOTATION_ATTACHMENT("annotation"),
     RETURN_TYPE_DESCRIPTOR("return-type-desc"),
     FUNC_BODY("func-body"),
     EXTERNAL_FUNC_BODY("external-func-body"),
@@ -56,6 +56,7 @@ public enum ParserRuleContext {
     NAMED_OR_POSITIONAL_ARG_RHS("named-or-positional-arg"),
     OBJECT_TYPE_DESCRIPTOR("object-type-desc"),
     OBJECT_MEMBER("object-member"),
+    OBJECT_MEMBER_WITHOUT_METADATA("object-member-without-metadata"),
     OBJECT_FUNC_OR_FIELD("object-func-or-field"),
     OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY("object-func-or-field-without-visibility"),
     OBJECT_METHOD_START("object-method-start"),
@@ -85,6 +86,11 @@ public enum ParserRuleContext {
     CONSTANT_DECL("const-decl"),
     CONST_DECL_TYPE("const-decl-type"),
     CONST_DECL_RHS("const-decl-rhs"),
+    ANNOT_REFERENCE("annot-reference"),
+    ANNOTATIONS("annots"),
+    DOC_STRING("doc-string"),
+    IDENTIFIER("identifier"),
+    QUALIFIED_IDENTIFIER("qualified-identifier"),
 
     // Statements
     STATEMENT("statement"),
@@ -152,7 +158,8 @@ public enum ParserRuleContext {
     OPEN_BRACKET("["),
     CLOSE_BRACKET("]"),
     SLASH("/"),
-
+    AT("@"),
+    
     // Other terminals
     FUNC_NAME("function-name"),
     VARIABLE_NAME("variable"),
@@ -165,6 +172,7 @@ public enum ParserRuleContext {
     SERVICE_NAME("service-name"),
     LISTENER_KEYWORD("const-keyword"),
     CONST_KEYWORD("const-keyword"),
+    
 
     // Expressions
     EXPRESSION("expression"),
@@ -179,7 +187,7 @@ public enum ParserRuleContext {
     MAPPING_FIELD("maping-field"),
     MAPPING_FIELD_NAME("maping-field-name"),
     SPECIFIC_FIELD_RHS("specific-field-rhs"),
-    COMPUTED_FIELD_NAME("computed-field-name")
+    COMPUTED_FIELD_NAME("computed-field-name"),
     ;
 
     private String value;

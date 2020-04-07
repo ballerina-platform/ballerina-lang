@@ -40,7 +40,8 @@ public class STNodeFactory {
 
     // Module level declarations
 
-    public static STNode createFunctionDefinition(STNode visibilityQualifier,
+    public static STNode createFunctionDefinition(STNode metadata,
+                                                  STNode visibilityQualifier,
                                                   STNode functionKeyword,
                                                   STNode functionName,
                                                   STNode openParenToken,
@@ -49,8 +50,8 @@ public class STNodeFactory {
                                                   STNode returnTypeDesc,
                                                   STNode functionBody) {
 
-        return new STFunctionDefinition(visibilityQualifier, functionKeyword, functionName,
-                openParenToken, parameters, closeParenToken, returnTypeDesc, functionBody);
+        return new STFunctionDefinition(metadata, visibilityQualifier, functionKeyword, functionName, openParenToken,
+                parameters, closeParenToken, returnTypeDesc, functionBody);
     }
 
     public static STNode createModuleTypeDefinition(STNode visibilityQualifier,
@@ -407,5 +408,13 @@ public class STNodeFactory {
                                                 STNode semicolonToken) {
         return new STConstantDeclaration(qualifier, constKeyword, typeDesc, variableName, equalsToken, initializer,
                 semicolonToken);
+    }
+
+    public static STNode createAnnotation(STNode atToken, STNode annotReference, STNode annotValue) {
+        return new STAnnotation(atToken, annotReference, annotValue);
+    }
+
+    public static STNode createMetadata(STNode documentationString, STNode annotations) {
+        return new STMetadata(documentationString, annotations);
     }
 }

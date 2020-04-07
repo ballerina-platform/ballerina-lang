@@ -212,6 +212,14 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(constantDecl);
     }
 
+    public void visit(Annotation annotation) {
+        visitSyntaxNode(annotation);
+    }
+
+    public void visit(Metadata metadata) {
+        visitSyntaxNode(metadata);
+    }
+
     protected void visitSyntaxNode(Node node) {
         // TODO Find a better way to check for token
         if (node instanceof Token) {

@@ -213,6 +213,14 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(constantDecl);
     }
 
+    public T transform(Annotation annotation) {
+        return transformSyntaxNode(annotation);
+    }
+
+    public T transform(Metadata metadata) {
+        return transformSyntaxNode(metadata);
+    }
+
     /**
      * Transforms the given {@code Node} into an object of type T.
      * <p>

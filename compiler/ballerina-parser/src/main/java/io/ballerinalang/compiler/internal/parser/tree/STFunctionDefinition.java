@@ -25,7 +25,8 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 // function foo(int k) returns int {}
 // function foo(int k) returns int = extern
 public class STFunctionDefinition extends STNode {
-    // TODO metadata goes here
+
+    public final STNode metadata;
     public final STNode visibilityQualifier;
     public final STNode functionKeyword;
     public final STNode functionName;
@@ -35,16 +36,18 @@ public class STFunctionDefinition extends STNode {
     public final STNode returnTypeDesc; 
     public final STNode functionBody;
 
-    STFunctionDefinition(STNode visibilityQualifier,
-                                STNode functionKeyword,
-                                STNode functionName,
-                                STNode openParenToken,
-                                STNode parameters,
-                                STNode closeParenToken,
-                                STNode returnTypeDesc,
-                                STNode functionBody) {
+    STFunctionDefinition(STNode metadata,
+                         STNode visibilityQualifier,
+                         STNode functionKeyword,
+                         STNode functionName,
+                         STNode openParenToken,
+                         STNode parameters,
+                         STNode closeParenToken,
+                         STNode returnTypeDesc,
+                         STNode functionBody) {
 
         super(SyntaxKind.FUNCTION_DEFINITION);
+        this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.functionKeyword = functionKeyword;
         this.functionName = functionName;
@@ -54,7 +57,7 @@ public class STFunctionDefinition extends STNode {
         this.returnTypeDesc = returnTypeDesc;
         this.functionBody = functionBody;
 
-        addChildren(visibilityQualifier, functionKeyword, functionName,
+        addChildren(metadata, visibilityQualifier, functionKeyword, functionName,
                 openParenToken, parameters, closeParenToken, returnTypeDesc, functionBody);
     }
 

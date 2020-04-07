@@ -29,6 +29,11 @@
                     "kind": "EQUAL_TOKEN"
                 },
                 {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                },
+                {
                     "kind": "EXTERNAL_KEYWORD"
                 },
                 {

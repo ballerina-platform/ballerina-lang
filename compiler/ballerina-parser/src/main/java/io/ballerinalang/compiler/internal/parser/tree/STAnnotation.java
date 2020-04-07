@@ -17,33 +17,30 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.BinaryExpression;
+import io.ballerinalang.compiler.syntax.tree.Annotation;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 /**
  * @since 1.3.0
  */
-public class STBinaryExpression extends STExpression {
-    
-    final STNode lhsExpr;
-    final STNode operator;
-    final STNode rhsExpr;
+public class STAnnotation extends STParameter {
 
-    STBinaryExpression(SyntaxKind kind,
-                       STNode lhsExpr,
-                       STNode operator,
-                       STNode rhsExpr) {
-        super(kind);
-        this.lhsExpr = lhsExpr;
-        this.operator = operator;
-        this.rhsExpr = rhsExpr;
+    public final STNode atToken;
+    public final STNode annotReference;
+    public final STNode annotValue;
 
-        this.addChildren(lhsExpr, operator, rhsExpr);
+    STAnnotation(STNode atToken, STNode annotReference, STNode annotValue) {
+        super(SyntaxKind.ANNOTATION);
+        this.atToken = atToken;
+        this.annotReference = annotReference;
+        this.annotValue = annotValue;
+
+        addChildren(atToken, annotReference, annotValue);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new BinaryExpression(this, position, parent);
+        return new Annotation(this, position, parent);
     }
 }

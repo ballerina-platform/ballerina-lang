@@ -22,21 +22,21 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 /**
  * @since 1.3.0
  */
-public class BinaryExpression extends ExpressionTree {
+public class Annotation extends NonTerminalNode {
 
-    public BinaryExpression(STNode node, int position, NonTerminalNode parent) {
+    public Annotation(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
-    public Node lhsExpr() {
+    public Token atToken() {
         return childInBucket(0);
     }
 
-    public Token operator() {
-        return (Token) childInBucket(1);
+    public Node annotationReference() {
+        return childInBucket(1);
     }
 
-    public Node rhsExpr() {
+    public Node annotationValue() {
         return childInBucket(2);
     }
 

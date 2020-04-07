@@ -70,6 +70,8 @@ public enum SyntaxKind {
     ELLIPSIS_TOKEN(510, "..."),
     OPEN_BRACE_PIPE_TOKEN(511, "{|"),
     CLOSE_BRACE_PIPE_TOKEN(512, "|}"),
+    AT_TOKEN(513, "@"),
+    HASH_TOKEN(514, "#"),
 
     // Operators
     EQUAL_TOKEN(550, "="),
@@ -167,6 +169,8 @@ public enum SyntaxKind {
     SPREAD_FIELD(3019),
     EXPRESSION_LIST_ITEM(3020),
     SERVICE_BODY(3021),
+    ANNOTATION(3022),
+    METADATA(3023),
 
     INVALID(4),
     MODULE_PART(3),

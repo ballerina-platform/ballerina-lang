@@ -87,7 +87,6 @@ public class BallerinaParser {
                 return parseTypeDescriptor();
             case ASSIGN_OP:
                 return parseAssignOp();
-            case ANNOTATION_ATTACHMENT:
             case EXTERNAL_KEYWORD:
                 return parseExternalKeyword();
             case FUNC_BODY_BLOCK:
@@ -110,10 +109,12 @@ public class BallerinaParser {
                 return parseAfterParamType(parsedNodes[0], parsedNodes[1]);
             case PARAMETER_RHS:
                 return parseParameterRhs(parsedNodes[0], parsedNodes[1], parsedNodes[2]);
-            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
-                return parseTopLevelNode(parsedNodes[0]);
             case TOP_LEVEL_NODE:
                 return parseTopLevelNode();
+            case TOP_LEVEL_NODE_WITHOUT_METADATA:
+                return parseTopLevelNode(parsedNodes[0]);
+            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
+                return parseTopLevelNode(parsedNodes[0], parsedNodes[1]);
             case STATEMENT_START_IDENTIFIER:
                 return parseStatementStartIdentifier();
             case VAR_DECL_STMT_RHS:
@@ -137,7 +138,7 @@ public class BallerinaParser {
             case OBJECT_MEMBER:
                 return parseObjectMember();
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
-                return parseObjectMethodOrField(parsedNodes[0]);
+                return parseObjectMethodOrField(parsedNodes[0], parsedNodes[1]);
             case OBJECT_FIELD_RHS:
                 return parseObjectFieldRhs(parsedNodes[0], parsedNodes[1], parsedNodes[2]);
             case OBJECT_TYPE_FIRST_QUALIFIER:
@@ -354,13 +355,66 @@ public class BallerinaParser {
         return parseTopLevelNode(token.kind);
     }
 
+    protected STNode parseTopLevelNode(SyntaxKind tokenKind) {
+        STNode metadata;
+        switch (tokenKind) {
+            case EOF_TOKEN:
+                return consume();
+            case HASH_TOKEN:
+            case AT_TOKEN:
+                metadata = parseMetaData();
+                return parseTopLevelNode(metadata);
+
+            // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
+            // TODO: add type binding pattern
+            case IDENTIFIER_TOKEN:
+                if (!isVarDeclStart()) {
+                    break;
+                }
+                // Else fall through
+            case PUBLIC_KEYWORD:
+            case FUNCTION_KEYWORD:
+            case TYPE_KEYWORD:
+            case LISTENER_KEYWORD:
+            case CONST_KEYWORD:
+            case SIMPLE_TYPE:
+            case RECORD_KEYWORD:
+            case OBJECT_KEYWORD:
+            case ABSTRACT_KEYWORD:
+            case CLIENT_KEYWORD:
+            case IMPORT_KEYWORD:
+            case SERVICE_KEYWORD:
+                metadata = STNodeFactory.createEmptyNode();
+                return parseTopLevelNode(metadata);
+            default:
+                break;
+        }
+
+        STToken token = peek();
+        Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE);
+
+        // If the parser recovered by inserting a token, then try to re-parse the same
+        // rule with the inserted token. This is done to pick the correct branch
+        // to continue the parsing.
+        if (solution.action == Action.REMOVE) {
+            return solution.recoveredNode;
+        }
+
+        return parseTopLevelNode(solution.tokenKind);
+    }
+
     /**
      * Parse top level node having an optional modifier preceding it, given the next token kind.
      * 
      * @param tokenKind Next token kind
      * @return Parsed node
      */
-    protected STNode parseTopLevelNode(SyntaxKind tokenKind) {
+    private STNode parseTopLevelNode(STNode metadata) {
+        STToken nextToken = peek();
+        return parseTopLevelNode(nextToken.kind, metadata);
+    }
+
+    private STNode parseTopLevelNode(SyntaxKind tokenKind, STNode metadata) {
         STNode qualifier = null;
         switch (tokenKind) {
             case EOF_TOKEN:
@@ -386,7 +440,7 @@ public class BallerinaParser {
                 break;
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE);
+                Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_METADATA, metadata);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -395,10 +449,10 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseTopLevelNode(solution.tokenKind);
+                return parseTopLevelNode(solution.tokenKind, metadata);
         }
 
-        return parseTopLevelNode(qualifier);
+        return parseTopLevelNode(metadata, qualifier);
     }
 
     /**
@@ -875,9 +929,9 @@ public class BallerinaParser {
      * @param qualifier Qualifier that precedes the top level node
      * @return Parsed node
      */
-    private STNode parseTopLevelNode(STNode qualifier) {
+    private STNode parseTopLevelNode(STNode metadata, STNode qualifier) {
         STToken token = peek();
-        return parseTopLevelNode(token.kind, qualifier);
+        return parseTopLevelNode(token.kind, metadata, qualifier);
     }
 
     /**
@@ -887,10 +941,10 @@ public class BallerinaParser {
      * @param qualifier Qualifier that precedes the top level node
      * @return Parsed top-level node
      */
-    private STNode parseTopLevelNode(SyntaxKind tokenKind, STNode qualifier) {
+    private STNode parseTopLevelNode(SyntaxKind tokenKind, STNode metadata, STNode qualifier) {
         switch (tokenKind) {
             case FUNCTION_KEYWORD:
-                return parseFunctionDefinition(getQualifier(qualifier));
+                return parseFunctionDefinition(metadata, getQualifier(qualifier));
             case TYPE_KEYWORD:
                 return parseModuleTypeDefinition(getQualifier(qualifier));
             case LISTENER_KEYWORD:
@@ -935,7 +989,7 @@ public class BallerinaParser {
         }
 
         STToken token = peek();
-        Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER, qualifier);
+        Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER, metadata, qualifier);
 
         // If the parser recovered by inserting a token, then try to re-parse the same
         // rule with the inserted token. This is done to pick the correct branch
@@ -944,7 +998,7 @@ public class BallerinaParser {
             return solution.recoveredNode;
         }
 
-        return parseTopLevelNode(solution.tokenKind, qualifier);
+        return parseTopLevelNode(solution.tokenKind, metadata, qualifier);
     }
 
     private STNode getQualifier(STNode qualifier) {
@@ -981,11 +1035,12 @@ public class BallerinaParser {
      * function-defn := FUNCTION identifier function-signature function-body
      * </code>
      * 
+     * @param metadata Metadata
+     * @param visibilityQualifier Visibility qualifier
      * @return Parsed node
      */
-    private STNode parseFunctionDefinition(STNode visibilityQualifier) {
+    private STNode parseFunctionDefinition(STNode metadata, STNode visibilityQualifier) {
         startContext(ParserRuleContext.FUNC_DEFINITION);
-
         STNode functionKeyword = parseFunctionKeyword();
         STNode name = parseFunctionName();
         STNode openParenthesis = parseOpenParenthesis();
@@ -995,8 +1050,8 @@ public class BallerinaParser {
         STNode body = parseFunctionBody();
 
         endContext();
-        return STNodeFactory.createFunctionDefinition(visibilityQualifier, functionKeyword, name, openParenthesis,
-                parameters, closeParenthesis, returnTypeDesc, body);
+        return STNodeFactory.createFunctionDefinition(metadata, visibilityQualifier, functionKeyword, name,
+                openParenthesis, parameters, closeParenthesis, returnTypeDesc, body);
     }
 
     /**
@@ -1425,16 +1480,6 @@ public class BallerinaParser {
                 Solution sol = recover(peek(), ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
                 return sol.recoveredNode;
         }
-    }
-
-    /**
-     * Parse annotation attachments.
-     * 
-     * @return Parsed node
-     */
-    private STNode parseAnnotations() {
-        // TODO
-        return STNodeFactory.createEmptyNode();
     }
 
     /**
@@ -2591,6 +2636,11 @@ public class BallerinaParser {
                 return parseMappingConstructorExpr();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.EXPRESSION);
+
+                if (solution.recoveredNode.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+                    return parseQualifiedIdentifier(solution.recoveredNode);
+                }
+
                 return solution.recoveredNode;
         }
     }
@@ -3186,12 +3236,52 @@ public class BallerinaParser {
         return parseObjectMember(nextToken.kind);
     }
 
-    /**
-     * 
-     */
-    private STNode parseObjectMember(SyntaxKind kind) {
+    private STNode parseObjectMember(SyntaxKind nextTokenKind) {
+        STNode metadata;
+        switch (nextTokenKind) {
+            case ASTERISK_TOKEN:
+            case PUBLIC_KEYWORD:
+            case PRIVATE_KEYWORD:
+            case REMOTE_KEYWORD:
+            case FUNCTION_KEYWORD:
+
+                // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
+            case IDENTIFIER_TOKEN:
+            case SIMPLE_TYPE:
+            case SERVICE_KEYWORD:
+            case RECORD_KEYWORD:
+            case OBJECT_KEYWORD:
+            case ABSTRACT_KEYWORD:
+            case CLIENT_KEYWORD:
+                metadata = STNodeFactory.createEmptyNode();
+                break;
+            case HASH_TOKEN:
+            case AT_TOKEN:
+                metadata = parseMetaData();
+                nextTokenKind = peek().kind;
+                break;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.OBJECT_MEMBER);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                if (isEndOfObjectTypeNode(solution.tokenKind, nextTokenKind)) {
+                    return null;
+                }
+                return parseObjectMember(solution.tokenKind);
+        }
+
+        return parseObjectMember(nextTokenKind, metadata);
+    }
+
+    private STNode parseObjectMember(SyntaxKind nextTokenKind, STNode metadata) {
         STNode member;
-        switch (kind) {
+        switch (nextTokenKind) {
             case ASTERISK_TOKEN:
                 STNode asterisk = consume();
                 STNode type = parseTypeReference();
@@ -3201,13 +3291,13 @@ public class BallerinaParser {
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
                 STNode visibilityQualifier = parseObjectMemberVisibility();
-                member = parseObjectMethodOrField(visibilityQualifier);
+                member = parseObjectMethodOrField(metadata, visibilityQualifier);
                 break;
             case REMOTE_KEYWORD:
-                member = parseObjectMethodOrField(STNodeFactory.createEmptyNode());
+                member = parseObjectMethodOrField(metadata, STNodeFactory.createEmptyNode());
                 break;
             case FUNCTION_KEYWORD:
-                member = parseObjectMethod(STNodeFactory.createEmptyNode());
+                member = parseObjectMethod(metadata, STNodeFactory.createEmptyNode());
                 break;
 
             // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
@@ -3221,7 +3311,7 @@ public class BallerinaParser {
                 member = parseObjectField(STNodeFactory.createEmptyNode());
                 break;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.OBJECT_MEMBER);
+                Solution solution = recover(peek(), ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -3230,7 +3320,7 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                if (isEndOfObjectTypeNode(solution.tokenKind, kind)) {
+                if (isEndOfObjectTypeNode(solution.tokenKind, nextTokenKind)) {
                     return null;
                 }
                 return parseObjectMember(solution.tokenKind);
@@ -3239,10 +3329,10 @@ public class BallerinaParser {
         return member;
     }
 
-    private STNode parseObjectMethodOrField(STNode methodQualifiers) {
+    private STNode parseObjectMethodOrField(STNode metadata, STNode methodQualifiers) {
         STToken nextToken = peek(1);
         STToken nextNextToken = peek(2);
-        return parseObjectMethodOrField(nextToken.kind, nextNextToken.kind, methodQualifiers);
+        return parseObjectMethodOrField(nextToken.kind, nextNextToken.kind, metadata, methodQualifiers);
     }
 
     /**
@@ -3254,9 +3344,11 @@ public class BallerinaParser {
      *            a syntax node with either 'PUBLIC' or 'PRIVATE'.
      * @param nextTokenKind Next token kind
      * @param nextNextTokenKind Kind of the token after the
+     * @param metadata Metadata
+     * @param visibilityQualifiers Visibility qualifiers
      * @return Parse object member node
      */
-    private STNode parseObjectMethodOrField(SyntaxKind nextTokenKind, SyntaxKind nextNextTokenKind,
+    private STNode parseObjectMethodOrField(SyntaxKind nextTokenKind, SyntaxKind nextNextTokenKind, STNode metadata,
                                             STNode visibilityQualifiers) {
         switch (nextTokenKind) {
             case REMOTE_KEYWORD:
@@ -3266,9 +3358,9 @@ public class BallerinaParser {
                     methodQualifiers.add(visibilityQualifiers);
                 }
                 methodQualifiers.add(remoteKeyword);
-                return parseObjectMethod(STNodeFactory.createNodeList(methodQualifiers));
+                return parseObjectMethod(metadata, STNodeFactory.createNodeList(methodQualifiers));
             case FUNCTION_KEYWORD:
-                return parseObjectMethod(visibilityQualifiers);
+                return parseObjectMethod(metadata, visibilityQualifiers);
 
             // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             case IDENTIFIER_TOKEN:
@@ -3287,7 +3379,7 @@ public class BallerinaParser {
 
                 // Else, fall through
             default:
-                Solution solution = recover(peek(), ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY,
+                Solution solution = recover(peek(), ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY, metadata,
                         visibilityQualifiers);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
@@ -3297,7 +3389,7 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseObjectMethodOrField(solution.tokenKind, nextTokenKind, visibilityQualifiers);
+                return parseObjectMethodOrField(solution.tokenKind, nextTokenKind, metadata, visibilityQualifiers);
         }
     }
 
@@ -3384,8 +3476,8 @@ public class BallerinaParser {
                 semicolonToken);
     }
 
-    private STNode parseObjectMethod(STNode methodQualifiers) {
-        return parseFunctionDefinition(methodQualifiers);
+    private STNode parseObjectMethod(STNode metadata, STNode methodQualifiers) {
+        return parseFunctionDefinition(metadata, methodQualifiers);
     }
 
     /**
@@ -4009,13 +4101,16 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseComputedField(STNode leadingComma) {
+        // Parse computed field name
         startContext(ParserRuleContext.COMPUTED_FIELD_NAME);
         STNode openBracket = parseOpenBracket();
         STNode fieldNameExpr = parseExpression();
         STNode closeBracket = parseCloseBracket();
+        endContext();
+
+        // Parse rhs
         STNode colon = parseColon();
         STNode valueExpr = parseExpression();
-        endContext();
         return STNodeFactory.createComputedNameField(leadingComma, openBracket, fieldNameExpr, closeBracket, colon,
                 valueExpr);
     }
@@ -4254,12 +4349,41 @@ public class BallerinaParser {
     }
 
     private STNode parseResource(SyntaxKind nextTokenKind) {
+        STNode metadata;
+        switch (nextTokenKind) {
+            case RESOURCE_KEYWORD:
+            case FUNCTION_KEYWORD:
+                metadata = STNodeFactory.createEmptyNode();
+                break;
+            case HASH_TOKEN:
+            case AT_TOKEN:
+                metadata = parseMetaData();
+                nextTokenKind = peek().kind;
+                break;
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.RESOURCE_DEF);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseResource(solution.tokenKind);
+        }
+
+        return parseResource(nextTokenKind, metadata);
+    }
+
+    private STNode parseResource(SyntaxKind nextTokenKind, STNode metadata) {
         switch (nextTokenKind) {
             case RESOURCE_KEYWORD:
                 STNode resourceKeyword = parseResourceKeyword();
-                return parseFunctionDefinition(resourceKeyword);
+                return parseFunctionDefinition(metadata, resourceKeyword);
             case FUNCTION_KEYWORD:
-                return parseFunctionDefinition(STNodeFactory.createEmptyNode());
+                return parseFunctionDefinition(metadata, STNodeFactory.createEmptyNode());
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.RESOURCE_DEF);
@@ -4502,5 +4626,94 @@ public class BallerinaParser {
             Solution sol = recover(token, ParserRuleContext.CONST_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse annotations.
+     * <p>
+     * <i>Note: In the ballerina spec ({@link https://ballerina.io/spec/lang/2020R1/#annots}) annotations-list
+     * is specified as one-or-more annotations. And the usage is marked as optional annotation-list.
+     * But here we make the annotation-list as zero-or-more annotations, and the usage is not-optional.</i>
+     * <p>
+     * <code>annots := annotation*</code>
+     * 
+     * @return Parsed node
+     */
+    private STNode parseAnnotations() {
+        startContext(ParserRuleContext.ANNOTATIONS);
+        STToken nextToken = peek();
+        List<STNode> annotList = new ArrayList<>();
+        while (nextToken.kind == SyntaxKind.AT_TOKEN) {
+            annotList.add(parseAnnotation());
+            nextToken = peek();
+        }
+
+        endContext();
+        return STNodeFactory.createNodeList(annotList);
+    }
+
+    /**
+     * Parse annotation attachment.
+     * <p>
+     * <code>annotation := @ annot-tag-reference annot-value</code>
+     * 
+     * @return Parsed node
+     */
+    private STNode parseAnnotation() {
+        STNode atToken = parseAtToken();
+        STNode annotReference = parseQualifiedIdentifier(ParserRuleContext.ANNOT_REFERENCE);
+        STNode annotValue = parseMappingConstructorExpr();
+        return STNodeFactory.createAnnotation(atToken, annotReference, annotValue);
+    }
+
+    /**
+     * Parse '@' token.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseAtToken() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.AT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(nextToken, ParserRuleContext.AT);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse metadata. Meta data consist of optional doc string and
+     * zero or more annotations.
+     * <p>
+     * <code>metadata := [DocumentationString] annots</code>
+     * 
+     * @return Parse node
+     */
+    private STNode parseMetaData() {
+        STToken nextToken = peek();
+        return parseMetaData(nextToken.kind);
+    }
+
+    private STNode parseMetaData(SyntaxKind nextTokenKind) {
+        STNode docString;
+        STNode annotations;
+        switch (nextTokenKind) {
+            case HASH_TOKEN:
+                // TODO:
+                consume();
+                docString = STNodeFactory.createEmptyNode();
+                annotations = parseAnnotations();
+                break;
+            case AT_TOKEN:
+                docString = STNodeFactory.createEmptyNode();
+                annotations = parseAnnotations();
+                break;
+            default:
+                docString = STNodeFactory.createEmptyNode();
+                annotations = STNodeFactory.createEmptyNode();
+                break;
+        }
+
+        return STNodeFactory.createMetadata(docString, annotations);
     }
 }
