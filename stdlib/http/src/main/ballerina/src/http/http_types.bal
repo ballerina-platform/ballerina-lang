@@ -127,7 +127,7 @@ public type RequestMessage Request|string|xml|json|byte[]|io:ReadableByteChannel
 public type ResponseMessage Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
 
 # The type of the user-defined custom record
-private type CustomRecordType record {| anydata...; |};
+type CustomRecordType record {| anydata...; |};
 
 # The types of the response payload that are returned by the HTTP `client` after the data binding operation
 public type PayloadType string|xml|json|byte[]|CustomRecordType|CustomRecordType[];
