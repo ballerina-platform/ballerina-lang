@@ -344,7 +344,8 @@ public class TypeChecker extends BLangNodeVisitor {
             if (expType.tag == TypeTags.FLOAT) {
                 literalType = symTable.floatType;
                 literalExpr.value = ((Long) literalValue).doubleValue();
-            } else if (expType.tag == TypeTags.DECIMAL) {
+            } else if ((expType.tag == TypeTags.DECIMAL) && !NumericLiteralSupport
+                    .isHexIndicator(literalExpr.originalValue)) {
                 literalType = symTable.decimalType;
                 literalExpr.value = String.valueOf(literalValue);
             } else if (TypeTags.isIntegerTypeTag(expType.tag) || expType.tag == TypeTags.BYTE) {
