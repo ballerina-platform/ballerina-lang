@@ -426,8 +426,6 @@ public class TypeParamAnalyzer {
         for (BType type : actualType.getMemberTypes()) {
             if (type.tag == TypeTags.ARRAY) {
                 tupleTypes.add(((BArrayType) type).eType);
-            } else {
-                tupleTypes.add(type);
             }
         }
         BUnionType tupleElementType = BUnionType.create(null, tupleTypes);
@@ -440,8 +438,6 @@ public class TypeParamAnalyzer {
         for (BType type : actualType.getMemberTypes()) {
             if (type.tag == TypeTags.MAP) {
                 tupleTypes.add(((BMapType) type).constraint);
-            } else {
-                tupleTypes.add(type);
             }
         }
         BUnionType tupleElementType = BUnionType.create(null, tupleTypes);
