@@ -63,6 +63,8 @@ function testReceiveComplexEmail(string host, string username, string password) 
                 } else {
                     return [];
                 }
+                returnArray[11] = attachments[0].getHeader("H1");
+                returnArray[12] = attachments[0].getContentType();
             }
             return returnArray;
         } else if (emailResponse is ()) {
