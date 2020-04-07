@@ -64,6 +64,9 @@ public class ImapComplexEmailReceiveTest {
     private static final String EMAIL_FROM = "someone@localhost.com";
     private static final String EMAIL_SENDER = "someone2@localhost.com";
     private static final String ATTACHMENT1_TEXT = "Sample attachment text";
+    private static final String ATTACHMENT2_TEXT = "{\"bodyPart\":\"jsonPart\"}";
+    private static final String ATTACHMENT3_TEXT = "<name>Ballerina xml file part</name>";
+    private static final byte[] ATTACHMENT4_BINARY = "This is a sample source of bytes.".getBytes();
     private static final String EMAIL_SUBJECT = "Test E-Mail";
     private static final String EMAIL_TEXT = "This is a test e-mail.";
     private static final String[] EMAIL_TO_ADDRESSES = {"hascode1@localhost", "hascode2@localhost"};
@@ -94,9 +97,18 @@ public class ImapComplexEmailReceiveTest {
         MimeBodyPart messageBodyPart = new MimeBodyPart();
         messageBodyPart.setContent(EMAIL_TEXT, MimeConstants.TEXT_PLAIN);
         MimeBodyPart attachment1 = new MimeBodyPart();
+        MimeBodyPart attachment2 = new MimeBodyPart();
+        MimeBodyPart attachment3 = new MimeBodyPart();
+        MimeBodyPart attachment4 = new MimeBodyPart();
         attachment1.setContent(ATTACHMENT1_TEXT, MimeConstants.TEXT_PLAIN);
+        attachment2.setContent(ATTACHMENT2_TEXT, MimeConstants.APPLICATION_JSON);
+        attachment3.setContent(ATTACHMENT3_TEXT, MimeConstants.APPLICATION_XML);
+        attachment4.setContent(ATTACHMENT4_BINARY, MimeConstants.OCTET_STREAM);
         multipartMessage.addBodyPart(messageBodyPart);
         multipartMessage.addBodyPart(attachment1);
+        multipartMessage.addBodyPart(attachment2);
+        multipartMessage.addBodyPart(attachment3);
+        multipartMessage.addBodyPart(attachment4);
         message.setContent(multipartMessage);
 
         // Use greenmail to store the message
@@ -122,6 +134,9 @@ public class ImapComplexEmailReceiveTest {
         assertEquals(concatAddresses(EMAIL_CC_ADDRESSES), result[5]);
         assertEquals(concatAddresses(EMAIL_REPLY_TO_ADDRESSES), result[6]);
         assertEquals(ATTACHMENT1_TEXT, result[7]);
+        assertEquals(ATTACHMENT2_TEXT, result[8]);
+        assertEquals(ATTACHMENT3_TEXT, result[9]);
+        assertEquals(new String(ATTACHMENT4_BINARY), result[10]);
     }
 
     private String concatAddresses(String[] addresses) {
