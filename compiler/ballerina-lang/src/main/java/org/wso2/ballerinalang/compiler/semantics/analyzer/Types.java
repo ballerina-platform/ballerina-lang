@@ -1408,7 +1408,8 @@ public class Types {
             case TypeTags.UNSIGNED16_INT:
             case TypeTags.UNSIGNED8_INT:
             case TypeTags.CHAR_STRING:
-                if (targetTag == TypeTags.JSON || targetTag == TypeTags.ANYDATA || targetTag == TypeTags.ANY) {
+                if (targetTag == TypeTags.JSON || targetTag == TypeTags.ANYDATA || targetTag == TypeTags.ANY ||
+                        targetTag == TypeTags.READONLY) {
                     return TypeTestResult.TRUE;
                 }
                 break;

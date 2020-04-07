@@ -1073,6 +1073,8 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.FUTURE) {
             loadFutureType(mv, (BFutureType) bType);
             return;
+        } else if (bType.tag == TypeTags.READONLY) {
+            typeFieldName = "typeReadonly";
         } else {
             // TODO Fix properly - rajith
             return;
