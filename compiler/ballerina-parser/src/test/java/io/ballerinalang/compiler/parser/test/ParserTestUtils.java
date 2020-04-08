@@ -485,6 +485,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BREAK_STATEMENT;
             case "RETURN_STATEMENT":
                 return SyntaxKind.RETURN_STATEMENT;
+            case "NIL_TYPE":
+                return SyntaxKind.NIL_TYPE;
 
             // Others
             case "SIMPLE_TYPE":
