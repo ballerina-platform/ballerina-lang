@@ -15,29 +15,20 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+package org.ballerinalang.model.tree;
 
-package org.ballerinalang.model.clauses;
+import org.ballerinalang.model.tree.types.TypeNode;
 
-import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import java.util.List;
 
 /**
- * The interface with the APIs to implement the "from" clause.
+ * {@code TableKeyTypeConstraintNode} is the base interface for BLangTableKeyTypeConstraint node.
  *
- * @since 1.2.0
+ * @since 1.3.0
  */
-public interface FromClauseNode extends Node {
+public interface TableKeyTypeConstraintNode extends Node {
 
-    ExpressionNode getCollection();
+    TypeNode getKeyTypeConstraint();
 
-    void setCollection(ExpressionNode collection);
-
-    boolean setDeclaredWithVar();
-
-    boolean isDeclaredWithVar();
-
-    VariableDefinitionNode getVariableDefinitionNode();
-
-    void setVariableDefinitionNode(VariableDefinitionNode variableDefinitionNode);
+    void setKeyTypeConstraint(TypeNode typeNode);
 }

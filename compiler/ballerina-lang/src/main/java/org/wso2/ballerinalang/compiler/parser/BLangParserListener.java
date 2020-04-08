@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.ObjectTypeN
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.VariableReferenceContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParserBaseListener;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -973,6 +974,41 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.addStreamTypeWithTypeName(getCurrentPos(ctx), getWS(ctx),
                 ctx.typeName(0) != null, ctx.typeName(1) != null);
+    }
+
+    @Override
+    public void exitTableTypeDescriptor(BallerinaParser.TableTypeDescriptorContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addTableType(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitTableKeySpecifier(BallerinaParser.TableKeySpecifierContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        if (ctx.Identifier() != null) {
+            List<BLangIdentifier> keyFieldNameIdentifierList = new ArrayList<>();
+            for (TerminalNode terminalNode : ctx.Identifier()) {
+                BLangIdentifier identifier = pkgBuilder.createIdentifier(getCurrentPos(terminalNode),
+                        terminalNode.getText());
+                keyFieldNameIdentifierList.add(identifier);
+            }
+            this.pkgBuilder.addTableKeySpecifier(getCurrentPos(ctx), getWS(ctx), keyFieldNameIdentifierList);
+        }
+    }
+
+    @Override
+    public void exitTableKeyTypeConstraint(BallerinaParser.TableKeyTypeConstraintContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addTableKeyTypeConstraint(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

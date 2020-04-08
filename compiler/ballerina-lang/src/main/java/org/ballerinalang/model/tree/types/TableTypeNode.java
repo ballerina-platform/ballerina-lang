@@ -15,29 +15,29 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+package org.ballerinalang.model.tree.types;
 
-package org.ballerinalang.model.clauses;
-
-import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
+import org.ballerinalang.model.tree.TableKeySpecifierNode;
+import org.ballerinalang.model.tree.TableKeyTypeConstraintNode;
 
 /**
- * The interface with the APIs to implement the "from" clause.
+ * table&lt;Person&gt key(...);.
  *
  * @since 1.2.0
  */
-public interface FromClauseNode extends Node {
+public interface TableTypeNode extends TypeNode {
 
-    ExpressionNode getCollection();
+    TypeNode getConstraint();
 
-    void setCollection(ExpressionNode collection);
+    void setConstraint(TypeNode typeNode);
 
-    boolean setDeclaredWithVar();
+    TableKeySpecifierNode getTableKeySpecifier();
 
-    boolean isDeclaredWithVar();
+    void setTableKeySpecifier(TableKeySpecifierNode tableKeySpecifierNode);
 
-    VariableDefinitionNode getVariableDefinitionNode();
+    TableKeyTypeConstraintNode getTableKeyTypeConstraint();
 
-    void setVariableDefinitionNode(VariableDefinitionNode variableDefinitionNode);
+    void setTableKeyTypeConstraint(TableKeyTypeConstraintNode tableKeyTypeConstraint);
+
+    boolean isTableKeySpecifier();
 }

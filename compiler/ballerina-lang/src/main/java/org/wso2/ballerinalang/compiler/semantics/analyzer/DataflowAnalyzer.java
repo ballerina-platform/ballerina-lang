@@ -165,6 +165,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -1032,6 +1033,15 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangStreamType streamType) {
         analyzeNode(streamType.constraint, env);
         analyzeNode(streamType.error, env);
+    }
+
+    @Override
+    public void visit(BLangTableType tableType) {
+        analyzeNode(tableType.constraint, env);
+
+        if (!tableType.isTableKeySpecifier) {
+            analyzeNode(tableType.tableKeyTypeConstraint.keyType, env);
+        }
     }
 
     @Override

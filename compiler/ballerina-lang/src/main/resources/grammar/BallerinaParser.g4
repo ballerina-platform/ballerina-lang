@@ -218,6 +218,7 @@ typeName
     |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
     |   inclusiveRecordTypeDescriptor                                                           # inclusiveRecordTypeNameLabel
     |   exclusiveRecordTypeDescriptor                                                           # exclusiveRecordTypeNameLabel
+    |   tableTypeDescriptor                                                                           # tableTypeNameLabel
     ;
 
 inclusiveRecordTypeDescriptor
@@ -283,6 +284,30 @@ builtInReferenceTypeName
 
 streamTypeName
     :   TYPE_STREAM (LT typeName (COMMA typeName)? GT)?
+    ;
+
+tableConstructorExpr
+    :   TYPE_TABLE tableKeySpecifier? LEFT_BRACKET tableRowList? RIGHT_BRACKET
+    ;
+
+tableRowList
+    :   recordLiteral (COMMA recordLiteral)*
+    ;
+
+tableTypeDescriptor
+    :   TYPE_TABLE LT typeName GT tableKeyConstraint?
+    ;
+
+tableKeyConstraint
+    :   tableKeySpecifier | tableKeyTypeConstraint
+    ;
+
+tableKeySpecifier
+    :   KEY LEFT_PARENTHESIS (Identifier (COMMA Identifier)*)? RIGHT_PARENTHESIS
+    ;
+
+tableKeyTypeConstraint
+    :   KEY LT typeName GT
     ;
 
 functionTypeName
@@ -779,6 +804,7 @@ expression
     :   simpleLiteral                                                       # simpleLiteralExpression
     |   listConstructorExpr                                                 # listConstructorExpression
     |   recordLiteral                                                       # recordLiteralExpression
+    |   tableConstructorExpr                                                # tableConstructorExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   (annotationAttachment* START)? variableReference                    # variableReferenceExpression
@@ -1200,6 +1226,7 @@ documentationIdentifier
     |   TYPE_JSON
     |   TYPE_XML
     |   TYPE_STREAM
+    |   TYPE_TABLE
     |   TYPE_ANY
     |   TYPE_DESC
     |   TYPE_FUTURE

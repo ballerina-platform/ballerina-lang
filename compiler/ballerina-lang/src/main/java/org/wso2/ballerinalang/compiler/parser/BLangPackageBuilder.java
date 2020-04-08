@@ -42,6 +42,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.tree.TableKeySpecifierNode;
+import org.ballerinalang.model.tree.TableKeyTypeConstraintNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
@@ -75,6 +77,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -187,6 +191,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -315,6 +320,8 @@ public class BLangPackageBuilder {
     private Stack<Set<Whitespace>> invocationRuleWS = new Stack<>();
     private Stack<Set<Whitespace>> errorRestBindingPatternWS = new Stack<>();
     private Stack<Set<Whitespace>> restMatchPatternWS = new Stack<>();
+    private Stack<TableKeySpecifierNode> tableKeySpecifierNodeStack = new Stack<>();
+    private Stack<TableKeyTypeConstraintNode>  tableKeyTypeConstraintNodeStack = new Stack<>();
 
     private long isInErrorType = 0;
 
@@ -430,6 +437,24 @@ public class BLangPackageBuilder {
             recordTypeNode.addField((SimpleVariableNode) variableNode);
         });
         return recordTypeNode;
+    }
+
+    void addTableType(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTableType tableTypeNode = (BLangTableType) TreeBuilder.createTableTypeNode();
+        tableTypeNode.pos = pos;
+        tableTypeNode.addWS(ws);
+
+        tableTypeNode.constraint = (BLangType) typeNodeStack.pop();
+        if (tableKeySpecifierNodeStack.size() > 0) {
+            BLangTableKeySpecifier tableKeySpecifierNode =
+                    (BLangTableKeySpecifier) tableKeySpecifierNodeStack.pop();
+            tableTypeNode.isTableKeySpecifier = true;
+            tableTypeNode.tableKeySpecifier = tableKeySpecifierNode;
+        } else {
+            tableTypeNode.tableKeyTypeConstraint = (BLangTableKeyTypeConstraint) tableKeyTypeConstraintNodeStack.pop();
+        }
+
+        addType(tableTypeNode);
     }
 
     private boolean isInLocalDefinition() {
@@ -690,7 +715,7 @@ public class BLangPackageBuilder {
         this.funcBodyNodeStack.push(TreeBuilder.createExternFunctionBodyNode());
     }
 
-    private BLangIdentifier createIdentifier(DiagnosticPos pos, String value) {
+    public BLangIdentifier createIdentifier(DiagnosticPos pos, String value) {
         return createIdentifier(pos, value, null);
     }
 
@@ -2329,6 +2354,26 @@ public class BLangPackageBuilder {
         attachMarkdownDocumentations(var);
 
         this.compUnit.addTopLevelNode(var);
+    }
+
+    void addTableKeyTypeConstraint(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTableKeyTypeConstraint tableKeyTypeConstraint = new BLangTableKeyTypeConstraint();
+        tableKeyTypeConstraint.pos = pos;
+        tableKeyTypeConstraint.addWS(ws);
+        tableKeyTypeConstraint.keyType = (BLangType) typeNodeStack.pop();
+        tableKeyTypeConstraintNodeStack.push(tableKeyTypeConstraint);
+    }
+
+    void addTableKeySpecifier(DiagnosticPos pos, Set<Whitespace> ws, List<BLangIdentifier> keyFieldNameIdentifierList) {
+        BLangTableKeySpecifier tableKeySpecifierNode =
+                (BLangTableKeySpecifier) TreeBuilder.createTableKeySpecifierNode();
+        tableKeySpecifierNode.pos = pos;
+        tableKeySpecifierNode.addWS(ws);
+
+        for (BLangIdentifier identifier : keyFieldNameIdentifierList) {
+            tableKeySpecifierNode.addFieldNameIdentifier(identifier);
+        }
+        tableKeySpecifierNodeStack.push(tableKeySpecifierNode);
     }
 
     void startRecordType() {
