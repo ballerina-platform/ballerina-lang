@@ -301,16 +301,16 @@ function testBitwiseOperatorPrecedence6(int a, int b, int c) returns int {
     return d;
 }
 
-public function testByteReturnAsIntInLambda1() returns int {
+public function testByteReturnAsIntInLambda1() {
     var fn = function () returns int {
         byte a = 255;
         return a - a;
     };
 
-    return fn();
+    assert(0, fn());
 }
 
-public function testByteReturnAsIntInLambda2() returns boolean {
+public function testByteReturnAsIntInLambda2() {
     var fn1 = function () returns int {
         byte a = 255;
         return a - a;
@@ -322,10 +322,32 @@ public function testByteReturnAsIntInLambda2() returns boolean {
         return res;
     };
 
-    return fn1() == fn2();
+    assertTrue(fn1() == fn2(), "fn1() == fn2()");
 }
 
-public function testByteReturnAsIntInLambda3(byte a, byte b) returns int {
+public function testByteReturnAsIntInLambda3() {
+    byte a = 255;
+    byte b = 255;
+
     var fn = function (byte a, byte b) returns int { return a - b; };
-    return fn(a, b);
+    assert(a - b, fn(a, b));
+}
+
+function assert(anydata expected, anydata actual) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
+}
+
+function assertTrue(boolean result, string condition) {
+    if (!result) {
+        string reason = "condition [" + condition + "] evaluated to 'false'";
+        error e = error(reason);
+        panic e;
+    }
 }
