@@ -1,0 +1,92 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "PUBLIC_KEYWORD"
+        },
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "BLOCK_STATEMENT",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "WHILE_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "WHILE_KEYWORD"
+                                },
+                                {
+                                    "kind": "TRUE_KEYWORD"
+                                },
+                                {
+                                    "kind": "BLOCK_STATEMENT",
+                                    "children": [
+                                        {
+                                            "kind": "OPEN_BRACE_TOKEN"
+                                        },
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                                {
+                                                    "kind": "LOCAL_VARIABLE_DECL",
+                                                    "children": [
+                                                        {
+                                                            "kind": "SIMPLE_TYPE",
+                                                            "value": "int"
+                                                        },
+                                                        {
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "x"
+                                                        },
+                                                        {
+                                                            "kind": "EQUAL_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                                            "value": "4"
+                                                        },
+                                                        {
+                                                            "kind": "SEMICOLON_TOKEN"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "CLOSE_BRACE_TOKEN"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}

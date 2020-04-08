@@ -1,0 +1,20 @@
+{
+    "kind": "TYPE_DEFINITION",
+    "children": [
+        {
+            "kind": "TYPE_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "Student"
+        },
+        {
+            "kind": "SIMPLE_TYPE",
+            "value": "int"
+        },
+        {
+            "kind": "SEMICOLON_TOKEN",
+            "isMissing": true
+        }
+    ]
+}

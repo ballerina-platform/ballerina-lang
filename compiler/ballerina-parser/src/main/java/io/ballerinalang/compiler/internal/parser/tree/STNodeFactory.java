@@ -128,6 +128,14 @@ public class STNodeFactory {
         return new STReturnStatement(kind, returnKeyword, actionOrExpr, semicolonToken);
     }
 
+    public static STNode createCompoundAssignmentStatement(STNode lhsExpression,
+                                                   STNode binaryOperator,
+                                                   STNode equalsToken,
+                                                   STNode expr,
+                                                   STNode semicolonToken) {
+        return new STCompoundAssignmentStatement(lhsExpression, binaryOperator, equalsToken, expr, semicolonToken);
+    }
+
     // Expressions
 
     public static STNode createBinaryExpression(SyntaxKind kind,

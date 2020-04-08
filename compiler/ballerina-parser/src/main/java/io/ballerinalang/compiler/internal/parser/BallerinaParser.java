@@ -224,6 +224,8 @@ public class BallerinaParser {
                 return parseServiceDecl();
             case NIL_TYPE_DESCRIPTOR:
                 return parseNilTypeDescriptor();
+            case COMPOUND_ASSIGNMENT_STMT:
+                return parseCompoundAssignmentStmt();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -2490,6 +2492,10 @@ public class BallerinaParser {
                         return parseCallStatement(expr);
                     case FIELD_ACCESS:
                     case MEMBER_ACCESS:
+                        STToken nextToken = peek();
+                        if (isCompoundBinaryOperator(nextToken.kind)) {
+                            return parseCompoundAssignmentStmtRhs(expr);
+                        }
                         return parseAssignmentStmtRhs(expr);
                     default:
                         // TODO: Add proper error reporting
@@ -2498,6 +2504,10 @@ public class BallerinaParser {
                         return parseCallStatement(expr);
                 }
             default:
+                // If its a binary oerator then this can be a compound assignment statement
+                if (isCompoundBinaryOperator(nextTokenKind)) {
+                    return parseCompoundAssignmentStmtRhs(identifier);
+                }
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.ASSIGNMENT_OR_VAR_DECL_STMT_RHS, identifier);
 
@@ -4051,6 +4061,55 @@ public class BallerinaParser {
     }
 
     /**
+     * <p>
+     * Parse compound assignment statement, which takes the following format.
+     * </p>
+     * <code>assignment-stmt := lvexpr CompoundAssignmentOperator action-or-expr ;</code>
+     * 
+     * @return Parsed node
+     */
+    private STNode parseCompoundAssignmentStmt() {
+        startContext(ParserRuleContext.COMPOUND_ASSIGNMENT_STMT);
+        STNode varName = parseVariableName();
+        STNode compoundAssignmentStmt = parseCompoundAssignmentStmtRhs(varName);
+        endContext();
+        return compoundAssignmentStmt;
+    }
+
+    /**
+     * <p>
+     * Parse the RHS portion of the compound assignment.
+     * </p>
+     * <code>compound-assignment-stmt-rhs := CompoundAssignmentOperator action-or-expr ;</code>
+     * 
+     * @param expression LHS expression
+     * @return Parsed node
+     */
+    private STNode parseCompoundAssignmentStmtRhs(STNode expression) {
+        STNode binaryOperator = parseCompoundBinaryOperator();
+        STNode equalsToken = parseAssignOp();
+        STNode expr = parseExpression();
+        STNode semicolon = parseSemicolon();
+        return STNodeFactory.createCompoundAssignmentStatement(expression, binaryOperator,
+             equalsToken, expr, semicolon);
+    }
+
+    /**
+     * Parse compound binary operator.
+     * <code>BinaryOperator := + | - | * | / | & | | | ^ | << | >> | >>></code>
+     * @return Parsed node
+     */
+    private STNode parseCompoundBinaryOperator() {
+        STToken token = peek();
+        if (isCompoundBinaryOperator(token.kind)) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.COMPOUND_BINARY_OPERATOR);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
      * Parse service declaration.
      * <p>
      * <code>
@@ -4126,6 +4185,24 @@ public class BallerinaParser {
         } else {
             Solution sol = recover(token, ParserRuleContext.SERVICE_KEYWORD);
             return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Check whether the given token kind is a compound binary operator.
+     * 
+     * @param kind STToken kind
+     * @return <code>true</code> if the token kind refers to a binary operator. <code>false</code> otherwise
+     */
+    private boolean isCompoundBinaryOperator(SyntaxKind kind) {
+        switch (kind) {
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+            case SLASH_TOKEN:
+            case ASTERISK_TOKEN:
+                return true;
+            default:
+                return false;
         }
     }
 

@@ -1,0 +1,29 @@
+{
+    "kind": "BINARY_EXPRESSION",
+    "children": [
+        {
+            "kind": "QUALIFIED_IDENTIFIER",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "pkg"
+                },
+                {
+                    "kind": "COLON_TOKEN"
+                },
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "foo"
+                }
+            ]
+        },
+        {
+            "kind": "PLUS_TOKEN",
+            "isMissing": true
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "bar"
+        }
+    ]
+}

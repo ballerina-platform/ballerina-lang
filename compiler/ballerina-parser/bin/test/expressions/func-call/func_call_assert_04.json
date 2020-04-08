@@ -1,0 +1,36 @@
+{
+    "kind": "FUNCTION_CALL",
+    "children": [
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "NAMED_ARG",
+                    "children": [
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "age"
+                        },
+                        {
+                            "kind": "EQUAL_TOKEN"
+                        },
+                        {
+                            "kind": "NUMERIC_LITERAL_TOKEN",
+                            "value": "18"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        }
+    ]
+}
