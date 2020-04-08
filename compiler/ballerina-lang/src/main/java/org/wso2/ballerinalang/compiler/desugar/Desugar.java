@@ -5079,13 +5079,15 @@ public class Desugar extends BLangNodeVisitor {
         BLangExpression varargRef = null;
         BLangBlockStmt blockStmt = null;
 
-        if (!iExpr.restArgs.isEmpty() &&
-                restArgs.get(restArgs.size() - 1).getKind() == NodeKind.REST_ARGS_EXPR &&
-                iExpr.requiredArgs.size() < invokableSymbol.params.size()) {
+        int restArgCount = restArgs.size();
+
+        if (restArgCount > 0 &&
+                restArgs.get(restArgCount - 1).getKind() == NodeKind.REST_ARGS_EXPR &&
+                originalRequiredArgCount < invokableSymbol.params.size()) {
             // All or part of the args for the required and defaultable parameters are provided via the vararg.
             // We have to first evaluate the vararg's expression, define a variable, and pass a reference to it
             // to use for member access when adding such required arguments from the vararg.
-            BLangExpression expr = ((BLangRestArgsExpression) restArgs.get(restArgs.size() - 1)).expr;
+            BLangExpression expr = ((BLangRestArgsExpression) restArgs.get(restArgCount - 1)).expr;
             DiagnosticPos varargExpPos = expr.pos;
             BType varargVarType = expr.type;
             String varargVarName = DESUGARED_VARARG_KEY + this.varargCount++;
@@ -5094,9 +5096,7 @@ public class Desugar extends BLangNodeVisitor {
                                                         varargVarType, this.env.scope.owner);
             varargRef = ASTBuilderUtil.createVariableRef(varargExpPos, varargVarSymbol);
 
-            BLangSimpleVariable var = createVariable(varargExpPos, varargVarName, varargVarType,
-                                                     ((BLangRestArgsExpression) restArgs.get(restArgs.size() - 1)).expr,
-                                                     varargVarSymbol);
+            BLangSimpleVariable var = createVariable(varargExpPos, varargVarName, varargVarType, expr, varargVarSymbol);
 
             BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(varargExpPos);
             varDef.var = var;
@@ -5112,7 +5112,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         // There are no rest args at all or args for the rest param are only given as individual args (i.e., no vararg).
-        if (restArgs.isEmpty() || restArgs.get(restArgs.size() - 1).getKind() != NodeKind.REST_ARGS_EXPR) {
+        if (restArgCount == 0 || restArgs.get(restArgCount - 1).getKind() != NodeKind.REST_ARGS_EXPR) {
             if (invokableSymbol.restParam == null) {
                 return;
             }
@@ -5129,13 +5129,17 @@ public class Desugar extends BLangNodeVisitor {
 
             arrayLiteral.exprs = exprs;
             arrayLiteral.type = arrayType;
-            iExpr.restArgs = new ArrayList<>();
+
+            if (restArgCount != 0) {
+                iExpr.restArgs = new ArrayList<>();
+            }
+
             iExpr.restArgs.add(arrayLiteral);
             return;
         }
 
         // There are no individual rest args, but there is a single vararg.
-        if (restArgs.size() == 1 && restArgs.get(0).getKind() == NodeKind.REST_ARGS_EXPR) {
+        if (restArgCount == 1 && restArgs.get(0).getKind() == NodeKind.REST_ARGS_EXPR) {
 
             // If the number of expressions in `iExpr.requiredArgs` hasn't changed, the vararg only contained
             // arguments for the rest parameter.
@@ -5172,34 +5176,34 @@ public class Desugar extends BLangNodeVisitor {
 
         // Now the `restArgs` list has both individual rest args and a vararg, all for the rest param.
         // We create a new array with the individual rest args and push the list passed as the vararg to it.
-        BArrayType type = (BArrayType) invokableSymbol.restParam.type;
+        BArrayType restParamType = (BArrayType) invokableSymbol.restParam.type;
 
         BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
-        arrayLiteral.type = type;
+        arrayLiteral.type = restParamType;
 
-        BType elemType = type.eType;
+        BType elemType = restParamType.eType;
         DiagnosticPos pos = restArgs.get(0).pos;
 
         List<BLangExpression> exprs = new ArrayList<>();
 
-        for (int i = 0; i < restArgs.size() - 1; i++) {
+        for (int i = 0; i < restArgCount - 1; i++) {
             exprs.add(addConversionExprIfRequired(restArgs.get(i), elemType));
         }
         arrayLiteral.exprs = exprs;
 
         BLangRestArgsExpression pushRestArgsExpr = (BLangRestArgsExpression) TreeBuilder.createVarArgsNode();
         pushRestArgsExpr.pos = pos;
-        pushRestArgsExpr.expr = restArgs.remove(restArgs.size() - 1);
+        pushRestArgsExpr.expr = restArgs.remove(restArgCount - 1);
 
         String name = DESUGARED_VARARG_KEY + this.varargCount++;
-        BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID, type,
+        BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID, restParamType,
                                               this.env.scope.owner);
         BLangSimpleVarRef arrayVarRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
 
-        BLangSimpleVariable var = createVariable(pos, name, type, arrayLiteral, varSymbol);
+        BLangSimpleVariable var = createVariable(pos, name, restParamType, arrayLiteral, varSymbol);
         BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(pos);
         varDef.var = var;
-        varDef.type = type;
+        varDef.type = restParamType;
 
         BLangBlockStmt pushBlockStmt = createBlockStmt(pos);
         pushBlockStmt.stmts.add(varDef);
@@ -5208,12 +5212,12 @@ public class Desugar extends BLangNodeVisitor {
         BLangInvocation pushInvocation = createLangLibInvocationNode(PUSH_LANGLIB_METHOD, arrayVarRef,
                                                                      new ArrayList<BLangExpression>() {{
                                                                          add(pushRestArgsExpr);
-                                                                     }}, type, pos);
+                                                                     }}, restParamType, pos);
         pushInvocation.restArgs.add(pushInvocation.requiredArgs.remove(1));
         expressionStmt.expr = pushInvocation;
 
         BLangStatementExpression stmtExpression = createStatementExpression(pushBlockStmt, arrayVarRef);
-        stmtExpression.type = type;
+        stmtExpression.type = restParamType;
 
         iExpr.restArgs = new ArrayList<BLangExpression>(1) {{ add(stmtExpression); }};
     }
