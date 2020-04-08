@@ -40,4 +40,9 @@ public class TypeofExpressionTest extends AbstractExpressionsTest {
     public void testTypeofWithMissingExpr() {
         testFile("typeof-expr/typeof_expr_source_03.bal", "typeof-expr/typeof_expr_assert_03.json");
     }
+
+    @Test
+    public void testTypeofWithMissingOperator() {
+        testFile("typeof-expr/typeof_expr_source_04.bal", "typeof-expr/typeof_expr_assert_04.json");
+    }
 }
