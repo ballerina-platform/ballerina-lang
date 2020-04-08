@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import java.util.Objects;
+
 public class Span {
     private final int startOffset;
     private final int endOffset;
@@ -42,5 +44,30 @@ public class Span {
 
     public boolean contains(int position) {
         return startOffset <= position && position < endOffset;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Span span = (Span) o;
+        return startOffset == span.startOffset &&
+                endOffset == span.endOffset;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(startOffset, endOffset);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + startOffset + "," + endOffset + ")";
     }
 }
