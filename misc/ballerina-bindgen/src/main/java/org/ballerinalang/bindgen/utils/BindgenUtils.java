@@ -239,7 +239,12 @@ public class BindgenUtils {
                     for (File file : listOfFiles) {
                         String fileName = className.substring(className.lastIndexOf('.') + 1) + BAL_EXTENSION;
                         if (file.getName().equals(fileName)) {
-                            outStream.println("\nPlease delete the existing dependency: " + file.getPath());
+                            try {
+                                Files.delete(file.toPath());
+                                outStream.println("\nSuccessfully deleted the existing dependency: " + file.getPath());
+                            } catch (IOException e) {
+                                errStream.println("\nFailed to delete the existing dependency: " + e.getMessage());
+                            }
                         }
                     }
                 }
@@ -502,12 +507,12 @@ public class BindgenUtils {
                 }
             }
             if (!classPaths.isEmpty()) {
-                outStream.println("Following classpaths were detected:");
+                outStream.println("Following jars were added to the classpath:");
                 for (String path : classPaths) {
                     outStream.println("\t" + path);
                 }
             } else {
-                errStream.println("Unable to detect the provided classpaths.");
+                errStream.println("Failed to add the provided jars to classpath.");
             }
             classLoader = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction) ()
                     -> new URLClassLoader(urls.toArray(new URL[urls.size()]), parent));
