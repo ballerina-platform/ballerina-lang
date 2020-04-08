@@ -1,0 +1,97 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "PUBLIC_KEYWORD"
+        },
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "BLOCK_STATEMENT",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "VARIABLE_DECL",
+                            "children": [
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "int"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "a"
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "BINARY_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
+                                            "value": "3"
+                                        },
+                                        {
+                                            "kind": "PLUS_TOKEN"
+                                        },
+                                        {
+                                            "kind": "TYPEOF_EXPRESSION",
+                                            "children": [
+                                                {
+                                                    "kind": "TYPEOF_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "BINARY_EXPRESSION",
+                                                    "children": [
+                                                        {
+                                                            "kind": "DECIMAL_INTEGER_LITERAL",
+                                                            "value": 5
+                                                        },
+                                                        {
+                                                            "kind": "PLUS_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "DECIMAL_INTEGER_LITERAL",
+                                                            "value": 2
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}

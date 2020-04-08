@@ -53,8 +53,9 @@ public enum SyntaxKind {
     CHECK_KEYWORD(208, "check"),
     CHECKPANIC_KEYWORD(209, "checkpanic"),
     PANIC_KEYWORD(210, "panic"),
-    CONTINUE_KEYWORD(212,"continue"),
-    BREAK_KEYWORD(213,"break"),
+    CONTINUE_KEYWORD(211,"continue"),
+    BREAK_KEYWORD(212,"break"),
+    TYPEOF_KEYWORD(213,"typeof"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -92,9 +93,9 @@ public enum SyntaxKind {
     NOT_DOUBLE_EQUAL_TOKEN(567, "!=="),
     BITWISE_AND_TOKEN(568, "&"),
     BITWISE_XOR_TOKEN(569, "^"),
-    LOGICAL_AND_TOKEN(569, "&&"),
-    LOGICAL_OR_TOKEN(569, "||"),
-    
+    LOGICAL_AND_TOKEN(570, "&&"),
+    LOGICAL_OR_TOKEN(571, "||"),
+
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
     DECIMAL_INTEGER_LITERAL(1002),
@@ -141,6 +142,7 @@ public enum SyntaxKind {
     METHOD_CALL(1306),
     CHECK_EXPRESSION(1307),
     MAPPING_CONSTRUCTOR(1308),
+    TYPEOF_EXPRESSION(1309),
 
     // Type descriptors
     RECORD_TYPE_DESCRIPTOR(2000),

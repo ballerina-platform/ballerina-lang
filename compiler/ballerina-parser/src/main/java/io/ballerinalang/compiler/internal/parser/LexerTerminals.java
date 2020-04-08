@@ -55,6 +55,7 @@ public class LexerTerminals {
     public static final String LISTENER = "listener";
     public static final String CONST = "const";
     public static final String FINAL = "final";
+    public static final String TYPEOF = "typeof";
 
     // Types
     public static final String INT = "int";

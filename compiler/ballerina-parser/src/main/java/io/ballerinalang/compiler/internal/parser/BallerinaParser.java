@@ -226,6 +226,8 @@ public class BallerinaParser {
                 return parseNilTypeDescriptor();
             case COMPOUND_ASSIGNMENT_STMT:
                 return parseCompoundAssignmentStmt();
+            case TYPEOF_KEYWORD:
+                return parseTypeofKeyword();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -1796,6 +1798,8 @@ public class BallerinaParser {
                 return OperatorPrecedence.LOGICAL_AND;
             case LOGICAL_OR_TOKEN:
                 return OperatorPrecedence.LOGICAL_OR;
+            case TYPEOF_KEYWORD:
+                return OperatorPrecedence.UNARY;
             default:
                 throw new UnsupportedOperationException("Unsupported binary operator '" + binaryOpKind + "'");
         }
@@ -2610,6 +2614,8 @@ public class BallerinaParser {
                 return parseCheckExpression();
             case OPEN_BRACE_TOKEN:
                 return parseMappingConstructorExpr();
+            case TYPEOF_KEYWORD:
+                return parseTypeofExpression();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.EXPRESSION);
                 return solution.recoveredNode;
@@ -4065,7 +4071,6 @@ public class BallerinaParser {
      * Parse compound assignment statement, which takes the following format.
      * </p>
      * <code>assignment-stmt := lvexpr CompoundAssignmentOperator action-or-expr ;</code>
-     * 
      * @return Parsed node
      */
     private STNode parseCompoundAssignmentStmt() {
@@ -4081,7 +4086,6 @@ public class BallerinaParser {
      * Parse the RHS portion of the compound assignment.
      * </p>
      * <code>compound-assignment-stmt-rhs := CompoundAssignmentOperator action-or-expr ;</code>
-     * 
      * @param expression LHS expression
      * @return Parsed node
      */
@@ -4091,7 +4095,8 @@ public class BallerinaParser {
         STNode expr = parseExpression();
         STNode semicolon = parseSemicolon();
         return STNodeFactory.createCompoundAssignmentStatement(expression, binaryOperator,
-             equalsToken, expr, semicolon);
+                equalsToken, expr, semicolon);
+
     }
 
     /**
@@ -4190,7 +4195,6 @@ public class BallerinaParser {
 
     /**
      * Check whether the given token kind is a compound binary operator.
-     * 
      * @param kind STToken kind
      * @return <code>true</code> if the token kind refers to a binary operator. <code>false</code> otherwise
      */
@@ -4595,4 +4599,34 @@ public class BallerinaParser {
 
         return STNodeFactory.createNilTypeDescriptor(openParenthesisToken, closeParenthesisToken);
     }
+    /**
+     * Parse typeof expression.
+     * <p>
+     * <code>
+     * typeof-expr := typeof expression
+     * </code>
+     *
+     * @return Typeof expression node
+     */
+    private STNode parseTypeofExpression() {
+        STNode typeofKeyword = parseTypeofKeyword();
+        STNode expr = parseExpression();
+        return STNodeFactory.createTypeofExpression(typeofKeyword, expr);
+    }
+
+    /**
+     * Parse typeof-keyword.
+     *
+     * @return Typeof-keyword node
+     */
+    private STNode parseTypeofKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.TYPEOF_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.TYPEOF_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
 }
+

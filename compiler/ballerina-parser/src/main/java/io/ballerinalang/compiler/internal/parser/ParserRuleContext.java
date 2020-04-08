@@ -168,6 +168,7 @@ public enum ParserRuleContext {
     LISTENER_KEYWORD("const-keyword"),
     CONST_KEYWORD("const-keyword"),
     COMPOUND_BINARY_OPERATOR("compound-binary-operator"),
+    TYPEOF_KEYWORD("typeof-keyword"),
 
     // Expressions
     EXPRESSION("expression"),
@@ -182,7 +183,8 @@ public enum ParserRuleContext {
     MAPPING_FIELD("maping-field"),
     MAPPING_FIELD_NAME("maping-field-name"),
     SPECIFIC_FIELD_RHS("specific-field-rhs"),
-    COMPUTED_FIELD_NAME("computed-field-name")
+    COMPUTED_FIELD_NAME("computed-field-name"),
+    TYPEOF_EXPRESSION("typeof-expr"),
     ;
 
     private String value;

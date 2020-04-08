@@ -164,7 +164,8 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] RETURN_RHS = { ParserRuleContext.SEMICOLON, ParserRuleContext.EXPRESSION };
 
     private static final ParserRuleContext[] EXPRESSIONS =
-            { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION };
+            { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION,
+                    ParserRuleContext.TYPEOF_EXPRESSION };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -816,6 +817,9 @@ public class BallerinaParserErrorHandler {
                     break;
                 case CONST_DECL_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, CONST_DECL_RHS);
+                case TYPEOF_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.TYPEOF_KEYWORD;
+                    break;
 
                 // Productions (Non-terminals which does'nt have alternative paths)
                 case COMP_UNIT:
@@ -1500,6 +1504,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.CONST_DECL_RHS;
             case NIL_TYPE_DESCRIPTOR:
                 return ParserRuleContext.OPEN_PARENTHESIS;
+            case TYPEOF_EXPRESSION:
+                return ParserRuleContext.TYPEOF_KEYWORD;
+            case TYPEOF_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
 
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
@@ -2084,6 +2092,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case NIL_TYPE_DESCRIPTOR:
                 return SyntaxKind.NIL_TYPE;
+            case TYPEOF_KEYWORD:
+                return SyntaxKind.TYPEOF_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
