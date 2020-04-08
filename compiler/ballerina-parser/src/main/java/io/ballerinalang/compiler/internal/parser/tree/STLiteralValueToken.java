@@ -27,7 +27,7 @@ public class STLiteralValueToken extends STToken {
         this.value = value;
     }
 
-    public String getText() {
+    public String text() {
         return text;
     }
 

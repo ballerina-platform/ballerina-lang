@@ -35,7 +35,7 @@ public class STIdentifier extends STToken {
         this.text = text;
     }
 
-    public String getText() {
+    public String text() {
         return text;
     }
 

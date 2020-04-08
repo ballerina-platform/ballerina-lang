@@ -48,7 +48,7 @@ public class STToken extends STNode {
         this.addTrivia(trailingTrivia);
     }
 
-    public String getText() {
+    public String text() {
         return kind.strValue;
     }
 

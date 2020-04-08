@@ -25,8 +25,8 @@ public class Token extends Node {
         super(token, position, parent);
     }
 
-    public String getText() {
-        return ((STToken) this.internalNode).getText();
+    public String text() {
+        return ((STToken) this.internalNode).text();
     }
 
     @Override
