@@ -58,6 +58,12 @@ public class BallerinaParserErrorHandler {
     private final BallerinaParser parser;
     private ArrayDeque<ParserRuleContext> ctxStack = new ArrayDeque<>();
 
+    /**
+     * Two or more rules which's left side of the production is same (has alternative paths).
+     *  eg : FUNC_BODIES --> FUNC_BODY_BLOCK
+     *       FUNC_BODIES --> EXTERNAL_FUNC_BODY
+    */
+
     private static final ParserRuleContext[] FUNC_BODIES =
             { ParserRuleContext.FUNC_BODY_BLOCK, ParserRuleContext.EXTERNAL_FUNC_BODY };
 
@@ -486,6 +492,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Search for a solution.
+     * Terminals are directly matched and Non-terminals which have alternative productions are seekInAlternativesPaths()
      * 
      * @param currentCtx Current context
      * @param lookahead Position of the next token to consider, relative to the position of the original error.
@@ -809,7 +816,7 @@ public class BallerinaParserErrorHandler {
                 case CONST_DECL_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, CONST_DECL_RHS);
 
-                // productions
+                // Productions (Non-terminals which does'nt have alternative paths)
                 case COMP_UNIT:
                 case FUNC_DEFINITION:
                 case RETURN_TYPE_DESCRIPTOR:
@@ -845,6 +852,7 @@ public class BallerinaParserErrorHandler {
                 case CONTINUE_STATEMENT:
                 case LISTENER_DECL:
                 case CONSTANT_DECL:
+                case NIL_TYPE_DESCRIPTOR:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1214,6 +1222,7 @@ public class BallerinaParserErrorHandler {
             case SERVICE_DECL:
             case LISTENER_DECL:
             case CONSTANT_DECL:
+            case NIL_TYPE_DESCRIPTOR:
                 startContext(currentCtx);
                 break;
             default:
@@ -1258,6 +1267,11 @@ public class BallerinaParserErrorHandler {
                     endContext(); // end parameter
                     endContext(); // end parameter-list
                 }
+                if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR) {
+                    endContext();
+                    //After parsing nil type descriptor all the other parsing is same as next rule of simple type
+                    return getNextRuleForSimpleTypeDesc();
+                }
                 // endContext(); // end func signature
                 return ParserRuleContext.FUNC_BODY;
             case EXPRESSION:
@@ -1285,6 +1299,9 @@ public class BallerinaParserErrorHandler {
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.FUNC_DEFINITION) {
                     return ParserRuleContext.PARAM_LIST;
+                }
+                if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR) {
+                    return ParserRuleContext.CLOSE_PARENTHESIS;
                 }
                 return ParserRuleContext.ARG;
             case RETURNS_KEYWORD:
@@ -1475,6 +1492,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.CONST_DECL_TYPE;
             case CONST_DECL_TYPE:
                 return ParserRuleContext.CONST_DECL_RHS;
+            case NIL_TYPE_DESCRIPTOR:
+                return ParserRuleContext.OPEN_PARENTHESIS;
 
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
@@ -2034,6 +2053,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.FINAL_KEYWORD;
             case CONST_DECL_TYPE:
                 return SyntaxKind.IDENTIFIER_TOKEN;
+            case NIL_TYPE_DESCRIPTOR:
+                return SyntaxKind.NIL_TYPE;
 
             // TODO:
             case COMP_UNIT:
@@ -2090,6 +2111,7 @@ public class BallerinaParserErrorHandler {
             case LISTENER_DECL:
             case CONSTANT_DECL:
             case CONST_DECL_RHS:
+
             default:
                 break;
         }

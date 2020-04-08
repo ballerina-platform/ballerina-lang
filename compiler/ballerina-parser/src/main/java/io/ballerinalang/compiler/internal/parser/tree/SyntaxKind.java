@@ -103,6 +103,7 @@ public enum SyntaxKind {
     HEX_FLOATING_POINT_LITERAL(1005),
     SIMPLE_TYPE(1006),
 
+
     // Trivia
     WHITESPACE_TRIVIA(1500),
     END_OF_LINE_TRIVIA(1501),
@@ -143,7 +144,7 @@ public enum SyntaxKind {
     // Type descriptors
     RECORD_TYPE_DESCRIPTOR(2000),
     OBJECT_TYPE_DESCRIPTOR(2001),
-    NIL_TYPE_DESCRIPTOR(2002),
+    NIL_TYPE(2002),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),

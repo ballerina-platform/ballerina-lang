@@ -26,7 +26,7 @@ public class STNilTypeDescriptor extends STNode {
     public final STNode closeParenthesisToken;
 
     public STNilTypeDescriptor(STNode openParenthesisToken, STNode closeParenthesisToken) {
-        super(SyntaxKind.NIL_TYPE_DESCRIPTOR);
+        super(SyntaxKind.NIL_TYPE);
         this.openParenthesisToken = openParenthesisToken;
         this.closeParenthesisToken = closeParenthesisToken;
 

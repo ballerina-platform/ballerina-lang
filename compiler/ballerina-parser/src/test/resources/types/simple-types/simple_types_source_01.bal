@@ -12,4 +12,5 @@ public function foo() {
     service k;
     var l;
     never m;
+    () n;
 }
