@@ -40,6 +40,7 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
@@ -1099,5 +1100,34 @@ public class ArrayValueImpl extends AbstractArrayValue {
             default:
                 return refValues.length;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ArrayValueImpl that = (ArrayValueImpl) o;
+        return arrayType.equals(that.arrayType) &&
+                elementType.equals(that.elementType) &&
+                Arrays.equals(refValues, that.refValues) &&
+                Arrays.equals(intValues, that.intValues) &&
+                Arrays.equals(booleanValues, that.booleanValues) &&
+                Arrays.equals(byteValues, that.byteValues) &&
+                Arrays.equals(floatValues, that.floatValues) &&
+                Arrays.equals(stringValues, that.stringValues) &&
+                Arrays.equals(bStringValues, that.bStringValues);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(arrayType, elementType);
+        result = 31 * result + Arrays.hashCode(refValues);
+        result = 31 * result + Arrays.hashCode(intValues);
+        result = 31 * result + Arrays.hashCode(booleanValues);
+        result = 31 * result + Arrays.hashCode(byteValues);
+        result = 31 * result + Arrays.hashCode(floatValues);
+        result = 31 * result + Arrays.hashCode(stringValues);
+        result = 31 * result + Arrays.hashCode(bStringValues);
+        return result;
     }
 }

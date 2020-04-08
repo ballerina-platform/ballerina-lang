@@ -31,6 +31,7 @@ public class JvmConstants {
     public static final String MAP_VALUE = "org/ballerinalang/jvm/values/MapValue";
     public static final String MAP_VALUE_IMPL = "org/ballerinalang/jvm/values/MapValueImpl";
     public static final String STREAM_VALUE = "org/ballerinalang/jvm/values/StreamValue";
+    public static final String TABLE_VALUE = "org/ballerinalang/jvm/values/TableValue";
     public static final String ARRAY_VALUE = "org/ballerinalang/jvm/values/ArrayValue";
     public static final String OBJECT_VALUE = "org/ballerinalang/jvm/values/ObjectValue";
     public static final String ABSTRACT_OBJECT_VALUE = "org/ballerinalang/jvm/values/AbstractObjectValue";
