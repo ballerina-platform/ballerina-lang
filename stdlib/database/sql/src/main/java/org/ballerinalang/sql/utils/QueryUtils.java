@@ -37,6 +37,7 @@ import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.exception.ApplicationError;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -72,7 +73,7 @@ public class QueryUtils {
                 sqlQuery = Utils.getSqlQuery(paramSQLString);
                 connection = sqlDatasource.getSQLConnection();
                 statement = connection.prepareStatement(sqlQuery);
-                Utils.setParams(statement, paramSQLString);
+                Utils.setParams(connection, statement, paramSQLString);
                 resultSet = statement.executeQuery();
                 List<ColumnDefinition> columnDefinitions;
                 BStructureType streamConstraint;
@@ -106,6 +107,11 @@ public class QueryUtils {
             } catch (ApplicationError applicationError) {
                 Utils.closeResources(resultSet, statement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(applicationError.getMessage());
+                return getErrorStream(recordType, errorValue);
+            } catch (IOException e) {
+                Utils.closeResources(resultSet, statement, connection);
+                ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(
+                        "I/O exception while processing the query." + e.getMessage());
                 return getErrorStream(recordType, errorValue);
             }
         } else {

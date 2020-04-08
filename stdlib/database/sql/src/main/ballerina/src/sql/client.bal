@@ -124,7 +124,7 @@ public const TYPE_REFCURSOR = "REFCURSOR";
 # + value - Value of paramter passed into the SQL statement
 public type TypedValue record {|
    Type sqlType ;
-   anydata value;
+   anydata|object{} value;
 |};
 
 # Possible type of parameters that can be passed into the SQL query.

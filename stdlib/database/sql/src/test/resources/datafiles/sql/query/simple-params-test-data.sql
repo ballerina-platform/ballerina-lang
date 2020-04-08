@@ -23,15 +23,16 @@ CREATE TABLE IF NOT EXISTS ComplexTypes(
   blob_type      BLOB(1024),
   clob_type      CLOB(1024),
   binary_type  BINARY(27),
+  var_binary_type VARBINARY(27),
   PRIMARY KEY (row_id)
 );
 /
-INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type) VALUES
+INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type, var_binary_type) VALUES
   (1, X'77736F322062616C6C6572696E6120626C6F6220746573742E', CONVERT('very long text', CLOB),
-  X'77736F322062616C6C6572696E612062696E61727920746573742E');
+  X'77736F322062616C6C6572696E612062696E61727920746573742E', X'77736F322062616C6C6572696E612062696E61727920746573742E');
 /
-INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type) VALUES
-  (2, null, null, null);
+INSERT INTO ComplexTypes (row_id, blob_type, clob_type, binary_type, var_binary_type) VALUES
+  (2, null, null, null, null);
 /
 
 CREATE TABLE NumericTypes (

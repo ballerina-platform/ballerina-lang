@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import mockclient;
+import ballerina/io;
 import ballerina/sql;
 
 function querySingleIntParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -100,8 +101,8 @@ function queryDecimalAnFloatParam(string url, string user, string password) retu
 }
 
 function queryByteArrayParam(string url, string user, string password) returns @tainted record {}|error? {
-    record{}|error? value = queryMockClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
-    byte[] binaryData = <byte[]> getUntaintedData(value, "BINARY_TYPE");
+    record {}|error? value = queryMockClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
+    byte[] binaryData = <byte[]>getUntaintedData(value, "BINARY_TYPE");
 
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from ComplexTypes WHERE binary_type = ", ""],
@@ -110,7 +111,7 @@ function queryByteArrayParam(string url, string user, string password) returns @
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-function getUntaintedData(record {}|error? value, string fieldName) returns @untainted anydata{
+function getUntaintedData(record {}|error? value, string fieldName) returns @untainted anydata {
     if (value is record {}) {
         return value[fieldName];
     }
@@ -119,8 +120,8 @@ function getUntaintedData(record {}|error? value, string fieldName) returns @unt
 
 function queryTypeVarcharStringParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_VARCHAR,
-            value: "Hello"
+        sqlType: sql:TYPE_VARCHAR,
+        value: "Hello"
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
@@ -131,8 +132,8 @@ function queryTypeVarcharStringParam(string url, string user, string password) r
 
 function queryTypeCharStringParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_CHAR,
-            value: "Hello"
+        sqlType: sql:TYPE_CHAR,
+        value: "Hello"
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
@@ -143,8 +144,8 @@ function queryTypeCharStringParam(string url, string user, string password) retu
 
 function queryTypeLongNVarcharStringParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_LONGNVARCHAR,
-            value: "Hello"
+        sqlType: sql:TYPE_LONGNVARCHAR,
+        value: "Hello"
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
@@ -155,8 +156,8 @@ function queryTypeLongNVarcharStringParam(string url, string user, string passwo
 
 function queryTypeLongVarcharStringParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_LONGVARCHAR,
-            value: "Hello"
+        sqlType: sql:TYPE_LONGVARCHAR,
+        value: "Hello"
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
@@ -167,8 +168,8 @@ function queryTypeLongVarcharStringParam(string url, string user, string passwor
 
 function queryTypeNCharStringParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_NCHAR,
-            value: "Hello"
+        sqlType: sql:TYPE_NCHAR,
+        value: "Hello"
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
@@ -179,8 +180,8 @@ function queryTypeNCharStringParam(string url, string user, string password) ret
 
 function queryTypeNVarCharStringParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_NVARCHAR,
-            value: "Hello"
+        sqlType: sql:TYPE_NVARCHAR,
+        value: "Hello"
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
@@ -191,8 +192,8 @@ function queryTypeNVarCharStringParam(string url, string user, string password) 
 
 function queryTypeVarCharIntegerParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_VARCHAR,
-            value: 1
+        sqlType: sql:TYPE_VARCHAR,
+        value: 1
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
@@ -203,8 +204,8 @@ function queryTypeVarCharIntegerParam(string url, string user, string password) 
 
 function queryTypBooleanBooleanParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_BOOLEAN,
-            value: true
+        sqlType: sql:TYPE_BOOLEAN,
+        value: true
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
@@ -215,8 +216,8 @@ function queryTypBooleanBooleanParam(string url, string user, string password) r
 
 function queryTypBooleanIntParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_BOOLEAN,
-            value: 1
+        sqlType: sql:TYPE_BOOLEAN,
+        value: 1
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
@@ -227,8 +228,8 @@ function queryTypBooleanIntParam(string url, string user, string password) retur
 
 function queryTypBitIntParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_BIT,
-            value: 1
+        sqlType: sql:TYPE_BIT,
+        value: 1
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
@@ -239,8 +240,8 @@ function queryTypBitIntParam(string url, string user, string password) returns @
 
 function queryTypBitStringParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_BIT,
-            value: "true"
+        sqlType: sql:TYPE_BIT,
+        value: "true"
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
@@ -251,8 +252,8 @@ function queryTypBitStringParam(string url, string user, string password) return
 
 function queryTypBitInvalidIntParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_BIT,
-            value: 12
+        sqlType: sql:TYPE_BIT,
+        value: 12
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
@@ -263,8 +264,8 @@ function queryTypBitInvalidIntParam(string url, string user, string password) re
 
 function queryTypBitDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_BIT,
-            value: 1.0
+        sqlType: sql:TYPE_BIT,
+        value: 1.0
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
@@ -275,8 +276,8 @@ function queryTypBitDoubleParam(string url, string user, string password) return
 
 function queryTypeIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_INTEGER,
-            value: 2147483647
+        sqlType: sql:TYPE_INTEGER,
+        value: 2147483647
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE int_type = ", ""],
@@ -287,8 +288,8 @@ function queryTypeIntIntParam(string url, string user, string password) returns 
 
 function queryTypeTinyIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_TINYINT,
-            value: 127
+        sqlType: sql:TYPE_TINYINT,
+        value: 127
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE tinyint_type = ", ""],
@@ -299,8 +300,8 @@ function queryTypeTinyIntIntParam(string url, string user, string password) retu
 
 function queryTypeSmallIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_SMALLINT,
-            value: 32767
+        sqlType: sql:TYPE_SMALLINT,
+        value: 32767
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE smallint_type = ", ""],
@@ -311,8 +312,8 @@ function queryTypeSmallIntIntParam(string url, string user, string password) ret
 
 function queryTypeBigIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_BIGINT,
-            value: 9223372036854774807
+        sqlType: sql:TYPE_BIGINT,
+        value: 9223372036854774807
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE bigint_type = ", ""],
@@ -323,8 +324,8 @@ function queryTypeBigIntIntParam(string url, string user, string password) retur
 
 function queryTypeDoubleDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_DOUBLE,
-            value: 1234.567
+        sqlType: sql:TYPE_DOUBLE,
+        value: 1234.567
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
@@ -335,8 +336,8 @@ function queryTypeDoubleDoubleParam(string url, string user, string password) re
 
 function queryTypeDoubleIntParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_DOUBLE,
-            value: 1234
+        sqlType: sql:TYPE_DOUBLE,
+        value: 1234
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
@@ -348,8 +349,8 @@ function queryTypeDoubleIntParam(string url, string user, string password) retur
 function queryTypeDoubleDecimalParam(string url, string user, string password) returns @tainted record {}|error? {
     decimal decimalVal = 1234.567;
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_DOUBLE,
-            value: decimalVal
+        sqlType: sql:TYPE_DOUBLE,
+        value: decimalVal
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
@@ -360,8 +361,8 @@ function queryTypeDoubleDecimalParam(string url, string user, string password) r
 
 function queryTypeFloatDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_FLOAT,
-            value: 1234.567
+        sqlType: sql:TYPE_FLOAT,
+        value: 1234.567
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
@@ -372,8 +373,8 @@ function queryTypeFloatDoubleParam(string url, string user, string password) ret
 
 function queryTypeRealDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_REAL,
-            value: 1234.567
+        sqlType: sql:TYPE_REAL,
+        value: 1234.567
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE real_type = ", ""],
@@ -384,8 +385,8 @@ function queryTypeRealDoubleParam(string url, string user, string password) retu
 
 function queryTypeNumericDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_NUMERIC,
-            value: 1234.567
+        sqlType: sql:TYPE_NUMERIC,
+        value: 1234.567
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE numeric_type = ", ""],
@@ -396,8 +397,8 @@ function queryTypeNumericDoubleParam(string url, string user, string password) r
 
 function queryTypeNumericIntParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_NUMERIC,
-            value: 1234
+        sqlType: sql:TYPE_NUMERIC,
+        value: 1234
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE numeric_type = ", ""],
@@ -409,8 +410,8 @@ function queryTypeNumericIntParam(string url, string user, string password) retu
 function queryTypeNumericDecimalParam(string url, string user, string password) returns @tainted record {}|error? {
     decimal decimalVal = 1234.567;
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_NUMERIC,
-            value: decimalVal
+        sqlType: sql:TYPE_NUMERIC,
+        value: decimalVal
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE numeric_type = ", ""],
@@ -421,8 +422,8 @@ function queryTypeNumericDecimalParam(string url, string user, string password) 
 
 function queryTypeDecimalDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_DECIMAL,
-            value: 1234.567
+        sqlType: sql:TYPE_DECIMAL,
+        value: 1234.567
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE decimal_type = ", ""],
@@ -434,8 +435,8 @@ function queryTypeDecimalDoubleParam(string url, string user, string password) r
 function queryTypeDecimalDecimalParam(string url, string user, string password) returns @tainted record {}|error? {
     decimal decimalVal = 1234.567;
     sql:TypedValue typeVal = {
-            sqlType: sql:TYPE_DECIMAL,
-            value: decimalVal
+        sqlType: sql:TYPE_DECIMAL,
+        value: decimalVal
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE decimal_type = ", ""],
@@ -444,7 +445,141 @@ function queryTypeDecimalDecimalParam(string url, string user, string password) 
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-function queryMockClient(string url, string user, string password, @untainted string|sql:ParameterizedString sqlQuery)
+function queryTypeBinaryByteParam(string url, string user, string password) returns @tainted record {}|error? {
+    record {}|error? value = queryMockClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
+    byte[] binaryData = <byte[]>getUntaintedData(value, "BINARY_TYPE");
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_BINARY,
+        value: binaryData
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE binary_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeBinaryReadableByteChannelParam(string url, string user, string password) returns @tainted record {}|error? {
+    io:ReadableByteChannel byteChannel = check getByteColumnChannel();
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_BINARY,
+        value: byteChannel
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE binary_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeVarBinaryReadableByteChannelParam(string url, string user, string password) returns @tainted record {}|error? {
+    io:ReadableByteChannel byteChannel = check getByteColumnChannel();
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_VARBINARY,
+        value: byteChannel
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE var_binary_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeLongVarBinaryReadableByteChannelParam(string url, string user, string password) returns @tainted record {}|error? {
+    io:ReadableByteChannel byteChannel = check getByteColumnChannel();
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_LONGVARBINARY,
+        value: byteChannel
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE var_binary_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeBlobByteParam(string url, string user, string password) returns @tainted record {}|error? {
+    record {}|error? value = queryMockClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
+    byte[] binaryData = <byte[]>getUntaintedData(value, "BLOB_TYPE");
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_BLOB,
+        value: binaryData
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE blob_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeBlobReadableByteChannelParam(string url, string user, string password) returns @tainted record {}|error? {
+    io:ReadableByteChannel byteChannel = check getBlobColumnChannel();
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_BLOB,
+        value: byteChannel
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE blob_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeClobStringParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_CLOB,
+        value: "very long text"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE clob_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeClobReadableCharChannelParam(string url, string user, string password) returns @tainted record {}|error? {
+    io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_CLOB,
+        value: clobChannel
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE clob_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTypeNClobReadableCharChannelParam(string url, string user, string password) returns @tainted record {}|error? {
+    io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_NCLOB,
+        value: clobChannel
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE clob_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function getByteColumnChannel() returns @untainted io:ReadableByteChannel|error {
+    io:ReadableByteChannel byteChannel = check io:openReadableFile("./src/test/resources/files/byteValue.txt");
+    return byteChannel;
+}
+
+function getBlobColumnChannel() returns @untainted io:ReadableByteChannel|error {
+    io:ReadableByteChannel byteChannel = check io:openReadableFile("./src/test/resources/files/blobValue.txt");
+    return byteChannel;
+}
+
+function getClobColumnChannel() returns @untainted io:ReadableCharacterChannel|error {
+    io:ReadableByteChannel byteChannel = check io:openReadableFile("./src/test/resources/files/clobValue.txt");
+    io:ReadableCharacterChannel sourceChannel = new (byteChannel, "UTF-8");
+    return sourceChannel;
+}
+
+function queryMockClient(string url, string user, string password,@untainted string|sql:ParameterizedString sqlQuery)
 returns @tainted record {}|error? {
     mockclient:Client dbClient = check new (url = url, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query(sqlQuery);
@@ -454,3 +589,10 @@ returns @tainted record {}|error? {
     check dbClient.close();
     return value;
 }
+
+function writeToFile(byte[] data) returns @tainted error? {
+    io:WritableByteChannel byteChannel = check io:openWritableFile("./src/test/resources/files/blobValue.txt");
+    int leng = check byteChannel.write(data, 0);
+    return check byteChannel.close();
+}
+

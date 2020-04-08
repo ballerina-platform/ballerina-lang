@@ -30,10 +30,14 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BValue;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.exception.ApplicationError;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
+import org.ballerinalang.stdlib.io.readers.CharacterChannelReader;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
 
 import java.io.BufferedReader;
@@ -105,8 +109,9 @@ class Utils {
         }
     }
 
-    static void setParams(PreparedStatement preparedStatement, MapValue<String, Object> paramString)
-            throws SQLException, ApplicationError {
+    static void setParams(Connection connection, PreparedStatement preparedStatement, MapValue<String,
+            Object> paramString)
+            throws SQLException, ApplicationError, IOException {
         ArrayValue arrayValue = paramString.getArrayValue(Constants.ParameterizedStingFields.INSERTIONS);
         for (int i = 0; i < arrayValue.size(); i++) {
             Object object = arrayValue.get(i);
@@ -129,13 +134,14 @@ class Utils {
                 }
             } else if (object instanceof MapValue) {
                 MapValue<String, Object> recordValue = (MapValue<String, Object>) object;
-                setSqlTypedParam(preparedStatement, index, recordValue);
+                setSqlTypedParam(connection, preparedStatement, index, recordValue);
             }
         }
     }
 
-    private static void setSqlTypedParam(PreparedStatement preparedStatement, int index, MapValue<String, Object> typedValue)
-            throws SQLException, ApplicationError {
+    private static void setSqlTypedParam(Connection connection, PreparedStatement preparedStatement, int index,
+                                         MapValue<String, Object> typedValue)
+            throws SQLException, ApplicationError, IOException {
         String sqlType = typedValue.getStringValue(Constants.TypedValueFields.SQL_TYPE);
         Object value = typedValue.get(Constants.TypedValueFields.VALUE);
         switch (sqlType) {
@@ -218,14 +224,68 @@ class Utils {
                     throwInvalidParameterError(value, sqlType);
                 }
                 break;
+            case Constants.SqlTypes.BINARY:
+            case Constants.SqlTypes.LONGVARBINARY:
+            case Constants.SqlTypes.VARBINARY:
+            case Constants.SqlTypes.BLOB:
+                if (value instanceof ArrayValue) {
+                    ArrayValue arrayValue = (ArrayValue) value;
+                    if (arrayValue.getElementType().getTag() == org.wso2.ballerinalang.compiler.util.TypeTags.BYTE) {
+                        preparedStatement.setBytes(index, arrayValue.getBytes());
+                    } else {
+                        throwInvalidParameterError(value, sqlType);
+                    }
+                } else if (value instanceof ObjectValue) {
+                    ObjectValue objectValue = (ObjectValue) value;
+                    if (objectValue.getType().getName().equalsIgnoreCase(Constants.READ_BYTE_CHANNEL_STRUCT) &&
+                            objectValue.getType().getPackage().toString()
+                                    .equalsIgnoreCase(IOConstants.IO_PACKAGE_ID.toString())) {
+                        Channel byteChannel = (Channel) objectValue.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
+                        preparedStatement.setBinaryStream(index, byteChannel.getInputStream());
+                    } else {
+                        throwInvalidParameterError(value, sqlType);
+                    }
+                } else {
+                    throwInvalidParameterError(value, sqlType);
+                }
+                break;
+            case Constants.SqlTypes.CLOB:
+            case Constants.SqlTypes.NCLOB:
+                Clob clob;
+                if (sqlType.equalsIgnoreCase(Constants.SqlTypes.NCLOB)) {
+                    clob = connection.createNClob();
+                } else {
+                    clob = connection.createClob();
+                }
+                if (value instanceof String) {
+                    clob.setString(1, value.toString());
+                    preparedStatement.setClob(index, clob);
+                } else if (value instanceof ObjectValue) {
+                    ObjectValue objectValue = (ObjectValue) value;
+                    if (objectValue.getType().getName().equalsIgnoreCase(Constants.READ_CHAR_CHANNEL_STRUCT) &&
+                            objectValue.getType().getPackage().toString()
+                                    .equalsIgnoreCase(IOConstants.IO_PACKAGE_ID.toString())) {
+                        CharacterChannel charChannel = (CharacterChannel) objectValue.getNativeData(
+                                IOConstants.CHARACTER_CHANNEL_NAME);
+                        preparedStatement.setCharacterStream(index, new CharacterChannelReader(charChannel));
+                    } else {
+                        throwInvalidParameterError(value, sqlType);
+                    }
+                }
+                break;
             default:
                 throw new ApplicationError("Unsupported SQL type: " + sqlType);
         }
     }
 
     private static void throwInvalidParameterError(Object value, String sqlType) throws ApplicationError {
-        throw new ApplicationError("Invalid parameter :" + value.getClass().getName()
-                + " is passed as value for sql type : " + sqlType);
+        String valueName;
+        if (value instanceof BValue) {
+            valueName = ((BValue) value).getType().getName();
+        } else {
+            valueName = value.getClass().getName();
+        }
+        throw new ApplicationError("Invalid parameter :" + valueName + " is passed as value for sql type : " + sqlType);
     }
 
 

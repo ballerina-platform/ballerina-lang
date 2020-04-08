@@ -212,7 +212,7 @@ public class ParamsQueryTest {
     @Test
     public void testQueryTypeIntIntParam() {
         BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeIntIntParam", args);
-       validateNumericTableResult(returns);
+        validateNumericTableResult(returns);
     }
 
     @Test
@@ -303,6 +303,60 @@ public class ParamsQueryTest {
         validateNumericTableResult(returns);
     }
 
+    @Test
+    public void testQueryTypeBinaryByteParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeBinaryByteParam", args);
+        validateComplexTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeBinaryReadableByteChannelParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeBinaryReadableByteChannelParam", args);
+        validateComplexTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeVarBinaryReadableByteChannelParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeVarBinaryReadableByteChannelParam", args);
+        validateComplexTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeLongVarBinaryReadableByteChannelParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeLongVarBinaryReadableByteChannelParam", args);
+        validateComplexTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeBlobByteParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeBlobByteParam", args);
+        validateComplexTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeBlobReadableByteChannelParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeBlobReadableByteChannelParam", args);
+        validateComplexTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeClobStringParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeClobStringParam", args);
+        validateComplexTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeClobReadableCharChannelParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeClobReadableCharChannelParam", args);
+        validateComplexTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTypeNClobReadableCharChannelParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeNClobReadableCharChannelParam", args);
+        validateComplexTableResult(returns);
+    }
+
     private void validateDataTableResult(BValue[] returns) {
         SQLDBUtils.assertNotError(returns[0]);
         Assert.assertTrue(returns[0] instanceof BMap);
@@ -322,12 +376,12 @@ public class ParamsQueryTest {
         SQLDBUtils.assertNotError(returns[0]);
         Assert.assertTrue(returns[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returns[0]).getMap();
-        Assert.assertEquals(result.size(), 4);
+        Assert.assertEquals(result.size(), 5);
         Assert.assertEquals(((BInteger) result.get("ROW_ID")).intValue(), 1);
         Assert.assertEquals(result.get("CLOB_TYPE").toString(), "very long text");
     }
 
-    private void validateNumericTableResult(BValue[] returns){
+    private void validateNumericTableResult(BValue[] returns) {
         SQLDBUtils.assertNotError(returns[0]);
         Assert.assertTrue(returns[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returns[0]).getMap();
