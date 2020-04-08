@@ -1,20 +1,20 @@
 /*
-*   Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
+ *   Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.TypeChecker;
@@ -128,8 +128,19 @@ public class BArrayType extends BType {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(elementType.toString());
-        return size != -1 ? sb.append("[").append(size).append("]").toString() : sb.append("[]").toString();
+        String array_string = "";
+        String array_type_name = getName();
+        array_string = size != -1 ? array_string + "[" + size + "]" : array_string + "[]";
+        array_string = array_string.concat(elementType.toString());
+        if (array_string.contains(array_type_name)) {
+            array_string = array_type_name + array_string.replaceAll(array_type_name, "");
+        }
+        return array_string;
+    }
+
+    @Override
+    public String getName() {
+        return elementType.getName();
     }
 
     public int getDimensions() {
