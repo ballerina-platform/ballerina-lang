@@ -1787,6 +1787,8 @@ public class BallerinaParser {
                 return OperatorPrecedence.LOGICAL_AND;
             case LOGICAL_OR_TOKEN:
                 return OperatorPrecedence.LOGICAL_OR;
+            case TYPEOF_KEYWORD:
+                return OperatorPrecedence.UNARY;
             default:
                 throw new UnsupportedOperationException("Unsupported binary operator '" + binaryOpKind + "'");
         }
@@ -1820,6 +1822,8 @@ public class BallerinaParser {
                 return SyntaxKind.LOGICAL_AND_TOKEN;
             case LOGICAL_OR:
                 return SyntaxKind.LOGICAL_OR_TOKEN;
+            case UNARY:
+                return SyntaxKind.PLUS_TOKEN;
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported operator precedence level'" + opPrecedenceLevel + "'");
@@ -4503,7 +4507,7 @@ public class BallerinaParser {
      */
     private STNode parseTypeofExpression() {
         STNode typeofKeyword = parseTypeofKeyword();
-        STNode expr = parseExpression(OperatorPrecedence.UNARY, false);
+        STNode expr = parseExpression();
         return STNodeFactory.createTypeofExpression(typeofKeyword, expr);
     }
 
