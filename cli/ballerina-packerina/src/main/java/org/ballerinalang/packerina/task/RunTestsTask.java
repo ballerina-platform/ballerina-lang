@@ -70,8 +70,6 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
-;
-
 /**
  * Task for executing tests.
  */
@@ -327,10 +325,12 @@ public class RunTestsTask implements Task {
             }
 
             String classPath = getClassPath(getTestRuntimeJar(buildContext), testDependencies);
-            cmdArgs.addAll(Lists.of("-cp", classPath, mainClassName, jsonPath.toString()));
+            cmdArgs.addAll(Lists.of("-cp", classPath));
             if (isInDebugMode()) {
                 cmdArgs.add(getDebugArgs(buildContext));
             }
+            cmdArgs.add(mainClassName);
+            cmdArgs.add(jsonPath.toString());
             cmdArgs.addAll(Arrays.asList(args));
             cmdArgs.add(targetDir.toString());
             cmdArgs.add(testJarPath.toString());

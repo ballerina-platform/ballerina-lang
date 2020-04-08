@@ -57,6 +57,7 @@ public class RunExecutableTask implements Task {
      */
     public RunExecutableTask(String[] args) {
         this.args = args;
+        this.executableJarPath = null;
     }
 
     @Override
