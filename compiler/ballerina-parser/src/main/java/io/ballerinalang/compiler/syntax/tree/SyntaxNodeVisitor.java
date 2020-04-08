@@ -81,6 +81,10 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(returnStatement);
     }
 
+    public void visit(CompoundAssignmentStatement compoundAssignmentStatement) {
+        visitSyntaxNode(compoundAssignmentStatement);
+    }
+
     // Expressions
 
     public void visit(BinaryExpression binaryExpression) {

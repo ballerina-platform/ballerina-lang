@@ -82,6 +82,10 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(returnStatement);
     }
 
+    public T transform(CompoundAssignmentStatement compoundAssignmentStatement) {
+        return transformSyntaxNode(compoundAssignmentStatement);
+    }
+
     // Expressions
 
     public T transform(BinaryExpression binaryExpression) {

@@ -106,6 +106,7 @@ public enum ParserRuleContext {
     PANIC_STMT("panic-statement"),
     RETURN_STMT("return-stmt"),
     RETURN_STMT_RHS("return-stmt-rhs"),
+    COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -165,6 +166,7 @@ public enum ParserRuleContext {
     SERVICE_NAME("service-name"),
     LISTENER_KEYWORD("const-keyword"),
     CONST_KEYWORD("const-keyword"),
+    COMPOUND_BINARY_OPERATOR("compound-binary-operator"),
 
     // Expressions
     EXPRESSION("expression"),
