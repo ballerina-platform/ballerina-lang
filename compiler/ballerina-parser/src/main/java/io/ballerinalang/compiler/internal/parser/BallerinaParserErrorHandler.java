@@ -157,7 +157,7 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] RETURN_RHS = { ParserRuleContext.SEMICOLON, ParserRuleContext.EXPRESSION };
 
     private static final ParserRuleContext[] EXPRESSIONS =
-            { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION };
+            { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION, ParserRuleContext.TYPEOF_EXPRESSION };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -1478,6 +1478,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.CONST_DECL_TYPE;
             case CONST_DECL_TYPE:
                 return ParserRuleContext.CONST_DECL_RHS;
+            case TYPEOF_EXPRESSION:
+                return ParserRuleContext.TYPE_KEYWORD;
             case TYPEOF_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
 

@@ -180,7 +180,8 @@ public enum ParserRuleContext {
     MAPPING_FIELD("maping-field"),
     MAPPING_FIELD_NAME("maping-field-name"),
     SPECIFIC_FIELD_RHS("specific-field-rhs"),
-    COMPUTED_FIELD_NAME("computed-field-name")
+    COMPUTED_FIELD_NAME("computed-field-name"),
+    TYPEOF_EXPRESSION("typeof-expr"),
     ;
 
     private String value;
