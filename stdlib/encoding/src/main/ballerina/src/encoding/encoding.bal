@@ -49,7 +49,7 @@ function externDecodeBase64Url(handle input) returns byte[]|Error = @java:Method
     class: "org.ballerinalang.stdlib.encoding.nativeimpl.Decode"
 } external;
 
-# Encodes the given URI component.
+# Encodes the given URI component into a `string` using the provided charset.
 # ```ballerina
 #    string urlValue = "param1=http://xyz.com/?a=12&b=55¶m2=99";
 #    string|encoding:Error encodedUriComponent = encoding:encodeUriComponent(urlValue, "UTF-8");
@@ -68,7 +68,7 @@ function externEncodeUriComponent(handle uriComponent, handle charset) returns h
     class: "org.ballerinalang.stdlib.encoding.nativeimpl.Encode"
 } external;
 
-# Decodes the given URI component.
+# Decodes the given URI component into a `string` using the provided charset.
 # ```ballerina
 #     string encodedUrl = "http://www.domain.com/?param1=http%3A%2F%2Fxyz.com%2F%3Fa%3D12%26b%3D55¶m2=99";
 #     string|encoding:Error decodedUriComponent = encoding:decodeUriComponent(encodedUrl, "UTF-8");
