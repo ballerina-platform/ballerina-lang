@@ -18,16 +18,9 @@
 
 package org.ballerinalang.plugin.gradle.doc;
 
-import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
-import org.ballerinalang.tool.LauncherUtils;
-import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
-import org.wso2.ballerinalang.compiler.SourceDirectory;
 
 import java.io.PrintStream;
-import java.nio.file.Path;
-import java.util.List;
-
 
 /**
  * Generates Ballerina API docs for a given ballerina package.
@@ -37,29 +30,6 @@ public class DocerinaGen {
     private static final PrintStream out = System.out;
 
     public static void main(String[] args) {
-        String sourceRoot = args[0];
-        String outputDir = args[1];
-        String moduleFilter = args[2];
-
-        System.setProperty(BallerinaDocConstants.ENABLE_DEBUG_LOGS, "true");
-
-        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
-        List<String> sources;
-
-        SourceDirectory srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
-        sources = srcDirectory.getSourcePackageNames();
-
-        try {
-            BallerinaDocGenerator.generateApiDocs(sourceRoot, outputDir,
-                    moduleFilter, false, false,
-                    sources.toArray(new String[sources.size()]));
-        } catch (Throwable e) {
-            out.println(e.getMessage());
-        } finally {
-            System.clearProperty(BallerinaDocConstants.ENABLE_DEBUG_LOGS);
-            System.clearProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY);
-            System.clearProperty(BallerinaDocConstants.OUTPUT_ZIP_PATH);
-            System.clearProperty(BallerinaDocConstants.ORG_NAME);
-        }
+        BallerinaDocGenerator.mergeApiDocs(args[0]);
     }
 }

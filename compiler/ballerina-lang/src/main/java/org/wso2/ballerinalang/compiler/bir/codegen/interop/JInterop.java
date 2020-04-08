@@ -42,7 +42,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags.JSHO
  */
 class JInterop {
 
-    static final String INTEROP_ANNOT_ORG = "ballerinax";
+    static final String INTEROP_ANNOT_ORG = "ballerina";
     static final String INTEROP_ANNOT_MODULE = "java";
 
     static final String CONSTRUCTOR_ANNOT_TAG = "Constructor";

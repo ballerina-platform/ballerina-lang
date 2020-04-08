@@ -275,6 +275,20 @@ public class BCompileUtil {
     /**
      * Compile and return the semantic errors.
      *
+     * @param sourceRoot  root path of the modules as a path object
+     * @param packageName name of the module to compile
+     * @param init init the module or not
+     * @param withTests compile with tests or not
+     * @return Semantic errors
+     */
+    public static CompileResult compile(Path sourceRoot, String packageName, boolean init, boolean withTests) {
+        Path packagePath = Paths.get(packageName);
+        return getCompileResult(packageName, sourceRoot, packagePath, init, withTests);
+    }
+
+    /**
+     * Compile and return the semantic errors.
+     *
      * @param obj this is to find the original callers location.
      * @param sourceRoot  root path of the modules
      * @param packageName name of the module to compile
@@ -395,6 +409,7 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+        options.put(OFFLINE, "true");
 
         return compile(context, packageName, compilerPhase, false);
     }
@@ -417,6 +432,7 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(enableExpFeatures));
+        options.put(OFFLINE, "true");
 
         return compile(context, packageName, compilerPhase, false);
     }
@@ -441,6 +457,7 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(OFFLINE, "true");
         context.put(SourceDirectory.class, sourceDirectory);
 
         CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
@@ -492,6 +509,7 @@ public class BCompileUtil {
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(OFFLINE, "true");
 
         CompileResult.CompileResultDiagnosticListener listener = new CompileResult.CompileResultDiagnosticListener();
         context.put(DiagnosticListener.class, listener);
@@ -576,6 +594,7 @@ public class BCompileUtil {
         options.put(PRESERVE_WHITESPACE, "false");
         options.put(LOCK_ENABLED, Boolean.toString(true));
         options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
+        options.put(OFFLINE, "true");
         if (withTests) {
             options.put(CompilerOptionName.SKIP_TESTS, "false");
             options.put(CompilerOptionName.TEST_ENABLED, "true");

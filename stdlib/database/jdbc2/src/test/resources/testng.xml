@@ -22,8 +22,12 @@ under the License.
 <suite name="ballerina-jdbc-test-suite">
     <test name="ballerina-jdbc-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
-        <classes >
+        <classes>
             <class name="org.ballerinalang.jdbc.connection.ConnectorInitTest"/>
+            <class name="org.ballerinalang.jdbc.pool.ConnectionPoolTest"/>
+            <class name="org.ballerinalang.jdbc.query.NumericTypesQueryTest"/>
+            <class name="org.ballerinalang.jdbc.query.ComplexTypesQueryTest"/>
+            <class name="org.ballerinalang.jdbc.execute.ExecuteTest"/>
         </classes>
     </test>
 </suite>

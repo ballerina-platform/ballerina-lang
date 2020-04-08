@@ -60,7 +60,8 @@ public class XMLIterationTest {
                                   "invalid tuple binding pattern: expected a tuple type, but found '(xml|string)'",
                                   11, 17);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected " +
-                "'function ((xml|string)) returns ()', found 'function ([int,xml,string]) returns ()'", 16, 19);
+                "'function ((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text)) returns ()'," +
+                " found 'function ([int,xml,string]) returns ()'", 16, 19);
     }
 
     @Test
@@ -76,7 +77,7 @@ public class XMLIterationTest {
         }
     }
 
-    @Test()
+    @Test
     public void testXMLForeachOp() {
         String[] titles = new String[]{"Everyday Italian", "Harry Potter", "XQuery Kick Start", "Learning XML"};
         BValue[] returns = BRunUtil.invoke(result, "foreachOpTest");

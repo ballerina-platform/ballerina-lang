@@ -31,8 +31,7 @@ public class TypeTags {
     public static final int BOOLEAN_TAG = STRING_TAG + 1;
     public static final int JSON_TAG = BOOLEAN_TAG + 1;
     public static final int XML_TAG = JSON_TAG + 1;
-    public static final int TABLE_TAG = XML_TAG + 1;
-    public static final int NULL_TAG = TABLE_TAG + 1;
+    public static final int NULL_TAG = XML_TAG + 1;
     public static final int ANYDATA_TAG = NULL_TAG + 1;
     public static final int RECORD_TYPE_TAG = ANYDATA_TAG + 1;
     public static final int TYPEDESC_TAG = RECORD_TYPE_TAG + 1;
@@ -53,8 +52,7 @@ public class TypeTags {
     public static final int ITERATOR_TAG = ERROR_TAG + 1;
     public static final int TUPLE_TAG = ITERATOR_TAG + 1;
     public static final int FUTURE_TAG = TUPLE_TAG + 1;
-    public static final int INTERMEDIATE_COLLECTION = FUTURE_TAG + 1;
-    public static final int FINITE_TYPE_TAG = INTERMEDIATE_COLLECTION + 1;
+    public static final int FINITE_TYPE_TAG = FUTURE_TAG + 1;
     public static final int OBJECT_TYPE_TAG = FINITE_TYPE_TAG + 1;
     public static final int BYTE_ARRAY_TAG = OBJECT_TYPE_TAG + 1;
     public static final int FUNCTION_POINTER_TAG = BYTE_ARRAY_TAG + 1;

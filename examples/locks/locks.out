@@ -1,5 +1,5 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run --experimental locks.bal
+# `.bal` file and execute the `ballerina run` command.
+$ ballerina run locks.bal
 final counter value - 4000
 final count field value - 4000

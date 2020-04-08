@@ -19,6 +19,8 @@
 package org.ballerinalang.model.tree;
 
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
@@ -44,7 +46,15 @@ public interface MarkdownDocumentationNode extends Node {
 
     BLangMarkdownReturnParameterDocumentation getReturnParameter();
 
+    BLangMarkDownDeprecationDocumentation getDeprecationDocumentation();
+
     void setReturnParameter(BLangMarkdownReturnParameterDocumentation attribute);
+
+    void setDeprecationDocumentation(BLangMarkDownDeprecationDocumentation attribute);
+
+    void setDeprecatedParametersDocumentation(BLangMarkDownDeprecatedParametersDocumentation attribute);
+
+    BLangMarkDownDeprecatedParametersDocumentation getDeprecatedParametersDocumentation();
 
     String getDocumentation();
 

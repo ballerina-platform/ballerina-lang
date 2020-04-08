@@ -34,6 +34,7 @@ public class ServiceFile extends AbstractStub {
     private boolean bidiStreaming;
     private boolean clientStreaming;
     private boolean unary;
+    private boolean enableEp = true;
     private String serviceName;
     private List<Method> unaryFunctions = new ArrayList<>();
     private Method streamingFunction = null;
@@ -69,6 +70,15 @@ public class ServiceFile extends AbstractStub {
     public boolean isUnary() {
         return unary;
     }
+
+    public void setEnableEp(boolean enableEp) {
+        this.enableEp = enableEp;
+    }
+
+    public boolean isEnableEp() {
+        return enableEp;
+    }
+
     /**
      * Service file definition builder.
      */

@@ -66,11 +66,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangConstantValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
@@ -78,7 +78,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
@@ -114,7 +114,7 @@ public class BIRPackageSymbolEnter {
     private final SymbolTable symTable;
     private final Names names;
     private final TypeParamAnalyzer typeParamAnalyzer;
-    private final BLangDiagnosticLog dlog;
+    private final BLangDiagnosticLogHelper dlog;
     private BIRTypeReader typeReader;
 
     private BIRPackageSymbolEnv env;
@@ -142,7 +142,7 @@ public class BIRPackageSymbolEnter {
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
     }
 
     public BPackageSymbol definePackage(PackageID packageId,
@@ -561,6 +561,8 @@ public class BIRPackageSymbolEnter {
                 this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
         annotationSymbol.type = new BAnnotationType(annotationSymbol);
 
+        defineMarkDownDocAttachment(annotationSymbol, readDocBytes(dataInStream));
+
         this.env.pkgSymbol.scope.define(annotationSymbol.name, annotationSymbol);
         if (annotationType != symTable.noType) { //TODO fix properly
             annotationSymbol.attachedType = annotationType.tsymbol;
@@ -831,11 +833,8 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.JSON:
                     return symTable.jsonType;
                 case TypeTags.XML:
-                    return symTable.xmlType;
-                case TypeTags.TABLE:
-                    BTableType bTableType = new BTableType(TypeTags.TABLE, null, symTable.tableType.tsymbol);
-                    bTableType.constraint = readTypeFromCp();
-                    return bTableType;
+                    BType constraintType = readTypeFromCp();
+                    return new BXMLType(constraintType, symTable.xmlType.tsymbol);
                 case TypeTags.NIL:
                     return symTable.nilType;
                 case TypeTags.ANYDATA:
@@ -911,8 +910,12 @@ public class BIRPackageSymbolEnter {
                     typedescType.constraint = readTypeFromCp();
                     return typedescType;
                 case TypeTags.STREAM:
-                    BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, symTable.streamType.tsymbol);
+                    BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null, symTable.streamType.tsymbol);
                     bStreamType.constraint = readTypeFromCp();
+                    boolean hasError = inputStream.readByte() == 1;
+                    if (hasError) {
+                        bStreamType.error = readTypeFromCp();
+                    }
                     return bStreamType;
                 case TypeTags.MAP:
                     BMapType bMapType = new BMapType(TypeTags.MAP, null, symTable.mapType.tsymbol);
@@ -1017,9 +1020,6 @@ public class BIRPackageSymbolEnter {
                     BFutureType bFutureType = new BFutureType(TypeTags.FUTURE, null, symTable.futureType.tsymbol);
                     bFutureType.constraint = readTypeFromCp();
                     return bFutureType;
-                case TypeTags.INTERMEDIATE_COLLECTION:
-                    // TODO fix
-                    break;
                 case TypeTags.FINITE:
                     String finiteTypeName = getStringCPEntryValue(inputStream);
                     int finiteTypeFlags = inputStream.readInt();
@@ -1103,10 +1103,28 @@ public class BIRPackageSymbolEnter {
                     break;
                 case SERVICE_TYPE_TAG:
                     return symTable.anyServiceType;
-//                case TypeTags.CHANNEL:
-
-//                case TypeTags.SERVICE:
-
+                case TypeTags.SIGNED32_INT:
+                    return symTable.signed32IntType;
+                case TypeTags.SIGNED16_INT:
+                    return symTable.signed16IntType;
+                case TypeTags.SIGNED8_INT:
+                    return symTable.signed8IntType;
+                case TypeTags.UNSIGNED32_INT:
+                    return symTable.unsigned32IntType;
+                case TypeTags.UNSIGNED16_INT:
+                    return symTable.unsigned16IntType;
+                case TypeTags.UNSIGNED8_INT:
+                    return symTable.unsigned8IntType;
+                case TypeTags.CHAR_STRING:
+                    return symTable.charStringType;
+                case TypeTags.XML_ELEMENT:
+                    return symTable.xmlElementType;
+                case TypeTags.XML_PI:
+                    return symTable.xmlPIType;
+                case TypeTags.XML_COMMENT:
+                    return symTable.xmlCommentType;
+                case TypeTags.XML_TEXT:
+                    return symTable.xmlTextType;
             }
             return null;
         }

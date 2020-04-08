@@ -22,6 +22,8 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.utils.ClientUtils;
 
+import java.util.Properties;
+
 /**
  * Native implementation for the mysql client methods.
  *
@@ -43,21 +45,32 @@ public class NativeImpl {
             url += "/" + database;
         }
         MapValue options = clientConfig.getMapValue(Constants.ClientConfiguration.OPTIONS);
-        MapValue properties = Utils.generateOptionsMap(options);
+        MapValue properties = null;
+        Properties poolProperties = null;
+        if (options != null) {
+            properties = Utils.generateOptionsMap(options);
+            Object connectTimeout = properties.get(Constants.DatabaseProps.CONNECT_TIMEOUT);
+            if (connectTimeout != null) {
+                poolProperties = new Properties();
+                poolProperties.setProperty(Constants.POOL_CONNECT_TIMEOUT, connectTimeout.toString());
+            }
+        }
 
         MapValue connectionPool = clientConfig.getMapValue(Constants.ClientConfiguration.CONNECTION_POOL_OPTIONS);
-        if (connectionPool == null) {
-            connectionPool = globalPool;
-        }
 
         String datasourceName = Constants.MYSQL_DATASOURCE_NAME;
         if (options != null && options.getBooleanValue(Constants.Options.USE_XA_DATASOURCE)) {
             datasourceName = Constants.MYSQL_XA_DATASOURCE_NAME;
         }
 
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = new SQLDatasource.SQLDatasourceParams().
-                setUrl(url).setUser(user).setPassword(password).setDatasourceName(datasourceName).
-                setOptions(properties).setConnectionPool(connectionPool);
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = new SQLDatasource.SQLDatasourceParams()
+                .setUrl(url).setUser(user)
+                .setPassword(password)
+                .setDatasourceName(datasourceName)
+                .setOptions(properties)
+                .setConnectionPool(connectionPool, globalPool)
+                .setPoolProperties(poolProperties);
+
         return ClientUtils.createClient(client, sqlDatasourceParams);
     }
 

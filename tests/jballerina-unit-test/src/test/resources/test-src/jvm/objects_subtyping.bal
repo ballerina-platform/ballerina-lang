@@ -15,7 +15,6 @@
 // under the License.
 
 import testorg/subtyping;
-import ballerinax/java.jdbc;
 
 type Person1 object {
     public string name = "sample name";
@@ -150,8 +149,9 @@ function testSubtypingAnAbsObjectInSameModule() returns string {
     return a.move(50);
 }
 
+//TODO Table remove - Fix
 // NOTE: There isn't a test case associated with this. Just want to ensure this scenario compiles fine.
-public function testReferencingObjectTypesAcrossModules() returns jdbc:Client {
-    jdbc:Client dbClient = subtyping:getClient();
-    return dbClient;
-}
+//public function testReferencingObjectTypesAcrossModules() returns jdbc:Client {
+//    jdbc:Client dbClient = subtyping:getClient();
+//    return dbClient;
+//}

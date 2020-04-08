@@ -23,7 +23,7 @@ import io.nats.streaming.Subscription;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
-import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsMetricsReporter;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,8 +52,8 @@ public class Detach {
             StreamingConnection streamingConnection = (StreamingConnection) streamingListener
                     .getNativeData(Constants.NATS_STREAMING_CONNECTION);
             if (streamingConnection != null) {
-                NatsMetricsUtil.reportUnsubscription(streamingConnection.getNatsConnection().getConnectedUrl(),
-                                                     subscription.getSubject());
+                NatsMetricsReporter.reportStreamingUnsubscription(
+                        streamingConnection.getNatsConnection().getConnectedUrl(), subscription.getSubject());
             }
         } catch (IOException e) {
             throw Utils.createNatsError("Error occurred while un-subscribing: " + e.getMessage());

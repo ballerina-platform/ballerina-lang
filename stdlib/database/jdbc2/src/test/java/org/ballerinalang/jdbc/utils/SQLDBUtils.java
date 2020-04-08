@@ -18,9 +18,13 @@
 package org.ballerinalang.jdbc.utils;
 
 import org.apache.commons.io.FileUtils;
+import org.ballerinalang.model.values.BError;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
 
 import java.io.File;
 import java.io.IOException;
@@ -119,6 +123,16 @@ public class SQLDBUtils {
         }
     }
 
+    /**
+     * Resolve the the path of the resource file.
+     *
+     * @param fileName Name of the resource file
+     * @return Absolute path of the resource file
+     */
+    public static Path getResourcePath(String fileName) {
+        return Paths.get("src", "test", "resources", fileName).toAbsolutePath();
+    }
+
     private static String readFileToString(String path) {
         // The name of a resource is a '/'-separated path name that identifies the resource.
         // Hence regardless of the separator corresponding to the OS forward slash should be used.
@@ -131,11 +145,45 @@ public class SQLDBUtils {
         return null;
     }
 
+    /**
+     * Resolves the SQL script file path.
+     *
+     * @param subResourceDir  The name of the subdirectory where the sql script file belongs
+     * @param resouceFileName The name of the sql script file
+     * @return The path of the sql script file
+     */
     public static String getSQLResourceDir(String subResourceDir, String resouceFileName) {
         return Paths.get("datafiles", "sql", subResourceDir, resouceFileName).toString();
     }
 
+    /**
+     * Resolves the ballerina test source file path.
+     *
+     * @param subResourceDir  The name of the subdirectory where the ballerina file belongs
+     * @param resouceFileName The name of the ballerina file
+     * @return The path of the ballerina file
+     */
     public static String getBalFilesDir(String subResourceDir, String resouceFileName) {
         return Paths.get("test-src", subResourceDir, resouceFileName).toString();
+    }
+
+    /**
+     * Validates the provided ballerina object is not an error type.
+     *
+     * @param value The object which needs to be validated.
+     */
+    public static void assertNotError(Object value) {
+        if (value instanceof BError) {
+            BError bError = (BError) value;
+            String message = "Not expecting an error. Error details: \nReason:" + bError.getReason();
+            Object details = bError.getDetails();
+            if (details instanceof BMap) {
+                BValue errMessage = ((BMap) details).get("message");
+                if (errMessage != null) {
+                    message += " , message: " + errMessage.stringValue();
+                }
+            }
+            Assert.fail(message);
+        }
     }
 }

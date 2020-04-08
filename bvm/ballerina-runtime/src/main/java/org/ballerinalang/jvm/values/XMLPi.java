@@ -19,9 +19,11 @@ package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLNodeType;
-import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+
+import java.util.Map;
 
 /**
  * XML nodes containing processing instructions.
@@ -68,6 +70,14 @@ public class XMLPi extends XMLNonElementItem {
     }
 
     @Override
+    public Object copy(Map<Object, Object> refs) {
+        if (isFrozen()) {
+            return this;
+        }
+        return new XMLPi(data, target);
+    }
+
+    @Override
     public OMNode value() {
         OMProcessingInstructionImpl pi = new OMProcessingInstructionImpl();
         pi.setTarget(this.target);
@@ -89,7 +99,12 @@ public class XMLPi extends XMLNonElementItem {
     }
 
     @Override
-    public BString bStringValue() {
-        return StringUtils.fromString(stringValue());
+    public String stringValue() {
+        return "<?" + target + " " + data + "?>";
+    }
+
+    @Override
+    public BType getType() {
+        return BTypes.typeProcessingInstruction;
     }
 }

@@ -675,7 +675,7 @@ function emitFieldLock(FieldLock term, int tabs) returns string {
     str += emitSpaces(1);
     str += emitName(term.localVar.name);
     str += "[\"";
-    str += term.field;
+    str += term.'field;
     str += "\"]";
     str += emitSpaces(1);
     str += "->";

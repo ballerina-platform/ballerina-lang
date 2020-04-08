@@ -17,24 +17,17 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -99,7 +92,7 @@ public final class XMLSequence extends XMLValue {
      */
     @Override
     public boolean isSingleton() {
-        return children.size() == 1;
+        return children.size() == 1 && children.get(0).isSingleton();
     }
 
     /**
@@ -186,6 +179,7 @@ public final class XMLSequence extends XMLValue {
     }
 
     @Override
+    @Deprecated
     public void setAttributes(BMap<String, ?> attributes) {
         synchronized (this) {
             if (freezeStatus.getState() != State.UNFROZEN) {
@@ -392,27 +386,6 @@ public final class XMLSequence extends XMLValue {
         return new XMLSequence(descendants);
     }
 
-    // Methods from Datasource impl
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void serialize(OutputStream outputStream) {
-        if (outputStream instanceof BallerinaXMLSerializer) {
-            ((BallerinaXMLSerializer) outputStream).write(this);
-        } else {
-            BallerinaXMLSerializer ballerinaXMLSerializer = new BallerinaXMLSerializer(outputStream);
-            ballerinaXMLSerializer.write(this);
-            try {
-                ballerinaXMLSerializer.flush();
-                ballerinaXMLSerializer.close();
-            } catch (IOException e) {
-                throw new BallerinaException(e);
-            }
-        }
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -441,22 +414,15 @@ public final class XMLSequence extends XMLValue {
     @Override
     public String stringValue() {
         try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BallerinaXMLSerializer serializer = new BallerinaXMLSerializer(outputStream);
-            serializer.write(this);
-            serializer.flush();
-            String str = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
-            serializer.close();
-            return str;
+            StringBuilder sb = new StringBuilder();
+            for (BXML child : children) {
+                sb.append(child.stringValue());
+            }
+            return sb.toString();
         } catch (Throwable t) {
             handleXmlException("failed to get xml as string: ", t);
         }
         return BLangConstants.STRING_NULL_VALUE;
-    }
-
-    @Override
-    public BString bStringValue() {
-        return null;
     }
 
 
@@ -501,10 +467,10 @@ public final class XMLSequence extends XMLValue {
     @Override
     public XMLValue getItem(int index) {
         try {
+            if (index >= this.children.size()) {
+                return new XMLSequence();
+            }
             return (XMLValue) this.children.get(index);
-        } catch (IndexOutOfBoundsException e) {
-            throw BallerinaErrors.createError(BallerinaErrorReasons.XML_OPERATION_ERROR,
-                    "IndexOutOfRange " + e.getMessage());
         } catch (Exception e) {
             throw BallerinaErrors.createError(BallerinaErrorReasons.XML_OPERATION_ERROR, e.getMessage());
         }
@@ -581,13 +547,22 @@ public final class XMLSequence extends XMLValue {
     }
 
     @Override
+    public synchronized boolean isFrozen() {
+        if (freezeStatus.isFrozen()) {
+            return true;
+        }
+        for (BXML child : this.children) {
+            if (!child.isFrozen()) {
+                return false;
+            }
+        }
+        freezeStatus.setFrozen();
+        return true;
+    }
+
+    @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
-            @Override
-            public BString bStringValue() {
-                return null;
-            }
-
             Iterator<BXML> iterator = children.iterator();
 
             @Override

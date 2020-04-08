@@ -198,7 +198,7 @@ public class SealedArrayTest {
 
     @Test()
     public void testNegativeAutoFillSealedArray() {
-        Assert.assertEquals(listExprNegative.getErrorCount(), 10);
+        Assert.assertEquals(listExprNegative.getErrorCount(), 12);
         BAssertUtil.validateError(listExprNegative, 0,
                                   "invalid usage of list constructor: type 'Person[5]' does not have a filler value",
                                   24, 19);
@@ -233,6 +233,10 @@ public class SealedArrayTest {
                                   "invalid usage of list constructor: type '(HELLO|2)[2]' does not have a filler " +
                                           "value",
                                   118, 34);
+        BAssertUtil.validateError(listExprNegative, 10, "incompatible types: expected '(int|NoFillerObject[2])', " +
+                                          "found '[]'", 122, 31);
+        BAssertUtil.validateError(listExprNegative, 11, "incompatible types: expected '" +
+                "(NoFillerObject[3]|NoFillerObject[2])', found '[]'", 124, 45);
     }
 
     @Test()

@@ -31,7 +31,7 @@ type Type1 any|error;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type PureType anydata|error;
+type PureType any|error;
 
 # Returns the number of members of an array.
 #
@@ -127,8 +127,8 @@ public function removeAll((any|error)[] arr) returns () = external;
 public function setLength((any|error)[] arr, int length) returns () = external;
 
 # Returns the index of first member of `arr` that is equal to `val` if there is one.
-# Returns `()` if not found
-# Equality is tested using `==`
+# Returns `()` if not found.
+# Equality is tested using `==`.
 #
 # + arr - the array
 # + val - member to search for
@@ -237,17 +237,6 @@ public function fromBase16(string str) returns byte[]|error = external;
 #
 # + arr - The array from which the stream is created
 # + return - The stream representation of the array `arr`
-public function toStream(PureType[] arr) returns stream<PureType> {
-    int index = -1;
-    function () returns record {|PureType value;|}? func = function () returns record {|PureType value;|}? {
-        index += 1;
-        if (length(arr) > index) {
-            var value = arr[index];
-            return internal:setNarrowType(typeof value, {value : value});
-        } else {
-            return ();
-        }
-    };
-
-    return internal:construct(internal:getElementType(typeof arr), func);
+public function toStream(Type[] arr) returns stream<Type> {
+    return internal:construct(internal:getElementType(typeof arr), iterator(arr));
 }

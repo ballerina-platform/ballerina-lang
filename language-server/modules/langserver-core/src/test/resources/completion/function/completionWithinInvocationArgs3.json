@@ -3369,17 +3369,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "AuthzCacheConfig",
-      "kind": "Class",
-      "detail": "Record",
-      "documentation": {
-        "left": "Provides a set of configurations for controlling the authorization caching behaviour of the endpoint.\n"
-      },
-      "sortText": "120",
-      "insertText": "AuthzCacheConfig",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "KeepAlive",
       "kind": "Enum",
       "detail": "Union",

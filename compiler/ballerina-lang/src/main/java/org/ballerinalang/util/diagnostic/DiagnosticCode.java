@@ -101,6 +101,8 @@ public enum DiagnosticCode {
     INVALID_WORKER_TIMEOUT_RESULT_TYPE("invalid.worker.timeout.result.type"),
     INVALID_WORKER_REFERRENCE("invalid.worker.reference"),
     INCOMPATIBLE_TYPE_CONSTRAINT("incompatible.type.constraint"),
+    USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED("usage.of.worker.within.lock.is.prohibited"),
+    USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED("usage.of.start.within.lock.is.prohibited"),
     WORKER_SEND_RECEIVE_PARAMETER_COUNT_MISMATCH("worker.send.receive.parameter.count.mismatch"),
     INVALID_WORKER_INTERACTION("worker.invalid.worker.interaction"),
     WORKER_INTERACTIONS_ONLY_ALLOWED_BETWEEN_PEERS("worker.interactions.only.allowed.between.peers"),
@@ -270,7 +272,6 @@ public enum DiagnosticCode {
     DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP("duplicate.key.in.record.literal.spread.op"),
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     INVALID_TUPLE_LITERAL("invalid.tuple.literal"),
-    INVALID_LIST_CONSTRUCTOR("invalid.list.constructor"),
     INVALID_LIST_CONSTRUCTOR_ELEMENT_TYPE("invalid.list.constructor.type"),
     INVALID_ARRAY_ELEMENT_TYPE("invalid.array.element.type"),
     INVALID_TUPLE_BINDING_PATTERN("invalid.tuple.binding.pattern"),
@@ -314,6 +315,9 @@ public enum DiagnosticCode {
     CANNOT_UPDATE_XML_SEQUENCE("cannot.update.xml.sequence"),
     INVALID_XML_NS_INTERPOLATION("invalid.xml.ns.interpolation"),
     CANNOT_FIND_XML_NAMESPACE("cannot.find.xml.namespace.prefix"),
+    UNSUPPORTED_METHOD_INVOCATION_XML_NAV("method.invocation.in.xml.navigation.expressions.not.supported"),
+    DEPRECATED_XML_ATTRIBUTE_ACCESS("deprecated.xml.attribute.access.expression"),
+    UNSUPPORTED_INDEX_IN_XML_NAVIGATION("indexing.within.xml.navigation.expression.not.supported"),
 
     UNDEFINED_ANNOTATION("undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("annotation.not.allowed"),
@@ -345,7 +349,7 @@ public enum DiagnosticCode {
     INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE("invalid.use.of.endpoint.documentation.attribute"),
     DUPLICATE_DOCUMENTED_ATTRIBUTE("duplicate.documented.attribute"),
     UNDEFINED_DOCUMENTATION_PUBLIC_FUNCTION("undefined.documentation.public.function"),
-    USAGE_OF_DEPRECATED_FUNCTION("usage.of.deprecated.function"),
+    USAGE_OF_DEPRECATED_CONSTRUCT("usage.of.deprecated.construct"),
     OPERATOR_NOT_SUPPORTED("operator.not.supported"),
     OPERATOR_NOT_ALLOWED_VARIABLE("operator.not.allowed.variable"),
 
@@ -401,6 +405,9 @@ public enum DiagnosticCode {
     // Streaming related codes
     INVALID_STREAM_CONSTRUCTOR("invalid.stream.constructor"),
     NOT_ALLOWED_STREAM_USAGE_WITH_FROM("invalid.stream.usage.with.from"),
+    ERROR_TYPE_EXPECTED("error.type.expected"),
+    MISSING_REQUIRED_METHOD_NEXT("missing.required.method.next"),
+
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),
@@ -462,8 +469,9 @@ public enum DiagnosticCode {
 
     INVALID_USE_OF_NULL_LITERAL("invalid.use.of.null.literal"),
 
-    // Type Param related error codes.
+    // LangLib related error codes.
     TYPE_PARAM_OUTSIDE_LANG_MODULE("type.param.outside.lang.module"),
+    BUILTIN_SUBTYPE_OUTSIDE_LANG_MODULE("builtin.subtype.outside.lang.module"),
 
     INVALID_INVOCATION_LVALUE_ASSIGNMENT("invalid.lvalue.lhs.of.assignment"),
     INVALID_INVOCATION_LVALUE_COMPOUND_ASSIGNMENT("invalid.lvalue.lhs.of.compound.assignment"),
@@ -479,7 +487,11 @@ public enum DiagnosticCode {
     FIELD_NOT_FOUND("field.not.found"),
     OVERLOADED_METHODS("overloaded.method"),
     UNSUPPORTED_PRIMITIVE_TYPE("unsupported.primitive.type.reason"),
-    METHOD_SIGNATURE_DOES_NOT_MATCH("method.signature.not.match")
+    METHOD_SIGNATURE_DOES_NOT_MATCH("method.signature.not.match"),
+    INVALID_DEPRECATION_DOCUMENTATION("invalid.deprecation.documentation"),
+    DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE("deprecation.documentation.should.available"),
+    DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED("deprecated.parameters.documentation.not.allowed"),
+    INVALID_ATTRIBUTE_REFERENCE("invalid.attribute.reference"),
     ;
     private String value;
 

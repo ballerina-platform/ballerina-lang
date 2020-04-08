@@ -1,3 +1,4 @@
 org.ballerinalang.net.http.compiler.HttpServiceCompilerPlugin
 org.ballerinalang.net.http.compiler.websocket.WebSocketServiceCompilerPlugin
 org.ballerinalang.net.http.compiler.websocket.WebSocketClientServiceCompilerPlugin
+org.ballerinalang.net.http.compiler.websocket.WebSocketFailoverClientServiceCompilerPlugin

@@ -306,15 +306,15 @@ public function expressions() returns error? {
     map<int> map1 = {"3": foo(1, true)};
     map<int> map2 = {[fooS(1, false)]: 1};
 
-    // -- expression, table-constructor-expr
-    table<Employee> tbEmployee = table {
-        {key id, name, salary},
-        [
-            {1, "Mary",  300},
-            {2, "John",  200},
-            {3, "Jim", foo(1, false)}
-        ]
-    };
+    //// -- expression, table-constructor-expr
+    //table<Employee> tbEmployee = table {
+    //    {key id, name, salary},
+    //    [
+    //        {1, "Mary",  300},
+    //        {2, "John",  200},
+    //        {3, "Jim", foo(1, false)}
+    //    ]
+    //};
 
     // -- expression, string-template-expr
     string s =string `${ foo(1, false) } !!!`;

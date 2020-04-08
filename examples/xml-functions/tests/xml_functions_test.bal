@@ -14,32 +14,23 @@ public function mockPrint(any... s) {
 
 @test:Config
 function testFunc() {
-    // Invoking the main function
+    // Invoking the main function.
     main();
 
-    xml someText = xml `Hello, World!`;
-    xml book = xml `<book/>`;
-    string itemType = "comment";
     string nameOfElem = "name";
-    string txtVal = "Book1";
-    boolean isEmpty = false;
-    boolean isSingleton = false;
-    xml bookComment = xml `<!--some comment-->`;
-    xml bookName = xml `<name>Book1</name>`;
-    xml content = someText + bookName + bookComment;
-    book.setChildren(content);
+    string txtVal = "Hello, World!<name>Book1</name><!--some comment-->";
+    string trueVal = "true"
+    string commentVal = "<!--some comment-->";
+    string nameElemVal = "<name>Book1</name>";
+    string afterSetChildren = "<book>Hello, World!<name>Book1</name><!--some comment--></book>";
+    string striped = "Hello, World!<name>Book1</name>";
 
-    test:assertEquals(outputs[0], itemType);
-    test:assertEquals(outputs[1], nameOfElem);
+    test:assertEquals(outputs[0], nameOfElem);
     test:assertEquals(outputs[2], txtVal);
-    test:assertEquals(outputs[3], isEmpty);
-    test:assertEquals(outputs[4], isSingleton);
-    test:assertEquals(outputs[5], bookComment);
-    test:assertEquals(outputs[6], bookName);
-    test:assertEquals(outputs[7], bookName);
-    test:assertEquals(outputs[8], book);
-    test:assertEquals(outputs[9], book/*);
-    test:assertEquals(outputs[10], bookName);
-    test:assertEquals(outputs[11], content.strip());
-    test:assertEquals(outputs[12], bookComment.copy());
+    test:assertEquals(outputs[3], trueVal);
+    test:assertEquals(outputs[4], "3");
+    test:assertEquals(outputs[5], commentVal);
+    test:assertEquals(outputs[6], nameElemVal);
+    test:assertEquals(outputs[7], afterSetChildren);
+    test:assertEquals(outputs[8], striped);
 }

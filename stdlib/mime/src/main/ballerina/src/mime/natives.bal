@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/io;
-import ballerinax/java;
+import ballerina/java;
 import ballerina/lang.'int as langint;
 
 # Key name for `boundary` parameter in MediaType. This is needed for composite type media types.
@@ -380,10 +380,11 @@ public type Entity object {
     # Gets the header value associated with the given header name.
     #
     # + headerName - Represents header name
-    # + position - Represents the position of the header as an optional parameter
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the body of the `Entity` must be accessed initially.
     # + return - Header value associated with the given header name as a `string`. If multiple header values are
-    #            present, then the first value is returned. An exception is thrown if no header is found. Use
-    #            `Entity.hasHeader()` beforehand to check the existence of header.
+    #            present, then the first value is returned. Panic if no header is found. Use the `Entity.hasHeader()`
+    #            beforehand to check the existence of a header.
     public function getHeader(@untainted string headerName, public HeaderPosition position = LEADING)
                                                                                 returns @tainted string {
         return <string>java:toString(externGetHeader(self, java:fromString(headerName), position));
@@ -392,9 +393,10 @@ public type Entity object {
     # Gets all the header values associated with the given header name.
     #
     # + headerName - The header name
-    # + position - Represents the position of the header as an optional parameter
-    # + return - All the header values associated with the given header name as a `string[]`. An exception is thrown
-    #            if no header is found. Use `Entity.hasHeader()` beforehand to check the existence of header.
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the body of the `Entity` must be accessed initially.
+    # + return - All the header values associated with the given header name as a `string[]`. Panic if no header is
+    #            found. Use the `Entity.hasHeader()` beforehand to check the existence of a header.
     public function getHeaders(@untainted string headerName, public HeaderPosition position = LEADING)
                                                                                 returns @tainted string[] {
         handle[] headerValues = externGetHeaders(self, java:fromString(headerName), position);
@@ -409,7 +411,8 @@ public type Entity object {
 
     # Gets all header names.
     #
-    # + position - Represents the position of the header as an optional parameter
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the body of the `Entity` must be accessed initially.
     # + return - All header names as a `string[]`
     public function getHeaderNames(public HeaderPosition position = LEADING) returns @tainted string[] {
         handle[] headerNames = externGetHeaderNames(self, position);
@@ -426,7 +429,8 @@ public type Entity object {
     #
     # + headerName - The header name
     # + headerValue - Represents the header value to be added
-    # + position - Represents the position of the header as an optional parameter
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the body of the `Entity` must be accessed initially.
     public function addHeader(@untainted string headerName, string headerValue, public HeaderPosition position = LEADING) {
         return externAddHeader(self, java:fromString(headerName), java:fromString(headerValue), position);
     }
@@ -436,7 +440,8 @@ public type Entity object {
     #
     # + headerName - The header name
     # + headerValue - Represents the header value
-    # + position - Represents the position of the header as an optional parameter
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the body of the `Entity` must be accessed initially.
     public function setHeader(@untainted string headerName, string headerValue, public HeaderPosition position = LEADING) {
         return externSetHeader(self, java:fromString(headerName), java:fromString(headerValue), position);
     }
@@ -444,14 +449,16 @@ public type Entity object {
     # Removes the given header from the entity.
     #
     # + headerName - Represents the header name
-    # + position - Represents the position of the header as an optional parameter
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the body of the `Entity` must be accessed initially.
     public function removeHeader(@untainted string headerName, public HeaderPosition position = LEADING) {
         return externRemoveHeader(self, java:fromString(headerName), position);
     }
 
     # Removes all headers associated with the entity.
     #
-    # + position - Represents the position of the header as an optional parameter
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the body of the `Entity` must be accessed initially.
     public function removeAllHeaders(public HeaderPosition position = LEADING) {
         return externRemoveAllHeaders(self, position);
     }
@@ -459,7 +466,8 @@ public type Entity object {
     # Checks whether the requested header key exists in the header map.
     #
     # + headerName - The header name
-    # + position - Represents the position of the header as an optional parameter
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the body of the `Entity` must be accessed initially.
     # + return - True if the specified header key exists
     public function hasHeader(@untainted string headerName, public HeaderPosition position = LEADING) returns boolean {
         return externHasHeader(self, java:fromString(headerName), position);

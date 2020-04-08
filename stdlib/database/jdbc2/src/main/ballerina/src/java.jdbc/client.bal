@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/sql;
-import ballerinax/java;
+import ballerina/java;
 
 # Represents a JDBC client.
 #
@@ -23,9 +23,17 @@ public type Client client object {
     *sql:Client;
     private boolean clientActive = true;
 
-    # Gets called when the JDBC client is instantiated.
+    # Initialize JDBC client.
+    #
+    # + url - The JDBC  URL of the database
+    # + user - If the database is secured, the username of the database
+    # + password - The password of provided username of the database
+    # + options - The Database specific JDBC client properties
+    # + connectionPool - The `sql:ConnectionPool` object to be used within the jdbc client.
+    #                   If there is no connectionPool is provided, the global connection pool will be used and it will
+    #                   be shared by other clients which has same properties
     public function __init(public string url, public string? user = (), public string? password = (),
-    public Options? options = (), public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
+        public Options? options = (), public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
         ClientConfiguration clientConf = {
             url: url,
             user: user,
@@ -36,10 +44,41 @@ public type Client client object {
         return createClient(self, clientConf, sql:getGlobalConnectionPool());
     }
 
-    # Stops the JDBC client.
+    # Executes the sql query provided by the user, and returns the result as stream.
+    #
+    # + sqlQuery - The query which needs to be executed
+    # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
+    #             column names of the query result set be used for the record attributes
+    # + return - Stream of records in the type of `rowType`
+    public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ())
+    returns @tainted stream<record{}, sql:Error> {
+        if (self.clientActive) {
+            return nativeQuery(self, java:fromString(sqlQuery), rowType);
+        } else {
+            return sql:generateApplicationErrorStream("JDBC Client is already closed, hence "
+                + "further operations are not allowed");
+        }
+    }
+
+    # Executes the DDL or DML sql queries provided by the user, and returns summary of the execution.
+    #
+    # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc
+    # + return - Summary of the sql update query as `sql:ExecuteResult` or returns `sql:Error`
+    #           if any error occured when executing the query
+    public remote function execute(@untainted string sqlQuery) returns sql:ExecuteResult|sql:Error? {
+        if (self.clientActive) {
+            return nativeExecute(self, java:fromString(sqlQuery));
+        } else {
+            return sql:ApplicationError(message = "JDBC Client is already closed,"
+                + " hence further operations are not allowed");
+        }
+    }
+
+
+    # Close the JDBC client.
     #
     # + return - Possible error during closing the client
-    public function close() returns error? {
+    public function close() returns sql:Error? {
         self.clientActive = false;
         return close(self);
     }
@@ -69,10 +108,20 @@ type ClientConfiguration record {|
 |};
 
 function createClient(Client jdbcClient, ClientConfiguration clientConf,
-sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
+    sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.jdbc.NativeImpl"
 } external;
 
-function close(Client jdbcClient) returns error? = @java:Method {
+function nativeQuery(Client sqlClient,@untainted handle sqlQuery, typedesc<record {}>? rowtype)
+returns stream<record{}, sql:Error> = @java:Method {
+    class: "org.ballerinalang.sql.utils.QueryUtils"
+} external;
+
+function nativeExecute(Client sqlClient,@untainted handle sqlQuery)
+returns sql:ExecuteResult|sql:Error? = @java:Method {
+    class: "org.ballerinalang.sql.utils.ExecuteUtils"
+} external;
+
+function close(Client jdbcClient) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.jdbc.NativeImpl"
 } external;

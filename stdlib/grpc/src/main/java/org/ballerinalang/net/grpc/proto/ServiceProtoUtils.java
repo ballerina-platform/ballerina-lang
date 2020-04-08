@@ -93,6 +93,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_STRING_MESSAGE;
 public class ServiceProtoUtils {
 
     private static final String NO_PACKAGE_PATH = ".";
+    private static final BNilType bNilType = new BNilType();
 
     private ServiceProtoUtils() {
 
@@ -340,10 +341,10 @@ public class ServiceProtoUtils {
         }
         // if we cannot retrieve request/response messages. assuming it is empty type.
         if (requestMessage == null) {
-            requestMessage = generateMessageDefinition(new BNilType());
+            requestMessage = generateMessageDefinition(bNilType);
         }
         if (responseMessage == null) {
-            responseMessage = generateMessageDefinition(new BNilType());
+            responseMessage = generateMessageDefinition(bNilType);
         }
         // update file builder with request/response messages.
         if (requestMessage.getMessageKind() == MessageKind.USER_DEFINED) {
@@ -423,7 +424,7 @@ public class ServiceProtoUtils {
             responseType = getReturnType(sendExpression);
         } else {
             // if compiler plugin could not find
-            responseType = new BNilType();
+            responseType = bNilType;
         }
         return generateMessageDefinition(responseType);
     }
@@ -463,7 +464,7 @@ public class ServiceProtoUtils {
             }
         }
         if (requestType == null) {
-            requestType = new BNilType();
+            requestType = bNilType;
         }
         return requestType;
     }

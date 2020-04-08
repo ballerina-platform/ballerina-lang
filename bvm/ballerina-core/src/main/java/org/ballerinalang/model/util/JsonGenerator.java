@@ -308,8 +308,8 @@ public class JsonGenerator {
             case TypeTags.MAP_TAG:
             case TypeTags.JSON_TAG:
                 this.startObject();
-                for (Entry<String, BValue> entry : ((BMap<String, BValue>) json).getMap().entrySet()) {
-                    this.writeFieldName(entry.getKey());
+                for (Entry<Object, BValue> entry : ((BMap<Object, BValue>) json).getMap().entrySet()) {
+                    this.writeFieldName(entry.getKey().toString());
                     serialize(entry.getValue());
                 }
                 this.endObject();

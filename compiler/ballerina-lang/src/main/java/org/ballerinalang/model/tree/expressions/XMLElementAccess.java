@@ -17,9 +17,17 @@
  */
 package org.ballerinalang.model.tree.expressions;
 
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
+
+import java.util.List;
+
 /**
  * @since 1.2.0
  */
 public interface XMLElementAccess extends  VariableReferenceNode {
 
+    List<BLangXMLElementFilter> getFilters();
+
+    BLangExpression getExpression();
 }

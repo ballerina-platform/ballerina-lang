@@ -22,7 +22,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
@@ -52,10 +51,6 @@ public class BRecordType extends BStructureType implements RecordType {
     public BRecordType(BTypeSymbol tSymbol) {
         super(TypeTags.RECORD, tSymbol);
         this.fields = new ArrayList<>();
-    }
-
-    public String getDesc() {
-        return TypeDescriptor.SIG_STRUCT + getQualifiedTypeName() + ";";
     }
 
     @Override

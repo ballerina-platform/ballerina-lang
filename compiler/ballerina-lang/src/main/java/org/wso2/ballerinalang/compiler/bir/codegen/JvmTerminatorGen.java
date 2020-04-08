@@ -79,15 +79,20 @@ import static org.objectweb.asm.Opcodes.LRETURN;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_LOCK_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
@@ -100,18 +105,24 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_LOCAL_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_ANNOTATION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_DATA_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_THREAD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_VALUE_ANY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WD_CHANNELS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_DATA_CHANNEL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen.ErrorHandlerGenerator;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.IS_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addJUnboxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarLoad;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarStore;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupBalExt;
@@ -120,11 +131,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupPa
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.createFunctionPointer;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.loadDefaultValue;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfBStringFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nameOfNonBStringFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.BIRFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.birFunctionMap;
@@ -168,7 +176,6 @@ public class JvmTerminatorGen {
         mv.visitTypeInsn(ANEWARRAY, CHANNEL_DETAILS);
         int index = 0;
         for (BIRNode.ChannelDetails ch : channels) {
-            // generating array[i] = new ChannelDetails(name, onSameStrand, isSend);
             mv.visitInsn(DUP);
             mv.visitIntInsn(BIPUSH, index);
             index += 1;
@@ -208,9 +215,6 @@ public class JvmTerminatorGen {
     static boolean isExternStaticFunctionCall(BIRInstruction callIns) {
 
         String methodName;
-        String orgName;
-        String moduleName;
-
         InstructionKind kind = callIns.getKind();
 
         PackageID packageID;
@@ -235,10 +239,7 @@ public class JvmTerminatorGen {
                     String.format("%s", callIns));
         }
 
-        orgName = packageID.orgName.value;
-        moduleName = packageID.name.value;
-
-        String key = getPackageName(orgName, moduleName) + methodName;
+        String key = getPackageName(packageID.orgName.value, packageID.name.value) + methodName;
 
         if (birFunctionMap.containsKey(key)) {
             BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap.get(key));
@@ -261,7 +262,6 @@ public class JvmTerminatorGen {
         ErrorHandlerGenerator errorGen;
         BIRPackage module;
         String currentPackageName;
-        int kl = 0;
 
         public TerminatorGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, LabelGenerator labelGen,
                                    ErrorHandlerGenerator errorGen, BIRPackage module) {
@@ -282,10 +282,6 @@ public class JvmTerminatorGen {
                 case LOCK:
                     this.genLockTerm((BIRTerminator.Lock) terminator, funcName, localVarOffset);
                     return;
-//                case FIELD_LOCK:
-//                    this.genFieldLockTerm((BIRTerminator.FieldLock) terminator, funcName, localVarOffset,
-//                    attachedType);
-//                    return;
                 case UNLOCK:
                     this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName, attachedType);
                     return;
@@ -356,7 +352,7 @@ public class JvmTerminatorGen {
             String lockStore = "L" + LOCK_STORE + ";";
             String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
             this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
-            this.mv.visitLdcInsn("global");
+            this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap",
                     String.format("(L%s;)L%s;", STRING_VALUE, LOCK_VALUE), false);
             this.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -365,42 +361,6 @@ public class JvmTerminatorGen {
             genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset);
             this.mv.visitJumpInsn(GOTO, gotoLabel);
         }
-
-//        void genLockTerm(BIRTerminator.Lock lockIns, String funcName, int localVarOffset) {
-//
-//            Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
-//            String lockClass = "L" + LOCK_VALUE + ";";
-//            String varClassName = lookupGlobalVarClassName(this.currentPackageName, lockIns.globalVar.name.value);
-//            String lockName = computeLockNameFromString(lockIns.globalVar.name.value);
-//            this.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
-//            this.mv.visitVarInsn(ALOAD, localVarOffset);
-//            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", String.format("(L%s;)Z", STRAND), false);
-//            this.mv.visitInsn(POP);
-//            genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset);
-//            this.mv.visitJumpInsn(GOTO, gotoLabel);
-//        }
-//
-//        void genFieldLockTerm(BIRTerminator.FieldLock lockIns, String funcName, int localVarOffset,
-//                              @Nilable BType attachedType) {
-//
-//            Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
-//            String lockClass = "L" + LOCK_VALUE + ";";
-//            String lockName = computeLockNameFromString(lockIns.field);
-//            this.loadVar(lockIns.localVar.variableDcl);
-//
-//            if (attachedType.tag == TypeTags.OBJECT) {
-//                String className = getTypeValueClassName(this.module, toNameString(attachedType));
-//                this.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-//                this.mv.visitVarInsn(ALOAD, localVarOffset);
-//                this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "lock", String.format("(L%s;)Z", STRAND), false);
-//                this.mv.visitInsn(POP);
-//                genYieldCheckForLock(this.mv, this.labelGen, funcName, localVarOffset);
-//                this.mv.visitJumpInsn(GOTO, gotoLabel);
-//            } else {
-//                throw new BLangCompilerException("JVM field lock generation is not supported for type " +
-//                        String.format("%s", attachedType));
-//            }
-//        }
 
         public static String toNameString(BType t) {
 
@@ -415,47 +375,13 @@ public class JvmTerminatorGen {
             String lockStore = "L" + LOCK_STORE + ";";
             String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
             this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
-            this.mv.visitLdcInsn("global");
+            this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", String.format("(L%s;)L%s;",
                     STRING_VALUE, LOCK_VALUE), false);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
 
             this.mv.visitJumpInsn(GOTO, gotoLabel);
         }
-
-//        void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName, @Nilable BType attachedType) {
-//
-//            Label gotoLabel = this.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
-//
-//            String lockClass = "L" + LOCK_VALUE + ";";
-//            // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
-//            for (BIRNode.BIRGlobalVariableDcl globalVariable : unlockIns.globalVars) {
-//                BIRVariableDcl globleVar = this.cleanupVariableDecl(globalVariable);
-//                String varClassName = lookupGlobalVarClassName(this.currentPackageName, globleVar.name.value);
-//                String lockName = computeLockNameFromString(globleVar.name.value);
-//                this.mv.visitFieldInsn(GETSTATIC, varClassName, lockName, lockClass);
-//                this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
-//            }
-//
-//            for (Map.Entry<BIROperand, Set<String>> localLockDetails : unlockIns.fieldLocks.entrySet()) {
-//                if (localLockDetails != null) {
-//                    if (attachedType.tag == TypeTags.OBJECT) {
-//                        String className = getTypeValueClassName(this.module, toNameString(attachedType));
-//                        for (String fieldName : localLockDetails.getValue()) {
-//                            String lockName = computeLockNameFromString(fieldName);
-//                            this.loadVar(localLockDetails.getKey().variableDcl);
-//                            this.mv.visitFieldInsn(GETFIELD, className, lockName, lockClass);
-//                            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
-//                        }
-//                    } else {
-//                        throw new BLangCompilerException("JVM field unlock generation is not supported for type " +
-//                                String.format("%s", attachedType));
-//                    }
-//                }
-//            }
-//
-//            this.mv.visitJumpInsn(GOTO, gotoLabel);
-//        }
 
         void handleErrorRetInUnion(int returnVarRefIndex, List<BIRNode.ChannelDetails> channels, BUnionType bType) {
 
@@ -513,13 +439,8 @@ public class JvmTerminatorGen {
 
             String orgName = calleePkgId.orgName.value;
             String moduleName = calleePkgId.name.value;
-            BIRTerminator.Call callInsCopy = new BIRTerminator.Call(callIns.pos, callIns.kind, callIns.isVirtual,
-                    calleePkgId, callIns.name, callIns.args, callIns.lhsOp, callIns.thenBB);
-            if (isBStringFunc(funcName)) {
-                callInsCopy.name = new Name(nameOfBStringFunc(callIns.name.value));
-            }
             // invoke the function
-            this.genCall(callInsCopy, orgName, moduleName, localVarOffset);
+            this.genCall(callIns, orgName, moduleName, localVarOffset);
 
             // store return
             this.storeReturnFromCallIns(callIns.lhsOp != null ? callIns.lhsOp.variableDcl : null);
@@ -544,7 +465,7 @@ public class JvmTerminatorGen {
                         "Ljava/lang/Object;");
                 @Nilable BIRVariableDcl lhsOpVarDcl = callIns.lhsOp.variableDcl;
                 if (lhsOpVarDcl != null) {
-                    addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type, false); // store return
+                    addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type); // store return
                     this.storeToVar(lhsOpVarDcl);
                 }
             }
@@ -574,8 +495,8 @@ public class JvmTerminatorGen {
             }
 
             String jClassName = callIns.jClassName;
-            String jMethodName = callIns.name;
-            String jMethodVMSig = isBStringFunc(funcName) ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
+            String jMethodName = callIns.name + (isBString ? "_bstring" : "");
+            String jMethodVMSig = isBString ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
             this.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName, jMethodVMSig, false);
 
             if (callIns.lhsOp != null && callIns.lhsOp.variableDcl != null) {
@@ -684,7 +605,7 @@ public class JvmTerminatorGen {
                 this.mv.visitVarInsn(ALOAD, localVarOffset);
                 this.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue",
                         "Ljava/lang/Object;");
-                addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type, false);
+                addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type);
                 // store return
                 @Nilable BIRVariableDcl lhsOpVarDcl = callIns.lhsOp.variableDcl;
                 this.storeToVar(lhsOpVarDcl);
@@ -718,14 +639,6 @@ public class JvmTerminatorGen {
             }
 
             this.mv.visitLabel(notBlockedOnExternLabel);
-        }
-
-        private BIRVariableDcl cleanupVariableDecl(@Nilable BIRVariableDcl varDecl) {
-
-            if (varDecl != null) {
-                return varDecl;
-            }
-            throw new BLangCompilerException("Invalid variable declaration");
         }
 
         private void storeReturnFromCallIns(@Nilable BIRVariableDcl lhsOpVarDcl) {
@@ -773,7 +686,8 @@ public class JvmTerminatorGen {
                                    String methodName, String methodLookupName) {
             // load strand
             this.mv.visitVarInsn(ALOAD, localVarOffset);
-            String lookupKey = nameOfNonBStringFunc(getPackageName(orgName, moduleName) + methodLookupName);
+
+            String lookupKey = getPackageName(orgName, moduleName) + methodLookupName;
 
             int argsCount = callIns.args.size();
             int i = 0;
@@ -784,21 +698,16 @@ public class JvmTerminatorGen {
                 i += 1;
             }
             String cleanMethodName = cleanupFunctionName(methodName);
-            boolean useBString = IS_BSTRING && orgName.equals("ballerina") &&
-                    moduleName.equals("lang.string") && !cleanMethodName.endsWith("_");
-            if (useBString) {
-                cleanMethodName = nameOfBStringFunc(cleanMethodName);
-            }
             BIRFunctionWrapper functionWrapper = birFunctionMap.get(lookupKey);
             String methodDesc;
             String jvmClass;
             if (functionWrapper != null) {
                 jvmClass = functionWrapper.fullQualifiedClassName;
-                methodDesc = functionWrapper.jvmMethodDescription;
+                methodDesc = isBString ? functionWrapper.jvmMethodDescriptionBString :
+                             functionWrapper.jvmMethodDescription;
             } else {
                 BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
-                BInvokableSymbol funcSymbol =
-                        (BInvokableSymbol) symbol.scope.lookup(new Name(nameOfNonBStringFunc(methodName))).symbol;
+                BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(methodName)).symbol;
                 BInvokableType type = (BInvokableType) funcSymbol.type;
                 ArrayList<BType> params = new ArrayList<>(type.paramTypes);
                 if (type.restType != null) {
@@ -816,7 +725,7 @@ public class JvmTerminatorGen {
                 jvmClass = getModuleLevelClassName(orgName, moduleName,
                         cleanupPathSeperators(cleanupBalExt(balFileName)));
                 //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
-                methodDesc = getMethodDesc(params, type.retType, null, false, useBString);
+                methodDesc = getMethodDesc(params, type.retType, null, false);
             }
             this.mv.visitMethodInsn(INVOKESTATIC, jvmClass, cleanMethodName, methodDesc, false);
         }
@@ -872,7 +781,7 @@ public class JvmTerminatorGen {
             this.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
 
             @Nilable BType returnType = callIns.lhsOp.variableDcl.type;
-            addUnboxInsn(this.mv, returnType, false);
+            addUnboxInsn(this.mv, returnType);
         }
 
         void loadBooleanArgToIndicateUserProvidedArg(String orgName, String moduleName, boolean userProvided) {
@@ -907,6 +816,16 @@ public class JvmTerminatorGen {
 
             String orgName = calleePkgId.orgName.value;
             String moduleName = calleePkgId.name.value;
+
+            // Check if already locked before submitting to scheduler.
+            String lockStore = "L" + LOCK_STORE + ";";
+            String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
+            this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+            this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
+            this.mv.visitVarInsn(ALOAD, localVarOffset);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock",
+                    String.format("(L%s;L%s;)V", STRING_VALUE, STRAND), false);
+
             // Load the scheduler from strand
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             this.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", String.format("L%s;", SCHEDULER));
@@ -941,19 +860,51 @@ public class JvmTerminatorGen {
             }
             String funcName = callIns.name.value;
             String lambdaName = "$" + funcName + "$lambda$" + lambdaIndex + "$";
-            String currentPackageName = getPackageName(this.module.org.value, this.module.name.value);
-
-            @Nilable BType futureType = callIns.lhsOp.variableDcl.type;
-            BType returnType = symbolTable.nilType;
-            if (futureType.tag == TypeTags.FUTURE) {
-                returnType = ((BFutureType) futureType).constraint;
-            }
 
             createFunctionPointer(this.mv, currentClass, lambdaName, 0);
             lambdas.put(lambdaName, callIns);
             lambdaIndex += 1;
 
-            this.submitToScheduler(callIns.lhsOp, localVarOffset);
+            boolean concurrent = false;
+            // check for concurrent annotation
+            if (callIns.annotAttachments.size() > 0) {
+                for (BIRNode.BIRAnnotationAttachment annotationAttachment : callIns.annotAttachments) {
+                    if (annotationAttachment == null ||
+                            !STRAND_ANNOTATION.equals(annotationAttachment.annotTagRef.value) ||
+                            !BALLERINA.equals(annotationAttachment.packageID.orgName.value) ||
+                            !BUILT_IN_PACKAGE_NAME.equals(annotationAttachment.packageID.name.value)) {
+                        continue;
+                    }
+
+                    if (annotationAttachment.annotValues.size() == 0) {
+                        break;
+                    }
+
+                    BIRNode.BIRAnnotationValue strandAnnot = annotationAttachment.annotValues.get(0);
+                    if (strandAnnot instanceof BIRNode.BIRAnnotationRecordValue) {
+                        BIRNode.BIRAnnotationRecordValue recordValue = (BIRNode.BIRAnnotationRecordValue) strandAnnot;
+                        if (recordValue.annotValueEntryMap.containsKey(STRAND_THREAD)) {
+                            BIRNode.BIRAnnotationValue mapVal = recordValue.annotValueEntryMap.get(STRAND_THREAD);
+                            if (mapVal instanceof BIRNode.BIRAnnotationLiteralValue &&
+                                STRAND_VALUE_ANY.equals(((BIRNode.BIRAnnotationLiteralValue) mapVal).value)) {
+                                concurrent = true;
+                            }
+                        }
+
+                        if (recordValue.annotValueEntryMap.containsKey(STRAND_DATA_NAME)) {
+                            BIRNode.BIRAnnotationValue mapVal = recordValue.annotValueEntryMap.get(STRAND_DATA_NAME);
+                            if (mapVal instanceof BIRNode.BIRAnnotationLiteralValue &&
+                                !DEFAULT_STRAND_DISPATCHER.equals(((BIRNode.BIRAnnotationLiteralValue) mapVal).value)) {
+                                throw new BLangCompilerException("Unsupported policy. Only 'DEFAULT' policy is " +
+                                        "supported by jBallerina runtime.");
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+
+            this.submitToScheduler(callIns.lhsOp, localVarOffset, concurrent);
         }
 
         void generateWaitIns(BIRTerminator.Wait waitInst, String funcName, int localVarOffset) {
@@ -992,7 +943,7 @@ public class JvmTerminatorGen {
             this.mv.visitVarInsn(ALOAD, resultIndex);
             this.mv.visitFieldInsn(GETFIELD, String.format("%s$WaitResult", STRAND), "result",
                     String.format("L%s;", OBJECT));
-            addUnboxInsn(this.mv, waitInst.lhsOp.variableDcl.type, false);
+            addUnboxInsn(this.mv, waitInst.lhsOp.variableDcl.type);
             this.storeToVar(waitInst.lhsOp.variableDcl);
             this.mv.visitLabel(afterIf);
         }
@@ -1025,6 +976,15 @@ public class JvmTerminatorGen {
         void genFPCallIns(BIRTerminator.FPCall fpCall, String funcName, int localVarOffset) {
 
             if (fpCall.isAsync) {
+                // Check if already locked before submitting to scheduler.
+                String lockStore = "L" + LOCK_STORE + ";";
+                String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
+                this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+                this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
+                this.mv.visitVarInsn(ALOAD, localVarOffset);
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock",
+                        String.format("(L%s;L%s;)V", STRING_VALUE, STRAND), false);
+
                 // Load the scheduler from strand
                 this.mv.visitVarInsn(ALOAD, localVarOffset);
                 this.mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", String.format("L%s;", SCHEDULER));
@@ -1062,19 +1022,31 @@ public class JvmTerminatorGen {
             }
 
             // if async, we submit this to sceduler (worker scenario)
-            BType returnType = fpCall.fp.variableDcl.type;
 
             if (fpCall.isAsync) {
                 // load function ref now
                 this.loadVar(fpCall.fp.variableDcl);
-                this.submitToScheduler(fpCall.lhsOp, localVarOffset);
+                this.mv.visitMethodInsn(INVOKESTATIC, ANNOTATION_UTILS, "isConcurrent", String.format("(L%s;)Z",
+                        FUNCTION_POINTER), false);
+                Label notConcurrent = new Label();
+                this.mv.visitJumpInsn(IFEQ, notConcurrent);
+                Label concurrent = new Label();
+                this.mv.visitLabel(concurrent);
+                this.loadVar(fpCall.fp.variableDcl);
+                this.submitToScheduler(fpCall.lhsOp, localVarOffset, true);
+                Label afterSubmit = new Label();
+                this.mv.visitJumpInsn(GOTO, afterSubmit);
+                this.mv.visitLabel(notConcurrent);
+                this.loadVar(fpCall.fp.variableDcl);
+                this.submitToScheduler(fpCall.lhsOp, localVarOffset, false);
+                this.mv.visitLabel(afterSubmit);
             } else {
                 this.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "call",
                         String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
                 // store reult
                 @Nilable BType lhsType = fpCall.lhsOp.variableDcl.type;
                 if (lhsType != null) {
-                    addUnboxInsn(this.mv, lhsType, false);
+                    addUnboxInsn(this.mv, lhsType);
                 }
 
                 @Nilable BIRVariableDcl lhsVar = fpCall.lhsOp.variableDcl;
@@ -1149,7 +1121,7 @@ public class JvmTerminatorGen {
             Label withinReceiveSuccess = new Label();
             this.mv.visitLabel(withinReceiveSuccess);
             this.mv.visitVarInsn(ALOAD, wrkResultIndex);
-            addUnboxInsn(this.mv, ins.lhsOp.variableDcl.type, false);
+            addUnboxInsn(this.mv, ins.lhsOp.variableDcl.type);
             this.storeToVar(ins.lhsOp.variableDcl);
 
             this.mv.visitLabel(jumpAfterReceive);
@@ -1164,7 +1136,7 @@ public class JvmTerminatorGen {
             this.storeToVar(ins.lhsOp.variableDcl);
         }
 
-        void submitToScheduler(@Nilable BIROperand lhsOp, int localVarOffset) {
+        void submitToScheduler(@Nilable BIROperand lhsOp, int localVarOffset, boolean concurrent) {
 
             @Nilable BType futureType = lhsOp.variableDcl.type;
             BType returnType = symbolTable.anyType;
@@ -1175,9 +1147,15 @@ public class JvmTerminatorGen {
             // load strand
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             loadType(this.mv, returnType);
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, "scheduleFunction",
-                    String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE),
-                    false);
+            if (concurrent) {
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_FUNCTION_METHOD,
+                        String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE),
+                        false);
+            } else {
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULE_LOCAL_METHOD,
+                        String.format("([L%s;L%s;L%s;L%s;)L%s;", OBJECT, FUNCTION_POINTER, STRAND, BTYPE, FUTURE_VALUE),
+                        false);
+            }
 
             // store return
             if (lhsOp.variableDcl != null) {
@@ -1212,7 +1190,7 @@ public class JvmTerminatorGen {
             if (bType.tag == TypeTags.NIL) {
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
-            } else if (bType.tag == TypeTags.INT) {
+            } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 this.mv.visitVarInsn(LLOAD, returnVarRefIndex);
                 this.mv.visitInsn(LRETURN);
             } else if (bType.tag == TypeTags.BYTE) {
@@ -1221,7 +1199,7 @@ public class JvmTerminatorGen {
             } else if (bType.tag == TypeTags.FLOAT) {
                 this.mv.visitVarInsn(DLOAD, returnVarRefIndex);
                 this.mv.visitInsn(DRETURN);
-            } else if (bType.tag == TypeTags.STRING) {
+            } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
             } else if (bType.tag == TypeTags.BOOLEAN) {
@@ -1230,7 +1208,6 @@ public class JvmTerminatorGen {
             } else if (bType.tag == TypeTags.MAP ||
                     bType.tag == TypeTags.ARRAY ||
                     bType.tag == TypeTags.ANY ||
-                    bType.tag == TypeTags.TABLE ||
                     bType.tag == TypeTags.STREAM ||
                     bType.tag == TypeTags.ANYDATA ||
                     bType.tag == TypeTags.OBJECT ||
@@ -1239,7 +1216,7 @@ public class JvmTerminatorGen {
                     bType.tag == TypeTags.TUPLE ||
                     bType.tag == TypeTags.JSON ||
                     bType.tag == TypeTags.FUTURE ||
-                    bType.tag == TypeTags.XML ||
+                    TypeTags.isXMLTypeTag(bType.tag) ||
                     bType.tag == TypeTags.INVOKABLE ||
                     bType.tag == TypeTags.HANDLE ||
                     bType.tag == TypeTags.FINITE ||

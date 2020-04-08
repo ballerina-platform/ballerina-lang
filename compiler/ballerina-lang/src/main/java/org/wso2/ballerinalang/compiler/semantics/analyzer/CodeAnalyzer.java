@@ -26,10 +26,12 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -45,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -98,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
@@ -105,9 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangStreamConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -151,7 +151,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchBind
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
@@ -175,6 +174,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -185,9 +185,8 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
-import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -230,10 +229,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean statementReturns;
     private boolean lastStatement;
     private boolean withinRetryBlock;
+    private boolean withinLockBlock;
     private int workerCount;
     private SymbolTable symTable;
     private Types types;
-    private BLangDiagnosticLog dlog;
+    private BLangDiagnosticLogHelper dlog;
     private TypeChecker typeChecker;
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
     private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
@@ -260,7 +260,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         context.put(CODE_ANALYZER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
         this.types = Types.getInstance(context);
-        this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
         this.typeChecker = TypeChecker.getInstance(context);
         this.names = Names.getInstance(context);
         this.symResolver = SymbolResolver.getInstance(context);
@@ -329,6 +329,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
 
         analyzeTypeNode(typeDefinition.typeNode, this.env);
+        typeDefinition.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     @Override
@@ -355,6 +356,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (isLambda) {
             return;
         }
+
+        validateParams(funcNode);
+
         if (Symbols.isPublic(funcNode.symbol)) {
             funcNode.symbol.params.forEach(symbol -> analyzeExportableTypeRef(funcNode.symbol, symbol.type.tsymbol,
                     true,
@@ -378,6 +382,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.workerActionSystemStack.peek().endWorkerActionStateMachine();
         } finally {
             this.finalizeCurrentWorkerActionSystem();
+        }
+        funcNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
+    }
+
+    private void validateParams(BLangFunction funcNode) {
+        for (BLangSimpleVariable parameter : funcNode.requiredParams) {
+            analyzeNode(parameter, env);
+        }
+        if (funcNode.restParam != null) {
+            analyzeNode(funcNode.restParam, env);
         }
     }
 
@@ -1197,27 +1211,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangQueryAction queryAction) {
-        this.loopWithintransactionCheckStack.push(true);
-        boolean statementReturns = this.statementReturns;
-        this.checkStatementExecutionValidity(queryAction);
-        this.loopCount++;
-        analyzeNode(queryAction.doClause, env);
-        this.loopCount--;
-        this.statementReturns = statementReturns;
-        this.resetLastStatement();
-        this.loopWithintransactionCheckStack.pop();
-
-        for (FromClauseNode fromClauseNode : queryAction.fromClauseList) {
-            analyzeNode((BLangFromClause) fromClauseNode, env);
-        }
-
-        for (WhereClauseNode whereClauseNode : queryAction.whereClauseList) {
-            analyzeNode((BLangWhereClause) whereClauseNode, env);
-        }
-    }
-
-    @Override
     public void visit(BLangWhile whileNode) {
         this.loopWithintransactionCheckStack.push(true);
         boolean statementReturns = this.statementReturns;
@@ -1234,9 +1227,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLock lockNode) {
 
-        checkExperimentalFeatureValidity(ExperimentalFeatures.LOCK, lockNode.pos);
         this.checkStatementExecutionValidity(lockNode);
+        boolean previousWithinLockBlock = this.withinLockBlock;
+        this.withinLockBlock = true;
         lockNode.body.stmts.forEach(e -> analyzeNode(e, env));
+        this.withinLockBlock = previousWithinLockBlock;
     }
 
     @Override
@@ -1316,12 +1311,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 break;
-            case TypeTags.TABLE:
-                BTableType tableType = (BTableType) symbol.type;
-                if (tableType.constraint != null) {
-                    checkForExportableType(tableType.constraint.tsymbol, pos);
-                }
-                return;
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) symbol.type;
                 if (streamType.constraint != null) {
@@ -1371,6 +1360,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
 
         analyzeTypeNode(varNode.typeNode, this.env);
+
         analyzeExpr(varNode.expr);
 
         if (Objects.isNull(varNode.symbol)) {
@@ -1388,6 +1378,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             // Only global level simpleVarRef, listeners etc.
             analyzeExportableTypeRef(varNode.symbol, varNode.type.tsymbol, false, varNode.pos);
         }
+
+        varNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     private void checkWorkerPeerWorkerUsageInsideWorker(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
@@ -1468,11 +1460,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        /* ignore */
+        annotationNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        /* ignore */
+        analyzeExpr(annAttachmentNode.expr);
+        BAnnotationSymbol annotationSymbol = annAttachmentNode.annotationSymbol;
+        if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(annAttachmentNode.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
+        }
     }
 
     public void visit(BLangSimpleVariableDef varDefNode) {
@@ -1946,10 +1942,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangTableLiteral tableLiteral) {
-        /* ignore */
-    }
-
     public void visit(BLangSimpleVarRef varRefExpr) {
         switch (varRefExpr.parent.getKind()) {
             // Referring workers for worker interactions are allowed, hence skip the check.
@@ -1961,6 +1953,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 if (varRefExpr.type != null && varRefExpr.type.tag == TypeTags.FUTURE) {
                     checkWorkerPeerWorkerUsageInsideWorker(varRefExpr.pos, varRefExpr.symbol, this.env);
                 }
+        }
+        if (varRefExpr.symbol != null && Symbols.isFlagOn(varRefExpr.symbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(varRefExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, varRefExpr);
         }
     }
 
@@ -1978,6 +1973,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         analyzeExpr(fieldAccessExpr.expr);
+        BSymbol symbol = fieldAccessExpr.symbol;
+        if (symbol != null && Symbols.isFlagOn(fieldAccessExpr.symbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(fieldAccessExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, fieldAccessExpr);
+        }
     }
 
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
@@ -1990,17 +1989,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExprs(invocationExpr.requiredArgs);
         analyzeExprs(invocationExpr.restArgs);
 
-        // Null check is to ignore Negative path where symbol does not get resolved at TypeChecker.
         if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
             BSymbol funcSymbol = invocationExpr.symbol;
             if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
-                dlog.warning(invocationExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_FUNCTION,
-                        names.fromIdNode(invocationExpr.name));
+                dlog.warning(invocationExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, invocationExpr);
             }
         }
 
         if (invocationExpr.actionInvocation || invocationExpr.async) {
-            validateActionInvocation(invocationExpr.pos, invocationExpr);
+            if (invocationExpr.actionInvocation || !this.withinLockBlock) {
+                validateActionInvocation(invocationExpr.pos, invocationExpr);
+                return;
+            }
+
+            dlog.error(invocationExpr.pos, invocationExpr.functionPointerInvocation ? 
+            DiagnosticCode.USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED : 
+            DiagnosticCode.USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED);
         }
     }
 
@@ -2068,6 +2072,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeInit cIExpr) {
         analyzeExprs(cIExpr.argsExpr);
         analyzeExpr(cIExpr.initInvocation);
+        BType type = cIExpr.type;
+        if (cIExpr.userDefinedType != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(cIExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, type);
+        }
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {
@@ -2100,8 +2108,27 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
         analyzeExpr(xmlNavigation.expr);
         if (xmlNavigation.childIndex != null) {
+            if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.DESCENDANTS
+                    || xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
+                dlog.error(xmlNavigation.pos, DiagnosticCode.UNSUPPORTED_INDEX_IN_XML_NAVIGATION);
+            }
             analyzeExpr(xmlNavigation.childIndex);
         }
+        validateMethodInvocationsInXMLNavigationExpression(xmlNavigation);
+    }
+
+    private void validateMethodInvocationsInXMLNavigationExpression(BLangXMLNavigationAccess expression) {
+        if (!expression.methodInvocationAnalyzed && expression.parent.getKind() == NodeKind.INVOCATION) {
+            BLangInvocation invocation = (BLangInvocation) expression.parent;
+            // avoid langlib invocations re-written to have the receiver as first argument.
+            if (invocation.argExprs.contains(expression)
+                    && ((invocation.symbol.flags & Flags.LANG_LIB) != Flags.LANG_LIB)) {
+                return;
+            }
+
+            dlog.error(invocation.pos, DiagnosticCode.UNSUPPORTED_METHOD_INVOCATION_XML_NAV);
+        }
+        expression.methodInvocationAnalyzed = true;
     }
 
     @Override
@@ -2212,6 +2239,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
         analyzeExpr(conversionExpr.expr);
+        conversionExpr.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     public void visit(BLangXMLQName xmlQName) {
@@ -2338,6 +2366,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeTypeNode(constrainedType.constraint, env);
     }
 
+    public void visit(BLangStreamType streamType) {
+
+        analyzeTypeNode(streamType.constraint, env);
+        analyzeTypeNode(streamType.error, env);
+    }
+
     public void visit(BLangErrorType errorType) {
 
         analyzeTypeNode(errorType.reasonType, env);
@@ -2345,7 +2379,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangUserDefinedType userDefinedType) {
-        /* Ignore */
+        BTypeSymbol typeSymbol = userDefinedType.type.tsymbol;
+        if (typeSymbol != null && Symbols.isFlagOn(typeSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(userDefinedType.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, userDefinedType);
+        }
     }
 
     public void visit(BLangTupleTypeNode tupleTypeNode) {
@@ -2441,6 +2478,28 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangQueryAction queryAction) {
+        int fromCount = 0;
+        for (FromClauseNode fromClauseNode : queryAction.fromClauseList) {
+            fromCount++;
+            BLangExpression collection = (BLangExpression) fromClauseNode.getCollection();
+            if (fromCount > 1) {
+                if (TypeTags.STREAM == collection.type.tag) {
+                    this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
+                }
+            }
+            analyzeNode((BLangFromClause) fromClauseNode, env);
+        }
+
+        for (WhereClauseNode whereClauseNode : queryAction.whereClauseList) {
+            analyzeNode((BLangWhereClause) whereClauseNode, env);
+        }
+
+        analyzeNode(queryAction.doClause, env);
+        validateActionParentNode(queryAction.pos, queryAction);
+    }
+
+    @Override
     public void visit(BLangFromClause fromClause) {
         analyzeExpr(fromClause.collection);
     }
@@ -2458,11 +2517,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangDoClause doClause) {
         analyzeNode(doClause.body, env);
-    }
-
-    @Override
-    public void visit(BLangStreamConstructorExpr streamConstructorExpr) {
-        /* Ignore */
     }
 
     @Override
@@ -2493,6 +2547,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
         analyzeExpr(annotAccessExpr.expr);
+        BAnnotationSymbol annotationSymbol = annotAccessExpr.annotationSymbol;
+        if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(annotAccessExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
+        }
     }
 
     private boolean indirectIntersectionExists(BLangExpression expression, BType testType) {
@@ -2559,6 +2617,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeTypeNode(constant.typeNode, env);
         analyzeNode(constant.expr, env);
         analyzeExportableTypeRef(constant.symbol, constant.symbol.type.tsymbol, false, constant.pos);
+        constant.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     /**
@@ -2651,7 +2710,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 worker.next();
 
                 systemRunning = true;
-                String channelName = WorkerDataChannelInfo.generateChannelName(worker.workerId, otherSM.workerId);
+                String channelName = generateChannelName(worker.workerId, otherSM.workerId);
                 otherSM.node.sendsToThis.add(channelName);
 
                 worker.node.sendsToThis.add(channelName);
@@ -2920,6 +2979,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         dlog.error(pos, DiagnosticCode.INVALID_USE_OF_EXPERIMENTAL_FEATURE, constructName.value);
+    }
+
+    public static String generateChannelName(String source, String target) {
+
+        return source + "->" + target;
     }
 
     /**

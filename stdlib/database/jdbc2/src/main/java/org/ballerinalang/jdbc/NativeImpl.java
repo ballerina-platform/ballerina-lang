@@ -23,6 +23,9 @@ import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.utils.ClientUtils;
 import org.ballerinalang.sql.utils.ErrorGenerator;
 
+import java.util.Locale;
+import java.util.Properties;
+
 /**
  * This class will include the native method implementation for the JDBC client.
  *
@@ -41,17 +44,30 @@ public class NativeImpl {
         MapValue options = clientConfig.getMapValue(Constants.ClientConfiguration.OPTIONS);
         MapValue properties = null;
         String datasourceName = null;
+        Properties poolProperties = null;
         if (options != null) {
             properties = options.getMapValue(Constants.ClientConfiguration.PROPERTIES);
             datasourceName = options.getStringValue(Constants.ClientConfiguration.DATASOURCE_NAME);
+            if (properties != null) {
+                for (Object propKey : properties.getKeys()) {
+                    if (propKey.toString().toLowerCase(Locale.ENGLISH).matches(Constants.CONNECT_TIMEOUT)) {
+                        poolProperties = new Properties();
+                        poolProperties.setProperty(Constants.POOL_CONNECTION_TIMEOUT,
+                                properties.getStringValue(propKey.toString()));
+                    }
+                }
+            }
         }
         MapValue connectionPool = clientConfig.getMapValue(Constants.ClientConfiguration.CONNECTION_POOL_OPTIONS);
-        if (connectionPool == null) {
-            connectionPool = globalPool;
-        }
-        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = new SQLDatasource.SQLDatasourceParams().
-                setUrl(url).setUser(user).setPassword(password).setDatasourceName(datasourceName).
-                setOptions(properties).setConnectionPool(connectionPool);
+
+        SQLDatasource.SQLDatasourceParams sqlDatasourceParams = new SQLDatasource.SQLDatasourceParams()
+                .setUrl(url)
+                .setUser(user)
+                .setPassword(password)
+                .setDatasourceName(datasourceName)
+                .setOptions(properties)
+                .setPoolProperties(poolProperties)
+                .setConnectionPool(connectionPool, globalPool);
         return ClientUtils.createClient(client, sqlDatasourceParams);
     }
 

@@ -35,6 +35,10 @@ public class BLangXMLNavigationAccess extends BLangAccessExpression implements X
     public final NavAccessType navAccessType;
     public final List<BLangXMLElementFilter> filters;
     public BLangExpression childIndex;
+    // Hack to avoid duplicate error messages in CodeAnalyzer, the reason for this flag is since we are adding
+    // the 'receiver' of a method invocation as the first parameter to langlib invocations, XMLNavigationAccess
+    // could be checked multiple times when used with langlib functions producing multiple error messages.
+    public boolean methodInvocationAnalyzed;
 
     public BLangXMLNavigationAccess(DiagnosticPos pos, Set<Whitespace> ws, BLangExpression expr,
                                     List<BLangXMLElementFilter> filters,
@@ -61,6 +65,21 @@ public class BLangXMLNavigationAccess extends BLangAccessExpression implements X
     @Override
     public NavAccessType getNavAccessType() {
         return navAccessType;
+    }
+
+    @Override
+    public List<BLangXMLElementFilter> getFilters() {
+        return this.filters;
+    }
+
+    @Override
+    public BLangExpression getExpression() {
+        return this.expr;
+    }
+
+    @Override
+    public BLangExpression getChildIndex() {
+        return this.childIndex;
     }
 
     @Override

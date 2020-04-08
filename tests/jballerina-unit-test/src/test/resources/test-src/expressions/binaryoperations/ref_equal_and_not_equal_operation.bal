@@ -393,3 +393,56 @@ function isRefEqual(any a, any b) returns boolean {
     return a === b && !(b !== a);
 }
 
+function testXMLSequenceRefEquality() returns boolean {
+    xml x = xml `<a>a</a>`;
+    xml x1 = xml `<b>b</b>`;
+    xml x2 = x + x1;
+    xml x3 = x + x1;
+
+    return x2 === x3;
+}
+
+function testXMLSequenceRefEqualityDifferentLength() returns boolean {
+    xml x = xml `<a>a</a>`;
+    xml x1 = xml `<b>b</b>`;
+    xml x2 = x + x1;
+    xml x3 = x + x1 + xml `<c>c</c>`;
+
+    return x2 === x3;
+}
+
+function testXMLSequenceRefEqualityFalse() returns boolean {
+    xml x = xml `<a>a</a>`;
+    xml x1 = xml `<b>b</b>`;
+    xml x11 = xml `<b>b</b>`;
+    xml x2 = x + x1;
+    xml x3 = x + x11;
+
+    return x2 === x3;
+}
+
+function testXMLSequenceRefEqualityIncludingString() returns boolean {
+    xml x = xml `<a>a</a>`;
+    xml x1 = xml `<b>b</b>`;
+    xml x2 = x + x1 + "abcd";
+    xml x3 = x + x1 + "abcd";
+
+    return x2 === x3;
+}
+
+function testXMLSequenceRefEqualityIncludingDifferentString() returns boolean {
+    xml x = xml `<a>a</a>`;
+    xml x1 = xml `<b>b</b>`;
+    xml x2 = x + x1 + "abcd";
+    xml x3 = x + x1 + "abcde";
+
+    return x2 === x3;
+}
+
+function testEmptyXMLSequencesRefEquality() returns boolean {
+    xml x = xml `<elem></elem>`;
+    xml y = xml `<elem></elem>`;
+    xml z = x/*;
+    xml q = y/*;
+    return z === q;
+}

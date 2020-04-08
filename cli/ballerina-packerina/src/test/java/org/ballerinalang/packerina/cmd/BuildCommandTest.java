@@ -363,7 +363,7 @@ public class BuildCommandTest extends CommandTest {
                                       "\tbar/foo:1.2.0\n" +
                                       "\nCreating balos\n" +
                                       "\ttarget" + File.separator + "balo" + File.separator +
-                                      "foo-2019r3-any-1.2.0.balo\n" +
+                                      "foo-2020r1-any-1.2.0.balo\n" +
                                       "\n" +
                                       "Generating executables\n" +
                                       "\ttarget" + File.separator + "bin" + File.separator + "foo.jar\n");
@@ -792,7 +792,7 @@ public class BuildCommandTest extends CommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                 "\ttestOrg/module1:0.1.0\n" +
                 "\nCreating balos\n" +
-                "\ttarget/balo/module1-2019r3-any-0.1.0.balo\n" +
+                "\ttarget/balo/module1-2020r1-any-0.1.0.balo\n" +
                 "\nGenerating executables\n" +
                 "\ttarget/bin/module1.jar\n");
     }

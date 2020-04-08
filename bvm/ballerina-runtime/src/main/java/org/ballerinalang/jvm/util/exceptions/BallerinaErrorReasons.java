@@ -82,6 +82,8 @@ public class BallerinaErrorReasons {
                                                                                       "IllegalListInsertion");
     public static final String FUTURE_CANCELLED = getModulePrefixedReason(FUTURE_LANG_LIB, "FutureAlreadyCancelled");
 
+    public static final String ASYNC_CALL_INSIDE_LOCK = BALLERINA_PREFIX.concat("AsyncCallInsideLockError");
+
     public static String getModulePrefixedReason(String moduleName, String identifier) {
         return BALLERINA_ORG_PREFIX.concat(moduleName).concat(CLOSING_CURLY_BRACE).concat(identifier);
     }

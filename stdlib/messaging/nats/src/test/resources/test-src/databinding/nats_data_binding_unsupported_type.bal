@@ -17,7 +17,7 @@
 import ballerina/nats;
 import ballerina/io;
 
-nats:Connection conn = new("localhost:4222");
+nats:Connection conn = new;
 
 listener nats:StreamingListener lis = new(conn);
 

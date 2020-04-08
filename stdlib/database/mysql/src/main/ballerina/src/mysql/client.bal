@@ -16,17 +16,28 @@
 
 import ballerina/crypto;
 import ballerina/sql;
-import ballerinax/java;
+import ballerina/java;
 
 # Represents a MySQL database client.
 public type Client client object {
     *sql:Client;
     private boolean clientActive = true;
 
+    # Initialize MySQL Client.
+    #
+    # + host - Hostname of the mysql server to be connected
+    # + user - If the mysql server is secured, the username to be used to connect to the mysql server
+    # + password - The password of provided username of the database
+    # + database - The name fo the database to be connected
+    # + port - Port number of the mysql server to be connected
+    # + options - The Database specific JDBC client properties
+    # + connectionPool - The `sql:ConnectionPool` object to be used within the jdbc client.
+    #                   If there is no connectionPool is provided, the global connection pool will be used and it will
+    #                   be shared by other clients which has same properties
     public function __init(public string host = "localhost",
-    public string? user = (), public string? password = (), public string? database = (),
-    public int port = 3306, public Options? options = (),
-    public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
+        public string? user = (), public string? password = (), public string? database = (),
+        public int port = 3306, public Options? options = (),
+        public sql:ConnectionPool? connectionPool = ()) returns sql:Error? {
         ClientConfiguration clientConfig = {
             host: host,
             port: port,
@@ -39,10 +50,41 @@ public type Client client object {
         return createClient(self, clientConfig, sql:getGlobalConnectionPool());
     }
 
+    # Executes the sql query provided by the user, and returns the result as stream.
+    #
+    # + sqlQuery - The query which needs to be executed
+    # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
+    #             column names of the query result set be used for the record attributes
+    # + return - Stream of records in the type of `rowType`
+    public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ())
+    returns @tainted stream<record{}, sql:Error> {
+        if (self.clientActive) {
+            return nativeQuery(self, java:fromString(sqlQuery), rowType);
+        } else {
+            return sql:generateApplicationErrorStream("MySQL Client is already closed,"
+                + "hence further operations are not allowed");
+        }
+    }
+
+    # Executes the DDL or DML sql queries provided by the user, and returns summary of the execution.
+    #
+    # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc
+    # + return - Summary of the sql update query as `sql:ExecuteResult` or returns `sql:Error`
+    #           if any error occured when executing the query
+    public remote function execute(@untainted string sqlQuery) returns sql:ExecuteResult|sql:Error? {
+        if (self.clientActive) {
+            return nativeExecute(self, java:fromString(sqlQuery));
+        } else {
+            return sql:ApplicationError(message = "JDBC Client is already closed,"
+                + " hence further operations are not allowed");
+        }
+    }
+
+
     # Close the SQL client.
     #
     # + return - Possible error during closing the client
-    public function close() returns error? {
+    public function close() returns sql:Error? {
         self.clientActive = false;
         return close(self);
     }
@@ -82,7 +124,13 @@ public type Options record {|
 |};
 
 # Possible options for SSL Mode.
-public type SSLMode "PREFERRED" | "REQUIRED" | "VERIFY_CERT" | "VERIFY_IDENTITY";
+public const SSL_PREFERRED = "PREFERRED";
+public const SSL_REQUIRED = "REQUIRED";
+public const SSL_VERIFY_CERT = "VERIFY_CERT";
+public const SSL_VERIFY_IDENTITY = "VERIFY_IDENTITY";
+
+# SSLMode as a union of available ssl modes.
+public type SSLMode SSL_PREFERRED|SSL_REQUIRED|SSL_VERIFY_CERT|SSL_VERIFY_IDENTITY;
 
 # SSL Configuration to be used when connecting to mysql server.
 #
@@ -91,16 +139,26 @@ public type SSLMode "PREFERRED" | "REQUIRED" | "VERIFY_CERT" | "VERIFY_IDENTITY"
 # + trustCertKeystore - Keystore configurtion of the trust certificates
 #
 public type SSLConfig record {|
-    SSLMode mode = "PREFERRED";
+    SSLMode mode = SSL_PREFERRED;
     crypto:KeyStore clientCertKeystore?;
     crypto:KeyStore trustCertKeystore?;
 |};
 
 function createClient(Client mysqlClient, ClientConfiguration clientConf,
-sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
+    sql:ConnectionPool globalConnPool) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.mysql.NativeImpl"
 } external;
 
-function close(Client mysqlClient) returns error? = @java:Method {
+function nativeQuery(Client sqlClient,@untainted handle sqlQuery, typedesc<record {}>? rowtype)
+returns stream<record{}, sql:Error> = @java:Method {
+    class: "org.ballerinalang.sql.utils.QueryUtils"
+} external;
+
+function nativeExecute(Client sqlClient,@untainted handle sqlQuery)
+returns sql:ExecuteResult|sql:Error? = @java:Method {
+    class: "org.ballerinalang.sql.utils.ExecuteUtils"
+} external;
+
+function close(Client mysqlClient) returns sql:Error? = @java:Method {
     class: "org.ballerinalang.mysql.NativeImpl"
 } external;
