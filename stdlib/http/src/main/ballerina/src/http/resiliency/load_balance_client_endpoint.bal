@@ -154,8 +154,8 @@ public type LoadBalanceClient client object {
     # + httpVerb - The HTTP verb value
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
-    #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `http:ClientError` if the submission
+    #             `io:ReadableByteChannel`, or `mime:Entity[]`
+    # + return - An `http:HttpFuture` that represents an asynchronous service invocation, or an `http:ClientError` if the submission
     #            fails
     public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         string errorMessage = "Load balancer client not supported for submit action";
@@ -165,7 +165,7 @@ public type LoadBalanceClient client object {
 
     # The getResponse implementation of the LoadBalancer Connector.
     #
-    # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
+    # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
     # + return - An HTTP response message, or an `http:ClientError` if the invocation fails
     public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         string errorMessage = "Load balancer client not supported for getResponse action";
@@ -175,15 +175,15 @@ public type LoadBalanceClient client object {
 
     # The hasPromise implementation of the LoadBalancer Connector.
     #
-    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - A `boolean` that represents whether a `PushPromise` exists
+    # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
+    # + return - A `boolean`, which represents whether an `http:PushPromise` exists
     public remote function hasPromise(HttpFuture httpFuture) returns boolean {
         return false;
     }
 
     # The getNextPromise implementation of the LoadBalancer Connector.
     #
-    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
+    # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
     # + return - An HTTP Push Promise message, or an `http:ClientError` if the invocation fails
     public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         string errorMessage = "Load balancer client not supported for getNextPromise action";
@@ -193,8 +193,8 @@ public type LoadBalanceClient client object {
 
     # The getPromisedResponse implementation of the LoadBalancer Connector.
     #
-    # + promise - The related `PushPromise`
-    # + return - A promised HTTP `Response` message, or an `http:ClientError` if the invocation fails
+    # + promise - The related `http:PushPromise`
+    # + return - A promised `http:Response` message, or an `http:ClientError` if the invocation fails
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         string errorMessage = "Load balancer client not supported for getPromisedResponse action";
         UnsupportedActionError err = error(UNSUPPORTED_ACTION, message = errorMessage);

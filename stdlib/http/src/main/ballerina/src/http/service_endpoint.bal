@@ -56,7 +56,7 @@ public type Listener object {
         return err;
     }
 
-    # Attach a service to the listener.
+    # Attaches a service to the listener.
     #
     # + s - The service that needs to be attached
     # + name - Name of the service
@@ -69,7 +69,7 @@ public type Listener object {
     # the functionality of the existing connections.
     #
     # + s - The service to be detached
-    # + return - error if occurred during detaching of a service or `nil`
+    # + return - An `error` if one occurred during detaching of a service or `()`
     public function __detach(service s) returns error? {
         return self.detach(s);
     }

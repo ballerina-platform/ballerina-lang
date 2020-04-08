@@ -34,7 +34,7 @@ public type AuthnFilter object {
     #
     # + caller - Caller for outbound HTTP responses
     # + request - An inbound HTTP request message
-    # + context - `FilterContext` instance
+    # + context - The `http:FilterContext` instance
     # + return - A flag to indicate if the request flow should be continued(true) or aborted(false)
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         boolean|AuthenticationError authenticated = true;
