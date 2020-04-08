@@ -2150,7 +2150,6 @@ public class BallerinaParserErrorHandler {
             case LISTENER_DECL:
             case CONSTANT_DECL:
             case CONST_DECL_RHS:
-
             default:
                 break;
         }

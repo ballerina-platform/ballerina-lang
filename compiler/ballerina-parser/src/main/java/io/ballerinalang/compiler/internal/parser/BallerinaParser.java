@@ -4096,7 +4096,6 @@ public class BallerinaParser {
         STNode semicolon = parseSemicolon();
         return STNodeFactory.createCompoundAssignmentStatement(expression, binaryOperator,
                 equalsToken, expr, semicolon);
-
     }
 
     /**

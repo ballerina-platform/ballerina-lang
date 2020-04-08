@@ -104,7 +104,6 @@ public enum SyntaxKind {
     HEX_FLOATING_POINT_LITERAL(1005),
     SIMPLE_TYPE(1006),
 
-
     // Trivia
     WHITESPACE_TRIVIA(1500),
     END_OF_LINE_TRIVIA(1501),
