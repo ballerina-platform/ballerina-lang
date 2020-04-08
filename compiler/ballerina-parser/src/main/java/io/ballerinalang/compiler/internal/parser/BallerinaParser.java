@@ -4030,6 +4030,7 @@ public class BallerinaParser {
             case OPEN_BRACE_TOKEN:
             case SEMICOLON_TOKEN:
             case PUBLIC_KEYWORD:
+            case PRIVATE_KEYWORD:
             case FUNCTION_KEYWORD:
             case RETURNS_KEYWORD:
             case SERVICE_KEYWORD:
@@ -4038,6 +4039,7 @@ public class BallerinaParser {
             case CONST_KEYWORD:
             case FINAL_KEYWORD:
             case RESOURCE_KEYWORD:
+            case SIMPLE_TYPE:
                 return true;
             default:
                 return false;

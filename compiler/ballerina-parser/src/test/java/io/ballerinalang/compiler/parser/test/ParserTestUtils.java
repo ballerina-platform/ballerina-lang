@@ -351,6 +351,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CONST_KEYWORD;
             case "FINAL_KEYWORD":
                 return SyntaxKind.FINAL_KEYWORD;
+            case "ANNOTATION_KEYWORD":
+                return SyntaxKind.ANNOTATION_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -425,6 +427,10 @@ public class ParserTestUtils {
                 return SyntaxKind.CLOSE_BRACE_PIPE_TOKEN;
             case "PIPE_TOKEN":
                 return SyntaxKind.PIPE_TOKEN;
+            case "AT_TOKEN":
+                return SyntaxKind.AT_TOKEN;
+            case "HASH_TOKEN":
+                return SyntaxKind.HASH_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -537,6 +543,8 @@ public class ParserTestUtils {
                 return SyntaxKind.EXPRESSION_LIST_ITEM;
             case "METADATA":
                 return SyntaxKind.METADATA;
+            case "ANNOTATION":
+                return SyntaxKind.ANNOTATION;
 
             // Trivia
             case "EOF_TOKEN":
