@@ -99,7 +99,15 @@ public abstract class SyntaxNodeTransformer<T> {
     // Tokens
 
     public T transform(Token token) {
-        return transformSyntaxNode(token);
+        return null;
+    }
+
+    public T transform(Identifier identifier) {
+        return null;
+    }
+
+    public T transform(EmptyToken emptyToken) {
+        return null;
     }
 
     // Misc

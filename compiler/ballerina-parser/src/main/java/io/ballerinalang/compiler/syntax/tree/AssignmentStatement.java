@@ -50,4 +50,13 @@ public class AssignmentStatement extends Statement {
     public <T> T apply(SyntaxNodeTransformer<T> visitor) {
         return visitor.transform(this);
     }
+
+    public AssignmentStatement modify(Token variableName, Token equalsToken,
+                                      Node expression, Token semicolonToken) {
+        if (checkForReferenceEquality(variableName, equalsToken, expression, semicolonToken)) {
+            return this;
+        }
+
+        return NodeFactory.createAssignmentStatement(variableName, equalsToken, expression, semicolonToken);
+    }
 }

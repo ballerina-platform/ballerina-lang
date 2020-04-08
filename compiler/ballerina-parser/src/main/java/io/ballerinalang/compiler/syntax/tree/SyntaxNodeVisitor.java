@@ -100,6 +100,10 @@ public abstract class SyntaxNodeVisitor {
     public void visit(Token token) {
     }
 
+    public void visit(EmptyToken emptyToken) {
+
+    }
+
     // Misc
 
     public void visit(EmptyNode emptyNode) {

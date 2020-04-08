@@ -78,6 +78,18 @@ public abstract class NonTerminalNode extends Node {
         return childPos;
     }
 
+    protected boolean checkForReferenceEquality(Node... children) {
+        for (int bucket = 0; bucket < children.length; bucket++) {
+            // Here we are using the childBuckets arrays instead of the childInBucket() method.
+            // If the particular child is not loaded, then childBuckets[bucket] will be null.
+            // That means the given child is not equal to what is stored in the childBuckets array.
+            if (children[bucket] != childBuckets[bucket]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     // TODO Can we optimize this algo?
     public Token findToken(int position) {
         if (!spanWithMinutiae.contains(position)) {

@@ -41,8 +41,8 @@ public class FunctionDefinitionNode extends ModuleMemberDeclaration {
         return childInBucket(3);
     }
 
-    public Node parameters() {
-        return childInBucket(4);
+    public NodeList<Parameter> parameters() {
+        return new NodeList<>(childInBucket(4));
     }
 
     public Token closeParenToken() {
@@ -65,5 +65,22 @@ public class FunctionDefinitionNode extends ModuleMemberDeclaration {
     @Override
     public <T> T apply(SyntaxNodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public FunctionDefinitionNode modify(Token visibilityQualifier,
+                                         Token functionKeyword,
+                                         Identifier functionName,
+                                         Token openParenToken,
+                                         NodeList<Parameter> parameters,
+                                         Token closeParenToken,
+                                         Node returnTypeDesc,
+                                         BlockStatement functionBody) {
+        if (checkForReferenceEquality(visibilityQualifier, functionKeyword, functionName, openParenToken,
+                parameters.underlyingListNode(), closeParenToken, returnTypeDesc, functionBody)) {
+            return this;
+        }
+
+        return NodeFactory.createFunctionDefinitionNode(visibilityQualifier, functionKeyword, functionName, openParenToken,
+                parameters, closeParenToken, returnTypeDesc, functionBody);
     }
 }

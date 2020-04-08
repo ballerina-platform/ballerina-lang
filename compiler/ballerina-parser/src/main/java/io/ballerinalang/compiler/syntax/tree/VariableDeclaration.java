@@ -36,7 +36,7 @@ public class VariableDeclaration extends Statement {
         return childInBucket(1);
     }
 
-    public Token variableName() {
+    public Identifier variableName() {
         return childInBucket(2);
     }
 
@@ -60,5 +60,16 @@ public class VariableDeclaration extends Statement {
     @Override
     public <T> T apply(SyntaxNodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public VariableDeclaration modify(Token finalKeyword, Node typeName, Identifier variableName,
+                                      Token equalsToken, Node initializer, Token semicolonToken) {
+        if (checkForReferenceEquality(finalKeyword, typeName, variableName,
+                equalsToken, initializer, semicolonToken)) {
+            return this;
+        }
+
+        return NodeFactory.createVariableDeclaration(finalKeyword, typeName, variableName,
+                equalsToken, initializer, semicolonToken);
     }
 }

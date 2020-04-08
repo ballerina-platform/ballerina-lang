@@ -18,10 +18,17 @@
 package io.ballerinalang.compiler.syntax.tree;
 
 /**
+ * Parses a given input and produces a {@code Node}
  *
+ * @since 1.3.0
  */
-public class SyntaxNodeFactory {
+public class NodeParser {
+
+    public Statement parseStatement(String text) {
+        return null;
+    }
+
+    public ExpressionTree parseExpression(String text) {
+        return null;
+    }
 }
-
-
-// TODO Need a way to create a new tree by updating a single token or a node.

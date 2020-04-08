@@ -46,4 +46,14 @@ public class BlockStatement extends NonTerminalNode {
     public <T> T apply(SyntaxNodeTransformer<T> visitor) {
         return visitor.transform(this);
     }
+
+    public BlockStatement modify(Token openBraceToken,
+                                 NodeList<Statement> statements,
+                                 Token closeBraceToken) {
+        if (checkForReferenceEquality(openBraceToken, statements.underlyingListNode(), closeBraceToken)) {
+            return this;
+        }
+
+        return NodeFactory.createBlockStatement(openBraceToken, statements, closeBraceToken);
+    }
 }
