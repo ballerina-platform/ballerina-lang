@@ -50,6 +50,10 @@ public abstract class STNode {
         return bucketCount;
     }
 
+    public <T extends Node> T createUnlinkedFacade() {
+        return (T) createFacade(0, null);
+    }
+
     public abstract Node createFacade(int position, NonTerminalNode parent);
 
     public String toString() {
