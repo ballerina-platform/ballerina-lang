@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,59 +24,63 @@ configurations.testCompileClasspath {
     }
 }
 
+configurations {
+    tests
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
+    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+}
+
 dependencies {
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
+
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-java')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-io')
-    implementation project(':ballerina-time')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-file')
-    implementation project(':ballerina-mime')
-    implementation 'org.jvnet.mimepull:mimepull'
-    implementation 'com.sun.mail:javax.mail:1.6.2'
+
+    interopImports project(':ballerina-io')
+    interopImports 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.6'
+
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
     implementation 'org.apache.ws.commons.axiom:axiom-dom'
+    implementation 'org.jvnet.mimepull:mimepull'
 
-    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    testCompile project(path: ':ballerina-test-common', configuration: 'tests')
+    testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
+    testImplementation project(':ballerina-time')
+    testImplementation project(':ballerina-reflect')
+    testImplementation project(':ballerina-core')
+    testCompile 'org.slf4j:slf4j-simple'
+    testCompile 'org.testng:testng'
 
-    interopImports project(':ballerina-time')
-    interopImports project(':ballerina-log-api')
-    interopImports project(':ballerina-io')
-    interopImports project(':ballerina-mime')
-    interopImports 'com.sun.mail:javax.mail:1.6.2'
-    interopImports 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.8'
+    baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
+}
 
-    testCompile project(':ballerina-test-utils')
-    testCompile project(':ballerina-reflect')
-    testCompile project(':ballerina-core')
-    testCompile project(':ballerina-io')
-    testCompile 'org.testng:testng:6.13.1'
-    testCompile 'org.slf4j:slf4j-jdk14:1.7.22'
-    testCompile 'com.icegreen:greenmail:1.5.11'
+task testJar(type: Jar, dependsOn: testClasses) {
+    baseName = "test-${project.archivesBaseName}"
+    from sourceSets.test.output
 }
 
 createBalo {
     jvmTarget = 'true'
 }
 
-configurations {
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
-    testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
-    testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+artifacts {
+    tests testJar
 }
 
-description = 'Ballerina - Email'
+description = 'Ballerina - MIME Implementation'
 
 configurations.all {
     resolutionStrategy.preferProjectModules()

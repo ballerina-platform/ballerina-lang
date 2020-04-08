@@ -73,7 +73,6 @@ public class EmailAccessUtil {
 
     private static final Logger log = LoggerFactory.getLogger(EmailAccessUtil.class);
     private static final BArrayType stringArrayType = new BArrayType(BTypes.typeString);
-    private static final Logger log = LoggerFactory.getLogger(EmailAccessUtil.class);
 
     /**
      * Generates Properties object using the passed MapValue.
