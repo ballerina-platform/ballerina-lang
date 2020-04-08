@@ -489,8 +489,6 @@ public class ParserTestUtils {
                 return SyntaxKind.BREAK_STATEMENT;
             case "RETURN_STATEMENT":
                 return SyntaxKind.RETURN_STATEMENT;
-            case "NIL_TYPE":
-                return SyntaxKind.NIL_TYPE;
             case "COMPOUND_ASSIGNMENT_STATEMENT":
                 return SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT;
 
@@ -541,6 +539,8 @@ public class ParserTestUtils {
                 return SyntaxKind.SERVICE_BODY;
             case "EXPRESSION_LIST_ITEM":
                 return SyntaxKind.EXPRESSION_LIST_ITEM;
+            case "NIL_TYPE":
+                return SyntaxKind.NIL_TYPE;
 
             // Trivia
             case "EOF_TOKEN":
