@@ -1156,7 +1156,13 @@ public class BRunUtil {
                 BMap<String, BRefType<?>> bvmObject = new BMap<>(getBVMType(jvmObjectType, new Stack<>()));
                 bvmValueMap.put(String.valueOf(value.hashCode()), bvmObject);
                 for (String key : jvmObjectType.getFields().keySet()) {
-                    bvmObject.put(key, getBVMValue(jvmObject.get(key), bvmValueMap));
+                    Object val;
+                    try {
+                        val = jvmObject.get(key);
+                    } catch (AbstractMethodError error) {
+                        val = jvmObject.get(StringUtils.fromString(key));
+                    }
+                    bvmObject.put(key, getBVMValue(val, bvmValueMap));
                 }
 
                 HashMap<String, Object> nativeData = jvmObject.getNativeData();

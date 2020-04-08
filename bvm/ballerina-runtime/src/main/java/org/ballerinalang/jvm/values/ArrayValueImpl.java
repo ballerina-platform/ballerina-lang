@@ -185,16 +185,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
         }
     }
 
-    @Deprecated
-    public ArrayValueImpl(BArrayType type, long size, boolean useBString) {
-        this.arrayType = type;
-        this.elementType = type.getElementType();
-        initArrayValues(this.elementType);
-        if (size != -1) {
-            this.size = this.maxSize = (int) size;
-        }
-    }
-
     // ----------------------- get methods ----------------------------------------------------
 
     /**
@@ -692,6 +682,11 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
+                if (USE_BSTRING) {
+                    slicedArray = new ArrayValueImpl(new BString[slicedSize]);
+                    System.arraycopy(bStringValues, (int) startIndex, slicedArray.bStringValues, 0, slicedSize);
+                    break;
+                }
                 slicedArray = new ArrayValueImpl(new String[slicedSize]);
                 System.arraycopy(stringValues, (int) startIndex, slicedArray.stringValues, 0, slicedSize);
                 break;

@@ -70,6 +70,10 @@ public class StackTrace {
         return callStack;
     }
 
+    public static ObjectValue stackTrace_bstring(Strand strand, ErrorValue value) {
+        return stackTrace(strand, value);
+    }
+
     private static ArrayValue getCallStackArray(StackTraceElement[] stackTrace) {
         BType recordType = BallerinaValues.createRecordValue(BALLERINA_LANG_ERROR_PKG_ID, CALL_STACK_ELEMENT).getType();
         Object[] array = new Object[stackTrace.length];

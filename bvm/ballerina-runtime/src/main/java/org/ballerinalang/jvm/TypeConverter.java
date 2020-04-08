@@ -354,11 +354,12 @@ public class TypeConverter {
         for (Map.Entry targetTypeEntry : targetFieldTypes.entrySet()) {
             String fieldName = targetTypeEntry.getKey().toString();
 
-            if (!sourceMapValueImpl.containsKey(StringUtils.fromString(fieldName))) {
-                BField targetField = targetType.getFields().get(fieldName);
-                if (Flags.isFlagOn(targetField.flags, Flags.REQUIRED)) {
-                    return false;
-                }
+            if (sourceMapValueImpl.containsKey(StringUtils.fromString(fieldName))) {
+                continue;
+            }
+            BField targetField = targetType.getFields().get(fieldName);
+            if (Flags.isFlagOn(targetField.flags, Flags.REQUIRED)) {
+                return false;
             }
         }
 

@@ -37,6 +37,23 @@
             </run>
         </groups>
         <packages>
+            <package name="org.ballerinalang.test.access.*" />
+            <package name="org.ballerinalang.test.action.start.*" />
+            <package name="org.ballerinalang.test.annotations.*" />
+            <package name="org.ballerinalang.test.balo.constant.*" />
+            <package name="org.ballerinalang.test.balo.documentation.*" />
+            <package name="org.ballerinalang.test.balo.functions.*" />
+            <package name="org.ballerinalang.test.balo.globalvar.*" />
+            <package name="org.ballerinalang.test.balo.listener.*" />
+            <package name="org.ballerinalang.test.balo.object.*" />
+            <package name="org.ballerinalang.test.balo.record.*" />
+            <package name="org.ballerinalang.test.balo.types.*" />
+            <package name="org.ballerinalang.test.bir.*" />
+            <package name="org.ballerinalang.test.closures.*" />
+            <package name="org.ballerinalang.test.dataflow.analysis.*" />
+            <package name="org.ballerinalang.test.endpoint.*" />
+            <package name="org.ballerinalang.test.error.*" />
+            <package name="org.ballerinalang.test.execution.*" />
             <package name="org.ballerinalang.test.types.any.*" />
             <package name="org.ballerinalang.test.types.anydata.*" />
             <package name="org.ballerinalang.test.types.bytetype.*" />
