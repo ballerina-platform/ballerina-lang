@@ -14,17 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/config;
 import ballerina/http;
 import ballerina/io;
 
 http:ListenerConfiguration mutualSslServiceConf = {
     secureSocket: {
         keyStore: {
-            path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("keystore"),
             password: "ballerina"
         },
         trustStore: {
-            path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+            path: config:getAsString("truststore"),
             password: "ballerina"
         },
         protocol: {
@@ -48,8 +49,34 @@ service http2Service on http2Listener {
         path: "/"
     }
     resource function sayHello(http:Caller caller, http:Request req) {
+        string expectedCert = "MIIDdzCCAl+gAwIBAgIEfP3e8zANBgkqhkiG9w0BAQsFADBkMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExF"
+                      + "jAUBgNVBAcTDU1vdW50YWluIFZpZXcxDTALBgNVBAoTBFdTTzIxDTALBgNVBAsTBFdTTzIxEjAQBgNVBAMTCWxvY2Fsa"
+                      + "G9zdDAeFw0xNzEwMjQwNTQ3NThaFw0zNzEwMTkwNTQ3NThaMGQxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA"
+                      + "1UEBxMNTW91bnRhaW4gVmlldzENMAsGA1UEChMEV1NPMjENMAsGA1UECxMEV1NPMjESMBAGA1UEAxMJbG9jYWxob3N0M"
+                      + "IIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAgVyi6fViVLiZKEnw59xzNi1lcYh6z9dZnug+F9gKqFIgmdcPe"
+                      + "+qtS7gZc1jYTjWMCbx13sFLkZqNHeDUadpmtKo3TDduOl1sqM6cz3yXb6L34k/leh50mzIPNmaaXxd3vOQoK4OpkgO1n"
+                      + "32mh6+tkp3sbHmfYqDQrkVK1tmYNtPJffSCLT+CuIhnJUJco7N0unax+ySZN67/AX++sJpqAhAIZJzrRi6ueN3RFCIxY"
+                      + "DXSMvxrEmOdn4gOC0o1Ar9u5Bp9N52sqqGbN1x6jNKi3bfUj122Hu5e+Y9KOmfbchhQil2P81cIi30VKgyDn5DeWEuDo"
+                      + "Yredk4+6qAZrxMw+wIDAQABozEwLzAOBgNVHQ8BAf8EBAMCBaAwHQYDVR0OBBYEFNmtrQ36j6tUGhKrfW9qWWE7KFzMM"
+                      + "A0GCSqGSIb3DQEBCwUAA4IBAQAv3yOwgbtOu76eJMl1BCcgTFgaMUBZoUjK9Un6HGjKEgYz/YWSZFlY/qH5rT01DWQev"
+                      + "UZB626d5ZNdzSBZRlpsxbf9IE/ursNHwHx9ua6fB7yHUCzC1ZMp1lvBHABi7wcA+5nbV6zQ7HDmBXFhJfbgH1iVmA1Kc"
+                      + "vDeBPSJ/scRGasZ5q2W3IenDNrfPIUhD74tFiCiqNJO91qD/LO+++3XeZzfPh8NRKkiPX7dB8WJ3YNBuQAvgRWTISpSS"
+                      + "XLmqMb+7MPQVgecsepZdk8CwkRLxh3RKPJMjigmCgyvkSaoDMKAYC3iYjfUTiJ57UeqoSl0IaOFJ0wfZRFh+UytlDZa";
         http:Response res = new;
-        res.setTextPayload("hello world");
+        if (req.mutualSslHandshake["status"] == "passed") {
+            string? cert = req.mutualSslHandshake["base64EncodedCert"];
+            if (cert is string) {
+                if (cert == expectedCert) {
+                    res.setTextPayload("Passed");
+                } else {
+                    res.setTextPayload("Expected cert not found");
+                }
+            } else {
+                res.setTextPayload("Cert not found");
+            }
+        } else {
+            res.setTextPayload("Failed");
+        }
         checkpanic caller->respond(res);
         io:println("successful");
     }

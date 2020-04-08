@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerinax/java;
+import ballerina/java;
 
 # NATS `StreamingProducer` would act as a client allowing to publish messages to the
 # NATS streaming server. `StreamingProducer` needs the NATS `Connection` to be initialized.
@@ -43,24 +43,27 @@ public type StreamingProducer client object {
     #           elapses while waiting for the acknowledgement OR
     #           `nats/Error` only with the `message` field in case an error occurs even before publishing
     #           is completed
-    public remote function publish(string subject, @untainted Content data) returns string | Error {
-        if (self.conn is ()) {
-            return Error(message = "NATS Streaming Client has been closed.");
-        }
-        string | byte[] | error converted = convertData(data);
-        if (converted is error) {
-            return prepareError("Error in data conversion", err = converted);
+    public remote function publish(string subject,@untainted Content data) returns string|Error {
+        Connection? natsConnection = self.conn;
+        if (natsConnection is ()) {
+            return Error( message = "NATS Streaming Client has been closed.");
         } else {
-            handle | Error result = externStreamingPublish(self, java:fromString(subject), converted);
-            if (result is handle) {
-                var stringResult = java:toString(result);
-                if (stringResult is string) {
-                    return stringResult;
-                } else {
-                    return prepareError("Error in value returned while publishing.");
-                }
+            string|byte[]|error converted = convertData(data);
+            if (converted is error) {
+                return prepareError("Error in data conversion", err = converted);
             } else {
-                return result;
+                handle|Error result =
+                    externStreamingPublish(self, java:fromString(subject), converted, natsConnection);
+                if (result is handle) {
+                    var stringResult = java:toString(result);
+                    if (stringResult is string) {
+                        return stringResult;
+                    } else {
+                        return prepareError("Error in value returned while publishing.");
+                    }
+                } else {
+                    return result;
+                }
             }
         }
     }
@@ -69,27 +72,27 @@ public type StreamingProducer client object {
     #
     # + return - Returns () or the error if unable to complete the close operation.
     public function close() returns error? {
-        if (self.conn is Connection) {
-            Connection? natsConnection = self.conn;
+        Connection? natsConnection = self.conn;
+        if (natsConnection is Connection) {
             self.conn = ();
             return streamingProducerClose(self, natsConnection);
         }
     }
 };
 
-function streamingProducerInit(StreamingProducer streamingClient, Connection? conn,
-handle clusterId, string? clientId, StreamingConfig? streamingConfig) =
+function streamingProducerInit(StreamingProducer streamingClient, Connection conn,
+    handle clusterId, string? clientId, StreamingConfig? streamingConfig) =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.producer.Init"
 } external;
 
-function streamingProducerClose(StreamingProducer streamingClient, Connection? natsConnection)
-returns error? =
+function streamingProducerClose(StreamingProducer streamingClient, Connection natsConnection) returns error? =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.producer.Close"
 } external;
 
-function externStreamingPublish(StreamingProducer producer, handle subject, string | byte[] data) returns handle | Error =
+function externStreamingPublish(StreamingProducer producer, handle subject, string|byte[] data,
+    Connection connection) returns handle|Error =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.producer.Publish"
 } external;

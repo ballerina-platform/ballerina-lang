@@ -115,3 +115,21 @@ function testSubstring(string s, int si, int ei) returns error|string {
     error|string sub = trap s.substring(si, ei);
     return sub;
 }
+
+function testEqualsIgnoreCaseAscii() {
+    [string, string, boolean][] data = [
+                    ["aBCdeFg", "aBCdeFg", true],
+                    ["aBCdeFg", "abcdefg", true],
+                    ["aBCdeFg", "abcdefh", false],
+                    ["Duල්Viන්", "duල්viන්", true],
+                    ["Duන්Viල්", "duල්viන්", false]
+                ];
+    int i = 0;
+    while (i < 5) {
+        boolean result = strings:equalsIgnoreCaseAscii(data[i][0], data[i][1]);
+        if (result != data[i][2]) {
+            panic error("AssertionError", message = "Expected '" + data[i][2].toString() + "' but found '" + result.toString() + "'");
+        }
+        i = i + 1;
+    }
+}

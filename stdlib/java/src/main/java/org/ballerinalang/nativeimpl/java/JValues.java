@@ -23,7 +23,7 @@ import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ErrorValue;
 
 /**
- * Contains utility methods required to implement Java related Ballerina functions in ballerinax/java module.
+ * Contains utility methods required to implement Java related Ballerina functions in ballerina/java module.
  *
  * @since 1.0.0
  */

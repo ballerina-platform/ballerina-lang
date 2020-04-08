@@ -37,7 +37,6 @@ dependencies {
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-reflect')
     implementation project(':ballerina-config-api')
-    implementation project(':ballerina-jdbc')
     implementation project(':ballerina-stringutils')
     implementation 'io.ballerina.messaging:broker-core'
     implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
@@ -45,7 +44,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')

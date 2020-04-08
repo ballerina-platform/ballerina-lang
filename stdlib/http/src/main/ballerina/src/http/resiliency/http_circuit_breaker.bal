@@ -139,7 +139,12 @@ public type CircuitBreakerClient client object {
     # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
     # + circuitHealth - The circuit health monitor
     public function __init(string url, ClientConfiguration config, CircuitBreakerInferredConfig
-                                        circuitBreakerInferredConfig, HttpClient httpClient, CircuitHealth circuitHealth) {
+        circuitBreakerInferredConfig, HttpClient httpClient, CircuitHealth circuitHealth) {
+        RollingWindow rollingWindow = circuitBreakerInferredConfig.rollingWindow;
+        if (rollingWindow.timeWindowInMillis < rollingWindow.bucketSizeInMillis) {
+            panic error(GENERIC_CLIENT_ERROR, message = "Circuit breaker 'timeWindowInMillis' value should be greater" +
+                " than the 'bucketSizeInMillis' value.");
+        }
         self.url = url;
         self.config = config;
         self.circuitBreakerInferredConfig = circuitBreakerInferredConfig;

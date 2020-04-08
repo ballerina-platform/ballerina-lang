@@ -23,8 +23,11 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaStreamTypeName extends PsiElement {
 
+  @NotNull
+  List<BallerinaTypeName> getTypeNameList();
+
   @Nullable
-  BallerinaTypeName getTypeName();
+  PsiElement getComma();
 
   @Nullable
   PsiElement getGt();

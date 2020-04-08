@@ -44,6 +44,12 @@ public class BallerinaFieldImpl extends ASTWrapperPsiElement implements Ballerin
 
   @Override
   @Nullable
+  public PsiElement getColon() {
+    return findChildByType(COLON);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getDot() {
     return findChildByType(DOT);
   }
@@ -58,12 +64,6 @@ public class BallerinaFieldImpl extends ASTWrapperPsiElement implements Ballerin
   @Nullable
   public PsiElement getOptionalFieldAccess() {
     return findChildByType(OPTIONAL_FIELD_ACCESS);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
   }
 
 }

@@ -50,6 +50,19 @@ public class TypeConstants {
     public static final String FINITE_TNAME = "finite";
     public static final String FUNCTION_TNAME = "function";
 
+    // SubTypes
+    public static final String SIGNED32 = "Signed32";
+    public static final String SIGNED16 = "Signed16";
+    public static final String SIGNED8 = "Signed8";
+    public static final String UNSIGNED32 = "Unsigned32";
+    public static final String UNSIGNED16 = "Unsigned16";
+    public static final String UNSIGNED8 = "Unsigned8";
+    public static final String CHAR = "Char";
+    public static final String XML_ELEMENT = "Element";
+    public static final String XML_PI = "ProcessingInstruction";
+    public static final String XML_COMMENT = "Comment";
+    public static final String XML_TEXT = "Text";
+
     // Special Types and Type fields.
     public static final String DETAIL_TYPE = "detail";
     public static final String DETAIL_MESSAGE = "message";

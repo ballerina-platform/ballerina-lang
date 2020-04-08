@@ -35,33 +35,12 @@ import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.util.LinkedList;
-import java.util.List;
-
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_SRC_DIR_NAME;
 
 /**
  * Util class which contains methods related to PSI manipulation.
  */
 public class BallerinaPsiImplUtil {
-
-    private static final List<String> BUILTIN_DIRECTORIES = new LinkedList<>();
-
-    private static final List<String> BUILTIN_VARIABLE_TYPES = new LinkedList<>();
-
-    static {
-        BUILTIN_DIRECTORIES.add(File.separator + "builtin");
-
-        BUILTIN_VARIABLE_TYPES.add("future"); //async
-        BUILTIN_VARIABLE_TYPES.add("blob");
-        BUILTIN_VARIABLE_TYPES.add("json");
-        BUILTIN_VARIABLE_TYPES.add("map");
-        BUILTIN_VARIABLE_TYPES.add("stream");
-        BUILTIN_VARIABLE_TYPES.add("string");
-        BUILTIN_VARIABLE_TYPES.add("table");
-        BUILTIN_VARIABLE_TYPES.add("xml");
-    }
 
     // Since instances of "com.intellij.openapi.project.Project" returns system-independant paths for project directory
     // File.seperator should not be used

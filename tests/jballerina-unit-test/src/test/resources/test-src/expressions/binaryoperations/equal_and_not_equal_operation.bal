@@ -972,14 +972,14 @@ public function testXmlWithNamespacesNegative() returns boolean {
 
 public function testXmlSequenceAndXmlItemEqualityPositive() returns boolean {
     xml x1 = xml `<name>Book One</name>`;
-    xml x2 = x1.select("name");
+    xml x2 = x1.get(0);
     return x1 == x2 && !(x1 != x2) && x2 == x1 && !(x2 != x1);
 }
 
 public function testXmlSequenceAndXmlItemEqualityNegative() returns boolean {
     xml x1 = xml `<name>Book One</name>`;
     xml x2 = xml `<name>Book Two</name>`;
-    xml x3 = x2.select("name");
+    xml x3 = x2.get(0);
     return x1 == x3 || !(x1 != x3) || x3 == x1 || !(x3 != x1);
 }
 

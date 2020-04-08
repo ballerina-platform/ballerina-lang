@@ -80,7 +80,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -208,7 +207,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         while (pkgNode.lambdaFunctions.peek() != null) {
             BLangLambdaFunction lambdaFunction = pkgNode.lambdaFunctions.poll();
-            lambdaFunction.function = rewrite(lambdaFunction.function, lambdaFunction.cachedEnv);
+            lambdaFunction.function = rewrite(lambdaFunction.function, lambdaFunction.capturedClosureEnv);
         }
 
         // Update function parameters.
@@ -718,14 +717,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableLiteral tableLiteral) {
-        tableLiteral.tableDataRows = rewriteExprs(tableLiteral.tableDataRows);
-        tableLiteral.indexColumnsArrayLiteral = rewriteExpr(tableLiteral.indexColumnsArrayLiteral);
-        tableLiteral.keyColumnsArrayLiteral = rewriteExpr(tableLiteral.keyColumnsArrayLiteral);
-        result = tableLiteral;
-    }
-
-    @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         result = varRefExpr;
     }
@@ -819,8 +810,8 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        bLangLambdaFunction.cachedEnv = env.createClone();
-        bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(bLangLambdaFunction.cachedEnv,
+        bLangLambdaFunction.capturedClosureEnv = env.createClone();
+        bLangLambdaFunction.enclMapSymbols = collectClosureMapSymbols(bLangLambdaFunction.capturedClosureEnv,
                 bLangLambdaFunction);
         result = bLangLambdaFunction;
     }
@@ -832,7 +823,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
         // Recursively iterate back to the encl invokable and get all map symbols visited.
         TreeMap<Integer, BVarSymbol> enclMapSymbols = new TreeMap<>();
-        while (symbolEnv != null && symbolEnv.enclInvokable == bLangLambdaFunction.cachedEnv.enclInvokable) {
+        while (symbolEnv != null && symbolEnv.enclInvokable == bLangLambdaFunction.capturedClosureEnv.enclInvokable) {
             BVarSymbol mapSym = getMapSymbol(symbolEnv.node);
 
             // Skip non-block bodies
@@ -1307,7 +1298,15 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
         bLangStatementExpression.expr = rewriteExpr(bLangStatementExpression.expr);
-        bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt, env);
+        if (bLangStatementExpression.stmt.getKind() == NodeKind.BLOCK) {
+            BLangBlockStmt bLangBlockStmt = (BLangBlockStmt) bLangStatementExpression.stmt;
+            for (int i = 0; i < bLangBlockStmt.stmts.size(); i++) {
+                BLangStatement stmt = bLangBlockStmt.stmts.remove(i);
+                bLangBlockStmt.stmts.add(i, rewrite(stmt, env));
+            }
+        } else {
+            bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt, env);
+        }
         result = bLangStatementExpression;
     }
 

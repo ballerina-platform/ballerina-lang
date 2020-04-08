@@ -41,9 +41,10 @@ import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PathUtil;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.BallerinaConstants;
+import io.ballerina.plugins.idea.configuration.BallerinaProjectSettings;
+import io.ballerina.plugins.idea.preloading.BallerinaCmdException;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
-import io.ballerina.plugins.idea.settings.autodetect.BallerinaAutoDetectionSettings;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -118,8 +119,14 @@ public abstract class BallerinaRunConfigurationBase<RunningState extends Balleri
         Module module = configurationModule.getModule();
         if (module != null) {
             if (BallerinaSdkService.getInstance(module.getProject()).getSdkHomePath(module) == null) {
-                if (BallerinaAutoDetectionSettings.getInstance(getProject()).isAutoDetectionEnabled()) {
-                    String autoDetectedPath = BallerinaSdkUtils.autoDetectSdk(getProject());
+                if (BallerinaProjectSettings.getStoredSettings(getProject()).isAutodetect()) {
+                    String autoDetectedPath;
+                    try {
+                        autoDetectedPath = BallerinaSdkUtils.autoDetectSdk(getProject());
+                    } catch (BallerinaCmdException e) {
+                        throw new RuntimeConfigurationError(String.format("Ballerina SDK is not specified and auto " +
+                                "detection is failed for module '%s'", module.getName()));
+                    }
                     if (autoDetectedPath.isEmpty()) {
                         throw new RuntimeConfigurationError(String.format("Ballerina SDK is not specified and auto " +
                                 "detection is failed for module '%s'", module.getName()));

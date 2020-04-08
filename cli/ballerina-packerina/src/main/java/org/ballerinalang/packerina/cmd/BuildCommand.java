@@ -158,6 +158,9 @@ public class BuildCommand implements BLauncherCmd {
     private static final String buildCmd = "ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]\n" +
             "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]";
 
+    @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
+    private boolean coverage;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -232,6 +235,12 @@ public class BuildCommand implements BLauncherCmd {
             targetPath = this.sourceRootPath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
 
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            // TODO: remove this once code cov is implemented to support single bal file
+            if (coverage) {
+                coverage = false;
+                this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
+                        "and continuing the test run...");
+            }
             // when a single bal file is provided.
             if (this.compile) {
                 CommandUtil.printError(this.errStream,
@@ -382,7 +391,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist))
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, skipTests))
-                .addTask(new RunTestsTask(args), this.skipTests || isSingleFileBuild) // run tests
+                .addTask(new RunTestsTask(coverage, args), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
                 .addTask(new CreateExecutableTask(), this.compile)  // create the executable.jar
                                                                                         // file

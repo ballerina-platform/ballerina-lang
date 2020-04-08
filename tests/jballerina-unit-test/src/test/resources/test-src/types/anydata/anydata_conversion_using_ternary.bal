@@ -29,7 +29,7 @@ type Employee record {|
 |};
 
 type ValueType int|float|string|boolean|byte;
-type DataType ValueType|table<any>|json|xml|ClosedFoo|Foo|map<anydata>|anydata[]|();
+type DataType ValueType|json|xml|ClosedFoo|Foo|map<anydata>|anydata[]|();
 
 function testAnydataToValueTypes() returns [int, float, boolean, string] {
     anydata ad = 33;

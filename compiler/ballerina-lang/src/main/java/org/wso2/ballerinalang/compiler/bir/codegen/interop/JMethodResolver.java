@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BStream;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.api.BTable;
 import org.ballerinalang.jvm.values.api.BTypedesc;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -42,6 +41,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -132,6 +132,11 @@ class JMethodResolver {
         if (jMethods.size() == 1 && noConstraints) {
             return jMethods.get(0);
         } else if (noConstraints) {
+            Optional<JMethod> covariantRetTypeMethod = findCovariantReturnTypeMethod(jMethods);
+            if (covariantRetTypeMethod.isPresent()) {
+                return covariantRetTypeMethod.get();
+            }
+
             int paramCount = jMethods.get(0).getParamTypes().length;
             throw getOverloadedMethodExistError(jMethodRequest.kind, jMethodRequest.declaringClass,
                     jMethodRequest.methodName, paramCount);
@@ -143,6 +148,26 @@ class JMethodResolver {
             return resolveMatchingMethod(jMethodRequest, jMethods);
         }
         return jMethod;
+    }
+
+    private Optional<JMethod> findCovariantReturnTypeMethod(List<JMethod> jMethods) {
+
+        for (int i = 0; i < jMethods.size(); i++) {
+            for (int k = i; k < jMethods.size(); k++) {
+                if (i == k) {
+                    continue;
+                }
+
+                JMethod ithMethod = jMethods.get(i);
+                JMethod kthMethod = jMethods.get(k);
+
+                if (ithMethod.getReturnType().isAssignableFrom(kthMethod.getReturnType()) ||
+                        kthMethod.getReturnType().isAssignableFrom(ithMethod.getReturnType())) {
+                    return Optional.of(ithMethod);
+                }
+            }
+        }
+        return Optional.empty();
     }
 
     private void validateMethodSignature(JMethodRequest jMethodRequest, JMethod jMethod) {
@@ -244,13 +269,19 @@ class JMethodResolver {
                 case TypeTags.NIL:
                     return jTypeName.equals(J_VOID_TNAME);
                 case TypeTags.INT:
+                case TypeTags.SIGNED32_INT:
+                case TypeTags.SIGNED16_INT:
+                case TypeTags.SIGNED8_INT:
+                case TypeTags.UNSIGNED32_INT:
+                case TypeTags.UNSIGNED16_INT:
+                case TypeTags.UNSIGNED8_INT:
                 case TypeTags.BYTE:
                 case TypeTags.FLOAT:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
 
-                    if (bType.tag == TypeTags.INT && jTypeName.equals(J_LONG_OBJ_TNAME)) {
+                    if (TypeTags.isIntegerTypeTag(bType.tag) && jTypeName.equals(J_LONG_OBJ_TNAME)) {
                         return true;
                     }
 
@@ -274,6 +305,7 @@ class JMethodResolver {
                 case TypeTags.DECIMAL:
                     return this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STRING:
+                case TypeTags.CHAR_STRING:
                     return this.classLoader.loadClass(BString.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.MAP:
                 case TypeTags.RECORD:
@@ -284,9 +316,11 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.ERROR:
                     return this.classLoader.loadClass(BError.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TABLE:
-                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.XML:
+                case TypeTags.XML_ELEMENT:
+                case TypeTags.XML_PI:
+                case TypeTags.XML_COMMENT:
+                case TypeTags.XML_TEXT:
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
@@ -353,6 +387,12 @@ class JMethodResolver {
                 case TypeTags.NIL:
                     return jTypeName.equals(J_VOID_TNAME);
                 case TypeTags.INT:
+                case TypeTags.SIGNED32_INT:
+                case TypeTags.SIGNED16_INT:
+                case TypeTags.SIGNED8_INT:
+                case TypeTags.UNSIGNED32_INT:
+                case TypeTags.UNSIGNED16_INT:
+                case TypeTags.UNSIGNED8_INT:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
                     }
@@ -395,6 +435,7 @@ class JMethodResolver {
                 case TypeTags.DECIMAL:
                     return this.classLoader.loadClass(BDecimal.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STRING:
+                case TypeTags.CHAR_STRING:
                     return this.classLoader.loadClass(BString.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.MAP:
                 case TypeTags.RECORD:
@@ -415,9 +456,11 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.ERROR:
                     return this.classLoader.loadClass(BError.class.getCanonicalName()).isAssignableFrom(jType);
-                case TypeTags.TABLE:
-                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.XML:
+                case TypeTags.XML_ELEMENT:
+                case TypeTags.XML_PI:
+                case TypeTags.XML_COMMENT:
+                case TypeTags.XML_TEXT:
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
@@ -498,19 +541,21 @@ class JMethodResolver {
 
         ParamTypeConstraint[] constraints = jMethodRequest.paramTypeConstraints;
         List<JMethod> resolvedJMethods = new ArrayList<>();
-        for (JMethod jMethod : jMethods) {
-            boolean resolved = true;
-            Class<?>[] formalParamTypes = jMethod.getParamTypes();
-            for (int paramIndex = 0; paramIndex < formalParamTypes.length; paramIndex++) {
-                Class<?> formalParamType = formalParamTypes[paramIndex];
-                if (formalParamType.isAssignableFrom(constraints[paramIndex].get())) {
-                    continue;
+        if (constraints.length > 0) {
+            for (JMethod jMethod : jMethods) {
+                boolean resolved = true;
+                Class<?>[] formalParamTypes = jMethod.getParamTypes();
+                for (int paramIndex = 0; paramIndex < formalParamTypes.length; paramIndex++) {
+                    Class<?> formalParamType = formalParamTypes[paramIndex];
+                    if (formalParamType.isAssignableFrom(constraints[paramIndex].get())) {
+                        continue;
+                    }
+                    resolved = false;
+                    break;
                 }
-                resolved = false;
-                break;
-            }
-            if (resolved) {
-                resolvedJMethods.add(jMethod);
+                if (resolved) {
+                    resolvedJMethods.add(jMethod);
+                }
             }
         }
 

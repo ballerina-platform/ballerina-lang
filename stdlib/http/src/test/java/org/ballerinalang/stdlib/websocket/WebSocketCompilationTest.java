@@ -179,6 +179,22 @@ public class WebSocketCompilationTest {
         BAssertUtil.validateError(compileResult, 0, "Path params are not supported in service path", 23, 11);
     }
 
+    @Test(description = "Successfully compiling WebSocketFailoverClientService")
+    public void testSuccessfailoverClient() {
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH + "success_failover_client.bal");
+
+        Assert.assertEquals(compileResult.toString(), "Compilation Successful");
+    }
+
+    @Test(description = "Invalid resource onOpen in WebSocketFailoverClientService")
+    public void testFailOnOpenFailoverClient() {
+        CompileResult compileResult = BCompileUtil.compileOnly(TEST_PATH +
+                "fail_onBinary_failoverClient.bal");
+        assertExpectedDiagnosticsLength(compileResult, 2);
+        Assert.assertTrue(compileResult.toString().contains("Invalid resource signature for onBinary resource " +
+                "in service : The first parameter should be a WebSocketFailoverClient"));
+    }
+
     private void assertExpectedDiagnosticsLength(CompileResult compileResult, int expectedLength) {
         Assert.assertEquals(compileResult.getDiagnostics().length, expectedLength);
     }

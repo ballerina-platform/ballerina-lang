@@ -30,9 +30,9 @@ public class CommandConstants {
     public static final String NO_IMPL_FOUND_FOR_FUNCTION = "no implementation found for the function";
     public static final String FUNC_IMPL_FOUND_IN_ABSTRACT_OBJ = "cannot have a body";
     public static final Pattern UNUSED_IMPORT_MODULE_PATTERN = Pattern.compile(
-            "unused import module '([^(v)]*)(?:version (.*))?'");
+            "unused import module '(\\S*)\\s*(?:version\\s(.*))?(.*)'");
     public static final Pattern UNRESOLVED_MODULE_PATTERN = Pattern.compile(
-            "cannot resolve module '([^(v)]*)(?:version (.*))?'");
+            "cannot resolve module '(\\S*)\\s*(?:version\\s(.*))?(.*)'");
     public static final Pattern TAINTED_PARAM_PATTERN = Pattern.compile(
             "tainted value passed to untainted parameter '(.*)'");
     public static final Pattern UNDEFINED_FUNCTION_PATTERN = Pattern.compile("undefined function '(.*)'");

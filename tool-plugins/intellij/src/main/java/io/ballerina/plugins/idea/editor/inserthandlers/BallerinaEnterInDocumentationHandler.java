@@ -50,9 +50,12 @@ public class BallerinaEnterInDocumentationHandler extends EnterHandlerDelegateAd
 
         LogicalPosition caretPos = editor.getCaretModel().getLogicalPosition();
         int prevLine = caretPos.line - 1;
+        if (prevLine < 0) {
+            return Result.Continue;
+        }
+
         String lineString = doc.getText(new TextRange(doc.getLineStartOffset(prevLine),
                 doc.getLineEndOffset(prevLine)));
-
         if (lineString.trim().startsWith(BAL_DOC_PREFIX)) {
             addNewline(editor, doc, lineString, caretPos);
             // Commit the document.

@@ -27,6 +27,9 @@ public interface BallerinaQueryPipeline extends PsiElement {
   List<BallerinaFromClause> getFromClauseList();
 
   @NotNull
+  List<BallerinaLetClause> getLetClauseList();
+
+  @NotNull
   List<BallerinaWhereClause> getWhereClauseList();
 
 }

@@ -55,6 +55,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURE
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.packerina.cmd.Constants.TEST_COMMAND;
@@ -139,6 +140,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--disable-groups", split = ",", description = "test groups to be disabled")
     private List<String> disableGroupList;
 
+    @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
+    private boolean coverage;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
@@ -220,6 +224,12 @@ public class TestCommand implements BLauncherCmd {
                 this.sourceRootPath = findRoot;
             }
         } else if (this.argList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            // TODO: remove this once code cov is implemented to support single bal file
+            if (coverage) {
+                coverage = false;
+                this.outStream.println("Code coverage is not yet supported with single bal files. Ignoring the flag " +
+                        "and continuing the test run...");
+            }
             // when a single bal file is provided
             // Check if path given is an absolute path. Update the root accordingly
             sourcePath = (Paths.get(this.argList.get(0)).isAbsolute()) ?
@@ -332,6 +342,7 @@ public class TestCommand implements BLauncherCmd {
         options.put(COMPILER_PHASE, CompilerPhase.BIR_GEN.toString());
         options.put(LOCK_ENABLED, Boolean.toString(!this.skipLock));
         options.put(TEST_ENABLED, "true");
+        options.put(SKIP_TESTS, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
@@ -356,7 +367,7 @@ public class TestCommand implements BLauncherCmd {
                 // tasks to list groups or execute tests. the 'listGroups' boolean is used to decide whether to
                 // skip the task or to execute
                 .addTask(new ListTestGroupsTask(), !listGroups) // list the available test groups
-                .addTask(new RunTestsTask(args, groupList, disableGroupList), listGroups) // run tests
+                .addTask(new RunTestsTask(coverage, args, groupList, disableGroupList), listGroups) // run tests
                 .build();
 
         taskExecutor.executeTasks(buildContext);

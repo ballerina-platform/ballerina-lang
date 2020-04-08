@@ -15,21 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.values.api.BMap;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
+import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
@@ -40,8 +39,6 @@ import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
  * @since 1.2.0
  */
 public abstract class XMLNonElementItem extends XMLValue {
-    @Override
-    public abstract boolean isEmpty();
 
     @Override
     public boolean isSingleton() {
@@ -57,9 +54,6 @@ public abstract class XMLNonElementItem extends XMLValue {
     public String getElementName() {
         return null;
     }
-
-    @Override
-    public abstract String getTextValue();
 
     @Override
     public String getAttribute(String localName, String namespace) {
@@ -135,18 +129,10 @@ public abstract class XMLNonElementItem extends XMLValue {
 
     @Override
     public XMLValue getItem(int index) {
-        return null;
-    }
-
-    @Override
-    public Object copy(Map<Object, Object> refs) {
-        // XMLContentHolderItem is immutable
-        return this;
-    }
-
-    @Override
-    public Object frozenCopy(Map<Object, Object> refs) {
-        return this;
+        if (index == 0) {
+            return this;
+        }
+        return new XMLSequence();
     }
 
     @Override
@@ -173,28 +159,9 @@ public abstract class XMLNonElementItem extends XMLValue {
     @Override
     public abstract OMNode value();
 
-
-    @Override
-    public void serialize(OutputStream outputStream) {
-        try {
-            if (outputStream instanceof BallerinaXMLSerializer) {
-                ((BallerinaXMLSerializer) outputStream).write(this);
-            } else {
-                (new BallerinaXMLSerializer(outputStream)).write(this);
-            }
-        } catch (Throwable t) {
-            handleXmlException("error occurred during writing the message to the output stream: ", t);
-        }
-    }
-
     @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
-            @Override
-            public BString bStringValue() {
-                return null;
-            }
-
             @Override
             public boolean hasNext() {
                 return false;
@@ -230,16 +197,19 @@ public abstract class XMLNonElementItem extends XMLValue {
 
     @Override
     public void attemptFreeze(Status freezeStatus) {
-
+        if (FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
+            this.freezeStatus = freezeStatus;
+        }
     }
 
     @Override
     public void freezeDirect() {
-
+        this.freezeStatus.setFrozen();
     }
 
     @Override
     public Object freeze() {
+        freezeDirect();
         return this;
     }
 

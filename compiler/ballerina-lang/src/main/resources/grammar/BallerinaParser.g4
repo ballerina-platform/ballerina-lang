@@ -274,7 +274,6 @@ builtInReferenceTypeName
     |   TYPE_FUTURE LT typeName GT
     |   TYPE_XML (LT typeName GT)?
     |   TYPE_JSON
-    |   TYPE_TABLE LT typeName GT
     |   TYPE_DESC LT typeName GT
     |   SERVICE
     |   errorTypeName
@@ -334,7 +333,6 @@ statement
     |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
-    |   queryActionStatement
     ;
 
 variableDefinitionStatement
@@ -364,31 +362,6 @@ recordKey
     :   Identifier
     |   LEFT_BRACKET expression RIGHT_BRACKET
     |   expression
-    ;
-
-tableLiteral
-    :   TYPE_TABLE LEFT_BRACE tableColumnDefinition? (COMMA tableDataArray)? RIGHT_BRACE
-    ;
-
-tableColumnDefinition
-    :   LEFT_BRACE (tableColumn (COMMA tableColumn)*)? RIGHT_BRACE
-    ;
-
-tableColumn
-    :   Identifier? Identifier
-    ;
-
-tableDataArray
-    :   LEFT_BRACKET tableDataList? RIGHT_BRACKET
-    ;
-
-tableDataList
-    :   tableData (COMMA tableData)*
-    |   expressionList
-    ;
-
-tableData
-    :   LEFT_BRACE expressionList RIGHT_BRACE
     ;
 
 listConstructorExpr
@@ -696,8 +669,8 @@ xmlElementFilter
 
 xmlStepExpression
     : DIV xmlElementNames index?
-    | DIV MUL
-    | DIV MUL MUL DIV xmlElementNames
+    | DIV MUL index?
+    | DIV MUL MUL DIV xmlElementNames index?
     ;
 
 xmlElementNames
@@ -807,7 +780,6 @@ expression
     |   listConstructorExpr                                                 # listConstructorExpression
     |   recordLiteral                                                       # recordLiteralExpression
     |   xmlLiteral                                                          # xmlLiteralExpression
-    |   tableLiteral                                                        # tableLiteralExpression
     |   stringTemplateLiteral                                               # stringTemplateLiteralExpression
     |   (annotationAttachment* START)? variableReference                    # variableReferenceExpression
     |   actionInvocation                                                    # actionInvocationExpression
@@ -840,6 +812,7 @@ expression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
     |   queryExpr                                                           # queryExpression
+    |   queryAction                                                         # queryActionExpression
     |   letExpr                                                             # letExpression
     ;
 
@@ -912,7 +885,7 @@ queryExpr
     :   queryPipeline selectClause
     ;
 
-queryActionStatement
+queryAction
     :   queryPipeline doClause
     ;
 
@@ -1097,7 +1070,7 @@ reservedWord
 
 // Markdown documentation
 documentationString
-    :   documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine?
+    :   documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine? deprecatedParametersDocumentationLine? deprecatedAnnotationDocumentationLine?
     ;
 
 documentationLine
@@ -1112,6 +1085,14 @@ returnParameterDocumentationLine
     :   returnParameterDocumentation returnParameterDescriptionLine*
     ;
 
+deprecatedAnnotationDocumentationLine
+    :   deprecatedAnnotationDocumentation deprecateAnnotationDescriptionLine*
+    ;
+
+deprecatedParametersDocumentationLine
+    :   deprecatedParametersDocumentation parameterDocumentationLine+
+    ;
+
 documentationContent
     :   documentationText?
     ;
@@ -1121,6 +1102,10 @@ parameterDescriptionLine
     ;
 
 returnParameterDescriptionLine
+    :   DocumentationLineStart documentationText?
+    ;
+
+deprecateAnnotationDescriptionLine
     :   DocumentationLineStart documentationText?
     ;
 
@@ -1150,6 +1135,14 @@ parameterDocumentation
 
 returnParameterDocumentation
     :   ReturnParameterDocumentationStart documentationText?
+    ;
+
+deprecatedAnnotationDocumentation
+    :   DeprecatedDocumentation
+    ;
+
+deprecatedParametersDocumentation
+    :   DeprecatedParametersDocumentation
     ;
 
 docParameterName
@@ -1214,7 +1207,6 @@ documentationIdentifier
     |   TYPE_MAP
     |   TYPE_JSON
     |   TYPE_XML
-    |   TYPE_TABLE
     |   TYPE_STREAM
     |   TYPE_ANY
     |   TYPE_DESC

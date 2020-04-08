@@ -103,6 +103,7 @@ public class CodeGenerator {
     }
 
     private ClassLoader makeClassLoader(Set<Path> moduleDependencies) {
+
         if (moduleDependencies == null) {
             return Thread.currentThread().getContextClassLoader();
         }

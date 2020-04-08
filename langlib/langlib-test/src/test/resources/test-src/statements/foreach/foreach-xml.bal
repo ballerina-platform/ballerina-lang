@@ -42,7 +42,7 @@ function testXMLWithArityTwo () returns (string) {
 function testXMLWithArityChildren () returns (string) {
     output = "";
     int i = 0;
-    foreach var x in xdata/*.elements() {
+    foreach var x in (xdata/*).elements() {
         if x is xml {
             concatIntString(i, x.toString());
             i += 1;

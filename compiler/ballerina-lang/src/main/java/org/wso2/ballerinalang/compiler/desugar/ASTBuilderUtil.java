@@ -28,7 +28,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BCastOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
@@ -64,7 +63,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
@@ -163,16 +161,9 @@ public class ASTBuilderUtil {
         }
         BLangTypeConversionExpr castExpr = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         castExpr.expr = exprToWrap;
-        castExpr.conversionSymbol = createUnboxValueOpSymbolToAnyType(exprToWrap.type, symTable);
         castExpr.type = symTable.anyType;
         castExpr.targetType = castExpr.type;
         return castExpr;
-    }
-
-    private static BCastOperatorSymbol createUnboxValueOpSymbolToAnyType(BType sourceType, SymbolTable symTable) {
-        List<BType> paramTypes = Lists.of(sourceType, symTable.anyType);
-        BInvokableType opType = new BInvokableType(paramTypes, symTable.anyType, null);
-        return new BCastOperatorSymbol(null, opType, sourceType, null, false, true);
     }
 
     static BLangFunction createFunction(DiagnosticPos pos, String name) {
@@ -418,8 +409,6 @@ public class ASTBuilderUtil {
         conversion.expr = varRef;
         conversion.type = target;
         conversion.targetType = target;
-        conversion.conversionSymbol = (BCastOperatorSymbol) symResolver.resolveCastOperator(varRef, varRef.type,
-                                                                                            target);
         return conversion;
     }
 
@@ -666,13 +655,6 @@ public class ASTBuilderUtil {
         return objectInitNode;
     }
 
-    static BLangTableLiteral createEmptyTableLiteral(DiagnosticPos pos, BType type, BType configType) {
-        final BLangTableLiteral tableLiteralNode = (BLangTableLiteral) TreeBuilder.createTableLiteralNode();
-        tableLiteralNode.pos = pos;
-        tableLiteralNode.type = type;
-        return tableLiteralNode;
-    }
-
     public static BLangIdentifier createIdentifier(DiagnosticPos pos, String value) {
         final BLangIdentifier node = (BLangIdentifier) TreeBuilder.createIdentifierNode();
         node.pos = pos;
@@ -783,7 +765,6 @@ public class ASTBuilderUtil {
     public static BVarSymbol duplicateVarSymbol(BVarSymbol varSymbol) {
         BVarSymbol dupVarSymbol = new BVarSymbol(varSymbol.flags, varSymbol.name,
                 varSymbol.pkgID, varSymbol.type, varSymbol.owner);
-        dupVarSymbol.varIndex = varSymbol.varIndex;
         dupVarSymbol.tainted = varSymbol.tainted;
         dupVarSymbol.closure = varSymbol.closure;
         dupVarSymbol.markdownDocumentation = varSymbol.markdownDocumentation;
@@ -815,6 +796,7 @@ public class ASTBuilderUtil {
         dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
         dupFuncSymbol.scope = invokableSymbol.scope;
         dupFuncSymbol.tag = invokableSymbol.tag;
+        dupFuncSymbol.schedulerPolicy = invokableSymbol.schedulerPolicy;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
         dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),

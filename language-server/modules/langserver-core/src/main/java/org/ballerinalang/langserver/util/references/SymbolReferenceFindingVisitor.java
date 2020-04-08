@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -66,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
@@ -116,10 +118,12 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -138,15 +142,15 @@ import java.util.stream.Collectors;
  */
 public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
-    private LSContext lsContext;
+    protected LSContext lsContext;
     protected SymbolReferencesModel symbolReferences;
-    private String tokenName;
+    protected String tokenName;
     protected int cursorLine;
     protected int cursorCol;
     protected boolean currentCUnitMode;
-    private String pkgName;
-    private boolean doNotSkipNullSymbols = false;
-    private List<TopLevelNode> topLevelNodes = new ArrayList<>();
+    protected String pkgName;
+    protected boolean doNotSkipNullSymbols = false;
+    protected List<TopLevelNode> topLevelNodes = new ArrayList<>();
     private List<BLangFunction> workerLambdas = new ArrayList<>();
     private List<BLangTypeDefinition> anonTypeDefinitions = new ArrayList<>();
     private HashMap<BSymbol, DiagnosticPos> workerVarDefMap = new HashMap<>();
@@ -157,7 +161,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         Boolean bDoNotSkipNullSymbols = lsContext.get(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS);
         this.doNotSkipNullSymbols = (bDoNotSkipNullSymbols == null) ? false : bDoNotSkipNullSymbols;
 
-        this.symbolReferences = lsContext.get(NodeContextKeys.REFERENCES_KEY);
+        this.symbolReferences = lsContext.get(ReferencesKeys.REFERENCES_KEY);
         this.tokenName = lsContext.get(NodeContextKeys.NODE_NAME_KEY);
         TextDocumentPositionParams position = lsContext.get(DocumentServiceKeys.POSITION_KEY);
         if (position == null) {
@@ -665,7 +669,12 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         if (invocationExpr.getName().getValue().equals(this.tokenName)) {
             // Ex: int test = returnIntFunc() - returnInt() or e.getName() is a BLangInvocation and name is getName
             DiagnosticPos symbolPos = (DiagnosticPos) invocationExpr.getName().getPosition();
-            this.addSymbol(invocationExpr, invocationExpr.symbol, false, symbolPos);
+            if (invocationExpr.symbol != null && invocationExpr.type.tsymbol != null
+                    && invocationExpr.symbol.type.tag == TypeTags.ERROR) {
+                this.addSymbol(invocationExpr, invocationExpr.type.tsymbol, false, symbolPos);
+            } else {
+                this.addSymbol(invocationExpr, invocationExpr.symbol, false, symbolPos);
+            }
         }
         invocationExpr.requiredArgs.forEach(this::acceptNode);
         invocationExpr.argExprs.forEach(this::acceptNode);
@@ -889,6 +898,19 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangQueryAction queryAction) {
+        queryAction.fromClauseList.forEach(this::acceptNode);
+        queryAction.whereClauseList.forEach(this::acceptNode);
+        queryAction.getLetClauseNode().forEach(this::acceptNode);
+        this.acceptNode(queryAction.doClause);
+    }
+
+    @Override
+    public void visit(BLangDoClause doClause) {
+        this.acceptNode(doClause.body);
+    }
+
+    @Override
     public void visit(BLangFromClause fromClause) {
         this.acceptNode(fromClause.collection);
         this.acceptNode((BLangNode) fromClause.variableDefinitionNode);
@@ -917,7 +939,13 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.acceptNode(letExpr.expr);
     }
 
-    private void acceptNode(BLangNode node) {
+    @Override
+    public void visit(BLangStreamType streamType) {
+        this.acceptNode(streamType.constraint);
+        this.acceptNode(streamType.error);
+    }
+
+    protected void acceptNode(BLangNode node) {
         if (node == null) {
             return;
         }

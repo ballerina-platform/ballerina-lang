@@ -1,0 +1,32 @@
+{
+    "arguments": {
+        "node.line": 20,
+        "node.column": 24
+    },
+    "expected": {
+        "result": {
+            "edit": {
+                "documentChanges": [
+                    {
+                        "edits": [
+                            {
+                                "range": {
+                                    "start": {
+                                        "line": 27,
+                                        "character": 0
+                                    },
+                                    "end": {
+                                        "line": 27,
+                                        "character": 0
+                                    }
+                                },
+                                "newText": "\n\nfunction callEndpoint(int a, int b, http:Client c) returns http:Response {\n    return new http:Response();\n}\n"
+                            }
+                        ]
+                    }
+                ]
+            }
+        },
+        "jsonrpc": "2.0"
+    }
+}

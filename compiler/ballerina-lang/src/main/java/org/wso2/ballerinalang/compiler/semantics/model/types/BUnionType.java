@@ -23,7 +23,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -90,13 +89,6 @@ public class BUnionType extends BType implements UnionType {
                 ? "(" + joiner.toString() + ")" : joiner.toString();
         boolean hasNilType = this.memberTypes.stream().anyMatch(type -> type.tag == TypeTags.NIL);
         return (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
-    }
-
-    @Override
-    public String getDesc() {
-        StringBuilder sig = new StringBuilder(TypeDescriptor.SIG_UNION + memberTypes.size() + ";");
-        memberTypes.forEach(memberType -> sig.append(memberType.getDesc()));
-        return sig.toString();
     }
 
     public void setNullable(boolean nullable) {

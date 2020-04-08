@@ -43,6 +43,12 @@ public class BallerinaDocumentationStringImpl extends ASTWrapperPsiElement imple
   }
 
   @Override
+  @Nullable
+  public BallerinaDeprecatedAnnotationDocumentationLine getDeprecatedAnnotationDocumentationLine() {
+    return findChildByClass(BallerinaDeprecatedAnnotationDocumentationLine.class);
+  }
+
+  @Override
   @NotNull
   public List<BallerinaDocumentationLine> getDocumentationLineList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaDocumentationLine.class);

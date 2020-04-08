@@ -31,8 +31,7 @@ public class TypeTags {
     // All the above types are values type
     public static final int JSON = BOOLEAN + 1;
     public static final int XML = JSON + 1;
-    public static final int TABLE = XML + 1;
-    public static final int NIL = TABLE + 1;
+    public static final int NIL = XML + 1;
     public static final int ANYDATA = NIL + 1;
     public static final int RECORD = ANYDATA + 1;
     public static final int TYPEDESC = RECORD + 1;
@@ -54,16 +53,88 @@ public class TypeTags {
     public static final int ITERATOR = ERROR + 1;
     public static final int TUPLE = ITERATOR + 1;
     public static final int FUTURE = TUPLE + 1;
-    public static final int INTERMEDIATE_COLLECTION = FUTURE + 1;
-    public static final int FINITE = INTERMEDIATE_COLLECTION + 1;
+    public static final int FINITE = FUTURE + 1;
     public static final int OBJECT = FINITE + 1;
+    public static final int SERVICE = OBJECT;
     public static final int BYTE_ARRAY = OBJECT + 1;
     public static final int FUNCTION_POINTER = BYTE_ARRAY + 1;
     public static final int HANDLE = FUNCTION_POINTER + 1;
-    public static final int TYPE_PARAM = HANDLE + 1;
 
-    public static final int SERVICE = OBJECT;
+    // Subtypes
+    public static final int SIGNED32_INT = HANDLE + 1;
+    public static final int SIGNED16_INT = SIGNED32_INT + 1;
+    public static final int SIGNED8_INT = SIGNED16_INT + 1;
+    public static final int UNSIGNED32_INT = SIGNED8_INT + 1;
+    public static final int UNSIGNED16_INT = UNSIGNED32_INT + 1;
+    public static final int UNSIGNED8_INT = UNSIGNED16_INT + 1;
+    public static final int CHAR_STRING = UNSIGNED8_INT + 1;
+    public static final int XML_ELEMENT = CHAR_STRING + 1;
+    public static final int XML_PI = XML_ELEMENT + 1;
+    public static final int XML_COMMENT = XML_PI + 1;
+    public static final int XML_TEXT = XML_COMMENT + 1;
 
     private TypeTags() {
+
+    }
+
+    public static boolean isIntegerTypeTag(int tag) {
+
+        // TODO : Fix byte type. Ideally, byte belongs to here. But we have modeled it differently.
+        switch (tag) {
+            case INT:
+            case SIGNED32_INT:
+            case SIGNED16_INT:
+            case SIGNED8_INT:
+            case UNSIGNED32_INT:
+            case UNSIGNED16_INT:
+            case UNSIGNED8_INT:
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean isSignedIntegerTypeTag(int tag) {
+
+        switch (tag) {
+            case INT:
+            case SIGNED32_INT:
+            case SIGNED16_INT:
+            case SIGNED8_INT:
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean isXMLTypeTag(int tag) {
+        switch (tag) {
+            case XML:
+            case XML_ELEMENT:
+            case XML_PI:
+            case XML_COMMENT:
+            case XML_TEXT:
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean isXMLNonSequenceType(int tag) {
+        switch (tag) {
+            case XML_ELEMENT:
+            case XML_PI:
+            case XML_COMMENT:
+            case XML_TEXT:
+                return true;
+        }
+        return false;
+    }
+
+    public static boolean isStringTypeTag(int tag) {
+
+        switch (tag) {
+            case STRING:
+            case CHAR_STRING:
+                return true;
+        }
+        return false;
     }
 }

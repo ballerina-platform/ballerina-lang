@@ -60,8 +60,8 @@ public class IterableOperationsTests {
                 " (boolean)', found 'function (int,string) returns (boolean)'", 16, 14);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'map<string>', found " +
                 "'map<[string,string]>'", 31, 21);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'any'", 35, 18);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'any'", 38, 13);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'any'", 35, 27);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'any'", 38, 22);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int', found '()'", 46, 9);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected '[other,other]', found 'string[]'",
                 48, 18);
@@ -76,7 +76,7 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) " +
                 "returns ()', found 'int'", 58, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected '[string,string,string]', found " +
-                "'string'", 63, 5);
+                "'string'", 63, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error))" +
                 " returns ()', found 'function () returns ()'", 64, 15);
         BAssertUtil.validateError(negative, index++, "variable assignment is required", 65, 5);
@@ -95,7 +95,7 @@ public class IterableOperationsTests {
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'any[]'", 73, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 80, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'int[]', found 'string[]'", 89, 15);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'any'", 99, 18);
+        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'any'", 99, 27);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'map'", 103, 16);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'boolean', found 'int'", 111, 20);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'float', found 'int'", 120, 39);

@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-http:Client cachingEP = new("http://localhost:9240", { cache: { isShared: true } });
+http:Client cachingEP = new("http://localhost:9240", { cache: { enabled: true, isShared: true } });
 int cachingProxyHitcount = 0;
 
 @http:ServiceConfig {

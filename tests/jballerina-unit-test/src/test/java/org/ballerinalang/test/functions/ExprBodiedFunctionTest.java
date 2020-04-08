@@ -104,6 +104,7 @@ public class ExprBodiedFunctionTest {
                 {"testReturningXML"},
                 {"testReturningStringTemplate"},
                 {"testReturningServiceConstructors"},
+                {"testLetExprAsExprBody"},
         };
     }
 }

@@ -23,6 +23,15 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaXmlTypeName extends PsiElement {
 
+  @Nullable
+  BallerinaTypeName getTypeName();
+
+  @Nullable
+  PsiElement getGt();
+
+  @Nullable
+  PsiElement getLt();
+
   @NotNull
   PsiElement getXml();
 

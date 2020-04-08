@@ -1,5 +1,6 @@
 import ballerina/lang.'float as floats;
 import ballerina/lang.'int as ints;
+import ballerina/lang.'xml;
 
 int add = 0;
 int index = 0;
@@ -129,7 +130,7 @@ function concatString([string, string] v) returns string {
 }
 
 function xmlTest() returns [int, int, xml] {
-    xml xdata = xml `<p:person xmlns:p="foo" xmlns:q="bar">
+    'xml:Element xdata = <'xml:Element> xml `<p:person xmlns:p="foo" xmlns:q="bar">
         <p:name>bob</p:name>
         <p:address>
             <p:city>NY</p:city>
@@ -137,18 +138,20 @@ function xmlTest() returns [int, int, xml] {
         </p:address>
         <q:ID>1131313</q:ID>
     </p:person>`;
-    int nodeCount = xdata/*.length();
-    int elementCount = xdata/*.elements().length();
+    int nodeCount = (xdata/*).length();
+    int elementCount = (xdata/*).elements().length();
 
     index = -1;
-    xml m = xdata.getChildren().elements()[1].getChildren().elements()
-                 .'map(function (xml|string x) returns xml|string {
-                            index += 1;
-                            if x is xml {
-                                return x;
-                            }
-                            return "*ws*";
-                      });
+    xml ch = xdata.getChildren().elements()[1];
+    'xml:Element che = <'xml:Element> ch;
+    xml m = che.getChildren().elements()
+                             .'map(function ('xml:Element|'xml:Text x) returns ('xml:Element|'xml:Text) {
+                                index += 1;
+                                if x is 'xml:Element {
+                                    return x;
+                                }
+                                return "*ws*";
+                     });
     return [nodeCount, elementCount, m];
 }
 
