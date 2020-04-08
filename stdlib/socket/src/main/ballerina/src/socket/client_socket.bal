@@ -18,19 +18,10 @@ import ballerina/java;
 
 # Represents socket client and related remote functions.
 #
-# + remotePort - the remote port number to which this socket is connected
-# + localPort - the local port number to which this socket is bound
-# + remoteAddress - the remote IP address string in textual presentation to which the socket is connected
-# + localAddress - the local IP address string in textual presentation to which the socket is bound
-# + id - a unique identifier to identify each client
+# + config - The configurations for the socket client endpoint
 public type Client client object {
 
     private ClientConfig? config = ();
-    public int remotePort = 0;
-    public int localPort = 0;
-    public string? remoteAddress = ();
-    public string? localAddress = ();
-    public int id = 0;
 
     public function __init(ClientConfig? clientConfig) {
         if (clientConfig is ClientConfig) {
@@ -48,9 +39,10 @@ public type Client client object {
     }
 
     # Writes given data to the client socket.
+    # ```ballerina int|Error writeResult = socketClient:write(payloadByte); ```
     #
-    # + content - - the content that wish to send to the client socket
-    # + return - - number of bytes got written or an error if encounters an error while writing
+    # + content - The content that wish to send to the client socket
+    # + return - The number of bytes got written or an `Error` if encounters an error while writing
     public remote function write(byte[] content) returns int|Error {
         return externWrite(self, content);
     }
@@ -60,41 +52,46 @@ public type Client client object {
     # In the case of the connection being closed by the client, then return either -1 or the data
     # that is currently available in the buffer.
     # Number of bytes returned will be < 0 if the client closes the connection.
+    # ```ballerina [byte[], int]|ReadTimedOutError result = socketClient->read(); ```
     #
-    # + length - - Positive integer. Represents the number of bytes which should be read
-    # + return - - Content as a byte array and the number of bytes read or an error if encounters an error while reading
+    # + length - Represents the number of bytes which should be read
+    # + return - Content as a byte array and the number of bytes read or an `Error` if encounters an error while reading
     public remote function read(public int length = -100) returns @tainted [byte[], int]|ReadTimedOutError {
         return externRead(self, length);
     }
 
     # Closes the client socket connection.
+    # ```ballerina Error? closeResult = socketClient->close(); ```
     #
-    # + return - - an error if encounters an error while closing the connection or returns nil otherwise
+    # + return - An `Error` if encounters an error while closing the connection or `nil`
     public remote function close() returns Error? {
         return closeClient(self);
     }
 
     # Shutdowns the further read from socket.
+    # ```ballerina Error? result = socketClient->shutdownRead(); ```
     #
-    # + return - an error if encounters an error while shutdown the read from socket or returns nil otherwise
+    # + return - An `Error` if encounters an error while shutdown the read from socket or `nil`
     public remote function shutdownRead() returns Error? {
         return externShutdownRead(self);
     }
 
     # Shutdowns the further write from socket.
-    #
-    # + return - an error if encounters an error while shutdown the write from socket or returns nil otherwise
+    # ```ballerina Error? result = socketClient->shutdownWrite(); ```
+    # + return - An `Error` if encounters an error while shutdown the write from socket or `nil`
     public remote function shutdownWrite() returns Error? {
         return externShutdownWrite(self);
     }
 };
 
-# Configuration for socket client endpoint.
+# Configurations for socket client endpoint.
 #
-# + host - Target service URL
-# + port - Port number of the remote service
-# + readTimeoutInMillis - Socket read timeout value to be used in milliseconds. Default is 300000 milliseconds (5 minutes)
-# + callbackService - The callback service for the client. Resources in this service gets called on receipt of messages from the server.
+# + host - The target service URL
+# + port - The port number of the remote service
+# + readTimeoutInMillis - The socket read timeout value to be used in milliseconds. If this is not set,
+#                         the default value of 300000 milliseconds (5 minutes) will be used.
+# + callbackService - The callback service for the client. Resources in this service gets called on receipt
+#                     of messages from the server.
 public type ClientConfig record {|
     string host;
     int port;

@@ -18,7 +18,6 @@ import ballerina/lang.'object as lang;
 import ballerina/java;
 
 # Represents service endpoint where socket server service registered and start.
-#
 public type Listener object {
 
     *lang:Listener;
@@ -54,8 +53,9 @@ public type Listener object {
 
 # Represents the socket server configuration.
 #
-# + interface - the interface that server with to bind
-# + readTimeoutInMillis - Socket read timeout value to be used in milliseconds. Default is 300000 milliseconds (5 minutes)
+# + interface - The interface for the server with to bind
+# + readTimeoutInMillis - The socket read timeout value to be used in milliseconds. If this is not set,
+#                         the default value of 300000 milliseconds (5 minutes) will be used.
 public type ListenerConfig record {|
     string? interface = ();
     int readTimeoutInMillis = 300000;
