@@ -11,6 +11,12 @@ public type {{#getSimpleName this ""}}{{/getSimpleName}} object {
     *JObject;
 
     public function __init(handle obj) {
+
         self.jObj = obj;
+    }
+
+    public function toString() returns string {
+
+        return jObjToString(self.jObj);
     }
 };

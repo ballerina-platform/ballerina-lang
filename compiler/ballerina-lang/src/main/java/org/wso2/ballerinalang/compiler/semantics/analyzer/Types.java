@@ -480,22 +480,29 @@ public class Types {
             return true;
         }
 
-        if (TypeTags.isXMLTypeTag(sourceTag) && targetTag == TypeTags.XML) {
-            return true;
+        if (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag)) {
+            return isXMLTypeAssignable(source, target, unresolvedTypes);
         }
 
         if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING) {
             return true;
         }
 
-        if (TypeTags.isXMLTypeTag(sourceTag) && targetTag == TypeTags.XML) {
+        if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.XML_TEXT) {
             return true;
         }
 
-        if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING) {
+        if (sourceTag == TypeTags.STRING && targetTag == TypeTags.XML_TEXT) {
             return true;
         }
 
+        if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.STRING) {
+            return true;
+        }
+
+        if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.CHAR_STRING) {
+            return true;
+        }
         if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ERROR) {
             return isErrorTypeAssignable((BErrorType) source, (BErrorType) target, unresolvedTypes);
         } else if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ANY) {
@@ -667,6 +674,25 @@ public class Types {
         unresolvedTypes.add(pair);
         return isAssignable(source.reasonType, target.reasonType, unresolvedTypes) && 
                 isAssignable(source.detailType, target.detailType, unresolvedTypes);
+    }
+
+    // TODO: Recheck this to support finite types
+    private boolean isXMLTypeAssignable(BType sourceType, BType targetType, Set<TypePair> unresolvedTypes) {
+        int sourceTag = sourceType.tag;
+        int targetTag = targetType.tag;
+
+        if (targetTag == TypeTags.XML) {
+            BXMLType target = (BXMLType) targetType;
+            if (target.constraint != null) {
+                if (TypeTags.isXMLNonSequenceType(sourceTag)) {
+                    return isAssignable(sourceType, target.constraint, unresolvedTypes);
+                }
+                BXMLType source = (BXMLType) sourceType;
+                return isAssignable(source.constraint, target.constraint, unresolvedTypes);
+            }
+            return true;
+        }
+        return sourceTag == targetTag;
     }
 
     private boolean isTupleTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {

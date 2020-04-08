@@ -45,6 +45,8 @@ import javax.mail.internet.MimeMultipart;
  */
 public class EmailAccessUtil {
 
+    private static final BArrayType stringArrayType = new BArrayType(BTypes.typeString);
+
     /**
      * Generates Properties object using the passed MapValue.
      *
@@ -150,7 +152,7 @@ public class EmailAccessUtil {
     }
 
     private static BArray getAddressBArrayList(Address[] addresses) {
-        BArray addressArrayValue = BValueCreator.createArrayValue(new BArrayType(BTypes.typeString));
+        BArray addressArrayValue = BValueCreator.createArrayValue(stringArrayType);
         if (addresses != null) {
             for (Address address: addresses) {
                 addressArrayValue.append(address.toString());

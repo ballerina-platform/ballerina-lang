@@ -285,7 +285,7 @@ public class Generator {
                     defaultValue = param.getInitialExpression().toString();
                 }
                 DefaultableVarible field = new DefaultableVarible(name, desc,
-                        Type.fromTypeNode(param.typeNode, module.id), defaultValue);
+                        Type.fromTypeNode(param.typeNode, param.type, module.id), defaultValue);
                 fields.add(field);
             }
         }

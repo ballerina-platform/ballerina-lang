@@ -118,32 +118,19 @@ public class CloneOperationTest {
         Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testCloneXML() {
         BValue[] results = BRunUtil.invoke(result, "cloneXML");
-
-        testCloneOnXMLs((BXMLItem) results[0], "Charlos", 123, 21);
-        testCloneOnXMLs((BXMLItem) results[1], "Alex", 123, 21);
-        testCloneOnXMLs((BXMLItem) results[2], "Alex", 5000, 21);
-        Assert.assertTrue(results[1] != results[2] && results[0] != results[1] && results[0] != results[2]);
+        testCloneOnXMLs((BXMLItem) results[0], "Charlos");
+        testCloneOnXMLs((BXMLItem) results[1], "Alex");
+        Assert.assertTrue(results[0] != results[1]);
     }
 
-    private void testCloneOnXMLs(BXMLItem bxmlItem, String name, int id, int age) {
-
+    private void testCloneOnXMLs(BXMLItem bxmlItem, String name) {
         BXMLSequence sequence = (BXMLSequence) bxmlItem.children("name");
         BXMLItem firstItem = (BXMLItem) sequence.value().getRefValue(0);
         BString textValue = firstItem.getTextValue();
         Assert.assertEquals(textValue.stringValue(), name);
-
-        sequence = (BXMLSequence) bxmlItem.children("id");
-        firstItem = (BXMLItem) sequence.value().getRefValue(0);
-        textValue = firstItem.getTextValue();
-        Assert.assertEquals(textValue.intValue(), id);
-
-        sequence = (BXMLSequence) bxmlItem.children("age");
-        firstItem = (BXMLItem) sequence.value().getRefValue(0);
-        textValue = firstItem.getTextValue();
-        Assert.assertEquals(textValue.intValue(), age);
     }
 
     @Test

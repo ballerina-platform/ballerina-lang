@@ -39,7 +39,7 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "redeclared argument 'a'", 17, 19);
         BAssertUtil.validateError(result, i++, "undefined defaultable parameter 'c'", 21, 19);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'int', found 'float'", 29, 20);
-        BAssertUtil.validateError(result, i++, "incompatible types: expected 'json', found 'xml'", 40, 61);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'json', found 'xml:Text'", 40, 61);
         BAssertUtil.validateError(result, i++, "missing required parameter 'a' in call to " +
                 "'functionWithOnlyPositionalParams'()", 57, 9);
         BAssertUtil.validateError(result, i++, "missing required parameter 'b' in call to " +

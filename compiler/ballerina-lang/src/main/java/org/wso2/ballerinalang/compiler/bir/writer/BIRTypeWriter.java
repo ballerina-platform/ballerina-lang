@@ -363,7 +363,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BXMLType bxmlType) {
-        // Nothing to do
+        writeTypeCpIndex(bxmlType.constraint);
     }
 
     public void writeMarkdownDocAttachment(ByteBuf buf, MarkdownDocAttachment markdownDocAttachment) {

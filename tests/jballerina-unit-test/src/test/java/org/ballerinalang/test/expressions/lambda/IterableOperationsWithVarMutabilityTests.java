@@ -105,7 +105,7 @@ public class IterableOperationsWithVarMutabilityTests {
         Assert.assertEquals(returns[2].stringValue(), "{\"a\":\"aA\", \"e\":\"eE\"}");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testXML() {
         BValue[] returns = BRunUtil.invoke(compileResult, "xmlTest");
         Assert.assertEquals(returns.length, 2);
@@ -158,7 +158,7 @@ public class IterableOperationsWithVarMutabilityTests {
                 "\"types\":[\"street_number\"]}");
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testWithComplexXML() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testWithComplexXML");
         Assert.assertNotNull(returns);

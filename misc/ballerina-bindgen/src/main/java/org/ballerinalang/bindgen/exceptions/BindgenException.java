@@ -19,6 +19,8 @@ package org.ballerinalang.bindgen.exceptions;
 
 /**
  * Indicate the errors thrown by the Ballerina Bindgen CLI tool.
+ *
+ * @since 1.2.0
  */
 public class BindgenException extends Exception {
 
@@ -28,7 +30,6 @@ public class BindgenException extends Exception {
      * @param message the detail message
      */
     public BindgenException(String message) {
-
         super(message);
     }
 
@@ -39,7 +40,6 @@ public class BindgenException extends Exception {
      * @param cause   the cause
      */
     public BindgenException(String message, Throwable cause) {
-
         super(message, cause);
     }
 }

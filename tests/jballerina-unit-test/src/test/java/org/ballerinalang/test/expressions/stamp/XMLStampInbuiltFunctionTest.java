@@ -42,7 +42,7 @@ public class XMLStampInbuiltFunctionTest {
 
     //----------------------------- XML Stamp Test cases ------------------------------------------------------
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testStampXMLToXML() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampXMLToXML");
@@ -53,7 +53,7 @@ public class XMLStampInbuiltFunctionTest {
         Assert.assertEquals(xmlValue.getType().getClass(), BXMLType.class);
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testStampXMLToAnydata() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampXMLToAnydata");
