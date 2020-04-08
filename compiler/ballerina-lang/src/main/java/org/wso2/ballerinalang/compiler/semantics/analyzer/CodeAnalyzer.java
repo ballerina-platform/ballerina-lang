@@ -174,6 +174,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -2329,6 +2330,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         analyzeTypeNode(streamType.constraint, env);
         analyzeTypeNode(streamType.error, env);
+    }
+
+    public void visit(BLangTableType tableType) {
+
+        analyzeTypeNode(tableType.constraint, env);
+
+        if (!tableType.isTableKeySpecifier) {
+            analyzeTypeNode(tableType.tableKeyTypeConstraint.keyType, env);
+        }
     }
 
     public void visit(BLangErrorType errorType) {

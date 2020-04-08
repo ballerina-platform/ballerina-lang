@@ -46,6 +46,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVaria
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -168,6 +170,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -1420,6 +1423,34 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.restFieldType = clone(source.restFieldType);
         cloneBLangStructureTypeNode(source, clone);
         cloneBLangType(source, clone);
+    }
+
+    @Override
+    public void visit(BLangTableType source) {
+
+        BLangTableType clone = new BLangTableType();
+        source.cloneRef = clone;
+        clone.tableKeySpecifier = clone(source.tableKeySpecifier);
+        clone.tableKeyTypeConstraint = clone(source.tableKeyTypeConstraint);
+        clone.isTableKeySpecifier = source.isTableKeySpecifier;
+        clone.constraint = clone(source.constraint);
+        cloneBLangType(source, clone);
+    }
+
+    @Override
+    public void visit(BLangTableKeySpecifier source) {
+
+        BLangTableKeySpecifier clone = new BLangTableKeySpecifier();
+        source.cloneRef = clone;
+        clone.fieldNameIdentifierList = cloneList(source.fieldNameIdentifierList);
+    }
+
+    @Override
+    public void visit(BLangTableKeyTypeConstraint source) {
+
+        BLangTableKeyTypeConstraint clone = new BLangTableKeyTypeConstraint();
+        source.cloneRef = clone;
+        clone.keyType = clone(source.keyType);
     }
 
     @Override

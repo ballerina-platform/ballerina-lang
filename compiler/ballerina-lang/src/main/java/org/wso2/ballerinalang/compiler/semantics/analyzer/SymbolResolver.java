@@ -51,12 +51,15 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -70,6 +73,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -891,6 +895,44 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
     }
 
+    public void visit(BLangStreamType streamTypeNode) {
+        BType type = resolveTypeNode(streamTypeNode.type, env);
+        BType constraintType = resolveTypeNode(streamTypeNode.constraint, env);
+        BType error = streamTypeNode.error != null ? resolveTypeNode(streamTypeNode.error, env) : null;
+        // If the constrained type is undefined, return noType as the type.
+        if (constraintType == symTable.noType) {
+            resultType = symTable.noType;
+            return;
+        }
+
+        BType streamType = new BStreamType(TypeTags.STREAM, constraintType, error, null);
+        BTypeSymbol typeSymbol = type.tsymbol;
+        streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
+                typeSymbol.pkgID, streamType, typeSymbol.owner);
+        resultType = streamType;
+    }
+
+    public void visit(BLangTableType tableTypeNode) {
+        BType constraintType = resolveTypeNode(tableTypeNode.constraint, env);
+        BTypeSymbol typeSymbol = constraintType.tsymbol;
+        BTypeSymbol tableTypeSymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
+                typeSymbol.pkgID, constraintType, typeSymbol.owner);
+        BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, tableTypeSymbol);
+        if (!tableTypeNode.isTableKeySpecifier) {
+            tableType.keyTypeConstraint = resolveTypeNode(tableTypeNode.tableKeyTypeConstraint.keyType, env);
+        } else {
+            tableType.isTableKeySpecifier = true;
+            BLangTableKeySpecifier tableKeySpecifier = tableTypeNode.tableKeySpecifier;
+            List<String> fieldNameList = new ArrayList<>();
+            for (BLangIdentifier identifier : tableKeySpecifier.fieldNameIdentifierList) {
+                fieldNameList.add(identifier.value);
+            }
+            tableType.fieldNameList = fieldNameList;
+        }
+
+        resultType = tableType;
+    }
+
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE,
                 Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
@@ -985,23 +1027,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                                                            typeSymbol.pkgID, constrainedType, typeSymbol.owner);
         resultType = constrainedType;
-    }
-
-    public void visit(BLangStreamType streamTypeNode) {
-        BType type = resolveTypeNode(streamTypeNode.type, env);
-        BType constraintType = resolveTypeNode(streamTypeNode.constraint, env);
-        BType error = streamTypeNode.error != null ? resolveTypeNode(streamTypeNode.error, env) : null;
-        // If the constrained type is undefined, return noType as the type.
-        if (constraintType == symTable.noType) {
-            resultType = symTable.noType;
-            return;
-        }
-
-        BType streamType = new BStreamType(TypeTags.STREAM, constraintType, error, null);
-        BTypeSymbol typeSymbol = type.tsymbol;
-        streamType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                typeSymbol.pkgID, streamType, typeSymbol.owner);
-        resultType = streamType;
     }
 
     public void visit(BLangUserDefinedType userDefinedTypeNode) {

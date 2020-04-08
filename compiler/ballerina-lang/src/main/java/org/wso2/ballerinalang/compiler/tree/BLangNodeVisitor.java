@@ -150,6 +150,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -233,6 +234,14 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangTableKeySpecifier tableKeySpecifierNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangTableKeyTypeConstraint tableKeyTypeConstraint) {
         throw new AssertionError();
     }
 
@@ -610,6 +619,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangStreamType streamType) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangTableType tableType) {
         throw new AssertionError();
     }
 
