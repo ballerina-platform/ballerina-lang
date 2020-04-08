@@ -70,7 +70,8 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] STATEMENTS = { ParserRuleContext.CLOSE_BRACE,
             ParserRuleContext.ASSIGNMENT_STMT, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK,
             ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CALL_STMT, ParserRuleContext.PANIC_STMT,
-            ParserRuleContext.CONTINUE_STATEMENT, ParserRuleContext.BREAK_STATEMENT, ParserRuleContext.RETURN_STMT };
+            ParserRuleContext.CONTINUE_STATEMENT, ParserRuleContext.BREAK_STATEMENT, ParserRuleContext.RETURN_STMT,
+            ParserRuleContext.COMPOUND_ASSIGNMENT_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -1223,6 +1224,7 @@ public class BallerinaParserErrorHandler {
             case LISTENER_DECL:
             case CONSTANT_DECL:
             case NIL_TYPE_DESCRIPTOR:
+            case COMPOUND_ASSIGNMENT_STMT:
                 startContext(currentCtx);
                 break;
             default:
@@ -1259,6 +1261,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.CLOSE_BRACE;
             case ASSIGN_OP:
                 return getNextRuleForEqualOp();
+            case COMPOUND_BINARY_OPERATOR:
+                return ParserRuleContext.ASSIGN_OP;
             case CLOSE_BRACE:
                 return getNextRuleForCloseBrace(nextLookahead);
             case CLOSE_PARENTHESIS:
@@ -1332,6 +1336,8 @@ public class BallerinaParserErrorHandler {
                 }
                 return ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR;
             case ASSIGNMENT_STMT:
+                return ParserRuleContext.VARIABLE_NAME;
+            case COMPOUND_ASSIGNMENT_STMT:
                 return ParserRuleContext.VARIABLE_NAME;
             case VAR_DECL_STMT:
                 return ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR;
@@ -1697,7 +1703,11 @@ public class BallerinaParserErrorHandler {
                 // Currently processing a required param, but now switch
                 // to a defaultable param
                 switchContext(ParserRuleContext.DEFAULTABLE_PARAM);
-                return ParserRuleContext.ASSIGN_OP;
+                if (isCompoundBinaryOperator(nextToken.kind)) {
+                    return ParserRuleContext.COMPOUND_BINARY_OPERATOR;        
+                } else {
+                    return ParserRuleContext.ASSIGN_OP;
+                }
             }
         } else if (parentCtx == ParserRuleContext.DEFAULTABLE_PARAM) {
             if (isEndOfParametersList(nextToken)) {
@@ -1716,6 +1726,24 @@ public class BallerinaParserErrorHandler {
             return ParserRuleContext.OBJECT_FIELD_RHS;
         } else {
             throw new IllegalStateException();
+        }
+    }
+
+    /**
+     * Check whether the given token kind is a compound binary operator.
+     * 
+     * @param kind STToken kind
+     * @return <code>true</code> if the token kind refers to a binary operator. <code>false</code> otherwise
+     */
+    private boolean isCompoundBinaryOperator(SyntaxKind kind) {
+        switch (kind) {
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+            case SLASH_TOKEN:
+            case ASTERISK_TOKEN:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -1816,6 +1844,7 @@ public class BallerinaParserErrorHandler {
             case CONTINUE_STATEMENT:
             case BREAK_STATEMENT:
             case RETURN_STMT:
+            case COMPOUND_ASSIGNMENT_STMT:
                 return true;
             default:
                 return false;
