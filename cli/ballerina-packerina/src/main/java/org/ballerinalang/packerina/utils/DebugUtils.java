@@ -31,15 +31,11 @@ public class DebugUtils {
      * @return debug arguments as a string
      */
     public static String getDebugArgs(BuildContext context) {
-        if (!getJavaVersion().startsWith(COMPATIBLE_JRE_VERSION)) {
+        String javaVersion = System.getProperty(JAVA_VERSION_PROP);
+        if (javaVersion != null && !javaVersion.startsWith(COMPATIBLE_JRE_VERSION)) {
             context.err().printf("WARNING: Incompatible JRE version '%s' found. Ballerina program debugging supports " +
-                    "on JRE version '%s'%n", getJavaVersion(), COMPATIBLE_JRE_VERSION);
+                    "on JRE version '%s'%n", javaVersion, COMPATIBLE_JRE_VERSION);
         }
         return String.format("%s,address=%s", DEBUG_ARGS_JAVA8, System.getProperty(SYSTEM_PROP_BAL_DEBUG));
-    }
-
-    private static String getJavaVersion() {
-        String javaVersion = System.getProperty(JAVA_VERSION_PROP);
-        return javaVersion != null ? javaVersion : "";
     }
 }
