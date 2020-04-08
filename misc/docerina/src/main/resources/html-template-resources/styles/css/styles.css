@@ -341,7 +341,13 @@ body .content-wrapper .constants .method-list .param-sum .param-name {
   padding-right: 5px;
   line-height: 1.5em;
   font-weight: 500;
-  min-width: 128px;
+  width: 180px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+body .content-wrapper .constants .method-list .param-sum .param-name:hover {
+  overflow: visible;
+  white-space: normal;
   word-break: break-all;
 }
 body .content-wrapper .constants .method-list .param-sum .param-details {
@@ -531,8 +537,8 @@ body .content-wrapper .module-title a:hover {
   font-weight: bold;
 }
 body .content-wrapper .truncate {
-  max-width: 220px;
-  width: 220px;
+  max-width: 240px;
+  width: 240px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -546,6 +552,10 @@ body .content-wrapper .module-desc {
   height: auto;
   padding-bottom: 12px;
   color: #555;
+}
+body .content-wrapper .function-desc p {
+    display: block;
+    color: #333;
 }
 .navi-wrapper,
 .navi-wrapper-sidebar {
