@@ -565,12 +565,9 @@ public class BallerinaLexer {
 
         String tokenText = getLexeme();
         switch (tokenText) {
-            case LexerTerminals.PUBLIC:
-                return getSyntaxToken(SyntaxKind.PUBLIC_KEYWORD);
-            case LexerTerminals.PRIVATE:
-                return getSyntaxToken(SyntaxKind.PRIVATE_KEYWORD);
-            case LexerTerminals.FUNCTION:
-                return getSyntaxToken(SyntaxKind.FUNCTION_KEYWORD);
+
+            // Simple types
+
             case LexerTerminals.INT:
             case LexerTerminals.FLOAT:
             case LexerTerminals.STRING:
@@ -581,7 +578,18 @@ public class BallerinaLexer {
             case LexerTerminals.HANDLE:
             case LexerTerminals.ANY:
             case LexerTerminals.ANYDATA:
+            case LexerTerminals.VAR:
+            case LexerTerminals.NEVER:
                 return getTypeToken(tokenText);
+
+            //Keywords
+
+            case LexerTerminals.PUBLIC:
+                return getSyntaxToken(SyntaxKind.PUBLIC_KEYWORD);
+            case LexerTerminals.PRIVATE:
+                return getSyntaxToken(SyntaxKind.PRIVATE_KEYWORD);
+            case LexerTerminals.FUNCTION:
+                return getSyntaxToken(SyntaxKind.FUNCTION_KEYWORD);
             case LexerTerminals.RETURN:
                 return getSyntaxToken(SyntaxKind.RETURN_KEYWORD);
             case LexerTerminals.RETURNS:
