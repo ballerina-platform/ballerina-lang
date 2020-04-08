@@ -35,6 +35,10 @@ public class STIdentifier extends STToken {
         this.text = text;
     }
 
+    public String getText() {
+        return text;
+    }
+
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new Identifier(this, position, parent);

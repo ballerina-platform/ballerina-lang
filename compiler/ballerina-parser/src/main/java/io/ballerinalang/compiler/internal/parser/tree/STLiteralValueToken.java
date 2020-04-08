@@ -27,6 +27,10 @@ public class STLiteralValueToken extends STToken {
         this.value = value;
     }
 
+    public String getText() {
+        return text;
+    }
+
     @Override
     public String toString() {
         return leadingTrivia + text + trailingTrivia;

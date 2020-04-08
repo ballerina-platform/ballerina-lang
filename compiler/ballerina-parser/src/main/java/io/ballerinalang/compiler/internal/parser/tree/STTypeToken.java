@@ -25,6 +25,10 @@ public class STTypeToken extends STToken {
         this.text = text;
     }
 
+    public String getText() {
+        return text;
+    }
+
     @Override
     public String toString() {
         return leadingTrivia + text + trailingTrivia;

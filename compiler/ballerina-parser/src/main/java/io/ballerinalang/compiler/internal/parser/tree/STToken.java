@@ -48,6 +48,10 @@ public class STToken extends STNode {
         this.addTrivia(trailingTrivia);
     }
 
+    public String getText() {
+        return kind.strValue;
+    }
+
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new Token(this, position, parent);

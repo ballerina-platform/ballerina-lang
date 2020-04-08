@@ -18,10 +18,15 @@
 package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STToken;
 
 public class Token extends Node {
     public Token(STNode token, int position, NonTerminalNode parent) {
         super(token, position, parent);
+    }
+
+    public String getText() {
+        return ((STToken) this.internalNode).getText();
     }
 
     @Override

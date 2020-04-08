@@ -25,14 +25,8 @@ import io.ballerinalang.compiler.internal.parser.tree.STIdentifier;
  * @since 1.3.0
  */
 public class Identifier extends Token {
-    private final String value;
 
     public Identifier(STIdentifier token, int position, NonTerminalNode parent) {
         super(token, position, parent);
-        this.value = token.text;
-    }
-
-    public String value() {
-        return value;
     }
 }
