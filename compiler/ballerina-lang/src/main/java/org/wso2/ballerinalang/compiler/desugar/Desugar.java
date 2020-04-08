@@ -4004,7 +4004,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void checkByteTypeIncompatibleOperations(BLangBinaryExpr binaryExpr) {
-        if (binaryExpr.parent == null || binaryExpr.parent.type == null) {
+        if (binaryExpr.expectedType == null) {
             return;
         }
 
@@ -4014,7 +4014,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        int resultTypeTag = binaryExpr.type.tag;
+        int resultTypeTag = binaryExpr.expectedType.tag;
         if (resultTypeTag == TypeTags.INT) {
             if (rhsExprTypeTag == TypeTags.BYTE) {
                 binaryExpr.rhsExpr = addConversionExprIfRequired(binaryExpr.rhsExpr, symTable.intType);
