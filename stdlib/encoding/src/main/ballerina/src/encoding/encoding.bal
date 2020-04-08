@@ -18,8 +18,8 @@ import ballerina/java;
 
 # Returns the Base64 URL encoded `string` value of the given byte array.
 # ```ballerina
-#    string query = "Hellö Wörld@Ballerina";
-#    string urlEncodedValue = encoding:encodeBase64Url(query.toBytes());
+#  string query = "Hellö Wörld@Ballerina";
+#  string urlEncodedValue = encoding:encodeBase64Url(query.toBytes());
 # ```
 #
 # + input - Byte array to be encoded
@@ -35,7 +35,7 @@ function externEncodeBase64Url(byte[] input) returns handle = @java:Method {
 
 # Decodes the Base64 URL encoded `string` into a byte array.
 # ```ballerina
-#    byte[]|encoding:Error urlDecodedValue = encoding:decodeBase64Url("SGVsbMO2IFfDtnJsZEBCYWxsZXJpbmE");
+#  byte[]|encoding:Error urlDecodedValue = encoding:decodeBase64Url("SGVsbMO2IFfDtnJsZEBCYWxsZXJpbmE");
 # ```
 #
 # + input - Value to be decoded
@@ -51,8 +51,8 @@ function externDecodeBase64Url(handle input) returns byte[]|Error = @java:Method
 
 # Encodes the given URI component into a `string` using the provided charset.
 # ```ballerina
-#    string urlValue = "param1=http://xyz.com/?a=12&b=55¶m2=99";
-#    string|encoding:Error encodedUriComponent = encoding:encodeUriComponent(urlValue, "UTF-8");
+#  string urlValue = "param1=http://xyz.com/?a=12&b=55¶m2=99";
+#  string|encoding:Error encodedUriComponent = encoding:encodeUriComponent(urlValue, "UTF-8");
 # ```
 #
 # + uriComponent - URI component to be encoded
@@ -70,8 +70,8 @@ function externEncodeUriComponent(handle uriComponent, handle charset) returns h
 
 # Decodes the given URI component into a `string` using the provided charset.
 # ```ballerina
-#     string encodedUrl = "http://www.domain.com/?param1=http%3A%2F%2Fxyz.com%2F%3Fa%3D12%26b%3D55¶m2=99";
-#     string|encoding:Error decodedUriComponent = encoding:decodeUriComponent(encodedUrl, "UTF-8");
+#  string encodedUrl = "http://www.domain.com/?param1=http%3A%2F%2Fxyz.com%2F%3Fa%3D12%26b%3D55¶m2=99";
+#  string|encoding:Error decodedUriComponent = encoding:decodeUriComponent(encodedUrl, "UTF-8");
 # ```
 #
 # + uriComponent - URI component to be decoded
