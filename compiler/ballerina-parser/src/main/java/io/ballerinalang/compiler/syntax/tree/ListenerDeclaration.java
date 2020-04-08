@@ -28,32 +28,36 @@ public class ListenerDeclaration extends ModuleMemberDeclaration {
         super(node, position, parent);
     }
 
-    public Node qualifier() {
+    public Node metadata() {
         return childInBucket(0);
     }
 
-    public Node listenerKeyword() {
+    public Node qualifier() {
         return childInBucket(1);
     }
 
-    public Node typeDescriptor() {
+    public Node listenerKeyword() {
         return childInBucket(2);
     }
 
-    public Token variableName() {
+    public Node typeDescriptor() {
         return childInBucket(3);
     }
 
-    public Token equalsToken() {
+    public Token variableName() {
         return childInBucket(4);
     }
 
-    public Node initializer() {
+    public Token equalsToken() {
         return childInBucket(5);
     }
 
-    public Token semicolonToken() {
+    public Node initializer() {
         return childInBucket(6);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(7);
     }
 
     @Override

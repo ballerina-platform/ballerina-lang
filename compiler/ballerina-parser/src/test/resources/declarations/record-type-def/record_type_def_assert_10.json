@@ -13,6 +13,11 @@
                     "kind": "TYPE_DEFINITION",
                     "children": [
                         {
+                            "kind": "METADATA",
+                            "children": [
+                            ]
+                        },
+                        {
                             "kind": "TYPE_KEYWORD"
                         },
                         {
@@ -29,8 +34,13 @@
                     ]
                 },
                 {
-                    "kind": "VARIABLE_DECL",
+                    "kind": "MODULE_VAR_DECL",
                     "children": [
+                        {
+                            "kind": "METADATA",
+                            "children": [
+                            ]
+                        },
                         {
                             "kind": "SIMPLE_TYPE",
                             "value": "int"

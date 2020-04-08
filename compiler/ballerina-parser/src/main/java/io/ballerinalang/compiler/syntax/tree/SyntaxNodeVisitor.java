@@ -220,6 +220,9 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(metadata);
     }
 
+    public void visit(ModuleVariableDeclaration moduleVarDecl) {
+        visitSyntaxNode(moduleVarDecl);
+    }
     protected void visitSyntaxNode(Node node) {
         // TODO Find a better way to check for token
         if (node instanceof Token) {

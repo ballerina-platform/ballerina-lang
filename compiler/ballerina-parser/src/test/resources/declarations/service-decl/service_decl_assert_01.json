@@ -2,6 +2,11 @@
     "kind": "SERVICE_DECLARATION",
     "children": [
         {
+            "kind": "METADATA",
+            "children": [
+            ]
+        },
+        {
             "kind": "SERVICE_KEYWORD"
         },
         {
@@ -33,6 +38,11 @@
                         {
                             "kind": "FUNCTION_DEFINITION",
                             "children": [
+                                {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
                                 {
                                     "kind": "FUNCTION_KEYWORD"
                                 },
@@ -72,6 +82,11 @@
                         {
                             "kind": "FUNCTION_DEFINITION",
                             "children": [
+                                {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
                                 {
                                     "kind": "RESOURCE_KEYWORD"
                                 },

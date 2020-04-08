@@ -13,6 +13,11 @@
                     "kind": "LISTENER_DECLARATION",
                     "children": [
                         {
+                            "kind": "METADATA",
+                            "children": [
+                            ]
+                        },
+                        {
                             "kind": "LISTENER_KEYWORD"
                         },
                         {
@@ -37,8 +42,13 @@
                     ]
                 },
                 {
-                    "kind": "VARIABLE_DECL",
+                    "kind": "MODULE_VAR_DECL",
                     "children": [
+                        {
+                            "kind": "METADATA",
+                            "children": [
+                            ]
+                        },
                         {
                             "kind": "SIMPLE_TYPE",
                             "value": "string"
@@ -64,6 +74,11 @@
                     "kind": "CONST_DECLARATION",
                     "children": [
                         {
+                            "kind": "METADATA",
+                            "children": [
+                            ]
+                        },
+                        {
                             "kind": "CONST_KEYWORD"
                         },
                         {
@@ -88,8 +103,13 @@
                     ]
                 },
                 {
-                    "kind": "VARIABLE_DECL",
+                    "kind": "MODULE_VAR_DECL",
                     "children": [
+                        {
+                            "kind": "METADATA",
+                            "children": [
+                            ]
+                        },
                         {
                             "kind": "SIMPLE_TYPE",
                             "value": "string"

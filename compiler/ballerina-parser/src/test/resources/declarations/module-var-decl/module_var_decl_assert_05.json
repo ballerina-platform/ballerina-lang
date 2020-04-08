@@ -13,6 +13,11 @@
                     "kind": "FUNCTION_DEFINITION",
                     "children": [
                         {
+                            "kind": "METADATA",
+                            "children": [
+                            ]
+                        },
+                        {
                             "kind": "FUNCTION_KEYWORD"
                         },
                         {
@@ -52,6 +57,11 @@
                 {
                     "kind": "CONST_DECLARATION",
                     "children": [
+                        {
+                            "kind": "METADATA",
+                            "children": [
+                            ]
+                        },
                         {
                             "kind": "CONST_KEYWORD"
                         },

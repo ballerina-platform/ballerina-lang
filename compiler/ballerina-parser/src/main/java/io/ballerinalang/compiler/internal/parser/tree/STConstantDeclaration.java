@@ -26,6 +26,7 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
  */
 public class STConstantDeclaration extends STStatement {
 
+    public final STNode metadata;
     public final STNode qualifier;
     public final STNode listenerKeyword;
     public final STNode typeDesc;
@@ -34,7 +35,8 @@ public class STConstantDeclaration extends STStatement {
     public final STNode initializer;
     public final STNode semicolonToken;
 
-    STConstantDeclaration(STNode qualifier,
+    STConstantDeclaration(STNode metadata,
+                          STNode qualifier,
                           STNode constKeyword,
                           STNode typeDesc,
                           STNode variableName,
@@ -42,6 +44,7 @@ public class STConstantDeclaration extends STStatement {
                           STNode initializer,
                           STNode semicolonToken) {
         super(SyntaxKind.CONST_DECLARATION);
+        this.metadata = metadata;
         this.qualifier = qualifier;
         this.listenerKeyword = constKeyword;
         this.typeDesc = typeDesc;
@@ -50,7 +53,8 @@ public class STConstantDeclaration extends STStatement {
         this.initializer = initializer;
         this.semicolonToken = semicolonToken;
 
-        addChildren(qualifier, constKeyword, typeDesc, variableName, equalsToken, initializer, semicolonToken);
+        addChildren(metadata, qualifier, constKeyword, typeDesc, variableName, equalsToken, initializer,
+                semicolonToken);
     }
 
     @Override

@@ -2,6 +2,11 @@
     "kind": "TYPE_DEFINITION",
     "children": [
         {
+            "kind": "METADATA",
+            "children": [
+            ]
+        },
+        {
             "kind": "TYPE_KEYWORD"
         },
         {

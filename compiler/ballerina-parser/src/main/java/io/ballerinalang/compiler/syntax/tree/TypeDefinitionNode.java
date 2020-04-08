@@ -25,24 +25,28 @@ public class TypeDefinitionNode extends ModuleMemberDeclaration {
         super(node, position, parent);
     }
 
-    public Token visibilityQualifier() {
+    public Token metadata() {
         return childInBucket(0);
     }
 
-    public Token typeKeyword() {
+    public Token visibilityQualifier() {
         return childInBucket(1);
     }
 
-    public Token typeName() {
+    public Token typeKeyword() {
         return childInBucket(2);
     }
 
-    public Node typeDescriptor() {
+    public Token typeName() {
         return childInBucket(3);
     }
 
-    public Token comma() {
+    public Node typeDescriptor() {
         return childInBucket(4);
+    }
+
+    public Token comma() {
+        return childInBucket(5);
     }
 
     @Override

@@ -22,42 +22,38 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 /**
  * @since 1.3.0
  */
-public class ConstantDeclaration extends ModuleMemberDeclaration {
+public class ModuleVariableDeclaration extends ModuleMemberDeclaration {
 
-    public ConstantDeclaration(STNode node, int position, NonTerminalNode parent) {
+    public ModuleVariableDeclaration(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
-    public Node metadata() {
+    public Token metadata() {
         return childInBucket(0);
     }
 
-    public Node qualifier() {
+    public Token finalKeyword() {
         return childInBucket(1);
     }
 
-    public Node constKeyword() {
+    public Node typeName() {
         return childInBucket(2);
     }
 
-    public Node typeDescriptor() {
+    public Token variableName() {
         return childInBucket(3);
     }
 
-    public Token variableName() {
+    public Token equalsToken() {
         return childInBucket(4);
     }
 
-    public Token equalsToken() {
+    public Node initializer() {
         return childInBucket(5);
     }
 
-    public Node initializer() {
-        return childInBucket(6);
-    }
-
     public Token semicolonToken() {
-        return childInBucket(7);
+        return childInBucket(6);
     }
 
     @Override

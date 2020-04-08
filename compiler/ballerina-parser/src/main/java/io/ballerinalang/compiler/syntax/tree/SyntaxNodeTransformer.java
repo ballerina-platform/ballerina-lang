@@ -221,6 +221,10 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(metadata);
     }
 
+    public T transform(ModuleVariableDeclaration moduleVarDecl) {
+        return transformSyntaxNode(moduleVarDecl);
+    }
+
     /**
      * Transforms the given {@code Node} into an object of type T.
      * <p>

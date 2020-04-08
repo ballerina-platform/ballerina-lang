@@ -54,12 +54,14 @@ public class STNodeFactory {
                 parameters, closeParenToken, returnTypeDesc, functionBody);
     }
 
-    public static STNode createModuleTypeDefinition(STNode visibilityQualifier,
+    public static STNode createModuleTypeDefinition(STNode metadata,
+                                                    STNode visibilityQualifier,
                                                     STNode typeKeyword,
                                                     STNode typeName,
                                                     STNode typeDescriptor,
                                                     STNode semicolon) {
-        return new STModuleTypeDefinition(visibilityQualifier, typeKeyword, typeName, typeDescriptor, semicolon);
+        return new STModuleTypeDefinition(metadata, visibilityQualifier, typeKeyword, typeName, typeDescriptor,
+                semicolon);
     }
 
     // Statements
@@ -107,14 +109,19 @@ public class STNodeFactory {
         return new STIfElseStatement(ifKeyword, condition, ifBody, elseBody);
     }
 
-    public static STNode createVariableDeclaration(SyntaxKind kind,
+    public static STNode createVariableDeclaration(STNode metadata,
                                                    STNode finalKeyword,
                                                    STNode typeName,
                                                    STNode variableName,
                                                    STNode equalsToken,
                                                    STNode initializer,
-                                                   STNode semicolonToken) {
-        return new STVariableDeclaration(kind, finalKeyword, typeName, variableName, equalsToken, initializer,
+                                                   STNode semicolonToken, boolean isModuleLevel) {
+        if (isModuleLevel) {
+            return new STModuleVarDeclaration(metadata, finalKeyword, typeName, variableName, equalsToken, initializer,
+                    semicolonToken);
+        }
+
+        return new STLocalVarDeclaration(metadata, finalKeyword, typeName, variableName, equalsToken, initializer,
                 semicolonToken);
     }
 
@@ -372,12 +379,13 @@ public class STNodeFactory {
         return new STComputedNameField(leadingComma, openBracket, fieldNameExpr, closeBracket, colon, valueExpr);
     }
 
-    public static STNode createServiceDecl(STNode serviceKeyword,
+    public static STNode createServiceDecl(STNode metadata,
+                                           STNode serviceKeyword,
                                            STNode serviceName,
                                            STNode onKeyword,
                                            STNode expressionList,
                                            STNode serviceBody) {
-        return new STServiceDeclaration(serviceKeyword, serviceName, onKeyword, expressionList, serviceBody);
+        return new STServiceDeclaration(metadata, serviceKeyword, serviceName, onKeyword, expressionList, serviceBody);
     }
 
     public static STNode createExpressionListItem(STNode leadingComma, STNode expr) {
@@ -388,26 +396,28 @@ public class STNodeFactory {
         return new STServiceBody(openBraceToken, resources, closeBraceToken);
     }
 
-    public static STNode createListenerDeclaration(STNode qualifier,
+    public static STNode createListenerDeclaration(STNode metadata,
+                                                   STNode qualifier,
                                                    STNode listenerKeyword,
                                                    STNode typeDesc,
                                                    STNode variableName,
                                                    STNode equalsToken,
                                                    STNode initializer,
                                                    STNode semicolonToken) {
-        return new STListenerDeclaration(qualifier, listenerKeyword, typeDesc, variableName, equalsToken, initializer,
-                semicolonToken);
+        return new STListenerDeclaration(metadata, qualifier, listenerKeyword, typeDesc, variableName, equalsToken,
+                initializer, semicolonToken);
     }
-    
-    public static STNode createConstDeclaration(STNode qualifier,
+
+    public static STNode createConstDeclaration(STNode metadata,
+                                                STNode qualifier,
                                                 STNode constKeyword,
                                                 STNode typeDesc,
                                                 STNode variableName,
                                                 STNode equalsToken,
                                                 STNode initializer,
                                                 STNode semicolonToken) {
-        return new STConstantDeclaration(qualifier, constKeyword, typeDesc, variableName, equalsToken, initializer,
-                semicolonToken);
+        return new STConstantDeclaration(metadata, qualifier, constKeyword, typeDesc, variableName, equalsToken,
+                initializer, semicolonToken);
     }
 
     public static STNode createAnnotation(STNode atToken, STNode annotReference, STNode annotValue) {

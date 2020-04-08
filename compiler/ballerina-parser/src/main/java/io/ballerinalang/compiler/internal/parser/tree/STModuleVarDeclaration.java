@@ -17,48 +17,41 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ListenerDeclaration;
+import io.ballerinalang.compiler.syntax.tree.VariableDeclaration;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
-/**
- * @since 1.3.0
- */
-public class STListenerDeclaration extends STStatement {
+public class STModuleVarDeclaration extends STStatement {
 
-    public final STNode metadata;
-    public final STNode qualifier;
-    public final STNode listenerKeyword;
-    public final STNode typeDesc;
+    public final STNode annots;
+    public final STNode finalKeyword;
+    public final STNode typeName;
     public final STNode variableName;
     public final STNode equalsToken;
     public final STNode initializer;
     public final STNode semicolonToken;
 
-    STListenerDeclaration(STNode metadata,
-                          STNode qualifier,
-                          STNode listenerKeyword,
-                          STNode typeDesc,
-                          STNode variableName,
-                          STNode equalsToken,
-                          STNode initializer,
-                          STNode semicolonToken) {
-        super(SyntaxKind.LISTENER_DECLARATION);
-        this.metadata = metadata;
-        this.qualifier = qualifier;
-        this.listenerKeyword = listenerKeyword;
-        this.typeDesc = typeDesc;
+    STModuleVarDeclaration(STNode metadata,
+                           STNode finalKeyword,
+                           STNode typeName,
+                           STNode variableName,
+                           STNode equalsToken,
+                           STNode initializer,
+                           STNode semicolonToken) {
+        super(SyntaxKind.MODULE_VAR_DECL);
+        this.annots = metadata;
+        this.finalKeyword = finalKeyword;
+        this.typeName = typeName;
         this.variableName = variableName;
         this.equalsToken = equalsToken;
         this.initializer = initializer;
         this.semicolonToken = semicolonToken;
 
-        addChildren(metadata, qualifier, listenerKeyword, typeDesc, variableName, equalsToken, initializer,
-                semicolonToken);
+        addChildren(metadata, finalKeyword, typeName, variableName, equalsToken, initializer, semicolonToken);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ListenerDeclaration(this, position, parent);
+        return new VariableDeclaration(this, position, parent);
     }
 }

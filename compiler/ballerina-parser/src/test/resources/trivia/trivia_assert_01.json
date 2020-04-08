@@ -13,6 +13,11 @@
                     "kind": "FUNCTION_DEFINITION",
                     "children": [
                         {
+                            "kind": "METADATA",
+                            "children": [
+                            ]
+                        },
+                        {
                             "kind": "FUNCTION_KEYWORD",
                             "leadingTrivia": [
                                 {
@@ -100,7 +105,7 @@
                                     "kind": "LIST",
                                     "children": [
                                         {
-                                            "kind": "VARIABLE_DECL",
+                                            "kind": "LOCAL_VAR_DECL",
                                             "children": [
                                                 {
                                                     "kind": "SIMPLE_TYPE",

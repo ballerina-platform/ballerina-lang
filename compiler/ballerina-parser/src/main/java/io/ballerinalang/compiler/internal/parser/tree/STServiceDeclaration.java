@@ -26,26 +26,29 @@ import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
  */
 public class STServiceDeclaration extends STNode {
 
+    public final STNode metadata;
     public final STNode serviceKeyword;
     public final STNode serviceName;
     public final STNode onKeyword;
     public final STNode expressionList;
     public final STNode serviceBody;
 
-    STServiceDeclaration(STNode serviceKeyword,
+    STServiceDeclaration(STNode metadata,
+                         STNode serviceKeyword,
                          STNode serviceName,
                          STNode onKeyword,
                          STNode expressionList,
                          STNode serviceBody) {
 
         super(SyntaxKind.SERVICE_DECLARATION);
+        this.metadata = metadata;
         this.serviceKeyword = serviceKeyword;
         this.serviceName = serviceName;
         this.onKeyword = onKeyword;
         this.expressionList = expressionList;
         this.serviceBody = serviceBody;
 
-        addChildren(serviceKeyword, serviceName, onKeyword, expressionList, serviceBody);
+        addChildren(metadata, serviceKeyword, serviceName, onKeyword, expressionList, serviceBody);
     }
 
     @Override

@@ -285,6 +285,8 @@ public class ParserTestUtils {
                 return SyntaxKind.LISTENER_DECLARATION;
             case "CONST_DECLARATION":
                 return SyntaxKind.CONST_DECLARATION;
+            case "MODULE_VAR_DECL":
+                return SyntaxKind.MODULE_VAR_DECL;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -465,8 +467,8 @@ public class ParserTestUtils {
             // Statements
             case "BLOCK_STATEMENT":
                 return SyntaxKind.BLOCK_STATEMENT;
-            case "VARIABLE_DECL":
-                return SyntaxKind.VARIABLE_DECL;
+            case "LOCAL_VAR_DECL":
+                return SyntaxKind.LOCAL_VAR_DECL;
             case "ASSIGNMENT_STATEMENT":
                 return SyntaxKind.ASSIGNMENT_STATEMENT;
             case "IF_ELSE_STATEMENT":
@@ -533,6 +535,8 @@ public class ParserTestUtils {
                 return SyntaxKind.SERVICE_BODY;
             case "EXPRESSION_LIST_ITEM":
                 return SyntaxKind.EXPRESSION_LIST_ITEM;
+            case "METADATA":
+                return SyntaxKind.METADATA;
 
             // Trivia
             case "EOF_TOKEN":

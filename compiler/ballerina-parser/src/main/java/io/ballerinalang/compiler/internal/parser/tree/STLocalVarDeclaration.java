@@ -21,8 +21,9 @@ import io.ballerinalang.compiler.syntax.tree.VariableDeclaration;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
-public class STVariableDeclaration extends STStatement {
+public class STLocalVarDeclaration extends STStatement {
 
+    public final STNode annots;
     public final STNode finalKeyword;
     public final STNode typeName;
     public final STNode variableName;
@@ -30,14 +31,15 @@ public class STVariableDeclaration extends STStatement {
     public final STNode initializer;
     public final STNode semicolonToken;
 
-    STVariableDeclaration(SyntaxKind kind,
+    STLocalVarDeclaration(STNode annots,
                           STNode finalKeyword,
                           STNode typeName,
                           STNode variableName,
                           STNode equalsToken,
                           STNode initializer,
                           STNode semicolonToken) {
-        super(kind);
+        super(SyntaxKind.LOCAL_VAR_DECL);
+        this.annots = annots;
         this.finalKeyword = finalKeyword;
         this.typeName = typeName;
         this.variableName = variableName;
@@ -45,7 +47,7 @@ public class STVariableDeclaration extends STStatement {
         this.initializer = initializer;
         this.semicolonToken = semicolonToken;
 
-        addChildren(finalKeyword, typeName, variableName, equalsToken, initializer, semicolonToken);
+        addChildren(annots, finalKeyword, typeName, variableName, equalsToken, initializer, semicolonToken);
     }
 
     @Override

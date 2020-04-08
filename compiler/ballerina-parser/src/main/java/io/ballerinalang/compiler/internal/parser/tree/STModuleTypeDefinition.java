@@ -22,27 +22,30 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 
 public class STModuleTypeDefinition extends STNode {
-    // TODO metadata goes here
+
+    public final STNode metadata;
     public final STNode visibilityQualifier;
     public final STNode typeKeyword;
     public final STNode typeName;
     public final STNode typeDescriptor;
     public final STNode semicolon;
 
-    STModuleTypeDefinition(STNode visibilityQualifier,
+    STModuleTypeDefinition(STNode metadata,
+                           STNode visibilityQualifier,
                            STNode typeKeyword,
                            STNode typeName,
                            STNode typeDescriptor,
                            STNode semicolon) {
 
         super(SyntaxKind.TYPE_DEFINITION);
+        this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.typeKeyword = typeKeyword;
         this.typeName = typeName;
         this.typeDescriptor = typeDescriptor;
         this.semicolon = semicolon;
 
-        addChildren(visibilityQualifier, typeKeyword, typeName, typeDescriptor, semicolon);
+        addChildren(metadata, visibilityQualifier, typeKeyword, typeName, typeDescriptor, semicolon);
     }
 
     @Override

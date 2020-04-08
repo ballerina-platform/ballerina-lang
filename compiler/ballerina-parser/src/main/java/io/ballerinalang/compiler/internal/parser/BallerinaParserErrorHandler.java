@@ -231,29 +231,29 @@ public class BallerinaParserErrorHandler {
      * 
      * @param nextToken Next token of the input where the error occurred
      * @param currentCtx Current parser context
-     * @param parsedNodes Parsed that requires to continue parsing the given parser context
+     * @param args Arguments that requires to continue parsing from the given parser context
      * @return The action needs to be taken for the next token, in order to recover
      */
-    public Solution recover(ParserRuleContext currentCtx, STToken nextToken, STNode... parsedNodes) {
+    public Solution recover(ParserRuleContext currentCtx, STToken nextToken, Object... args) {
         // Assumption: always comes here after a peek()
 
         if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
             SyntaxKind expectedTokenKind = getExpectedTokenKind(currentCtx);
             Solution fix = new Solution(Action.INSERT, currentCtx, expectedTokenKind, currentCtx.toString());
-            applyFix(currentCtx, fix, parsedNodes);
+            applyFix(currentCtx, fix, args);
             return fix;
         }
 
         Result bestMatch = seekMatch(currentCtx);
         if (bestMatch.matches > 0) {
             Solution sol = bestMatch.fixes.pop();
-            applyFix(currentCtx, sol, parsedNodes);
+            applyFix(currentCtx, sol, args);
             return sol;
         } else {
             // Fail safe. This means we can't find a path to recover.
             removeInvalidToken();
             Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
-            sol.recoveredNode = this.parser.resumeParsing(currentCtx, parsedNodes);
+            sol.recoveredNode = this.parser.resumeParsing(currentCtx, args);
             return sol;
         }
     }
@@ -276,11 +276,12 @@ public class BallerinaParserErrorHandler {
      * 
      * @param currentCtx Current context
      * @param fix Fix to apply
+     * @param args Arguments that requires to continue parsing from the given parser context
      */
-    private void applyFix(ParserRuleContext currentCtx, Solution fix, STNode... parsedNodes) {
+    private void applyFix(ParserRuleContext currentCtx, Solution fix, Object... args) {
         if (fix.action == Action.REMOVE) {
             removeInvalidToken();
-            fix.recoveredNode = this.parser.resumeParsing(currentCtx, parsedNodes);
+            fix.recoveredNode = this.parser.resumeParsing(currentCtx, args);
         } else {
             fix.recoveredNode = handleMissingToken(currentCtx, fix);
         }

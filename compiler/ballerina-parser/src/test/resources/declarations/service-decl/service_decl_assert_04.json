@@ -2,6 +2,11 @@
     "kind": "SERVICE_DECLARATION",
     "children": [
         {
+            "kind": "METADATA",
+            "children": [
+            ]
+        },
+        {
             "kind": "SERVICE_KEYWORD",
             "isMissing": true
         },

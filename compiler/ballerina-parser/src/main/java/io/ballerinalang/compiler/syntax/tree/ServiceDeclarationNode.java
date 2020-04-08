@@ -28,24 +28,28 @@ public class ServiceDeclarationNode extends ModuleMemberDeclaration {
         super(node, position, parent);
     }
 
-    public Token serviceKeyword() {
+    public Token metadata() {
         return childInBucket(0);
     }
 
-    public Token serviceName() {
+    public Token serviceKeyword() {
         return childInBucket(1);
     }
 
-    public Token onKeyword() {
+    public Token serviceName() {
         return childInBucket(2);
     }
 
+    public Token onKeyword() {
+        return childInBucket(3);
+    }
+
     public NodeList<Node> expressionList() {
-        return new NodeList<>(childInBucket(3));
+        return new NodeList<>(childInBucket(4));
     }
 
     public Node returnTypeDesc() {
-        return childInBucket(4);
+        return childInBucket(5);
     }
 
     @Override

@@ -28,28 +28,32 @@ public class VariableDeclaration extends Statement {
         super(node, position, parent);
     }
 
-    public Token finalKeyword() {
+    public Token annotations() {
         return childInBucket(0);
     }
 
-    public Node typeName() {
+    public Token finalKeyword() {
         return childInBucket(1);
     }
 
-    public Token variableName() {
+    public Node typeName() {
         return childInBucket(2);
     }
 
-    public Token equalsToken() {
+    public Token variableName() {
         return childInBucket(3);
     }
 
-    public Node initializer() {
+    public Token equalsToken() {
         return childInBucket(4);
     }
 
-    public Token semicolonToken() {
+    public Node initializer() {
         return childInBucket(5);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(6);
     }
 
     @Override
