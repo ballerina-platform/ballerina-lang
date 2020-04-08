@@ -70,6 +70,8 @@ public class TypeParamTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(int|string)', found 'boolean'", 130,
                                   14);
         BAssertUtil.validateError(result, err++, "incompatible types: expected '(int|string)', found 'float'", 131, 24);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected '[int,(int|float)][]', found '[int," +
+                "(int|float|string)][]'", 137, 34);
         Assert.assertEquals(result.getErrorCount(), err);
     }
 
@@ -112,6 +114,9 @@ public class TypeParamTest {
         CompileResult result = BCompileUtil.compile("test-src/type-param/type_param_narrowing_for_union_return.bal");
         BRunUtil.invoke(result, "testSimpleUnionReturnParameterNarrowing");
         BRunUtil.invoke(result, "testUnionOfMapsReturnParameterNarrowing");
+        BRunUtil.invoke(result, "testStringIntFloatSimpleAndArrayUnionReturnParameterNarrowing");
+        BRunUtil.invoke(result, "testIntFloatSimpleAndMapUnionReturnParameterNarrowing");
+        BRunUtil.invoke(result, "testIntFloatSimpleArrayMapUnionReturnParameterNarrowing");
         Assert.assertEquals(result.getErrorCount(), 0);
     }
 }
