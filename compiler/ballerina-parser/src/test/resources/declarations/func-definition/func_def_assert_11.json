@@ -34,11 +34,6 @@
                     "kind": "RETURNS_KEYWORD"
                 },
                 {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                },
-                {
                     "kind": "SIMPLE_TYPE",
                     "isMissing": true
                 }
@@ -49,11 +44,6 @@
             "children": [
                 {
                     "kind": "EQUAL_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
                 },
                 {
                     "kind": "EXTERNAL_KEYWORD"

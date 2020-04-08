@@ -25,24 +25,28 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
         super(node, position, parent);
     }
 
-    public Node fieldType() {
+    public Node metadata() {
         return childInBucket(0);
     }
 
-    public Token fieldName() {
+    public Node fieldType() {
         return childInBucket(1);
     }
 
-    public Token questionMark() {
+    public Token fieldName() {
         return childInBucket(2);
     }
 
-    public Node defaultValue() {
+    public Token questionMark() {
         return childInBucket(3);
     }
 
-    public Token semicolon() {
+    public Node defaultValue() {
         return childInBucket(4);
+    }
+
+    public Token semicolon() {
+        return childInBucket(5);
     }
 
     @Override

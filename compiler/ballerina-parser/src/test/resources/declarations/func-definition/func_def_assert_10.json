@@ -32,11 +32,6 @@
                     "isMissing": true
                 },
                 {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                },
-                {
                     "kind": "EXTERNAL_KEYWORD"
                 },
                 {

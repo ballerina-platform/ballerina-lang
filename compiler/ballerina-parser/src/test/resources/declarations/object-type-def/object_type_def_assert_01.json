@@ -49,6 +49,11 @@
                             "kind": "OBJECT_FIELD",
                             "children": [
                                 {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
+                                {
                                     "kind": "SIMPLE_TYPE",
                                     "value": "int"
                                 },
@@ -84,6 +89,11 @@
                             "kind": "OBJECT_FIELD",
                             "children": [
                                 {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
+                                {
                                     "kind": "SIMPLE_TYPE",
                                     "value": "string"
                                 },
@@ -99,6 +109,11 @@
                         {
                             "kind": "OBJECT_FIELD",
                             "children": [
+                                {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
                                 {
                                     "kind": "PUBLIC_KEYWORD"
                                 },
@@ -126,6 +141,11 @@
                             "kind": "OBJECT_FIELD",
                             "children": [
                                 {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
+                                {
                                     "kind": "PRIVATE_KEYWORD"
                                 },
                                 {
@@ -144,6 +164,11 @@
                         {
                             "kind": "FUNCTION_DEFINITION",
                             "children": [
+                                {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
                                 {
                                     "kind": "PUBLIC_KEYWORD"
                                 },
@@ -202,6 +227,11 @@
                             "kind": "FUNCTION_DEFINITION",
                             "children": [
                                 {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
+                                {
                                     "kind": "FUNCTION_KEYWORD"
                                 },
                                 {
@@ -240,6 +270,11 @@
                         {
                             "kind": "FUNCTION_DEFINITION",
                             "children": [
+                                {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
                                 {
                                     "kind": "LIST",
                                     "children": [
@@ -291,6 +326,11 @@
                             "kind": "OBJECT_FIELD",
                             "children": [
                                 {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
+                                {
                                     "kind": "OBJECT_TYPE_DESCRIPTOR",
                                     "children": [
                                         {
@@ -325,6 +365,11 @@
                                                 {
                                                     "kind": "OBJECT_FIELD",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "SIMPLE_TYPE",
                                                             "value": "int"
@@ -361,6 +406,11 @@
                                                     "kind": "OBJECT_FIELD",
                                                     "children": [
                                                         {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                            ]
+                                                        },
+                                                        {
                                                             "kind": "SIMPLE_TYPE",
                                                             "value": "string"
                                                         },
@@ -376,6 +426,11 @@
                                                 {
                                                     "kind": "OBJECT_FIELD",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "PUBLIC_KEYWORD"
                                                         },
@@ -403,6 +458,11 @@
                                                     "kind": "OBJECT_FIELD",
                                                     "children": [
                                                         {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                            ]
+                                                        },
+                                                        {
                                                             "kind": "PRIVATE_KEYWORD"
                                                         },
                                                         {
@@ -421,6 +481,11 @@
                                                 {
                                                     "kind": "FUNCTION_DEFINITION",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "PUBLIC_KEYWORD"
                                                         },
@@ -478,6 +543,11 @@
                                                 {
                                                     "kind": "FUNCTION_DEFINITION",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "FUNCTION_KEYWORD"
                                                         },

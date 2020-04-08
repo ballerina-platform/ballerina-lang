@@ -228,28 +228,32 @@ public class STNodeFactory {
         return new STRestArg(leadingComma, ellipsis, expression);
     }
 
-    public static STNode createObjectField(STNode visibilityQualifier,
+    public static STNode createObjectField(STNode metadata,
+                                           STNode visibilityQualifier,
                                            STNode type,
                                            STNode fieldName,
                                            STNode equalsToken,
                                            STNode expression,
                                            STNode semicolonToken) {
-        return new STObjectField(visibilityQualifier, type, fieldName, equalsToken, expression, semicolonToken);
+        return new STObjectField(metadata, visibilityQualifier, type, fieldName, equalsToken, expression,
+                semicolonToken);
     }
 
-    public static STNode createRecordField(STNode type,
+    public static STNode createRecordField(STNode metadata,
+                                           STNode type,
                                            STNode fieldName,
                                            STNode questionMarkToken,
                                            STNode semicolonToken) {
-        return new STRecordField(type, fieldName, questionMarkToken, semicolonToken);
+        return new STRecordField(metadata, type, fieldName, questionMarkToken, semicolonToken);
     }
 
-    public static STNode createRecordFieldWithDefaultValue(STNode type,
+    public static STNode createRecordFieldWithDefaultValue(STNode metadata,
+                                                           STNode type,
                                                            STNode fieldName,
                                                            STNode equalsToken,
                                                            STNode expression,
                                                            STNode semicolonToken) {
-        return new STRecordFieldWithDefaultValue(type, fieldName, equalsToken, expression, semicolonToken);
+        return new STRecordFieldWithDefaultValue(metadata, type, fieldName, equalsToken, expression, semicolonToken);
     }
 
     public static STNode createRecordRestDescriptor(STNode type, STNode ellipsis, STNode semicolonToken) {

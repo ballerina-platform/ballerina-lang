@@ -25,28 +25,32 @@ public class ObjectFieldNode extends NonTerminalNode {
         super(node, position, parent);
     }
 
-    public Token visibilityQualifier() {
+    public Token metadata() {
         return childInBucket(0);
     }
 
-    public Node fieldType() {
+    public Token visibilityQualifier() {
         return childInBucket(1);
     }
 
-    public Token fieldName() {
+    public Node fieldType() {
         return childInBucket(2);
     }
 
-    public Token questionMark() {
+    public Token fieldName() {
         return childInBucket(3);
     }
 
-    public Node defaultValue() {
+    public Token questionMark() {
         return childInBucket(4);
     }
 
-    public Token semicolon() {
+    public Node defaultValue() {
         return childInBucket(5);
+    }
+
+    public Token semicolon() {
+        return childInBucket(6);
     }
 
     @Override

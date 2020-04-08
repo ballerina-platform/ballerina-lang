@@ -30,6 +30,11 @@
                             "kind": "RECORD_FIELD",
                             "children": [
                                 {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
+                                {
                                     "kind": "SIMPLE_TYPE",
                                     "value": "string"
                                 },
@@ -45,6 +50,11 @@
                         {
                             "kind": "RECORD_FIELD",
                             "children": [
+                                {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
                                 {
                                     "kind": "SIMPLE_TYPE",
                                     "value": "int"

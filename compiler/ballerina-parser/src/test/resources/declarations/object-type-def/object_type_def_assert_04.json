@@ -34,6 +34,11 @@
                             "kind": "FUNCTION_DEFINITION",
                             "children": [
                                 {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
+                                {
                                     "kind": "PUBLIC_KEYWORD"
                                 },
                                 {
@@ -76,6 +81,11 @@
                             "kind": "FUNCTION_DEFINITION",
                             "children": [
                                 {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
+                                {
                                     "kind": "FUNCTION_KEYWORD"
                                 },
                                 {
@@ -114,6 +124,11 @@
                         {
                             "kind": "FUNCTION_DEFINITION",
                             "children": [
+                                {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
                                 {
                                     "kind": "LIST",
                                     "children": [

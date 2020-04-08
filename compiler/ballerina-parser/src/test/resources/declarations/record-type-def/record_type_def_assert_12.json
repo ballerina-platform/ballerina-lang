@@ -29,6 +29,11 @@
                             "kind": "RECORD_FIELD",
                             "children": [
                                 {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
+                                {
                                     "kind": "SIMPLE_TYPE",
                                     "value": "string"
                                 },
@@ -44,6 +49,11 @@
                         {
                             "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
                             "children": [
+                                {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
                                 {
                                     "kind": "SIMPLE_TYPE",
                                     "value": "float"
@@ -68,6 +78,11 @@
                             "kind": "RECORD_FIELD",
                             "children": [
                                 {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
+                                {
                                     "kind": "SIMPLE_TYPE",
                                     "value": "int"
                                 },
@@ -85,6 +100,11 @@
                             "kind": "RECORD_FIELD",
                             "children": [
                                 {
+                                    "kind": "METADATA",
+                                    "children": [
+                                    ]
+                                },
+                                {
                                     "kind": "RECORD_TYPE_DESCRIPTOR",
                                     "children": [
                                         {
@@ -99,6 +119,11 @@
                                                 {
                                                     "kind": "RECORD_FIELD",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "SIMPLE_TYPE",
                                                             "value": "string"
@@ -116,6 +141,11 @@
                                                 {
                                                     "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "SIMPLE_TYPE",
                                                             "value": "int"

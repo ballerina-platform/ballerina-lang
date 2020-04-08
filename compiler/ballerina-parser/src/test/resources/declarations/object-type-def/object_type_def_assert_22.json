@@ -60,6 +60,11 @@
                                                     "kind": "OBJECT_FIELD",
                                                     "children": [
                                                         {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                            ]
+                                                        },
+                                                        {
                                                             "kind": "SIMPLE_TYPE",
                                                             "value": "int"
                                                         },
@@ -75,6 +80,11 @@
                                                 {
                                                     "kind": "FUNCTION_DEFINITION",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "FUNCTION_KEYWORD"
                                                         },
@@ -114,6 +124,11 @@
                                                 {
                                                     "kind": "OBJECT_FIELD",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "SIMPLE_TYPE",
                                                             "value": "int"

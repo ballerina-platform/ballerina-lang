@@ -118,7 +118,6 @@ public class BallerinaParser {
             case STATEMENT_START_IDENTIFIER:
                 return parseStatementStartIdentifier();
             case VAR_DECL_STMT_RHS:
-                // FIXME
                 return parseVarDeclRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3],
                         (boolean) args[4]);
             case ASSIGNMENT_OR_VAR_DECL_STMT:
@@ -128,7 +127,7 @@ public class BallerinaParser {
             case TYPE_REFERENCE:
                 return parseTypeReference();
             case FIELD_DESCRIPTOR_RHS:
-                return parseFieldDescriptorRhs((STNode) args[0], (STNode) args[1]);
+                return parseFieldDescriptorRhs((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             case NAMED_OR_POSITIONAL_ARG_RHS:
                 return parseNamedOrPositionalArg((STNode) args[0]);
             case RECORD_BODY_END:
@@ -142,7 +141,7 @@ public class BallerinaParser {
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
                 return parseObjectMethodOrField((STNode) args[0], (STNode) args[1]);
             case OBJECT_FIELD_RHS:
-                return parseObjectFieldRhs((STNode) args[0], (STNode) args[1], (STNode) args[2]);
+                return parseObjectFieldRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3]);
             case OBJECT_TYPE_FIRST_QUALIFIER:
                 return parseObjectTypeQualifiers();
             case OBJECT_TYPE_SECOND_QUALIFIER:
@@ -1591,7 +1590,31 @@ public class BallerinaParser {
 
     private boolean isEndOfRecordTypeNode(SyntaxKind nextTokenKind) {
         STToken nexNextToken = peek(2);
-        return isEndOfBlockNode(nextTokenKind) || isEndOfBlockNode(nexNextToken.kind);
+        switch (nextTokenKind) {
+            case EOF_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+            case CLOSE_BRACE_PIPE_TOKEN:
+            case TYPE_KEYWORD:
+            case FUNCTION_KEYWORD:
+            case PUBLIC_KEYWORD:
+                return true;
+            case SERVICE_KEYWORD:
+                return isServiceDeclStart(ParserRuleContext.RECORD_FIELD);
+            default:
+                switch (nexNextToken.kind) {
+                    case EOF_TOKEN:
+                    case CLOSE_BRACE_TOKEN:
+                    case CLOSE_BRACE_PIPE_TOKEN:
+                    case TYPE_KEYWORD:
+                    case FUNCTION_KEYWORD:
+                    case PUBLIC_KEYWORD:
+                        return true;
+                    case SERVICE_KEYWORD:
+                        return isServiceDeclStart(ParserRuleContext.RECORD_FIELD);
+                    default:
+                        return false;
+                }
+        }
     }
 
     private boolean isEndOfObjectTypeNode(SyntaxKind tokenKind, SyntaxKind nextNextTokenKind) {
@@ -2122,13 +2145,14 @@ public class BallerinaParser {
         }
 
         // individual-field-descriptor
+        STNode metadata = parseMetaData();
         STNode type = parseTypeDescriptor();
         STNode fieldOrRestDesc;
         if (isInclusive) {
             STNode fieldName = parseVariableName();
-            fieldOrRestDesc = parseFieldDescriptorRhs(type, fieldName);
+            fieldOrRestDesc = parseFieldDescriptorRhs(metadata, type, fieldName);
         } else {
-            fieldOrRestDesc = parseFieldOrRestDescriptorRhs(type);
+            fieldOrRestDesc = parseFieldOrRestDescriptorRhs(metadata, type);
         }
 
         endContext();
@@ -2162,8 +2186,10 @@ public class BallerinaParser {
     }
 
     /**
-     * @param identifier
-     * @return
+     * Parse identifier or qualified identifier, given the starting identifier.
+     * 
+     * @param identifier Starting identifier
+     * @return Parse node
      */
     private STNode parseQualifiedIdentifier(STNode identifier) {
         STToken nextToken = peek(1);
@@ -2185,25 +2211,28 @@ public class BallerinaParser {
     /**
      * Parse RHS of a field or rest type descriptor.
      * 
+     * @param metadata Metadata
+     * @param type Type descriptor
      * @return Parsed node
      */
-    private STNode parseFieldOrRestDescriptorRhs(STNode type) {
+    private STNode parseFieldOrRestDescriptorRhs(STNode metadata, STNode type) {
         STToken token = peek();
-        return parseFieldOrRestDescriptorRhs(token.kind, type);
+        return parseFieldOrRestDescriptorRhs(token.kind, metadata, type);
     }
 
-    private STNode parseFieldOrRestDescriptorRhs(SyntaxKind kind, STNode type) {
+    private STNode parseFieldOrRestDescriptorRhs(SyntaxKind kind, STNode metadata, STNode type) {
         switch (kind) {
             case ELLIPSIS_TOKEN:
+                // TODO: report error for invalid metadata
                 STNode ellipsis = parseEllipsis();
                 STNode semicolonToken = parseSemicolon();
                 return STNodeFactory.createRecordRestDescriptor(type, ellipsis, semicolonToken);
             case IDENTIFIER_TOKEN:
                 STNode fieldName = parseVariableName();
-                return parseFieldDescriptorRhs(type, fieldName);
+                return parseFieldDescriptorRhs(metadata, type, fieldName);
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.FIELD_OR_REST_DESCIPTOR_RHS, type);
+                Solution solution = recover(token, ParserRuleContext.FIELD_OR_REST_DESCIPTOR_RHS, metadata, type);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -2212,7 +2241,7 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseFieldOrRestDescriptorRhs(solution.tokenKind, type);
+                return parseFieldOrRestDescriptorRhs(solution.tokenKind, metadata, type);
         }
     }
 
@@ -2221,11 +2250,14 @@ public class BallerinaParser {
      * Parse field descriptor rhs.
      * </p>
      * 
+     * @param metadata Metadata
+     * @param type Type descriptor
+     * @param fieldName Field name
      * @return Parsed node
      */
-    private STNode parseFieldDescriptorRhs(STNode type, STNode fieldName) {
+    private STNode parseFieldDescriptorRhs(STNode metadata, STNode type, STNode fieldName) {
         STToken token = peek();
-        return parseFieldDescriptorRhs(token.kind, type, fieldName);
+        return parseFieldDescriptorRhs(token.kind, metadata, type, fieldName);
     }
 
     /**
@@ -2238,28 +2270,32 @@ public class BallerinaParser {
      * <br/>default-value := = expression
      * </code>
      * 
+     * @param kind Kind of the next token
+     * @param metadata Metadata
+     * @param type Type descriptor
+     * @param fieldName Field name
      * @return Parsed node
      */
-    private STNode parseFieldDescriptorRhs(SyntaxKind kind, STNode type, STNode fieldName) {
+    private STNode parseFieldDescriptorRhs(SyntaxKind kind, STNode metadata, STNode type, STNode fieldName) {
         switch (kind) {
             case SEMICOLON_TOKEN:
                 STNode questionMarkToken = STNodeFactory.createEmptyNode();
                 STNode semicolonToken = parseSemicolon();
-                return STNodeFactory.createRecordField(type, fieldName, questionMarkToken, semicolonToken);
+                return STNodeFactory.createRecordField(metadata, type, fieldName, questionMarkToken, semicolonToken);
             case QUESTION_MARK_TOKEN:
                 questionMarkToken = parseQuestionMark();
                 semicolonToken = parseSemicolon();
-                return STNodeFactory.createRecordField(type, fieldName, questionMarkToken, semicolonToken);
+                return STNodeFactory.createRecordField(metadata, type, fieldName, questionMarkToken, semicolonToken);
             case EQUAL_TOKEN:
                 // parseRecordDefaultValue();
                 STNode equalsToken = parseAssignOp();
                 STNode expression = parseExpression();
                 semicolonToken = parseSemicolon();
-                return STNodeFactory.createRecordFieldWithDefaultValue(type, fieldName, equalsToken, expression,
-                        semicolonToken);
+                return STNodeFactory.createRecordFieldWithDefaultValue(metadata, type, fieldName, equalsToken,
+                        expression, semicolonToken);
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.FIELD_DESCRIPTOR_RHS, type, fieldName);
+                Solution solution = recover(token, ParserRuleContext.FIELD_DESCRIPTOR_RHS, metadata, type, fieldName);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -2268,7 +2304,7 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseFieldDescriptorRhs(solution.tokenKind, type, fieldName);
+                return parseFieldDescriptorRhs(solution.tokenKind, metadata, type, fieldName);
         }
     }
 
@@ -3279,7 +3315,7 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
-                metadata = STNodeFactory.createEmptyNode();
+                metadata = createEmptyMetadata();
                 break;
             case HASH_TOKEN:
             case AT_TOKEN:
@@ -3334,7 +3370,7 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
-                member = parseObjectField(STNodeFactory.createEmptyNode());
+                member = parseObjectField(metadata, STNodeFactory.createEmptyNode());
                 break;
             default:
                 Solution solution = recover(peek(), ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA);
@@ -3400,7 +3436,7 @@ public class BallerinaParser {
                 // In such cases, lookahead for the open-parenthesis and figure out whether
                 // this is an object-method with missing name. If yes, then try to recover.
                 if (nextNextTokenKind != SyntaxKind.OPEN_PAREN_TOKEN) {
-                    return parseObjectField(visibilityQualifiers);
+                    return parseObjectField(metadata, visibilityQualifiers);
                 }
 
                 // Else, fall through
@@ -3419,6 +3455,11 @@ public class BallerinaParser {
         }
     }
 
+    /**
+     * Parse object visibility. Visibility can be <code>public</code> or <code>private</code>.
+     * 
+     * @return Parsed node
+     */
     private STNode parseObjectMemberVisibility() {
         STToken token = peek();
         if (token.kind == SyntaxKind.PUBLIC_KEYWORD || token.kind == SyntaxKind.PRIVATE_KEYWORD) {
@@ -3439,36 +3480,38 @@ public class BallerinaParser {
         }
     }
 
-    private STNode parseObjectField(STNode methodQualifiers) {
+    private STNode parseObjectField(STNode metadata, STNode methodQualifiers) {
         STNode type = parseTypeDescriptor();
         STNode fieldName = parseVariableName();
-        return parseObjectFieldRhs(methodQualifiers, type, fieldName);
+        return parseObjectFieldRhs(metadata, methodQualifiers, type, fieldName);
     }
 
     /**
      * Parse object field rhs, and complete the object field parsing. Returns the parsed object field.
      * 
-     * @param visibilityQualifier
-     * @param type
-     * @param fieldName
+     * @param metadata Metadata
+     * @param visibilityQualifier Visibility qualifier
+     * @param type Type descriptor
+     * @param fieldName Field name
      * @return Parsed object field
      */
-    private STNode parseObjectFieldRhs(STNode visibilityQualifier, STNode type, STNode fieldName) {
+    private STNode parseObjectFieldRhs(STNode metadata, STNode visibilityQualifier, STNode type, STNode fieldName) {
         STToken nextToken = peek();
-        return parseObjectFieldRhs(nextToken.kind, visibilityQualifier, type, fieldName);
+        return parseObjectFieldRhs(nextToken.kind, metadata, visibilityQualifier, type, fieldName);
     }
 
     /**
      * Parse object field rhs, and complete the object field parsing. Returns the parsed object field.
      * 
-     * @param nextTokenKind
-     * @param visibilityQualifier
-     * @param type
-     * @param fieldName
+     * @param nextTokenKind Kind of the next token
+     * @param metadata Metadata
+     * @param visibilityQualifier Visibility qualifier
+     * @param type Type descriptor
+     * @param fieldName Field name
      * @return Parsed object field
      */
-    private STNode parseObjectFieldRhs(SyntaxKind nextTokenKind, STNode visibilityQualifier, STNode type,
-                                       STNode fieldName) {
+    private STNode parseObjectFieldRhs(SyntaxKind nextTokenKind, STNode metadata, STNode visibilityQualifier,
+                                       STNode type, STNode fieldName) {
         STNode equalsToken;
         STNode expression;
         STNode semicolonToken;
@@ -3485,8 +3528,8 @@ public class BallerinaParser {
                 break;
             default:
                 STToken token = peek();
-                Solution solution =
-                        recover(token, ParserRuleContext.OBJECT_FIELD_RHS, visibilityQualifier, type, fieldName);
+                Solution solution = recover(token, ParserRuleContext.OBJECT_FIELD_RHS, metadata, visibilityQualifier,
+                        type, fieldName);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -3495,10 +3538,10 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseObjectFieldRhs(solution.tokenKind, visibilityQualifier, type, fieldName);
+                return parseObjectFieldRhs(solution.tokenKind, metadata, visibilityQualifier, type, fieldName);
         }
 
-        return STNodeFactory.createObjectField(visibilityQualifier, type, fieldName, equalsToken, expression,
+        return STNodeFactory.createObjectField(metadata, visibilityQualifier, type, fieldName, equalsToken, expression,
                 semicolonToken);
     }
 
@@ -4683,7 +4726,8 @@ public class BallerinaParser {
     private STNode parseAnnotations() {
         startContext(ParserRuleContext.ANNOTATIONS);
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.AT_TOKEN) {
+        if (nextToken.kind != SyntaxKind.AT_TOKEN) {
+            endContext();
             return STNodeFactory.createEmptyNode();
         }
 
@@ -4761,8 +4805,6 @@ public class BallerinaParser {
     }
 
     private STNode createEmptyMetadata() {
-        STNode metadata;
-        metadata = STNodeFactory.createMetadata(STNodeFactory.createEmptyNode(), STNodeFactory.createEmptyNode());
-        return metadata;
+        return STNodeFactory.createMetadata(STNodeFactory.createEmptyNode(), STNodeFactory.createEmptyNode());
     }
 }
