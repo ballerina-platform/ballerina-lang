@@ -57,7 +57,7 @@ service cleanupService = service {
     }
 };
 
-# The Ballerina `Cache` object which is used forall the cache-related operations. It is not recommended to insert `()`
+# The Ballerina `Cache` object which is used for all the cache-related operations. It is not recommended to insert `()`
 # as the value of the cache since it doesn't make any sense to cache a nil.
 public type Cache object {
 

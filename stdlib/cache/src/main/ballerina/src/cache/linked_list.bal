@@ -16,7 +16,7 @@
 
 // This is a linked list data structure implementation, which is used for the eviction algorithm of the cache.
 
-# Keeps the and the neighbouring nodes of the linked list.
+# Represents a structure to keep data and references to the adjacent nodes of the linked list.
 #
 # + value - Value to be stored in the linked list node
 # + prev - Previous node of the linked list
