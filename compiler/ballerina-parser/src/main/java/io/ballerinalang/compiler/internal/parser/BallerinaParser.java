@@ -1822,8 +1822,6 @@ public class BallerinaParser {
                 return SyntaxKind.LOGICAL_AND_TOKEN;
             case LOGICAL_OR:
                 return SyntaxKind.LOGICAL_OR_TOKEN;
-            case UNARY:
-                return SyntaxKind.PLUS_TOKEN;
             default:
                 throw new UnsupportedOperationException(
                         "Unsupported operator precedence level'" + opPrecedenceLevel + "'");
