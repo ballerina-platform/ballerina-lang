@@ -300,3 +300,32 @@ function testBitwiseOperatorPrecedence6(int a, int b, int c) returns int {
     int d = b >> c & ~a;
     return d;
 }
+
+public function testByteReturnAsIntInLambda1() returns int {
+    var fn = function () returns int {
+        byte a = 255;
+        return a - a;
+    };
+
+    return fn();
+}
+
+public function testByteReturnAsIntInLambda2() returns boolean {
+    var fn1 = function () returns int {
+        byte a = 255;
+        return a - a;
+    };
+
+    var fn2 = function () returns int {
+        byte a = 255;
+        int res = a - a;
+        return res;
+    };
+
+    return fn1() == fn2();
+}
+
+public function testByteReturnAsIntInLambda3(byte a, byte b) returns int {
+    var fn = function (byte a, byte b) returns int { return a - b; };
+    return fn(a, b);
+}

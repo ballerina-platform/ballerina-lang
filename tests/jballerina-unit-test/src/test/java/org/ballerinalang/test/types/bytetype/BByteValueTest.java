@@ -792,4 +792,34 @@ public class BByteValueTest {
         BInteger bInteger = (BInteger) returns[0];
         Assert.assertEquals(bInteger.intValue(), expected, "Invalid byte value returned.");
     }
+
+    @Test(description = "Test byte value return as int in lambda 1")
+    public void testByteReturnAsIntInLambda1() {
+        BValue[] returns = BRunUtil.invoke(result, "testByteReturnAsIntInLambda1");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger intValue = (BInteger) returns[0];
+        Assert.assertEquals(intValue.intValue(), 0, "Invalid int value returned.");
+    }
+
+    @Test(description = "Test byte value return as int in lambda 2")
+    public void testByteReturnAsIntInLambda2() {
+        BValue[] returns = BRunUtil.invoke(result, "testByteReturnAsIntInLambda2");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        BBoolean booleanVal = (BBoolean) returns[0];
+        Assert.assertTrue(booleanVal.booleanValue());
+    }
+
+    @Test(description = "Test byte value return as int in lambda 3")
+    public void testByteReturnAsIntInLambda3() {
+        long a = 233;
+        long b = 245;
+        BValue[] returns = BRunUtil.invoke(result, "testByteReturnAsIntInLambda3", new BValue[]{new BByte(a),
+                new BByte(b)});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger intValue = (BInteger) returns[0];
+        Assert.assertEquals(intValue.intValue(), (a - b), "Invalid int value returned.");
+    }
 }
