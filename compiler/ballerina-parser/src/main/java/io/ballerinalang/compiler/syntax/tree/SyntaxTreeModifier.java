@@ -63,8 +63,15 @@ public abstract class SyntaxTreeModifier extends SyntaxNodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(VariableDeclaration localVariableDeclaration) {
-        return super.transform(localVariableDeclaration);
+    public Node transform(VariableDeclaration localVarDecl) {
+        Token finalKeyword = modifyToken(localVarDecl.finalKeyword());
+        Node typeName = modifyNode(localVarDecl.typeName());
+        Identifier variableName = modifyToken(localVarDecl.variableName());
+        Token equalsToken = modifyToken(localVarDecl.equalsToken());
+        Node initializer = modifyNode(localVarDecl.initializer());
+        Token semicolonToken = modifyToken(localVarDecl.semicolonToken());
+        return localVarDecl.modify(finalKeyword, typeName, variableName,
+                equalsToken, initializer, semicolonToken);
     }
 
     @Override
@@ -79,17 +86,17 @@ public abstract class SyntaxTreeModifier extends SyntaxNodeTransformer<Node> {
 
     @Override
     public Node transform(Token token) {
-        return modifyToken(token);
+        return token;
     }
 
     @Override
     public Node transform(Identifier identifier) {
-        return modifyToken(identifier);
+        return identifier;
     }
 
     @Override
     public Node transform(EmptyToken emptyToken) {
-        return modifyToken(emptyToken);
+        return emptyToken;
     }
 
     @Override
@@ -123,7 +130,7 @@ public abstract class SyntaxTreeModifier extends SyntaxNodeTransformer<Node> {
 
     protected <T extends Token> T modifyToken(T token) {
         // TODO
-        return token;
+        return (T) token.apply(this);
     }
 
     protected <T extends Node> T modifyNode(T node) {

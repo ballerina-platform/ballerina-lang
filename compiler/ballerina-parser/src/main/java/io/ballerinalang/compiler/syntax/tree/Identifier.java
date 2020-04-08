@@ -29,4 +29,14 @@ public class Identifier extends Token {
     public Identifier(STIdentifier token, int position, NonTerminalNode parent) {
         super(token, position, parent);
     }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+        return visitor.transform(this);
+    }
 }

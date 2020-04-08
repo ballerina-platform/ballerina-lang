@@ -38,9 +38,9 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testVarDeclStmtModification() {
         SyntaxTree syntaxTree = parseFile("variable_decl_stmt_modify.bal");
+        ModulePart oldRoot = syntaxTree.getModulePart();
 
         VariableDeclModifier variableDeclModifier = new VariableDeclModifier();
-        ModulePart oldRoot = syntaxTree.getModulePart();
         ModulePart newRoot = (ModulePart) oldRoot.apply(variableDeclModifier);
 
         FunctionDefinitionNode oldFuncNode = (FunctionDefinitionNode) oldRoot.members().get(0);
@@ -51,21 +51,49 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
 
         Assert.assertNotEquals(newFuncNode, oldFuncNode);
         Assert.assertNotEquals(newStmt, oldStmt);
-        Assert.assertEquals(newStmt.variableName().getText(), oldStmt.variableName().getText() + "new");
+        Assert.assertEquals(newStmt.variableName().text(), oldStmt.variableName().text() + "new");
         Assert.assertEquals(newStmt.spanWithMinutiae().width(), oldStmt.spanWithMinutiae().width() + 2);
     }
 
+    @Test
+    public void testRenameIdentifierWithoutTrivia() {
+        SyntaxTree syntaxTree = parseFile("variable_decl_stmt_modify.bal");
+        ModulePart oldRoot = syntaxTree.getModulePart();
+
+        IdentifierModifier identifierModifier = new IdentifierModifier();
+        ModulePart newRoot = (ModulePart) oldRoot.apply(identifierModifier);
+
+        FunctionDefinitionNode oldFuncNode = (FunctionDefinitionNode) oldRoot.members().get(0);
+        String oldFuncName = oldFuncNode.functionName().text();
+
+        FunctionDefinitionNode newFuncNode = (FunctionDefinitionNode) newRoot.members().get(0);
+        String newFuncName = newFuncNode.functionName().text();
+
+        Assert.assertEquals(newFuncName, oldFuncName + "_new");
+    }
+
     /**
-     * An implementation of {@code SyntaxTreeModifier}.
+     * An implementation of {@code SyntaxTreeModifier} that modify all variable declaration statements.
      */
     private static class VariableDeclModifier extends SyntaxTreeModifier {
 
         @Override
         public Node transform(VariableDeclaration varDeclStmt) {
-            String oldVarName = varDeclStmt.variableName().getText();
+            String oldVarName = varDeclStmt.variableName().text();
             Identifier newVarName = NodeFactory.createIdentifier(oldVarName + "new");
             return NodeFactory.createVariableDeclaration(varDeclStmt.finalKeyword(), varDeclStmt.typeName(),
                     newVarName, varDeclStmt.equalsToken(), varDeclStmt.initializer(), varDeclStmt.semicolonToken());
+        }
+    }
+
+    /**
+     * An implementation of {@code SyntaxTreeModifier} that rename all identifiers in the tree.
+     */
+    private static class IdentifierModifier extends SyntaxTreeModifier {
+
+        @Override
+        public Node transform(Identifier identifier) {
+            return NodeFactory.createIdentifier(identifier.text() + "_new");
         }
     }
 }
