@@ -299,7 +299,13 @@ public class EventBus {
         }
         String sourcePath = sourcePaths.get(0);
         String sourceName = sourceNames.get(0);
-        String fileName = sourceName.split(File.separator)[sourceName.split(File.separator).length - 1];
+
+        // Some additional processing is required here to rectify the source path, as the source name will be the
+        // relative path instead of the file name, for the ballerina module sources.
+        //
+        // Note: Directly using file separator as a regex will fail on windows.
+        String[] srcNames = sourceName.split(File.separatorChar == '\\' ? "\\\\" : File.separator);
+        String fileName = srcNames[srcNames.length - 1];
         String relativePath = sourcePath.replace(sourceName, fileName);
 
         // Replaces org name with the ballerina src directory name, as the JDI path is prepended with the org name
