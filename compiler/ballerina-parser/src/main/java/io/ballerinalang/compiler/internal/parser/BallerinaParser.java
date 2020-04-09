@@ -428,7 +428,6 @@ public class BallerinaParser {
             case IDENTIFIER_TOKEN:
                 // Scenario: foo bar =
                 return peek(3).kind == SyntaxKind.EQUAL_TOKEN;
-
             default:
                 return false;
         }
