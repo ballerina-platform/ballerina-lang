@@ -16,7 +16,7 @@ export function ReportSummary ({ data }: ReportProps) {
         coverage = <div className="col-sm-3 card summary-card progress-card">
             <h6>Code Coverage: {data.coveragePercentage}%</h6>
             <div className="progress">
-                <div className="progress-bar" style={{width: data.coveragePercentage+"%"}}>{data.coveragePercentage}70%</div>
+                <div className="progress-bar" style={{width: data.coveragePercentage+"%"}}>{data.coveragePercentage}%</div>
             </div>
         </div>
       }
@@ -79,7 +79,7 @@ class ProjectReport extends Component<{data: TestData, updateState: Function}> {
                             <td>{moduleCov.missedLines}</td>,
                             <td>
                                 <div className="progress">
-                                    <div className="progress-bar" style={{width: moduleCov.coveragePercentage+"%"}}>{moduleCov.coveragePercentage}70%</div>
+                                    <div className="progress-bar" style={{width: moduleCov.coveragePercentage+"%"}}>{moduleCov.coveragePercentage}%</div>
                                 </div>
                             </td>]
                         }

@@ -182,7 +182,7 @@ public class RunTestsTask implements Task {
                 }
             }
         }
-        if (report || coverage) {
+        if ((report || coverage) && (testReport.getModuleStatus().size() > 0)) {
             testReport.finalizeTestResults(coverage);
             generateHtmlReport(buildContext.out(), testReport, targetDir);
         }
@@ -349,7 +349,6 @@ public class RunTestsTask implements Task {
         try {
             String classPath = getClassPath(getTestRuntimeJar(buildContext), testDependencies);
             cmdArgs.addAll(Lists.of("-cp", classPath, mainClassName, jsonPath.toString()));
-            cmdArgs.addAll(Arrays.asList(args));
             cmdArgs.add(targetDir.toString());
             cmdArgs.add(testJarPath.toString());
             cmdArgs.add(orgName);
