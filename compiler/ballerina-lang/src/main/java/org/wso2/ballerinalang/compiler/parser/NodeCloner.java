@@ -102,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -988,6 +989,14 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.typedescType = source.typedescType;
     }
 
+    public void visit(BLangTableConstructorExpr source) {
+
+        BLangTableConstructorExpr clone = new BLangTableConstructorExpr();
+        source.cloneRef = clone;
+        clone.recordLiteralList = cloneList(source.recordLiteralList);
+        clone.tableKeySpecifier = clone(source.tableKeySpecifier);
+    }
+
     @Override
     public void visit(BLangListConstructorExpr.BLangTupleLiteral tupleLiteral) {
 
@@ -1430,6 +1439,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangTableType clone = new BLangTableType();
         source.cloneRef = clone;
+        clone.type = clone(source.type);
         clone.tableKeySpecifier = clone(source.tableKeySpecifier);
         clone.tableKeyTypeConstraint = clone(source.tableKeyTypeConstraint);
         clone.isTableKeySpecifier = source.isTableKeySpecifier;

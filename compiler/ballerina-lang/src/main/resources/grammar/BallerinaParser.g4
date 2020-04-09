@@ -218,7 +218,7 @@ typeName
     |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
     |   inclusiveRecordTypeDescriptor                                                           # inclusiveRecordTypeNameLabel
     |   exclusiveRecordTypeDescriptor                                                           # exclusiveRecordTypeNameLabel
-    |   tableTypeDescriptor                                                                           # tableTypeNameLabel
+    |   tableTypeDescriptor                                                                     # tableTypeNameLabel
     ;
 
 inclusiveRecordTypeDescriptor

@@ -71,6 +71,7 @@ public enum InstructionKind {
     XML_LOAD_ALL((byte) 48),
     XML_ATTRIBUTE_LOAD((byte) 49),
     XML_ATTRIBUTE_STORE((byte) 50),
+    NEW_TABLE((byte) 51),
     NEW_TYPEDESC((byte) 52),
     NEW_STREAM((byte) 53),
 

@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -110,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -165,7 +167,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -679,6 +680,29 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = checkListConstructorCompatibility(expType, listConstructor);
+    }
+
+    @Override
+    public void visit(BLangTableConstructorExpr tableConstructorExpr) {
+        if (expType.tag == TypeTags.NONE) {
+            List<BType> memTypes = checkExprList(new ArrayList<>(tableConstructorExpr.recordLiteralList), env);
+            for (BType memType : memTypes) {
+                if (memType == symTable.semanticError) {
+                    resultType = symTable.semanticError;
+                }
+            }
+
+            resultType = new BTableType(TypeTags.TABLE, memTypes.get(0), null);
+        } else {
+            for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
+                BType recordType = checkExpr(recordLiteral, env, ((BTableType) expType).constraint);
+                if (recordType == symTable.semanticError) {
+                    resultType = symTable.semanticError;
+                    return;
+                }
+            }
+            resultType = expType;
+        }
     }
 
     private BType checkListConstructorCompatibility(BType bType, BLangListConstructorExpr listConstructor) {
