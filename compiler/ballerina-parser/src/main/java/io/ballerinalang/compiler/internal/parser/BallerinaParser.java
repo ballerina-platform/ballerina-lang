@@ -222,6 +222,8 @@ public class BallerinaParser {
                 return parseListenerKeyword();
             case SERVICE_DECL:
                 return parseServiceDecl();
+            case NIL_TYPE_DESCRIPTOR:
+                return parseNilTypeDescriptor();
             case COMPOUND_ASSIGNMENT_STMT:
                 return parseCompoundAssignmentStmt();
             case TYPEOF_KEYWORD:
@@ -387,6 +389,8 @@ public class BallerinaParser {
             case CLIENT_KEYWORD:
             case IMPORT_KEYWORD:
             case SERVICE_KEYWORD:
+                //Detect nil type descriptor '()'
+            case OPEN_PAREN_TOKEN:
                 break;
             default:
                 STToken token = peek();
@@ -928,6 +932,8 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
+                //Detect nil type descriptor '()'
+            case OPEN_PAREN_TOKEN:
                 // If declaration starts with a type, then its a module level var declaration.
                 // This is an optimization since if we know the next token is a type, then
                 // we can parse the var-def faster.
@@ -1399,6 +1405,9 @@ public class BallerinaParser {
             case CLIENT_KEYWORD:
                 // Object type descriptor
                 return parseObjectTypeDescriptor();
+                //Nil type descriptor '()'
+            case OPEN_PAREN_TOKEN:
+                return parseNilTypeDescriptor();
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.TYPE_DESCRIPTOR);
@@ -2291,6 +2300,8 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
+                //Nil type descriptor '()'
+            case OPEN_PAREN_TOKEN:
                 // If the statement starts with a type, then its a var declaration.
                 // This is an optimization since if we know the next token is a type, then
                 // we can parse the var-def faster.
@@ -3237,6 +3248,8 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
+                //Nil type descriptor '()'
+            case OPEN_PAREN_TOKEN:
                 member = parseObjectField(STNodeFactory.createEmptyNode());
                 break;
             default:
@@ -3297,6 +3310,8 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
+                //Nil type descriptor '()'
+            case OPEN_PAREN_TOKEN:
                 // Here we try to catch the common user error of missing the function keyword.
                 // In such cases, lookahead for the open-parenthesis and figure out whether
                 // this is an object-method with missing name. If yes, then try to recover.
@@ -4059,7 +4074,6 @@ public class BallerinaParser {
      * Parse compound assignment statement, which takes the following format.
      * </p>
      * <code>assignment-stmt := lvexpr CompoundAssignmentOperator action-or-expr ;</code>
-     *
      * @return Parsed node
      */
     private STNode parseCompoundAssignmentStmt() {
@@ -4075,7 +4089,6 @@ public class BallerinaParser {
      * Parse the RHS portion of the compound assignment.
      * </p>
      * <code>compound-assignment-stmt-rhs := CompoundAssignmentOperator action-or-expr ;</code>
-     *
      * @param expression LHS expression
      * @return Parsed node
      */
@@ -4184,7 +4197,6 @@ public class BallerinaParser {
 
     /**
      * Check whether the given token kind is a compound binary operator.
-     *
      * @param kind STToken kind
      * @return <code>true</code> if the token kind refers to a binary operator. <code>false</code> otherwise
      */
@@ -4485,6 +4497,8 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
+                //Nil type descriptor '()'
+            case OPEN_PAREN_TOKEN:
                 STNode typeDesc = parseTypeDescriptor();
                 STNode variableName = parseVariableName();
                 STNode equalsToken = parseAssignOp();
@@ -4575,6 +4589,19 @@ public class BallerinaParser {
     }
 
     /**
+     * Parse nil type descriptor.
+     *
+     * @return Parsed node
+     */
+    private STNode parseNilTypeDescriptor() {
+        startContext(ParserRuleContext.NIL_TYPE_DESCRIPTOR);
+        STNode openParenthesisToken = parseOpenParenthesis();
+        STNode closeParenthesisToken = parseCloseParenthesis();
+        endContext();
+
+        return STNodeFactory.createNilTypeDescriptor(openParenthesisToken, closeParenthesisToken);
+    }
+    /**
      * Parse typeof expression.
      * <p>
      * <code>
@@ -4652,3 +4679,4 @@ public class BallerinaParser {
         }
     }
 }
+
