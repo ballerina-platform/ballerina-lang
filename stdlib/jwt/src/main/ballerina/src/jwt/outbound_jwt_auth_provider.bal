@@ -35,9 +35,10 @@ public type OutboundJwtAuthProvider object {
         self.jwtIssuerConfig = jwtIssuerConfig;
     }
 
-    # Generate token for JWT authentication.
+    # Generates the token for JWT authentication.
+    # ```ballerina string|auth:Error token = generateToken(); ```
     #
-    # + return - Generated token or `auth:Error` if an error occurred during the JWT issuing or validation
+    # + return - Generated token or else an `auth:Error` if token can't be generated
     public function generateToken() returns string|auth:Error {
         string authToken = "";
         JwtIssuerConfig? jwtIssuerConfig = self.jwtIssuerConfig;
@@ -59,19 +60,20 @@ public type OutboundJwtAuthProvider object {
         return authToken;
     }
 
-    # Inspect the incoming data and generate the token for JWT authentication.
+    # Inspects the incoming data and generates the token for JWT authentication.
+    #```ballerina string|auth:Error? result = inspect(data); ```
     #
     # + data - Map of data which is extracted from the HTTP response
-    # + return - String token, or `auth:Error` occurred when generating token or `()` if nothing to be returned
+    # + return - String token or `()` if nothing to be returned or else an `auth:Error` if token can't be generated
     public function inspect(map<anydata> data) returns string|auth:Error? {
         return ();
     }
 };
 
-# Process auth token for JWT auth.
+# Processes the auth token for JWT auth.
 #
 # + jwtIssuerConfig - JWT issuer configurations
-# + return - Auth token or `Error` if an error occurred during the JWT issuing or validation
+# + return - Auth token or else an `Error` if auth token can't be processed
 function getAuthTokenForJWTAuth(JwtIssuerConfig jwtIssuerConfig) returns string|Error {
     JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
     string username;

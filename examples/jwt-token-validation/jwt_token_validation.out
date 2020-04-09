@@ -1,0 +1,4 @@
+# To start the service, navigate to the directory that contains the
+# `.bal` file and execute the `ballerina run` command.
+$ ballerina run jwt_token_validation.bal --b7a.home=<ballerina_home_path>
+iss=wso2 sub=John aud=ballerina ballerinaSamples jti=100078234ba23 exp=1586427642 customClaims=
