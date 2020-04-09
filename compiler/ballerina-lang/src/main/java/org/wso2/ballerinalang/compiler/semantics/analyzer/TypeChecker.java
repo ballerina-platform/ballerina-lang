@@ -24,6 +24,7 @@ import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
@@ -1788,10 +1789,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Find the variable reference expression type
-        final BType exprType = checkExpr(iExpr.expr, this.env, symTable.noType);
+        checkExpr(iExpr.expr, this.env, symTable.noType);
 
-        if (iExpr.actionInvocation) {
-            checkActionInvocationExpr(iExpr, exprType);
+        if (iExpr instanceof ActionNode) {
             return;
         }
 
@@ -1815,6 +1815,42 @@ public class TypeChecker extends BLangNodeVisitor {
             default:
                 checkInLangLib(iExpr, varRefType);
         }
+    }
+
+    public void visit(BLangInvocation.BLangActionInvocation iExpr) {
+        this.visit((BLangInvocation) iExpr); // TODO: check if this is ok
+
+        BType exprType = iExpr.expr.type;
+        BType actualType = symTable.semanticError;
+        BLangVariableReference varRef = (BLangVariableReference) iExpr.expr;
+
+        if (exprType == symTable.semanticError || exprType.tag != TypeTags.OBJECT ||
+                (varRef.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) {
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
+            resultType = actualType;
+            return;
+        }
+
+        // Type checking logic for remote method calls
+        final BVarSymbol epSymbol = (BVarSymbol) varRef.symbol;
+
+        Name remoteFuncQName = names
+                .fromString(Symbols.getAttachedFuncSymbolName(exprType.tsymbol.name.value, iExpr.name.value));
+        Name actionName = names.fromIdNode(iExpr.name);
+        BSymbol remoteFuncSymbol = symResolver
+                .lookupMemberSymbol(iExpr.pos, ((BObjectTypeSymbol) epSymbol.type.tsymbol).methodScope, env,
+                                    remoteFuncQName, SymTag.FUNCTION);
+
+        // TODO: break this in to two separate error messages
+        if (remoteFuncSymbol == symTable.notFoundSymbol || !Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE)) {
+            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.type.tsymbol.name);
+            resultType = actualType;
+            return;
+        }
+
+        iExpr.symbol = remoteFuncSymbol;
+
+        checkInvocationParamAndReturnType(iExpr);
     }
 
     public void visit(BLangLetExpression letExpression) {
@@ -3775,34 +3811,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
         }
-        checkInvocationParamAndReturnType(iExpr);
-    }
-
-    private void checkActionInvocationExpr(BLangInvocation iExpr, BType epType) {
-
-        BType actualType = symTable.semanticError;
-        if (epType == symTable.semanticError || epType.tag != TypeTags.OBJECT
-                || ((BLangVariableReference) iExpr.expr).symbol.tag != SymTag.ENDPOINT) {
-            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
-            resultType = actualType;
-            return;
-        }
-
-        final BVarSymbol epSymbol = (BVarSymbol) ((BLangVariableReference) iExpr.expr).symbol;
-
-        Name remoteFuncQName = names
-                .fromString(Symbols.getAttachedFuncSymbolName(epType.tsymbol.name.value, iExpr.name.value));
-        Name actionName = names.fromIdNode(iExpr.name);
-        BSymbol remoteFuncSymbol = symResolver
-                .lookupMemberSymbol(iExpr.pos, ((BObjectTypeSymbol) epSymbol.type.tsymbol).methodScope, env,
-                        remoteFuncQName, SymTag.FUNCTION);
-        if (remoteFuncSymbol == symTable.notFoundSymbol || !Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE)) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName,
-                       epSymbol.type.tsymbol.name);
-            resultType = actualType;
-            return;
-        }
-        iExpr.symbol = remoteFuncSymbol;
         checkInvocationParamAndReturnType(iExpr);
     }
 

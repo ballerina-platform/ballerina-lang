@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -211,7 +212,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     /**
      * @since 0.94
      */
-    public static class BLangActionInvocation extends BLangInvocation {
+    public static class BLangActionInvocation extends BLangInvocation implements ActionNode {
 
         public BLangActionInvocation(DiagnosticPos pos,
                                      List<BLangExpression> requiredArgs,
@@ -225,6 +226,9 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
             this.symbol = symbol;
             this.type = type;
             this.async = async;
+        }
+
+        public BLangActionInvocation() {
         }
 
         @Override

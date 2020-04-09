@@ -2653,6 +2653,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
     }
 
+    // TODO: remove unused method
     private void checkTransactionHandlerValidity(BLangExpression transactionHanlder) {
         if (transactionHanlder != null) {
             BSymbol handlerSymbol = ((BLangSimpleVarRef) transactionHanlder).symbol;
