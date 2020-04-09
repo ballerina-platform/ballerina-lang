@@ -127,6 +127,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
@@ -1356,6 +1357,8 @@ class JvmTypeGen {
             return String.format("L%s;", TYPEDESC_VALUE);
         } else if (bType.tag == TypeTags.STREAM) {
             return String.format("L%s;", STREAM_VALUE);
+        } else if (bType.tag == TypeTags.TABLE) {
+            return String.format("L%s;", TABLE_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             return String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.OBJECT) {
