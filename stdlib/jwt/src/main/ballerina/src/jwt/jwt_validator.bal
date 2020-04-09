@@ -56,11 +56,11 @@ public type InboundJwtCacheEntry record {|
     int? expTime;
 |};
 
-# Validate the given JWT string.
+# Validates the given JWT string.
 #
 # + jwtToken - JWT token that needs to be validated
 # + config - JWT validator config record
-# + return - If the JWT token is valid, return the JWT payload. Else, return an `Error` if token validation fails.
+# + return - JWT payload or else an `Error` if token validation fails.
 public function validateJwt(string jwtToken, JwtValidatorConfig config) returns @tainted (JwtPayload|Error) {
     [JwtHeader, JwtPayload] [header, payload] = check decodeJwt(jwtToken);
     return validateJwtRecords(jwtToken, header, payload, config) ?: payload;
@@ -74,10 +74,10 @@ function getJwtComponents(string jwtToken) returns string[]|Error {
     return jwtComponents;
 }
 
-# Decode the given JWT string.
+# Decodes the given JWT string.
 #
 # + jwtToken - JWT token that needs to be decoded
-# + return - The JWT header and payload tuple or an `Error` if token decoding fails
+# + return - The JWT header and payload tuple or else an `Error` if token decoding fails
 public function decodeJwt(string jwtToken) returns @tainted ([JwtHeader, JwtPayload]|Error) {
     string[] encodedJwtComponents = check getJwtComponents(jwtToken);
     [map<json>, map<json>] [headerJson, payloadJson] = check getDecodedJwtComponents(encodedJwtComponents);

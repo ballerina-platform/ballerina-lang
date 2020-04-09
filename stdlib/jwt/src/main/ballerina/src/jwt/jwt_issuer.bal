@@ -47,13 +47,13 @@ public type JwtKeyStoreConfig record {|
     string keyPassword;
 |};
 
-# Issue a JWT token based on provided header and payload. JWT will be signed (JWS) if `keyStore` information is provided
-# in the `JwtKeyStoreConfig` and the `alg` field of `JwtHeader` is not `NONE`.
+# Issues a JWT token based on provided header and payload. JWT will be signed (JWS) if `keyStore` information is
+# provided in the `JwtKeyStoreConfig` and the `alg` field of `JwtHeader` is not `NONE`.
 #
 # + header - JwtHeader object
 # + payload - JwtPayload object
 # + config - JWT key store config record
-# + return - JWT token string or an `Error` if token validation fails
+# + return - JWT token string or else an `Error` if token validation fails
 public function issueJwt(JwtHeader header, JwtPayload payload, JwtKeyStoreConfig? config) returns string|Error {
     string jwtHeader = check buildHeaderString(header);
     string jwtPayload = check buildPayloadString(payload);
@@ -115,10 +115,10 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtKeyStoreConfig
     }
 }
 
-# Build the header string from the `JwtHeader` record.
+# Builds the header string from the `JwtHeader` record.
 #
 # + header - JWT header record to be built as a string
-# + return - The header string or an `Error` if building the string fails
+# + return - The header string or else an `Error` if building the string fails
 public function buildHeaderString(JwtHeader header) returns string|Error {
     map<json> headerJson = {};
     if (!validateMandatoryJwtHeaderFields(header)) {
@@ -162,10 +162,10 @@ public function buildHeaderString(JwtHeader header) returns string|Error {
     return encodedPayload;
 }
 
-# Build the payload string from the `JwtPayload` record.
+# Builds the payload string from the `JwtPayload` record.
 #
 # + payload - JWT payload record to be built as a string
-# + return - The payload string or an `Error` if building the string fails
+# + return - The payload string or else an `Error` if building the string fails
 public function buildPayloadString(JwtPayload payload) returns string|Error {
     map<json> payloadJson = {};
     string? sub = payload?.sub;
