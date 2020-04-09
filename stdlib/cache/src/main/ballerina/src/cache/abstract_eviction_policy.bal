@@ -14,45 +14,44 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the Ballerina `AbstractEvictionPolicy` object and cache eviction related operations
-# based on a linked list data structure.
-# Any custom cache implementation should be object-wise similar.
+# The `cache:AbstractEvictionPolicy` Ballerina  object is used for custom implementations of the eviction policy for a
+# Ballerina cache object. Any custom eviction policy implementation should be object-wise similar.
 public type AbstractEvictionPolicy abstract object {
 
-    # Update the linked list based on the get operation.
+    # Updates the linked list based on the get operation.
     #
-    # + list - Linked list data structure
+    # + list - Linked list data structure, which is used to govern the eviction policy
     # + node - Node of the linked list, which is retrieved
     public function get(LinkedList list, Node node);
 
-    # Update the linked list based on the put operation.
+    # Updates the linked list based on the put operation.
     #
-    # + list - Linked list data structure
+    # + list - Linked list data structure, which is used to govern the eviction policy
     # + node - Node of the linked list, which is added newly
     public function put(LinkedList list, Node node);
 
-    # Update the linked list based on the remove operation.
+    # Updates the linked list based on the remove operation.
     #
-    # + list - Linked list data structure
+    # + list - Linked list data structure, which is used to govern the eviction policy
     # + node - Node of the linked list, which is deleted
     public function remove(LinkedList list, Node node);
 
-    # Update the linked list based on the replace operation.
+    # Updates the linked list based on the replace operation.
     #
-    # + list - Linked list data structure
-    # + newNode - Node of the linked list, which is used for replacing
-    # + oldNode - Node of the linked list, which will be replaced
+    # + list - Linked list data structure, which is used to govern the eviction policy
+    # + newNode - Node of the linked list, which will be replacing the `oldNode`
+    # + oldNode - Node of the linked list, which will be replaced by the `newNode`
     public function replace(LinkedList list, Node newNode, Node oldNode);
 
-    # Update the linked list based on the clear operation.
+    # Updates the linked list based on the clear operation.
     #
-    # + list - Linked list data structure
+    # + list - Linked list data structure, which is used to govern the eviction policy
     public function clear(LinkedList list);
 
-    # Update the linked list based on the evict operation.
+    # Updates the linked list based on the evict operation.
     #
-    # + list - Linked list data structure
-    # + return - The Node, which should evict from the linked list or `()` if nothing to be evicted
+    # + list - Linked list data structure, which is used to govern the eviction policy
+    # + return - The Node, which is evicted from the linked list or `()` if nothing to be evicted
     public function evict(LinkedList list) returns Node?;
 
 };
