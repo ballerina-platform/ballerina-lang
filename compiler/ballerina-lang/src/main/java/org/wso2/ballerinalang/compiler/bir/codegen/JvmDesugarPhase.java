@@ -37,10 +37,12 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -310,17 +312,30 @@ public class JvmDesugarPhase {
                         connectorName = "";
                     }
 
+                    boolean isErrorCheckRequired = false;
+                    if (callIns.lhsOp.variableDcl.type instanceof BUnionType) {
+                        BUnionType returnUnionType = (BUnionType) callIns.lhsOp.variableDcl.type;
+                        isErrorCheckRequired = returnUnionType.getMemberTypes().stream()
+                                .anyMatch(type -> type instanceof BErrorType);
+                    } else if (callIns.lhsOp.variableDcl.type instanceof BErrorType) {
+                        isErrorCheckRequired = true;
+                    }
+
                     BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(basicBlocks, i + 1, "desugaredBB");
-                    BIRBasicBlock errorCheckBranchBB = insertAndGetNextBasicBlock(basicBlocks, i + 2, "desugaredBB");
-                    BIRBasicBlock errorReportBB = insertAndGetNextBasicBlock(basicBlocks, i + 3, "desugaredBB");
-                    BIRBasicBlock observeEndBB = insertAndGetNextBasicBlock(basicBlocks, i + 4, "desugaredBB");
+                    BIRBasicBlock errorCheckBranchBB = null;
+                    BIRBasicBlock errorReportBB = null;
+                    if (isErrorCheckRequired) {
+                        errorCheckBranchBB = insertAndGetNextBasicBlock(basicBlocks, i + 2, "desugaredBB");
+                        errorReportBB = insertAndGetNextBasicBlock(basicBlocks, i + 3, "desugaredBB");
+                    }
+                    BIRBasicBlock observeEndBB = insertAndGetNextBasicBlock(basicBlocks,
+                            i + (isErrorCheckRequired ? 4 : 2), "desugaredBB");
 
                     newCurrentBB.instructions = currentBB.instructions;
                     newCurrentBB.terminator = currentBB.terminator;
                     currentBB.instructions = new ArrayList<>(0);
                     currentBB.terminator = null;
 
-                    JIMethodCall observeStartCallTerminator;
                     {
                         BIROperand connectorNameOperand = generateConstantOperand(
                                 String.format("%s_connector", currentBB.id.value), connectorName, scopeVarList,
@@ -338,7 +353,7 @@ public class JvmDesugarPhase {
                         BIROperand tagsMapOperand = generateMapOperand(String.format("%s_tags", currentBB.id.value),
                                 tags, scopeVarList, currentBB, desugaredInsPosition);
 
-                        observeStartCallTerminator = new JIMethodCall(desugaredInsPosition);
+                        JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsPosition);
                         observeStartCallTerminator.invocationType = INVOKESTATIC;
                         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
                         observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V", STRING_VALUE,
@@ -346,30 +361,38 @@ public class JvmDesugarPhase {
                         observeStartCallTerminator.name = "startCallableObservation";
                         observeStartCallTerminator.args = Arrays.asList(connectorNameOperand, actionNameOperand,
                                 tagsMapOperand);
+                        currentBB.terminator = observeStartCallTerminator;
                     }
 
-                    BIRVariableDcl isErrorVariableDcl = new BIRVariableDcl(symbolTable.booleanType,
-                            new Name(String.format("$_%s_is_error_$", errorCheckBranchBB.id.value)), VarScope.FUNCTION,
-                            VarKind.LOCAL);
-                    scopeVarList.add(isErrorVariableDcl);
-                    BIROperand isErrorOperand = new BIROperand(isErrorVariableDcl);
-                    TypeTest errorTypeTestInstruction = new TypeTest(desugaredInsPosition, symbolTable.errorType,
-                            isErrorOperand, callIns.lhsOp);
+                    if (isErrorCheckRequired) {
+                        BIRVariableDcl isErrorVariableDcl = new BIRVariableDcl(symbolTable.booleanType,
+                                new Name(String.format("$_%s_is_error_$", errorCheckBranchBB.id.value)),
+                                VarScope.FUNCTION, VarKind.TEMP);
+                        scopeVarList.add(isErrorVariableDcl);
+                        BIROperand isErrorOperand = new BIROperand(isErrorVariableDcl);
+                        TypeTest errorTypeTestInstruction = new TypeTest(desugaredInsPosition, symbolTable.errorType,
+                                isErrorOperand, callIns.lhsOp);
+                        errorCheckBranchBB.instructions.add(errorTypeTestInstruction);
+                        errorCheckBranchBB.terminator = new Branch(desugaredInsPosition, isErrorOperand, errorReportBB,
+                                observeEndBB);
 
-                    BIRVariableDcl castedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorType,
-                            new Name(String.format("$_%s_casted_error_$", errorReportBB.id.value)), VarScope.FUNCTION,
-                            VarKind.LOCAL);
-                    scopeVarList.add(castedErrorVariableDcl);
-                    BIROperand castedErrorOperand = new BIROperand(castedErrorVariableDcl);
-                    TypeCast errorCastInstruction = new TypeCast(desugaredInsPosition, castedErrorOperand,
-                            callIns.lhsOp, symbolTable.errorType, false);
+                        BIRVariableDcl castedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorType,
+                                new Name(String.format("$_%s_casted_error_$", errorReportBB.id.value)),
+                                VarScope.FUNCTION, VarKind.TEMP);
+                        scopeVarList.add(castedErrorVariableDcl);
+                        BIROperand castedErrorOperand = new BIROperand(castedErrorVariableDcl);
+                        TypeCast errorCastInstruction = new TypeCast(desugaredInsPosition, castedErrorOperand,
+                                callIns.lhsOp, symbolTable.errorType, false);
+                        errorReportBB.instructions.add(errorCastInstruction);
 
-                    JIMethodCall reportErrorCallTerminator = new JIMethodCall(desugaredInsPosition);
-                    reportErrorCallTerminator.invocationType = INVOKESTATIC;
-                    reportErrorCallTerminator.jClassName = OBSERVE_UTILS;
-                    reportErrorCallTerminator.jMethodVMSig = String.format("(L%s;)V", ERROR_VALUE);
-                    reportErrorCallTerminator.name = "reportError";
-                    reportErrorCallTerminator.args = Collections.singletonList(castedErrorOperand);
+                        JIMethodCall reportErrorCallTerminator = new JIMethodCall(desugaredInsPosition);
+                        reportErrorCallTerminator.invocationType = INVOKESTATIC;
+                        reportErrorCallTerminator.jClassName = OBSERVE_UTILS;
+                        reportErrorCallTerminator.jMethodVMSig = String.format("(L%s;)V", ERROR_VALUE);
+                        reportErrorCallTerminator.name = "reportError";
+                        reportErrorCallTerminator.args = Collections.singletonList(castedErrorOperand);
+                        errorReportBB.terminator = reportErrorCallTerminator;
+                    }
 
                     JIMethodCall observeEndCallTerminator = new JIMethodCall(desugaredInsPosition);
                     observeEndCallTerminator.invocationType = INVOKESTATIC;
@@ -377,20 +400,17 @@ public class JvmDesugarPhase {
                     observeEndCallTerminator.jMethodVMSig = "()V";
                     observeEndCallTerminator.name = "stopObservation";
                     observeEndCallTerminator.args = Collections.emptyList();
-
-                    currentBB.terminator = observeStartCallTerminator;
-                    errorCheckBranchBB.instructions.add(errorTypeTestInstruction);
-                    errorCheckBranchBB.terminator = new Branch(desugaredInsPosition, isErrorOperand, errorReportBB,
-                            observeEndBB);
-                    errorReportBB.instructions.add(errorCastInstruction);
-                    errorReportBB.terminator = reportErrorCallTerminator;
                     observeEndBB.terminator = observeEndCallTerminator;
 
-                    errorReportBB.terminator.thenBB = observeEndBB;
                     observeEndBB.terminator.thenBB = newCurrentBB.terminator.thenBB;
-                    newCurrentBB.terminator.thenBB = errorCheckBranchBB;
+                    if (isErrorCheckRequired) {
+                        errorReportBB.terminator.thenBB = observeEndBB;
+                        newCurrentBB.terminator.thenBB = errorCheckBranchBB;
+                    } else {
+                        newCurrentBB.terminator.thenBB = observeEndBB;
+                    }
                     currentBB.terminator.thenBB = newCurrentBB; // Current BB now contains observe start call
-                    i += 4;
+                    i += (isErrorCheckRequired ? 4 : 2);
                 }
             }
             i++;
@@ -401,7 +421,7 @@ public class JvmDesugarPhase {
                                                      List<BIRVariableDcl> scopeVarList, BIRBasicBlock basicBlock,
                                                      DiagnosticPos desugaredInsPosition) {
         BIRVariableDcl variableDcl = new BIRVariableDcl(symbolTable.stringType,
-                new Name(String.format("$_%s_const_$", uniqueId)), VarScope.FUNCTION, VarKind.LOCAL);
+                new Name(String.format("$_%s_const_$", uniqueId)), VarScope.FUNCTION, VarKind.TEMP);
         scopeVarList.add(variableDcl);
         BIROperand operand = new BIROperand(variableDcl);
         ConstantLoad instruction = new ConstantLoad(desugaredInsPosition, constantValue, symbolTable.stringType,
@@ -414,7 +434,7 @@ public class JvmDesugarPhase {
                                                 List<BIRVariableDcl> scopeVarList, BIRBasicBlock basicBlock,
                                                 DiagnosticPos desugaredInsPosition) {
         BIRVariableDcl variableDcl = new BIRVariableDcl(symbolTable.mapType,
-                new Name(String.format("$_%s_map_$", uniqueId)), VarScope.FUNCTION, VarKind.LOCAL);
+                new Name(String.format("$_%s_map_$", uniqueId)), VarScope.FUNCTION, VarKind.TEMP);
         scopeVarList.add(variableDcl);
         BIROperand tagsMapOperand = new BIROperand(variableDcl);
 
