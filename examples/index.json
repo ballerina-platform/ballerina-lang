@@ -630,6 +630,10 @@
             {
                 "name": "Cryptographic Operations",
                 "url": "crypto"
+            },
+            {
+                "name": "URL encode/decode operations",
+                "url": "url-encode-decode"
             }
         ]
     },
