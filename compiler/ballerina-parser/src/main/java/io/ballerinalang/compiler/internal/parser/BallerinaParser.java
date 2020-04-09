@@ -1798,8 +1798,6 @@ public class BallerinaParser {
                 return OperatorPrecedence.LOGICAL_AND;
             case LOGICAL_OR_TOKEN:
                 return OperatorPrecedence.LOGICAL_OR;
-            case TYPEOF_KEYWORD:
-                return OperatorPrecedence.UNARY;
             default:
                 throw new UnsupportedOperationException("Unsupported binary operator '" + binaryOpKind + "'");
         }
@@ -2616,6 +2614,11 @@ public class BallerinaParser {
                 return parseMappingConstructorExpr();
             case TYPEOF_KEYWORD:
                 return parseTypeofExpression();
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+            case NEGATION_TOKEN:
+            case EXCLAMATION_MARK_TOKEN:
+                return parseUnaryExpression();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.EXPRESSION);
                 return solution.recoveredNode;
@@ -4609,7 +4612,7 @@ public class BallerinaParser {
      */
     private STNode parseTypeofExpression() {
         STNode typeofKeyword = parseTypeofKeyword();
-        STNode expr = parseExpression();
+        STNode expr = parseExpression(OperatorPrecedence.UNARY, false);
         return STNodeFactory.createTypeofExpression(typeofKeyword, expr);
     }
 
@@ -4625,6 +4628,54 @@ public class BallerinaParser {
         } else {
             Solution sol = recover(token, ParserRuleContext.TYPEOF_KEYWORD);
             return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse unary expression.
+     * <p>
+     * <code>
+     * unary-expr := + expression | - expression | ~ expression | ! expression
+     * </code>
+     *
+     * @return Unary expression node
+     */
+    private STNode parseUnaryExpression() {
+        STNode unaryOperator = parseUnaryOperator();
+        STNode expr = parseExpression(OperatorPrecedence.UNARY, false);
+        return STNodeFactory.createUnaryExpression(unaryOperator, expr);
+    }
+
+    /**
+     * Parse unary operator.
+     * <code>UnaryOperator := + | - | ~ | !</code>
+     * @return Parsed node
+     */
+    private STNode parseUnaryOperator() {
+        STToken token = peek();
+        if (isUnaryOperator(token.kind)) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.UNARY_OPERATOR);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Check whether the given token kind is a unary operator.
+     *
+     * @param kind STToken kind
+     * @return <code>true</code> if the token kind refers to a unary operator. <code>false</code> otherwise
+     */
+    private boolean isUnaryOperator(SyntaxKind kind) {
+        switch (kind) {
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+            case NEGATION_TOKEN:
+            case EXCLAMATION_MARK_TOKEN:
+                return true;
+            default:
+                return false;
         }
     }
 }

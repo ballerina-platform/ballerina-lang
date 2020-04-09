@@ -95,6 +95,7 @@ public enum SyntaxKind {
     BITWISE_XOR_TOKEN(569, "^"),
     LOGICAL_AND_TOKEN(570, "&&"),
     LOGICAL_OR_TOKEN(571, "||"),
+    NEGATION_TOKEN(572, "~"),
 
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
@@ -142,6 +143,7 @@ public enum SyntaxKind {
     CHECK_EXPRESSION(1307),
     MAPPING_CONSTRUCTOR(1308),
     TYPEOF_EXPRESSION(1309),
+    UNARY_EXPRESSION(1310),
 
     // Type descriptors
     RECORD_TYPE_DESCRIPTOR(2000),

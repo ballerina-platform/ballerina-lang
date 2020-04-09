@@ -163,9 +163,9 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] RETURN_RHS = { ParserRuleContext.SEMICOLON, ParserRuleContext.EXPRESSION };
 
-    private static final ParserRuleContext[] EXPRESSIONS =
-            { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION,
-                    ParserRuleContext.TYPEOF_EXPRESSION };
+    private static final ParserRuleContext[] EXPRESSIONS = { ParserRuleContext.BASIC_LITERAL,
+            ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION, ParserRuleContext.TYPEOF_EXPRESSION,
+            ParserRuleContext.UNARY_EXPRESSION };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -819,6 +819,9 @@ public class BallerinaParserErrorHandler {
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, CONST_DECL_RHS);
                 case TYPEOF_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.TYPEOF_KEYWORD;
+                    break;
+                case UNARY_OPERATOR:
+                    hasMatch = isUnaryOperator(nextToken);
                     break;
 
                 // Productions (Non-terminals which does'nt have alternative paths)
@@ -1508,6 +1511,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.TYPEOF_KEYWORD;
             case TYPEOF_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
+            case UNARY_EXPRESSION:
+                return ParserRuleContext.UNARY_OPERATOR;
+            case UNARY_OPERATOR:
+                return ParserRuleContext.EXPRESSION;
 
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
@@ -2094,6 +2101,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.NIL_TYPE;
             case TYPEOF_KEYWORD:
                 return SyntaxKind.TYPEOF_KEYWORD;
+            case UNARY_OPERATOR:
+                return SyntaxKind.PLUS_TOKEN;
 
             // TODO:
             case COMP_UNIT:
@@ -2170,6 +2179,24 @@ public class BallerinaParserErrorHandler {
             case STRING_LITERAL:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Check whether the given token refers to a unary operator.
+     *
+     * @param token Token to check
+     * @return <code>true</code> if the given token refers to a unary operator. <code>false</code> otherwise
+     */
+    private boolean isUnaryOperator(STToken token) {
+        switch (token.kind) {
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+            case NEGATION_TOKEN:
+            case EXCLAMATION_MARK_TOKEN:
                 return true;
             default:
                 return false;
