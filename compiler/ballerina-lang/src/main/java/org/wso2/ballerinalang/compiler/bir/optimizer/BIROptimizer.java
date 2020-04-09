@@ -448,6 +448,13 @@ public class BIROptimizer {
         }
 
         @Override
+        public void visit(BIRNonTerminator.NewTable newTable) {
+            this.optimizeNode(newTable.lhsOp, this.env);
+            this.optimizeNode(newTable.keyColOp, this.env);
+            this.optimizeNode(newTable.dataOp, this.env);
+        }
+
+        @Override
         public void visit(BIRNonTerminator.NewTypeDesc newTypeDesc) {
             this.optimizeNode(newTypeDesc.lhsOp, this.env);
         }

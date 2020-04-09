@@ -119,6 +119,7 @@ public enum NodeKind {
     DOCUMENTATION_DEPRECATION,
     SERVICE_CONSTRUCTOR,
     LET_EXPR,
+    TABLE_CONSTRUCTOR_EXPR,
 
     /* Statements */
     ABORT,

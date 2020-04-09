@@ -115,6 +115,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangF
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangLocalVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangPackageVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
@@ -1906,6 +1907,42 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclFunc.localVars.add(tempVarDcl);
         BIROperand toVarRef = new BIROperand(tempVarDcl);
         emit(new BIRNonTerminator.NewTypeDesc(accessExpr.pos, toVarRef, accessExpr.resolvedType));
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
+    public void visit(BLangTableConstructorExpr tableConstructorExpr) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(tableConstructorExpr.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        BLangArrayLiteral keySpecifierLiteral = new BLangArrayLiteral();
+        keySpecifierLiteral.pos = tableConstructorExpr.pos;
+        keySpecifierLiteral.type = symTable.stringArrayType;
+        keySpecifierLiteral.exprs = new ArrayList<>();
+        tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList.forEach(col -> {
+            BLangLiteral colLiteral = new BLangLiteral();
+            colLiteral.pos = tableConstructorExpr.pos;
+            colLiteral.type = symTable.stringType;
+            colLiteral.value = col.value;
+            keySpecifierLiteral.exprs.add(colLiteral);
+        });
+
+        keySpecifierLiteral.accept(this);
+        BIROperand keyColOp = this.env.targetOperand;
+
+        BLangArrayLiteral dataLiteral = new BLangArrayLiteral();
+        dataLiteral.pos = tableConstructorExpr.pos;
+        dataLiteral.type = symTable.anydataArrayType;
+        dataLiteral.exprs = new ArrayList<>(tableConstructorExpr.recordLiteralList);
+        dataLiteral.accept(this);
+        BIROperand dataOp = this.env.targetOperand;
+
+        emit(new BIRNonTerminator.NewTable(tableConstructorExpr.pos, tableConstructorExpr.type, toVarRef, keyColOp,
+                dataOp));
+
         this.env.targetOperand = toVarRef;
     }
 

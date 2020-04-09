@@ -593,6 +593,26 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    public static class NewTable extends BIRNonTerminator {
+        public BIROperand keyColOp;
+        public BIROperand dataOp;
+        public BType type;
+
+        public NewTable(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand keyColOp,
+                        BIROperand dataOp) {
+            super(pos, InstructionKind.NEW_TABLE);
+            this.type = type;
+            this.lhsOp = lhsOp;
+            this.keyColOp = keyColOp;
+            this.dataOp = dataOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+    }
+
     /**
      * A type cast expression.
      * <p>

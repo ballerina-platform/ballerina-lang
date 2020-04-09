@@ -1495,6 +1495,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitTableConstructorExpr(BallerinaParser.TableConstructorExprContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createTableConstructor(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitListConstructorExpr(BallerinaParser.ListConstructorExprContext ctx) {
         if (isInErrorState) {
             return;

@@ -913,11 +913,14 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangTableType tableTypeNode) {
+        BType type = resolveTypeNode(tableTypeNode.type, env);
         BType constraintType = resolveTypeNode(tableTypeNode.constraint, env);
-        BTypeSymbol typeSymbol = constraintType.tsymbol;
-        BTypeSymbol tableTypeSymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                typeSymbol.pkgID, constraintType, typeSymbol.owner);
-        BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, tableTypeSymbol);
+
+        BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
+        BTypeSymbol typeSymbol = type.tsymbol;
+        tableType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
+                typeSymbol.pkgID, tableType, typeSymbol.owner);
+
         if (!tableTypeNode.isTableKeySpecifier) {
             tableType.keyTypeConstraint = resolveTypeNode(tableTypeNode.tableKeyTypeConstraint.keyType, env);
         } else {

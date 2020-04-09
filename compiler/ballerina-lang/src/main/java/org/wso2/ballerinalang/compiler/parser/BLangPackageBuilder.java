@@ -124,6 +124,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -440,10 +441,19 @@ public class BLangPackageBuilder {
     }
 
     void addTableType(DiagnosticPos pos, Set<Whitespace> ws) {
+        String tableTypeName = "table";
+        Set<Whitespace> refTypeWS = removeNthFromLast(ws, 2);
+
+        BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
+        refType.typeKind = TreeUtils.stringToTypeKind(tableTypeName);
+        refType.pos = pos;
+        refType.addWS(refTypeWS);
+
         BLangTableType tableTypeNode = (BLangTableType) TreeBuilder.createTableTypeNode();
         tableTypeNode.pos = pos;
         tableTypeNode.addWS(ws);
 
+        tableTypeNode.type = refType;
         tableTypeNode.constraint = (BLangType) typeNodeStack.pop();
         if (tableKeySpecifierNodeStack.size() > 0) {
             BLangTableKeySpecifier tableKeySpecifierNode =
@@ -2053,6 +2063,24 @@ public class BLangPackageBuilder {
         }
 
         this.compUnit.addTopLevelNode(function);
+    }
+
+    void createTableConstructor(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTableConstructorExpr tableConstructorExpr =
+                (BLangTableConstructorExpr) TreeBuilder.createTableConstructorExpressionNode();
+        tableConstructorExpr.pos = pos;
+        tableConstructorExpr.addWS(ws);
+        if (tableKeySpecifierNodeStack.size() > 0) {
+            tableConstructorExpr.tableKeySpecifier = (BLangTableKeySpecifier) tableKeySpecifierNodeStack.pop();
+        }
+
+        if (exprNodeStack.size() > 0) {
+            for (ExpressionNode expression : exprNodeStack) {
+                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
+                tableConstructorExpr.addRecordLiteral(recordLiteral);
+            }
+        }
+        addExpressionNode(tableConstructorExpr);
     }
 
     void startWorker(PackageID pkgID) {
