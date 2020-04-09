@@ -77,9 +77,16 @@ public class JMethod {
         }
 
         // Set the attributes relevant to error returns.
-        if (m.getExceptionTypes().length > 0) {
-            hasException = true;
-            handleException = true;
+        for (Class<?> exceptionType : m.getExceptionTypes()) {
+            try {
+                if (!this.getClass().getClassLoader().loadClass(RuntimeException.class.getCanonicalName())
+                        .isAssignableFrom(exceptionType)) {
+                    hasException = true;
+                    handleException = true;
+                    break;
+                }
+            } catch (ClassNotFoundException ignore) {
+            }
         }
 
         // Set the attributes required to identify different parameters.
