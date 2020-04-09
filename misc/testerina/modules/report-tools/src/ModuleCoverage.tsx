@@ -22,7 +22,8 @@ class ModuleCoverageSummary extends Component<{ module: ModuleCoverage, modIndex
                         <td>{sourceFile.missedLines.length}</td>
                         <td>
                         <div className="progress">
-                            <div className="progress-bar" style={{width: data.coveragePercentage+"%"}}>{data.coveragePercentage}70%</div>
+                            <div className="progress-bar" style={{width: sourceFile.coveragePercentage+"%"}}>
+                            {sourceFile.coveragePercentage}%</div>
                         </div>
                         </td>
                     </tr>
