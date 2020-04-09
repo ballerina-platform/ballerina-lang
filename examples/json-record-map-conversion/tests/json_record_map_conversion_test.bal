@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 
 any[] outputs = [];
 int counter = 0;
@@ -14,7 +13,7 @@ public function mockPrint(any... s) {
     counter += 1;
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
@@ -31,7 +30,7 @@ function testFunc() {
 
     json jt2 = "Punke";
     int jt3 = 30;
-    Movie jt4 = {
+    json jt4 = {
         title: "Inception",
         year: "2010",
         released: "16 Jul 2010",
@@ -42,7 +41,7 @@ function testFunc() {
         }
     };
 
-    test:assertEquals(outputs[0], jt1);
+    test:assertEquals(outputs[0], jt1.toJsonString());
     test:assertEquals(outputs[1], jt2);
     test:assertEquals(outputs[2], jt3);
     test:assertEquals(outputs[3], jt4);
