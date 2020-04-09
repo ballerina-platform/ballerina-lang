@@ -32,8 +32,8 @@ public type XmlOptions record {
 # ```
 #
 # + x - The XML source to be converted to JSON
-# + options - The `XmlOptions` record consisting the configurations for the conversion
-# + return - The JSON representation of the given XML or an error if the conversion fails
+# + options - The `XmlOptions` record consisting of the configurations for the conversion
+# + return - The JSON representation of the given XML on success, else returns an `error`
 public function fromXML(xml x, XmlOptions options = {}) returns json|error {
     json|error|handle result = externFromXML(x, options);
     if (result is handle) {
