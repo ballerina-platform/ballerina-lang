@@ -1,5 +1,3 @@
-## Module Overview
-
 This module provides APIs for handle caching in Ballerina. It consists of a default implementation based on the map data structure. It also provides a default cache eviction policy object, which is based on the LRU eviction algorithm.
 
 The `cache:AbstractCache` object has the common APIs for the caching functionalities. Custom implementations of the cache can be done with different data storages like file, database, etc. with the structural equivalency to the `cache:AbstractCacheObject` object.
@@ -56,8 +54,7 @@ public type CacheConfig record {|
 There are 2 mandatory scenarios and 1 optional scenario in which a cache entry gets removed from the cache and maintains the freshness of the cache entries. The 2 independent factors (i.e., eviction policy and freshness time of the cache entry) governs the 3 scenarios.
 
 1. When using the `get` API, if the returning cache entry has expired, it gets removed.
-2. When using the `put` API, if the cache size has reached its capacity, the number of entries get removed based on the
-'eviction policy' and the 'eviction factor'.
+2. When using the `put` API, if the cache size has reached its capacity, the number of entries get removed based on the 'eviction policy' and the 'eviction factor'.
 3. If `cleanupIntervalInSeconds` (optional property) is configured, the timer task will remove the expired cache entries based on the configured interval.
 
 The main benefit of using the `cleanupIntervalInSeconds` (optional) property is that the developer can optimize the memory usage while adding some additional CPU costs and vice versa. The default behaviour is the CPU-optimized method.
@@ -88,85 +85,4 @@ A linked list is used for the eviction of the cache. According to the user-confi
 
 Furthermore, you can implement custom caching implementations based on different cache storage mechanisms (file, database. etc.) and different eviction policies (MRU, FIFO, etc.). Ballerina provides a "map-based cache" as the default cache implementation.
 
-### Samples
-
-#### Cache Initialization
-
-The following is a sample cache with a capacity of 100 entries, which uses LRU as the eviction policy and an eviction factor as 0.25, which are the default values:
-```ballerina
-cache:Cache cache = new;
-```
-
-The following is a sample with a cache with a capacity of 1000 entries, an eviction factor of 0.2, the default freshness time as 1 hour per an entry, and clean up timer configured with an interval of 5 seconds.
-```ballerina
-cache:Cache cache = new({
-    capacity: 1000,
-    evictionFactor: 0.2,
-    defaultMaxAgeInSeconds: 3600
-    cleanupIntervalInSeconds: 5
-});
-```
-
-The following is an example of an advanced cache, which uses a custom eviction policy along with the default capacity, eviction factor, max age, and cleanup interval.
-```ballerina
-public type CustomEvictionPolicy object {
-    *cache:AbstractEvictionPolicy;
-    public function get(LinkedList list, Node node) { // custom implementation }
-    public function put(LinkedList list, Node node) { // custom implementation }
-    public function remove(LinkedList list, Node node) { // custom implementation }
-    public function replace(LinkedList list, Node newNode, Node oldNode) { // custom implementation }
-    public function clear(LinkedList list) { // custom implementation }
-    public function evict(LinkedList list) returns Node? { // custom implementation }
-}
-
-cache:Cache cache = new({
-    capacity: 1000,
-    evictionPolicy: new CustomEvictionPolicy()
-});
-```
-
-#### Cache Usage
-
-The simplest way of using the initialized cache without handling errors is as follows:
-```ballerina
-_ = check cache.put("key1", "value1");
-string value = <string> check cache.get("key1");
-_ = check cache.invalidate("key1");
-_ = check cache.invalidateAll();
-boolean hasKey = cache.hasKey("key1");
-string[] keys = cache.keys();
-int size = cache.size();
-int capacity = cache.capacity();
-```
-
-The advanced way of using the initialized cache with error handling is as follows:
-```ballerina
-cache:Error? result = cache.put("key1", "value1");
-if (result is cache:Error) {
-    // Implement what to do if any error happens when inserting an item to the cache.
-}
-
-any|cache:Error result = cache.get("key1");
-if (result is cache:Error) {
-    // Implement what to do if any error happens when retrieving an item from the cache.
-}
-string value = <string>result;
-
-cache:Error? result = check cache.invalidate("key1");
-if (result is cache:Error) {
-    // implement what to do, if any error happen when discarding item from the cache
-}
-
-cache:Error? result = check cache.invalidateAll();
-if (result is cache:Error) {
-    // implement what to do, if any error happen when discarding item from the cache
-}
-
-boolean hasKey = cache.hasKey("key1");
-
-string[] keys = cache.keys();
-
-int size = cache.size();
-
-int capacity = cache.capacity();
-```
+For information on the operations, which you can perform with the cache module, see the below __Functions__. For examples on the usage of the operations, see [Cache Ballerina by Example](https://ballerina.io/v1-2/learn/by-example/cache.html)
