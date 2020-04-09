@@ -38,57 +38,69 @@ public type Client client object {
         return ();
     }
 
-    # Writes given data to the client socket.
-    # ```ballerina int|Error writeResult = socketClient:write(payloadByte); ```
-    #
-    # + content - The content that wish to send to the client socket
-    # + return - The number of bytes got written or an `Error` if encounters an error while writing
+# Writes given data to the client socket.
+# ```ballerina
+# int|socket:Error writeResult = socketClient:write(payloadByte);
+# ```
+#
+# + content - The content, which will be sent to the client socket
+# + return - The number of bytes that got written or else a `socket:Error` if the given data can't be written
     public remote function write(byte[] content) returns int|Error {
         return externWrite(self, content);
     }
 
-    # Reads data from the client socket. If the data has the specified length, then wait until that number of bytes
-    # are received from the client. Else, return the data available in the OS buffer.
-    # In the case of the connection being closed by the client, then return either -1 or the data
-    # that is currently available in the buffer.
-    # Number of bytes returned will be < 0 if the client closes the connection.
-    # ```ballerina [byte[], int]|ReadTimedOutError result = socketClient->read(); ```
-    #
-    # + length - Represents the number of bytes which should be read
-    # + return - Content as a byte array and the number of bytes read or an `Error` if encounters an error while reading
+# Reads data from the client socket. If the data has the specified length, then wait until that number of bytes
+# are received from the client. Else, return the data available in the OS buffer.
+# In the case of the connection being closed by the client, then return either -1 or the data
+# that is currently available in the buffer.
+# Number of bytes returned will be < 0 if the client closes the connection.
+# ```ballerina
+# [byte[], int]|socket:ReadTimedOutError result = socketClient->read();
+# ```
+#
+# + length - Represents the number of bytes, which should be read
+# + return - Content as a byte array and the number of bytes read or else a `socket:ReadTimedOutError` if the data
+#            can't be read from the client
     public remote function read(public int length = -100) returns @tainted [byte[], int]|ReadTimedOutError {
         return externRead(self, length);
     }
 
-    # Closes the client socket connection.
-    # ```ballerina Error? closeResult = socketClient->close(); ```
-    #
-    # + return - An `Error` if encounters an error while closing the connection or `nil`
+# Closes the client socket connection.
+# ```ballerina
+# socket:Error? closeResult = socketClient->close();
+# ```
+#
+# + return - A `socket:Error` if client can't be closed the connection or else `nil`
     public remote function close() returns Error? {
         return closeClient(self);
     }
 
-    # Shutdowns the further read from socket.
-    # ```ballerina Error? result = socketClient->shutdownRead(); ```
-    #
-    # + return - An `Error` if encounters an error while shutdown the read from socket or `nil`
+# Shutdowns the further read from socket.
+# ```ballerina
+# socket:Error? result = socketClient->shutdownRead();
+# ```
+#
+# + return - A `socket:Error` if client can't be shutdown the read from socket or else `nil`
     public remote function shutdownRead() returns Error? {
         return externShutdownRead(self);
     }
 
-    # Shutdowns the further write from socket.
-    # ```ballerina Error? result = socketClient->shutdownWrite(); ```
-    # + return - An `Error` if encounters an error while shutdown the write from socket or `nil`
+# Shutdowns the further write from socket.
+# ```ballerina
+# socket:Error? result = socketClient->shutdownWrite();
+# ```
+#
+# + return - A `socket:Error` if client can't be shutdown the write from socket or else `nil`
     public remote function shutdownWrite() returns Error? {
         return externShutdownWrite(self);
     }
 };
 
-# Configurations for socket client endpoint.
+# Configurations for the socket client endpoint.
 #
 # + host - The target service URL
 # + port - The port number of the remote service
-# + readTimeoutInMillis - The socket read timeout value to be used in milliseconds. If this is not set,
+# + readTimeoutInMillis - The socket reading timeout value to be used in milliseconds. If this is not set,
 #                         the default value of 300000 milliseconds (5 minutes) will be used.
 # + callbackService - The callback service for the client. Resources in this service gets called on receipt
 #                     of messages from the server.

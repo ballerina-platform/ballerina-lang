@@ -39,32 +39,38 @@ public type UdpClient client object {
         }
     }
 
-    # Send given data to the specified remote client.
-    # ```ballerina int|Error result = socketClient->sendTo(c1, {host: "localhost", port: 48826}); ```
-    #
-    # + content - The content that wish to send to the client socket
-    # + address - The address of the remote client socket
-    # + return - The number of bytes got written or an `Error` if encounters an error while writing
+# Send given data to the specified remote client.
+# ```ballerina
+# int|socket:Error result = socketClient->sendTo(c1, {host: "localhost", port: 48826});
+# ```
+#
+# + content - The content to be sent to the client socket
+# + address - The address of the remote client socket
+# + return - The number of bytes got written or else a `socket:Error` if the given data can't be sent
     public remote function sendTo(byte[] content, Address address) returns int|Error {
         return udpClientSendTo(self, content, address);
     }
 
-    # Reads data from the remote client. If the data has the specified length, then wait until that number of bytes
-    # are received from the client. Else, return the data available in the OS buffer or wait until data receive.
-    # If the request length is lesser than the data in the buffer, then the rest will be discarded.
-    # ```ballerina [byte[], int, Address]|ReadTimedOutError result = socketClient->receiveFrom(); ```
-    #
-    # + length - Represents the number of bytes which should be read
-    # + return - The content as a byte array, the number of bytes read and the address of the sender
-    #            or an `Error` if encounters an error while reading
+# Reads data from the remote client. If the data has the specified length, then wait until that number of bytes
+# are received from the client. Else, return the data available in the OS buffer or wait until data receive.
+# If the request length is lesser than the data in the buffer, then the rest will be discarded.
+# ```ballerina
+# [byte[], int, Address]|ReadTimedOutError result = socketClient->receiveFrom();
+# ```
+#
+# + length - Represents the number of bytes, which should be read
+# + return - The content as a byte array, the number of bytes read, the address of the sender,
+#            or else a `socket:Error` if the data can't be read from the client
     public remote function receiveFrom(int length = -100) returns [byte[], int, Address]|ReadTimedOutError {
         return externReceiveFrom(self, length);
     }
 
-    # Closes the client socket connection.
-    # ```ballerina Error? closeResult = socketClient->close(); ```
-    #
-    # + return - an `Error` if encounters an error while closing the connection or `nil`
+# Closes the client socket connection.
+# ```ballerina
+# socket:Error? closeResult = socketClient->close();
+# ```
+#
+# + return - A `socket:Error` if can't be closed the connection or else `nil`
     public remote function close() returns Error? {
         return closeUdpClient(self);
     }
@@ -79,9 +85,9 @@ public type Address record {|
     int port;
 |};
 
-# Configurations for UDP client.
+# Configurations for the UDP client.
 #
-# + readTimeoutInMillis - The socket read timeout value to be used in milliseconds. If this is not set,
+# + readTimeoutInMillis - The socket reading timeout value to be used in milliseconds. If this is not set,
 #                         the default value of 300000 milliseconds (5 minutes) will be used.
 public type UdpClientConfig record {|
     int readTimeoutInMillis = 300000;
