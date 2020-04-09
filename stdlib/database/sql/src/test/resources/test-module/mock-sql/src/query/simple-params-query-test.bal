@@ -16,6 +16,7 @@
 import mockclient;
 import ballerina/io;
 import ballerina/sql;
+import ballerina/time;
 
 function querySingleIntParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
@@ -558,6 +559,246 @@ function queryTypeNClobReadableCharChannelParam(string url, string user, string 
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from ComplexTypes WHERE clob_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryDateStringParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_DATE,
+        value: "2017-02-03"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryDateString2Param(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_DATE,
+        value: "2017-2-3"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryDateStringInvalidParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_DATE,
+        value: "2017/2/3"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryDateLongParam(string url, string user, string password) returns @tainted record {}|error? {
+    time:Time date = check time:parse("2017-02-03", "yyyy-MM-dd");
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_DATE,
+        value: date.time
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryDateTimeRecordParam(string url, string user, string password) returns @tainted record {}|error? {
+    time:Time date = check time:parse("2017-02-03", "yyyy-MM-dd");
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_DATE,
+        value: date
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryDateTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
+    time:Time date = check time:parse("2017-02-03T09:46:22.444-0500","yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_DATE,
+        value: date
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTimeStringParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_TIME,
+        value: "11:35:45"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTimeStringInvalidParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_TIME,
+        value: "11-35-45"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTimeLongParam(string url, string user, string password) returns @tainted record {}|error? {
+    time:Time date = check time:parse("11:35:45", "HH:mm:ss");
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_TIME,
+        value: date.time
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTimeTimeRecordParam(string url, string user, string password) returns @tainted record {}|error? {
+     time:Time date = check time:parse("11:35:45", "HH:mm:ss");
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_TIME,
+        value: date
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTimeTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
+    time:Time date = check time:parse("2017-02-03T11:35:45","yyyy-MM-dd'T'HH:mm:ss");
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_TIME,
+        value: date
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTimestampStringParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_TIMESTAMP,
+        value: "2017-02-03 11:53:00"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTimestampStringInvalidParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_TIMESTAMP,
+        value: "2017/02/03 11:53:00"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTimestampLongParam(string url, string user, string password) returns @tainted record {}|error? {
+    time:Time date = check time:parse("2017-02-03 11:53:00", "yyyy-MM-dd HH:mm:ss");
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_TIMESTAMP,
+        value: date.time
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTimestampTimeRecordParam(string url, string user, string password) returns @tainted record {}|error? {
+     time:Time date = check time:parse("2017-02-03 11:53:00", "yyyy-MM-dd HH:mm:ss");
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_TIMESTAMP,
+        value: date
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTimestampTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
+    time:Time date = check time:parse("2017-02-03 11:53:00", "yyyy-MM-dd HH:mm:ss");
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_TIMESTAMP,
+        value: date
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryDateTimeTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
+    time:Time date = check time:parse("2017-02-03 11:53:00", "yyyy-MM-dd HH:mm:ss");
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_TIMESTAMP,
+        value: date
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE datetime_type= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTimestampTimeRecordWithTimeZone2Param(string url, string user, string password) returns @tainted record {}|error? {
+    time:Time date = check time:parse("2008-08-08 20:08:08+0800", "yyyy-MM-dd HH:mm:ssZ");
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_TIMESTAMP,
+        value: date
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE timestamp_type2= ", ""],
+        insertions: [typeVal]
+    };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryTimeTimeRecordWithTimeZone2Param(string url, string user, string password) returns @tainted record {}|error? {
+    time:Time date = check time:parse("20:08:08-0800", "HH:mm:ssZ");
+    sql:TypedValue typeVal = {
+        sqlType: sql:TYPE_TIME,
+        value: date
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from DateTimeTypes WHERE time_type2 = ", ""],
         insertions: [typeVal]
     };
     return queryMockClient(url, user, password, sqlQuery);

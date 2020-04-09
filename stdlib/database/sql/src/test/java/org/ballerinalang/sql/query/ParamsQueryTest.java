@@ -357,6 +357,126 @@ public class ParamsQueryTest {
         validateComplexTableResult(returns);
     }
 
+    @Test
+    public void testQueryDateStringParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryDateStringParam", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryDateString2Param() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryDateString2Param", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryDateStringInvalidParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryDateStringInvalidParam", args);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
+                .stringValue().contains("IllegalArgumentException"));
+    }
+
+    @Test
+    public void testQueryDateLongParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryDateLongParam", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryDateTimeRecordParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryDateTimeRecordParam", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryDateTimeRecordWithTimeZoneParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryDateTimeRecordWithTimeZoneParam", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTimeDateStringParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTimeStringParam", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTimeDateStringInvalidParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTimeStringInvalidParam", args);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
+                .stringValue().contains("IllegalArgumentException"));
+    }
+
+    @Test
+    public void testQueryTimeDateLongParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTimeLongParam", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTimeDateTimeRecordParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTimeTimeRecordParam", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTimeDateTimeRecordWithTimeZoneParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTimeTimeRecordWithTimeZoneParam", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTimestampDateStringParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTimestampStringParam", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTimestampDateStringInvalidParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTimestampStringInvalidParam", args);
+        Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
+        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
+                .stringValue().contains(" Timestamp format must be yyyy-mm-dd hh:mm:ss"));
+    }
+
+    @Test
+    public void testQueryTimestampDateLongParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTimestampLongParam", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTimestampDateTimeRecordParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTimestampTimeRecordParam", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTimestampDateTimeRecordWithTimeZoneParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTimestampTimeRecordWithTimeZoneParam", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryDateTimeDateTimeRecordWithTimeZoneParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryDateTimeTimeRecordWithTimeZoneParam", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTimestampDateTimeRecordWithTimeZone2Param() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTimestampTimeRecordWithTimeZone2Param", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
+    @Test
+    public void testQueryTimeTimeRecordWithTimeZone2Param() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryTimeTimeRecordWithTimeZone2Param", args);
+        validateDateTimeTypesTableResult(returns);
+    }
+
     private void validateDataTableResult(BValue[] returns) {
         SQLDBUtils.assertNotError(returns[0]);
         Assert.assertTrue(returns[0] instanceof BMap);
@@ -379,6 +499,15 @@ public class ParamsQueryTest {
         Assert.assertEquals(result.size(), 5);
         Assert.assertEquals(((BInteger) result.get("ROW_ID")).intValue(), 1);
         Assert.assertEquals(result.get("CLOB_TYPE").toString(), "very long text");
+    }
+
+    private void validateDateTimeTypesTableResult(BValue[] returns) {
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        LinkedHashMap result = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(result.size(), 7);
+        Assert.assertEquals(((BInteger) result.get("ROW_ID")).intValue(), 1);
+        Assert.assertTrue(result.get("DATE_TYPE").toString().startsWith("2017-02-03"));
     }
 
     private void validateNumericTableResult(BValue[] returns) {

@@ -57,6 +57,8 @@ import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.ParseException;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -111,7 +113,7 @@ class Utils {
 
     static void setParams(Connection connection, PreparedStatement preparedStatement, MapValue<String,
             Object> paramString)
-            throws SQLException, ApplicationError, IOException {
+            throws SQLException, ApplicationError, IOException, ParseException {
         ArrayValue arrayValue = paramString.getArrayValue(Constants.ParameterizedStingFields.INSERTIONS);
         for (int i = 0; i < arrayValue.size(); i++) {
             Object object = arrayValue.get(i);
@@ -141,7 +143,7 @@ class Utils {
 
     private static void setSqlTypedParam(Connection connection, PreparedStatement preparedStatement, int index,
                                          MapValue<String, Object> typedValue)
-            throws SQLException, ApplicationError, IOException {
+            throws SQLException, ApplicationError, IOException, ParseException {
         String sqlType = typedValue.getStringValue(Constants.TypedValueFields.SQL_TYPE);
         Object value = typedValue.get(Constants.TypedValueFields.VALUE);
         switch (sqlType) {
@@ -272,6 +274,67 @@ class Utils {
                         throwInvalidParameterError(value, sqlType);
                     }
                 }
+                break;
+            case Constants.SqlTypes.DATE:
+                Date date = null;
+                if (value instanceof String) {
+                    date = Date.valueOf(value.toString());
+                } else if (value instanceof Long) {
+                    date = new Date((Long) value);
+                } else if (value instanceof MapValue) {
+                    MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
+                    if (dateTimeStruct.getType().getName()
+                            .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
+                        ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
+                        date = new Date(zonedDateTime.toInstant().toEpochMilli());
+                    } else {
+                        throwInvalidParameterError(value, sqlType);
+                    }
+                } else {
+                    throwInvalidParameterError(value, sqlType);
+                }
+                preparedStatement.setDate(index, date);
+                break;
+            case Constants.SqlTypes.TIME:
+                Time time = null;
+                if (value instanceof String) {
+                    time = Time.valueOf(value.toString());
+                } else if (value instanceof Long) {
+                    time = new Time((Long) value);
+                } else if (value instanceof MapValue) {
+                    MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
+                    if (dateTimeStruct.getType().getName()
+                            .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
+                        ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
+                        time = new Time(zonedDateTime.toInstant().toEpochMilli());
+                    } else {
+                        throwInvalidParameterError(value, sqlType);
+                    }
+                } else {
+                    throwInvalidParameterError(value, sqlType);
+                }
+                preparedStatement.setTime(index, time);
+                break;
+            case Constants.SqlTypes.TIMESTAMP:
+            case Constants.SqlTypes.DATETIME:
+                Timestamp timestamp = null;
+                if (value instanceof String) {
+                    timestamp = Timestamp.valueOf(value.toString());
+                } else if (value instanceof Long) {
+                    timestamp = new Timestamp((Long) value);
+                } else if (value instanceof MapValue) {
+                    MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
+                    if (dateTimeStruct.getType().getName()
+                            .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
+                        ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
+                        timestamp = new Timestamp(zonedDateTime.toInstant().toEpochMilli());
+                    } else {
+                        throwInvalidParameterError(value, sqlType);
+                    }
+                } else {
+                    throwInvalidParameterError(value, sqlType);
+                }
+                preparedStatement.setTimestamp(index, timestamp);
                 break;
             default:
                 throw new ApplicationError("Unsupported SQL type: " + sqlType);

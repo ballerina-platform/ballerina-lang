@@ -58,3 +58,17 @@ INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type
     float_type, real_type) VALUES (2, 2147483647, 9223372036854774807, 32767, 127, 1, 1234, 1234, 1234,
     1234);
 /
+CREATE TABLE IF NOT EXISTS DateTimeTypes(
+  row_id         INTEGER NOT NULL,
+  date_type      DATE,
+  time_type      TIME,
+  timestamp_type TIMESTAMP,
+  datetime_type  datetime,
+  time_type2      TIME(6) WITH TIME ZONE,
+  timestamp_type2 TIMESTAMP(2) WITH TIME ZONE,
+  PRIMARY KEY (row_id)
+);
+/
+INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type, time_type2, timestamp_type2) VALUES
+  (1,'2017-02-03', '11:35:45', '2017-02-03 11:53:00', '2017-02-03 11:53:00','20:08:08-8:00','2008-08-08 20:08:08+8:00');
+/
