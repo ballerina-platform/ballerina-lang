@@ -1150,7 +1150,7 @@ public class BallerinaParser {
             token = peek();
         }
 
-        STNode type = parseTypeDescriptor(token.kind);
+        STNode type = parseTypeDescriptor(token.kind , true);
         STNode param = parseAfterParamType(leadingComma, type);
         endContext();
         return param;
@@ -1378,18 +1378,24 @@ public class BallerinaParser {
      */
     private STNode parseTypeDescriptor() {
         STToken token = peek();
-        return parseTypeDescriptor(token.kind);
+        return parseTypeDescriptor(token.kind, true);
     }
 
     /**
      * <p>
      * Parse a type descriptor, given the next token kind.
      * </p>
-     * 
+     * If the preceding token is <code>?</code> then it is an optional type descriptor
      * @param tokenKind Next token kind
      * @return Parsed node
      */
-    private STNode parseTypeDescriptor(SyntaxKind tokenKind) {
+    private STNode parseTypeDescriptor(SyntaxKind tokenKind, boolean firstVisit) {
+        STToken nextToken = peek(2);
+
+        if (firstVisit && nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
+            return parseOptionalTypeDescriptor();
+        }
+
         switch (tokenKind) {
             case SIMPLE_TYPE:
             case SERVICE_KEYWORD:
@@ -1419,7 +1425,7 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseTypeDescriptor(solution.tokenKind);
+                return parseTypeDescriptor(solution.tokenKind, true);
         }
     }
 
@@ -4626,6 +4632,21 @@ public class BallerinaParser {
             Solution sol = recover(token, ParserRuleContext.TYPEOF_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse optional type descriptor.
+     *
+     * @return Parsed node
+     */
+    private STNode parseOptionalTypeDescriptor() {
+        startContext(ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR);
+        STToken token = peek();
+        STNode typeDescriptorNode = parseTypeDescriptor(token.kind, false);
+        STNode questionMarkToken = parseQuestionMark();
+        endContext();
+
+        return STNodeFactory.createOptionalTypeDescriptor(typeDescriptorNode, questionMarkToken);
     }
 }
 

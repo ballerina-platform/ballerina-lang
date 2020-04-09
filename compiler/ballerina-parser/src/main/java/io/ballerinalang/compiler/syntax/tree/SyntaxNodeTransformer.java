@@ -225,6 +225,10 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(nilTypeDescriptor);
     }
 
+    public T transform(OptionalTypeDescriptor optionalTypeDescriptor) {
+        return transformSyntaxNode(optionalTypeDescriptor);
+    }
+
     /**
      * Transforms the given {@code Node} into an object of type T.
      * <p>

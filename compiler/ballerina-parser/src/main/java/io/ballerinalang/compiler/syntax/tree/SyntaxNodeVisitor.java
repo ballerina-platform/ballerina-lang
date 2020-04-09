@@ -224,6 +224,10 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(nilTypeDescriptor);
     }
 
+    public void visit(OptionalTypeDescriptor optionalTypeDescriptor) {
+        visitSyntaxNode(optionalTypeDescriptor);
+    }
+
     protected void visitSyntaxNode(Node node) {
         // TODO Find a better way to check for token
         if (node instanceof Token) {

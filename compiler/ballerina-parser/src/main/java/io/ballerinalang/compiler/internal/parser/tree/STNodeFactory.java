@@ -424,4 +424,8 @@ public class STNodeFactory {
     public static STNode createNilTypeDescriptor(STNode openParenthesisToken, STNode closeParenthesisToken) {
         return new STNilTypeDescriptor(openParenthesisToken, closeParenthesisToken);
     }
+
+    public static STNode createOptionalTypeDescriptor(STNode typeDescriptorNode, STNode questionMarkToken) {
+        return new STOptionalTypeDescriptor(typeDescriptorNode, questionMarkToken);
+    }
 }
