@@ -19,7 +19,6 @@ import ballerina/java;
 # Transforms the single-rooted XML content to another XML/HTML/plain text using XSL transformations.
 # ```ballerina
 # xml|error target = xslt:transform(sourceXml, xsl);
-# io:println(target);
 # ```
 #
 # + input - An XML object, which needs to be transformed
