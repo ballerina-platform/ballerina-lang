@@ -275,6 +275,14 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInvocation.BLangActionInvocation remoteMethodCallNode) {
+        remoteMethodCallNode.expr = rewrite(remoteMethodCallNode.expr);
+        rewrite(remoteMethodCallNode.requiredArgs);
+        rewrite(remoteMethodCallNode.restArgs);
+        result = remoteMethodCallNode;
+    }
+
+    @Override
     public void visit(BLangNamedArgsExpression namedArgsExpression) {
         namedArgsExpression.expr = rewrite(namedArgsExpression.expr);
         result = namedArgsExpression;

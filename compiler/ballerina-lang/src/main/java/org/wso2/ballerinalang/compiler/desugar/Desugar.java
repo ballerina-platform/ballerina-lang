@@ -3591,7 +3591,6 @@ public class Desugar extends BLangNodeVisitor {
                     BLangAttachedFunctionInvocation attachedFunctionInvocation =
                             new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.restArgs, iExpr.symbol,
                                                                 iExpr.type, iExpr.expr, iExpr.async);
-                    attachedFunctionInvocation.actionInvocation = iExpr.actionInvocation;
                     attachedFunctionInvocation.name = iExpr.name;
                     attachedFunctionInvocation.annAttachments = iExpr.annAttachments;
                     result = genIExpr = attachedFunctionInvocation;
@@ -3600,6 +3599,58 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         fixTypeCastInTypeParamInvocation(iExpr, genIExpr);
+    }
+
+    @Override
+    public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
+        BLangInvocation genIExpr = actionInvocation;
+
+        // Reorder the arguments to match the original function signature.
+        reorderArguments(actionInvocation);
+
+        actionInvocation.requiredArgs = rewriteExprs(actionInvocation.requiredArgs);
+        fixNonRestArgTypeCastInTypeParamInvocation(actionInvocation);
+
+        actionInvocation.restArgs = rewriteExprs(actionInvocation.restArgs);
+
+        annotationDesugar.defineStatementAnnotations(actionInvocation.annAttachments, actionInvocation.pos,
+                                                     actionInvocation.symbol.pkgID, actionInvocation.symbol.owner, env);
+
+        if (actionInvocation.functionPointerInvocation) {
+            visitFunctionPointerInvocation(actionInvocation);
+            return;
+        }
+        actionInvocation.expr = rewriteExpr(actionInvocation.expr);
+        result = genIExpr;
+
+        if (actionInvocation.expr == null) {
+            fixTypeCastInTypeParamInvocation(actionInvocation, genIExpr);
+            if (actionInvocation.exprSymbol == null) {
+                return;
+            }
+            actionInvocation.expr = ASTBuilderUtil.createVariableRef(actionInvocation.pos, actionInvocation.exprSymbol);
+            actionInvocation.expr = rewriteExpr(actionInvocation.expr);
+        }
+
+        switch (actionInvocation.expr.type.tag) {
+            case TypeTags.OBJECT:
+            case TypeTags.RECORD:
+                if (!actionInvocation.langLibInvocation) {
+                    List<BLangExpression> argExprs = new ArrayList<>(actionInvocation.requiredArgs);
+                    argExprs.add(0, actionInvocation.expr);
+                    BLangAttachedFunctionInvocation attachedFunctionInvocation =
+                            new BLangAttachedFunctionInvocation(actionInvocation.pos, argExprs,
+                                                                actionInvocation.restArgs, actionInvocation.symbol,
+                                                                actionInvocation.type, actionInvocation.expr,
+                                                                actionInvocation.async);
+                    attachedFunctionInvocation.name = actionInvocation.name;
+                    attachedFunctionInvocation.annAttachments = actionInvocation.annAttachments;
+                    result = genIExpr = attachedFunctionInvocation;
+                }
+                break;
+        }
+
+        fixTypeCastInTypeParamInvocation(actionInvocation, genIExpr);
     }
 
     private void fixNonRestArgTypeCastInTypeParamInvocation(BLangInvocation iExpr) {

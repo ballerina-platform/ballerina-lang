@@ -1647,8 +1647,16 @@ public class BLangPackageBuilder {
         this.exprNodeStack.push(varRef);
     }
 
-    void createFunctionInvocation(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable) {
-        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+    void createFunctionInvocation(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable,
+                                  boolean remoteMethodCall) {
+        BLangInvocation invocationNode;
+
+        if (remoteMethodCall) {
+            invocationNode = (BLangInvocation) TreeBuilder.createRemoteMethodCall();
+        } else {
+            invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        }
+
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
         if (argsAvailable) {
@@ -1708,7 +1716,6 @@ public class BLangPackageBuilder {
 
     void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, boolean async, int numAnnotations) {
         BLangInvocation invocationExpr = (BLangInvocation) exprNodeStack.pop();
-        invocationExpr.actionInvocation = true;
         invocationExpr.pos = pos;
         invocationExpr.addWS(ws);
         invocationExpr.async = async;
@@ -3188,6 +3195,7 @@ public class BLangPackageBuilder {
         workerReceiveExpr.pos = pos;
         workerReceiveExpr.addWS(ws);
         //if there are two expressions, this is a channel receive and the top expression is the key
+        // TODO: Not needed?
         if (hasKey) {
             workerReceiveExpr.keyExpr = (BLangExpression) exprNodeStack.pop();
             workerReceiveExpr.isChannel = true;

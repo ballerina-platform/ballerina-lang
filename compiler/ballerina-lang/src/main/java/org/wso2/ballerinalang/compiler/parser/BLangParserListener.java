@@ -2110,7 +2110,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean argsAvailable = ctx.invocationArgList() != null;
-        this.pkgBuilder.createFunctionInvocation(getCurrentPos(ctx), getWS(ctx), argsAvailable);
+        boolean remoteMethodCall = ctx.parent instanceof BallerinaParser.ActionInvocationContext;
+        this.pkgBuilder.createFunctionInvocation(getCurrentPos(ctx), getWS(ctx), argsAvailable, remoteMethodCall);
     }
 
     @Override
