@@ -17,15 +17,19 @@
 import ballerina/java;
 
 # Halts the current worker for a predefined amount of time.
+# ```ballerina
+# runtime:sleep(1000);
+# ```
 #
 # + millis - Amount of time to sleep in milliseconds
 public function sleep(int millis) = @java:Method {
     class: "org.ballerinalang.stdlib.runtime.nativeimpl.Sleep"
 } external;
 
-
-// Todo - Remove
-# Returns the value associated with the specified property name.
+# Returns the system property value associated with the specified property name.
+# ```ballerina
+# string userHome = runtime:getProperty("user.home");
+# ```
 #
 # + name - Name of the property
 # + return - Value of the property if the property exists, an empty string otherwise
@@ -39,6 +43,9 @@ public function externGetProperty(@untainted handle name) returns handle = @java
 } external;
 
 # Gives a timeout to the current worker for a predefined amount of time.
+# ```ballerina
+# future<()> f1 = runtime:timeout(2000);
+# ```
 #
 # + millis - Amount of time needed for the timeout in milliseconds
 # + return - Future to be invoked after the timeout
