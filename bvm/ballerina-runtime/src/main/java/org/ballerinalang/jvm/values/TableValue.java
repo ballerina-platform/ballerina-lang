@@ -20,9 +20,13 @@ package org.ballerinalang.jvm.values;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BIterator;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -41,16 +45,35 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_
 
 public class TableValue<K, V> implements BTable<K, V> {
 
-    private final static long serialVersionUID = 8290612441126904120L;
     private BTableType type;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private BType iteratorNextReturnType;
     private LinkedHashMap<K, V> hashtable;
+    private ValueAdder valueAdder;
 
     public TableValue(BTableType type) {
         this.type = type;
         this.hashtable = new LinkedHashMap<>();
+        if (type.isTableKeySpecifier()) {
+            this.valueAdder = new KeyHashValueAdder(hashtable, type.getFieldNames());
+        } else {
+            this.valueAdder = new ValueAdder(hashtable);
+        }
     }
+
+    public TableValue(BTableType type, ArrayValue data) {
+        this(type);
+        addData(data);
+    }
+
+    private void addData(ArrayValue data) {
+        BIterator itr = data.getIterator();
+        while (itr.hasNext()) {
+            Object next = itr.next();
+            valueAdder.addData((V) next);
+        }
+    }
+
 
     @Override
     public IteratorValue getIterator() {
@@ -219,6 +242,37 @@ public class TableValue<K, V> implements BTable<K, V> {
         @Override
         public boolean hasNext() {
             return iterator.hasNext();
+        }
+    }
+
+    private class ValueAdder {
+        protected LinkedHashMap<K, V> hashtable;
+
+        public ValueAdder(LinkedHashMap<K, V> hashtable) {
+            this.hashtable = hashtable;
+        }
+
+        public void addData(V data) {
+            this.hashtable.put((K) data, data);
+        }
+    }
+
+    private class KeyHashValueAdder extends ValueAdder {
+        private String[] fieldNames;
+
+        public KeyHashValueAdder(LinkedHashMap<K, V> hashtable, String[] fieldNames) {
+            super(hashtable);
+            this.fieldNames = fieldNames;
+        }
+
+        public void addData(V data) {
+            MapValue dataMap = (MapValue) data;
+            ArrayValueImpl arr = (ArrayValueImpl) BValueCreator
+                    .createArrayValue(new BArrayType(BTypes.typeAny, fieldNames.length));
+            for (int i = 0; i < fieldNames.length; i++) {
+                arr.add(i, dataMap.get(fieldNames[i]));
+            }
+            this.hashtable.put((K) arr, data);
         }
     }
 }

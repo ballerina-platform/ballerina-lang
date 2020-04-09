@@ -207,6 +207,7 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewErro
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewInstance;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStringXMLQName;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
+import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTable;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLComment;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewXMLElement;
@@ -941,6 +942,9 @@ public class JvmMethodGen {
                             break;
                         case MAP_STORE:
                             instGen.generateMapStoreIns((FieldAccess) inst);
+                            break;
+                        case NEW_TABLE:
+                            instGen.generateTableNewIns((NewTable) inst);
                             break;
                         case NEW_ARRAY:
                             instGen.generateArrayNewIns((NewArray) inst);

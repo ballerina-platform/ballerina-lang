@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
@@ -1922,11 +1923,13 @@ public class BIRGen extends BLangNodeVisitor {
         keySpecifierLiteral.pos = tableConstructorExpr.pos;
         keySpecifierLiteral.type = symTable.stringArrayType;
         keySpecifierLiteral.exprs = new ArrayList<>();
-        tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList.forEach(col -> {
+        BTableType type = (BTableType) tableConstructorExpr.type;
+
+        type.fieldNameList.forEach(col -> {
             BLangLiteral colLiteral = new BLangLiteral();
             colLiteral.pos = tableConstructorExpr.pos;
             colLiteral.type = symTable.stringType;
-            colLiteral.value = col.value;
+            colLiteral.value = col;
             keySpecifierLiteral.exprs.add(colLiteral);
         });
 
