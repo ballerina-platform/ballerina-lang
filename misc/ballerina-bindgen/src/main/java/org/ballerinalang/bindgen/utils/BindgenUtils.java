@@ -573,10 +573,21 @@ public class BindgenUtils {
             List<String> classPaths = new ArrayList<>();
             for (String path : jarPaths) {
                 File file = FileSystems.getDefault().getPath(path).toFile();
-                String fileName = file.getName();
-                urls.add(file.toURI().toURL());
-                if (file.isFile() && fileName.substring(fileName.lastIndexOf('.')).equals(".jar")) {
-                    classPaths.add(fileName);
+                if (file.isDirectory()) {
+                    File[] paths = file.listFiles();
+                    if (paths != null) {
+                        for (File filePath: paths) {
+                            if (isJarFile(filePath)) {
+                                urls.add(filePath.toURI().toURL());
+                                classPaths.add(filePath.getName());
+                            }
+                        }
+                    }
+                } else {
+                    if (isJarFile(file)) {
+                        urls.add(file.toURI().toURL());
+                        classPaths.add(file.getName());
+                    }
                 }
             }
             if (!classPaths.isEmpty()) {
@@ -593,5 +604,13 @@ public class BindgenUtils {
             throw new BindgenException("Error while processing the classpaths.", e);
         }
         return classLoader;
+    }
+
+    private static boolean isJarFile(File file) {
+        String fileName = file.getName();
+        if (file.isFile() && fileName.substring(fileName.lastIndexOf('.')).equals(".jar")) {
+            return true;
+        }
+        return false;
     }
 }
