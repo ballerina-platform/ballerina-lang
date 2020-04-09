@@ -503,8 +503,12 @@ public class ParserTestUtils {
                 return SyntaxKind.RETURN_TYPE_DESCRIPTOR;
             case "EXTERNAL_FUNCTION_BODY":
                 return SyntaxKind.EXTERNAL_FUNCTION_BODY;
-            case "PARAMETER":
-                return SyntaxKind.PARAMETER;
+            case "REQUIRED_PARAM":
+                return SyntaxKind.REQUIRED_PARAM;
+            case "DEFAULTABLE_PARAM":
+                return SyntaxKind.DEFAULTABLE_PARAM;
+            case "REST_PARAM":
+                return SyntaxKind.REST_PARAM;
             case "RECORD_TYPE_DESCRIPTOR":
                 return SyntaxKind.RECORD_TYPE_DESCRIPTOR;
             case "RECORD_FIELD":

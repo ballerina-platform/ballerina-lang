@@ -91,7 +91,7 @@
                                     "kind": "LIST",
                                     "children": [
                                         {
-                                            "kind": "PARAMETER",
+                                            "kind": "REQUIRED_PARAM",
                                             "children": [
                                                 {
                                                     "kind": "SIMPLE_TYPE",
@@ -104,7 +104,7 @@
                                             ]
                                         },
                                         {
-                                            "kind": "PARAMETER",
+                                            "kind": "REQUIRED_PARAM",
                                             "children": [
                                                 {
                                                     "kind": "COMMA_TOKEN"

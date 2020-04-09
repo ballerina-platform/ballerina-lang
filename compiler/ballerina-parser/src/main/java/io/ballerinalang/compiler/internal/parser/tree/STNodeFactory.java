@@ -185,30 +185,30 @@ public class STNodeFactory {
 
     // Misc
 
-    public static STNode createRequiredParameter(SyntaxKind kind,
-                                                 STNode leadingComma,
+    public static STNode createRequiredParameter(STNode leadingComma,
+                                                 STNode annots,
                                                  STNode accessModifier,
                                                  STNode type,
                                                  STNode paramName) {
-        return new STRequiredParameter(kind, leadingComma, accessModifier, type, paramName);
+        return new STRequiredParameter(leadingComma, annots, accessModifier, type, paramName);
     }
 
-    public static STNode createDefaultableParameter(SyntaxKind kind,
-                                                    STNode leadingComma,
+    public static STNode createDefaultableParameter(STNode leadingComma,
+                                                    STNode annots,
                                                     STNode visibilityQualifier,
                                                     STNode type,
                                                     STNode paramName,
                                                     STNode equal,
                                                     STNode expr) {
-        return new STDefaultableParameter(kind, leadingComma, visibilityQualifier, type, paramName, equal, expr);
+        return new STDefaultableParameter(leadingComma, annots, visibilityQualifier, type, paramName, equal, expr);
     }
 
-    public static STNode createRestParameter(SyntaxKind kind,
-                                             STNode leadingComma,
+    public static STNode createRestParameter(STNode leadingComma,
+                                             STNode annots,
                                              STNode type,
                                              STNode ellipsis,
                                              STNode paramName) {
-        return new STRestParameter(kind, leadingComma, type, ellipsis, paramName);
+        return new STRestParameter(leadingComma, annots, type, ellipsis, paramName);
     }
 
     public static STNode createPositionalArg(STNode leadingComma, STNode expression) {

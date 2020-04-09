@@ -23,28 +23,30 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 public class STDefaultableParameter extends STParameter {
 
     public final STNode leadingComma;
+    public final STNode annots;
     public final STNode visibilityQualifier;
     public final STNode type;
     public final STNode paramName;
     public final STNode equal;
     public final STNode expr;
 
-    STDefaultableParameter(SyntaxKind kind,
-                           STNode leadingComma,
+    STDefaultableParameter(STNode leadingComma,
+                           STNode annots,
                            STNode visibilityQualifier,
                            STNode type,
                            STNode paramName,
                            STNode equal,
                            STNode expr) {
-        super(kind);
+        super(SyntaxKind.DEFAULTABLE_PARAM);
         this.leadingComma = leadingComma;
+        this.annots = annots;
         this.visibilityQualifier = visibilityQualifier;
         this.type = type;
         this.paramName = paramName;
         this.equal = equal;
         this.expr = expr;
 
-        addChildren(leadingComma, visibilityQualifier, type, paramName, equal, expr);
+        addChildren(leadingComma, annots, visibilityQualifier, type, paramName, equal, expr);
     }
 
     @Override

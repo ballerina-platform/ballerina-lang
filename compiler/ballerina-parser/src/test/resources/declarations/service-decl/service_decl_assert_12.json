@@ -181,12 +181,21 @@
                             "value": "someListner2"
                         },
                         {
-                            "kind": "ON_KEYWORD",
-                            "isMissing": true
+                            "kind": "ON_KEYWORD"
                         },
                         {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "isMissing": true
+                            "kind": "LIST",
+                            "children": [
+                                {
+                                    "kind": "EXPRESSION_LIST_ITEM",
+                                    "children": [
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "l1"
+                                        }
+                                    ]
+                                }
+                            ]
                         },
                         {
                             "kind": "SERVICE_BODY",

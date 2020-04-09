@@ -20,7 +20,7 @@
             "kind": "LIST",
             "children": [
                 {
-                    "kind": "PARAMETER",
+                    "kind": "REQUIRED_PARAM",
                     "children": [
                         {
                             "kind": "OBJECT_TYPE_DESCRIPTOR",
@@ -234,7 +234,7 @@
                     ]
                 },
                 {
-                    "kind": "PARAMETER",
+                    "kind": "REQUIRED_PARAM",
                     "children": [
                         {
                             "kind": "COMMA_TOKEN"

@@ -48,6 +48,7 @@ public enum ParserRuleContext {
     RECORD_BODY_START("record-body-start"),
     RECORD_BODY_END("record-body-end"),
     RECORD_FIELD("record-field"),
+    RECORD_FIELD_WITHOUT_METADATA("record-field-without-metadata"),
     TYPE_DESCRIPTOR("type-descriptor"),
     RECORD_TYPE_DESCRIPTOR("record-type-desc"),
     TYPE_REFERENCE("type-reference"),
@@ -94,6 +95,7 @@ public enum ParserRuleContext {
 
     // Statements
     STATEMENT("statement"),
+    STATEMENT_WITHOUT_ANNOTS("statement-without-annots"),
     ASSIGNMENT_STMT("assignment-stmt"),
     VAR_DECL_STMT("var-decl-stmt"),
     VAR_DECL_STMT_RHS("var-decl-rhs"),

@@ -23,22 +23,24 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 public class STRestParameter extends STParameter {
 
     public final STNode leadingComma;
+    public final STNode annots;
     public final STNode type;
     public final STNode ellipsis;
     public final STNode paramName;
 
-    STRestParameter(SyntaxKind kind,
-                    STNode leadingComma,
+    STRestParameter(STNode leadingComma,
+                    STNode annots,
                     STNode type,
                     STNode ellipsis,
                     STNode paramName) {
-        super(kind);
+        super(SyntaxKind.REST_PARAM);
         this.leadingComma = leadingComma;
+        this.annots = annots;
         this.type = type;
         this.ellipsis = ellipsis;
         this.paramName = paramName;
 
-        addChildren(leadingComma, type, ellipsis, paramName);
+        addChildren(leadingComma, annots, type, ellipsis, paramName);
     }
 
     @Override

@@ -24,22 +24,24 @@ import io.ballerinalang.compiler.syntax.tree.RequiredParameter;
 public class STRequiredParameter extends STParameter {
 
     public final STNode leadingComma;
+    public final STNode annots;
     public final STNode accessModifier;
     public final STNode type;
     public final STNode paramName;
 
-    STRequiredParameter(SyntaxKind kind,
-                        STNode leadingComma,
+    STRequiredParameter(STNode leadingComma,
+                        STNode annots,
                         STNode accessModifier,
                         STNode type,
                         STNode paramName) {
-        super(kind);
+        super(SyntaxKind.REQUIRED_PARAM);
         this.leadingComma = leadingComma;
+        this.annots = annots;
         this.accessModifier = accessModifier;
         this.type = type;
         this.paramName = paramName;
 
-        addChildren(leadingComma, accessModifier, type, paramName);
+        addChildren(leadingComma, annots, accessModifier, type, paramName);
     }
 
     @Override

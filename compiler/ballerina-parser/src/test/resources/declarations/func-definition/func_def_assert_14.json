@@ -23,7 +23,7 @@
             "kind": "LIST",
             "children": [
                 {
-                    "kind": "PARAMETER",
+                    "kind": "REQUIRED_PARAM",
                     "children": [
                         {
                             "kind": "IDENTIFIER_TOKEN",

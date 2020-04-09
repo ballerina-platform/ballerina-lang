@@ -23,7 +23,7 @@
             "kind": "LIST",
             "children": [
                 {
-                    "kind": "PARAMETER",
+                    "kind": "REQUIRED_PARAM",
                     "children": [
                         {
                             "kind": "SIMPLE_TYPE",
@@ -36,7 +36,7 @@
                     ]
                 },
                 {
-                    "kind": "PARAMETER",
+                    "kind": "DEFAULTABLE_PARAM",
                     "children": [
                         {
                             "kind": "COMMA_TOKEN"
@@ -59,7 +59,7 @@
                     ]
                 },
                 {
-                    "kind": "PARAMETER",
+                    "kind": "REQUIRED_PARAM",
                     "children": [
                         {
                             "kind": "COMMA_TOKEN"
@@ -75,7 +75,7 @@
                     ]
                 },
                 {
-                    "kind": "PARAMETER",
+                    "kind": "REST_PARAM",
                     "children": [
                         {
                             "kind": "COMMA_TOKEN"
