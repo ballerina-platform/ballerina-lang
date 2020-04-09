@@ -1,5 +1,3 @@
-## Module overview
-
 This module provides the necessary utilities that are required to hash content using different hashing mechanisms and algorithms. 
 
 ## Samples
@@ -115,23 +113,23 @@ public function main() returns error? {
          password: "ballerina"
      };
      crypto:PrivateKey privateKey = 
-        check crypto:decodePrivateKey(keyStore, "ballerina", "ballerina");
+        checkpanic crypto:decodePrivateKey(keyStore, "ballerina", "ballerina");
 
      // Signing input value using different signature algorithms, 
      // and printing the signature value using Hex encoding.
-     byte[] output = check crypto:signRsaMd5(inputArr, privateKey);
+     byte[] output = checkpanic crypto:signRsaMd5(inputArr, privateKey);
      io:println("RSA-MD5 signature: " + output.toBase16());
 
-     output = check crypto:signRsaSha1(inputArr, privateKey);
+     output = checkpanic crypto:signRsaSha1(inputArr, privateKey);
      io:println("RSA-SHA1 signature: " + output.toBase16());
 
-     output = check crypto:signRsaSha256(inputArr, privateKey);
+     output = checkpanic crypto:signRsaSha256(inputArr, privateKey);
      io:println("RSA-SHA256 signature: " + output.toBase16());
 
-     output = check crypto:signRsaSha384(inputArr, privateKey);
+     output = checkpanic crypto:signRsaSha384(inputArr, privateKey);
      io:println("RSA-SHA384 signature: " + output.toBase16());
 
-     output = check crypto:signRsaSha512(inputArr, privateKey);
+     output = checkpanic crypto:signRsaSha512(inputArr, privateKey);
      io:println("RSA-SHA512 signature: " + output.toBase16());
 }
 ```
@@ -158,26 +156,26 @@ public function main() returns error? {
 
     // Public key used for encryption.
     crypto:PublicKey publicKey = 
-        check crypto:decodePublicKey(keyStore, "ballerina");
+        checkpanic crypto:decodePublicKey(keyStore, "ballerina");
 
     // Private key used for decryption.
     crypto:PrivateKey privateKey = 
-        check crypto:decodePrivateKey(keyStore, "ballerina", "ballerina");
+        checkpanic crypto:decodePrivateKey(keyStore, "ballerina", "ballerina");
 
     // Encrypt and decrypt input value using RSA ECB PKCS1 padding.
-    byte[] output = check crypto:encryptRsaEcb(inputArr, publicKey);
-    output = check crypto:decryptRsaEcb(output, privateKey);
+    byte[] output = checkpanic crypto:encryptRsaEcb(inputArr, publicKey);
+    output = checkpanic crypto:decryptRsaEcb(output, privateKey);
     io:println("RSA ECB PKCS1 decrypted value: " + 
-        check str:fromBytes(output));
+        checkpanic str:fromBytes(output));
 
     // Encrypt and decrypt input value using 
     // RSA ECB OAEPwithSHA512andMGF1 padding.
-    output = check crypto:encryptRsaEcb(inputArr, publicKey, 
+    output = checkpanic crypto:encryptRsaEcb(inputArr, publicKey, 
         crypto:OAEPwithSHA512andMGF1);
-    output = check crypto:decryptRsaEcb(output, privateKey, 
+    output = checkpanic crypto:decryptRsaEcb(output, privateKey, 
         crypto:OAEPwithSHA512andMGF1);
     io:println("RSA ECB OAEPwithSHA512andMGF1 decrypted value: " + 
-        check str:fromBytes(output));
+        checkpanic str:fromBytes(output));
 }
 ```
 
@@ -210,39 +208,39 @@ public function main() returns error? {
     }
 
     // Encrypt and decrypt input value using AES CBC PKCS5 padding.
-    byte[] output = check crypto:encryptAesCbc(inputArr, keyArr, ivArr);
-    output = check crypto:decryptAesCbc(output, keyArr, ivArr);
+    byte[] output = checkpanic crypto:encryptAesCbc(inputArr, keyArr, ivArr);
+    output = checkpanic crypto:decryptAesCbc(output, keyArr, ivArr);
     io:println("AES CBC PKCS5 decrypted value: " + 
-        check str:fromBytes(output));
+        checkpanic str:fromBytes(output));
 
     // Encrypt and decrypt input value using AES CBC no padding.
-    output = check crypto:encryptAesCbc(inputArr, keyArr, ivArr, crypto:NONE);
-    output = check crypto:decryptAesCbc(output, keyArr, ivArr, crypto:NONE);
+    output = checkpanic crypto:encryptAesCbc(inputArr, keyArr, ivArr, crypto:NONE);
+    output = checkpanic crypto:decryptAesCbc(output, keyArr, ivArr, crypto:NONE);
     io:println("AES CBC no padding decrypted value: " + 
-        check str:fromBytes(output));
+        checkpanic str:fromBytes(output));
 
     // Encrypt and decrypt input value using AES GCM PKCS5 padding.
-    output = check crypto:encryptAesGcm(inputArr, keyArr, ivArr);
-    output = check crypto:decryptAesGcm(output, keyArr, ivArr);
+    output = checkpanic crypto:encryptAesGcm(inputArr, keyArr, ivArr);
+    output = checkpanic crypto:decryptAesGcm(output, keyArr, ivArr);
     io:println("AES GCM PKCS5 decrypted value: " + 
-        check str:fromBytes(output));
+        checkpanic str:fromBytes(output));
 
     // Encrypt and decrypt input value using AES GCM no padding.
-    output = check crypto:encryptAesGcm(inputArr, keyArr, ivArr, crypto:NONE);
-    output = check crypto:decryptAesGcm(output, keyArr, ivArr, crypto:NONE);
+    output = checkpanic crypto:encryptAesGcm(inputArr, keyArr, ivArr, crypto:NONE);
+    output = checkpanic crypto:decryptAesGcm(output, keyArr, ivArr, crypto:NONE);
     io:println("AES GCM no padding decrypted value: " + 
-        check str:fromBytes(output));
+        checkpanic str:fromBytes(output));
 
     // Encrypt and decrypt input value using AES ECB PKCS5 padding.
-    output = check crypto:encryptAesEcb(inputArr, keyArr);
-    output = check crypto:decryptAesEcb(output, keyArr);
+    output = checkpanic crypto:encryptAesEcb(inputArr, keyArr);
+    output = checkpanic crypto:decryptAesEcb(output, keyArr);
     io:println("AES ECB PKCS5 decrypted value: " + 
-        check str:fromBytes(output));
+        checkpanic str:fromBytes(output));
 
     // Encrypt and decrypt input value using AES ECB no padding.
-    output = check crypto:encryptAesEcb(inputArr, keyArr, crypto:NONE);
-    output = check crypto:decryptAesEcb(output, keyArr, crypto:NONE);
+    output = checkpanic crypto:encryptAesEcb(inputArr, keyArr, crypto:NONE);
+    output = checkpanic crypto:decryptAesEcb(output, keyArr, crypto:NONE);
     io:println("AES ECB no padding decrypted value: " + 
-        check str:fromBytes(output));
+        checkpanic str:fromBytes(output));
 }
 ```
