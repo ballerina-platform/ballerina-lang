@@ -56,26 +56,26 @@
                                             "kind": "PLUS_TOKEN"
                                         },
                                         {
-                                            "kind": "TYPEOF_EXPRESSION",
+                                            "kind": "BINARY_EXPRESSION",
                                             "children": [
                                                 {
-                                                    "kind": "TYPEOF_KEYWORD"
-                                                },
-                                                {
-                                                    "kind": "BINARY_EXPRESSION",
+                                                    "kind": "TYPEOF_EXPRESSION",
                                                     "children": [
+                                                        {
+                                                            "kind": "TYPEOF_KEYWORD"
+                                                        },
                                                         {
                                                             "kind": "DECIMAL_INTEGER_LITERAL",
                                                             "value": 5
-                                                        },
-                                                        {
-                                                            "kind": "PLUS_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "DECIMAL_INTEGER_LITERAL",
-                                                            "value": 2
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "PLUS_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "DECIMAL_INTEGER_LITERAL",
+                                                    "value": 2
                                                 }
                                             ]
                                         }
