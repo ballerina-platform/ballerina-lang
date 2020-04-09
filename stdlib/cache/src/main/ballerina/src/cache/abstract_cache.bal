@@ -40,7 +40,7 @@ public type AbstractCache abstract object {
     #
     # + key - Key of the cache entry which needs to be discarded
     # + return - `()` if successfully discarded or an `Error` if the provided cache key is not available or if any
-    #            error ccurred while discarding from the cache
+    #            error occurred while discarding from the cache
     public function invalidate(string key) returns Error?;
 
     # Discards all the cached values from the cache.
