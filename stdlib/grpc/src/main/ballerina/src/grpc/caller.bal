@@ -36,6 +36,13 @@ public type Caller client object {
     }
 
     # Sends outbound response to the caller.
+    # ```ballerina
+    # import ballerina/java;
+    #
+    # function newJavaLinkedList() returns handle = @java:Constructor {
+    #      class: "java.util.LinkedList"
+    # } external;
+    # ```
     #
     # + res - - The outbound response message.
     # + headers - - Optional headers parameter. Passes header value if needed. Default sets to nil.
