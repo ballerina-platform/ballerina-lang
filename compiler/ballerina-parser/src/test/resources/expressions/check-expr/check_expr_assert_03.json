@@ -56,26 +56,14 @@
                                             "kind": "PLUS_TOKEN"
                                         },
                                         {
-                                            "kind": "BINARY_EXPRESSION",
+                                            "kind": "CHECK_EXPRESSION",
                                             "children": [
                                                 {
-                                                    "kind": "CHECK_EXPRESSION",
-                                                    "children": [
-                                                        {
-                                                            "kind": "CHECK_KEYWORD"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "isMissing": true
-                                                        }
-                                                    ]
+                                                    "kind": "CHECK_KEYWORD"
                                                 },
                                                 {
-                                                    "kind": "PLUS_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "DECIMAL_INTEGER_LITERAL",
-                                                    "value": "2"
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "isMissing": true
                                                 }
                                             ]
                                         }
