@@ -27,6 +27,7 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
+import org.ballerinalang.bindgen.model.JField;
 import org.ballerinalang.bindgen.model.JMethod;
 import org.ballerinalang.bindgen.model.JParameter;
 
@@ -167,6 +168,32 @@ public class BindgenUtils {
             }
             return returnString;
         });
+
+        // Helper to obtain the parameters and return strings of interop functions for public methods.
+        handlebars.registerHelper("getInteropMethod", (object, options) -> {
+            String returnString = "";
+            if (object instanceof JMethod) {
+                JMethod jMethod = (JMethod) object;
+                String type = options.params[0].toString();
+                if (type.equals("param")) {
+                    returnString = getInteropMethodParam(jMethod);
+                } else if (type.equals("return")) {
+                    returnString = getInteropMethodReturn(jMethod);
+                }
+            }
+            return returnString;
+        });
+
+        // Helper to obtain the parameters string of interop functions for public fields.
+        handlebars.registerHelper("getInteropFieldParam", (object, options) -> {
+            String returnString = "";
+            if (object instanceof JField) {
+                JField jField = (JField) object;
+                returnString = getInteropFieldParam(jField);
+            }
+            return returnString;
+        });
+
         try {
             return handlebars.compile(templateName);
         } catch (FileNotFoundException e) {
@@ -174,6 +201,52 @@ public class BindgenUtils {
         } catch (IOException e) {
             throw new BindgenException("Unable to read the " + templateName + " template file: " + e.getMessage(), e);
         }
+    }
+
+    private static String getInteropFieldParam(JField jField) {
+        StringBuilder returnString = new StringBuilder();
+        if (!jField.isStatic()) {
+            returnString.append("handle receiver");
+        }
+        if (jField.isSetter()) {
+            if (!jField.isStatic()) {
+                returnString.append(", ");
+            }
+            returnString.append(jField.getExternalType()).append(" arg");
+        }
+        return returnString.toString();
+    }
+
+    private static String getInteropMethodReturn(JMethod jMethod) {
+        StringBuilder returnString = new StringBuilder();
+        if (jMethod.getHasReturn()) {
+            returnString.append(" returns ").append(jMethod.getExternalType());
+            if (jMethod.isHandleException()) {
+                returnString.append("|error");
+            }
+        } else {
+            if (jMethod.isHandleException()) {
+                returnString.append(" returns error?");
+            }
+        }
+        return returnString.toString();
+    }
+
+    private static String getInteropMethodParam(JMethod jMethod) {
+        StringBuilder returnString = new StringBuilder();
+        if (!jMethod.isStatic()) {
+            returnString.append("handle receiver");
+            if (jMethod.hasParams()) {
+                returnString.append(", ");
+            }
+        }
+        for (JParameter param: jMethod.getParameters()) {
+            returnString.append(param.getExternalType()).append(" ").append(param.getFieldName());
+            if (param.getHasNext()) {
+                returnString.append(", ");
+            }
+        }
+        return returnString.toString();
     }
 
     private static String getParamsHelper(JParameter param) {

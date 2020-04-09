@@ -42,7 +42,7 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticMethod;
 public class JMethod {
 
     private boolean isStatic;
-    private boolean noParams = true;
+    private boolean hasParams = true;
     private boolean hasReturn = false;
     private boolean isOverloaded = true;
     private boolean objectReturn = false;
@@ -88,7 +88,7 @@ public class JMethod {
             JParameter lastParam = parameters.get(parameters.size() - 1);
             lastParam.setHasNext(false);
         } else {
-            noParams = false;
+            hasParams = false;
         }
 
         List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
@@ -179,5 +179,25 @@ public class JMethod {
 
     public void setMethodName(String methodName) {
         this.methodName = methodName;
+    }
+
+    public List<JParameter> getParameters() {
+        return parameters;
+    }
+
+    public boolean isStatic() {
+        return isStatic;
+    }
+
+    public boolean hasParams() {
+        return hasParams;
+    }
+
+    public String getExternalType() {
+        return externalType;
+    }
+
+    public boolean isHandleException() {
+        return handleException;
     }
 }

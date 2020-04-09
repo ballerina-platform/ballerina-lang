@@ -111,8 +111,11 @@ public class JClass {
         int i = 1;
         for (Constructor constructor : constructors) {
             JConstructor jConstructor = new JConstructor(constructor);
-            jConstructor.setConstructorName("new" + shortClassName + i);
             constructorList.add(jConstructor);
+        }
+        constructorList.sort(Comparator.comparing(JConstructor::getParamTypes));
+        for (JConstructor jConstructor:constructorList) {
+            jConstructor.setConstructorName("new" + shortClassName + i);
             i++;
         }
     }
