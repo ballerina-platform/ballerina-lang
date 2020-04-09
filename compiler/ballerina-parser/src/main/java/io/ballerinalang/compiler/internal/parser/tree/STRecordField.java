@@ -28,22 +28,17 @@ public class STRecordField extends STNode {
     public final STNode questionMarkToken;
     public final STNode semicolonToken;
 
-    public STRecordField(STNode type,
-                         STNode fieldName,
-                         STNode questionMarkToken,
-                         STNode semicolonToken) {
+    STRecordField(STNode type,
+                  STNode fieldName,
+                  STNode questionMarkToken,
+                  STNode semicolonToken) {
         super(SyntaxKind.RECORD_FIELD);
         this.type = type;
         this.fieldName = fieldName;
         this.questionMarkToken = questionMarkToken;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(type, 0);
-        this.addChildNode(fieldName, 1);
-        this.addChildNode(questionMarkToken, 2);
-        this.addChildNode(semicolonToken, 3);
+        addChildren(type, fieldName, questionMarkToken, semicolonToken);
     }
 
     @Override

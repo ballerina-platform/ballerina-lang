@@ -17,33 +17,20 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NodeList;
+import io.ballerinalang.compiler.internal.syntax.ExternalTreeNodeList;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class STNodeList extends STNode {
 
-    public final List<STNode> children;
-    // TODO is unmodifiable list slow??????
-    public static final STNode emptyNodeList = new STNodeList(Collections.unmodifiableList(new ArrayList<>(0)));
-
-    public STNodeList(List<STNode> children) {
+    STNodeList(List<STNode> nodeList) {
         super(SyntaxKind.LIST);
-        this.children = Collections.unmodifiableList(children);
-
-        this.bucketCount = this.children.size();
-        this.childBuckets = new STNode[bucketCount];
-        for (int i = 0; i < children.size(); i++) {
-            this.addChildNode(children.get(i), i);
-        }
+        this.addChildren(nodeList.toArray(new STNode[0]));
     }
 
     @Override
-    public Node createFacade(int position, NonTerminalNode parent) {
-        return new NodeList<>(this, position, parent);
+    public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
+        return new ExternalTreeNodeList(this, position, parent);
     }
 }

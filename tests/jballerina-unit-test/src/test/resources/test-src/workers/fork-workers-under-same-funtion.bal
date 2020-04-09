@@ -1,21 +1,22 @@
 function forkWithWorkers() returns int {
     fork {
+        @strand{thread:"any"}
         worker forkWorker1 returns int {
             int a = 1;
             return a;
         }
-
+        @strand{thread:"any"}
         worker forkWorker2 returns int {
             int a = 2;
             return a;
         }
     }
-
+    @strand{thread:"any"}
     worker newWorker1 returns int {
         int a = 3;
         return a;
     }
-
+    @strand{thread:"any"}
     worker newWorker2 returns int {
         int a = 4;
         return a;

@@ -21,112 +21,49 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class FunctionDefinitionNode extends ModuleMemberDeclaration {
 
-    private Token visibilityQual;
-    private Token functionKeyword;
-    private Token functionName;
-    private Token openParenToken;
-    private Node parameters;
-    private Token closeParenToken;
-    private Node returnTypeDesc;
-    private BlockStatement functionBody;
-
     public FunctionDefinitionNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token visibilityQualifier() {
-        if (visibilityQual != null) {
-            return visibilityQual;
-        }
-
-        visibilityQual = createToken(0);
-        return visibilityQual;
+        return childInBucket(0);
     }
 
     public Token functionKeyword() {
-        if (functionKeyword != null) {
-            return functionKeyword;
-        }
-
-        functionKeyword = createToken(1);
-        return functionKeyword;
+        return childInBucket(1);
     }
 
-    public Token functionName() {
-        if (functionName != null) {
-            return functionName;
-        }
-
-        functionName = createToken(2);
-        return functionName;
+    public Identifier functionName() {
+        return childInBucket(2);
     }
 
     public Token openParenToken() {
-        if (openParenToken != null) {
-            return openParenToken;
-        }
-
-        openParenToken = createToken(3);
-        return openParenToken;
+        return childInBucket(3);
     }
 
     public Node parameters() {
-        if (parameters != null) {
-            return parameters;
-        }
-
-        this.parameters = createListNode(4);
-        return this.parameters;
+        return childInBucket(4);
     }
 
     public Token closeParenToken() {
-        if (closeParenToken != null) {
-            return closeParenToken;
-        }
-
-        closeParenToken = createToken(5);
-        return closeParenToken;
+        return childInBucket(5);
     }
 
     public Node returnTypeDesc() {
-        if (returnTypeDesc != null) {
-            return returnTypeDesc;
-        }
-
-        returnTypeDesc = node.childInBucket(6).createFacade(getChildPosition(6), this);
-        childBuckets[6] = returnTypeDesc;
-        return returnTypeDesc;
+        return childInBucket(6);
     }
 
     public BlockStatement functionBody() {
-        if (functionBody != null) {
-            return functionBody;
-        }
-
-        functionBody = (BlockStatement) node.childInBucket(7).createFacade(getChildPosition(7), this);
-        childBuckets[7] = functionBody;
-        return functionBody;
+        return childInBucket(7);
     }
 
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return visibilityQualifier();
-            case 1:
-                return functionKeyword();
-            case 2:
-                return functionName();
-            case 3:
-                return openParenToken();
-            case 4:
-                return parameters();
-            case 5:
-                return closeParenToken();
-            case 6:
-                return returnTypeDesc();
-            case 7:
-                return functionBody();
-        }
-        return null;
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+        return visitor.transform(this);
     }
 }

@@ -22,6 +22,8 @@ import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
 
 /**
  * Represents a node with children in the syntax tree.
+ *
+ * @since 1.3.0
  */
 // TODO This class can be used by multiple threads. Since the tree is lazily constructed,
 //  we need to ensure only one tree is created.
@@ -30,69 +32,50 @@ public abstract class NonTerminalNode extends Node {
 
     // The following two fields allow us to navigate the tree without the knowledge of the particular tree nodes
     protected final Node[] childBuckets;
-    protected final int bucketCount;
+    private ChildNodeList childNodeList;
 
-    public NonTerminalNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
-
-        this.bucketCount = node.bucketCount();
-        this.childBuckets = new Node[this.bucketCount];
+    public NonTerminalNode(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
+        this.childBuckets = new Node[internalNode.bucketCount()];
     }
 
-    public int bucketCount() {
-        return bucketCount;
+    // TODO Can we do ChildNodeList<T>
+    // We can simply give a List here, but that would be not useful.
+    public ChildNodeList children() {
+        if (childNodeList != null) {
+            return childNodeList;
+        }
+        childNodeList = new ChildNodeList(this);
+        return childNodeList;
     }
 
-    public Node childInBucket(int bucket) {
-        if (bucket < 0 || bucket >= bucketCount) {
-            return null;
+    protected int bucketCount() {
+        return internalNode.bucketCount();
+    }
+
+    protected <T extends Node> T childInBucket(int bucket) {
+        T child = (T) childBuckets[bucket];
+        if (child != null) {
+            return child;
         }
 
-        return childBuckets[bucket];
-    }
-
-    protected Node getFacadeOfChild(int bucket) {
-        STNode childSyntaxNode = node.childInBucket(bucket);
-        if (childSyntaxNode == null) {
-            return null;
-        }
-
-        Node childNode = childSyntaxNode.createFacade(getChildPosition(bucket), this);
-        this.childBuckets[bucket] = childNode;
-        return childNode;
+        STNode internalChild = internalNode.childInBucket(bucket);
+        child = (T) internalChild.createFacade(getChildPosition(bucket), this);
+        childBuckets[bucket] = child;
+        return child;
     }
 
     // TODO Find an efficient implementation which uses the previous children positions
     protected int getChildPosition(int bucket) {
         int childPos = this.position;
         for (int i = 0; i < bucket; i++) {
-            STNode childNode = this.node.childInBucket(i);
+            STNode childNode = internalNode.childInBucket(i);
             if (childNode != null) {
                 childPos += childNode.width();
             }
         }
 
         return childPos;
-    }
-
-    // Create a NodeList for the child in the given bucket
-    protected <T extends Node> NodeList<T> createListNode(int bucket) {
-        NodeList<T> nodeList = new NodeList<>(this.node.childInBucket(bucket),
-                this.getChildPosition(bucket), this);
-        this.childBuckets[bucket] = nodeList;
-        return nodeList;
-    }
-
-    // Create a Token for the TextChange token in the given bucket
-    protected Token createToken(int bucket) {
-        STNode internaltoken = this.node.childInBucket(bucket);
-        if (internaltoken == null) {
-            return null;
-        }
-
-        Token token = new Token(internaltoken, this.getChildPosition(bucket), this);
-        this.childBuckets[bucket] = token;
-        return token;
     }
 
     // TODO Can we optimize this algo?
@@ -112,11 +95,10 @@ public abstract class NonTerminalNode extends Node {
 
     private Node findChildNode(int position) {
         int offset = this.spanWithMinutiae.startOffset();
-        STNode internalNode = this.node;
         for (int bucket = 0; bucket < internalNode.bucketCount(); bucket++) {
             STNode internalChildNode = internalNode.childInBucket(bucket);
             if (position < offset + internalChildNode.width()) {
-                // Populate the BL node.
+                // Populate the external node.
                 return this.childInBucket(bucket);
             }
             offset += internalChildNode.width();

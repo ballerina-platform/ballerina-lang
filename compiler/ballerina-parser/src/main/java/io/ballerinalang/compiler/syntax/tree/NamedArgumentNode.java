@@ -21,64 +21,33 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class NamedArgumentNode extends FunctionArgumentNode {
 
-    private Token leadingComma;
-    private Node argName;
-    private Token equalsToken;
-    private Node expression;
-
     public NamedArgumentNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token leadingComma() {
-        if (leadingComma != null) {
-            return leadingComma;
-        }
-
-        leadingComma = createToken(0);
-        return leadingComma;
+        return childInBucket(0);
     }
 
     public Node argumentName() {
-        if (argName != null) {
-            return argName;
-        }
-
-        argName = node.childInBucket(1).createFacade(getChildPosition(1), this);
-        childBuckets[1] = argName;
-        return argName;
+        return childInBucket(1);
     }
 
     public Token equalsToken() {
-        if (equalsToken != null) {
-            return equalsToken;
-        }
-
-        equalsToken = createToken(2);
-        return equalsToken;
+        return childInBucket(2);
     }
 
     public Node expression() {
-        if (expression != null) {
-            return expression;
-        }
-
-        expression = node.childInBucket(3).createFacade(getChildPosition(3), this);
-        childBuckets[3] = expression;
-        return this.expression;
+        return childInBucket(3);
     }
 
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return leadingComma();
-            case 1:
-                return argumentName();
-            case 2:
-                return equalsToken();
-            case 3:
-                return expression();
-        }
-        return null;
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+        return visitor.transform(this);
     }
 }

@@ -103,18 +103,15 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test ambiguity resolution")
     public void testAmbiguityResolution() {
         CompileResult result = BCompileUtil.compile("test-src/record/negative/open_record_ambiguity.bal");
-        assertEquals(result.getErrorCount(), 7);
+        assertEquals(result.getErrorCount(), 5);
         int index = 0;
-        validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 36,
-                      22);
         validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 37,
                       22);
         validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 38,
                       22);
-        validateError(result, index++, "ambiguous type '(A|B|C)'", 70, 25);
-        validateError(result, index++, "ambiguous type '(A|B|C)'", 71, 25);
         validateError(result, index++, "ambiguous type '(A|B|C)'", 72, 25);
         validateError(result, index++, "ambiguous type '(A|B|C)'", 73, 25);
+        validateError(result, index++, "ambiguous type '(A|B|C)'", 74, 25);
         // validateError(result, index, "unnecessary condition: expression will always evaluate to 'true'", 78, 9);
     }
 

@@ -17,31 +17,52 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import java.util.Iterator;
 
-public class NodeList<T extends Node> extends NonTerminalNode {
-    public NodeList(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+/**
+ * Represents a list of {@code Node}s.
+ *
+ * @param <T> the type of the node instance
+ */
+public class NodeList<T extends Node> implements Iterable<T> {
+
+    private final NonTerminalNode node;
+    private final int size;
+
+    public NodeList(NonTerminalNode node) {
+        this.node = node;
+        this.size = node.bucketCount();
     }
 
-    public T childInBucket(int bucket) {
-        // TODO Fix warnings with generics
-        T childNode = (T) super.childInBucket(bucket);
-        if (childNode != null) {
-            return childNode;
-        }
-
-        STNode internalChild = node.childInBucket(bucket);
-        if (internalChild == null) {
-            return null;
-        }
-
-        childNode = (T) internalChild.createFacade(getChildPosition(bucket), this);
-        this.childBuckets[bucket] = childNode;
-        return childNode;
+    public T get(int index) {
+        return this.node.childInBucket(index);
     }
 
     public int size() {
-        return this.node.bucketCount();
+        return this.size;
+    }
+
+    @Override
+    public Iterator<T> iterator() {
+        return new NodeListIterator();
+    }
+
+    /**
+     * An iterator for this list of nodes.
+     *
+     * @since 1.3.0
+     */
+    private class NodeListIterator implements Iterator<T> {
+        private int currentIndex = 0;
+
+        @Override
+        public boolean hasNext() {
+            return this.currentIndex > size;
+        }
+
+        @Override
+        public T next() {
+            return get(currentIndex++);
+        }
     }
 }

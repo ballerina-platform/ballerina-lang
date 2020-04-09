@@ -23,35 +23,28 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 public class STDefaultableParameter extends STParameter {
 
     public final STNode leadingComma;
-    public final STNode accessModifier;
+    public final STNode visibilityQualifier;
     public final STNode type;
     public final STNode paramName;
     public final STNode equal;
     public final STNode expr;
 
-    public STDefaultableParameter(SyntaxKind kind,
-                                  STNode leadingComma,
-                                  STNode accessModifier,
-                                  STNode type,
-                                  STNode paramName,
-                                  STNode equal,
-                                  STNode expr) {
+    STDefaultableParameter(SyntaxKind kind,
+                           STNode leadingComma,
+                           STNode visibilityQualifier,
+                           STNode type,
+                           STNode paramName,
+                           STNode equal,
+                           STNode expr) {
         super(kind);
         this.leadingComma = leadingComma;
-        this.accessModifier = accessModifier;
+        this.visibilityQualifier = visibilityQualifier;
         this.type = type;
         this.paramName = paramName;
         this.equal = equal;
         this.expr = expr;
 
-        this.bucketCount = 6;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingComma, 0);
-        this.addChildNode(accessModifier, 1);
-        this.addChildNode(type, 2);
-        this.addChildNode(paramName, 3);
-        this.addChildNode(equal, 4);
-        this.addChildNode(expr, 5);
+        addChildren(leadingComma, visibilityQualifier, type, paramName, equal, expr);
     }
 
     @Override

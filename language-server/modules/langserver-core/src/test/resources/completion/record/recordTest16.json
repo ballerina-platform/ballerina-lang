@@ -6,6 +6,14 @@
   "source": "record/source/recordTest16.bal",
   "items": [
     {
+      "label": "...person",
+      "kind": "Variable",
+      "detail": "Person",
+      "sortText": "130",
+      "insertText": "...person",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "name",
       "kind": "Field",
       "detail": "Field",

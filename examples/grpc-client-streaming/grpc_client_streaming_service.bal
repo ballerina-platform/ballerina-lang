@@ -3,7 +3,7 @@ import ballerina/grpc;
 import ballerina/log;
 
 @grpc:ServiceConfig {
-    name: "lotsOfGreetings",
+    name: "HelloWorld",
     clientStreaming: true
 }
 service HelloWorld on new grpc:Listener(9090) {

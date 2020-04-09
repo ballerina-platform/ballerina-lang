@@ -32,18 +32,12 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIG
 public class ServiceInformation {
     private BRuntime runtime;
     private ObjectValue service;
-    private Object attachment;
+    private final Object[] attachments;
 
-    public ServiceInformation(BRuntime runtime, ObjectValue service, Object attachment) {
+    public ServiceInformation(BRuntime runtime, ObjectValue service, Object... attachments) {
         this.runtime = runtime;
         this.service = service;
-        this.attachment = attachment;
-    }
-
-    public ServiceInformation(BRuntime runtime, ObjectValue service) {
-        this.runtime = runtime;
-        this.service = service;
-        this.attachment = null;
+        this.attachments = attachments;
     }
 
     public ObjectValue getService() {
@@ -63,8 +57,8 @@ public class ServiceInformation {
         return null;
     }
 
-    public Object getAttachment() {
-        return attachment;
+    public Object[] getAttachment() {
+        return this.attachments.clone();
     }
 
     public BRuntime getRuntime() {

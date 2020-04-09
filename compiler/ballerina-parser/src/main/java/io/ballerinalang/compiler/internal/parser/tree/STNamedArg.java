@@ -28,22 +28,17 @@ public class STNamedArg extends STNode {
     public final STNode equalsToken;
     public final STNode expression;
 
-    public STNamedArg(STNode leadingComma,
-                      STNode variableName,
-                      STNode equalsToken,
-                      STNode expression) {
+    STNamedArg(STNode leadingComma,
+               STNode variableName,
+               STNode equalsToken,
+               STNode expression) {
         super(SyntaxKind.NAMED_ARG);
         this.leadingComma = leadingComma;
         this.argName = variableName;
         this.equalsToken = equalsToken;
         this.expression = expression;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingComma, 0);
-        this.addChildNode(variableName, 1);
-        this.addChildNode(equalsToken, 2);
-        this.addChildNode(expression, 3);
+        addChildren(leadingComma, variableName, equalsToken, expression);
     }
 
     @Override

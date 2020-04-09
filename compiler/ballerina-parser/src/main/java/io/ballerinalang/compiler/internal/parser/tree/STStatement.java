@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 public abstract class STStatement extends STNode {
 
-    public STStatement(SyntaxKind kind) {
+    STStatement(SyntaxKind kind) {
         super(kind);
     }
 }

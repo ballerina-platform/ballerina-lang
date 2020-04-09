@@ -6,30 +6,6 @@
   "source": "toplevel/source/importStatement2.bal",
   "items": [
     {
-      "label": "ballerinax/java.jdbc",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "120",
-      "insertText": "ballerinax/java.jdbc",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerinax",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "ballerinax/",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerinax/java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "120",
-      "insertText": "ballerinax/java",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.object",
       "kind": "Module",
       "detail": "Module",
@@ -51,6 +27,14 @@
       "detail": "Module",
       "sortText": "120",
       "insertText": "ballerina/jwt",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.boolean",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "120",
+      "insertText": "ballerina/lang.'boolean;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -214,6 +198,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "120",
+      "insertText": "ballerina/java",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/rabbitmq",
       "kind": "Module",
       "detail": "Module",
@@ -318,19 +310,19 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/mysql",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "120",
+      "insertText": "ballerina/mysql",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/task",
       "kind": "Module",
       "detail": "Module",
       "sortText": "120",
       "insertText": "ballerina/task",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.table",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "120",
-      "insertText": "ballerina/lang.'table;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -382,6 +374,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/email",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "120",
+      "insertText": "ballerina/email",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/lang.int",
       "kind": "Module",
       "detail": "Module",
@@ -395,6 +395,14 @@
       "detail": "Module",
       "sortText": "120",
       "insertText": "ballerina/socket",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/sql",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "120",
+      "insertText": "ballerina/sql",
       "insertTextFormat": "Snippet"
     }
   ]

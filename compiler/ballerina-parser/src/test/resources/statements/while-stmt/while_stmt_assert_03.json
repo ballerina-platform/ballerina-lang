@@ -50,7 +50,7 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
-                                                    "kind": "LOCAL_VARIABLE_DECL",
+                                                    "kind": "VARIABLE_DECL",
                                                     "children": [
                                                         {
                                                             "kind": "SIMPLE_TYPE",
@@ -64,7 +64,7 @@
                                                             "kind": "EQUAL_TOKEN"
                                                         },
                                                         {
-                                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                                            "kind": "DECIMAL_INTEGER_LITERAL",
                                                             "value": "4"
                                                         },
                                                         {
@@ -92,7 +92,7 @@
                                                                     "kind": "LIST",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "LOCAL_VARIABLE_DECL",
+                                                                            "kind": "VARIABLE_DECL",
                                                                             "children": [
                                                                                 {
                                                                                     "kind": "SIMPLE_TYPE",
@@ -106,7 +106,7 @@
                                                                                     "kind": "EQUAL_TOKEN"
                                                                                 },
                                                                                 {
-                                                                                    "kind": "NUMERIC_LITERAL_TOKEN",
+                                                                                    "kind": "DECIMAL_INTEGER_LITERAL",
                                                                                     "value": "4"
                                                                                 },
                                                                                 {

@@ -16,6 +16,7 @@
 
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -27,7 +28,9 @@ import org.ballerinalang.jvm.values.api.BXMLQName;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
+import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -83,6 +86,7 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      * @param attributeName Qualified name of the attribute
      * @param value Value of the attribute
      */
+    @Deprecated
     public void setAttribute(BXMLQName attributeName, BString value) {
         setAttribute(attributeName.getLocalName(), attributeName.getUri(), attributeName.getPrefix(), value.getValue());
     }
@@ -159,17 +163,16 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
      * Recursively traverse and add the descendant with the given name to the descendants list.
      * @param descendants List to add descendants
      * @param currentElement Current node
-     * @param qname Qualified name of the descendants to search
+     * @param qnames Qualified names of the descendants to search
      */
-    protected void addDescendants(List<BXML> descendants, XMLItem currentElement, String qname) {
+    protected void addDescendants(List<BXML> descendants, XMLItem currentElement, List<String> qnames) {
         for (BXML child : currentElement.getChildrenSeq().children) {
             if (child.getNodeType() == XMLNodeType.ELEMENT) {
-                if (((XMLItem) child).getQName().toString().equals(qname)) {
+                String elemName = ((XMLItem) child).getQName().toString();
+                if (qnames.contains(elemName)) {
                     descendants.add(child);
-                    continue;
-                } else {
-                    addDescendants(descendants, (XMLItem) child, qname);
                 }
+                addDescendants(descendants, (XMLItem) child, qnames);
             }
         }
     }
@@ -195,5 +198,33 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
 
     public abstract XMLValue children(String qname);
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        XMLValue copy = (XMLValue) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
+    }
+
     public abstract XMLValue getItem(int index);
+
+    @Override
+    public void serialize(OutputStream outputStream) {
+        try {
+            if (outputStream instanceof BallerinaXMLSerializer) {
+                ((BallerinaXMLSerializer) outputStream).write(this);
+            } else {
+                BallerinaXMLSerializer xmlSerializer = new BallerinaXMLSerializer(outputStream);
+                xmlSerializer.write(this);
+                xmlSerializer.flush();
+                xmlSerializer.close();
+            }
+        } catch (Throwable t) {
+            handleXmlException("error occurred during writing the message to the output stream: ", t);
+        }
+    }
 }

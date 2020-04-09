@@ -22,10 +22,12 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
  * This class represents a node in the syntax tree.
+ *
+ * @since 1.3.0
  */
 public abstract class Node {
 
-    protected final STNode node;
+    protected final STNode internalNode;
     protected final int position;
     protected final NonTerminalNode parent;
 
@@ -34,43 +36,61 @@ public abstract class Node {
     // SpanWithMinutiae - starting startOffset and widthWithMinutiae
     protected final Span spanWithMinutiae;
 
-    public Node(STNode node, int position, NonTerminalNode parent) {
-        this.node = node;
+    public Node(STNode internalNode, int position, NonTerminalNode parent) {
+        this.internalNode = internalNode;
         this.position = position;
         this.parent = parent;
 
         // TODO Set the width excluding the minutiae.
-        this.span = new Span(position, node.width());
-        this.spanWithMinutiae = new Span(position, node.width());
+        this.span = new Span(position, internalNode.width());
+        this.spanWithMinutiae = new Span(position, internalNode.width());
     }
 
-    public int getPosition() {
+    public int position() {
         return position;
     }
 
-    public NonTerminalNode getParent() {
+    public NonTerminalNode parent() {
         return parent;
     }
 
-    public Span getSpan() {
+    public Span span() {
         return span;
     }
 
-    public Span getSpanWithMinutiae() {
+    public Span spanWithMinutiae() {
         return spanWithMinutiae;
     }
 
-    public SyntaxKind getKind() {
-        return node.kind;
+    public SyntaxKind kind() {
+        return internalNode.kind;
     }
 
+    /**
+     * Accepts an instance of the {@code SyntaxNodeVisitor}, which can be used to
+     * traverse the syntax tree.
+     *
+     * @param visitor an instance of the {@code SyntaxNodeVisitor}
+     */
+    public abstract void accept(SyntaxNodeVisitor visitor);
+
+    /**
+     * Applies the given {@code SyntaxNodeTransformer} to this node and returns
+     * the transformed object.
+     *
+     * @param transformer an instance of the {@code SyntaxNodeTransformer}
+     * @param <T>         the type of transformed object
+     * @return the transformed object
+     */
+    public abstract <T> T apply(SyntaxNodeTransformer<T> transformer);
+
     // TODO Temp method. We need to find a way to get the green node from a red node.
-    public STNode getInternalNode() {
-        return node;
+    public STNode internalNode() {
+        return internalNode;
     }
 
     @Override
     public String toString() {
-        return node.toString();
+        return internalNode.toString();
     }
 }

@@ -73,10 +73,13 @@ dependencies {
     dist 'com.fasterxml.jackson.core:jackson-core:2.8.6'
     dist 'com.fasterxml.jackson.core:jackson-annotations:2.8.0'
     dist 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.8.8'
+    dist 'com.google.api.grpc:proto-google-common-protos:1.17.0'
     // dist 'org.ow2.asm:asm:6.2.1'
     dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
     dist 'org.codehaus.woodstox:stax2-api:3.1.1'
     dist 'org.apache.commons:commons-compress:1.18'
+    dist 'me.tongfei:progressbar:0.7.4'
+    dist 'org.jline:jline:3.11.0'
 
     // Following dependencies are required for kraal library
     dist 'org.jetbrains.kotlin:kotlin-stdlib:1.3.31'
@@ -89,6 +92,7 @@ dependencies {
 
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')
+    dist project(':ballerina-cli-module')
     dist project(':ballerina-jvm')
     birJar project(path: ':ballerina-jvm', configuration: 'birJar')
     dist project(':ballerina-encoding')
@@ -98,6 +102,7 @@ dependencies {
 
     dist project(':testerina:testerina-core')
     dist project(':ballerina-formatter')
+    dist project(':ballerina-bindgen')
     dist project(':ballerina-backend-jvm')
     birJar project(path: ':ballerina-backend-jvm', configuration: 'birJar')
     dist project(':language-server:language-server-compiler')
@@ -109,6 +114,7 @@ dependencies {
     dist project(':openapi-ballerina:ballerina-client-generator')
     dist project(':docerina')
     dist project(':protobuf-ballerina')
+    dist project(':testerina:testerina-runtime')
     docerina project(':docerina-gradle-plugin')
 
     langserverLib project(path: ':language-server:language-server-core', configuration: 'libs')
@@ -136,15 +142,10 @@ dependencies {
 
     balSource project(path: ':ballerina-bir', configuration: 'balSource')
     balSource project(path: ':ballerina-jvm', configuration: 'balSource')
-    birJar project(path: ':ballerina-cli-module-pull', configuration: 'cliModulePullJar')
-    birJar project(path: ':ballerina-cli-module-push', configuration: 'cliModulePushJar')
-    birJar project(path: ':ballerina-cli-module-search', configuration: 'cliModuleSearchJar')
-    birJar project(path: ':ballerina-cli-module-token-update', configuration: 'cliModuleTokenUpdateJar')
 
     birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 
     // ballerinax module cache
-    balxBir project(path: ':ballerina-jdbc', configuration: 'bir')
     balxBir project(path: ':ballerina-java', configuration: 'bir')
     balxBir project(path: ':ballerina-java-arrays', configuration: 'bir')
 }
@@ -159,7 +160,6 @@ task configured {
 
 }
 
-
 def copyJarSpec = {
     base -> copySpec {
         from configurations.dist
@@ -171,6 +171,7 @@ def copyBaloSpec = {
     path -> copySpec {
         from configurations.distBal
         into(path + 'lib')
+        fileMode 0644
     }
 }
 
@@ -227,6 +228,13 @@ def copyBinSpec = {
 def copyKraalLib = {
     path -> copySpec {
         from('lib')
+        into("$path/bre/lib")
+    }
+}
+
+def copyJaCoCoAgent = {
+    path -> copySpec {
+        from('jacoco/jacocoagent.jar')
         into("$path/bre/lib")
     }
 }
@@ -381,6 +389,7 @@ task createZip(type: Zip) {
     with copyResourceSpec(basePath)
 //    with copySrcBaloSpec(basePath)
     with copyKraalLib(basePath)
+    with copyJaCoCoAgent(basePath)
 }
 
 task updateBalHome(type: Copy) {
@@ -403,6 +412,7 @@ task updateBalHome(type: Copy) {
     with copyStaticSpec(installDir)
     with copyResourceSpec(installDir)
     with copyKraalLib(installDir)
+    with copyJaCoCoAgent(installDir)
 //    with copySrcBaloSpec(installDir)
     into System.getenv('BAL_HOME')
 }
@@ -430,6 +440,7 @@ task createDistribution(type: Copy) {
     with copyResourceSpec("")
 //    with copySrcBaloSpec("")
     with copyKraalLib("")
+    with copyJaCoCoAgent("")
     destinationDir=file(filePath)
 }
 

@@ -17,42 +17,39 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.LocalVariableDeclaration;
+import io.ballerinalang.compiler.syntax.tree.VariableDeclaration;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 public class STVariableDeclaration extends STStatement {
 
+    public final STNode finalKeyword;
     public final STNode typeName;
     public final STNode variableName;
     public final STNode equalsToken;
     public final STNode initializer;
     public final STNode semicolonToken;
 
-    public STVariableDeclaration(SyntaxKind kind,
-                                 STNode typeName,
-                                 STNode variableName,
-                                 STNode equalsToken,
-                                 STNode initializer,
-                                 STNode semicolonToken) {
+    STVariableDeclaration(SyntaxKind kind,
+                          STNode finalKeyword,
+                          STNode typeName,
+                          STNode variableName,
+                          STNode equalsToken,
+                          STNode initializer,
+                          STNode semicolonToken) {
         super(kind);
+        this.finalKeyword = finalKeyword;
         this.typeName = typeName;
         this.variableName = variableName;
         this.equalsToken = equalsToken;
         this.initializer = initializer;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 5;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(typeName, 0);
-        this.addChildNode(variableName, 1);
-        this.addChildNode(equalsToken, 2);
-        this.addChildNode(initializer, 3);
-        this.addChildNode(semicolonToken, 4);
+        addChildren(finalKeyword, typeName, variableName, equalsToken, initializer, semicolonToken);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new LocalVariableDeclaration(this, position, parent);
+        return new VariableDeclaration(this, position, parent);
     }
 }

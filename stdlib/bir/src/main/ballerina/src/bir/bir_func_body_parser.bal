@@ -164,10 +164,8 @@ public type FuncBodyParser object {
             kind = INS_KIND_NEW_XML_ELEMENT;
             var lhsOp = self.parseVarRef();
             var startTagOp = self.parseVarRef();
-            var endTagOp = self.parseVarRef();
             var defaultNsURIOp = self.parseVarRef();
-            NewXMLElement newXMLElement = {pos:pos, kind:kind, lhsOp:lhsOp, startTagOp:startTagOp, endTagOp:endTagOp,
-                                           defaultNsURIOp:defaultNsURIOp};
+            NewXMLElement newXMLElement = {pos:pos, kind:kind, lhsOp:lhsOp, startTagOp:startTagOp, defaultNsURIOp:defaultNsURIOp};
             return newXMLElement;
         } else if (kindTag == INS_NEW_XML_TEXT) {
             kind = INS_KIND_NEW_XML_TEXT;
@@ -552,7 +550,7 @@ public type FuncBodyParser object {
             string localVarName = self.reader.readStringCpRef();
             VariableDcl varDecl = self.getDecl(VAR_SCOPE_FUNCTION, localVarName, VAR_KIND_SELF);
             string fieldName = self.reader.readStringCpRef();
-            FieldLock lockIns = {pos:pos, kind:kind, localVar:varDecl, field:fieldName, lockBB:self.parseBBRef()};
+            FieldLock lockIns = {pos:pos, kind:kind, localVar:varDecl, 'field:fieldName, lockBB:self.parseBBRef()};
             return lockIns;
         } else if (kindTag == INS_UNLOCK) {
             TerminatorKind kind = TERMINATOR_UNLOCK;

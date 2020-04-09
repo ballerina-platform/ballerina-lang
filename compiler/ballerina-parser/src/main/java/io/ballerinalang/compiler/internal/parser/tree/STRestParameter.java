@@ -27,23 +27,18 @@ public class STRestParameter extends STParameter {
     public final STNode ellipsis;
     public final STNode paramName;
 
-    public STRestParameter(SyntaxKind kind,
-                           STNode leadingComma,
-                           STNode type,
-                           STNode ellipsis,
-                           STNode paramName) {
+    STRestParameter(SyntaxKind kind,
+                    STNode leadingComma,
+                    STNode type,
+                    STNode ellipsis,
+                    STNode paramName) {
         super(kind);
         this.leadingComma = leadingComma;
         this.type = type;
         this.ellipsis = ellipsis;
         this.paramName = paramName;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingComma, 0);
-        this.addChildNode(type, 1);
-        this.addChildNode(ellipsis, 2);
-        this.addChildNode(paramName, 3);
+        addChildren(leadingComma, type, ellipsis, paramName);
     }
 
     @Override

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -44,6 +44,12 @@ public class BallerinaDualAttachPointIdentImpl extends ASTWrapperPsiElement impl
 
   @Override
   @Nullable
+  public PsiElement getTypeField() {
+    return findChildByType(TYPE_FIELD);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getTypeParameter() {
     return findChildByType(TYPE_PARAMETER);
   }
@@ -58,6 +64,12 @@ public class BallerinaDualAttachPointIdentImpl extends ASTWrapperPsiElement impl
   @Nullable
   public PsiElement getObject() {
     return findChildByType(OBJECT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRecord() {
+    return findChildByType(RECORD);
   }
 
   @Override

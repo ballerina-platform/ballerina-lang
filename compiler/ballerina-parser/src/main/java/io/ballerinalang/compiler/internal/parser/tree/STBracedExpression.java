@@ -17,34 +17,35 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.BracedExpression;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
+/**
+ * Represents a braced expression in Ballerina.
+ *
+ * @since 1.3.0
+ */
 public class STBracedExpression extends STExpression {
-    
+
     STNode openParen;
     STNode expr;
     STNode closeParen;
-    
-    public STBracedExpression(SyntaxKind kind,
-                              STNode openParen,
-                              STNode expr,
-                              STNode closeParen) {
+
+    STBracedExpression(SyntaxKind kind,
+                       STNode openParen,
+                       STNode expr,
+                       STNode closeParen) {
         super(kind);
         this.openParen = openParen;
         this.expr = expr;
         this.closeParen = closeParen;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(openParen, 0);
-        this.addChildNode(expr, 1);
-        this.addChildNode(closeParen, 2);
+        addChildren(openParen, expr, closeParen);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        // TODO:
-        return null;
+        return new BracedExpression(this, position, parent);
     }
 }

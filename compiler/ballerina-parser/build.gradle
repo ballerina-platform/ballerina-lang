@@ -19,13 +19,16 @@ apply from: "$rootDir/gradle/javaProject.gradle"
 
 dependencies {
     testCompile 'org.testng:testng'
+    testCompile 'org.bitbucket.cowwoc:diff-match-patch:1.2'
     testCompile 'com.google.code.gson:gson:2.8.6'
 }
 
 description = 'Ballerina - Parser'
 
 checkstyleMain {
-    exclude 'org/ballerinalang/compiler/parser/tree/**'
+    exclude 'io/ballerinalang/compiler/internal/parser/tree/**'
+    exclude 'io/ballerinalang/compiler/syntax/tree/**'
+    exclude 'io/ballerinalang/compiler/text/**'
 }
 
 test {

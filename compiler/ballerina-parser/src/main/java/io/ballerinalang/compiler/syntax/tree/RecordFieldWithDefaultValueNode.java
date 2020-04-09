@@ -21,76 +21,37 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
 
-    private Node fieldType;
-    private Token fieldName;
-    private Token equalsToken;
-    private Node defaultValue;
-    private Token semicolon;
-
     public RecordFieldWithDefaultValueNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Node fieldType() {
-        if (fieldType != null) {
-            return fieldType;
-        }
-
-        fieldType = node.childInBucket(0).createFacade(getChildPosition(0), this);
-        childBuckets[0] = fieldType;
-        return fieldType;
+        return childInBucket(0);
     }
 
     public Token fieldName() {
-        if (fieldName != null) {
-            return fieldName;
-        }
-
-        fieldName = createToken(1);
-        return fieldName;
+        return childInBucket(1);
     }
 
     public Token questionMark() {
-        if (equalsToken != null) {
-            return equalsToken;
-        }
-
-        equalsToken = createToken(2);
-        return equalsToken;
+        return childInBucket(2);
     }
 
     public Node defaultValue() {
-        if (defaultValue != null) {
-            return defaultValue;
-        }
-
-        defaultValue = node.childInBucket(3).createFacade(getChildPosition(3), this);
-        childBuckets[3] = defaultValue;
-        return defaultValue;
+        return childInBucket(3);
     }
 
     public Token semicolon() {
-        if (semicolon != null) {
-            return semicolon;
-        }
-
-        semicolon = createToken(4);
-        return semicolon;
+        return childInBucket(4);
     }
 
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return fieldType();
-            case 1:
-                return fieldName();
-            case 2:
-                return questionMark();
-            case 3:
-                return defaultValue();
-            case 4:
-                return semicolon();
-        }
-        return null;
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+        return visitor.transform(this);
     }
 }

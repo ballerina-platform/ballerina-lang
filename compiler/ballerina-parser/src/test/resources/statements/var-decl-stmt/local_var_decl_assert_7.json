@@ -1,5 +1,5 @@
 {
-    "kind": "LOCAL_VARIABLE_DECL",
+    "kind": "VARIABLE_DECL",
     "children": [
         {
             "kind": "IDENTIFIER_TOKEN",
@@ -14,7 +14,7 @@
             "isMissing": true
         },
         {
-            "kind": "NUMERIC_LITERAL_TOKEN",
+            "kind": "DECIMAL_INTEGER_LITERAL",
             "value": 5
         },
         {

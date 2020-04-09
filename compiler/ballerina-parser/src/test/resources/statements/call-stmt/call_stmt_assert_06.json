@@ -1,0 +1,78 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "PUBLIC_KEYWORD"
+        },
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "BLOCK_STATEMENT",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "CALL_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "CHECK_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "CHECK_KEYWORD"
+                                        },
+                                        {
+                                            "kind": "CHECK_EXPRESSION",
+                                            "children": [
+                                                {
+                                                    "kind": "CHECK_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "CHECK_EXPRESSION",
+                                                    "children": [
+                                                        {
+                                                            "kind": "CHECKPANIC_KEYWORD"
+                                                        },
+                                                        {
+                                                            "kind": "DECIMAL_INTEGER_LITERAL",
+                                                            "value": "4"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}

@@ -25,15 +25,12 @@ public class STElseBlock extends STStatement {
     public final STNode elseKeyword;
     public final STNode elseBody;
 
-    public STElseBlock(STNode elseKeyword, STNode elseBody) {
+    STElseBlock(STNode elseKeyword, STNode elseBody) {
         super(SyntaxKind.ELSE_BLOCK);
         this.elseKeyword = elseKeyword;
         this.elseBody = elseBody;
 
-        this.bucketCount = 2;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(elseKeyword, 0);
-        this.addChildNode(elseBody, 1);
+        addChildren(elseKeyword, elseBody);
     }
 
     @Override

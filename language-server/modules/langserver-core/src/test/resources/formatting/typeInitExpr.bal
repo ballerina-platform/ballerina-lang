@@ -7,7 +7,7 @@ type Person object {
         self.name = name;
         var detailRec = details;
     }
-}
+};
 
 function name() {
     jdbc:Client studentDb1 = new( {

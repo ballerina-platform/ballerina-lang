@@ -21,7 +21,7 @@ public class STLiteralValueToken extends STToken {
     public final String text;
     public final long value;
 
-    public STLiteralValueToken(SyntaxKind kind, String text, long value, STNode leadingTrivia, STNode trailingTrivia) {
+    STLiteralValueToken(SyntaxKind kind, String text, long value, STNode leadingTrivia, STNode trailingTrivia) {
         super(kind, text.length(), leadingTrivia, trailingTrivia);
         this.text = text;
         this.value = value;

@@ -27,19 +27,15 @@ public class STBlockStatement extends STStatement {
     public final STNode statements;
     public final STNode closeBraceToken;
 
-    public STBlockStatement(STNode openBraceToken,
-                            STNode statements,
-                            STNode closeBraceToken) {
+    STBlockStatement(STNode openBraceToken,
+                     STNode statements,
+                     STNode closeBraceToken) {
         super(SyntaxKind.BLOCK_STATEMENT);
         this.openBraceToken = openBraceToken;
         this.statements = statements;
         this.closeBraceToken = closeBraceToken;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(openBraceToken, 0);
-        this.addChildNode(statements, 1);
-        this.addChildNode(closeBraceToken, 2);
+        this.addChildren(openBraceToken, statements, closeBraceToken);
     }
 
     @Override

@@ -19,8 +19,46 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+/**
+ * @since 1.3.0
+ */
 public class ImportDeclaration extends NonTerminalNode {
+
     public ImportDeclaration(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
+    }
+
+    public Token importKeyword() {
+        return childInBucket(0);
+    }
+
+    public Token orgName() {
+        return childInBucket(1);
+    }
+
+    public Node moduleName() {
+        return childInBucket(2);
+    }
+
+    public Node version() {
+        return childInBucket(3);
+    }
+
+    public Node prefix() {
+        return childInBucket(4);
+    }
+
+    public Token semicolon() {
+        return childInBucket(5);
+    }
+
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+        return visitor.transform(this);
     }
 }

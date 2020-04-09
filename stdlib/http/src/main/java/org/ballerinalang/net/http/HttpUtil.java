@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -149,6 +150,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MODULE_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.LISTENER_CONFIGURATION;
 import static org.ballerinalang.net.http.HttpConstants.MODULE;
+import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_CERTIFICATE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE;
@@ -296,6 +298,11 @@ public class HttpUtil {
                     entityObj.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
                             new EntityBodyChannel(new HttpMessageDataStreamer(httpCarbonMessage).getInputStream())));
                 } else {
+                    entityObj.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
+                }
+            } else {
+                if (HttpHeaderValues.CHUNKED.toString().equals(
+                        httpCarbonMessage.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()))) {
                     entityObj.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
                 }
             }
@@ -650,12 +657,11 @@ public class HttpUtil {
         inboundRequest.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
         inboundRequest.addNativeData(REQUEST, true);
 
-        if (inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT) != null) {
-            MapValue mutualSslRecord = ValueCreatorUtils.createHTTPRecordValue(MUTUAL_SSL_HANDSHAKE_RECORD);
-            mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
-                                inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT));
-            inboundRequest.set(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
-        }
+        MapValue mutualSslRecord = ValueCreatorUtils.createHTTPRecordValue(MUTUAL_SSL_HANDSHAKE_RECORD);
+        mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
+                inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT));
+        mutualSslRecord.put(MUTUAL_SSL_CERTIFICATE, inboundRequestMsg.getProperty(HttpConstants.BASE_64_ENCODED_CERT));
+        inboundRequest.set(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
 
         enrichWithInboundRequestInfo(inboundRequest, inboundRequestMsg);
         enrichWithInboundRequestHeaders(inboundRequest, inboundRequestMsg);

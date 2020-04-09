@@ -17,7 +17,7 @@
 import ballerina/io;
 import ballerina/mime;
 import ballerina/stringutils;
-import ballerinax/java;
+import ballerina/java;
 import ballerina/time;
 
 # Represents an HTTP request.
@@ -615,8 +615,10 @@ function externCheckReqEntityBodyAvailability(Request request) returns boolean =
 # A record for providing mutual SSL handshake results.
 #
 # + status - Status of the handshake.
+# + base64EncodedCert - Base64 encoded certificate.
 public type MutualSslHandshake record {|
     MutualSslStatus status = ();
+    string? base64EncodedCert = ();
 |};
 
 # Defines the possible values for the mutual ssl status.

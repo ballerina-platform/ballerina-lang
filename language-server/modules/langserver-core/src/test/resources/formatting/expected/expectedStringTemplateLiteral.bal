@@ -5,7 +5,7 @@ function stringTemplateWithText1() returns (string) {
 
 function stringTemplateWithText2() returns (string) {
     string s =
-    string `\\`;
+        string `\\`;
     return s;
 }
 
@@ -21,7 +21,7 @@ function stringTemplateWithText4() returns (string) {
 
 function stringTemplateWithText5() returns (string) {
     string s =
-    string `$\{`;
+        string `$\{`;
     return s;
 }
 
@@ -42,7 +42,7 @@ function stringTemplateWithText8() returns (string) {
 
 function stringTemplateWithText9() returns (string) {
     string s =
-    string `Hello`;
+        string `Hello`;
     return s;
 }
 
@@ -55,7 +55,7 @@ function stringTemplateWithText10() returns (string) {
 function stringTemplateWithText11() returns (string) {
     string name = "Ballerina";
     string s =
-    string `Hello ${name}`;
+        string `Hello ${name}`;
     return s;
 }
 
@@ -75,7 +75,7 @@ function stringTemplateWithText14() returns (string) {
     string firstName = "John";
     string lastName = "Smith";
     string s =
-    string `Hello ${lastName}, ${firstName}`;
+        string `Hello ${lastName}, ${firstName}`;
     return s;
 }
 
@@ -100,14 +100,14 @@ function stringTemplateWithText17() returns (string) {
 function stringTemplateWithText18() returns (string) {
     int count = 10;
     string s =
-    string `\\${count}`;
+        string `\\${count}`;
     return s;
 }
 
 function stringTemplateWithText19() returns (string) {
     string path = "root";
     string s =
-    string `Path = \\${path}`;
+        string `Path = \\${path}`;
     return s;
 }
 
@@ -147,7 +147,7 @@ function getLastName() returns (string) {
 
 function emptyStringTemplate() returns (string) {
     string s =
-    string ``;
+        string ``;
     return s;
 }
 
@@ -155,7 +155,7 @@ function concatStringTemplateExprs() returns (string) {
     string s1 = "John";
     string s2 = "Doe";
     return string `FirstName: ${s1}.`
-    + string ` Second name: ${s2}`;
+        + string ` Second name: ${s2}`;
 }
 
 function stringTemplateEscapeChars() returns (string) {

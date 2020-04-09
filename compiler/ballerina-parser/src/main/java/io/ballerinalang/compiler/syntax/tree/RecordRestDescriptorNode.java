@@ -21,51 +21,28 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class RecordRestDescriptorNode extends NonTerminalNode {
 
-    private Node fieldType;
-    private Token ellipsis;
-    private Token semicolon;
-
     public RecordRestDescriptorNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Node fieldType() {
-        if (fieldType != null) {
-            return fieldType;
-        }
-
-        fieldType = node.childInBucket(0).createFacade(getChildPosition(0), this);
-        childBuckets[0] = fieldType;
-        return fieldType;
+        return childInBucket(0);
     }
 
     public Token ellipsis() {
-        if (ellipsis != null) {
-            return ellipsis;
-        }
-
-        ellipsis = createToken(1);
-        return ellipsis;
+        return childInBucket(1);
     }
 
     public Token semicolon() {
-        if (semicolon != null) {
-            return semicolon;
-        }
-
-        semicolon = createToken(2);
-        return semicolon;
+        return childInBucket(2);
+    }
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
     }
 
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return fieldType();
-            case 1:
-                return ellipsis();
-            case 2:
-                return semicolon();
-        }
-        return null;
+    @Override
+    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+        return visitor.transform(this);
     }
 }

@@ -27,19 +27,15 @@ public class STRestArg extends STNode {
     public final STNode ellipsis;
     public final STNode expression;
 
-    public STRestArg(STNode leadingComma,
-                     STNode ellipsis,
-                     STNode expression) {
+    STRestArg(STNode leadingComma,
+              STNode ellipsis,
+              STNode expression) {
         super(SyntaxKind.REST_ARG);
         this.leadingComma = leadingComma;
         this.ellipsis = ellipsis;
         this.expression = expression;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingComma, 0);
-        this.addChildNode(ellipsis, 1);
-        this.addChildNode(expression, 2);
+        addChildren(leadingComma, ellipsis, expression);
     }
 
     @Override

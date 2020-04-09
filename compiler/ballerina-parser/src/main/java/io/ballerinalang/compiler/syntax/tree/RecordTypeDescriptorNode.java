@@ -21,62 +21,33 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class RecordTypeDescriptorNode extends NonTerminalNode {
 
-    private Token recordKeyword;
-    private Token bodyStartDelimiter;
-    private Node fields;
-    private Token bodyEndDelimiter;
-
     public RecordTypeDescriptorNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token recordKeyword() {
-        if (recordKeyword != null) {
-            return recordKeyword;
-        }
-
-        recordKeyword = createToken(0);
-        return recordKeyword;
+        return childInBucket(0);
     }
 
     public Token bodyStartDelimiter() {
-        if (bodyStartDelimiter != null) {
-            return bodyStartDelimiter;
-        }
-
-        bodyStartDelimiter = createToken(1);
-        return bodyStartDelimiter;
+        return childInBucket(1);
     }
 
     public Node fields() {
-        if (fields != null) {
-            return fields;
-        }
-
-        fields = createListNode(2);
-        return fields;
+        return childInBucket(2);
     }
 
     public Token bodyEndDelimiter() {
-        if (bodyEndDelimiter != null) {
-            return bodyEndDelimiter;
-        }
-
-        bodyEndDelimiter = createToken(3);
-        return bodyEndDelimiter;
+        return childInBucket(3);
     }
 
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return recordKeyword();
-            case 1:
-                return bodyStartDelimiter();
-            case 2:
-                return fields();
-            case 3:
-                return bodyEndDelimiter();
-        }
-        return null;
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+        return visitor.transform(this);
     }
 }

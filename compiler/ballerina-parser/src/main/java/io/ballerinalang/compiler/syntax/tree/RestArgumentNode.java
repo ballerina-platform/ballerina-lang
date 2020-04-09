@@ -21,39 +21,25 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class RestArgumentNode extends FunctionArgumentNode {
 
-    private Token leadingComma;
-    private Node expression;
-
     public RestArgumentNode(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token leadingComma() {
-        if (leadingComma != null) {
-            return leadingComma;
-        }
-
-        leadingComma = createToken(0);
-        return leadingComma;
+        return childInBucket(0);
     }
 
     public Node expression() {
-        if (expression != null) {
-            return expression;
-        }
-
-        expression = node.childInBucket(1).createFacade(getChildPosition(1), this);
-        childBuckets[1] = expression;
-        return this.expression;
+        return childInBucket(1);
     }
 
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return leadingComma();
-            case 1:
-                return expression();
-        }
-        return null;
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+        return visitor.transform(this);
     }
 }

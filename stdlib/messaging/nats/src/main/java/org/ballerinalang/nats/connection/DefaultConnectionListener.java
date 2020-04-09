@@ -21,7 +21,7 @@ package org.ballerinalang.nats.connection;
 import io.nats.client.Connection;
 import io.nats.client.ConnectionListener;
 import org.ballerinalang.nats.Constants;
-import org.ballerinalang.nats.observability.NatsMetricsUtil;
+import org.ballerinalang.nats.observability.NatsMetricsReporter;
 
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -47,21 +47,21 @@ public class DefaultConnectionListener implements ConnectionListener {
             case CONNECTED: {
                 // The connection has successfully completed the handshake with the gnatsd
                 printToConsole("Connection established with server " + url);
-                NatsMetricsUtil.reportNewConnection(url);
+                NatsMetricsReporter.reportNewConnection(url);
                 break;
             }
             case CLOSED: {
                 // The connection is permanently closed, either by manual action or failed reconnects
                 printToConsole(conn.getLastError() != null ? "Connection closed." + conn.getLastError() :
                         "Connection closed.");
-                NatsMetricsUtil.reportConnectionClose(url);
+                NatsMetricsReporter.reportConnectionClose(url);
                 break;
             }
             case RECONNECTED: {
                 // The connection was connected, lost its connection and successfully reconnected
                 printToConsole("Connection reconnected with server " + conn.getConnectedUrl());
                 printDisconnected = true;
-                NatsMetricsUtil.reportNewConnection(url);
+                NatsMetricsReporter.reportNewConnection(url);
                 break;
             }
             case DISCONNECTED: {
@@ -69,7 +69,7 @@ public class DefaultConnectionListener implements ConnectionListener {
                 if (printDisconnected) {
                     printToConsole("Connection disconnected with server " + conn.getLastError());
                     printDisconnected = false;
-                    NatsMetricsUtil.reportConnectionClose(url);
+                    NatsMetricsReporter.reportConnectionClose(url);
                 }
                 break;
             }

@@ -18,7 +18,7 @@
 package io.ballerinalang.compiler.internal.parser.tree;
 
 public abstract class STExpression extends STNode {
-    public STExpression(SyntaxKind kind) {
+    STExpression(SyntaxKind kind) {
         super(kind);
     }
 }

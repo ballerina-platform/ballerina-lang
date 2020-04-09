@@ -29,7 +29,7 @@
                     "kind": "LIST",
                     "children": [
                         {
-                            "kind": "LOCAL_VARIABLE_DECL",
+                            "kind": "VARIABLE_DECL",
                             "children": [
                                 {
                                     "kind": "RECORD_TYPE_DESCRIPTOR",
@@ -74,7 +74,7 @@
                                                             "kind": "EQUAL_TOKEN"
                                                         },
                                                         {
-                                                            "kind": "NUMERIC_LITERAL_TOKEN",
+                                                            "kind": "DECIMAL_INTEGER_LITERAL",
                                                             "value": "0"
                                                         },
                                                         {
@@ -144,7 +144,7 @@
                                                                                     "kind": "EQUAL_TOKEN"
                                                                                 },
                                                                                 {
-                                                                                    "kind": "NUMERIC_LITERAL_TOKEN",
+                                                                                    "kind": "DECIMAL_INTEGER_LITERAL",
                                                                                     "value": "50"
                                                                                 },
                                                                                 {
@@ -230,7 +230,7 @@
                             ]
                         },
                         {
-                            "kind": "LOCAL_VARIABLE_DECL",
+                            "kind": "VARIABLE_DECL",
                             "children": [
                                 {
                                     "kind": "SIMPLE_TYPE",

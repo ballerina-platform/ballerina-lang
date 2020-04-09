@@ -21,24 +21,20 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 public class STQualifiedIdentifier extends STExpression {
-    
-    STNode modulePrefix;
-    STNode colon;
-    STNode identifier;
-    
-    public STQualifiedIdentifier(STNode modulePrefix,
-                                    STNode colon,
-                                    STNode identifier) {
+
+    final STNode modulePrefix;
+    final STNode colon;
+    final STNode identifier;
+
+    STQualifiedIdentifier(STNode modulePrefix,
+                          STNode colon,
+                          STNode identifier) {
         super(SyntaxKind.QUALIFIED_IDENTIFIER);
         this.modulePrefix = modulePrefix;
         this.colon = colon;
         this.identifier = identifier;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(modulePrefix, 0);
-        this.addChildNode(colon, 1);
-        this.addChildNode(identifier, 2);
+        addChildren(modulePrefix, colon, identifier);
     }
 
     @Override

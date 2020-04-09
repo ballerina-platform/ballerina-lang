@@ -20,50 +20,30 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 public class BlockStatement extends NonTerminalNode {
-    private Token openBraceToken;
-    private NodeList<Statement> statements;
-    private Token closeBraceToken;
 
     public BlockStatement(STNode node, int position, NonTerminalNode parent) {
         super(node, position, parent);
     }
 
     public Token openBraceToken() {
-        if (openBraceToken != null) {
-            return openBraceToken;
-        }
-
-        openBraceToken = createToken(0);
-        return openBraceToken;
+        return (Token) childInBucket(0);
     }
 
     public NodeList<Statement> statements() {
-        if (statements != null) {
-            return statements;
-        }
-
-        statements = createListNode(1);
-        return statements;
+        return new NodeList<>((NonTerminalNode) childInBucket(1));
     }
 
     public Token closeBraceToken() {
-        if (closeBraceToken != null) {
-            return closeBraceToken;
-        }
-
-        closeBraceToken = createToken(2);
-        return closeBraceToken;
+        return (Token) childInBucket(2);
     }
 
-    public Node childInBucket(int bucket) {
-        switch (bucket) {
-            case 0:
-                return openBraceToken();
-            case 1:
-                return statements();
-            case 2:
-                return closeBraceToken();
-        }
-        return null;
+    @Override
+    public void accept(SyntaxNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+        return visitor.transform(this);
     }
 }

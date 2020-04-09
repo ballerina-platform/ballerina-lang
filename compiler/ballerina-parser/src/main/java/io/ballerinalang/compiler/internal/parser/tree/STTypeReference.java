@@ -27,19 +27,15 @@ public class STTypeReference extends STNode {
     public final STNode type;
     public final STNode semicolonToken;
 
-    public STTypeReference(STNode asterisk,
-                                  STNode type,
-                                  STNode semicolonToken) {
+    STTypeReference(STNode asterisk,
+                    STNode type,
+                    STNode semicolonToken) {
         super(SyntaxKind.TYPE_REFERENCE);
         this.asterisk = asterisk;
         this.type = type;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(asterisk, 0);
-        this.addChildNode(type, 1);
-        this.addChildNode(semicolonToken, 2);
+        addChildren(asterisk, type, semicolonToken);
     }
 
     @Override

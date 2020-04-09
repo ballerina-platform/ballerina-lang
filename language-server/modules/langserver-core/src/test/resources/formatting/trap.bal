@@ -3,7 +3,7 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/config;
 
-function add(int|error value) {
+function add(int  |error value) {
 
 }
 
@@ -22,7 +22,7 @@ trap
 }
 
 public function main() {
-    int|error result =    trap    divide  ( 1 ,  0)  ;
+  int | error result =    trap    divide  ( 1 ,  0)  ;
     add(  trap  divide(1, 0));
     if (result is int) {
         io:println("int result: " + result);

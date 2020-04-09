@@ -22,19 +22,19 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 public class STMethodCallExpression extends STExpression {
 
-    STNode expression;
-    STNode dotToken;
-    STNode methodName;
-    STNode openParen;
-    STNode arguments;
-    STNode closeParen;
+    final STNode expression;
+    final STNode dotToken;
+    final STNode methodName;
+    final STNode openParen;
+    final STNode arguments;
+    final STNode closeParen;
 
-    public STMethodCallExpression(STNode expression,
-                                  STNode dotToken,
-                                  STNode methodName,
-                                  STNode openParen,
-                                  STNode arguments,
-                                  STNode closeParen) {
+    STMethodCallExpression(STNode expression,
+                           STNode dotToken,
+                           STNode methodName,
+                           STNode openParen,
+                           STNode arguments,
+                           STNode closeParen) {
         super(SyntaxKind.METHOD_CALL);
         this.expression = expression;
         this.dotToken = dotToken;
@@ -43,14 +43,7 @@ public class STMethodCallExpression extends STExpression {
         this.arguments = arguments;
         this.closeParen = closeParen;
 
-        this.bucketCount = 6;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(expression, 0);
-        this.addChildNode(dotToken, 1);
-        this.addChildNode(methodName, 2);
-        this.addChildNode(openParen, 3);
-        this.addChildNode(arguments, 4);
-        this.addChildNode(closeParen, 5);
+        addChildren(expression, dotToken, methodName, openParen, arguments, closeParen);
     }
 
     @Override

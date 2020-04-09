@@ -23,32 +23,26 @@ import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 
 public class STModuleTypeDefinition extends STNode {
     // TODO metadata goes here
-    public final STNode visibilityQual;
+    public final STNode visibilityQualifier;
     public final STNode typeKeyword;
     public final STNode typeName;
     public final STNode typeDescriptor;
-    public final STNode comma;
+    public final STNode semicolon;
 
-    public STModuleTypeDefinition(STNode visibilityQual,
-                                STNode typeKeyword,
-                                STNode typeName,
-                                STNode typeDescriptor,
-                                STNode comma) {
+    STModuleTypeDefinition(STNode visibilityQualifier,
+                           STNode typeKeyword,
+                           STNode typeName,
+                           STNode typeDescriptor,
+                           STNode semicolon) {
 
         super(SyntaxKind.TYPE_DEFINITION);
-        this.visibilityQual = visibilityQual;
+        this.visibilityQualifier = visibilityQualifier;
         this.typeKeyword = typeKeyword;
         this.typeName = typeName;
         this.typeDescriptor = typeDescriptor;
-        this.comma = comma;
+        this.semicolon = semicolon;
 
-        this.bucketCount = 5;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(visibilityQual, 0);
-        this.addChildNode(typeKeyword, 1);
-        this.addChildNode(typeName, 2);
-        this.addChildNode(typeDescriptor, 3);
-        this.addChildNode(comma, 4);
+        addChildren(visibilityQualifier, typeKeyword, typeName, typeDescriptor, semicolon);
     }
 
     @Override

@@ -17,6 +17,11 @@
  */
 package io.ballerinalang.compiler.text;
 
+/**
+ * Represents a text edit on a {@code TextDocument}.
+ *
+ * @since 1.3.0
+ */
 public class TextEdit {
     private final TextRange range;
     private final String text;
@@ -32,5 +37,9 @@ public class TextEdit {
 
     public String text() {
         return text;
+    }
+
+    public String toString() {
+        return range + text;
     }
 }

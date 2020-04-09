@@ -29,11 +29,11 @@ public class STRecordFieldWithDefaultValue extends STNode {
     public final STNode expression;
     public final STNode semicolonToken;
 
-    public STRecordFieldWithDefaultValue(STNode type,
-                                         STNode fieldName,
-                                         STNode equalsToken,
-                                         STNode expression,
-                                         STNode semicolonToken) {
+    STRecordFieldWithDefaultValue(STNode type,
+                                  STNode fieldName,
+                                  STNode equalsToken,
+                                  STNode expression,
+                                  STNode semicolonToken) {
         super(SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE);
         this.type = type;
         this.fieldName = fieldName;
@@ -41,13 +41,7 @@ public class STRecordFieldWithDefaultValue extends STNode {
         this.expression = expression;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 5;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(type, 0);
-        this.addChildNode(fieldName, 1);
-        this.addChildNode(equalsToken, 2);
-        this.addChildNode(expression, 3);
-        this.addChildNode(semicolonToken, 4);
+        addChildren(type, fieldName, equalsToken, expression, semicolonToken);
     }
 
     @Override

@@ -10,4 +10,6 @@ public function foo() {
     any i;
     anydata j;
     service k;
+    var l;
+    never m;
 }

@@ -20,7 +20,7 @@ function testBasicNegative0() {
 }
 
 function testBasicNegative1() {
-    [string, int, float] [s, i, f] = ["D", 4, 6.7];
+    [string, int, NoFillerObject] [s, i, f] = ["D", 4, new(6)];
     [s, i, f] = ["FFF", 345];
 }
 
@@ -172,3 +172,9 @@ function testAssigningValuesToFinalVars() {
     s2 = "hello";
     [f2, b2] = [2.0, false];
 }
+
+type NoFillerObject object {
+    function __init(int i) {
+
+    }
+};

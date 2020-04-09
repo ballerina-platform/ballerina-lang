@@ -130,17 +130,18 @@ type Employee record {
     string name;
 };
 
-function newTable() returns table<Employee> {
-    table<Employee> employeeTable = table {
-        {id, name},
-        [
-            {1, "Employee1"},
-            {2, "Employee2"}
-        ]
-    };
-
-    return employeeTable;
-}
+//TODO Table remove - Fix
+//function newTable() returns table<Employee> {
+//    table<Employee> employeeTable = table {
+//        {id, name},
+//        [
+//            {1, "Employee1"},
+//            {2, "Employee2"}
+//        ]
+//    };
+//
+//    return employeeTable;
+//}
 
 function getDecimal() returns decimal {
     decimal d = 10;

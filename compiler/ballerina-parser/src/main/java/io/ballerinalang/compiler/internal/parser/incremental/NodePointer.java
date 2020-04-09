@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser.incremental;
 
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
+import io.ballerinalang.compiler.syntax.tree.ChildNodeList;
 import io.ballerinalang.compiler.syntax.tree.ModulePart;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
@@ -33,7 +34,7 @@ class NodePointer {
 
     private Node current;
     /**
-     * Current node's bucket index in it's parent
+     * Current node's bucket index in it's parent.
      */
     private int childBucketIndex;
 
@@ -64,32 +65,33 @@ class NodePointer {
 
     NodePointer nextChild() {
         NonTerminalNode nonTerminalNode = (NonTerminalNode) current;
-        for (int bucket = 0; bucket < nonTerminalNode.bucketCount(); bucket++) {
-            Node child = nonTerminalNode.childInBucket(bucket);
+        int childIndex = 0;
+        for (Node child : nonTerminalNode.children()) {
             if (!isZeroWidthNode(child) || isEOFToken(child)) {
                 current = child;
-                childBucketIndex = bucket;
+                childBucketIndex = childIndex;
                 return this;
             }
+            childIndex++;
         }
         return new NodePointer(null);
     }
 
     NodePointer nextSibling() {
-        if (current.getParent() == null) {
+        if (current.parent() == null) {
             return new NodePointer(null);
         }
 
-        NonTerminalNode parent = current.getParent();
-        for (int bucket = childBucketIndex + 1; bucket < parent.bucketCount(); bucket++) {
-            Node sibling = parent.childInBucket(bucket);
+        NonTerminalNode parent = current.parent();
+        ChildNodeList childNodeList = parent.children();
+        for (int childIndex = childBucketIndex + 1; childIndex < childNodeList.size(); childIndex++) {
+            Node sibling = childNodeList.get(childIndex);
             if (!isZeroWidthNode(sibling) || isEOFToken(sibling)) {
                 current = sibling;
-                childBucketIndex = bucket;
+                childBucketIndex = childIndex;
                 return this;
             }
         }
-
         return moveToParent().nextSibling();
     }
 
@@ -117,20 +119,22 @@ class NodePointer {
     }
 
     private NodePointer moveToParent() {
-        NonTerminalNode parent = current.getParent();
-        if (parent.getParent() == null) {
+        NonTerminalNode parent = current.parent();
+        if (parent.parent() == null) {
             childBucketIndex = 0;
             current = parent;
             return this;
         }
 
-        NonTerminalNode ancestor = parent.getParent();
-        for (int i = 0; i < ancestor.bucketCount(); i++) {
-            if (parent == ancestor.childInBucket(i)) {
+        NonTerminalNode ancestor = parent.parent();
+        int childIndex = 0;
+        for (Node sibling : ancestor.children()) {
+            if (parent == sibling) {
                 current = parent;
-                childBucketIndex = i;
+                childBucketIndex = childIndex;
                 return this;
             }
+            childIndex++;
         }
 
         // This line cannot be reachable;
@@ -138,10 +142,10 @@ class NodePointer {
     }
 
     private boolean isEOFToken(Node node) {
-        return node.getKind() == SyntaxKind.EOF_TOKEN;
+        return node.kind() == SyntaxKind.EOF_TOKEN;
     }
 
     private boolean isZeroWidthNode(Node node) {
-        return node.getSpanWithMinutiae().width() == 0;
+        return node.spanWithMinutiae().width() == 0;
     }
 }

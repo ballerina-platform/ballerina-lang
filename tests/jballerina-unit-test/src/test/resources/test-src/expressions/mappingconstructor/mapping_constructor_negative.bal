@@ -40,3 +40,17 @@ function testMappingConstrWithLiteralKeysForUnionCET() {
 function testUnionsOfTypesWithoutSupportForMappingConstructors() {
     int|float x = {name: "John", age: 25};
 }
+
+function testAmbiguousMapTarget() {
+    map<int>|map<string> m1 = {};
+
+    map<int|string>|map<string|boolean> m2 = {
+        a: "hello",
+        b: "bye"
+    };
+}
+
+function testFieldTypeCheckingOnUnknownType() {
+    PersonThree p3 = {name: "Anne", id: 123, "salary": 100.0};
+    NoRecord x = {a: <string> p3.id, b: p3.salary, ...c};
+}

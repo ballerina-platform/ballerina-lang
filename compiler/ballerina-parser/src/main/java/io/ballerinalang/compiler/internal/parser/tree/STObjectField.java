@@ -30,12 +30,12 @@ public class STObjectField extends STNode {
     public final STNode expression;
     public final STNode semicolonToken;
 
-    public STObjectField(STNode visibilityQualifier,
-                         STNode type,
-                         STNode fieldName,
-                         STNode equalsToken,
-                         STNode expression,
-                         STNode semicolonToken) {
+    STObjectField(STNode visibilityQualifier,
+                  STNode type,
+                  STNode fieldName,
+                  STNode equalsToken,
+                  STNode expression,
+                  STNode semicolonToken) {
         super(SyntaxKind.OBJECT_FIELD);
         this.visibilityQualifier = visibilityQualifier;
         this.type = type;
@@ -44,14 +44,7 @@ public class STObjectField extends STNode {
         this.expression = expression;
         this.semicolonToken = semicolonToken;
 
-        this.bucketCount = 6;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(visibilityQualifier, 0);
-        this.addChildNode(type, 1);
-        this.addChildNode(fieldName, 2);
-        this.addChildNode(equalsToken, 3);
-        this.addChildNode(expression, 4);
-        this.addChildNode(semicolonToken, 5);
+        addChildren(visibilityQualifier, type, fieldName, equalsToken, expression, semicolonToken);
     }
 
     @Override

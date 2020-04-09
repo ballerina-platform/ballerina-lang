@@ -22,27 +22,22 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 
 public class STMemberAccessExpression extends STExpression {
 
-    STNode containerExpr;
-    STNode openBracket;
-    STNode keyExpr;
-    STNode closeBracket;
+    final STNode containerExpr;
+    final STNode openBracket;
+    final STNode keyExpr;
+    final STNode closeBracket;
 
-    public STMemberAccessExpression(STNode containerExpr,
-                                    STNode openBracket,
-                                    STNode keyExpression,
-                                    STNode closeBracket) {
+    STMemberAccessExpression(STNode containerExpr,
+                             STNode openBracket,
+                             STNode keyExpression,
+                             STNode closeBracket) {
         super(SyntaxKind.MEMBER_ACCESS);
         this.containerExpr = containerExpr;
         this.openBracket = openBracket;
         this.keyExpr = keyExpression;
         this.closeBracket = closeBracket;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(containerExpr, 0);
-        this.addChildNode(openBracket, 1);
-        this.addChildNode(keyExpression, 2);
-        this.addChildNode(closeBracket, 3);
+        addChildren(containerExpr, openBracket, keyExpression, closeBracket);
     }
 
     @Override

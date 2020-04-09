@@ -22,9 +22,8 @@ import com.google.protobuf.DescriptorProtos;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
-
-import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.toCamelCase;
 
 /**
  * Message Definition bean class.
@@ -34,20 +33,21 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenerationUtils.toCame
 public class Message {
     private List<Field> fieldList;
     private String messageName;
-    private Map<String, List<Message>> oneofFieldMap;
+    private Map<String, List<Field>> oneofFieldMap;
     private List<EnumMessage> enumList;
     private List<Message> nestedMessageList;
+    private List<Message> mapList;
 
     private Message(String messageName, List<Field> fieldList) {
         this.messageName = messageName;
         this.fieldList = fieldList;
     }
 
-    private void setOneofFieldMap(Map<String, List<Message>> oneofFieldMap) {
+    private void setOneofFieldMap(Map<String, List<Field>> oneofFieldMap) {
         this.oneofFieldMap = oneofFieldMap;
     }
 
-    public Map<String, List<Message>> getOneofFieldMap() {
+    public Map<String, List<Field>> getOneofFieldMap() {
         return oneofFieldMap;
     }
 
@@ -57,6 +57,14 @@ public class Message {
 
     private void setEnumList(List<EnumMessage> enumList) {
         this.enumList = enumList;
+    }
+
+    public void setMapList(List<Message> mapList) {
+        this.mapList = mapList;
+    }
+
+    public List<Message> getMapList() {
+        return mapList;
     }
 
     public static Message.Builder newBuilder(DescriptorProtos.DescriptorProto messageDescriptor) {
@@ -79,6 +87,10 @@ public class Message {
         return messageName;
     }
 
+    public void setMessageName(String messageName) {
+        this.messageName = messageName;
+    }
+
     /**
      * Message Definition.Builder.
      */
@@ -86,19 +98,37 @@ public class Message {
         private DescriptorProtos.DescriptorProto messageDescriptor;
 
         public Message build() {
-            List<Field> fieldList = new ArrayList<>();
-            Map<String, List<Message>> oneofFieldMap = new HashMap<>();
-            for (DescriptorProtos.FieldDescriptorProto fieldDescriptorProto : messageDescriptor.getFieldList()) {
-                if (fieldDescriptorProto.hasOneofIndex()) {
-                    List<Field> tempList = new ArrayList<>(1);
-                    tempList.add(Field.newBuilder(fieldDescriptorProto).build());
-                    Message message = new Message(messageDescriptor.getName() + "_" + toCamelCase
-                            (fieldDescriptorProto.getName()), tempList);
-                    String oneofField = messageDescriptor.getOneofDecl(fieldDescriptorProto.getOneofIndex()).getName();
-                    List<Message> oneofMessageList = oneofFieldMap.computeIfAbsent(oneofField, k -> new ArrayList<>());
-                    oneofMessageList.add(message);
+            List<Message> nestedMessageList = new ArrayList<>();
+            List<Message> mapList = new ArrayList<>();
+            List<String> mapNames = new ArrayList<>();
+            for (DescriptorProtos.DescriptorProto nestedDescriptorProto : messageDescriptor.getNestedTypeList()) {
+                Message nestedMessage = Message.newBuilder(nestedDescriptorProto).build();
+                if (nestedDescriptorProto.hasOptions() && nestedDescriptorProto.getOptions().hasMapEntry()) {
+                    mapNames.add(nestedMessage.getMessageName());
+
+                    // remove unnecessary "Entry" part appends to the message name by the proto library
+                    if (nestedMessage.getMessageName().length() > 5) {
+                        nestedMessage.setMessageName(
+                                nestedMessage.getMessageName().substring(
+                                        0, nestedMessage.getMessageName().length() - 5
+                                ).toLowerCase(Locale.getDefault())
+                        );
+                    }
+                    mapList.add(nestedMessage);
                 } else {
-                    Field field = Field.newBuilder(fieldDescriptorProto).build();
+                    nestedMessageList.add(nestedMessage);
+                }
+            }
+
+            List<Field> fieldList = new ArrayList<>();
+            Map<String, List<Field>> oneofFieldMap = new HashMap<>();
+            for (DescriptorProtos.FieldDescriptorProto fieldDescriptorProto : messageDescriptor.getFieldList()) {
+                Field field = Field.newBuilder(fieldDescriptorProto).build();
+                if (fieldDescriptorProto.hasOneofIndex()) {
+                    String oneofField = messageDescriptor.getOneofDecl(fieldDescriptorProto.getOneofIndex()).getName();
+                    List<Field> oneofMessageList = oneofFieldMap.computeIfAbsent(oneofField, k -> new ArrayList<>());
+                    oneofMessageList.add(field);
+                } else if (!mapNames.contains(field.getFieldType())) {
                     fieldList.add(field);
                 }
             }
@@ -108,11 +138,6 @@ public class Message {
                 enumList.add(enumMessage);
             }
 
-            List<Message> nestedMessageList = new ArrayList<>();
-            for (DescriptorProtos.DescriptorProto nestedDescriptorProto : messageDescriptor.getNestedTypeList()) {
-                Message nestedMessage = Message.newBuilder(nestedDescriptorProto).build();
-                nestedMessageList.add(nestedMessage);
-            }
             Message message = new Message(messageDescriptor.getName(), fieldList);
 
             if (!oneofFieldMap.isEmpty()) {
@@ -123,6 +148,9 @@ public class Message {
             }
             if (!nestedMessageList.isEmpty()) {
                 message.setNestedMessageList(nestedMessageList);
+            }
+            if (!mapList.isEmpty()) {
+                message.setMapList(mapList);
             }
             return message;
         }

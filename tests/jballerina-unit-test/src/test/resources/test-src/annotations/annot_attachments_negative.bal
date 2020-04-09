@@ -565,6 +565,44 @@ const annotation map<string> v14 on source annotation;
 }
 int i = 12;
 
+int b = let @v1 {
+                val: "v1"
+            }
+            @v2 {
+                val: "v2"
+            }
+            @v3 {
+                val: "v3"
+            }
+            @v4 {
+                val: 4
+            }
+            @v5 {
+                val: "v5"
+            }
+            @v6 {
+                val: "v6"
+            }
+            @v7
+            @v8 {
+                val: "v8"
+            }
+            @v9 {
+                val: "v9"
+            }
+            @v10 {
+                val: "v10"
+            }
+            @v12 {
+                val: "v12"
+            }
+            @v13 {
+                val: "v13"
+            }
+            @v15 {
+                val: false
+            } int x = 4 in 2 * x;
+
 @v1 {
     val: "v1"
 }
@@ -773,3 +811,30 @@ future<()> fn =
     val: "v13"
 }
 start funcWithWorker();
+
+public annotation v16 on field;
+annotation map<int> v17 on object field;
+const annotation v18 on source record field;
+
+@v16 int glob = 1;
+
+@v16
+@v17 {}
+@v18
+function func2() {
+
+}
+
+@v16
+@v17 {i: 1}
+@v18
+type Foo record {
+    @v17 {} int i;
+};
+
+@v16
+@v17 {i: 1}
+@v18
+type Bar object {
+    @v18 string s = "str";
+};

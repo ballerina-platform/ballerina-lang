@@ -27,22 +27,17 @@ public class STIfElseStatement extends STStatement {
     public final STNode ifBody;
     public final STNode elseBody;
 
-    public STIfElseStatement(STNode ifKeyword,
-                             STNode condition,
-                             STNode ifBody,
-                             STNode elseBody) {
+    STIfElseStatement(STNode ifKeyword,
+                      STNode condition,
+                      STNode ifBody,
+                      STNode elseBody) {
         super(SyntaxKind.IF_ELSE_STATEMENT);
         this.ifKeyword = ifKeyword;
         this.condition = condition;
         this.ifBody = ifBody;
         this.elseBody = elseBody;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(ifKeyword, 0);
-        this.addChildNode(condition, 1);
-        this.addChildNode(ifBody, 2);
-        this.addChildNode(elseBody, 3);
+        addChildren(ifKeyword, condition, ifBody, elseBody);
     }
 
     @Override

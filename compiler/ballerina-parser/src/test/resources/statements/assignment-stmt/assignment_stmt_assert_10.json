@@ -1,0 +1,202 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "PUBLIC_KEYWORD"
+        },
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "BLOCK_STATEMENT",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "ASSIGNMENT_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "FIELD_ACCESS",
+                                    "children": [
+                                        {
+                                            "kind": "FUNCTION_CALL",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "foo"
+                                                },
+                                                {
+                                                    "kind": "OPEN_PAREN_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "LIST",
+                                                    "children": [
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "CLOSE_PAREN_TOKEN"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "DOT_TOKEN"
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "bar"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "BINARY_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
+                                            "value": "4"
+                                        },
+                                        {
+                                            "kind": "PLUS_TOKEN"
+                                        },
+                                        {
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
+                                            "value": "6"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "ASSIGNMENT_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "FIELD_ACCESS",
+                                    "children": [
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "foo"
+                                        },
+                                        {
+                                            "kind": "DOT_TOKEN"
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "bar"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "BINARY_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
+                                            "value": "4"
+                                        },
+                                        {
+                                            "kind": "PLUS_TOKEN"
+                                        },
+                                        {
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
+                                            "value": "6"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "ASSIGNMENT_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "FIELD_ACCESS",
+                                    "children": [
+                                        {
+                                            "kind": "MEMBER_ACCESS",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "foo"
+                                                },
+                                                {
+                                                    "kind": "OPEN_BRACKET_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "DECIMAL_INTEGER_LITERAL",
+                                                    "value": "4"
+                                                },
+                                                {
+                                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "DOT_TOKEN"
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "bar"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "EQUAL_TOKEN"
+                                },
+                                {
+                                    "kind": "BINARY_EXPRESSION",
+                                    "children": [
+                                        {
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
+                                            "value": "4"
+                                        },
+                                        {
+                                            "kind": "PLUS_TOKEN"
+                                        },
+                                        {
+                                            "kind": "DECIMAL_INTEGER_LITERAL",
+                                            "value": "6"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}

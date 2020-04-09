@@ -60,12 +60,12 @@ class HybridNodes {
         while (SyntaxUtils.isNonTerminalNode(oldTreeNode)) {
             if (isNodeReusable(oldTreeNode, state)) {
                 // Adjust offsets accordingly
-                int width = oldTreeNode.getSpanWithMinutiae().width();
+                int width = oldTreeNode.spanWithMinutiae().width();
                 state.oldTextOffset += width;
                 state.newTextOffset += width;
                 // Move to the next sibling
                 state.oldTreePtr = state.oldTreePtr.nextSibling();
-                return new HybridNode(oldTreeNode.getInternalNode(), state);
+                return new HybridNode(oldTreeNode.internalNode(), state);
             }
 
             // If the node cannot be reused, then move to the next child of the current node.
@@ -99,7 +99,7 @@ class HybridNodes {
     }
 
     private static void syncOldWithNewTextOffset(Token token, HybridNode.State state) {
-        state.oldTextOffset += token.getSpanWithMinutiae().width();
+        state.oldTextOffset += token.spanWithMinutiae().width();
         state.oldTreePtr = state.oldTreePtr.nextSibling();
         removeInvalidTextEdits(token, state);
     }
@@ -108,12 +108,12 @@ class HybridNodes {
         Token token = getTokenFromOldTree(state);
         if (isNodeReusable(token, state)) {
             // Adjust offsets accordingly
-            int width = token.getSpanWithMinutiae().width();
+            int width = token.spanWithMinutiae().width();
             state.oldTextOffset += width;
             state.newTextOffset += width;
             // Move to the next sibling
             state.oldTreePtr = state.oldTreePtr.nextSibling();
-            return new HybridNode(token.getInternalNode(), state);
+            return new HybridNode(token.internalNode(), state);
         } else {
             syncOldWithNewTextOffset(token, state);
             return null;
@@ -135,7 +135,7 @@ class HybridNodes {
         if (state.textEditRanges.isEmpty()) {
             return;
         }
-        int nextOldTokenStartOffset = oldToken.getSpanWithMinutiae().endOffset();
+        int nextOldTokenStartOffset = oldToken.spanWithMinutiae().endOffset();
         TextEditRange textEditRange = state.textEditRanges.peek();
         if (nextOldTokenStartOffset < textEditRange.oldEndOffset) {
             return;
@@ -153,7 +153,7 @@ class HybridNodes {
     }
 
     private static boolean isNodeReusable(Node node, HybridNode.State state) {
-        if (node.getInternalNode().width() == 0) {
+        if (node.internalNode().width() == 0) {
             return false;
         }
 
@@ -167,7 +167,7 @@ class HybridNodes {
         }
 
         TextEditRange textEditRange = textEditRanges.peek();
-        Span oldTokenSpan = oldNode.getSpanWithMinutiae();
+        Span oldTokenSpan = oldNode.spanWithMinutiae();
 
         // Does not overlap if => editStart < editEnd < oldTokenStart || oldTokenEnd < editStart < editEnd
         // Can be simplified to => editEnd < oldTokenStart || oldTokenEnd < editStart

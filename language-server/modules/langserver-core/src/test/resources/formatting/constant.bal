@@ -2,7 +2,7 @@
 
    const      string    address  ="Colombo"    ;
 
-public  type  AB "A"|"B" ;
+public  type  AB  "A" |   "B" ;
 
 public   const A    =    "A"  ;public    const  string   name2=    "Ballerina" ;public   const   A2   =   "A"  ;
 

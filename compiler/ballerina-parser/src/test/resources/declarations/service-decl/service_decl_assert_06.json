@@ -1,0 +1,35 @@
+{
+    "kind": "SERVICE_DECLARATION",
+    "children": [
+        {
+            "kind": "SERVICE_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "echoService"
+        },
+        {
+            "kind": "ON_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "isMissing": true
+        },
+        {
+            "kind": "SERVICE_BODY",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}

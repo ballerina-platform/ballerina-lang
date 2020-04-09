@@ -29,11 +29,11 @@ public class STObjectTypeDescriptor extends STNode {
     public final STNode members;
     public final STNode closeBrace;
 
-    public STObjectTypeDescriptor(STNode objectTypeQualifiers,
-                                  STNode objectKeyword,
-                                  STNode openBrace,
-                                  STNode members,
-                                  STNode closeBrace) {
+    STObjectTypeDescriptor(STNode objectTypeQualifiers,
+                           STNode objectKeyword,
+                           STNode openBrace,
+                           STNode members,
+                           STNode closeBrace) {
         super(SyntaxKind.OBJECT_TYPE_DESCRIPTOR);
         this.objectTypeQualifiers = objectTypeQualifiers;
         this.objectKeyword = objectKeyword;
@@ -41,13 +41,7 @@ public class STObjectTypeDescriptor extends STNode {
         this.members = members;
         this.closeBrace = closeBrace;
 
-        this.bucketCount = 5;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(objectTypeQualifiers, 0);
-        this.addChildNode(objectKeyword, 1);
-        this.addChildNode(openBrace, 2);
-        this.addChildNode(members, 3);
-        this.addChildNode(closeBrace, 4);
+        addChildren(objectTypeQualifiers, objectKeyword, openBrace, members, closeBrace);
     }
 
     @Override

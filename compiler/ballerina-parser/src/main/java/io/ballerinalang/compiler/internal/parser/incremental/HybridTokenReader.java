@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.internal.parser.incremental;
 
 import io.ballerinalang.compiler.internal.parser.AbstractTokenReader;
+import io.ballerinalang.compiler.internal.parser.ParserMode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 
 /**
@@ -59,5 +60,13 @@ public class HybridTokenReader extends AbstractTokenReader {
     @Override
     public STToken head() {
         return this.hybridNodeStorage.getCurrentToken().token();
+    }
+
+    @Override
+    public void switchMode(ParserMode mode) {
+    }
+
+    @Override
+    public void resetMode() {
     }
 }

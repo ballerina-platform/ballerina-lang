@@ -22,12 +22,12 @@ import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**
- * This class contains the implementation of the "fromString" ballerina function in ballerinax/java module.
+ * This class contains the implementation of the "fromString" ballerina function in ballerina/java module.
  *
  * @since 1.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerinax", packageName = "java",
+        orgName = "ballerina", packageName = "java",
         functionName = "fromString"
 )
 public class FromString {

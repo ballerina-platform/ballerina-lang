@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.RequiredParameter;
 
 public class STRequiredParameter extends STParameter {
 
@@ -27,28 +28,22 @@ public class STRequiredParameter extends STParameter {
     public final STNode type;
     public final STNode paramName;
 
-    public STRequiredParameter(SyntaxKind kind,
-                               STNode leadingComma,
-                               STNode accessModifier,
-                               STNode type,
-                               STNode paramName) {
+    STRequiredParameter(SyntaxKind kind,
+                        STNode leadingComma,
+                        STNode accessModifier,
+                        STNode type,
+                        STNode paramName) {
         super(kind);
         this.leadingComma = leadingComma;
         this.accessModifier = accessModifier;
         this.type = type;
         this.paramName = paramName;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(leadingComma, 0);
-        this.addChildNode(accessModifier, 1);
-        this.addChildNode(type, 2);
-        this.addChildNode(paramName, 3);
+        addChildren(leadingComma, accessModifier, type, paramName);
     }
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        // TODO
-        return null;
+        return new RequiredParameter(this, position, parent);
     }
 }

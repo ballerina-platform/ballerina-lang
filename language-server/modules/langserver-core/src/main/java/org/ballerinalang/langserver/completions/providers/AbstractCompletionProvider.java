@@ -223,7 +223,8 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         Optional<Scope.ScopeEntry> pkgSymbolInfo = visibleSymbols.stream()
                 .filter(scopeEntry -> {
                     BSymbol symbol = scopeEntry.symbol;
-                    return symbol instanceof BPackageSymbol && scopeEntry.symbol.name.getValue().equals(pkgName);
+                    return symbol instanceof BPackageSymbol
+                            && CommonUtil.getSymbolName(scopeEntry.symbol).equals(pkgName);
                 })
                 .findAny();
         pkgSymbolInfo.ifPresent(pkgEntry -> {
@@ -315,7 +316,8 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
             boolean pkgAlreadyImported = currentModuleImports.stream()
                     .anyMatch(importPkg -> importPkg.orgName.value.equals(orgName)
                             && importPkg.alias.value.equals(name));
-            if (!pkgAlreadyImported && !populatedList.contains(orgName + "/" + name)) {
+            if (!pkgAlreadyImported && !populatedList.contains(orgName + "/" + name) &&
+                    !("ballerina".equals(orgName) && name.startsWith("lang.annotations"))) {
                 CompletionItem item = new CompletionItem();
                 item.setLabel(pkg.getFullPackageNameAlias());
                 String[] pkgNameComps = name.split("\\.");
@@ -680,9 +682,12 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         }
         int tokenSize = defaultTokens.size();
         int assignTokenIndex = defaultTokens.indexOf(BallerinaParser.ASSIGN);
-        if (assignTokenIndex > 0 && assignTokenIndex >= tokenSize - 3 && assignTokenIndex < tokenSize) {
-            // check added to avoid the external function definition
+        int eqlOrGTTokenIndex = defaultTokens.indexOf(BallerinaParser.EQUAL_GT);
+        if ((assignTokenIndex > 0 && assignTokenIndex >= tokenSize - 3 && assignTokenIndex < tokenSize)
+                || eqlOrGTTokenIndex > 0) {
+            // check added to avoid the external function definition and the expression function body
             // function xyz() returns int = external;
+            // function xyz() returns int => <cursor>
             return false;
         }
         if (defaultTokens.contains(BallerinaParser.RETURNS)

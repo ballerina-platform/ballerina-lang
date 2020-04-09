@@ -194,7 +194,7 @@ service testService on new http:Listener(9103, { httpVersion: "2.0" }) {
         if (xmlResponse is http:Response) {
             var result = xmlResponse.getXmlPayload();
             if (result is xml) {
-                value = value + result.getTextValue();
+                value = value + (result/*).toString();
             } else {
                 error err = result;
                 value = value + err.reason();

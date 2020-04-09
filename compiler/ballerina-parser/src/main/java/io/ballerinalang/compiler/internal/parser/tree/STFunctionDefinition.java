@@ -26,7 +26,7 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 // function foo(int k) returns int = extern
 public class STFunctionDefinition extends STNode {
     // TODO metadata goes here
-    public final STNode visibilityQual;
+    public final STNode visibilityQualifier;
     public final STNode functionKeyword;
     public final STNode functionName;
     public final STNode openParenToken;
@@ -35,35 +35,27 @@ public class STFunctionDefinition extends STNode {
     public final STNode returnTypeDesc; 
     public final STNode functionBody;
 
-    public STFunctionDefinition(STNode visibilityQual,
+    STFunctionDefinition(STNode visibilityQualifier,
                                 STNode functionKeyword,
                                 STNode functionName,
-                                STNode openParanToken,
+                                STNode openParenToken,
                                 STNode parameters,
-                                STNode closeParanToken,
+                                STNode closeParenToken,
                                 STNode returnTypeDesc,
                                 STNode functionBody) {
 
         super(SyntaxKind.FUNCTION_DEFINITION);
-        this.visibilityQual = visibilityQual;
+        this.visibilityQualifier = visibilityQualifier;
         this.functionKeyword = functionKeyword;
         this.functionName = functionName;
-        this.openParenToken = openParanToken;
+        this.openParenToken = openParenToken;
         this.parameters = parameters;
-        this.closeParenToken = closeParanToken;
+        this.closeParenToken = closeParenToken;
         this.returnTypeDesc = returnTypeDesc;
         this.functionBody = functionBody;
 
-        this.bucketCount = 8;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(visibilityQual, 0);
-        this.addChildNode(functionKeyword, 1);
-        this.addChildNode(functionName, 2);
-        this.addChildNode(openParanToken, 3);
-        this.addChildNode(parameters, 4);
-        this.addChildNode(closeParanToken, 5);
-        this.addChildNode(returnTypeDesc, 6);
-        this.addChildNode(functionBody, 7);
+        addChildren(visibilityQualifier, functionKeyword, functionName,
+                openParenToken, parameters, closeParenToken, returnTypeDesc, functionBody);
     }
 
     @Override

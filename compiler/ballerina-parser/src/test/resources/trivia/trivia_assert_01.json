@@ -1,0 +1,248 @@
+{
+    "kind": "MODULE_PART",
+    "children": [
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "FUNCTION_DEFINITION",
+                    "children": [
+                        {
+                            "kind": "FUNCTION_KEYWORD",
+                            "leadingTrivia": [
+                                {
+                                    "kind": "COMMENT",
+                                    "value": "// first comment at the top"
+                                },
+                                {
+                                    "kind": "END_OF_LINE_TRIVIA",
+                                    "value": "\n"
+                                },
+                                {
+                                    "kind": "COMMENT",
+                                    "value": "// second comment at the top"
+                                },
+                                {
+                                    "kind": "END_OF_LINE_TRIVIA",
+                                    "value": "\n"
+                                },
+                                {
+                                    "kind": "COMMENT",
+                                    "value": "// third comment at the top"
+                                },
+                                {
+                                    "kind": "END_OF_LINE_TRIVIA",
+                                    "value": "\n"
+                                },
+                                {
+                                    "kind": "END_OF_LINE_TRIVIA",
+                                    "value": "\n"
+                                }
+                            ],
+                            "trailingTrivia": [
+                                {
+                                    "kind": "WHITESPACE_TRIVIA",
+                                    "value": " "
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "foo",
+                            "leadingTrivia": [
+                            ],
+                            "trailingTrivia": [
+                            ]
+                        },
+                        {
+                            "kind": "OPEN_PAREN_TOKEN",
+                            "leadingTrivia": [
+                            ],
+                            "trailingTrivia": [
+                            ]
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                            ]
+                        },
+                        {
+                            "kind": "CLOSE_PAREN_TOKEN",
+                            "leadingTrivia": [
+                            ],
+                            "trailingTrivia": [
+                                {
+                                    "kind": "WHITESPACE_TRIVIA",
+                                    "value": " "
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "BLOCK_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "OPEN_BRACE_TOKEN",
+                                    "leadingTrivia": [
+                                    ],
+                                    "trailingTrivia": [
+                                        {
+                                            "kind": "END_OF_LINE_TRIVIA",
+                                            "value": "\n"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                        {
+                                            "kind": "VARIABLE_DECL",
+                                            "children": [
+                                                {
+                                                    "kind": "SIMPLE_TYPE",
+                                                    "value": "int",
+                                                    "leadingTrivia": [
+                                                        {
+                                                            "kind": "WHITESPACE_TRIVIA",
+                                                            "value": "    "
+                                                        },
+                                                        {
+                                                            "kind": "COMMENT",
+                                                            "value": "// hello"
+                                                        },
+                                                        {
+                                                            "kind": "END_OF_LINE_TRIVIA",
+                                                            "value": "\n"
+                                                        },
+                                                        {
+                                                            "kind": "WHITESPACE_TRIVIA",
+                                                            "value": "    "
+                                                        }
+                                                    ],
+                                                    "trailingTrivia": [
+                                                        {
+                                                            "kind": "WHITESPACE_TRIVIA",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "a",
+                                                    "leadingTrivia": [
+                                                    ],
+                                                    "trailingTrivia": [
+                                                        {
+                                                            "kind": "WHITESPACE_TRIVIA",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "EQUAL_TOKEN",
+                                                    "leadingTrivia": [
+                                                    ],
+                                                    "trailingTrivia": [
+                                                        {
+                                                            "kind": "WHITESPACE_TRIVIA",
+                                                            "value": " "
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "DECIMAL_INTEGER_LITERAL",
+                                                    "value": "6",
+                                                    "leadingTrivia": [
+                                                    ],
+                                                    "trailingTrivia": [
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "SEMICOLON_TOKEN",
+                                                    "leadingTrivia": [
+                                                    ],
+                                                    "trailingTrivia": [
+                                                        {
+                                                            "kind": "WHITESPACE_TRIVIA",
+                                                            "value": "  "
+                                                        },
+                                                        {
+                                                            "kind": "COMMENT",
+                                                            "value": "// var decl"
+                                                        },
+                                                        {
+                                                            "kind": "END_OF_LINE_TRIVIA",
+                                                            "value": "\n"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "CLOSE_BRACE_TOKEN",
+                                    "leadingTrivia": [
+                                        {
+                                            "kind": "WHITESPACE_TRIVIA",
+                                            "value": "    "
+                                        },
+                                        {
+                                            "kind": "COMMENT",
+                                            "value": "// more statements"
+                                        },
+                                        {
+                                            "kind": "END_OF_LINE_TRIVIA",
+                                            "value": "\n"
+                                        }
+                                    ],
+                                    "trailingTrivia": [
+                                        {
+                                            "kind": "END_OF_LINE_TRIVIA",
+                                            "value": "\n"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "EOF_TOKEN",
+            "leadingTrivia": [
+                {
+                    "kind": "COMMENT",
+                    "value": "// first comment at the bottom"
+                },
+                {
+                    "kind": "END_OF_LINE_TRIVIA",
+                    "value": "\n"
+                },
+                {
+                    "kind": "COMMENT",
+                    "value": "// second comment at the bottom"
+                },
+                {
+                    "kind": "END_OF_LINE_TRIVIA",
+                    "value": "\n"
+                },
+                {
+                    "kind": "COMMENT",
+                    "value": "// third comment at the bottom"
+                },
+                {
+                    "kind": "END_OF_LINE_TRIVIA",
+                    "value": "\n"
+                }
+            ],
+            "trailingTrivia": [
+            ]
+        }
+    ]
+}

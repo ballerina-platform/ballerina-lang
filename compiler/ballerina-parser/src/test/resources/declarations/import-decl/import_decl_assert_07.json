@@ -1,0 +1,68 @@
+{
+    "kind": "IMPORT_DECLARATION",
+    "children": [
+        {
+            "kind": "IMPORT_KEYWORD"
+        },
+        {
+            "kind": "IMPORT_ORG_NAME",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "ballerina"
+                },
+                {
+                    "kind": "SLASH_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "foo"
+                },
+                {
+                    "kind": "SUB_MODULE_NAME",
+                    "children": [
+                        {
+                            "kind": "DOT_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "bar"
+                        }
+                    ]
+                },
+                {
+                    "kind": "SUB_MODULE_NAME",
+                    "children": [
+                        {
+                            "kind": "DOT_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "baz"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "IMPORT_PREFIX",
+            "children": [
+                {
+                    "kind": "AS_KEYWORD"
+                },
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "pkg1"
+                }
+            ]
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}

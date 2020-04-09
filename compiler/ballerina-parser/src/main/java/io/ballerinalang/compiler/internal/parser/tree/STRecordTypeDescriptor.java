@@ -28,22 +28,17 @@ public class STRecordTypeDescriptor extends STNode {
     public final STNode fields;
     public final STNode bodyEndDelimiter;
 
-    public STRecordTypeDescriptor(STNode recordKeyword,
-                                  STNode bodyStartDelimiter,
-                                  STNode fields,
-                                  STNode bodyEndDelimiter) {
+    STRecordTypeDescriptor(STNode recordKeyword,
+                           STNode bodyStartDelimiter,
+                           STNode fields,
+                           STNode bodyEndDelimiter) {
         super(SyntaxKind.RECORD_TYPE_DESCRIPTOR);
         this.recordKeyword = recordKeyword;
         this.bodyStartDelimiter = bodyStartDelimiter;
         this.fields = fields;
         this.bodyEndDelimiter = bodyEndDelimiter;
 
-        this.bucketCount = 4;
-        this.childBuckets = new STNode[this.bucketCount];
-        this.addChildNode(recordKeyword, 0);
-        this.addChildNode(bodyStartDelimiter, 1);
-        this.addChildNode(fields, 2);
-        this.addChildNode(bodyEndDelimiter, 3);
+        addChildren(recordKeyword, bodyStartDelimiter, fields, bodyEndDelimiter);
     }
 
     @Override

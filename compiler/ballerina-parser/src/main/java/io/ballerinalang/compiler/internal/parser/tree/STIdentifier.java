@@ -17,13 +17,27 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.Identifier;
+import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+
+/**
+ * Represents an identifier in the internal syntax tree.
+ *
+ * @since 1.3.0
+ */
 public class STIdentifier extends STToken {
 
     public final String text;
 
-    public STIdentifier(String text, STNode leadingTrivia, STNode trailingTrivia) {
+    STIdentifier(String text, STNode leadingTrivia, STNode trailingTrivia) {
         super(SyntaxKind.IDENTIFIER_TOKEN, text.length(), leadingTrivia, trailingTrivia);
         this.text = text;
+    }
+
+    @Override
+    public Node createFacade(int position, NonTerminalNode parent) {
+        return new Identifier(this, position, parent);
     }
 
     @Override

@@ -1,10 +1,10 @@
 import {
     Assignment, ASTKindChecker,
-    ASTNode, ASTUtil, Block, Break, CompoundAssignment, Constant,
-    ExpressionStatement, Foreach, Function as BalFunction, If, Invocation, Lambda,
-    Literal, Match, MatchStaticPatternClause, MatchStructuredPatternClause, ObjectType,
-    Panic, Return, Service, TypeDefinition, Variable, VariableDef, VisibleEndpoint,
-    Visitor, WaitExpr, While, WorkerReceive, WorkerSend
+    ASTNode, ASTUtil, Block, BlockFunctionBody, Break, CompoundAssignment,
+    Constant, ExpressionStatement, Foreach, Function as BalFunction, If, Invocation,
+    Lambda, Literal, Match, MatchStaticPatternClause, MatchStructuredPatternClause,
+    ObjectType, Panic, Return, Service, TypeDefinition, Variable, VariableDef,
+    VisibleEndpoint, Visitor, WaitExpr, While, WorkerReceive, WorkerSend
 } from "@ballerina/ast-model";
 import { DiagramConfig } from "../config/default";
 import { DiagramUtils } from "../diagram/diagram-utils";
@@ -63,7 +63,7 @@ class SizingVisitor implements Visitor {
     }
 
     public endVisitFunction(node: BalFunction) {
-        if (node.lambda || !node.body) { return; }
+        if (node.lambda || !node.body || !ASTKindChecker.isBlockFunctionBody(node.body)) { return; }
         const viewState: FunctionViewState = node.viewState;
         const body = viewState.body;
         const header = viewState.header;
@@ -99,7 +99,7 @@ class SizingVisitor implements Visitor {
         workers.forEach((workerEl) => {
             const functionNode = ((workerEl as VariableDef).variable.initialExpression as Lambda).functionNode;
             const workerViewState: WorkerViewState = workerEl.viewState;
-            workerHolder.push({ block: functionNode.body!, view: workerViewState });
+            workerHolder.push({ block: functionNode.body as BlockFunctionBody, view: workerViewState });
             workerViewState.name = ((workerEl as VariableDef).variable as Variable).name.value.replace("0", "");
         });
 
@@ -110,7 +110,7 @@ class SizingVisitor implements Visitor {
         workers.forEach((workerEl) => {
             const worker = workerEl as VariableDef;
             const functionNode = ((workerEl as VariableDef).variable.initialExpression as Lambda).functionNode;
-            this.sizeBlock(functionNode.body!);
+            this.sizeBlock(functionNode.body as BlockFunctionBody);
             this.sizeWorker(worker, defaultWorker.initHeight);
             if (lineHeight < worker.viewState.bBox.h) {
                 lineHeight = worker.viewState.bBox.h;
@@ -194,6 +194,10 @@ class SizingVisitor implements Visitor {
         this.soroundingEndpoints = [];
     }
 
+    public beginVisitBlockFunctionBody(node: BlockFunctionBody, parent: ASTNode) {
+        this.beginVisitBlock(node, parent);
+    }
+
     public beginVisitBlock(node: Block, parent: ASTNode) {
         if (!node.parent) {
             return;
@@ -202,6 +206,10 @@ class SizingVisitor implements Visitor {
             this.envEndpoints = [...this.envEndpoints, ...node.VisibleEndpoints];
             this.endpointHolder = [...node.VisibleEndpoints, ...this.endpointHolder];
         }
+    }
+
+    public endVisitBlockFunctionBody(node: BlockFunctionBody, parent: ASTNode) {
+        this.endVisitBlock(node, parent);
     }
 
     public endVisitBlock(node: Block, parent: ASTNode) {

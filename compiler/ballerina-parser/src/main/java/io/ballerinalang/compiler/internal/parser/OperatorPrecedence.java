@@ -24,13 +24,19 @@ package io.ballerinalang.compiler.internal.parser;
  */
 public enum OperatorPrecedence {
 
-    MEMBER_ACCESS(0),
-    UNARY(1),           //  (+x), (-x), (~x), (!x), (<T>x), (typeof x)
+    MEMBER_ACCESS(0),   //  x.k, x.@a, f(x), x.f(y), x[y]
+    UNARY(1),           //  (+x), (-x), (~x), (!x), (<T>x), (typeof x), (check x), (checkpanic x)
     MULTIPLICATIVE(2),  //  (x * y), (x / y), (x % y)
     ADDITIVE(3),        //  (x + y), (x - y)
     SHIFT(4),           //  (x << y), (x >> y), (x >>> y)
     RANGE(5),           //  (x ... y), (x ..< y)
-    BINARY_COMPARE(6)   //  (x < y), (x > y), (x <= y), (x >= y), (x is y)
+    BINARY_COMPARE(6),  //  (x < y), (x > y), (x <= y), (x >= y), (x is y)
+    EQUALITY(7),        //  (x == y), (x != y), (x == y), (x === y), (x !== y)
+    BITWISE_AND(8),     //  (x & y)
+    BITWISE_XOR(9),     //  (x ^ y)
+    BITWISE_OR(10),     //  (x | y)
+    LOGICAL_AND(11),    //  (x && y)
+    LOGICAL_OR(12),     //  (x || y)
     ;
 
     private int level = 0;

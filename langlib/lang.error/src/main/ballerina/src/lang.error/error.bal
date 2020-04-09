@@ -78,5 +78,5 @@ public type CallStackElement record {|
 #
 # + callStack - call stack
 public type CallStack object {
-    public CallStackElement[] callStack;
+    public CallStackElement[] callStack = [];
 };

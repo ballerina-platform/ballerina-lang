@@ -25,17 +25,13 @@ public class STModulePart extends STNode {
     public final STNode members;
     public final STNode eofToken;
 
-    public STModulePart(STNode imports, STNode members, STNode eofToken) {
+    STModulePart(STNode imports, STNode members, STNode eofToken) {
         super(SyntaxKind.MODULE_PART);
         this.imports = imports;
         this.members = members;
         this.eofToken = eofToken;
 
-        this.bucketCount = 3;
-        this.childBuckets = new STNode[3];
-        this.addChildNode(imports, 0);
-        this.addChildNode(members, 1);
-        this.addChildNode(eofToken, 2);
+        addChildren(imports, members, eofToken);
     }
 
     public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
