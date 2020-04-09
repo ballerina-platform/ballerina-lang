@@ -131,4 +131,8 @@ public class JParameter {
     public Boolean getHasNext() {
         return hasNext;
     }
+
+    public String getExternalType() {
+        return externalType;
+    }
 }
