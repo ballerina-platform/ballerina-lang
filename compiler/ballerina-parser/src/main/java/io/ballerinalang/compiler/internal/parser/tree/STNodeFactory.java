@@ -187,6 +187,10 @@ public class STNodeFactory {
         return new STTypeofExpression(typeofKeyword, rhsExpr);
     }
 
+    public static STNode createUnaryExpression(STNode unaryOperator, STNode rhsExpr) {
+        return new STUnaryExpression(unaryOperator, rhsExpr);
+    }
+
     // Misc
 
     public static STNode createRequiredParameter(SyntaxKind kind,

@@ -101,6 +101,7 @@ public class LexerTerminals {
     public static final char EXCLAMATION_MARK = '!';
     public static final char BITWISE_AND = '&';
     public static final char BITWISE_XOR = '^';
+    public static final char NEGATION = '~';
 
     // Other
     public static final char NEWLINE = '\n'; // equivalent to 0xA

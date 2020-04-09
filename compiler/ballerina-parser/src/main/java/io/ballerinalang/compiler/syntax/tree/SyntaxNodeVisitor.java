@@ -103,6 +103,10 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(typeofExpression);
     }
 
+    public void visit(UnaryExpression unaryExpression) {
+        visitSyntaxNode(unaryExpression);
+    }
+
     // Tokens
 
     public void visit(Token token) {
