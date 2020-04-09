@@ -107,7 +107,7 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] TYPE_DESCRIPTORS = { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR,
             ParserRuleContext.RECORD_TYPE_DESCRIPTOR, ParserRuleContext.OBJECT_TYPE_DESCRIPTOR
-            /* ,ParserRuleContext.NIL_TYPE_DESCRIPTOR, ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR */};
+            , ParserRuleContext.NIL_TYPE_DESCRIPTOR };
 
     private static final ParserRuleContext[] RECORD_FIELD =
             { ParserRuleContext.ASTERISK, ParserRuleContext.TYPE_DESCRIPTOR };

@@ -422,10 +422,13 @@ public class BallerinaParser {
             case EQUAL_TOKEN:
                 // Scenario: foo =
                 // Even though this is not valid, consider this as a var-decl and continue;
+            case QUESTION_MARK_TOKEN:
+                //Scenario foo? (Optional type descriptor with custom type)
                 return true;
             case IDENTIFIER_TOKEN:
                 // Scenario: foo bar =
                 return peek(3).kind == SyntaxKind.EQUAL_TOKEN;
+
             default:
                 return false;
         }
