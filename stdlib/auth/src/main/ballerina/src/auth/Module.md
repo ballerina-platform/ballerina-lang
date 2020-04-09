@@ -1,5 +1,3 @@
-## Module Overview
-
 This module provides default authentication provider configurations that can be extended to create new authentication providers.
 
 ### Inbound Authentication Provider

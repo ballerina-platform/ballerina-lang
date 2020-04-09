@@ -20,16 +20,16 @@ import ballerina/stringutils;
 
 # Represents the inbound basic Auth provider, which is a configuration-file-based Auth provider.
 #
-# + basicAuthConfig - The Basic Auth provider configurations.
+# + basicAuthConfig - The Basic Auth provider configurations
 public type InboundBasicAuthProvider object {
 
     *InboundAuthProvider;
 
     public BasicAuthConfig basicAuthConfig;
 
-    # Provides authentication based on the provided configuration.
+    # Provides authentication based on the provided configurations.
     #
-    # + basicAuthConfig - The Basic Auth provider configurations.
+    # + basicAuthConfig - The Basic Auth provider configurations
     public function __init(BasicAuthConfig? basicAuthConfig = ()) {
         if (basicAuthConfig is BasicAuthConfig) {
             self.basicAuthConfig = basicAuthConfig;
@@ -38,10 +38,11 @@ public type InboundBasicAuthProvider object {
         }
     }
 
-    # Attempts to authenticate with credentials.
+    # Attempts to authenticate with the given credentials.
     #
     # + credential - Credential
-    # + return - `true` if authentication is successful, otherwise `false` or `Error` occurred while extracting credentials
+    # + return - `true` if authentication is successful, otherwise `false` or else an `Error` if any error occurred
+    #             while extracting credentials
     public function authenticate(string credential) returns boolean|Error {
         if (credential == "") {
             return false;
@@ -78,21 +79,21 @@ public type InboundBasicAuthProvider object {
     }
 };
 
-# The `BasicAuthConfig` record can be used to configure inbound Basic Authentication configurations.
+# Represents inbound Basic Authentication configurations.
 #
-# + tableName - The table name of the TOML file of the user-store.
+# + tableName - The table name specified in the user-store TOML configuration
 public type BasicAuthConfig record {|
     string tableName;
 |};
 
-# Reads the scope(s) of the user of the given username.
+# Reads the scope(s) of the user identified by the given username.
 #
-# + username - The username of the user.
-# + tableName - The table name of the TOML file of the user-store.
-# + return - An array of groups of the user who is denoted by the username.
+# + username - The username of the user
+# + tableName - The table name specified in the user-store TOML configuration
+# + return - An array of scopes of the user identified by the username
 function getScopes(string username, string tableName) returns string[] {
     // First, reads the user ID from the user->id mapping.
-    // Reads the groups of the user-id.
+    // Reads the scopes of the user-id.
     return getArray(getConfigAuthValue(tableName + "." + username, "scopes"));
 }
 
@@ -104,12 +105,12 @@ function extractHash(string configValue) returns string {
     return configValue.substring((<int> configValue.indexOf("{")) + 1, stringutils:lastIndexOf(configValue, "}"));
 }
 
-# Reads the password hash for a user.
+# Reads the password hash of a user.
 #
 # + username - Username
 # + return - Password hash read from userstore, or nil if not found
 function readPassword(string username) returns string {
-    // first read the user id from user->id mapping
+    // First, read the user ID from user->id mapping
     // read the hashed password from the user-store file, using the user id
     return getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "password");
 }
@@ -118,7 +119,7 @@ function getConfigAuthValue(string instanceId, string property) returns string {
     return config:getAsString(instanceId + "." + property, "");
 }
 
-# Construct an array of groups from the comma separed group string passed.
+# Constructs an array of groups from the comma separed group string passed.
 #
 # + groupString - Comma separated string of groups
 # + return - Array of groups, nil if the groups string is empty/nil

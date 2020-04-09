@@ -18,9 +18,10 @@
 # should be object-wise similar.
 public type InboundAuthProvider abstract object {
 
-    # Authenticate with credential value passed.
+    # Authenticate with the credential value passed as a `string`.
+    # ```ballerina boolean|auth:Error authenticationResult = authProvider.authenticate("credential"); ```
     #
     # + credential - Credential value
-    # + return - True if authentication is a success, else false or `Error` if any error occurred
+    # + return - `true` if authentication is successful, else `false` or else an `Error` if any error occurred
     public function authenticate(string credential) returns boolean|Error;
 };

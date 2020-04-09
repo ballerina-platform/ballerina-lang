@@ -42,13 +42,14 @@ public const string AUTH_SCHEME_BASIC = "Basic ";
 # Prefix used to denote Bearer Authentication scheme.
 public const string AUTH_SCHEME_BEARER = "Bearer ";
 
-# The table name of the config user section of the TOML file.
+# The table name specified in the user section of the TOML configuration.
 const string CONFIG_USER_SECTION = "b7a.users";
 
-# Extracts the username and password from the credential values.
+# Extracts the username and the password from the credential values.
 #
-# + credential - The credential values.
-# + return - A `string` tuple with the extracted username and password or `Error` occurred while extracting credentials
+# + credential - The credential value
+# + return - A `string` tuple with the extracted username and password or else an `Error` if occurred while extracting
+#            credentials
 public function extractUsernameAndPassword(string credential) returns [string, string]|Error {
     byte[]|error result = arrays:fromBase64(credential);
     if (result is error) {
@@ -68,9 +69,9 @@ public function extractUsernameAndPassword(string credential) returns [string, s
     }
 }
 
-# Set the authentication related values (scheme, auth token) to the authentication context of the invocation context.
+# Sets the authentication related values (scheme, auth token) to the authentication context of the invocation context.
 #
-# + scheme - Auth scheme (JWT, LDAP, OAuth2, Basic etc.)
+# + scheme - Auth scheme (`JWT`, `LDAP`, `OAuth2`, `Basic` etc.)
 # + authToken - Auth token (credential)
 public function setAuthenticationContext(string scheme, string authToken) {
     runtime:InvocationContext invocationContext = runtime:getInvocationContext();
@@ -80,12 +81,12 @@ public function setAuthenticationContext(string scheme, string authToken) {
     };
 }
 
-# Set the authentication related values (user id, username, scopes, claims) to the principal of the invocation context.
+# Sets the authentication related values (user id, username, scopes, claims) to the principal of the invocation context.
 #
-# + userId - User Id of the authenticated user.
-# + username - Username of the authenticated user.
-# + claims - Claims of the authenticated user.
-# + scopes - Authenticated user scopes.
+# + userId - User ID of the authenticated user
+# + username - Username of the authenticated user
+# + claims - Claims of the authenticated user
+# + scopes - Authenticated user scopes
 public function setPrincipal(public string? userId = (), public string? username = (), public string[]? scopes = (),
                              public map<any>? claims = ()) {
     runtime:InvocationContext invocationContext = runtime:getInvocationContext();
@@ -110,7 +111,7 @@ public function setPrincipal(public string? userId = (), public string? username
 # + authzCacheKey - Authorization cache key
 # + positiveAuthzCache - The cache for positive authorizations
 # + negativeAuthzCache - The cache for negative authorizations
-# + return - true if there is a match between resource and user scopes, else false
+# + return - `true` if there is a match between resource and user scopes, else `false`
 public function checkForScopeMatch(string[]|string[][] resourceScopes, string[] userScopes, string authzCacheKey,
                                    cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) returns boolean {
     boolean? authorizedFromCache = authorizeFromCache(authzCacheKey, positiveAuthzCache, negativeAuthzCache);
@@ -158,9 +159,9 @@ function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCach
     return ();
 }
 
-# Cached the authorization result.
+# Caches the authorization result.
 #
-# + authorized - boolean flag to indicate the authorization decision
+# + authorized - `boolean` flag to indicate the authorization decision
 # + authzCacheKey - Cache key
 # + positiveAuthzCache - The cache for positive authorizations
 # + negativeAuthzCache - The cache for negative authorizations

@@ -19,13 +19,15 @@
 public type OutboundAuthProvider abstract object {
 
     # Generates a token for the outbound request.
+    # ```ballerina string|auth:Error token = authProvider.generateToken(); ```
     #
-    # + return - The String token or the `Error` occurred when generating the token.
+    # + return - The token as a `string` or else an `Error` if occurred when generating the token
     public function generateToken() returns string|Error;
 
     # Inspects the incoming data and generates the token as needed.
     #
-    # + data - Map of the data, which is extracted from the HTTP response.
-    # + return - The String token, the `Error` occurred when generating the token, or `()` if nothing is to be returned.
+    # + data - Map of data which is extracted from the HTTP response
+    # + return - The token as a `string` or else an `Error` if occurred when generating the token,
+    #            or `()` if nothing is to be returned
     public function inspect(map<anydata> data) returns string|Error?;
 };
