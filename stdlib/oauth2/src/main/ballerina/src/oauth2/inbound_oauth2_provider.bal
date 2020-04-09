@@ -37,7 +37,7 @@ public type InboundOAuth2Provider object {
 
     # Provides authentication based on the provided introspection configuration.
     #
-    # + config - OAuth2 introspection configurations
+    # + config - OAuth2 introspection server configurations
     public function __init(IntrospectionServerConfig config) {
         self.tokenTypeHint = config?.tokenTypeHint;
         self.introspectionClient = new(config.url, config.clientConfig);
