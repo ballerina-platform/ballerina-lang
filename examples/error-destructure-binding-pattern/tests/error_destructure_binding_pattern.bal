@@ -1,7 +1,6 @@
 import ballerina/test;
 
 any[] outputs = [];
-int counter = 0;
 
 // This is the mock function which will replace the real function
 @test:Mock {
@@ -10,8 +9,7 @@ int counter = 0;
 }
 public function mockPrint(any... s) {
     foreach var entry in s {
-        outputs[counter] = entry;
-        counter += 1;
+        outputs.push(entry);
     }
 }
 
@@ -19,6 +17,7 @@ public function mockPrint(any... s) {
 function testFunc() {
     // Invoking the main function
     main();
+    map<anydata> mp1 = { info: "Detail Info", fatal: true };
     test:assertEquals(outputs[0], "Reason String: Sample Error");
     test:assertEquals(outputs[1], "Info: ");
     test:assertEquals(outputs[2], "Detail Info");
@@ -27,7 +26,7 @@ function testFunc() {
     test:assertEquals(outputs[5], "Reason String: ");
     test:assertEquals(outputs[6], "Sample Error");
     test:assertEquals(outputs[7], "Detail Map: ");
-    test:assertEquals(outputs[8].toString(), "info=Detail Info fatal=true");
+    test:assertEquals(outputs[8], mp1);
     test:assertEquals(outputs[9], "Detail Message: ");
     test:assertEquals(outputs[10], "Failed Message");
 

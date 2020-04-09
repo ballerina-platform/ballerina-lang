@@ -72,6 +72,7 @@ task test {
             'streaming-big-dataset',
             'docker-deployment',
             'kubernetes-deployment',
+            'knative-deployment',
             'awslambda-deployment',
             'openshift-deployment',
             'grpc-server-streaming',
@@ -101,7 +102,7 @@ task test {
             'testerina-assertions',
             'taint-checking',
             'secured-service-with-basic-auth',
-            'secured-service-with-jwt',
+            'secured-service-with-jwt-auth',
             'secured-client-with-basic-auth',
             'secured-client-with-jwt-auth',
             'http-caching-client',
@@ -115,6 +116,7 @@ task test {
             'http-2.0-server-push',
             'websocket-basic-sample',
             'websocket-proxy-server',
+            'websocket-failover',
             'websocket-chat-application',
             'response-with-multiparts',
             'tracing',
@@ -132,6 +134,7 @@ task test {
             'type-conversion',
             'filepath',
             'record-io',
+            'csv-io',
             'type-cast',
             'async',
             'json-csv',
@@ -166,7 +169,10 @@ task test {
         categories.each { category ->
             def examples = category.samples
             examples.each { example ->
-                bbeList.push("$example.url")
+                def folder = new File("${distPath}/examples/${example.url}")
+                if (folder.exists()) {
+                    bbeList.push("$example.url")
+                }
             }
         }
         def src = "${project.rootDir}/examples/"

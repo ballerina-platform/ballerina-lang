@@ -12,7 +12,7 @@ public function mockPrint(any|error... s) {
 
     foreach any|error a in s {
         if (a is error) {
-            outputs[counter] = a;
+            outputs[counter] = a.detail()?.message;
         } else {
             outputs[counter] = a;
         }
@@ -25,7 +25,7 @@ function testFunc() {
     // call the main function
     main();
     test:assertEquals(outputs[0], 12);
-    test:assertEquals(outputs[1].toString(), "error {ballerina/lang.int}NumberParsingError message='string' value 'invalid' cannot be converted to 'int'");
+    test:assertEquals(outputs[1], "'string' value 'invalid' cannot be converted to 'int'");
     test:assertEquals(outputs[2], 120);
-    test:assertEquals(outputs[3].toString(), "error {ballerina/lang.int}NumberParsingError message='string' value 'Invalid' cannot be converted to 'int'");
+    test:assertEquals(outputs[3], "'string' value 'Invalid' cannot be converted to 'int'");
 }

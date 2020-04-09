@@ -1,7 +1,6 @@
 import ballerina/test;
 
 any[] outputs = [];
-int counter = 0;
 
 // This is the mock function which will replace the real function
 @test:Mock {
@@ -9,23 +8,28 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    string outstr = "";
-    foreach var str in s {
-        outstr = outstr + str.toString();
+    foreach var entry in s {
+        outputs.push(entry);
     }
-    outputs[counter] = outstr;
-    counter += 1;
 }
 
 @test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(outputs[0], "Name: Peter");
-    test:assertEquals(outputs[1], "Age: 28");
-    test:assertEquals(outputs[2], "Other Details: country=Sri Lanka occupation=Software Engineer");
-    test:assertEquals(outputs[3], "Name: Peter");
-    test:assertEquals(outputs[4], "Age: 28");
-    test:assertEquals(outputs[5], "Country Name: Sri Lanka");
-    test:assertEquals(outputs[6], "Capital Name: Colombo");
+    map<anydata> mp1 = {country: "Sri Lanka", "occupation": "Software Engineer"};
+    test:assertEquals(outputs[0], "Name: ");
+    test:assertEquals(outputs[1], "Peter");
+    test:assertEquals(outputs[2], "Age: ");
+    test:assertEquals(outputs[3], 28);
+    test:assertEquals(outputs[4], "Other Details: ");
+    test:assertEquals(outputs[5], mp1);
+    test:assertEquals(outputs[6], "Name: ");
+    test:assertEquals(outputs[7], "Peter");
+    test:assertEquals(outputs[8], "Age: ");
+    test:assertEquals(outputs[9], 28);
+    test:assertEquals(outputs[10], "Country Name: ");
+    test:assertEquals(outputs[11], "Sri Lanka");
+    test:assertEquals(outputs[12], "Capital Name: ");
+    test:assertEquals(outputs[13], "Colombo");
 }

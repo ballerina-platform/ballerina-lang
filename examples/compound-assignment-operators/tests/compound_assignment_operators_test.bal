@@ -1,7 +1,6 @@
 import ballerina/test;
 
 any[] outputs = [];
-int counter = 0;
 
 // This is the mock function which will replace the real function.
 @test:Mock {
@@ -9,23 +8,35 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = s[0].toString() + s[1].toString();
-    counter += 1;
+    foreach var entry in s {
+    	 outputs.push(entry);
+    }
 }
 
 @test:Config {}
 function testFunc() {
     // Invoking the main function.
     main();
-    test:assertEquals(outputs[0], "value: 1");
-    test:assertEquals(outputs[1], "value += 7: 8");
-    test:assertEquals(outputs[2], "value -= 2: 6");
-    test:assertEquals(outputs[3], "value /= 3: 2");
-    test:assertEquals(outputs[4], "value *= 2: 4");
-    test:assertEquals(outputs[5], "value &= 4: 4");
-    test:assertEquals(outputs[6], "value |= 3: 7");
-    test:assertEquals(outputs[7], "value ^= 5: 2");
-    test:assertEquals(outputs[8], "value <<= 1: 4");
-    test:assertEquals(outputs[9], "value >>= 1: 2");
-    test:assertEquals(outputs[10], "value >>>= 1: 1");
+    test:assertEquals(outputs[0], "value: ");
+    test:assertEquals(outputs[1], 1);
+    test:assertEquals(outputs[2], "value += 7: ");
+    test:assertEquals(outputs[3], 8);
+    test:assertEquals(outputs[4], "value -= 2: ");
+    test:assertEquals(outputs[5], 6);
+    test:assertEquals(outputs[6], "value /= 3: ");
+    test:assertEquals(outputs[7], 2);
+    test:assertEquals(outputs[8], "value *= 2: ");
+    test:assertEquals(outputs[9], 4);
+    test:assertEquals(outputs[10], "value &= 4: ");
+    test:assertEquals(outputs[11], 4);
+    test:assertEquals(outputs[12], "value |= 3: ");
+    test:assertEquals(outputs[13], 7);
+    test:assertEquals(outputs[14], "value ^= 5: ");
+    test:assertEquals(outputs[15], 2);
+    test:assertEquals(outputs[16], "value <<= 1: ");
+    test:assertEquals(outputs[17], 4);
+    test:assertEquals(outputs[18], "value >>= 1: ");
+    test:assertEquals(outputs[19], 2);
+    test:assertEquals(outputs[20], "value >>>= 1: ");
+    test:assertEquals(outputs[21], 1);
 }

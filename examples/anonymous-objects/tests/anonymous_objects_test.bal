@@ -1,15 +1,13 @@
 import ballerina/test;
 
 any[] outputs = [];
-int count = 0;
 
 @test:Mock {
     moduleName: "ballerina/io",
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[count] = s[0].toString();
-    count += 1;
+    outputs.push(s[0]);
 }
 
 @test:Config {}

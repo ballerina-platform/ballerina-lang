@@ -1,35 +1,29 @@
 import ballerina/test;
 
-any[] outputs = [];
-int counter = 0;
+(any|error)[] outputs = [];
 
 // This is the mock function that will replace the real function.
 @test:Mock {
     moduleName: "ballerina/io",
     functionName: "println"
 }
-public function mockPrint(any... s) {
-    outputs[counter] = s[0].toString();
-    counter += 1;
+public function mockPrint(any|error... s) {
+    outputs.push(s[0]);
 }
 
 @test:Config {}
 function testFunc() {
     // Invoking the main function.
     main();
-
     string jt1 = "Apple";
-    string jt2 = "5.36";
-    string jt3 = "true";
-    string jt4 = "false";
-    string jt13= "name=apple color=red price=5.36";
+    float jt2 = 5.36;
+    boolean jt3 = true;
+    boolean jt4 = false;
+    json jt13= {name: "apple", color: "red", price: jt2};
     string jt5 = "{\"name\":\"apple\", \"color\":\"red\", \"price\":5.36}";
     string jt6 = "[1, false, null, \"foo\", {\"first\":\"John\", \"last\":\"Pala\"}]";
     string jt7 = "{\"name\":\"Anne\", \"age\":20, \"marks\":{\"math\":90, \"language\":95, \"physics\":85}}";
-    string jt9 = "error {ballerina/lang.value}MergeJsonError message=Cannot merge JSON values of types 'float' and 'boolean'";
-    string jt10 = "{\"fname\":\"John\", \"lname\":\"Silva\", \"age\":31}";
-    string jt11 = "{\"fname\":\"Peter\", \"lname\":\"Stallone\", \"age\":30, \"address\":{\"line\":\"20 Palm Grove\", \"city\":\"Colombo 03\", \"country\":\"Sri Lanka\"}}";
-    string jt12 = "{\"fname\":\"Peter\", \"lname\":\"Stallone\", \"age\":30, \"address\":{\"line\":\"20 Palm Grove\", \"city\":\"Colombo 03\", \"country\":\"Sri Lanka\", \"province\":\"Western\"}}";
+    error jt9 = error("{ballerina/lang.value}MergeJsonError", message="Cannot merge JSON values of types 'float' and 'boolean'");
 
     test:assertEquals(outputs[0], jt1);
     test:assertEquals(outputs[1], jt2);

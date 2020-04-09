@@ -1,7 +1,6 @@
 import ballerina/test;
 
 any[] outputs = [];
-int counter = 0;
 
 // This is the mock function which will replace the real function.
 @test:Mock {
@@ -9,19 +8,19 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    string outstr = "";
-    foreach var str in s {
-        outstr = outstr + str.toString();
+    foreach var entry in s {
+        outputs.push(entry);
     }
-    outputs[counter] = outstr;
-    counter += 1;
 }
 
 @test:Config {}
 function testFunc() {
     // Invoking the main function.
     main();
-    test:assertEquals(outputs[0], "Answer: 48");
-    test:assertEquals(outputs[1], "Answer: 72");
-    test:assertEquals(outputs[2], "Answer: 15");
+    test:assertEquals(outputs[0], "Answer: ");
+    test:assertEquals(outputs[1], 48);
+    test:assertEquals(outputs[2], "Answer: ");
+    test:assertEquals(outputs[3], 72);
+    test:assertEquals(outputs[4], "Answer: ");
+    test:assertEquals(outputs[5], 15);
 }
