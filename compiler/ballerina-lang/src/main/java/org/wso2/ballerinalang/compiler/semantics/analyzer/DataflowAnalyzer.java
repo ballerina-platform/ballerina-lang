@@ -661,6 +661,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangActionInvocation actionInvocation) {
+        this.visit((BLangInvocation) actionInvocation);
+    }
+
+    @Override
     public void visit(BLangQueryExpr queryExpr) {
         for (FromClauseNode fromClauseNode : queryExpr.fromClauseList) {
             analyzeNode((BLangFromClause) fromClauseNode, env);
@@ -971,10 +976,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangCatch catchNode) {
-    }
-
-    @Override
-    public void visit(BLangActionInvocation actionInvocationExpr) {
     }
 
     @Override
