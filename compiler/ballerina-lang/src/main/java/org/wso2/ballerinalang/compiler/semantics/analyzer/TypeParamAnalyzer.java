@@ -313,6 +313,10 @@ public class TypeParamAnalyzer {
                     findTypeParamInMapForRecord(pos, (BMapType) expType, (BRecordType) actualType, env, resolvedTypes,
                                                 result);
                 }
+                if (actualType.tag == TypeTags.UNION) {
+                    findTypeParamInUnionForMap(pos, (BMapType) expType, (BUnionType) actualType, env, resolvedTypes,
+                                               result);
+                }
                 return;
             case TypeTags.STREAM:
                 if (actualType.tag == TypeTags.STREAM) {
@@ -418,30 +422,6 @@ public class TypeParamAnalyzer {
         }
         BUnionType tupleElementType = BUnionType.create(null, members);
         findTypeParam(pos, expType, tupleElementType, env, resolvedTypes, result);
-    }
-
-    private void findTypeParamInUnionForArray(DiagnosticPos pos, BArrayType expType, BUnionType actualType,
-    SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
-        LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>();
-        for (BType type : actualType.getMemberTypes()) {
-            if (type.tag == TypeTags.ARRAY) {
-                tupleTypes.add(((BArrayType) type).eType);
-            }
-        }
-        BUnionType tupleElementType = BUnionType.create(null, tupleTypes);
-        findTypeParam(pos, expType.eType, tupleElementType, env, resolvedTypes, result);
-    }
-
-    private void findTypeParamInUnionForMap(DiagnosticPos pos, BMapType expType, BUnionType actualType,
-                                            SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
-        LinkedHashSet<BType> tupleTypes = new LinkedHashSet<>();
-        for (BType type : actualType.getMemberTypes()) {
-            if (type.tag == TypeTags.MAP) {
-                tupleTypes.add(((BMapType) type).constraint);
-            }
-        }
-        BUnionType tupleElementType = BUnionType.create(null, tupleTypes);
-        findTypeParam(pos, expType.constraint, tupleElementType, env, resolvedTypes, result);
     }
 
 
