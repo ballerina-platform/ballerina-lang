@@ -164,17 +164,89 @@
             }
         },
         {
-          "label": "accepted((http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError))",
+            "label": "accepted((http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError))",
             "kind": "Function",
             "detail": "Function",
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 202 Accepted.\n  \n**Params**  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`. This message is optional.(Defaultable)  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- Returns an `http:ListenerError` if failed to respond  \n  \n"
+                    "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 202 Accepted.\n  \n**Params**  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`. This message is optional.(Defaultable)  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- Returns an `http:ListenerError` if failed to respond  \n  \n"
                 }
             },
             "sortText": "120",
             "insertText": "accepted(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "noContent((http:Response|()) message)((()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 204 No Content. If the given response contains a body\nthat will be removed.\n  \n**Params**  \n- `(http:Response|())` message: The outbound response is optional(Defaultable)  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- Returns an `http:ListenerError` if failed to respond  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "noContent(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "badRequest((http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 400 Bad Request.\n  \n**Params**  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`\n            or `mime:Entity[]`. This message is optional.(Defaultable)  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- Returns an `http:ListenerError` if failed to respond  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "badRequest(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "notFound((http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 404 Not Found.\n  \n**Params**  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`\n            or `mime:Entity[]`. This message is optional.(Defaultable)  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- Returns an `http:ListenerError` if failed to respond  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "notFound(${1})",
+            "insertTextFormat": "Snippet",
+            "command": {
+                "title": "editor.action.triggerParameterHints",
+                "command": "editor.action.triggerParameterHints"
+            }
+        },
+        {
+            "label": "internalServerError((http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]) message)((()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError))",
+            "kind": "Function",
+            "detail": "Function",
+            "documentation": {
+                "right": {
+                    "kind": "markdown",
+                    "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 500 Internal Server Error.\n  \n**Params**  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`\n            or `mime:Entity[]`. This message is optional.(Defaultable)  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- Returns an `http:ListenerError` if failed to respond  \n  \n"
+                }
+            },
+            "sortText": "120",
+            "insertText": "internalServerError(${1})",
             "insertTextFormat": "Snippet",
             "command": {
                 "title": "editor.action.triggerParameterHints",
