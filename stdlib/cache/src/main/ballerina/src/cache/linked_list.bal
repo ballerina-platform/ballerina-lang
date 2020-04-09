@@ -27,7 +27,7 @@ public type Node record {|
     Node? next = ();
 |};
 
-# Represents a linked list which is used to govern the cache eviction policy.
+# Represents a linked list, which is used to govern the cache eviction policy.
 #
 # + head - The first node of the linked list
 # + tail - The last node of the linked list
@@ -39,7 +39,7 @@ public type LinkedList record {
 # Adds a node to the end of the provided linked list.
 #
 # + list - Linked list to which the provided node should be added
-# + node - The node which should be added to the provided linked list
+# + node - The node, which should be added to the provided linked list
 public function addLast(LinkedList list, Node node) {
     if (list.tail is ()) {
         list.head = node;
@@ -56,7 +56,7 @@ public function addLast(LinkedList list, Node node) {
 # Adds a node to the start of the provided linked list.
 #
 # + list - Linked list to which the provided node should be added
-# + node - The node which should be added to the provided linked list
+# + node - The node, which should be added to the provided linked list
 public function addFirst(LinkedList list, Node node) {
     if (list.head is ()) {
         list.head = node;
@@ -73,7 +73,7 @@ public function addFirst(LinkedList list, Node node) {
 # Removes a node from the provided linked list.
 #
 # + list - Linked list from which the provided node should be removed
-# + node - The node which should be removed from the provided linked list
+# + node - The node, which should be removed from the provided linked list
 public function remove(LinkedList list, Node node) {
     if (node.prev is ()) {
         list.head = node.next;

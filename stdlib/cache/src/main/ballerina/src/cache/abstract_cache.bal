@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# The `cache:AbstractCache` object is used for custom implementations of ballerina cache.
+# The `cache:AbstractCache` object is used for custom implementations of the Ballerina cache.
 # Any custom cache implementation should be object-wise similar.
 public type AbstractCache abstract object {
 

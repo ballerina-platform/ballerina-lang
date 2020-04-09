@@ -1,8 +1,8 @@
 ## Module Overview
 
-This module provides APIs for handle caching in Ballerina. It consists of a default implementation based on map data structure. It also provides a default cache eviction policy object which is based on the LRU eviction algorithm.
+This module provides APIs for handle caching in Ballerina. It consists of a default implementation based on the map data structure. It also provides a default cache eviction policy object, which is based on the LRU eviction algorithm.
 
-The `cache:AbstractCache` object has the common APIs for the caching functionalities. "Custom implementations" of the cache can be done with different data storage like file, database, etc. with the structural equivalency to the `cache:AbstractCacheObject` object.
+The `cache:AbstractCache` object has the common APIs for the caching functionalities. Custom implementations of the cache can be done with different data storages like file, database, etc. with the structural equivalency to the `cache:AbstractCacheObject` object.
 
 ```ballerina
 public type AbstractCache abstract object {
@@ -17,7 +17,7 @@ public type AbstractCache abstract object {
 };
 ```
 
-The `cache:AbstractEvictionPolicy` object has the common APIs for the cache eviction functionalities. "Custom implementations" of the eviction policy can be done by maintaining the `cache:LinkedList` data structure according to the eviction algorithm.
+The `cache:AbstractEvictionPolicy` object has the common APIs for the cache eviction functionalities. Custom implementations of the eviction policy can be done by maintaining the `cache:LinkedList` data structure according to the eviction algorithm.
 
 ```ballerina
 public type AbstractEvictionPolicy abstract object {
@@ -30,18 +30,18 @@ public type AbstractEvictionPolicy abstract object {
 };
 ```
 
-The Ballerina Cache module provides the `cache:Cache` object, which is a `map` data structure based implementation of the `cache:AbstractCache` object. It is not recommended to insert `()` as the value of the cache since it doesn't make any sense to cache a nil. Also, it provides the `cache:LruEvictionPolicy` object, which is based on the LRU eviction algorithm.
+The Ballerina Cache module provides the `cache:Cache` object, which is a `map` data structure based implementation of the `cache:AbstractCache` object. It is not recommended to insert `()` as the value of the cache since it doesn't make sense to cache a nil. Also, it provides the `cache:LruEvictionPolicy` object, which is based on the LRU eviction algorithm.
 
-While initializing the `cache:Cache`, the developer has to pass the following parameters as the cache configurations.
+While initializing the `cache:Cache`, you need to pass the following parameters as the cache configurations.
 - `capacity` - Maximum number of entries allowed for the cache
 - `evictionPolicy` - The policy to define the cache eviction algorithm
 - `evictionFactor` - The factor by which the entries will be evicted once the cache is full
 - `defaultMaxAgeInSeconds` - Freshness time of all the cache entries in seconds. This value can be overwritten by the
 `maxAgeInSeconds` property when inserting an entry to the cache. '-1' means the entries are valid forever.
-- `cleanupIntervalInSeconds` - The interval time of the timer task which cleans the cache entries.
+- `cleanupIntervalInSeconds` - The interval time of the timer task, which cleans the cache entries
 This is an optional parameter.
 
-For a better user experience, the above mentioned configuration is initialized with default values as follows:
+For a better user experience, the above-mentioned configuration is initialized with the below default values:
 
 ```ballerina
 public type CacheConfig record {|
@@ -53,7 +53,7 @@ public type CacheConfig record {|
 |};
 ```
 
-There are 2 mandatory scenarios and 1 optional scenario, in which a cache entry gets removed from the cache and maintains the freshness of the cache entries. The 2 independent factors (i.e., eviction policy and freshness time of the cache entry) governs the 3 scenarios.
+There are 2 mandatory scenarios and 1 optional scenario in which a cache entry gets removed from the cache and maintains the freshness of the cache entries. The 2 independent factors (i.e., eviction policy and freshness time of the cache entry) governs the 3 scenarios.
 
 1. When using the `get` API, if the returning cache entry has expired, it gets removed.
 2. When using the `put` API, if the cache size has reached its capacity, the number of entries get removed based on the
@@ -82,11 +82,11 @@ type CacheEntry record {|
 |};
 ```
 
-A linked list is used for the eviction of the cache. According to the user configured eviction policy, when inserting / updating / retrieving cache entries, the linked list will be updated. Therefore, when an eviction happens, cache entries can be removed efficiently without iterating the complete map data structure.
+A linked list is used for the eviction of the cache. According to the user-configured eviction policy, when inserting / updating / retrieving cache entries, the linked list will be updated. Therefore, when an eviction happens, cache entries can be removed efficiently without iterating the complete map data structure.
 
-**Example:** If the eviction policy is LRU, always the MRU item will be the head of the linked list. When an eviction happens, nodes from the tail will be deleted without iterating the map.
+**Example:** If the eviction policy is LRU, the MRU item will always be the head of the linked list. When an eviction happens, nodes from the tail will be deleted without iterating the map.
 
-Furthermore, the developers can implement custom caching implementations based on different cache storage mechanisms (file, database. etc.) and different eviction policies (MRU, FIFO, etc.). Ballerina provides a "map-based cache" as the default cache implementation.
+Furthermore, you can implement custom caching implementations based on different cache storage mechanisms (file, database. etc.) and different eviction policies (MRU, FIFO, etc.). Ballerina provides a "map-based cache" as the default cache implementation.
 
 ### Samples
 
@@ -97,7 +97,7 @@ The following is a sample cache with a capacity of 100 entries, which uses LRU a
 cache:Cache cache = new;
 ```
 
-The following is a sample with a cache with a capacity of 1000 entries, an eviction factor of 0.2, the default freshness time as 1 hour per an entry, and clean up timer configured with aa interval of 5 seconds.
+The following is a sample with a cache with a capacity of 1000 entries, an eviction factor of 0.2, the default freshness time as 1 hour per an entry, and clean up timer configured with an interval of 5 seconds.
 ```ballerina
 cache:Cache cache = new({
     capacity: 1000,

@@ -20,12 +20,12 @@ import ballerina/time;
 # Represents configurations for the `cache:Cache` object.
 #
 # + capacity - Maximum number of entries allowed in the cache
-# + evictionPolicy - The policy which defines the cache eviction algorithm
-# + evictionFactor - The factor which by which the entries will be evicted once the cache is full
+# + evictionPolicy - The policy, which defines the cache eviction algorithm
+# + evictionFactor - The factor by which the entries will be evicted once the cache is full
 # + defaultMaxAgeInSeconds - The default value in seconds which all the cache entries are valid.
 #                            '-1' means, the entries are valid forever. This will be overwritten by the the
 #                            `maxAgeInSeconds` property set when inserting item to the cache
-# + cleanupIntervalInSeconds - Interval of the timer task which will clean up the cache
+# + cleanupIntervalInSeconds - Interval of the timer task, which will clean up the cache
 public type CacheConfig record {|
     int capacity = 100;
     AbstractEvictionPolicy evictionPolicy = new LruEvictionPolicy();
@@ -57,7 +57,7 @@ service cleanupService = service {
     }
 };
 
-# The Ballerina `Cache` object which is used for all the cache-related operations. It is not recommended to insert `()`
+# The Cache` Ballerina ` object, which is used for all the cache-related operations. It is not recommended to insert `()`
 # as the value of the cache since it doesn't make any sense to cache a nil.
 public type Cache object {
 
@@ -117,11 +117,11 @@ public type Cache object {
     }
 
     # Adds the given key value pair to the cache. If the cache previously contained a value associated with the
-    # provided key, the old value wil be replaced by the newly provided value.
+    # provided key, the old value wil be replaced by the newly-provided value.
     #
     # + key - Key of the value to be cached
     # + value - Value to be cached. Value should not be `()`
-    # + maxAgeInSeconds - The time in seconds for which the cache entry is valid. If the values is '-1' the entry is
+    # + maxAgeInSeconds - The time in seconds for which the cache entry is valid. If the value is '-1', the entry is
     #                     valid forever.
     # + return - `()` if successfully added to the cache or `Error` if a `()` value is inserted to the cache.
     public function put(string key, any value, int maxAgeInSeconds = -1) returns Error? {
@@ -164,9 +164,9 @@ public type Cache object {
 
     # Returns the cached value associated with the provided key.
     #
-    # + key - Key of the cached value which should be retrieved
-    # + return - The cached value associated with the provided key. or an `Error`, if the provided cache key is not
-    #            exisiting in the cache or any error occurred while retrieving from value from the cache.
+    # + key - Key of the cached value, which should be retrieved
+    # + return - The cached value associated with the provided key or an `Error` if the provided cache key is not
+    #            exisiting in the cache or any error occurred while retrieving the value from the cache.
     public function get(string key) returns any|Error {
         lock {
             if (!self.hasKey(key)) {
@@ -191,7 +191,7 @@ public type Cache object {
 
     # Discards a cached value from the cache.
     #
-    # + key - Key of the cache value which needs to be discarded from the cache
+    # + key - Key of the cache value, which needs to be discarded from the cache
     # + return - `()` if successfully discarded the value or an `Error` if the provided cache key is not present in the
     #            cache or if any error occurred while discarding the value from the cache.
     public function invalidate(string key) returns Error? {

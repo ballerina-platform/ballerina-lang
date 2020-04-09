@@ -32,7 +32,7 @@ public const CACHE_ERROR = "{ballerina/cache}Error";
 # operations.
 public type Error error<CACHE_ERROR, Detail>;
 
-# Prepare the `error` as an `cache:Error` after printing an error log.
+# Prepare the `error` as a `cache:Error` after printing an error log.
 #
 # + message - Error message
 # + err - `error` instance
@@ -48,7 +48,7 @@ function prepareError(string message, error? err = ()) returns Error {
     return cacheError;
 }
 
-# Prepare the `error` as an `cache:Error` after printing a debug log.
+# Prepare the `error` as a `cache:Error` after printing a debug log.
 #
 # + message - Error message
 # + err - `error` instance
