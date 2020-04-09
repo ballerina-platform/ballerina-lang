@@ -2,9 +2,9 @@ This module provides functions to interact with the runtime, the invocation cont
 
 ### Invocation Context
 
-The Invocation Context is a data holder that is created per request and preserved for a single request-response flow. It comprises of a unique ID, a `runtime:Principal` instance that includes user details, an `runtime:AuthenticationContext` instance that has the authentication related details if available, and a attribute map to hold context information
+The Invocation Context is a data holder that is created per request and preserved for a single request-response flow. It comprises of a unique ID, a `runtime:Principal` instance that includes user details, an `runtime:AuthenticationContext` instance that has the authentication related details if available, and an attribute map to hold context information.
 
-The following code snippet shows how to access the `runtime:InvocationContext` and set data.
+The following code snippet shows how to access the `runtime:InvocationContext` and the set of data.
 ```ballerina
 runtime:InvocationContext invocationContext = runtime:getInvocationContext();
 
@@ -13,7 +13,7 @@ if (principal is runtime:Principal) {
     // Set the username as ‘tom’.
     principal["username"] = "tom";
 
-    // Set claims.
+    // Set the claims.
     map<any> claims = { email: "tom@ballerina.com", org: "wso2" };
     principal.claims = claims;
 
@@ -24,10 +24,10 @@ if (principal is runtime:Principal) {
 
 runtime:AuthenticationContext? authContext = invocationContext["authenticationContext"];
 if (authContext is runtime:AuthenticationContext) {
-    // Set auth scheme.
+    // Set the auth scheme.
     authContext.scheme = "jwt";
 
-    // Set auth token.
+    // Set the auth token.
     authContext.authToken = "abc.pqr.xyz";
 }
 ```
@@ -37,26 +37,26 @@ The following code snippet shows how to access the `runtime:InvocationContext` a
 runtime:InvocationContext invocationContext = runtime:getInvocationContext();
 runtime:Principal? principal = invocationContext["principal"];
 if (principal is runtime:Principal) {
-    // Retrieve user name.
+    // Retrieve the user name.
     string? userName = principal["username"];
     io:println(userName);
 
-    // Retrieve claims.
+    // Retrieve the claims.
     map<any>? claims = principal["claims"];
     io:println(claims);
 
-    // Retrieve scopes.
+    // Retrieve the scopes.
     string[]? scopes = principal["scopes"];
     io:println(scopes);
 }
 
 runtime:AuthenticationContext? authContext = invocationContext["authenticationContext"];
 if (authContext is runtime:AuthenticationContext) {
-    // Retrieve auth scheme.
+    // Retrieve the auth scheme.
     string? authScheme = authContext["scheme"];
     io:println(authScheme);
 
-    // Retrieve auth token.
+    // Retrieve the auth token.
     string? token = authContext["authToken"];
     io:println(token);
 }

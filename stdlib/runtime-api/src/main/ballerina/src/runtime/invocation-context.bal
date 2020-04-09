@@ -18,7 +18,7 @@ import ballerina/java;
 
 # Represents the `runtime:InvocationContext`.
 #
-# + id - Unique id generated when initiating the invocation context
+# + id - Unique ID generated when initiating the invocation context
 # + principal - User principal instance
 # + authenticationContext - Authentication context instance
 # + attributes - Map of context attributes
@@ -29,7 +29,7 @@ public type InvocationContext record {|
     map<any> attributes;
 |};
 
-# Represents the `runtime:AuthenticationContext`, populated with authenticated information.
+# Represents the `runtime:AuthenticationContext` populated with authenticated information.
 #
 # + scheme - Authentication scheme
 # + authToken - Token for the provided `scheme`
@@ -38,9 +38,9 @@ public type AuthenticationContext record {
     string authToken?;
 };
 
-# Represents the `runtime:Principal`, populated with authenticated user information.
+# Represents the `runtime:Principal` populated with authenticated user information.
 #
-# + userId - User Id of the authenticated user
+# + userId - User ID of the authenticated user
 # + username - Username of the authenticated user
 # + claims - Claims of the authenticated user
 # + scopes - Scopes of the authenticated user
@@ -51,7 +51,7 @@ public type Principal record {
     string[] scopes?;
 };
 
-# Creates a return the `runtime:InvocationContext` instance.
+# Returns the `runtime:InvocationContext` instance.
 # ```ballerina
 # runtime:InvocationContext invocationContext = runtime:getInvocationContext();
 # ```

@@ -16,7 +16,7 @@
 
 import ballerina/java;
 
-# Represents a data holder of current call stack element.
+# Represents a data holder of the current call stack element.
 #
 # + callableName - Callable name
 # + moduleName - Module name
