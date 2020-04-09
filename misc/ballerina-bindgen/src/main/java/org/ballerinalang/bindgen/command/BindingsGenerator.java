@@ -139,8 +139,8 @@ public class BindingsGenerator {
         errStream.print("\n");
         for (Map.Entry<String, String> entry : failedClassGens.entrySet()) {
             if (classNames.contains(entry.getKey())) {
-                errStream.println("Bindings for '" + entry.getKey() + "' class could not be generated. "
-                        + entry.getValue());
+                errStream.println("Bindings for '" + entry.getKey() + "' class could not be generated.\n\t" +
+                        entry.getValue() + "\n");
             }
             String simpleClassName = entry.getKey().substring(entry.getKey().lastIndexOf('.') + 1);
             writeOutputFile(entry.getKey(), DEFAULT_TEMPLATE_DIR, EMPTY_OBJECT_TEMPLATE_NAME,
