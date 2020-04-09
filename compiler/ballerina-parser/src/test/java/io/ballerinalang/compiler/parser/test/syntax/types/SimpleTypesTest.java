@@ -26,6 +26,6 @@ public class SimpleTypesTest extends AbstractTypesTest {
 
     @Test
     public void testSimpleBinaryExpression() {
-        test("simple-types/simple_types_source_01.bal", "simple-types/simple_types_assert_01.json");
+        testFile("simple-types/simple_types_source_01.bal", "simple-types/simple_types_assert_01.json");
     }
 }

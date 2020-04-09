@@ -421,4 +421,7 @@ public class STNodeFactory {
                 semicolonToken);
     }
 
+    public static STNode createNilTypeDescriptor(STNode openParenthesisToken, STNode closeParenthesisToken) {
+        return new STNilTypeDescriptor(openParenthesisToken, closeParenthesisToken);
+    }
 }

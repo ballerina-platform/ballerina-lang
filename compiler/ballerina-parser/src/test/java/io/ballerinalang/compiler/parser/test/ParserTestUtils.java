@@ -539,6 +539,8 @@ public class ParserTestUtils {
                 return SyntaxKind.SERVICE_BODY;
             case "EXPRESSION_LIST_ITEM":
                 return SyntaxKind.EXPRESSION_LIST_ITEM;
+            case "NIL_TYPE":
+                return SyntaxKind.NIL_TYPE;
 
             // Trivia
             case "EOF_TOKEN":

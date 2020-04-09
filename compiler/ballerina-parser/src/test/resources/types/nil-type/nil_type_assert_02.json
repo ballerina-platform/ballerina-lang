@@ -1,0 +1,23 @@
+{
+  "kind": "VARIABLE_DECL",
+  "children": [
+    {
+      "kind": "NIL_TYPE",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "isMissing": true
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
+}

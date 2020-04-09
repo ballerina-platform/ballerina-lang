@@ -146,6 +146,7 @@ public enum SyntaxKind {
     // Type descriptors
     RECORD_TYPE_DESCRIPTOR(2000),
     OBJECT_TYPE_DESCRIPTOR(2001),
+    NIL_TYPE(2002),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),
