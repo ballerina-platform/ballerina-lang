@@ -36,7 +36,7 @@ public type StreamingProducer client object {
     # Publishes data to a given subject.
     # ```ballerina string|error result = producer->publish(subject, <@untainted>message);```
     #
-    # + subject - The subject to send the message to
+    # + subject - The subject to send the message 
     # + data - Data to publish
     # + return - `string` value representing the NUID (NATS Unique Identifier) of the published message, if the
     #           message gets successfully published and acknowledged by the NATS server or

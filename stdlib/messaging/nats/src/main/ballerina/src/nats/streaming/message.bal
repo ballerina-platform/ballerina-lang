@@ -16,7 +16,7 @@
 
 import ballerina/java;
 
-# Represents the message a NATS Streaming Server sends to subscribed services.
+# Represents the message a NATS Streaming Server sends to its subscribed services.
 public type StreamingMessage client object {
    private byte[] content;
    private string subject;

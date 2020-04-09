@@ -16,9 +16,9 @@
 
 # Configuration related to establishing a streaming connection.
 #
-# + ackTimeoutInSeconds - Timeout(in seconds) to wait for an acknowledgement for the corresponding subscription
-# + connectionTimeoutInSeconds - Timeout(in seconds) to wait for a connection
-# + maxPubAcksInFlight - The maximum number of publish ACKs that may be in flight at any point in time
+# + ackTimeoutInSeconds - Timeout (in seconds) to wait for an acknowledgement for the corresponding subscription
+# + connectionTimeoutInSeconds - Timeout (in seconds) to wait for a connection
+# + maxPubAcksInFlight - The maximum number of publish ACKs that may be in flight at any point of time
 # + discoverPrefix - Subject prefix used for server discovery
 public type StreamingConfig record {|
     int ackTimeoutInSeconds = 30;

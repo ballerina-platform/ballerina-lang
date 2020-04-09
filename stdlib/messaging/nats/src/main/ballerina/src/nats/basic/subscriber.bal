@@ -17,7 +17,7 @@
 import ballerina/lang.'object as lang;
 import ballerina/java;
 
-# Represents the NATS server connection, to which a subscription service should be bound to in order to
+# Represents the NATS server connection to which a subscription service should be bound in order to
 # receive messages of the corresponding subscription.
 public type Listener object {
 

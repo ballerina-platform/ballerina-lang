@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the message a NATS Server sends to subscribed services.
+# Represents the message, which a NATS Server sends to its subscribed services.
 public type Message object {
     byte[] content;
     string? replyTo;
@@ -33,14 +33,14 @@ public type Message object {
         return self.content;
     }
 
-    # Gets the replyTo subject of the message.
+    # Gets the `replyTo` subject of the message.
     #
-    # + return - The subject the client is expected to send a reply message on
+    # + return - The subject to which the client is expected to send a reply message 
     public function getReplyTo() returns string? {
         return self.replyTo;
     }
 
-    # Gets the subject that the message was sent to.
+    # Gets the subject to which the message was sent to.
     #
     # + return - The subject that this message was sent to.
     public function getSubject() returns string {

@@ -148,11 +148,11 @@ nats:ConnectionConfig config = {
 // Initializes a connection.
 nats:Connection connection = new("tls://localhost:4222", config = config);
 ```
->**Note:** The default thread pool size used in Ballerina is number of processors available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.
+>**Note:** The default thread pool size used in Ballerina is the number of processors available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.
 
-For information on the operations, which you can perform with this module, see the below Functions. 
+For information on the operations, which you can perform with this module, see the below **Functions**. 
 
-For examples on the usage of the connector, see following,
+For examples on the usage of the connector, see the following.
 * [Basic Publisher and Subscriber Example](https://ballerina.io/v1-2/learn/by-example/nats-basic-client.html).
 * [Basic Streaming Publisher and Subscriber Example](https://ballerina.io/v1-2/learn/by-example/nats-streaming-client.html)
 * [Streaming Publisher and Subscriber With Data Binding Example](https://ballerina.io/v1-2/learn/by-example/nats-streaming-consumer-with-data-binding.html)
