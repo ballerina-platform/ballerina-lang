@@ -434,7 +434,7 @@ public class BindgenUtils {
 
     public static boolean isAbstractClass(Class javaClass) {
         int modifiers = javaClass.getModifiers();
-        return Modifier.isAbstract(modifiers);
+        return Modifier.isAbstract(modifiers) && !javaClass.isInterface();
     }
 
     public static String getModuleName(String jarPath) {
