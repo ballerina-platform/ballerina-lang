@@ -632,7 +632,7 @@
                 "url": "crypto"
             },
             {
-                "name": "URL encode/decode operations",
+                "name": "URL Encode/Decode Operations",
                 "url": "url-encode-decode"
             }
         ]
