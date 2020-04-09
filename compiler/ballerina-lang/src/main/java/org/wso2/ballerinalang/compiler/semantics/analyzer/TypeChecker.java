@@ -898,7 +898,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.env = env;
         this.expType = symTable.noType;
         for (BLangExpression e : exprs) {
-            e.accept(this);
+            checkExpr(e, this.env);
             types.add(resultType);
         }
         this.env = prevEnv;

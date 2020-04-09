@@ -2342,7 +2342,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         analyzeTypeNode(tableType.constraint, env);
 
-        if (!tableType.isTableKeySpecifier) {
+        if (tableType.tableKeyTypeConstraint != null) {
             analyzeTypeNode(tableType.tableKeyTypeConstraint.keyType, env);
         }
     }

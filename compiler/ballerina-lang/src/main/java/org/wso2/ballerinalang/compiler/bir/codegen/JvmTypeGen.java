@@ -1161,10 +1161,10 @@ class JvmTypeGen {
         mv.visitInsn(DUP);
 
         loadType(mv, bType.constraint);
-        if (!bType.isTableKeySpecifier) {
+        if (bType.keyTypeConstraint != null) {
             loadType(mv, bType.keyTypeConstraint);
             mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;L%s;)V", BTYPE, BTYPE), false);
-        } else {
+        } else if (bType.fieldNameList != null) {
             // Create the field names array
             List<String> fieldNames = bType.fieldNameList;
             mv.visitLdcInsn((long) fieldNames.size());
@@ -1181,6 +1181,8 @@ class JvmTypeGen {
                 i += 1;
             }
             mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;[L%s;)V", BTYPE, STRING_VALUE), false);
+        } else {
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
         }
     }
 

@@ -29,14 +29,12 @@ public class BTableType extends BType {
     private BType constraint;
     private BType keyType;
     private String[] fieldNames;
-    private boolean isTableKeySpecifier;
 
     public BTableType(BType constraint, String[] fieldNames) {
         super(TypeConstants.TABLE_TNAME, null, BTable.class);
         this.constraint = constraint;
         this.fieldNames = fieldNames;
         this.keyType = null;
-        this.isTableKeySpecifier = true;
     }
 
     public BTableType(BType constraint, BType keyType) {
@@ -44,7 +42,11 @@ public class BTableType extends BType {
         this.constraint = constraint;
         this.keyType = keyType;
         this.fieldNames = new String[]{};
-        this.isTableKeySpecifier = false;
+    }
+
+    public BTableType(BType constraint) {
+        super(TypeConstants.TABLE_TNAME, null, BTable.class);
+        this.constraint = constraint;
     }
 
     public BType getConstrainedType() {
@@ -57,10 +59,6 @@ public class BTableType extends BType {
 
     public String[] getFieldNames() {
         return fieldNames;
-    }
-
-    public boolean isTableKeySpecifier() {
-        return isTableKeySpecifier;
     }
 
     @Override

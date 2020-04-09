@@ -34,7 +34,6 @@ public class BTableType extends BType implements TableType {
     public BType constraint;
     public BType keyTypeConstraint;
     public List<String> fieldNameList;
-    public boolean isTableKeySpecifier;
 
     public BTableType(int tag, BType constraint, BTypeSymbol tSymbol) {
         super(tag, tSymbol);
