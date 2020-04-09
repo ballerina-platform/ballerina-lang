@@ -632,8 +632,8 @@
                 "url": "crypto"
             },
             {
-                "name": "JWT Token Validation",
-                "url": "jwt-token-validation"
+                "name": "JWT Issue/Validate",
+                "url": "jwt-issue-validate"
             }
         ]
     },

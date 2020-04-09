@@ -59,9 +59,9 @@ public type InboundJwtCacheEntry record {|
 # Validates the given JWT string.
 #```ballerina jwt:JwtPayload|error result = jwt:validateJwt(jwt, validatorConfig); ```
 #
-# + jwtToken - JWT token that needs to be validated
+# + jwtToken - JWT that needs to be validated
 # + config - JWT validator config record
-# + return - JWT payload or else an `Error` if token validation fails.
+# + return - JWT payload or else an `jwt:Error` if token validation fails.
 public function validateJwt(string jwtToken, JwtValidatorConfig config) returns @tainted (JwtPayload|Error) {
     [JwtHeader, JwtPayload] [header, payload] = check decodeJwt(jwtToken);
     return validateJwtRecords(jwtToken, header, payload, config) ?: payload;
@@ -78,8 +78,8 @@ function getJwtComponents(string jwtToken) returns string[]|Error {
 # Decodes the given JWT string.
 # ```ballerina [JwtHeader, JwtPayload]|Error [header, payload] = decodeJwt(jwtToken); ```
 #
-# + jwtToken - JWT token that needs to be decoded
-# + return - The JWT header and payload tuple or else an `Error` if token decoding fails
+# + jwtToken - JWT that needs to be decoded
+# + return - The JWT header and payload tuple or else an `jwt:Error` if token decoding fails
 public function decodeJwt(string jwtToken) returns @tainted ([JwtHeader, JwtPayload]|Error) {
     string[] encodedJwtComponents = check getJwtComponents(jwtToken);
     [map<json>, map<json>] [headerJson, payloadJson] = check getDecodedJwtComponents(encodedJwtComponents);

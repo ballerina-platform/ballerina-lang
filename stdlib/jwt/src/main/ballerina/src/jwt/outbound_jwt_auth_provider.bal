@@ -64,7 +64,7 @@ public type OutboundJwtAuthProvider object {
     #```ballerina string|auth:Error? result = inspect(data); ```
     #
     # + data - Map of data which is extracted from the HTTP response
-    # + return - String token or `()` if nothing to be returned or else an `auth:Error` if token can't be generated
+    # + return - JWT as `string` or `()` if nothing to be returned or else an `auth:Error` if token can't be generated
     public function inspect(map<anydata> data) returns string|auth:Error? {
         return ();
     }
@@ -73,7 +73,7 @@ public type OutboundJwtAuthProvider object {
 # Processes the auth token for JWT auth.
 #
 # + jwtIssuerConfig - JWT issuer configurations
-# + return - Auth token or else an `Error` if auth token can't be processed
+# + return - JWT or else an `jwt:Error` if an error occurred while issuing JWT
 function getAuthTokenForJWTAuth(JwtIssuerConfig jwtIssuerConfig) returns string|Error {
     JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
     string username;
