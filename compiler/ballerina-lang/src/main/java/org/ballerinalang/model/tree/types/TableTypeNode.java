@@ -38,6 +38,4 @@ public interface TableTypeNode extends TypeNode {
     TableKeyTypeConstraintNode getTableKeyTypeConstraint();
 
     void setTableKeyTypeConstraint(TableKeyTypeConstraintNode tableKeyTypeConstraint);
-
-    boolean isTableKeySpecifier();
 }

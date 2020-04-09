@@ -921,10 +921,9 @@ public class SymbolResolver extends BLangNodeVisitor {
         tableType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
                 typeSymbol.pkgID, tableType, typeSymbol.owner);
 
-        if (!tableTypeNode.isTableKeySpecifier) {
+        if (tableTypeNode.tableKeyTypeConstraint != null) {
             tableType.keyTypeConstraint = resolveTypeNode(tableTypeNode.tableKeyTypeConstraint.keyType, env);
-        } else {
-            tableType.isTableKeySpecifier = true;
+        } else if (tableTypeNode.tableKeySpecifier != null) {
             BLangTableKeySpecifier tableKeySpecifier = tableTypeNode.tableKeySpecifier;
             List<String> fieldNameList = new ArrayList<>();
             for (BLangIdentifier identifier : tableKeySpecifier.fieldNameIdentifierList) {

@@ -456,11 +456,9 @@ public class BLangPackageBuilder {
         tableTypeNode.type = refType;
         tableTypeNode.constraint = (BLangType) typeNodeStack.pop();
         if (tableKeySpecifierNodeStack.size() > 0) {
-            BLangTableKeySpecifier tableKeySpecifierNode =
+            tableTypeNode.tableKeySpecifier =
                     (BLangTableKeySpecifier) tableKeySpecifierNodeStack.pop();
-            tableTypeNode.isTableKeySpecifier = true;
-            tableTypeNode.tableKeySpecifier = tableKeySpecifierNode;
-        } else {
+        } else if (tableKeyTypeConstraintNodeStack.size() > 0) {
             tableTypeNode.tableKeyTypeConstraint = (BLangTableKeyTypeConstraint) tableKeyTypeConstraintNodeStack.pop();
         }
 

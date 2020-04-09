@@ -35,7 +35,6 @@ public class BLangTableType extends BLangType implements TableTypeNode {
     public BLangType constraint;
     public BLangTableKeySpecifier tableKeySpecifier;
     public BLangTableKeyTypeConstraint tableKeyTypeConstraint;
-    public boolean isTableKeySpecifier;
 
     @Override
     public TypeNode getConstraint() {
@@ -65,11 +64,6 @@ public class BLangTableType extends BLangType implements TableTypeNode {
     @Override
     public void setTableKeyTypeConstraint(TableKeyTypeConstraintNode tableKeyTypeConstraint) {
         this.tableKeyTypeConstraint = (BLangTableKeyTypeConstraint) tableKeyTypeConstraint;
-    }
-
-    @Override
-    public boolean isTableKeySpecifier() {
-        return this.isTableKeySpecifier;
     }
 
     @Override

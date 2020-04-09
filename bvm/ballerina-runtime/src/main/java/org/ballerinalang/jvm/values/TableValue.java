@@ -54,7 +54,7 @@ public class TableValue<K, V> implements BTable<K, V> {
     public TableValue(BTableType type) {
         this.type = type;
         this.hashtable = new LinkedHashMap<>();
-        if (type.isTableKeySpecifier()) {
+        if (type.getFieldNames() != null) {
             this.valueAdder = new KeyHashValueAdder(hashtable, type.getFieldNames());
         } else {
             this.valueAdder = new ValueAdder(hashtable);

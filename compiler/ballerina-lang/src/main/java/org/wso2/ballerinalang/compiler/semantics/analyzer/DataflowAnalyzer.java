@@ -1045,7 +1045,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTableType tableType) {
         analyzeNode(tableType.constraint, env);
 
-        if (!tableType.isTableKeySpecifier) {
+        if (tableType.tableKeyTypeConstraint != null) {
             analyzeNode(tableType.tableKeyTypeConstraint.keyType, env);
         }
     }
