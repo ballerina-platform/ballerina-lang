@@ -16,8 +16,8 @@
 
 # Holds the details of entity header and body related errors.
 #
-# + message - the error message
-# + cause - the error cause
+# + message - Error message
+# + cause - Error cause
 public type Detail record {
     string message;
     error cause?;
@@ -43,7 +43,7 @@ public const GENERIC_MIME_ERROR = "{ballerina/mime}GenericMimeError";
 # Represents a `GenericMimeError` with a detailed message.
 public type GenericMimeError error<GENERIC_MIME_ERROR, Detail>;
 
-# Identifies set header failures.
+# Identifies set header errors.
 public const SET_HEADER_FAILED = "{ballerina/mime}SetHeaderFailed";
 
 # Represents a `SetHeaderError` with a detailed message.
@@ -92,14 +92,14 @@ public type Error ParserError|EncodeError|DecodeError|GenericMimeError|SetHeader
                 |NoContentError;
 
 # Constructs an `EncodeError` with the given details.
-# + detail - error details
+# + detail - Error details
 # + return - `EncodeError` with the given details set to message
 public function prepareEncodingErrorWithDetail(string detail) returns EncodeError {
     return error(ENCODE_ERROR, message = detail);
 }
 
 # Constructs a `DecodeError` with the given details.
-# + detail - error details
+# + detail - Error details
 # + return - `DecodeError` with the given details set to message
 public function prepareDecodingErrorWithDetail(string detail) returns DecodeError {
     return error(DECODE_ERROR, message = detail);
