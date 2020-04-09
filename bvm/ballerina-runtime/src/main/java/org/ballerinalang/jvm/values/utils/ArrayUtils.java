@@ -36,6 +36,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  */
 public class ArrayUtils {
 
+    @Deprecated
     public static void add(ArrayValue arr, int elemTypeTag, long index, Object value) {
         switch (elemTypeTag) {
             case TypeTags.INT_TAG:

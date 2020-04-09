@@ -33,7 +33,9 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
@@ -71,7 +73,6 @@ public class Slice {
 
         BType arrType = arr.getType();
         ArrayValue slicedArr;
-        int elemTypeTag;
 
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
@@ -79,13 +80,20 @@ public class Slice {
                 break;
             case TypeTags.TUPLE_TAG:
                 BTupleType tupleType = (BTupleType) arrType;
-                BUnionType unionType = new BUnionType(tupleType.getTupleTypes(), tupleType.getTypeFlags());
+
+                List<BType> memTypes = new ArrayList<>(tupleType.getTupleTypes());
+
+                BType restType = tupleType.getRestType();
+                if (restType != null) {
+                    memTypes.add(restType);
+                }
+
+                BUnionType unionType = new BUnionType(memTypes);
                 BArrayType slicedArrType = new BArrayType(unionType, (int) (endIndex - startIndex));
                 slicedArr = new ArrayValueImpl(slicedArrType);
-                elemTypeTag = -1; // To ensure additions go to ref value array in ArrayValue
 
                 for (long i = startIndex, j = 0; i < endIndex; i++, j++) {
-                    add(slicedArr, elemTypeTag, j, arr.getRefValue(i));
+                    slicedArr.add(j, arr.getRefValue(i));
                 }
                 break;
             default:

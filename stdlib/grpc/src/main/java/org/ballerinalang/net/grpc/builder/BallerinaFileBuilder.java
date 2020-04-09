@@ -260,7 +260,7 @@ public class BallerinaFileBuilder {
             if (outputDir != null) {
                 Files.createDirectories(Paths.get(outputDir));
             }
-            File file = new File(outputDir + FILE_SEPARATOR + fileName);
+            File file = new File(outputDir, fileName);
             if (!file.isFile()) {
                 Files.createFile(Paths.get(file.getAbsolutePath()));
             }

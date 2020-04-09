@@ -251,6 +251,26 @@ function testFrozenXmlSetChildrenDeep() {
     authorEm.setChildren(x2);
 }
 
+function testXMLItemsCloneReadOnly() {
+    xml x0 = xmllib:concat(xml `<hello>world</hello>`,
+                        xml `<!-- comment text -->`,
+                        xml `<?PIT data?>`,
+                        xml `<item><child>String Content <sub></sub>More Str</child><child></child></item>`);
+
+    assertFalse((x0.<hello>).isReadOnly());
+    assertTrue((x0.<hello>/*).isReadOnly()); // Sequence containing text item
+    assertFalse(x0[1].isReadOnly());
+    assertFalse(x0[2].isReadOnly());
+    assertTrue((x0/**/<child>/*)[0].isReadOnly()); // Text item
+
+    xml x1 = x0.cloneReadOnly();
+    assertTrue((x1.<hello>).isReadOnly());
+    assertTrue((x1.<hello>/*).isReadOnly());
+    assertTrue(x1[1].isReadOnly());
+    assertTrue(x1[2].isReadOnly());
+    assertTrue((x1/**/<child>/*)[0].isReadOnly());
+}
+
 function testFrozenMapUpdate() {
     map<anydata> m1 = { one: "1", two: 2 };
     map<anydata> m2 = { one: "21", two: 22, mapVal: m1 };
@@ -489,3 +509,17 @@ type FreezeAllowedDepartment record {|
     string head;
     (int)...;
 |};
+
+function assertTrue(boolean value) {
+    if !(value) {
+        error e = error("AssertionError", message = "expected: true, found: " + value.toString());
+        panic e;
+    }
+}
+
+function assertFalse(boolean value) {
+    if (value) {
+        error e = error("AssertionError", message = "expected: false, found: " + value.toString());
+        panic e;
+    }
+}

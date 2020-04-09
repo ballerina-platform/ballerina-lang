@@ -50,7 +50,6 @@ import static org.testng.Assert.fail;
  */
 public class StubGeneratorTestCase {
 
-    private static final String PACKAGE_NAME = ".";
     private static String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
     private Path resourceDir;
     private Path outputDirPath;
@@ -64,7 +63,25 @@ public class StubGeneratorTestCase {
 
     @Test
     public void testUnaryHelloWorld() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
-        CompileResult compileResult = getStubCompileResult("helloWorld.proto", "helloWorld_pb.bal");
+        CompileResult compileResult = getStubCompileResult("helloWorld.proto", outputDirPath, "helloWorld_pb.bal");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 13,
+                "Expected functions not found in compile results.");
+        validatePublicAttachedFunctions(compileResult);
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).constants.size(), 1,
+                "Expected constants not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 1,
+                "Expected imports not found in compile results.");
+    }
+
+    @Test(description = "Test proto definition compilation when proto file inside a directory with white space")
+    public void testDirectoryWithSpace() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
+        CompileResult compileResult = getStubCompileResult(Paths.get("a b", "helloWorld.proto").toString(),
+                outputDirPath.resolve("a b"), "helloWorld_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
@@ -83,7 +100,7 @@ public class StubGeneratorTestCase {
     public void testUnaryHelloWorldWithDependency() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithDependency.proto",
-                "helloWorldWithDependency_pb.bal");
+                 outputDirPath, "helloWorldWithDependency_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 10);
         assertEquals(compileResult.getDiagnostics()[0].toString(),
                      "ERROR: .::helloWorldWithDependency_pb.bal:15:34:: unknown type 'HelloRequest'");
@@ -96,7 +113,8 @@ public class StubGeneratorTestCase {
     @Test(description = "Test service stub generation for service definition with enum messages")
     public void testUnaryHelloWorldWithEnum() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
-        CompileResult compileResult = getStubCompileResult("helloWorldWithEnum.proto", "helloWorldWithEnum_pb.bal");
+        CompileResult compileResult = getStubCompileResult("helloWorldWithEnum.proto", outputDirPath,
+                "helloWorldWithEnum_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 11,
                 "Expected type definitions not found in compile results.");
@@ -112,7 +130,7 @@ public class StubGeneratorTestCase {
     public void testUnaryHelloWorldWithNestedEnum() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithNestedEnum.proto",
-                "helloWorldWithNestedEnum_pb.bal");
+                outputDirPath, "helloWorldWithNestedEnum_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 11,
                 "Expected type definitions not found in compile results.");
@@ -128,7 +146,7 @@ public class StubGeneratorTestCase {
     public void testUnaryHelloWorldWithNestedMessage() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithNestedMessage.proto",
-                "helloWorldWithNestedMessage_pb.bal");
+                outputDirPath, "helloWorldWithNestedMessage_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
                 "Expected type definitions not found in compile results.");
@@ -138,7 +156,7 @@ public class StubGeneratorTestCase {
     public void testUnaryHelloWorldWithMaps() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithMap.proto",
-                "helloWorldWithMap_pb.bal");
+                outputDirPath, "helloWorldWithMap_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
@@ -148,7 +166,7 @@ public class StubGeneratorTestCase {
     public void testUnaryHelloWorldWithReservedNames() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithReservedNames.proto",
-                "helloWorldWithReservedNames_pb.bal");
+                outputDirPath, "helloWorldWithReservedNames_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
@@ -160,7 +178,7 @@ public class StubGeneratorTestCase {
     public void testUnaryHelloWorldWithInvalidDependency() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithInvalidDependency.proto",
-                "helloWorldWithInvalidDependency_pb.bal");
+                outputDirPath, "helloWorldWithInvalidDependency_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 1);
     }
 
@@ -168,7 +186,7 @@ public class StubGeneratorTestCase {
     public void testUnaryHelloWorldWithPackage() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldWithPackage.proto",
-                "helloWorldWithPackage_pb.bal");
+                outputDirPath, "helloWorldWithPackage_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
                 "Expected type definitions not found in compile results.");
@@ -217,7 +235,7 @@ public class StubGeneratorTestCase {
     public void testClientStreamingHelloWorld() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldClientStreaming.proto",
-                "helloWorldClientStreaming_pb.bal");
+                outputDirPath, "helloWorldClientStreaming_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4,
                 "Expected type definitions not found in compile results.");
@@ -235,7 +253,7 @@ public class StubGeneratorTestCase {
     public void testServerStreamingHelloWorld() throws IllegalAccessException,
             ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldServerStreaming.proto",
-                "helloWorldServerStreaming_pb.bal");
+                outputDirPath, "helloWorldServerStreaming_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4,
                 "Expected type definitions not found in compile results.");
@@ -252,7 +270,7 @@ public class StubGeneratorTestCase {
     @Test
     public void testStandardDataTypes() throws IllegalAccessException, ClassNotFoundException, InstantiationException {
         CompileResult compileResult = getStubCompileResult("helloWorldString.proto",
-                "helloWorldString_pb.bal");
+                outputDirPath, "helloWorldString_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 3,
                 "Expected type definitions not found in compile results.");
@@ -329,7 +347,7 @@ public class StubGeneratorTestCase {
     public void testOneofFieldRecordGeneration() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getStubCompileResult("oneof_field_service.proto",
-                "oneof_field_service_pb.bal");
+                outputDirPath, "oneof_field_service_pb.bal");
         assertEquals(compileResult.getDiagnostics().length, 0);
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 8,
                 "Expected type definitions not found in compile results.");
@@ -411,15 +429,15 @@ public class StubGeneratorTestCase {
         fail("constant for " + constantName + " doesn't exist in compiled results");
     }
 
-    private CompileResult getStubCompileResult(String protoFilename, String outputFilename)
+    private CompileResult getStubCompileResult(String protoFilename, Path outputDir, String outputFilename)
             throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path protoFilePath = resourceDir.resolve(protoFilename);
-        grpcCmd1.setBalOutPath(outputDirPath.toAbsolutePath().toString());
+        grpcCmd1.setBalOutPath(outputDir.toAbsolutePath().toString());
         grpcCmd1.setProtoPath(protoFilePath.toAbsolutePath().toString());
         grpcCmd1.execute();
-        Path outputFilePath = outputDirPath.resolve(outputFilename);
+        Path outputFilePath = outputDir.resolve(outputFilename);
         return BCompileUtil.compile(outputFilePath.toString());
     }
 

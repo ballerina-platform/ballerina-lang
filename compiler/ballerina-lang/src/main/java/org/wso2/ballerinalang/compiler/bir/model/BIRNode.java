@@ -509,7 +509,7 @@ public abstract class BIRNode {
      *
      * @since 0.995.0
      */
-    public static class BIRAnnotation extends BIRNode {
+    public static class BIRAnnotation extends BIRDocumentableNode {
         /**
          * Name of the annotation definition.
          */
