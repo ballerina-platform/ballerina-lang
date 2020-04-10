@@ -191,6 +191,10 @@ public class STNodeFactory {
         return new STUnaryExpression(unaryOperator, rhsExpr);
     }
 
+    public static STNode createIsExpression(STNode expression, STNode isKeyword, STNode typeDescriptor) {
+        return new STIsExpression(expression, isKeyword, typeDescriptor);
+    }
+
     // Misc
 
     public static STNode createRequiredParameter(SyntaxKind kind,

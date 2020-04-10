@@ -108,6 +108,10 @@ public abstract class SyntaxNodeTransformer<T> {
         return transformSyntaxNode(unaryExpression);
     }
 
+    public T transform(IsExpression isExpression) {
+        return transformSyntaxNode(isExpression);
+    }
+
     // Tokens
 
     public T transform(Token token) {

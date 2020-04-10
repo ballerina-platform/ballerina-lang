@@ -228,6 +228,8 @@ public class BallerinaParser {
                 return parseCompoundAssignmentStmt();
             case TYPEOF_KEYWORD:
                 return parseTypeofKeyword();
+            case IS_KEYWORD:
+                return parseIsKeyword();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -1778,6 +1780,7 @@ public class BallerinaParser {
             case LT_TOKEN:
             case GT_EQUAL_TOKEN:
             case LT_EQUAL_TOKEN:
+            case IS_KEYWORD:
                 return OperatorPrecedence.BINARY_COMPARE;
             case DOT_TOKEN:
             case OPEN_BRACKET_TOKEN:
@@ -2713,6 +2716,9 @@ public class BallerinaParser {
             case DOT_TOKEN:
                 newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr);
                 break;
+            case IS_KEYWORD:
+                newLhsExpr = parseIsExpression(lhsExpr);
+                break;
             default:
                 STNode operator = parseBinaryOperator();
 
@@ -2736,6 +2742,7 @@ public class BallerinaParser {
             case OPEN_PAREN_TOKEN:
             case DOT_TOKEN:
             case OPEN_BRACKET_TOKEN:
+            case IS_KEYWORD:
                 return true;
             default:
                 return isBinaryOperator(tokenKind);
@@ -4676,6 +4683,38 @@ public class BallerinaParser {
                 return true;
             default:
                 return false;
+        }
+    }
+
+    /**
+     * Parse is expression.
+     * <code>
+     * is-expr := expression is type-descriptor
+     * </code>
+     *
+     * @param lhsExpr Preceding expression of the is expression
+     * @return Is expression node
+     */
+    private STNode parseIsExpression(STNode lhsExpr) {
+//        startContext(ParserRuleContext.IS_EXPRESSION);
+        STNode isKeyword = parseIsKeyword();
+        STNode typeDescriptor = parseTypeDescriptor();
+//        endContext();
+        return STNodeFactory.createIsExpression(lhsExpr, isKeyword, typeDescriptor);
+    }
+
+    /**
+     * Parse is-keyword.
+     *
+     * @return Is-keyword node
+     */
+    private STNode parseIsKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.IS_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.IS_KEYWORD);
+            return sol.recoveredNode;
         }
     }
 }

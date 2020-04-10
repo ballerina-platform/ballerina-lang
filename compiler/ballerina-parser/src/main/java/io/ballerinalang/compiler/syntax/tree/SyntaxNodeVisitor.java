@@ -107,6 +107,10 @@ public abstract class SyntaxNodeVisitor {
         visitSyntaxNode(unaryExpression);
     }
 
+    public void visit(IsExpression isExpression) {
+        visitSyntaxNode(isExpression);
+    }
+
     // Tokens
 
     public void visit(Token token) {

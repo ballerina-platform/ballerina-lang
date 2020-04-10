@@ -135,6 +135,7 @@ public enum ParserRuleContext {
     ON_KEYWORD("on"),
     RESOURCE_KEYWORD("resource"),
     FINAL_KEYWORD("final"),
+    IS_KEYWORD("is"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -187,6 +188,7 @@ public enum ParserRuleContext {
     COMPUTED_FIELD_NAME("computed-field-name"),
     TYPEOF_EXPRESSION("typeof-expr"),
     UNARY_EXPRESSION("unary-expr"),
+    IS_EXPRESSION("is-expr"),
     ;
 
     private String value;
