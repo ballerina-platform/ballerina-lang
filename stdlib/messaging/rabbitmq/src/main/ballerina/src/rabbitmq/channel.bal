@@ -16,7 +16,7 @@
 
 import ballerina/java;
 
-# Ballerina interface to provide AMQP Channel related functionality.
+# The Ballerina interface to provide AMQP Channel related functionality.
 public type Channel client object {
 
     handle amqpChannel;
@@ -87,7 +87,7 @@ public type Channel client object {
 # + messageContent - The message body
 # + routingKey - The routing key
 # + exchangeName - The name of the exchange to which the message is published
-# + properties - Other properties for the message (routing headers, etc)
+# + properties - Other properties for the message (routing headers, etc.)
 # + return - A `rabbitmq:Error` if an I/O error is encountered or else ()
     public remote function basicPublish(@untainted MessageContent messageContent, string routingKey,
                         string exchangeName = "", public BasicProperties? properties = ()) returns Error? {
@@ -95,7 +95,7 @@ public type Channel client object {
          java:fromString(exchangeName), properties, self.amqpChannel);
     }
 
-# Deletes the queue with the given name although it is in use or has messages on it.
+# Deletes the queue with the given name although it is in use or has messages in it.
 # If the parameters `ifUnused` or `ifEmpty` is given, the queue is checked before deleting.
 # ```ballerina
 # rabbitmq:Error? deleteResult = newChannel->queueDelete("MyQueue");
@@ -132,26 +132,26 @@ public type Channel client object {
         return nativeQueuePurge(java:fromString(queueName), self.amqpChannel);
     }
 
-# Retrieves a message synchronously from the given queue, providing direct access to the messages in the queue.
+# Retrieves a message synchronously from the given queue providing direct access to the messages in the queue.
 # ```ballerina
 # rabbitmq:Message|rabbitmq:Error getResult = newChannel->basicGet("MyQueue", rabbitmq:AUTO_ACK);
 # ```
 #
 # + queueName - The name of the queue
 # + ackMode - Type of acknowledgement mode
-# + return - A `rabbitmq:Message` object containing the retrieved message data or else A `rabbitmq:Error` if an
+# + return - A `rabbitmq:Message` object containing the retrieved message data or else a`rabbitmq:Error` if an
 #            I/O error is encountered
     public remote function basicGet(string queueName, AcknowledgementMode ackMode) returns Message | Error {
         boolean autoAck = ackMode is AUTO_ACK;
         return nativeBasicGet(java:fromString(queueName), autoAck, self.amqpChannel);
     }
 
-# Retrieves the connection which carries this channel.
+# Retrieves the connection, which carries this channel.
 # ```ballerina
 # rabbitmq:Connection|rabbitmq:Error connResult = newChannel.getConnection();
 # ```
 #
-# + return - A `rabbitmq:Connection` object or else A `rabbitmq:Error` if an I/O error is encountered
+# + return - A `rabbitmq:Connection` object or else a `rabbitmq:Error` if an I/O error is encountered
     public function getConnection() returns Connection | Error {
         return nativeGetConnection(self.amqpChannel);
     }
@@ -161,7 +161,7 @@ public type Channel client object {
 # rabbitmq:Error? closeResult = newChannel.close();
 # ```
 #
-# + closeCode - The close code (For information, go to the "Reply Codes" section in the
+# + closeCode - The close code (for information, go to the "Reply Codes" section in the
 #               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf))
 # + closeMessage - A message indicating the reason for closing the channel
 # + return - A `rabbitmq:Error` if an I/O error is encountered or else ()
@@ -170,12 +170,12 @@ public type Channel client object {
     }
 
 # Aborts the RabbitMQ `rabbitmq:Channel`. Forces the `rabbitmq:Channel` to close and waits for all the close operations
-# to complete. Any encountered exceptions in the close operations are silently discarded.
+# to complete. Any encountered exceptions in the close operations are discarded silently.
 # ```ballerina
 # rabbitmq:Error? abortResult = newChannel.abortChannel(320, "Channel Aborted");
 # ```
 #
-# + closeCode - The close code (For information, go to the "Reply Codes" section in the
+# + closeCode - The close code (for information, go to the "Reply Codes" section in the
 #               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf))
 # + closeMessage - A message indicating the reason for closing the channel
 # + return - A `rabbitmq:Error` if an I/O error is encountered or else ()

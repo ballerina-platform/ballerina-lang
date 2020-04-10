@@ -9,7 +9,7 @@ Key sections include:
 
 ### Connecting to RabbitMQ
 
-The core APIs are `rabbitmq:Connection`, `rabbitmq:Channel`, and `rabbitmq:Message` representing an AMQP 0-9-1 Connection, a Channel, and a Ballerina RabbitMQ Message respectively. The following code connects to a RabbitMQ node using the given parameters (host name, port number, etc.): 
+The core APIs are the `rabbitmq:Connection`, `rabbitmq:Channel`, and `rabbitmq:Message` representing an AMQP 0-9-1 Connection, a Channel, and a Ballerina RabbitMQ Message respectively. The following code connects to a RabbitMQ node using the given parameters (host name, port number, etc.): 
 
 ```ballerina
    rabbitmq:Connection newConnection = new({ host: "localhost", 

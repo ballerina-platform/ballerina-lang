@@ -30,7 +30,7 @@ public type Message client object {
 # rabbitmq:Error? ackResult = message->basicAck(true);
 # ```
 #
-# + multiple - `true` to acknowledge all messages up to and including the message called on;
+# + multiple - `true` to acknowledge all messages up to and including the message called on and
 #              `false` to acknowledge just the message called on
 # + return - A `rabbitmq:Error` if an I/O error is encountered or else ()
    public remote function basicAck(boolean multiple = false) returns Error? {
@@ -44,7 +44,7 @@ public type Message client object {
 # rabbitmq:Error? nackResult = message->basicNack(true, requeue = false);
 # ```
 #
-# + multiple - `true` to reject all messages up to and including the message called on;
+# + multiple - `true` to reject all messages up to and including the message called on and
 #              `false` to reject just the message called on
 # + requeue - `true` if the rejected message(s) should be re-queued rather than discarded/dead-lettered
 # + return - A `rabbitmq:Error` if an I/O error is encountered or else ()
@@ -112,7 +112,7 @@ public type Message client object {
 # float|rabbitmq:Error msgContent = message.getFloatContent();
 # ```
 #
-# + return - Message data as float value or else a `rabbitmq:Error` if an error is encountered
+# + return - Message data as a float value or else a `rabbitmq:Error` if an error is encountered
    public function getFloatContent() returns @tainted float | Error {
         return  nativeGetFloatContent(self.messageContent);
    }
@@ -122,7 +122,7 @@ public type Message client object {
 # int|rabbitmq:Error msgContent = message.getIntContent();
 # ```
 #
-# + return - Message data as int value or else a `rabbitmq:Error` if an error is encountered
+# + return - Message data as an int value or else a `rabbitmq:Error` if an error is encountered
    public function getIntContent() returns @tainted int | Error {
        return nativeGetIntContent(self.messageContent);
    }
@@ -132,27 +132,27 @@ public type Message client object {
 # byte[] msgContent = message.getIntContent();
 # ```
 #
-# + return - Message data as byte array
+# + return - Message data as a byte array
    public function getByteArrayContent() returns @tainted byte[] {
         return self.messageContent;
    }
 
-# Retrieves the json content of the RabbitMQ message.
+# Retrieves the JSON content of the RabbitMQ message.
 # ```ballerina
 # json|rabbitmq:Error msgContent = message.getJSONContent();
 # ```
 #
-# + return - Message data as json value  or else a `rabbitmq:Error` if an error is encountered
+# + return - Message data as a JSON value  or else a `rabbitmq:Error` if an error is encountered
    public function getJSONContent() returns @tainted json | Error {
         return nativeGetJSONContent(self.messageContent);
    }
 
-# Retrieves the xml content of the RabbitMQ message.
+# Retrieves the XML content of the RabbitMQ message.
 # ```ballerina
 # xml|rabbitmq:Error msgContent = message.getXMLContent();
 # ```
 #
-# + return - Message data as xml value or else a `rabbitmq:Error` if an error is encountered
+# + return - Message data as an XML value or else a `rabbitmq:Error` if an error is encountered
    public function getXMLContent() returns @tainted xml | Error {
         return nativeGetXMLContent(self.messageContent);
    }

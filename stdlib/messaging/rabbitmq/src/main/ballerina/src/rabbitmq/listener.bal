@@ -32,7 +32,7 @@ public type Listener object {
     # + connectionOrConnectionConfig - A `rabbitmq:Connection` object or the connection configurations.
     # + prefetchCount - Maximum number of messages that the server will deliver, 0 if unlimited.
     #                   Unless explicitly given, this value is 10 by default.
-    # + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver, 0 if unlimited
+    # + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver and 0 if unlimited
     public function __init(ConnectionConfiguration|Connection connectionOrConnectionConfig, int? prefetchCount = (),
                                     int? prefetchSize = ()) {
         self.amqpChannel = new Channel(connectionOrConnectionConfig);
@@ -82,7 +82,7 @@ public type Listener object {
         return abortConnection(self);
     }
 
-    # Retrieve the `rabbitmq:Channel` which initializes this `rabbitmq:Listener`.
+    # Retrieve the `rabbitmq:Channel`, which initializes this `rabbitmq:Listener`.
     #
     # + return - A `rabbitmq:Channel` object or else  a `rabbitmq:Error` if an I/O problem is encountered.
     public function getChannel() returns Channel {
@@ -98,9 +98,9 @@ public type Listener object {
 #
 # + queueConfig - Configurations of the queue to be subscribed
 # + ackMode - Type of acknowledgement mode
-# + prefetchCount - Maximum number of messages that the server will deliver, 0 if unlimited.
+# + prefetchCount - Maximum number of messages that the server will deliver and 0 if unlimited.
 #                   Unless explicitly given, this value is 10 by default.
-# + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver, 0 if unlimited
+# + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver and 0 if unlimited
 public type RabbitMQServiceConfig record {|
     QueueConfiguration queueConfig;
     AcknowledgementMode ackMode = AUTO_ACK;

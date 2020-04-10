@@ -92,11 +92,11 @@ public type ExchangeConfiguration record {|
 # + port - The port used for establishing the connection
 # + username - The username used for establishing the connection
 # + password - The password used for establishing the connection
-# + connectionTimeoutInMillis - Connection TCP establishment timeout in milliseconds; zero for infinite
+# + connectionTimeoutInMillis - Connection TCP establishment timeout in milliseconds and zero for infinite
 # + handshakeTimeoutMillis -  The AMQP 0-9-1 protocol handshake timeout in milliseconds
-# + shutdownTimeoutInMillis - Shutdown timeout in milliseconds; zero for infinite; default 10000. If consumers exceed
-#                     this timeout then any remaining queued deliveries (and other Consumer callbacks) will be lost
-# + heartbeatInSeconds - The initially requested heartbeat timeout in seconds; zero for none
+# + shutdownTimeoutInMillis - Shutdown timeout in milliseconds, zero for infinite, and default is 10000. If consumers exceed
+#                     this timeout, then any remaining queued deliveries (and other Consumer callbacks) will be lost
+# + heartbeatInSeconds - The initially-requested heartbeat timeout in seconds and zero for none
 # + secureSocket - Configurations for facilitating secure connections
 public type ConnectionConfiguration record {|
     string host;
@@ -115,7 +115,7 @@ public type ConnectionConfiguration record {|
 # + trustStore - Configurations associated with the TrustStore
 # + keyStore - Configurations associated with the KeyStore
 # + tlsVersion - TLS version
-# + verifyHostname - True, if hostname verification should be enabled
+# + verifyHostname - True if hostname verification should be enabled
 public type SecureSocket record {|
     crypto:TrustStore? trustStore = ();
     crypto:KeyStore? keyStore = ();

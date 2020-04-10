@@ -28,14 +28,14 @@ public type Connection object {
         self.amqpConnection = createConnection(connectionConfiguration);
     }
 
-# Closes the `rabbitmq:Connection` and all it's `rabbitmq:Channel`s.
+# Closes the `rabbitmq:Connection` and all its `rabbitmq:Channel`s.
 # It waits with a provided timeout for all the close operations to complete.
-# When timeout is reached the socket is forced to close.
+# When the timeout is reached, the socket is forced to close.
 # ```ballerina
 # rabbitmq:Error? closeResult = newConnection.close();
 # ```
 #
-# + closeCode - The close code (For information, go to the "Reply Codes" section in the
+# + closeCode - The close code (for information, go to the "Reply Codes" section in the
 #               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf))
 # + closeMessage - A message indicating the reason for closing the connection
 # + timeoutInMillis - Timeout (in milliseconds) for completing all the close-related operations.
@@ -46,13 +46,13 @@ public type Connection object {
     }
 
 # Aborts the `rabbitmq:Connection` and all its `rabbitmq:Channel`s.
-# Forces the `rabbitmq:Connection` to close and waits for all the close operations to complete. When timeout is reached
-# the socket is forced to close. Any encountered exceptions in the close operations are silently discarded.
+# Forces the `rabbitmq:Connection` to close and waits for all the close operations to complete. When the timeout is reached,
+# the socket is forced to close. Any encountered exceptions in the close operations are discarded silently.
 # ```ballerina
 # connection.abortConnection(320, "Channel Aborted");
 # ```
 #
-# + closeCode - The close code (For information, go to the "Reply Codes" section in the
+# + closeCode - The close code (for information, go to the "Reply Codes" section in the
 #               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf))
 # + closeMessage - A message indicating the reason for closing the connection
 # + timeoutInMillis - Timeout (in milliseconds) for completing all the close-related operations.
@@ -61,7 +61,7 @@ public type Connection object {
         handleAbortConnection(closeCode, closeMessage, timeoutInMillis, self.amqpConnection);
     }
 
-# Checks whether `close` was already called
+# Checks whether `close` was already called.
 # ```ballerina
 # boolean closed = newConnection.isClosed();
 # ```
