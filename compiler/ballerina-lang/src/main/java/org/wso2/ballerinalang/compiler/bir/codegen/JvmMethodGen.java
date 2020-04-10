@@ -1342,6 +1342,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.STREAM ||
+                bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.ERROR ||
                 bType.tag == TypeTags.NIL ||
                 bType.tag == TypeTags.ANY ||

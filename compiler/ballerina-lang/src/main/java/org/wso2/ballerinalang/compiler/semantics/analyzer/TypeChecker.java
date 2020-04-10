@@ -28,6 +28,8 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.types.TupleType;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -692,8 +694,16 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
-            resultType = new BTableType(TypeTags.TABLE, memTypes.get(0), null);
-        } else {
+            BTableType tableType = new BTableType(TypeTags.TABLE, memTypes.get(0), null);
+            if (tableConstructorExpr.tableKeySpecifier != null) {
+                List<String> fieldNameList = new ArrayList<>();
+                for (BLangIdentifier identifier : tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList) {
+                    fieldNameList.add(identifier.value);
+                }
+                tableType.fieldNameList = fieldNameList;
+            }
+            resultType = tableType;
+        } else if (expType.tag == TypeTags.TABLE) {
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
                 BType recordType = checkExpr(recordLiteral, env, ((BTableType) expType).constraint);
                 if (recordType == symTable.semanticError) {
@@ -701,8 +711,96 @@ public class TypeChecker extends BLangNodeVisitor {
                     return;
                 }
             }
+
+            if (!validateTableType(tableConstructorExpr)) {
+                resultType = symTable.semanticError;
+                return;
+            }
             resultType = expType;
+        } else {
+            resultType = symTable.semanticError;
         }
+    }
+
+    private boolean validateTableType(BLangTableConstructorExpr tableConstructorExpr) {
+        BTableType tableType = (BTableType) expType;
+        BType constraintType = tableType.constraint;
+        if (!types.isAssignable(constraintType, symTable.mapAnydataType)) {
+            dlog.error(tableConstructorExpr.pos, DiagnosticCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, constraintType);
+            resultType = symTable.semanticError;
+            return false;
+        }
+
+        if (tableType.fieldNameList != null && tableConstructorExpr.tableKeySpecifier != null) {
+            List<String> fieldNamesFromConstructor = new ArrayList<>();
+            for (BLangIdentifier identifier : tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList) {
+                fieldNamesFromConstructor.add(identifier.value);
+            }
+
+            if (!tableType.fieldNameList.equals(fieldNamesFromConstructor)) {
+                dlog.error(tableConstructorExpr.tableKeySpecifier.pos, DiagnosticCode.TABLE_KEY_SPECIFIER_MISMATCH,
+                        tableType.fieldNameList.toString(), fieldNamesFromConstructor.toString());
+                resultType = symTable.semanticError;
+                return false;
+            }
+        }
+
+        BType keyTypeConstraint = tableType.keyTypeConstraint;
+        if (keyTypeConstraint != null) {
+            List<BType> memberTypes = new ArrayList<>();
+
+            if (keyTypeConstraint.tag == TypeTags.TUPLE) {
+                for (Type type : ((TupleType) keyTypeConstraint).getTupleTypes()) {
+                    memberTypes.add((BType) type);
+                }
+            } else {
+                memberTypes.add(keyTypeConstraint);
+            }
+
+            if (tableConstructorExpr.tableKeySpecifier == null ||
+                    tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList.size() != memberTypes.size()) {
+                dlog.error(tableConstructorExpr.pos, DiagnosticCode.KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT,
+                        memberTypes.size(), tableConstructorExpr.tableKeySpecifier == null ? 0 :
+                                tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList.size());
+                resultType = symTable.semanticError;
+                return false;
+            }
+
+            List<BLangIdentifier> fieldNameIdentifierList = tableConstructorExpr.tableKeySpecifier.
+                    fieldNameIdentifierList;
+
+            int index = 0;
+            for (BLangIdentifier identifier : fieldNameIdentifierList) {
+                BType fieldType = getFieldType(constraintType, identifier.value);
+                if (fieldType == null) {
+                    //NOT POSSIBLE
+                    return false;
+                }
+
+                if (memberTypes.get(index).tag != fieldType.tag) {
+                    dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
+                            DiagnosticCode.KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT,
+                            fieldNameIdentifierList.toString(), memberTypes.toString());
+                    resultType = symTable.semanticError;
+                    return false;
+                }
+                index++;
+            }
+        }
+
+        return true;
+    }
+
+    private BType getFieldType(BType constraintType, String fieldName) {
+        List<BField> fieldList = ((BRecordType) constraintType).getFields();
+
+        for (BField field : fieldList) {
+            if (field.name.toString().equals(fieldName)) {
+                return field.type;
+            }
+        }
+
+        return null;
     }
 
     private BType checkListConstructorCompatibility(BType bType, BLangListConstructorExpr listConstructor) {

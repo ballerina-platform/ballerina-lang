@@ -265,7 +265,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangTableType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -511,7 +511,7 @@ public class TreeBuilder {
     }
 
     public static TableTypeNode createTableTypeNode() {
-        return new BLangTableType();
+        return new BLangTableTypeNode();
     }
 
     public static IndexBasedAccessNode createIndexBasedAccessNode() {

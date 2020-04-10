@@ -408,6 +408,12 @@ public enum DiagnosticCode {
     ERROR_TYPE_EXPECTED("error.type.expected"),
     MISSING_REQUIRED_METHOD_NEXT("missing.required.method.next"),
 
+    // Table related codes
+    TABLE_CONSTRAINT_INVALID_SUBTYPE("invalid.stream.constraint.subtype"),
+    TABLE_KEY_SPECIFIER_MISMATCH("table.key.specifier.mismatch"),
+    KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT("key.specifier.size.mismatch.with.key.constraint"),
+    KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT("key.specifier.mismatch.with.key.constraint"),
+
 
     // Taint checking related codes
     ENTRY_POINT_PARAMETERS_CANNOT_BE_UNTAINTED("entry.point.parameters.cannot.be.untainted"),
