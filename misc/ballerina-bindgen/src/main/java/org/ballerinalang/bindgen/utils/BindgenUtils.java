@@ -259,6 +259,9 @@ public class BindgenUtils {
                     .append(", \"").append(param.getComponentType()).append("\")");
         } else if (param.getIsString()) {
             returnString.append("java:fromString(").append(param.getFieldName()).append(")");
+        } else if (param.getIsStringArray()) {
+            returnString.append("check getHandleFromArray(").append(param.getFieldName())
+                    .append(", \"java.lang.String\")");
         } else {
             returnString.append(param.getFieldName());
             if (param.getIsObj()) {
