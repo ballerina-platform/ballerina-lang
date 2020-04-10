@@ -63,10 +63,12 @@ public type ContentDisposition object {
     public string name = "";
     public map<string> parameters = {};
 
-    # Converts the `ContentDisposition` type to a string suitable to use as the value of a corresponding MIME header.
-    # ```ballerina string contDisposition = contentDisposition.toString(); ```
-    #
-    # + return - The `string` represnetation of the `ContentDisposition` object
+# Converts the `ContentDisposition` type to a string suitable to use as the value of a corresponding MIME header.
+# ```ballerina
+# string contDisposition = contentDisposition.toString();
+# ```
+#
+# + return - The `string` represnetation of the `ContentDisposition` object
     public function toString() returns string {
         return <string>java:toString(convertContentDispositionToString(self));
     }
@@ -90,18 +92,22 @@ public type MediaType object {
     public string suffix = "";
     public map<string> parameters = {};
 
-    # Gets “primaryType/subtype+suffix” combination in string format.
-    # ```ballerina  string baseType = mediaType.getBaseType(); ```
-    #
-    # + return - Base type as a string from MediaType struct
+# Gets “primaryType/subtype+suffix” combination in string format.
+# ```ballerina
+# string baseType = mediaType.getBaseType();
+# ```
+#
+# + return - Base type as a string from MediaType struct
     public function getBaseType() returns string {
         return self.primaryType + "/" + self.subType;
     }
 
-    # Converts the media type to a string, suitable to be used as the value of a corresponding HTTP header.
-    # ```ballerina string mediaTypeString = mediaType.toString(); ```
-    #
-    # + return - Content type with parameters as a string
+# Converts the media type to a string, suitable to be used as the value of a corresponding HTTP header.
+# ```ballerina
+# string mediaTypeString = mediaType.toString();
+# ```
+#
+# + return - Content type with parameters as a string
     public function toString() returns string {
         string contentType = self.getBaseType();
         // map<string> parameters = self.parameters;
@@ -139,20 +145,24 @@ public type Entity object {
     private int cLength = 0;
     private ContentDisposition? cDisposition = ();
 
-    # Sets the content-type to entity.
-    # ```ballerina mime:InvalidContentTypeError? contentType = mimeEntity.setContentType("application/json"); ```
-    #
-    # + mediaType - Content type that needs to be set to the entity
-    # + return - Nil if successful, error in case of invalid media-type
+# Sets the content-type to entity.
+# ```ballerina
+# mime:InvalidContentTypeError? contentType = mimeEntity.setContentType("application/json");
+# ```
+#
+# + mediaType - Content type that needs to be set to the entity
+# + return - Nil if successful, error in case of invalid media-type
     public function setContentType(@untainted string mediaType) returns InvalidContentTypeError? {
         self.cType = check getMediaType(mediaType);
         self.setHeader(CONTENT_TYPE, mediaType);
     }
 
-    # Gets the content type of entity.
-    # ```ballerina string contentType = mimeEntity.getContentType(); ```
-    #
-    # + return - Content type as a `string`
+# Gets the content type of entity.
+# ```ballerina
+# string contentType = mimeEntity.getContentType();
+# ```
+#
+# + return - Content type as a `string`
     public function getContentType() returns @tainted string {
         string contentTypeHeaderValue = "";
         if (self.hasHeader(CONTENT_TYPE)) {
@@ -161,19 +171,23 @@ public type Entity object {
         return contentTypeHeaderValue;
     }
 
-    # Sets the content ID of the entity.
-    # ```ballerina mimeEntity.setContentId("test-id"); ```
-    #
-    # + contentId - Content ID that needs to be set to entity
+# Sets the content ID of the entity.
+# ```ballerina
+# mimeEntity.setContentId("test-id");
+# ```
+#
+# + contentId - Content ID that needs to be set to entity
     public function setContentId(@untainted string contentId) {
         self.cId = contentId;
         self.setHeader(CONTENT_ID, contentId);
     }
 
-    # Gets the content ID of entity.
-    # ```ballerina string contentId = mimeEntity.getContentId(); ```
-    #
-    # + return - Content ID as a `string`
+# Gets the content ID of entity.
+# ```ballerina
+# string contentId = mimeEntity.getContentId();
+# ```
+#
+# + return - Content ID as a `string`
     public function getContentId() returns @tainted string {
         string contentId = "";
         if (self.hasHeader(CONTENT_ID)) {
@@ -182,20 +196,24 @@ public type Entity object {
         return contentId;
     }
 
-    # Sets the content length of the entity.
-    # ```ballerina mimeEntity.setContentLength(45555); ```
-    #
-    # + contentLength - Content length that needs to be set to entity
+# Sets the content length of the entity.
+# ```ballerina
+# mimeEntity.setContentLength(45555);
+# ```
+#
+# + contentLength - Content length that needs to be set to entity
     public function setContentLength(@untainted int contentLength) {
         self.cLength = contentLength;
         var contentLengthStr = contentLength.toString();
         self.setHeader(CONTENT_LENGTH, contentLengthStr);
     }
 
-    # Gets the content length of entity.
-    # ```ballerina int|error contentLength = mimeEntity.getContentLength(); ```
-    #
-    # + return - Content length as an `int`
+# Gets the content length of entity.
+# ```ballerina
+# int|error contentLength = mimeEntity.getContentLength();
+# ```
+#
+# + return - Content length as an `int`
     public function getContentLength() returns @tainted int|error {
         string contentLength = "";
         if (self.hasHeader(CONTENT_LENGTH)) {
@@ -208,10 +226,12 @@ public type Entity object {
         }
     }
 
-    # Sets the content disposition of the entity.
-    # ```ballerina mimeEntity.setContentDisposition(contentDisposition); ```
-    #
-    # + contentDisposition - Content disposition that needs to be set to entity
+# Sets the content disposition of the entity.
+# ```ballerina
+# mimeEntity.setContentDisposition(contentDisposition);
+# ```
+#
+# + contentDisposition - Content disposition that needs to be set to entity
     public function setContentDisposition(ContentDisposition contentDisposition) {
         self.cDisposition = contentDisposition;
         self.setHeader(CONTENT_DISPOSITION, contentDisposition.toString());
@@ -228,11 +248,13 @@ public type Entity object {
         return getContentDispositionObject(contentDispositionVal);
     }
 
-    # Sets the body of the entity with the given content. Note that any string value is set as `text/plain`. To send a
-    # JSON-compatible string, set the content-type header to `application/json` or use the `setJsonPayload` method instead.
-    # ```ballerina mimeEntity.setBody("body string"); ```
-    #
-    # + entityBody - Entity body can be of the type `string`,`xml`,`json`,`byte[]`,`io:ReadableByteChannel`, or `Entity[]`.
+# Sets the body of the entity with the given content. Note that any string value is set as `text/plain`. To send a
+# JSON-compatible string, set the content-type header to `application/json` or use the `setJsonPayload` method instead.
+# ```ballerina
+# mimeEntity.setBody("body string");
+# ```
+#
+# + entityBody - Entity body can be of the type `string`,`xml`,`json`,`byte[]`,`io:ReadableByteChannel`, or `Entity[]`.
     public function setBody(@untainted string|xml|json|byte[]|io:ReadableByteChannel|Entity[] entityBody) {
         if (entityBody is string) {
             self.setText(entityBody);
@@ -249,27 +271,31 @@ public type Entity object {
         }
     }
 
-    # Sets the entity body with a given file. This method overrides any existing `content-type` headers
-    # with the default content-type `application/octet-stream`. The default value `application/octet-stream`
-    # can be overridden by passing the content type as an optional parameter.
-    # ```ballerina mimeEntity.setFileAsEntityBody("<file path>"); ```
-    #
-    # + filePath - Represents the path to the file
-    # + contentType - Content type to be used with the payload. This is an optional parameter.
-    #                 `application/octet-stream` is used as the default value.
+# Sets the entity body with a given file. This method overrides any existing `content-type` headers
+# with the default content-type `application/octet-stream`. The default value `application/octet-stream`
+# can be overridden by passing the content type as an optional parameter.
+# ```ballerina
+# mimeEntity.setFileAsEntityBody("<file path>");
+# ```
+#
+# + filePath - Represents the path to the file
+# + contentType - Content type to be used with the payload. This is an optional parameter.
+#                 `application/octet-stream` is used as the default value.
     public function setFileAsEntityBody(@untainted string filePath, public string contentType = "application/octet-stream") {
         io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(filePath);
         self.setByteChannel(byteChannel, contentType = contentType);
     }
 
-    # Sets the entity body with the given `json` content. This method overrides any existing `content-type` headers
-    # with the default content-type `application/json`. The default value `application/json` can be overridden
-    # by passing the content type as an optional parameter.
-    # ```ballerina mimeEntity.setJson({ "Hello": "World" }); ```
-    #
-    # + jsonContent - JSON content that needs to be set to entity
-    # + contentType - Content type to be used with the payload. This is an optional parameter. `application/json`
-    #                 is used as the default value.
+# Sets the entity body with the given `json` content. This method overrides any existing `content-type` headers
+# with the default content-type `application/json`. The default value `application/json` can be overridden
+# by passing the content type as an optional parameter.
+# ```ballerina
+# mimeEntity.setJson({ "Hello": "World" });
+# ```
+#
+# + jsonContent - JSON content that needs to be set to entity
+# + contentType - Content type to be used with the payload. This is an optional parameter. `application/json`
+#                 is used as the default value.
     public function setJson(@untainted json jsonContent, @untainted public string contentType = "application/json") {
         return externSetJson(self, jsonContent, java:fromString(contentType));
     }
@@ -282,14 +308,16 @@ public type Entity object {
         return externGetJson(self);
     }
 
-    # Sets the entity body with the given XML content. This method overrides any existing content-type headers
-    # with the default content-type `application/xml`. The default value `application/xml` can be overridden
-    # by passing the content-type as an optional parameter.
-    # ```ballerina mimeEntity.setXml(xml `<hello> world </hello>`); ```
-    #
-    # + xmlContent - XML content that needs to be set to entity
-    # + contentType - Content type to be used with the payload. This is an optional parameter. `application/xml`
-    #                 is used as the default value.
+# Sets the entity body with the given XML content. This method overrides any existing content-type headers
+# with the default content-type `application/xml`. The default value `application/xml` can be overridden
+# by passing the content-type as an optional parameter.
+# ```ballerina
+# mimeEntity.setXml(xml `<hello> world </hello>`);
+# ```
+#
+# + xmlContent - XML content that needs to be set to entity
+# + contentType - Content type to be used with the payload. This is an optional parameter. `application/xml`
+#                 is used as the default value.
     public function setXml(@untainted xml xmlContent, @untainted public string contentType = "application/xml") {
         return externSetXml(self, xmlContent, java:fromString(contentType));
     }
@@ -302,14 +330,16 @@ public type Entity object {
         return externGetXml(self);
     }
 
-    # Sets the entity body with the given text content. This method overrides any existing content-type headers
-    # with the default content-type `text/plain`. The default value `text/plain` can be overridden
-    # by passing the content type as an optional parameter.
-    # ```ballerina mimeEntity.setText("Hello World"); ```
-    #
-    # + textContent - Text content that needs to be set to entity
-    # + contentType - Content type to be used with the payload. This is an optional parameter. `text/plain`
-    #                 is used as the default value.
+# Sets the entity body with the given text content. This method overrides any existing content-type headers
+# with the default content-type `text/plain`. The default value `text/plain` can be overridden
+# by passing the content type as an optional parameter.
+# ```ballerina
+# mimeEntity.setText("Hello World");
+# ```
+#
+# + textContent - Text content that needs to be set to entity
+# + contentType - Content type to be used with the payload. This is an optional parameter. `text/plain`
+#                 is used as the default value.
     public function setText(@untainted string textContent, @untainted public string contentType = "text/plain") {
         return externSetText(self, java:fromString(textContent), java:fromString(contentType));
     }
@@ -393,14 +423,16 @@ public type Entity object {
         return externSetBodyParts(self, bodyParts, java:fromString(contentType));
     }
 
-    # Gets the header value associated with the given header name.
-    # ```ballerina string headerName = mimeEntity.getHeader(mime:CONTENT_LENGTH); ```
-    #
-    # + headerName - Represents header name
-    # + position - Represents the position of the header as an optional parameter
-    # + return - Header value associated with the given header name as a `string`. If multiple header values are
-    #            present, then the first value is returned. An exception is thrown if no header is found. Use
-    #            `Entity.hasHeader()` beforehand to check the existence of header.
+# Gets the header value associated with the given header name.
+# ```ballerina
+# string headerName = mimeEntity.getHeader(mime:CONTENT_LENGTH);
+# ```
+#
+# + headerName - Represents header name
+# + position - Represents the position of the header as an optional parameter
+# + return - Header value associated with the given header name as a `string`. If multiple header values are
+#            present, then the first value is returned. An exception is thrown if no header is found. Use
+#            `Entity.hasHeader()` beforehand to check the existence of header.
     public function getHeader(@untainted string headerName, public HeaderPosition position = LEADING)
                                                                                 returns @tainted string {
         return <string>java:toString(externGetHeader(self, java:fromString(headerName), position));
@@ -424,11 +456,13 @@ public type Entity object {
         return headers;
     }
 
-    # Gets all header names.
-    # ```ballerina string[] headerNames = mimeEntity.getHeaderNames(); ```
-    #
-    # + position - Represents the position of the header as an optional parameter
-    # + return - All header names as a `string[]`
+# Gets all header names.
+# ```ballerina
+# string[] headerNames = mimeEntity.getHeaderNames();
+# ```
+#
+# + position - Represents the position of the header as an optional parameter
+# + return - All header names as a `string[]`
     public function getHeaderNames(public HeaderPosition position = LEADING) returns @tainted string[] {
         handle[] headerNames = externGetHeaderNames(self, position);
         string[] headers = [];
@@ -440,23 +474,27 @@ public type Entity object {
         return headers;
     }
 
-    # Adds the given header value against the given header.
-    # ```ballerina mimeEntity.addHeader("custom-header", "header-value"); ```
-    #
-    # + headerName - The header name
-    # + headerValue - Represents the header value to be added
-    # + position - Represents the position of the header as an optional parameter
+# Adds the given header value against the given header.
+# ```ballerina
+# mimeEntity.addHeader("custom-header", "header-value");
+# ```
+#
+# + headerName - The header name
+# + headerValue - Represents the header value to be added
+# + position - Represents the position of the header as an optional parameter
     public function addHeader(@untainted string headerName, string headerValue, public HeaderPosition position = LEADING) {
         return externAddHeader(self, java:fromString(headerName), java:fromString(headerValue), position);
     }
 
-    # Sets the given header value against the existing header. If a header already exists, its value is replaced
-    # with the given header value.
-    # ```ballerina mimeEntity.setHeader("custom-header", "header-value"); ```
-    #
-    # + headerName - The header name
-    # + headerValue - Represents the header value
-    # + position - Represents the position of the header as an optional parameter
+# Sets the given header value against the existing header. If a header already exists, its value is replaced
+# with the given header value.
+# ```ballerina
+# mimeEntity.setHeader("custom-header", "header-value");
+# ```
+#
+# + headerName - The header name
+# + headerValue - Represents the header value
+# + position - Represents the position of the header as an optional parameter
     public function setHeader(@untainted string headerName, string headerValue, public HeaderPosition position = LEADING) {
         return externSetHeader(self, java:fromString(headerName), java:fromString(headerValue), position);
     }
