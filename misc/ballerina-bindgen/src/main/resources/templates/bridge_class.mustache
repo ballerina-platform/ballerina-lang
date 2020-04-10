@@ -6,7 +6,7 @@
 //
 // E.g. $ ballerina bindgen {{className}}
 
-{{/unless}}{{#if isDirectClass}}
+{{/unless}}{{#if hasJavaModuleImport}}
 import ballerina/java;
 
 {{/if}}// Ballerina object mapping for the {{#if isInterface}}Java interface{{else}}{{#if isAbstract}}Java abstract class{{else}}Java class{{/if}}{{/if}} `{{className}}`.
