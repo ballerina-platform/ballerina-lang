@@ -118,6 +118,17 @@ public class TypeTags {
         return false;
     }
 
+    public static boolean isXMLNonSequenceType(int tag) {
+        switch (tag) {
+            case XML_ELEMENT:
+            case XML_PI:
+            case XML_COMMENT:
+            case XML_TEXT:
+                return true;
+        }
+        return false;
+    }
+
     public static boolean isStringTypeTag(int tag) {
 
         switch (tag) {

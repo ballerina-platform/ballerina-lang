@@ -85,7 +85,7 @@ public class UnionTypeStampInbuiltFunctionTest {
         Assert.assertEquals(employee0.get("school").getType().getClass(), BStringType.class);
     }
 
-    @Test (groups = "brokenOnXMLLangLibChange")
+    @Test
     public void testStampUnionToXML() {
 
         BValue[] results = BRunUtil.invoke(compileResult, "stampUnionToXML");

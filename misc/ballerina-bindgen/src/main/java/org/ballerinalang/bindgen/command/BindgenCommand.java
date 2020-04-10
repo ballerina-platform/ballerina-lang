@@ -29,7 +29,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.COMPONENT_IDENTIF
 /**
  * This class represents the "ballerina bindgen" command.
  *
- * @since 1.20
+ * @since 1.2.0
  */
 @CommandLine.Command(
         name = "bindgen",
@@ -38,8 +38,6 @@ public class BindgenCommand implements BLauncherCmd {
 
     private static final PrintStream outStream = System.out;
     private static final PrintStream outError = System.err;
-
-    private CommandLine parentCmdParser;
 
     @CommandLine.Option(names = {"-h", "--help"}, hidden = true)
     private boolean helpFlag;
@@ -63,7 +61,6 @@ public class BindgenCommand implements BLauncherCmd {
 
     @Override
     public void execute() {
-
         outStream.println("\nNote: This is an experimental tool.\n");
         //Help flag check
         if (helpFlag) {
@@ -73,7 +70,7 @@ public class BindgenCommand implements BLauncherCmd {
         }
 
         if (classNames == null) {
-            outError.println("One or more class names for bindings generation should be specified.");
+            outError.println("One or more class names should be specified to generate the Ballerina bindings.\n");
             outStream.println(BINDGEN_CMD);
             outStream.println("\nUse 'ballerina bindgen --help' for more information on the command.");
             return;
@@ -94,39 +91,35 @@ public class BindgenCommand implements BLauncherCmd {
         try {
             bindingsGenerator.generateJavaBindings();
         } catch (BindgenException e) {
-            outError.println("Error while generating Ballerina bindings: " + e);
+            outError.println("\nError while generating Ballerina bindings:\n" + e.getMessage());
         }
     }
 
     @Override
     public String getName() {
-
         return COMPONENT_IDENTIFIER;
     }
 
     @Override
     public void printLongDesc(StringBuilder out) {
-
         out.append("A CLI tool for generating Ballerina bridge code for Java APIs. \n");
         out.append("\n");
-        out.append("Ballerina bindings could be generated for jars and standard Java classes. \n");
+        out.append("Ballerina bindings could be generated for Java classes residing inside Java libraries \n");
+        out.append("or standard Java classes. Here, the Java classes will be mapped onto Ballerina");
+        out.append("objects, making the developer experience of Ballerina Java interoperability seamless. \n");
         out.append("\n");
-        out.append("A jar file could be pointed using the --jar option. \n");
-        out.append("\n");
-        out.append("If the bridge code is to be generated for standard Java classes, the \n");
-        out.append("--class-name option could be used. \n");
+        out.append("The directly dependent Java classes and other required resources will be automatically \n");
+        out.append("generated apart from the specified Java classes. \n");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-
-        out.append("  ballerina " + COMPONENT_IDENTIFIER + " --jar /Users/mike/snakeyaml-1.25.jar\n");
-        out.append("  ballerina " + COMPONENT_IDENTIFIER + " --class-name java.util.Collection,java.util.HashSet\n");
+        out.append("  ballerina " + COMPONENT_IDENTIFIER + " java.utils.ArrayDeque\n");
+        out.append("  ballerina " + COMPONENT_IDENTIFIER + " -cp ./libs/snakeyaml-1.25.jar,./libs/pdfbox-1.8.10.jar " +
+                "  -o ./src/sample org.yaml.snakeyaml.Yaml org.apache.pdfbox.pdmodel.PDDocument java.io.File\n");
     }
 
     @Override
     public void setParentCmdParser(CommandLine parentCmdParser) {
-
-        this.parentCmdParser = parentCmdParser;
     }
 }

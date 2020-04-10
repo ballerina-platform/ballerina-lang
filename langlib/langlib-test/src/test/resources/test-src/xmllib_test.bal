@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'xml;
-xml catalog = xml `<CATALOG>
+'xml:Element catalog = xml `<CATALOG>
                        <CD>
                            <TITLE>Empire Burlesque</TITLE>
                            <ARTIST>Bob Dylan</ARTIST>
@@ -95,47 +95,44 @@ function testXmlIsText() returns [boolean, boolean] {
 }
 
 function getNameOfElement() returns string {
-    'xml:Element element = <'xml:Element> xml `<elem>elem</elem>`;
+    'xml:Element element = xml `<elem>elem</elem>`;
     return element.getName();
 }
 
 function testSetElementName() returns xml {
-    'xml:Element element = <'xml:Element> xml `<elem attr="attr1">content</elem>`;
+    'xml:Element element = xml `<elem attr="attr1">content</elem>`;
     element.setName("el2");
     return element;
 }
 
 function testGetChildren() returns xml {
-    'xml:Element cat = <'xml:Element> catalog;
-    xml ch1  = cat.getChildren().strip()[0];
+    xml ch1  = catalog.getChildren().strip()[0];
     'xml:Element ch1e = <'xml:Element> ch1;
     return ch1e.getChildren().strip();
 }
 
 function testSetChildren() returns xml {
     xml child = xml `<e>child</e>`;
-    'xml:Element catElm = <'xml:Element> catalog;
-    xml ch1 = catElm.getChildren().strip()[0];
+    xml ch1 = catalog.getChildren().strip()[0];
     'xml:Element ch1em = <'xml:Element> ch1;
     ch1em.setChildren(child);
-    return catElm.getChildren().strip()[0];
+    return catalog.getChildren().strip()[0];
 }
 
 function testGetAttributes() returns map<string> {
-    'xml:Element elem = <'xml:Element> xml `<elem attr="attr1" attr2="attr2">content</elem>`;
+    'xml:Element elem = xml `<elem attr="attr1" attr2="attr2">content</elem>`;
     return elem.getAttributes();
 }
 
 function testGetTarget() returns string {
-    xml x = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
-    'xml:ProcessingInstruction pi = <'xml:ProcessingInstruction> x;
+    'xml:ProcessingInstruction pi = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
     return pi.getTarget();
 }
 
 function testGetContent() returns [string, string, string] {
     'xml:Text t = <'xml:Text> xml `hello world`;
     'xml:ProcessingInstruction pi = <'xml:ProcessingInstruction> xml `<?pi-node type="cont"?>`;
-    'xml:Comment comment = <'xml:Comment> xml `<!-- this is a comment text -->`;
+    'xml:Comment comment = xml `<!-- this is a comment text -->`;
     return [t.getContent(), pi.getContent(), comment.getContent()];
 }
 
@@ -168,9 +165,9 @@ function testForEach() returns xml {
 }
 
 function testSlice() returns [xml, xml, xml] {
-    'xml:Element elemL = <'xml:Element> xml `<elemL>content</elemL>`;
-    'xml:Element elemN = <'xml:Element> xml `<elemN>content</elemN>`;
-    'xml:Element elemM = <'xml:Element> xml `<elemM>content</elemM>`;
+    'xml:Element elemL = xml `<elemL>content</elemL>`;
+    'xml:Element elemN = xml `<elemN>content</elemN>`;
+    'xml:Element elemM = xml `<elemM>content</elemM>`;
     xml elem = 'xml:concat(elemL, elemN, elemM);
     return [elem.slice(0, 2), elem.slice(1), 'xml:slice(elem, 1)];
 }
