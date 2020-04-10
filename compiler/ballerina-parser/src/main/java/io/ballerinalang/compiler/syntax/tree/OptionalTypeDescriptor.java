@@ -34,12 +34,20 @@ public class OptionalTypeDescriptor extends NonTerminalNode{
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public OptionalTypeDescriptor modify(Node typeDescriptor, Token questionMark) {
+        if (checkForReferenceEquality(typeDescriptor, questionMark)) {
+            return this;
+        }
+
+        return NodeFactory.createOptionalTypeDescriptor(typeDescriptor, questionMark);
     }
 }
