@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinax.jdbc.Constants;
@@ -55,6 +56,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     private final String query;
     private final ArrayValue[] parameters;
     private final boolean rollbackAllInFailure;
+    private static final BArrayType anydataArrayType = new BArrayType(BTypes.typeAnydata);
 
     public BatchUpdateStatement(ObjectValue client, SQLDatasource datasource, String query,
                                 boolean rollbackAllInFailure, Strand strand, ArrayValue... parameters) {
@@ -205,7 +207,7 @@ public class BatchUpdateStatement extends AbstractSQLStatement {
     private void addToMap(MapValue<String, ArrayValue> map, String columnName, Object value) {
         ArrayValue list = map.get(columnName);
         if (list == null) {
-            list = new ArrayValueImpl(new BArrayType(BTypes.typeAnydata));
+            list = (ArrayValue) BValueCreator.createArrayValue(anydataArrayType);
             map.put(columnName, list);
         }
         list.append(value);

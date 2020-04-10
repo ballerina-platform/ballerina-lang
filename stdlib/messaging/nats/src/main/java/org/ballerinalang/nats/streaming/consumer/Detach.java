@@ -52,7 +52,7 @@ public class Detach {
             StreamingConnection streamingConnection = (StreamingConnection) streamingListener
                     .getNativeData(Constants.NATS_STREAMING_CONNECTION);
             if (streamingConnection != null) {
-                NatsMetricsUtil.reportUnsubscription(streamingConnection.getNatsConnection().getConnectedUrl(),
+                NatsMetricsUtil.reportStreamingUnsubscription(streamingConnection.getNatsConnection().getConnectedUrl(),
                                                      subscription.getSubject());
             }
         } catch (IOException e) {

@@ -61,6 +61,7 @@ import static org.ballerinalang.messaging.kafka.utils.KafkaUtils.populateTopicPa
 public class ConsumerInformationHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(ConsumerInformationHandler.class);
+    private static final BArrayType stringArrayType = new BArrayType(BTypes.typeString);
 
     /**
      * Assign ballerina kafka consumer to the given topic array.
@@ -213,8 +214,7 @@ public class ConsumerInformationHandler {
 
         try {
             Set<String> subscriptions = kafkaConsumer.subscription();
-            BArray arrayValue = BValueCreator.createArrayValue(
-                    new BArrayType(org.ballerinalang.jvm.types.BTypes.typeString));
+            BArray arrayValue = BValueCreator.createArrayValue(stringArrayType);
             if (!subscriptions.isEmpty()) {
                 for (String subscription : subscriptions) {
                     arrayValue.append(subscription);

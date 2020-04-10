@@ -54,18 +54,21 @@ public class Register {
         List<ObjectValue> serviceList =
                 (List<ObjectValue>) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.SERVICE_LIST);
-        MapValue<String, Object> subscriptionConfig = Utils.getSubscriptionConfig(service.getType()
-                .getAnnotation(Constants.NATS_PACKAGE, Constants.SUBSCRIPTION_CONFIG));
+        MapValue<String, Object> subscriptionConfig =
+                Utils.getSubscriptionConfig(service.getType().getAnnotation(Constants.NATS_PACKAGE,
+                                                                            Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
             NatsMetricsUtil.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);
             return BallerinaErrors.createError(Constants.NATS_ERROR_CODE,
-                    errorMessage + " Cannot find subscription configuration.");
+                                               errorMessage + " Cannot find subscription configuration.");
         }
         String queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME);
         String subject = subscriptionConfig.getStringValue(Constants.SUBJECT);
         BRuntime runtime = BRuntime.getCurrentRuntime();
+        ObjectValue connectionObject = (ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ);
+        NatsMetricsUtil natsMetricsUtil = (NatsMetricsUtil) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
         Dispatcher dispatcher = natsConnection.createDispatcher(new DefaultMessageHandler(
-                service, runtime, natsConnection.getConnectedUrl()));
+                service, runtime, natsConnection.getConnectedUrl(), natsMetricsUtil));
 
         // Add dispatcher. This is needed when closing the connection.
         @SuppressWarnings("unchecked")
@@ -82,14 +85,14 @@ public class Register {
                 dispatcher.subscribe(subject);
             }
         } catch (IllegalArgumentException | IllegalStateException ex) {
-            NatsMetricsUtil.reportConsumerError(natsConnection.getConnectedUrl(), subject,
-                                                NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);
+            natsMetricsUtil.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);
             return BallerinaErrors.createError(Constants.NATS_ERROR_CODE,
-                    errorMessage + ex.getMessage());
+                                               errorMessage + ex.getMessage());
         }
         serviceList.add(service);
         String consoleOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
         console.println(Constants.NATS_CLIENT_SUBSCRIBED + consoleOutput);
+        @SuppressWarnings("unchecked")
         ArrayList<String> subscriptionsList =
                 (ArrayList<String>) listenerObject
                         .getNativeData(BASIC_SUBSCRIPTION_LIST);

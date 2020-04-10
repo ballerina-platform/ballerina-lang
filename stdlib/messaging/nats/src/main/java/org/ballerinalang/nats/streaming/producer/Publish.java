@@ -37,27 +37,24 @@ import static org.ballerinalang.nats.Utils.convertDataIntoByteArray;
  */
 public class Publish {
 
-    public static Object externStreamingPublish(ObjectValue publisher, String subject, Object data) {
+    public static Object externStreamingPublish(ObjectValue publisher, String subject, Object data,
+                                                ObjectValue connectionObject) {
         StreamingConnection streamingConnection = (StreamingConnection) publisher
                 .getNativeData(Constants.NATS_STREAMING_CONNECTION);
+        NatsMetricsUtil natsMetricsUtil = (NatsMetricsUtil) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
         NatsTracingUtil.traceResourceInvocation(Scheduler.getStrand(),
                                                 streamingConnection.getNatsConnection().getConnectedUrl(), subject);
         byte[] byteData = convertDataIntoByteArray(data);
         try {
             NonBlockingCallback nonBlockingCallback = new NonBlockingCallback(Scheduler.getStrand());
-            AckListener ackListener = new AckListener(nonBlockingCallback,
-                                                      streamingConnection.getNatsConnection().getConnectedUrl(),
-                                                      subject);
-            NatsMetricsUtil.reportPublish(streamingConnection.getNatsConnection().getConnectedUrl(), subject,
-                                          byteData.length);
+            AckListener ackListener = new AckListener(nonBlockingCallback, subject, natsMetricsUtil);
+            natsMetricsUtil.reportPublish(subject, byteData.length);
             return streamingConnection.publish(subject, byteData, ackListener);
         } catch (InterruptedException e) {
-            NatsMetricsUtil.reportProducerError(streamingConnection.getNatsConnection().getConnectedUrl(), subject,
-                                                NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
+            natsMetricsUtil.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
             return Utils.createNatsError("Failed to publish due to an internal error");
         } catch (IOException | TimeoutException e) {
-            NatsMetricsUtil.reportProducerError(streamingConnection.getNatsConnection().getConnectedUrl(), subject,
-                                                NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
+            natsMetricsUtil.reportProducerError(subject, NatsObservabilityConstants.ERROR_TYPE_PUBLISH);
             return Utils.createNatsError(e.getMessage());
         }
     }
