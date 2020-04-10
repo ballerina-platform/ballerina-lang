@@ -20,7 +20,7 @@ import ballerina/log;
 import ballerina/stringutils;
 import ballerina/time;
 
-# Represents the inbound JWT auth provider.
+# Represents inbound JWT auth provider.
 #
 # + jwtValidatorConfig - JWT validator configurations
 public type InboundJwtAuthProvider object {
@@ -38,11 +38,10 @@ public type InboundJwtAuthProvider object {
         self.inboundJwtCache = jwtValidatorConfig.jwtCache;
     }
 
-    # Authenticates with a JWT token.
+    # Authenticate with a JWT token.
     #
-    # + credential - JWT token extracted from the authentication header
-    # + return - `true` if authentication is successful, othewise `false` or else an `auth:Error` if credential can't be
-    #             authenticated
+    # + credential - Jwt token extracted from the authentication header
+    # + return - `true` if authentication is successful, othewise `false` or `auth:Error` occurred during JWT validation
     public function authenticate(string credential) returns @tainted (boolean|auth:Error) {
         string[] jwtComponents = stringutils:split(credential, "\\.");
         if (jwtComponents.length() != 3) {

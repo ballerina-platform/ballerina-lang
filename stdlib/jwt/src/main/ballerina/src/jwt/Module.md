@@ -1,4 +1,6 @@
-This module provides an inbound and outbound JWT authentication provider, which can be used to authenticate using a JWT and the functionality related to issuing and validating JWT.
+## Module Overview
+
+This module provides a inbound and outbound JWT authentication provider, which can be used to authenticate using a JWT and the functionality related to issuing and validating JWT.
 
 ### Inbound JWT Auth Provider
 
@@ -36,5 +38,62 @@ jwt:OutboundJwtAuthProvider jwtAuthProvider = new({
     }
 });
 ```
+## Samples
 
-For information on the operations, which you can perform with this module, see the below Functions. For examples on the usage of the operations, see [JWT Token Validation](https://ballerina.io/v1-2/learn/by-example/jwt-token-validation.html), [Secured Client with JWT Auth](https://ballerina.io/v1-2/learn/by-example/secured-client-with-jwt-auth.html), [Secured Service with JWT Auth](https://ballerina.io/v1-2/learn/by-example/secured-service-with-jwt-auth.html) .
+#### Issuing a JWT
+
+```ballerina
+import ballerina/crypto;
+import ballerina/jwt;
+import ballerina/time;
+
+public function main() {
+    crypto:KeyStore keyStore = { 
+        path: "${ballerina.home}/bre/security/ballerinaKeystore.p12", 
+        password: "ballerina"
+    };
+    jwt:JwtKeyStoreConfig config = {
+        keyStore: keyStore,
+        keyAlias: "ballerina",
+        keyPassword: "ballerina"
+    };
+
+    jwt:JwtHeader header = {};
+    header.alg = jwt:RS256;
+    header.typ = "JWT";
+
+    jwt:JwtPayload payload = {};
+    payload.sub = "John";
+    payload.iss = "wso2";
+    payload.jti = "100078234ba23";
+    payload.aud = ["ballerina", "ballerinaSamples"];
+    payload.exp = time:currentTime().time/1000 + 600;
+
+    string|error jwt = jwt:issueJwt(header, payload, config);
+}
+```
+
+#### Validating a JWT
+
+```ballerina
+import ballerina/crypto;
+import ballerina/jwt;
+
+public function main() {
+    crypto:TrustStore trustStore = {
+        path: "${ballerina.home}/bre/security/ballerinaTruststore.p12", 
+        password: "ballerina"
+    };
+    jwt:JwtValidatorConfig config = {
+        issuer: "wso2",
+        audience: "ballerina",
+        clockSkewInSeconds: 60,
+        trustStoreConfig: {
+            certificateAlias: "ballerina",
+            trustStore: trustStore
+        }
+    };
+
+    jwt:JwtPayload|error result = jwt:validateJwt(jwtToken, config);
+}
+```

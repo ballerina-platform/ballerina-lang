@@ -634,10 +634,6 @@
             {
                 "name": "Cryptographic Operations",
                 "url": "crypto"
-            },
-            {
-                "name": "JWT Token Validation",
-                "url": "jwt-token-validation"
             }
         ]
     },
