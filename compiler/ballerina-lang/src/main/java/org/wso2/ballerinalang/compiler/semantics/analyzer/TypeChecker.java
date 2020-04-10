@@ -1778,7 +1778,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 type.tsymbol);
         if (funcSymbol == symTable.notFoundSymbol) {
             if (!checkLangLibMethodInvocationExpr(iExpr, type)) {
-                dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_RECORD, invocationIdentifier, type);
+                dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FIELD_IN_RECORD, invocationIdentifier, type);
                 resultType = symTable.semanticError;
             }
             return false;
@@ -3487,7 +3487,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 symResolver.resolveObjectMethod(iExpr.pos, env, funcName, (BObjectTypeSymbol) objectType.tsymbol);
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             if (!checkLangLibMethodInvocationExpr(iExpr, objectType)) {
-                dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value,
+                dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_METHOD_IN_OBJECT, iExpr.name.value,
                            objectType);
                 resultType = symTable.semanticError;
                 return;
