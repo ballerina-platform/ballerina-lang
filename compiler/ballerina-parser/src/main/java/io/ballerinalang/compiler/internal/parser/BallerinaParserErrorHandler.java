@@ -1377,7 +1377,7 @@ public class BallerinaParserErrorHandler {
                 }
                 return ParserRuleContext.VARIABLE_NAME;
             case QUESTION_MARK:
-                return ParserRuleContext.SEMICOLON;
+                return getNextRuleForQuestionMark();
             case RECORD_KEYWORD:
                 return ParserRuleContext.RECORD_BODY_START;
             case TYPE_KEYWORD:
@@ -1844,6 +1844,31 @@ public class BallerinaParserErrorHandler {
             return ParserRuleContext.IMPORT_MODULE_NAME;
         }
         return ParserRuleContext.FIELD_OR_FUNC_NAME;
+    }
+
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#QUESTION_MARK}.
+     *
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForQuestionMark() {
+        ParserRuleContext parentCtx = getParentContext();
+        switch (parentCtx) {
+            case OPTIONAL_TYPE_DESCRIPTOR:
+                endContext();
+                parentCtx = getParentContext();
+                switch (parentCtx) {
+                    case MODULE_TYPE_DEFINITION:
+                        return ParserRuleContext.SEMICOLON;
+                    case RETURN_TYPE_DESCRIPTOR:
+                        return ParserRuleContext.FUNC_BODY;
+                    default:
+                        return ParserRuleContext.VARIABLE_NAME;
+                }
+
+            default:
+                return ParserRuleContext.SEMICOLON;
+        }
     }
 
     /**
