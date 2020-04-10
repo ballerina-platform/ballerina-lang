@@ -110,7 +110,11 @@ public type Certificate record {|
 |};
 
 # Returns the MD5 hash of the given data.
-# ```ballerina byte[] hash = crypto:hashMd5(data); ```
+# ```ballerina
+#  string dataString = "Hello Ballerina";
+#  byte[] data = dataString.toBytes();
+#  byte[] hash = crypto:hashMd5(data);
+# ```
 #
 # + input - Value to be hashed
 # + return - Hashed output
@@ -120,7 +124,11 @@ public function hashMd5(byte[] input) returns byte[] = @java:Method {
 } external;
 
 # Returns the SHA-1 hash of the given data.
-# ```ballerina byte[] hash = crypto:hashSha1(data); ```
+# ```ballerina
+#  string dataString = "Hello Ballerina";
+#  byte[] data = dataString.toBytes();
+#  byte[] hash = crypto:hashSha1(data);
+# ```
 #
 # + input - Value to be hashed
 # + return - Hashed output
@@ -130,7 +138,11 @@ public function hashSha1(byte[] input) returns byte[] = @java:Method {
 } external;
 
 # Returns the SHA-256 hash of the given data.
-# ```ballerina byte[] hash = crypto:hashMd5(data); ```
+# ```ballerina
+#  string dataString = "Hello Ballerina";
+#  byte[] data = dataString.toBytes();
+#  byte[] hash = crypto:hashSha256(data);
+# ```
 #
 # + input - Value to be hashed
 # + return - Hashed output
@@ -140,7 +152,11 @@ public function hashSha256(byte[] input) returns byte[] = @java:Method {
 } external;
 
 # Returns the SHA-384 hash of the given data.
-# ```ballerina byte[] hash = crypto:hashSha384(data); ```
+# ```ballerina
+#  string dataString = "Hello Ballerina";
+#  byte[] data = dataString.toBytes();
+#  byte[] hash = crypto:hashSha384(data);
+# ```
 #
 # + input - Value to be hashed
 # + return - Hashed output
@@ -150,7 +166,11 @@ public function hashSha384(byte[] input) returns byte[] = @java:Method {
 } external;
 
 # Returns the SHA-512 hash of the given data.
-# ```ballerina byte[] hash = crypto:hashSha512(data); ```
+# ```ballerina
+#  string dataString = "Hello Ballerina";
+#  byte[] data = dataString.toBytes();
+#  byte[] hash = crypto:hashSha512(data);
+# ```
 #
 # + input - Value to be hashed
 # + return - Hashed output
@@ -160,7 +180,13 @@ public function hashSha512(byte[] input) returns byte[] = @java:Method {
 } external;
 
 # Returns the HMAC using MD-5 hash function of the given data.
-# ```ballerina byte[] hmac = crypto:hmacMd5(data, key); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  string keyString = "some-secret";
+#  byte[] key = keyString.toBytes();
+#  byte[] hmac = crypto:hmacMd5(data, key);
+# ```
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
@@ -171,7 +197,13 @@ public function hmacMd5(byte[] input, byte[] key) returns byte[] = @java:Method 
 } external;
 
 # Returns the HMAC using SHA-1 hash function of the given data.
-# ```ballerina byte[] hmac = crypto:hmacSha1(data, key); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  string keyString = "some-secret";
+#  byte[] key = keyString.toBytes();
+#  byte[] hmac = crypto:hmacSha1(data, key);
+# ```
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
@@ -182,7 +214,13 @@ public function hmacSha1(byte[] input, byte[] key) returns byte[] = @java:Method
 } external;
 
 # Returns the HMAC using SHA-256 hash function of the given data.
-# ```ballerina byte[] hmac = crypto:hmacSha256(data, key); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  string keyString = "some-secret";
+#  byte[] key = keyString.toBytes();
+#  byte[] hmac = crypto:hmacSha256(data, key);
+# ```
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
@@ -193,7 +231,13 @@ public function hmacSha256(byte[] input, byte[] key) returns byte[] = @java:Meth
 } external;
 
 # Returns the HMAC using SHA-384 hash function of the given data.
-# ```ballerina byte[] hmac = crypto:hmacSha384(data, key); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  string keyString = "some-secret";
+#  byte[] key = keyString.toBytes();
+#  byte[] hmac = crypto:hmacSha384(data, key);
+# ```
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
@@ -204,7 +248,13 @@ public function hmacSha384(byte[] input, byte[] key) returns byte[] = @java:Meth
 } external;
 
 # Returns the HMAC using SHA-512 hash function of the given data.
-# ```ballerina byte[] hmac = crypto:hmacSha512(data, key); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  string keyString = "some-secret";
+#  byte[] key = keyString.toBytes();
+#  byte[] hmac = crypto:hmacSha512(data, key);
+# ```
 #
 # + input - Value to be hashed
 # + key - Key used for HMAC generation
@@ -215,7 +265,11 @@ public function hmacSha512(byte[] input, byte[] key) returns byte[] = @java:Meth
 } external;
 
 # Returns Hex-encoded CRC32B value for the provided element.
-# ```ballerina string checksum = crypto:crc32b(data); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  string checksum = crypto:crc32b(data);
+# ```
 #
 # + input - Value for checksum generation
 # + return - The generated checksum
@@ -229,67 +283,128 @@ function externCrc32b(byte[] input) returns handle = @java:Method {
 } external;
 
 # Returns the RSA-MD5 based signature value for the given data.
-# ```ballerina byte[]|crypto:Error signature = crypto:signRsaMd5(data, privateKey); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  crypto:KeyStore keyStore = {
+#      path: "/home/ballerina/keystore.p12",
+#      password: "keystorePassword"
+#  };
+#  crypto:PrivateKey privateKey =
+#      checkpanic crypto:decodePrivateKey(keyStore, "keyAlias", "keyPassword");
+#  byte[]|crypto:Error signature = crypto:signRsaMd5(data, privateKey);
+# ```
 #
 # + input - The content to be signed
 # + privateKey - Private key used for signing
-# + return - The generated signature or `crypto:Error` if private key is invalid
+# + return - The generated signature or else error if private key is invalid
 public function signRsaMd5(byte[] input, PrivateKey privateKey) returns byte[]|Error = @java:Method {
     name: "signRsaMd5",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Returns RSA-SHA1 based signature value for the given data.
-# ```ballerina byte[]|crypto:Error signature = crypto:signRsaSha1(data, privateKey); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  crypto:KeyStore keyStore = {
+#      path: "/home/ballerina/keystore.p12",
+#      password: "keystorePassword"
+#  };
+#  crypto:PrivateKey privateKey =
+#      checkpanic crypto:decodePrivateKey(keyStore, "keyAlias", "keyPassword");
+#  byte[]|crypto:Error signature = crypto:signRsaSha1(data, privateKey);
+# ```
 #
 # + input - The content to be signed
 # + privateKey - Private key used for signing
-# + return - The generated signature or `crypto:Error` if private key is invalid
+# + return - The generated signature or else error if private key is invalid
 public function signRsaSha1(byte[] input, PrivateKey privateKey) returns byte[]|Error = @java:Method {
     name: "signRsaSha1",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Returns RSA-SHA256 based signature value for the given data.
-# ```ballerina byte[]|crypto:Error signature = crypto:signRsaSha256(data, privateKey); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  crypto:KeyStore keyStore = {
+#      path: "/home/ballerina/keystore.p12",
+#      password: "keystorePassword"
+#  };
+#  crypto:PrivateKey privateKey =
+#      checkpanic crypto:decodePrivateKey(keyStore, "keyAlias", "keyPassword");
+#  byte[]|crypto:Error signature = crypto:signRsaSha256(data, privateKey);
+# ```
 #
 # + input - The content to be signed
 # + privateKey - Private key used for signing
-# + return - The generated signature or `crypto:Error` if private key is invalid
+# + return - The generated signature or else error if private key is invalid
 public function signRsaSha256(byte[] input, PrivateKey privateKey) returns byte[]|Error = @java:Method {
     name: "signRsaSha256",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Returns RSA-SHA384 based signature value for the given data.
-# ```ballerina byte[]|crypto:Error signature = crypto:signRsaSha384(data, privateKey); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  crypto:KeyStore keyStore = {
+#      path: "/home/ballerina/keystore.p12",
+#      password: "keystorePassword"
+#  };
+#  crypto:PrivateKey privateKey =
+#      checkpanic crypto:decodePrivateKey(keyStore, "keyAlias", "keyPassword");
+#  byte[]|crypto:Error signature = crypto:signRsaSha384(data, privateKey);
+# ```
 #
 # + input - The content to be signed
 # + privateKey - Private key used for signing
-# + return - The generated signature or `crypto:Error` if private key is invalid
+# + return - The generated signature or else error if private key is invalid
 public function signRsaSha384(byte[] input, PrivateKey privateKey) returns byte[]|Error = @java:Method {
     name: "signRsaSha384",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Returns RSA-SHA512 based signature value for the given data.
-# ```ballerina byte[]|crypto:Error signature = crypto:signRsaSha512(data, privateKey); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  crypto:KeyStore keyStore = {
+#      path: "/home/ballerina/keystore.p12",
+#      password: "keystorePassword"
+#  };
+#  crypto:PrivateKey privateKey =
+#      checkpanic crypto:decodePrivateKey(keyStore, "keyAlias", "keyPassword");
+#  byte[]|crypto:Error signature = crypto:signRsaSha512(data, privateKey);
+# ```
 #
 # + input - The content to be signed
 # + privateKey - Private key used for signing
-# + return - The generated signature or `crypto:Error` if private key is invalid
+# + return - The generated signature or else error if private key is invalid
 public function signRsaSha512(byte[] input, PrivateKey privateKey) returns byte[]|Error = @java:Method {
     name: "signRsaSha512",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Sign"
 } external;
 
 # Verify RSA-MD5 based signature.
-# ```ballerina boolean|crypto:Error validity = crypto:verifyRsaMd5Signature(data, signature, publicKey); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  crypto:KeyStore keyStore = {
+#      path: "/home/ballerina/keystore.p12",
+#      password: "keystorePassword"
+#  };
+#  crypto:PrivateKey privateKey = checkpanic crypto:decodePrivateKey(keyStore, "keyAlias", "keyPassword");
+#  byte[] signature = checkpanic crypto:signRsaMd5(data, privateKey);
+#  crypto:PublicKey publicKey =  checkpanic crypto:decodePublicKey(keyStore, "keyAlias");
+#  boolean|crypto:Error validity = crypto:verifyRsaMd5Signature(data, signature, publicKey);
+# ```
 #
 # + data - The content to be verified
 # + signature - Signature value
 # + publicKey - Public key used for verification
-# + return - Validity of the signature or `crypto:Error` if public key is invalid
+# + return - Validity of the signature or else error if public key is invalid
 public function verifyRsaMd5Signature(byte[] data, byte[] signature, PublicKey publicKey)
                                       returns boolean|Error = @java:Method {
     name: "verifyRsaMd5Signature",
@@ -297,12 +412,23 @@ public function verifyRsaMd5Signature(byte[] data, byte[] signature, PublicKey p
 } external;
 
 # Verify RSA-SHA1 based signature.
-# ```ballerina boolean|crypto:Error validity = crypto:verifyRsaSha1Signature(data, signature, publicKey); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  crypto:KeyStore keyStore = {
+#      path: "/home/ballerina/keystore.p12",
+#      password: "keystorePassword"
+#  };
+#  crypto:PrivateKey privateKey = checkpanic crypto:decodePrivateKey(keyStore, "keyAlias", "keyPassword");
+#  byte[] signature = checkpanic crypto:signRsaMd5(data, privateKey);
+#  crypto:PublicKey publicKey =  checkpanic crypto:decodePublicKey(keyStore, "keyAlias");
+#  boolean|crypto:Error validity = crypto:verifyRsaSha1Signature(data, signature, publicKey);
+# ```
 #
 # + data - The content to be verified
 # + signature - Signature value
 # + publicKey - Public key used for verification
-# + return - Validity of the signature or `crypto:Error` if public key is invalid
+# + return - Validity of the signature or else error if public key is invalid
 public function verifyRsaSha1Signature(byte[] data, byte[] signature, PublicKey publicKey)
                                        returns boolean|Error = @java:Method {
     name: "verifyRsaSha1Signature",
@@ -310,12 +436,23 @@ public function verifyRsaSha1Signature(byte[] data, byte[] signature, PublicKey 
 } external;
 
 # Verify RSA-SHA256 based signature.
-# ```ballerina boolean|crypto:Error validity = crypto:verifyRsaSha256Signature(data, signature, publicKey); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  crypto:KeyStore keyStore = {
+#      path: "/home/ballerina/keystore.p12",
+#      password: "keystorePassword"
+#  };
+#  crypto:PrivateKey privateKey = checkpanic crypto:decodePrivateKey(keyStore, "keyAlias", "keyPassword");
+#  byte[] signature = checkpanic crypto:signRsaMd5(data, privateKey);
+#  crypto:PublicKey publicKey =  checkpanic crypto:decodePublicKey(keyStore, "keyAlias");
+#  boolean|crypto:Error validity = crypto:verifyRsaSha256Signature(data, signature, publicKey);
+# ```
 #
 # + data - The content to be verified
 # + signature - Signature value
 # + publicKey - Public key used for verification
-# + return - Validity of the signature or `crypto:Error` if public key is invalid
+# + return - Validity of the signature or else error if public key is invalid
 public function verifyRsaSha256Signature(byte[] data, byte[] signature, PublicKey publicKey)
                                          returns boolean|Error = @java:Method {
     name: "verifyRsaSha256Signature",
@@ -323,12 +460,23 @@ public function verifyRsaSha256Signature(byte[] data, byte[] signature, PublicKe
 } external;
 
 # Verify RSA-SHA384 based signature.
-# ```ballerina boolean|crypto:Error validity = crypto:verifyRsaSha384Signature(data, signature, publicKey); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  crypto:KeyStore keyStore = {
+#      path: "/home/ballerina/keystore.p12",
+#      password: "keystorePassword"
+#  };
+#  crypto:PrivateKey privateKey = checkpanic crypto:decodePrivateKey(keyStore, "keyAlias", "keyPassword");
+#  byte[] signature = checkpanic crypto:signRsaMd5(data, privateKey);
+#  crypto:PublicKey publicKey =  checkpanic crypto:decodePublicKey(keyStore, "keyAlias");
+#  boolean|crypto:Error validity = crypto:verifyRsaSha384Signature(data, signature, publicKey);
+# ```
 #
 # + data - The content to be verified
 # + signature - Signature value
 # + publicKey - Public key used for verification
-# + return - Validity of the signature or `crypto:Error` if public key is invalid
+# + return - Validity of the signature or else error if public key is invalid
 public function verifyRsaSha384Signature(byte[] data, byte[] signature, PublicKey publicKey)
                                          returns boolean|Error = @java:Method {
     name: "verifyRsaSha384Signature",
@@ -336,12 +484,23 @@ public function verifyRsaSha384Signature(byte[] data, byte[] signature, PublicKe
 } external;
 
 # Verify RSA-SHA512 based signature.
-# ```ballerina boolean|crypto:Error validity = crypto:verifyRsaSha512Signature(data, signature, publicKey); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  crypto:KeyStore keyStore = {
+#      path: "/home/ballerina/keystore.p12",
+#      password: "keystorePassword"
+#  };
+#  crypto:PrivateKey privateKey = checkpanic crypto:decodePrivateKey(keyStore, "keyAlias", "keyPassword");
+#  byte[] signature = checkpanic crypto:signRsaMd5(data, privateKey);
+#  crypto:PublicKey publicKey =  checkpanic crypto:decodePublicKey(keyStore, "keyAlias");
+#  boolean|crypto:Error validity = crypto:verifyRsaSha512Signature(data, signature, publicKey);
+# ```
 #
 # + data - The content to be verified
 # + signature - Signature value
 # + publicKey - Public key used for verification
-# + return - Validity of the signature or `crypto:Error` if public key is invalid
+# + return - Validity of the signature or else error if public key is invalid
 public function verifyRsaSha512Signature(byte[] data, byte[] signature, PublicKey publicKey)
                                          returns boolean|Error = @java:Method {
     name: "verifyRsaSha512Signature",
@@ -349,12 +508,18 @@ public function verifyRsaSha512Signature(byte[] data, byte[] signature, PublicKe
 } external;
 
 # Read a private key from the provided PKCS#12 archive file.
-# ```ballerina crypto:PrivateKey|crypto:Error privateKey = crypto:decodePrivateKey(keyStore, keyAlias, keyPassword); ```
+# ```ballerina
+#  crypto:KeyStore keyStore = {
+#      path: "/home/ballerina/keystore.p12",
+#      password: "keystorePassword"
+#  };
+#  crypto:PrivateKey|crypto:Error privateKey = crypto:decodePrivateKey(keyStore, "keyAlias", "keyPassword");
+# ```
 #
 # + keyStore - Key store or Trust store configurations
 # + keyAlias - Key alias
 # + keyPassword - Key password
-# + return - Reference to the private key or `crypto:Error` if private key was unreadable
+# + return - Reference to the private key or else error if private key was unreadable
 public function decodePrivateKey(KeyStore|TrustStore keyStore, string keyAlias, string keyPassword)
                                  returns PrivateKey|Error {
     return externDecodePrivateKey(keyStore, java:fromString(keyAlias), java:fromString(keyPassword));
@@ -367,11 +532,17 @@ function externDecodePrivateKey(KeyStore|TrustStore keyStore, handle keyAlias, h
 } external;
 
 # Read a public key from the provided PKCS#12 archive file.
-# ```ballerina crypto:PublicKey|crypto:Error publicKey = crypto:decodePublicKey(keyStore, keyAlias); ```
+# ```ballerina
+#  crypto:KeyStore keyStore = {
+#      path: "/home/ballerina/keystore.p12",
+#      password: "keystorePassword"
+#  };
+#  crypto:PublicKey|crypto:Error publicKey = crypto:decodePublicKey(keyStore, "keyAlias");
+# ```
 #
 # + keyStore - Key store or Trust store configurations
 # + keyAlias - Key alias
-# + return - Reference to the public key or `crypto:Error` if private key was unreadable
+# + return - Reference to the public key or else error if private key was unreadable
 public function decodePublicKey(KeyStore|TrustStore keyStore, string keyAlias) returns PublicKey|Error {
     return externDecodePublicKey(keyStore, java:fromString(keyAlias));
 }
@@ -383,12 +554,21 @@ function externDecodePublicKey(KeyStore|TrustStore keyStore, handle keyAlias)
 } external;
 
 # Returns RSA encrypted value for the given data.
-# ```ballerina byte[]|crypto:Error cipherText = crypto:encryptRsaEcb(cipherText, publicKey); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  crypto:KeyStore keyStore = {
+#      path: "/home/ballerina/keystore.p12",
+#      password: "keystorePassword"
+#  };
+#  crypto:PublicKey publicKey = checkpanic crypto:decodePublicKey(keyStore, "keyAlias");
+#  byte[]|crypto:Error cipherText = crypto:encryptRsaEcb(data, publicKey);
+# ```
 #
 # + input - The content to be encrypted
 # + key - Private or public key used for encryption
 # + padding - The padding
-# + return - Encrypted data or `crypto:Error` if key is invalid
+# + return - Encrypted data or else error if key is invalid
 public function encryptRsaEcb(byte[] input, PrivateKey|PublicKey key, RsaPadding padding = "PKCS1")
                               returns byte[]|Error {
      return externEncryptRsaEcb(input, key, java:fromString(padding));
@@ -401,13 +581,25 @@ function externEncryptRsaEcb(byte[] input, PrivateKey|PublicKey key, handle padd
 } external;
 
 # Returns AES CBC encrypted value for the given data.
-# ```ballerina byte[]|crypto:Error cipherText = crypto:encryptAesCbc(cipherText, key, initVector); ```
+# ```ballerina
+#  string dataString = "Hello Ballerina!";
+#  byte[] data = dataString.toBytes();
+#  byte[16] key = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+#  foreach var i in 0...15 {
+#      key[i] = <byte>math:randomInRange(0, 255);
+#  }
+#  byte[16] initialVector = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+#  foreach var i in 0...15 {
+#      initialVector[i] = <byte>math:randomInRange(0, 255);
+#  }
+#  byte[]|crypto:Error cipherText = crypto:encryptAesCbc(data, key, initialVector);
+# ```
 #
 # + input - The content to be encrypted
 # + key - Encryption key
 # + iv - Initialization vector
 # + padding - The padding
-# + return - Encrypted data or `crypto:Error` if key is invalid
+# + return - Encrypted data or else error if key is invalid
 public function encryptAesCbc(byte[] input, byte[] key, byte[] iv, AesPadding padding = "PKCS5") returns byte[]|Error {
     return externEncryptAesCbc(input, key, iv, java:fromString(padding));
 }
@@ -418,12 +610,20 @@ function externEncryptAesCbc(byte[] input, byte[] key, byte[] iv, handle padding
 } external;
 
 # Returns AES ECB encrypted value for the given data.
-# ```ballerina byte[]|crypto:Error cipherText = crypto:encryptAesEcb(cipherText, key); ```
+# ```ballerina
+#  string dataString = "Hello Ballerina!";
+#  byte[] data = dataString.toBytes();
+#  byte[16] key = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+#  foreach var i in 0...15 {
+#      key[i] = <byte>math:randomInRange(0, 255);
+#  }
+#  byte[]|crypto:Error cipherText = crypto:encryptAesEcb(data, key);
+# ```
 #
 # + input - The content to be encrypted
 # + key - Encryption key
 # + padding - The padding
-# + return - Encrypted data or `crypto:Error` if key is invalid
+# + return - Encrypted data or else error if key is invalid
 public function encryptAesEcb(byte[] input, byte[] key, AesPadding padding = "PKCS5") returns byte[]|Error {
     return externEncryptAesEcb(input, key, java:fromString(padding));
 }
@@ -434,14 +634,26 @@ function externEncryptAesEcb(byte[] input, byte[] key, handle padding) returns b
 } external;
 
 # Returns AES GCM encrypted value for the given data.
-# ```ballerina byte[]|crypto:Error cipherText = crypto:encryptAesGcm(cipherText, key, initVector); ```
+# ```ballerina
+#  string dataString = "Hello Ballerina!";
+#  byte[] data = dataString.toBytes();
+#  byte[16] key = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+#  foreach var i in 0...15 {
+#      key[i] = <byte>math:randomInRange(0, 255);
+#  }
+#  byte[16] initialVector = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+#  foreach var i in 0...15 {
+#      initialVector[i] = <byte>math:randomInRange(0, 255);
+#  }
+#  byte[]|crypto:Error cipherText = crypto:encryptAesGcm(data, key, initialVector);
+# ```
 #
 # + input - The content to be encrypted
 # + key - Encryption key
 # + iv - Initialization vector
 # + padding - The padding
 # + tagSize - Tag size
-# + return - Encrypted data or `crypto:Error` if key is invalid
+# + return - Encrypted data or else error if key is invalid
 
 public function encryptAesGcm(byte[] input, byte[] key, byte[] iv, AesPadding padding = "PKCS5",
                               int tagSize = 128) returns byte[]|Error {
@@ -455,12 +667,23 @@ function externEncryptAesGcm(byte[] input, byte[] key, byte[] iv, handle padding
 } external;
 
 # Returns RSA decrypted value for the given RSA encrypted data.
-# ```ballerina byte[]|crypto:Error plainText = crypto:decryptRsaEcb(cipherText, privateKey); ```
+# ```ballerina
+#  string stringData = "Hello Ballerina";
+#  byte[] data = stringData.toBytes();
+#  crypto:KeyStore keyStore = {
+#      path: "/home/ballerina/keystore.p12",
+#      password: "keystorePassword"
+#  };
+#  crypto:PublicKey publicKey = checkpanic crypto:decodePublicKey(keyStore, "keyAlias");
+#  crypto:PrivateKey privateKey = checkpanic crypto:decodePrivateKey(keyStore, "keyAlias", "keyPassword");
+#  byte[] cipherText = checkpanic crypto:encryptRsaEcb(data, publicKey);
+#  byte[]|crypto:Error plainText = checkpanic crypto:decryptRsaEcb(cipherText, privateKey);
+# ```
 #
 # + input - The content to be decrypted
 # + key - Private or public key used for encryption
 # + padding - The padding
-# + return - Decrypted data or `crypto:Error` if key is invalid
+# + return - Decrypted data or else error if key is invalid
 public function decryptRsaEcb(byte[] input, PrivateKey|PublicKey key, RsaPadding padding = "PKCS1")
                               returns byte[]|Error {
     return externDecryptRsaEcb(input, key, java:fromString(padding));
@@ -473,13 +696,26 @@ function externDecryptRsaEcb(byte[] input, PrivateKey|PublicKey key, handle padd
 } external;
 
 # Returns AES CBC decrypted value for the given AES CBC encrypted data.
-# ```ballerina byte[]|crypto:Error plainText = crypto:decryptAesCbc(cipherText, key, initVector); ```
+# ```ballerina
+#  string dataString = "Hello Ballerina!";
+#  byte[] data = dataString.toBytes();
+#  byte[16] key = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+#  foreach var i in 0...15 {
+#      key[i] = <byte>math:randomInRange(0, 255);
+#  }
+#  byte[16] initialVector = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+#  foreach var i in 0...15 {
+#      initialVector[i] = <byte>math:randomInRange(0, 255);
+#  }
+#  byte[] cipherText = checkpanic crypto:encryptAesCbc(data, key, initialVector);
+#  byte[]|crypto:Error plainText = crypto:decryptAesCbc(cipherText, key, initialVector);
+# ```
 #
 # + input - The content to be decrypted
 # + key - Encryption key
 # + iv - Initialization vector
 # + padding - The padding
-# + return - Decrypted data or `crypto:Error` if key is invalid
+# + return - Decrypted data or else error if key is invalid
 public function decryptAesCbc(byte[] input, byte[] key, byte[] iv, AesPadding padding = "PKCS5") returns byte[]|Error {
     return externDecryptAesCbc(input, key, iv, java:fromString(padding));
 }
@@ -490,12 +726,21 @@ function externDecryptAesCbc(byte[] input, byte[] key, byte[] iv, handle padding
 } external;
 
 # Returns AES ECB decrypted value for the given AES ECB encrypted data.
-# ```ballerina byte[]|crypto:Error plainText = crypto:decryptAesEcb(cipherText, key); ```
+# ```ballerina
+#  string dataString = "Hello Ballerina!";
+#  byte[] data = dataString.toBytes();
+#  byte[16] key = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+#  foreach var i in 0...15 {
+#      key[i] = <byte>math:randomInRange(0, 255);
+#  }
+#  byte[] cipherText = checkpanic crypto:encryptAesEcb(data, key);
+#  byte[]|crypto:Error plainText = crypto:decryptAesEcb(cipherText, key);
+# ```
 #
 # + input - The content to be decrypted
 # + key - Encryption key
 # + padding - The padding
-# + return - Decrypted data or `crypto:Error` if key is invalid
+# + return - Decrypted data or else error if key is invalid
 public function decryptAesEcb(byte[] input, byte[] key, AesPadding padding = "PKCS5") returns byte[]|Error {
     return externDecryptAesEcb(input, key, java:fromString(padding));
 }
@@ -506,14 +751,27 @@ function externDecryptAesEcb(byte[] input, byte[] key, handle padding) returns b
 } external;
 
 # Returns AES GCM decrypted value for the given AES GCM encrypted data.
-# ```ballerina byte[]|crypto:Error plainText = crypto:decryptAesGcm(cipherText, key, initVector); ```
+# ```ballerina
+#  string dataString = "Hello Ballerina!";
+#  byte[] data = dataString.toBytes();
+#  byte[16] key = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+#  foreach var i in 0...15 {
+#      key[i] = <byte>math:randomInRange(0, 255);
+#  }
+#  byte[16] initialVector = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+#  foreach var i in 0...15 {
+#      initialVector[i] = <byte>math:randomInRange(0, 255);
+#  }
+#  byte[] cipherText = checkpanic crypto:encryptAesGcm(data, key, initialVector);
+#  byte[]|crypto:Error plainText = crypto:decryptAesGcm(cipherText, key, initialVector);
+# ```
 #
 # + input - The content to be decrypted
 # + key - Encryption key
 # + iv - Initialization vector
 # + padding - The padding
 # + tagSize - Tag size
-# + return - Decrypted data or `crypto:Error` if key is invalid
+# + return - Decrypted data or else error if key is invalid
 public function decryptAesGcm(byte[] input, byte[] key, byte[] iv, AesPadding padding = "PKCS5", int tagSize = 128)
                               returns byte[]|Error {
     return externDecryptAesGcm(input, key, iv, java:fromString(padding), tagSize);
