@@ -1925,13 +1925,15 @@ public class BIRGen extends BLangNodeVisitor {
         keySpecifierLiteral.exprs = new ArrayList<>();
         BTableType type = (BTableType) tableConstructorExpr.type;
 
-        type.fieldNameList.forEach(col -> {
-            BLangLiteral colLiteral = new BLangLiteral();
-            colLiteral.pos = tableConstructorExpr.pos;
-            colLiteral.type = symTable.stringType;
-            colLiteral.value = col;
-            keySpecifierLiteral.exprs.add(colLiteral);
-        });
+        if (type.fieldNameList != null) {
+            type.fieldNameList.forEach(col -> {
+                BLangLiteral colLiteral = new BLangLiteral();
+                colLiteral.pos = tableConstructorExpr.pos;
+                colLiteral.type = symTable.stringType;
+                colLiteral.value = col;
+                keySpecifierLiteral.exprs.add(colLiteral);
+            });
+        }
 
         keySpecifierLiteral.accept(this);
         BIROperand keyColOp = this.env.targetOperand;
