@@ -17,13 +17,13 @@
 import ballerina/time;
 import ballerina/java;
 
-# The key algorithms supported by crypto module.
+# The key algorithms supported by the Crypto module.
 public type KeyAlgorithm RSA;
 
 # The `RSA` algorithm.
 public const RSA = "RSA";
 
-# Padding algorithms supported with AES encryption and decryption.
+# Padding algorithms supported by AES encryption and decryption.
 public type AesPadding NONE|PKCS5;
 
 # Padding algorithms supported with RSA encryption and decryption.
@@ -214,7 +214,7 @@ public function hmacSha512(byte[] input, byte[] key) returns byte[] = @java:Meth
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Hmac"
 } external;
 
-# Returns Hex encoded CRC32B value for the provided element.
+# Returns Hex-encoded CRC32B value for the provided element.
 # ```ballerina string checksum = crypto:crc32b(data); ```
 #
 # + input - Value for checksum generation
@@ -228,7 +228,7 @@ function externCrc32b(byte[] input) returns handle = @java:Method {
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Hash"
 } external;
 
-# Returns RSA-MD5 based signature value for the given data.
+# Returns the RSA-MD5 based signature value for the given data.
 # ```ballerina byte[]|crypto:Error signature = crypto:signRsaMd5(data, privateKey); ```
 #
 # + input - The content to be signed
