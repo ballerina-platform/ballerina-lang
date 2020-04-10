@@ -1,83 +1,15 @@
-## Module overview
-
 This module is used to interact with Kafka Brokers via Kafka Consumer and Kafka Producer clients.
 This module supports kafka 1.x.x and 2.0.0 versions.
 
-## Samples
-### Simple Kafka Consumer
+For information on the operations, which you can perform with this module, see the below **Functions**.
+For examples on the usage of the operations, see the following. 
+* [Producer Example](https://ballerina.io/learn/by-example/kafka_message_producer.html) 
+* [Consumer Service Example](https://ballerina.io/learn/by-example/kafka_message_consumer_service.html)
+* [Consumer Client Example](https://ballerina.io/learn/by-example/kafka_message_consumer_simple.html)
+* [Consumer Groups Example](https://ballerina.io/learn/by-example/kafka_message_consumer_group_service.html) 
+* [Transactional Producer Example](https://ballerina.io/learn/by-example/kafka_message_producer_transactional.html)
 
-Following is a simple service which is subscribed to a topic 'test-kafka-topic' on remote Kafka broker cluster.
-
-```ballerina
-import ballerina/io;
-import ballerina/kafka;
-import ballerina/lang. 'string;
-
-kafka:ConsumerConfiguration consumerConfigs = {
-    bootstrapServers:"localhost:9092",
-    groupId:"group-id",
-    topics:["test-kafka-topic"],
-    pollingIntervalInMillis:1000
-};
-
-listener kafka:Consumer consumer = new(consumerConfigs);
-
-service kafkaService on consumer {
-
-    resource function onMessage(kafka:ConsumerAction consumerAction,
-                  kafka:ConsumerRecord[] records) {
-        // Dispatched set of Kafka records to service, We process each one by one.
-        foreach var kafkaRecord in records {
-            processKafkaRecord(kafkaRecord);
-        }
-    }
-}
-
-function processKafkaRecord(kafka:ConsumerRecord kafkaRecord) {
-    var value = kafkaRecord.value;
-    if (value is byte[]) {
-        string | error msg = 'string:fromBytes(serializedMsg);
-        if (msg is string) {
-            // Print the retrieved Kafka record.
-            io:println("Topic: ", kafkaRecord.topic, " Received Message: ", msg);
-        } else {
-            log:printError("Error occurred while converting message data", msg);
-        }
-    }
-}
-````
-
-### Kafka Producer
-
-Following is a simple program which publishes a message to 'test-kafka-topic' topic in a remote Kafka broker cluster.
-
-```ballerina
-import ballerina/kafka;
-
-kafka:ProducerConfiguration producerConfigs = {
-    // Here we create a producer configs with optional parameters 
-    // client.id - used for broker side logging.
-    // acks - number of acknowledgments for request complete,
-    // retryCount - number of retries if record send fails.
-    bootstrapServers: "localhost:9092",
-    clientId:"basic-producer",
-    acks:"all",
-    retryCount:3
-};
-
-kafka:Producer kafkaProducer = new(producerConfigs);
-
-function main () {
-    string msg = "Hello World, Ballerina";
-    byte[] serializedMsg = msg.toByteArray("UTF-8");
-    var sendResult = kafkaProducer->send(serializedMsg, "test-kafka-topic");
-    if (sendResult is error) {
-        log:printError("Kafka producer failed to send data", err = sendResult);
-    }
-}
-```
-
-### Send Data Using Avro
+#### Send Data Using Avro
 The Ballerina Kafka module supports Avro serialization and deserialization.
 
 To try this, let's create a new Ballerina project and two modules inside it.
@@ -89,10 +21,9 @@ cd kafka_avro_sample
 ballerina add producer
 ballerina add consumer
 ```
-
- #### Dependencies
+ ##### Dependencies
  To use Avro, you need to add the necessary dependencies to the Ballerina project you created. 
-To do so, download the necessary dependencies and put them inside the `resources
+ To do so, download the necessary dependencies and put them inside the `resources
  ` directory. Also, add those dependencies to the `Ballerina.toml` file of your project.
  The following is a sample `Ballerina.toml` file with the dependencies.
  
@@ -154,7 +85,7 @@ To do so, download the necessary dependencies and put them inside the `resources
      groupId = "com.fasterxml.jackson.core"
 ```
 
-Now, the directory structure will look like follows. (Some of the files ignored)
+Now, the directory structure will look like follows. (Some of the files are ignored)
 
 ```shell script
 ├── Ballerina.toml
@@ -174,7 +105,7 @@ Now, the directory structure will look like follows. (Some of the files ignored)
         └── main.bal
 ```
 
-#### Avro Producer
+##### Avro Producer
 The `kafka:Proucer` can be configured to send data using Avro by providing the following configurations.
 
  - `schemaString`: This is the schema string, which is used to define the Avro schema.
@@ -225,7 +156,7 @@ public function main() {
 }
 ```
 
-#### Avro Consumer
+##### Avro Consumer
 The Kafka implementation of Ballerina currently supports Avro deserialization only for generic records.
 The Consumer will return `kafka:AvroGenericRecord` with the data received from Avro.
 

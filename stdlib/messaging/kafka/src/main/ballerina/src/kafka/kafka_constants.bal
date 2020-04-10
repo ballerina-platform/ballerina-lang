@@ -46,10 +46,10 @@ public const DES_CUSTOM = "CUSTOM";
 public const DES_AVRO = "AVRO";
 
 // Isolation levels
-# Consumer isolation level value 'read_committed'
+# Configures the consumer to read the committed messages only in transactional mode when poll() is called.
 public const ISOLATION_COMMITTED = "read_committed";
 
-# Consumer isolation level value 'read_uncommitted'
+# Configures the consumer to read all the messages, even the aborted ones.
 public const ISOLATION_UNCOMMITTED = "read_uncommitted";
 
 // Producer related constants
@@ -86,17 +86,17 @@ public const SER_CUSTOM = "CUSTOM";
 public const SER_AVRO = "AVRO";
 
 // Compression types
-# Kafka compression type. Value 'none'
+# No compression.
 public const COMPRESSION_NONE = "none";
 
-# Kafka compression type. Value 'gzip'
+# Kafka GZIP compression type.
 public const COMPRESSION_GZIP = "gzip";
 
-# Kafka compression type. Value 'snappy'
+# Kafka Snappy compression type.
 public const COMPRESSION_SNAPPY = "snappy";
 
-# Kafka compression type. Value 'lz4'
+# Kafka LZ4 compression type.
 public const COMPRESSION_LZ4 = "lz4";
 
-# Kafka compression type. Value 'zstd'
+# Kafka ZSTD compression type.
 public const COMPRESSION_ZSTD = "zstd";
