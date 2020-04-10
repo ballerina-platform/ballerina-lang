@@ -20,31 +20,41 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatement;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STCompoundAssignmentStatement extends STStatement {
-
     public final STNode lhsExpression;
     public final STNode binaryOperator;
     public final STNode equalsToken;
-    public final STNode expr;
+    public final STNode rhsExpression;
     public final STNode semicolonToken;
 
-    STCompoundAssignmentStatement(STNode lhsExpression,
-                          STNode binaryOperator,
-                          STNode equalsToken,
-                          STNode expr,
-                          STNode semicolonToken) {
+    STCompoundAssignmentStatement(
+            STNode lhsExpression,
+            STNode binaryOperator,
+            STNode equalsToken,
+            STNode rhsExpression,
+            STNode semicolonToken) {
         super(SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT);
         this.lhsExpression = lhsExpression;
         this.binaryOperator = binaryOperator;
         this.equalsToken = equalsToken;
-        this.expr = expr;
+        this.rhsExpression = rhsExpression;
         this.semicolonToken = semicolonToken;
 
-        addChildren(lhsExpression, binaryOperator, equalsToken, expr, semicolonToken);
+        addChildren(
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
+                semicolonToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CompoundAssignmentStatement(this, position, parent);
     }

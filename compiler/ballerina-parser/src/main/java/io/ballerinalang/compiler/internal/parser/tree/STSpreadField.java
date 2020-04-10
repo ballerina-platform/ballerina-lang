@@ -17,28 +17,37 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SpreadField;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
+ * This is a generated internal syntax tree node.
+ *
  * @since 1.3.0
  */
 public class STSpreadField extends STMappingField {
-
     public final STNode leadingComma;
     public final STNode ellipsis;
-    public final STNode expr;
+    public final STNode valueExpr;
 
-    STSpreadField(STNode leadingComma, STNode ellipsis, STNode expr) {
+    STSpreadField(
+            STNode leadingComma,
+            STNode ellipsis,
+            STNode valueExpr) {
         super(SyntaxKind.SPREAD_FIELD);
         this.leadingComma = leadingComma;
         this.ellipsis = ellipsis;
-        this.expr = expr;
+        this.valueExpr = valueExpr;
 
-        addChildren(leadingComma, ellipsis, expr);
+        addChildren(
+                leadingComma,
+                ellipsis,
+                valueExpr);
     }
 
-    public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
+    public Node createFacade(int position, NonTerminalNode parent) {
         return new SpreadField(this, position, parent);
     }
 }

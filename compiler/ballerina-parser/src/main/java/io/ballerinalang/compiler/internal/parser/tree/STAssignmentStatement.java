@@ -20,29 +20,37 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatement;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STAssignmentStatement extends STStatement {
-
-    public final STNode lhsExpression;
+    public final STNode varRef;
     public final STNode equalsToken;
-    public final STNode expr;
+    public final STNode expression;
     public final STNode semicolonToken;
 
-    STAssignmentStatement(SyntaxKind kind,
-                          STNode lhsExpression,
-                          STNode equalsToken,
-                          STNode expr,
-                          STNode semicolonToken) {
-        super(kind);
-        this.lhsExpression = lhsExpression;
+    STAssignmentStatement(
+            STNode varRef,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken) {
+        super(SyntaxKind.ASSIGNMENT_STATEMENT);
+        this.varRef = varRef;
         this.equalsToken = equalsToken;
-        this.expr = expr;
+        this.expression = expression;
         this.semicolonToken = semicolonToken;
 
-        addChildren(lhsExpression, equalsToken, expr, semicolonToken);
+        addChildren(
+                varRef,
+                equalsToken,
+                expression,
+                semicolonToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AssignmentStatement(this, position, parent);
     }

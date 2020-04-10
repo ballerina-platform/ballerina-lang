@@ -20,26 +20,33 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceBody;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
+ * This is a generated internal syntax tree node.
+ *
  * @since 1.3.0
  */
-public class STServiceBody extends STStatement {
-
+public class STServiceBody extends STNode {
     public final STNode openBraceToken;
     public final STNode resources;
     public final STNode closeBraceToken;
 
-    STServiceBody(STNode openBraceToken, STNode resources, STNode closeBraceToken) {
+    STServiceBody(
+            STNode openBraceToken,
+            STNode resources,
+            STNode closeBraceToken) {
         super(SyntaxKind.SERVICE_BODY);
         this.openBraceToken = openBraceToken;
         this.resources = resources;
         this.closeBraceToken = closeBraceToken;
 
-        addChildren(openBraceToken, resources, closeBraceToken);
+        addChildren(
+                openBraceToken,
+                resources,
+                closeBraceToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ServiceBody(this, position, parent);
     }

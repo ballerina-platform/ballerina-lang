@@ -17,28 +17,36 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.PanicStatement;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.PanicStatement;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STPanicStatement extends STStatement {
-
     public final STNode panicKeyword;
     public final STNode expression;
     public final STNode semicolonToken;
 
-    STPanicStatement(STNode panicKeyword,
-                     STNode expression,
-                     STNode semicolonToken) {
+    STPanicStatement(
+            STNode panicKeyword,
+            STNode expression,
+            STNode semicolonToken) {
         super(SyntaxKind.PANIC_STATEMENT);
         this.panicKeyword = panicKeyword;
         this.expression = expression;
         this.semicolonToken = semicolonToken;
 
-        addChildren(panicKeyword, expression, semicolonToken);
+        addChildren(
+                panicKeyword,
+                expression,
+                semicolonToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new PanicStatement(this, position, parent);
     }

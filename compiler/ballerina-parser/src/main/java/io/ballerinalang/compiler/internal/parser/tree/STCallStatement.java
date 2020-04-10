@@ -17,24 +17,33 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.CallStatement;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STCallStatement extends STStatement {
-
     public final STNode expression;
     public final STNode semicolonToken;
 
-    STCallStatement(STNode expression, STNode semicolonToken) {
+    STCallStatement(
+            STNode expression,
+            STNode semicolonToken) {
         super(SyntaxKind.CALL_STATEMENT);
         this.expression = expression;
         this.semicolonToken = semicolonToken;
 
-        addChildren(expression, semicolonToken);
+        addChildren(
+                expression,
+                semicolonToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new CallStatement(this, position, parent);
     }
 }

@@ -19,44 +19,67 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class CompoundAssignmentStatement extends Statement {
-    private Token variableName;
-    private Token binaryOperator;
-    private Token equalsToken;
-    private Node expression;
-    private Token semicolonToken;
 
-    public CompoundAssignmentStatement(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public CompoundAssignmentStatement(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Token variableName() {
-        return (Token) childInBucket(0);
+    public Expression lhsExpression() {
+        return childInBucket(0);
     }
 
-    public Node binaryOperator() {
+    public Token binaryOperator() {
         return childInBucket(1);
     }
 
-    public Node equalsToken() {
+    public Token equalsToken() {
         return childInBucket(2);
     }
 
-    public Node expression() {
+    public Expression rhsExpression() {
         return childInBucket(3);
     }
 
     public Token semicolonToken() {
-        return (Token) childInBucket(4);
+        return childInBucket(4);
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public CompoundAssignmentStatement modify(
+            Expression lhsExpression,
+            Token binaryOperator,
+            Token equalsToken,
+            Expression rhsExpression,
+            Token semicolonToken) {
+        if (checkForReferenceEquality(
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return NodeFactory.createCompoundAssignmentStatement(
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
+                semicolonToken);
     }
 }

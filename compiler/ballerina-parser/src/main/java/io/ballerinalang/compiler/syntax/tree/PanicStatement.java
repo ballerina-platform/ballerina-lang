@@ -19,17 +19,22 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class PanicStatement extends Statement {
 
-    public PanicStatement(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public PanicStatement(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Token panicKeyword() {
         return childInBucket(0);
     }
 
-    public Node expression() {
+    public Expression expression() {
         return childInBucket(1);
     }
 
@@ -38,12 +43,29 @@ public class PanicStatement extends Statement {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public PanicStatement modify(
+            Token panicKeyword,
+            Expression expression,
+            Token semicolonToken) {
+        if (checkForReferenceEquality(
+                panicKeyword,
+                expression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return NodeFactory.createPanicStatement(
+                panicKeyword,
+                expression,
+                semicolonToken);
     }
 }

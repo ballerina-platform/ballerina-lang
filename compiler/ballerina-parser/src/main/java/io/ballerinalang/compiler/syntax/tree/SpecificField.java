@@ -20,37 +20,59 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
-public class SpecificField extends NonTerminalNode {
+public class SpecificField extends MappingField {
 
-    public SpecificField(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public SpecificField(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Token leadingComma() {
         return childInBucket(0);
     }
 
-    public Node fieldName() {
+    public Identifier fieldName() {
         return childInBucket(1);
     }
 
-    public Token colonToken() {
+    public Token colon() {
         return childInBucket(2);
     }
 
-    public Node valueExpr() {
+    public Expression valueExpr() {
         return childInBucket(3);
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public SpecificField modify(
+            Token leadingComma,
+            Identifier fieldName,
+            Token colon,
+            Expression valueExpr) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                fieldName,
+                colon,
+                valueExpr)) {
+            return this;
+        }
+
+        return NodeFactory.createSpecificField(
+                leadingComma,
+                fieldName,
+                colon,
+                valueExpr);
     }
 }

@@ -17,31 +17,41 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.IfElseStatement;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STIfElseStatement extends STStatement {
-
     public final STNode ifKeyword;
     public final STNode condition;
     public final STNode ifBody;
     public final STNode elseBody;
 
-    STIfElseStatement(STNode ifKeyword,
-                      STNode condition,
-                      STNode ifBody,
-                      STNode elseBody) {
+    STIfElseStatement(
+            STNode ifKeyword,
+            STNode condition,
+            STNode ifBody,
+            STNode elseBody) {
         super(SyntaxKind.IF_ELSE_STATEMENT);
         this.ifKeyword = ifKeyword;
         this.condition = condition;
         this.ifBody = ifBody;
         this.elseBody = elseBody;
 
-        addChildren(ifKeyword, condition, ifBody, elseBody);
+        addChildren(
+                ifKeyword,
+                condition,
+                ifBody,
+                elseBody);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new IfElseStatement(this, position, parent);
     }
 }

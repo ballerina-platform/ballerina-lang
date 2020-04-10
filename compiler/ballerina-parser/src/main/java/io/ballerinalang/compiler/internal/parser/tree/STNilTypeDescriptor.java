@@ -20,20 +20,29 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.NilTypeDescriptor;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STNilTypeDescriptor extends STNode {
-    public final STNode openParenthesisToken;
-    public final STNode closeParenthesisToken;
+    public final STNode openParenToken;
+    public final STNode closeParenToken;
 
-    public STNilTypeDescriptor(STNode openParenthesisToken, STNode closeParenthesisToken) {
+    STNilTypeDescriptor(
+            STNode openParenToken,
+            STNode closeParenToken) {
         super(SyntaxKind.NIL_TYPE);
-        this.openParenthesisToken = openParenthesisToken;
-        this.closeParenthesisToken = closeParenthesisToken;
+        this.openParenToken = openParenToken;
+        this.closeParenToken = closeParenToken;
 
-        addChildren(openParenthesisToken, closeParenthesisToken);
+        addChildren(
+                openParenToken,
+                closeParenToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NilTypeDescriptor(this, position, parent);
     }

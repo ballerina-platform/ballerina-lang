@@ -23,4 +23,14 @@ public class EmptyToken extends Token {
     public EmptyToken(STNode token, int position, NonTerminalNode parent) {
         super(token, position, parent);
     }
+
+    @Override
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(NodeTransformer<T> visitor) {
+        return visitor.transform(this);
+    }
 }
