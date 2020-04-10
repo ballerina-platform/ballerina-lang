@@ -39,7 +39,7 @@ function externEncodeBase64Url(byte[] input) returns handle = @java:Method {
 # ```
 #
 # + input - Value to be decoded
-# + return - Decoded output or an `Error` if input is not a valid Base64 URL encoded value
+# + return - Decoded output or else an `Error` if the input is not a valid Base64 URL encoded value
 public function decodeBase64Url(string input) returns byte[]|Error {
     return externDecodeBase64Url(java:fromString(input));
 }

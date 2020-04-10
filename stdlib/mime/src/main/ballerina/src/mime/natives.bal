@@ -53,9 +53,9 @@ public const string CONTENT_DISPOSITION = "content-disposition";
 #
 # + fileName - Default filename for storing the bodypart, if the receiving agent wishes to store it in an external
 #              file
-# + disposition - Indicates how the body part should be presented (`inline`, `attachment` or as `form-data`)
+# + disposition - Indicates how the body part should be presented (`inline`, `attachment`, or as `form-data`)
 # + name - Represents the field name in case of `multipart/form-data`
-# + parameters - A set of parameters, specified in `attribute=value` notation
+# + parameters - A set of parameters specified in the `attribute=value` notation
 public type ContentDisposition object {
 
     public string fileName = "";

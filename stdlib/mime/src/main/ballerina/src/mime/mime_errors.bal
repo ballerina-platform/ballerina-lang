@@ -43,7 +43,7 @@ public const GENERIC_MIME_ERROR = "{ballerina/mime}GenericMimeError";
 # Represents a `GenericMimeError` with a detailed message.
 public type GenericMimeError error<GENERIC_MIME_ERROR, Detail>;
 
-# Identifies set header errors.
+# Identifies the set header errors.
 public const SET_HEADER_FAILED = "{ballerina/mime}SetHeaderFailed";
 
 # Represents a `SetHeaderError` with a detailed message.
@@ -80,7 +80,7 @@ public const IDLE_TIMEOUT_TRIGGERED = "{ballerina/mime}IdleTimeoutTriggeredError
 # Represents a `IdleTimeoutTriggeredError` with a detailed message.
 public type IdleTimeoutTriggeredError error<IDLE_TIMEOUT_TRIGGERED, Detail>;
 
-# Identifies errors occured due to payloads with no content.
+# Identifies the errors occurred due to payloads with no content.
 public const NO_CONTENT_ERROR_CODE = "{ballerina/mime}NoContentError";
 
 # Represents a `NoContentError` with a detailed message.
