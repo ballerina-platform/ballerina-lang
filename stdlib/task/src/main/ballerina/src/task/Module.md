@@ -29,7 +29,7 @@ task:TimerConfiguration timerConfiguration = {
 listener task:Listener timer = new(timerConfiguration);
 ```
 
-For an example on the usage of the `task:Listener` as a timer, see the [Task Service Timer Example](https://ballerina.io/v1-2/learn/by-example/task-service-timer.html).
+For an example on the usage of the `task:Listener` as a timer, see the [Task Service Timer Example](https://ballerina.io/learn/by-example/task-service-timer.html).
 
 ##### Task Listener as an Appointment
 
@@ -50,7 +50,7 @@ task:AppointmentConfiguration appointmentConfiguration = {
 listener task:Listener appointment = new(appointmentConfiguration);
 ```
 
-For an example on the usage of the `task:Listener` as an appointment, see the [Task Service Appointment Example](https://ballerina.io/v1-2/learn/by-example/task-service-appointment.html).
+For an example on the usage of the `task:Listener` as an appointment, see the [Task Service Appointment Example](https://ballerina.io/learn/by-example/task-service-appointment.html).
 
 #### Task Schedulers
 
@@ -76,7 +76,7 @@ task:TimerConfiguration timerConfiguration = {
 task:Scheduler timer = new(timerConfiguration);
 ```
 
-For an example on the usage of the `task:Scheduler` as a timer, see the [Task Scheduler Timer Example](https://ballerina.io/v1-2/learn/by-example/task-scheduler-timer.html).
+For an example on the usage of the `task:Scheduler` as a timer, see the [Task Scheduler Timer Example](https://ballerina.io/learn/by-example/task-scheduler-timer.html).
 
 #### Task Scheduler as an Appointment
 
@@ -92,4 +92,4 @@ task:AppointmentConfiguration appointmentConfiguration = {
 task:Scheduler appointment = new(appointmentConfiguration);
 ```
 
-For an example on the usage of the `task:Scheduler` as an appointment, see the [Task Scheduler Appointment Example](https://ballerina.io/v1-2/learn/by-example/task-scheduler-appointment.html).
+For an example on the usage of the `task:Scheduler` as an appointment, see the [Task Scheduler Appointment Example](https://ballerina.io/learn/by-example/task-scheduler-appointment.html).
