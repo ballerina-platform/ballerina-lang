@@ -351,6 +351,8 @@ public class ParserTestUtils {
                 return SyntaxKind.FINAL_KEYWORD;
             case "TYPEOF_KEYWORD":
                 return SyntaxKind.TYPEOF_KEYWORD;
+            case "IS_KEYWORD":
+                return SyntaxKind.IS_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -469,6 +471,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPEOF_EXPRESSION;
             case "UNARY_EXPRESSION":
                 return SyntaxKind.UNARY_EXPRESSION;
+            case "IS_EXPRESSION":
+                return SyntaxKind.IS_EXPRESSION;
 
             // Statements
             case "BLOCK_STATEMENT":
