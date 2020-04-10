@@ -19,39 +19,53 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class TypeReference extends NonTerminalNode {
 
-    public RecordFieldWithDefaultValueNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public TypeReference(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Node fieldType() {
+    public Token asteriskToken() {
         return childInBucket(0);
     }
 
-    public Token fieldName() {
+    public Node type() {
         return childInBucket(1);
     }
 
-    public Token questionMark() {
+    public Token semicolonToken() {
         return childInBucket(2);
     }
 
-    public Node defaultValue() {
-        return childInBucket(3);
-    }
-
-    public Token semicolon() {
-        return childInBucket(4);
-    }
-
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public TypeReference modify(
+            Token asteriskToken,
+            Node type,
+            Token semicolonToken) {
+        if (checkForReferenceEquality(
+                asteriskToken,
+                type,
+                semicolonToken)) {
+            return this;
+        }
+
+        return NodeFactory.createTypeReference(
+                asteriskToken,
+                type,
+                semicolonToken);
     }
 }

@@ -17,33 +17,20 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
+import io.ballerinalang.compiler.internal.parser.tree.STToken;
 
-public class PositionalArgumentNode extends FunctionArgumentNode {
+import java.util.ArrayList;
 
-    public PositionalArgumentNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
-    }
-
-    public Token leadingComma() {
-        return childInBucket(0);
-    }
-
-    public Token ellipsis() {
-        return childInBucket(1);
-    }
-
-    public Node expression() {
-        return childInBucket(2);
-    }
-
-    @Override
-    public void accept(SyntaxNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
-        return visitor.transform(this);
+/**
+ * A factory for creating nodes in the syntax tree.
+ *
+ * @since 1.3.0
+ */
+public abstract class AbstractNodeFactory {
+    public static Identifier createIdentifier(String text) {
+        STToken token = STNodeFactory.createIdentifier(text, STNodeFactory.createNodeList(new ArrayList<>()),
+                STNodeFactory.createNodeList(new ArrayList<>()));
+        return token.createUnlinkedFacade();
     }
 }

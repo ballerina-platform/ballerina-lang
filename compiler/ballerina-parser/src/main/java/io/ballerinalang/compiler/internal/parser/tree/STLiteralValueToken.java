@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+
 public class STLiteralValueToken extends STToken {
     public final String text;
     public final long value;

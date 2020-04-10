@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 // TODO find a better replacement for trivia. So C# like... ;-)
 public class SyntaxTrivia extends STNode {

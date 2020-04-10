@@ -17,28 +17,37 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.FieldAccessExpression;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STFieldAccessExpression extends STExpression {
-    
-    STNode expression;
-    STNode dotToken;
-    STNode fieldName;
+    public final STNode expression;
+    public final STNode dotToken;
+    public final STNode fieldName;
 
-    STFieldAccessExpression(STNode expression,
-                            STNode dotToken,
-                            STNode fieldName) {
+    STFieldAccessExpression(
+            STNode expression,
+            STNode dotToken,
+            STNode fieldName) {
         super(SyntaxKind.FIELD_ACCESS);
         this.expression = expression;
         this.dotToken = dotToken;
         this.fieldName = fieldName;
 
-        addChildren(expression, dotToken, fieldName);
+        addChildren(
+                expression,
+                dotToken,
+                fieldName);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new FieldAccessExpression(this, position, parent);
     }
 }

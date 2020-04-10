@@ -17,31 +17,41 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.MemberAccessExpression;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STMemberAccessExpression extends STExpression {
+    public final STNode containerExpression;
+    public final STNode openBracket;
+    public final STNode keyExpression;
+    public final STNode closeBracket;
 
-    final STNode containerExpr;
-    final STNode openBracket;
-    final STNode keyExpr;
-    final STNode closeBracket;
-
-    STMemberAccessExpression(STNode containerExpr,
-                             STNode openBracket,
-                             STNode keyExpression,
-                             STNode closeBracket) {
+    STMemberAccessExpression(
+            STNode containerExpression,
+            STNode openBracket,
+            STNode keyExpression,
+            STNode closeBracket) {
         super(SyntaxKind.MEMBER_ACCESS);
-        this.containerExpr = containerExpr;
+        this.containerExpression = containerExpression;
         this.openBracket = openBracket;
-        this.keyExpr = keyExpression;
+        this.keyExpression = keyExpression;
         this.closeBracket = closeBracket;
 
-        addChildren(containerExpr, openBracket, keyExpression, closeBracket);
+        addChildren(
+                containerExpression,
+                openBracket,
+                keyExpression,
+                closeBracket);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new MemberAccessExpression(this, position, parent);
     }
 }

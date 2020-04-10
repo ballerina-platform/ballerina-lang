@@ -19,12 +19,13 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 public abstract class STNode {
     public final SyntaxKind kind;
     protected int width;
 
-    protected final static STNode[] EMPTY_BUCKET = new STNode[0];
+    protected static final STNode[] EMPTY_BUCKET = new STNode[0];
     // The following fields allow us to navigate the tree without the knowledge of the particular tree nodes
     protected int bucketCount;
     protected STNode[] childBuckets = EMPTY_BUCKET;

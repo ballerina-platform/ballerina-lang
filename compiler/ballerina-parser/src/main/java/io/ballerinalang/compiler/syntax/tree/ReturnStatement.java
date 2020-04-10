@@ -19,17 +19,22 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class ReturnStatement extends Statement{
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class ReturnStatement extends Statement {
 
-    public ReturnStatement(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public ReturnStatement(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Token returnToken() {
+    public Token returnKeyword() {
         return childInBucket(0);
     }
 
-    public Node actionOrExpr() {
+    public Expression expression() {
         return childInBucket(1);
     }
 
@@ -38,12 +43,29 @@ public class ReturnStatement extends Statement{
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public ReturnStatement modify(
+            Token returnKeyword,
+            Expression expression,
+            Token semicolonToken) {
+        if (checkForReferenceEquality(
+                returnKeyword,
+                expression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return NodeFactory.createReturnStatement(
+                returnKeyword,
+                expression,
+                semicolonToken);
     }
 }

@@ -20,19 +20,21 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
 public class ComputedNameField extends NonTerminalNode {
 
-    public ComputedNameField(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public ComputedNameField(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Token leadingComma() {
         return childInBucket(0);
     }
 
-    public Node openBracket() {
+    public Token openBracket() {
         return childInBucket(1);
     }
 
@@ -53,12 +55,38 @@ public class ComputedNameField extends NonTerminalNode {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public ComputedNameField modify(
+            Token leadingComma,
+            Token openBracket,
+            Node fieldNameExpr,
+            Token closeBracket,
+            Token colonToken,
+            Node valueExpr) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                openBracket,
+                fieldNameExpr,
+                closeBracket,
+                colonToken,
+                valueExpr)) {
+            return this;
+        }
+
+        return NodeFactory.createComputedNameField(
+                leadingComma,
+                openBracket,
+                fieldNameExpr,
+                closeBracket,
+                colonToken,
+                valueExpr);
     }
 }

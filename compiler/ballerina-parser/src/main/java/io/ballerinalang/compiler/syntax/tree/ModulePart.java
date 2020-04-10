@@ -20,15 +20,14 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
- * Represents a single .bal file in the syntax tree.
+ * This is a generated syntax tree node.
  *
  * @since 1.3.0
  */
 public class ModulePart extends NonTerminalNode {
 
-    // TODO this constructor should not be public.
-    public ModulePart(STNode syntaxNode, int position, NonTerminalNode parent) {
-        super(syntaxNode, position, parent);
+    public ModulePart(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public NodeList<ImportDeclaration> imports() {
@@ -44,23 +43,29 @@ public class ModulePart extends NonTerminalNode {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
     }
 
-    public ModulePart modify(NodeList<ImportDeclaration> imports,
-                             NodeList<ModuleMemberDeclaration> members,
-                             Token eofToken) {
-        if (checkForReferenceEquality(imports.underlyingListNode(),
-                members.underlyingListNode(), eofToken)) {
+    public ModulePart modify(
+            NodeList<ImportDeclaration> imports,
+            NodeList<ModuleMemberDeclaration> members,
+            Token eofToken) {
+        if (checkForReferenceEquality(
+                imports.underlyingListNode(),
+                members.underlyingListNode(),
+                eofToken)) {
             return this;
         }
 
-        return NodeFactory.createModulePart(imports, members, eofToken);
+        return NodeFactory.createModulePart(
+                imports,
+                members,
+                eofToken);
     }
 }

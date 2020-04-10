@@ -19,27 +19,35 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerinalang.compiler.syntax.tree.RestArgument;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
-public class STRestArg extends STNode {
-
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class STRestArgument extends STFunctionArgument {
     public final STNode leadingComma;
     public final STNode ellipsis;
     public final STNode expression;
 
-    STRestArg(STNode leadingComma,
-              STNode ellipsis,
-              STNode expression) {
+    STRestArgument(
+            STNode leadingComma,
+            STNode ellipsis,
+            STNode expression) {
         super(SyntaxKind.REST_ARG);
         this.leadingComma = leadingComma;
         this.ellipsis = ellipsis;
         this.expression = expression;
 
-        addChildren(leadingComma, ellipsis, expression);
+        addChildren(
+                leadingComma,
+                ellipsis,
+                expression);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new PositionalArgumentNode(this, position, parent);
+        return new RestArgument(this, position, parent);
     }
 }

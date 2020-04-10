@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.internal.parser.tree;
+package io.ballerinalang.compiler.syntax.tree;
 
 public enum SyntaxKind {
 
@@ -53,8 +53,8 @@ public enum SyntaxKind {
     CHECK_KEYWORD(208, "check"),
     CHECKPANIC_KEYWORD(209, "checkpanic"),
     PANIC_KEYWORD(210, "panic"),
-    CONTINUE_KEYWORD(212,"continue"),
-    BREAK_KEYWORD(213,"break"),
+    CONTINUE_KEYWORD(212, "continue"),
+    BREAK_KEYWORD(213, "break"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -187,5 +187,7 @@ public enum SyntaxKind {
         this.strValue = "";
     }
 
-
+    public String stringValue() {
+        return strValue;
+    }
 }

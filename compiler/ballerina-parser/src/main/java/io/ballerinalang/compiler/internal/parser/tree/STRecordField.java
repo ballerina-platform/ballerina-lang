@@ -19,30 +19,39 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
+import io.ballerinalang.compiler.syntax.tree.RecordField;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STRecordField extends STNode {
-
     public final STNode type;
     public final STNode fieldName;
     public final STNode questionMarkToken;
     public final STNode semicolonToken;
 
-    STRecordField(STNode type,
-                  STNode fieldName,
-                  STNode questionMarkToken,
-                  STNode semicolonToken) {
+    STRecordField(
+            STNode type,
+            STNode fieldName,
+            STNode questionMarkToken,
+            STNode semicolonToken) {
         super(SyntaxKind.RECORD_FIELD);
         this.type = type;
         this.fieldName = fieldName;
         this.questionMarkToken = questionMarkToken;
         this.semicolonToken = semicolonToken;
 
-        addChildren(type, fieldName, questionMarkToken, semicolonToken);
+        addChildren(
+                type,
+                fieldName,
+                questionMarkToken,
+                semicolonToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new RecordFieldNode(this, position, parent);
+        return new RecordField(this, position, parent);
     }
 }

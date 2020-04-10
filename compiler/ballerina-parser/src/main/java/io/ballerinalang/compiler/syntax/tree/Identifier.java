@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STIdentifier;
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
  * Represents an identifier in the syntax tree.
@@ -26,17 +26,17 @@ import io.ballerinalang.compiler.internal.parser.tree.STIdentifier;
  */
 public class Identifier extends Token {
 
-    public Identifier(STIdentifier token, int position, NonTerminalNode parent) {
+    public Identifier(STNode token, int position, NonTerminalNode parent) {
         super(token, position, parent);
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
     }
 }

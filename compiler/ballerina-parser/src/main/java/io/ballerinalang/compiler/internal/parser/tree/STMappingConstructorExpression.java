@@ -18,27 +18,36 @@
 package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpression;
+import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
+ * This is a generated internal syntax tree node.
+ *
  * @since 1.3.0
  */
-public class STMappingConstructorExpression extends STNode {
-
+public class STMappingConstructorExpression extends STExpression {
     public final STNode openBrace;
     public final STNode fields;
     public final STNode closeBrace;
 
-    STMappingConstructorExpression(STNode openBrace, STNode fields, STNode closeBrace) {
+    STMappingConstructorExpression(
+            STNode openBrace,
+            STNode fields,
+            STNode closeBrace) {
         super(SyntaxKind.MAPPING_CONSTRUCTOR);
         this.openBrace = openBrace;
         this.fields = fields;
         this.closeBrace = closeBrace;
 
-        addChildren(openBrace, fields, closeBrace);
+        addChildren(
+                openBrace,
+                fields,
+                closeBrace);
     }
 
-    public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
+    public Node createFacade(int position, NonTerminalNode parent) {
         return new MappingConstructorExpression(this, position, parent);
     }
 }

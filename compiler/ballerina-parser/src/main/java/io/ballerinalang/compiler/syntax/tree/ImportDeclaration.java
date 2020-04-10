@@ -20,12 +20,14 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
 public class ImportDeclaration extends NonTerminalNode {
 
-    public ImportDeclaration(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public ImportDeclaration(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Token importKeyword() {
@@ -53,12 +55,38 @@ public class ImportDeclaration extends NonTerminalNode {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public ImportDeclaration modify(
+            Token importKeyword,
+            Token orgName,
+            Node moduleName,
+            Node version,
+            Node prefix,
+            Token semicolon) {
+        if (checkForReferenceEquality(
+                importKeyword,
+                orgName,
+                moduleName,
+                version,
+                prefix,
+                semicolon)) {
+            return this;
+        }
+
+        return NodeFactory.createImportDeclaration(
+                importKeyword,
+                orgName,
+                moduleName,
+                version,
+                prefix,
+                semicolon);
     }
 }

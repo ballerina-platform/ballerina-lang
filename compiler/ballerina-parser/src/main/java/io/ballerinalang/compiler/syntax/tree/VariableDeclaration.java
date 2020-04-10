@@ -20,12 +20,14 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
 public class VariableDeclaration extends Statement {
 
-    public VariableDeclaration(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public VariableDeclaration(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Token finalKeyword() {
@@ -36,7 +38,7 @@ public class VariableDeclaration extends Statement {
         return childInBucket(1);
     }
 
-    public Identifier variableName() {
+    public Token variableName() {
         return childInBucket(2);
     }
 
@@ -44,7 +46,7 @@ public class VariableDeclaration extends Statement {
         return childInBucket(3);
     }
 
-    public Node initializer() {
+    public Expression initializer() {
         return childInBucket(4);
     }
 
@@ -53,23 +55,38 @@ public class VariableDeclaration extends Statement {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
     }
 
-    public VariableDeclaration modify(Token finalKeyword, Node typeName, Identifier variableName,
-                                      Token equalsToken, Node initializer, Token semicolonToken) {
-        if (checkForReferenceEquality(finalKeyword, typeName, variableName,
-                equalsToken, initializer, semicolonToken)) {
+    public VariableDeclaration modify(
+            Token finalKeyword,
+            Node typeName,
+            Token variableName,
+            Token equalsToken,
+            Expression initializer,
+            Token semicolonToken) {
+        if (checkForReferenceEquality(
+                finalKeyword,
+                typeName,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken)) {
             return this;
         }
 
-        return NodeFactory.createVariableDeclaration(finalKeyword, typeName, variableName,
-                equalsToken, initializer, semicolonToken);
+        return NodeFactory.createVariableDeclaration(
+                finalKeyword,
+                typeName,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken);
     }
 }

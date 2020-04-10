@@ -19,39 +19,14 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class ObjectTypeDescriptorNode extends NonTerminalNode {
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public abstract class FunctionArgument extends NonTerminalNode {
 
-    public ObjectTypeDescriptorNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
-    }
-
-    public Node qualifiers() {
-        return childInBucket(0);
-    }
-
-    public Token objectKeyword() {
-        return childInBucket(1);
-    }
-
-    public Token openBrace() {
-        return childInBucket(2);
-    }
-
-    public Node members() {
-        return childInBucket(3);
-    }
-
-    public Token closeBrace() {
-        return childInBucket(4);
-    }
-
-    @Override
-    public void accept(SyntaxNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
-        return visitor.transform(this);
+    public FunctionArgument(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 }

@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+
 public abstract class STParameter extends STNode {
 
     STParameter(SyntaxKind kind) {

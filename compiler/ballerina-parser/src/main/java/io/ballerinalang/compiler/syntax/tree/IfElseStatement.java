@@ -19,43 +19,60 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class ObjectFieldNode extends NonTerminalNode {
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class IfElseStatement extends Statement {
 
-    public ObjectFieldNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public IfElseStatement(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Token visibilityQualifier() {
+    public Token ifKeyword() {
         return childInBucket(0);
     }
 
-    public Node fieldType() {
+    public Node condition() {
         return childInBucket(1);
     }
 
-    public Token fieldName() {
+    public Node ifBody() {
         return childInBucket(2);
     }
 
-    public Token questionMark() {
+    public Node elseBody() {
         return childInBucket(3);
     }
 
-    public Node defaultValue() {
-        return childInBucket(4);
-    }
-
-    public Token semicolon() {
-        return childInBucket(5);
-    }
-
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public IfElseStatement modify(
+            Token ifKeyword,
+            Node condition,
+            Node ifBody,
+            Node elseBody) {
+        if (checkForReferenceEquality(
+                ifKeyword,
+                condition,
+                ifBody,
+                elseBody)) {
+            return this;
+        }
+
+        return NodeFactory.createIfElseStatement(
+                ifKeyword,
+                condition,
+                ifBody,
+                elseBody);
     }
 }

@@ -18,7 +18,7 @@
 package io.ballerinalang.compiler.syntax.tree;
 
 /**
- * Parses a given input and produces a {@code Node}
+ * Parses a given input and produces a {@code Node}.
  *
  * @since 1.3.0
  */

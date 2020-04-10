@@ -19,33 +19,42 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 
-public class STModuleTypeDefinition extends STNode {
-    // TODO metadata goes here
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class STTypeDefinitionNode extends STModuleMemberDeclaration {
     public final STNode visibilityQualifier;
     public final STNode typeKeyword;
     public final STNode typeName;
     public final STNode typeDescriptor;
-    public final STNode semicolon;
+    public final STNode semicolonToken;
 
-    STModuleTypeDefinition(STNode visibilityQualifier,
-                           STNode typeKeyword,
-                           STNode typeName,
-                           STNode typeDescriptor,
-                           STNode semicolon) {
-
+    STTypeDefinitionNode(
+            STNode visibilityQualifier,
+            STNode typeKeyword,
+            STNode typeName,
+            STNode typeDescriptor,
+            STNode semicolonToken) {
         super(SyntaxKind.TYPE_DEFINITION);
         this.visibilityQualifier = visibilityQualifier;
         this.typeKeyword = typeKeyword;
         this.typeName = typeName;
         this.typeDescriptor = typeDescriptor;
-        this.semicolon = semicolon;
+        this.semicolonToken = semicolonToken;
 
-        addChildren(visibilityQualifier, typeKeyword, typeName, typeDescriptor, semicolon);
+        addChildren(
+                visibilityQualifier,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeDefinitionNode(this, position, parent);
     }

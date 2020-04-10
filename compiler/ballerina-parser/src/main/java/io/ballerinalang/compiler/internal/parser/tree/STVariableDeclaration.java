@@ -17,12 +17,17 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.VariableDeclaration;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.VariableDeclaration;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STVariableDeclaration extends STStatement {
-
     public final STNode finalKeyword;
     public final STNode typeName;
     public final STNode variableName;
@@ -30,14 +35,14 @@ public class STVariableDeclaration extends STStatement {
     public final STNode initializer;
     public final STNode semicolonToken;
 
-    STVariableDeclaration(SyntaxKind kind,
-                          STNode finalKeyword,
-                          STNode typeName,
-                          STNode variableName,
-                          STNode equalsToken,
-                          STNode initializer,
-                          STNode semicolonToken) {
-        super(kind);
+    STVariableDeclaration(
+            STNode finalKeyword,
+            STNode typeName,
+            STNode variableName,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken) {
+        super(SyntaxKind.VARIABLE_DECL);
         this.finalKeyword = finalKeyword;
         this.typeName = typeName;
         this.variableName = variableName;
@@ -45,10 +50,15 @@ public class STVariableDeclaration extends STStatement {
         this.initializer = initializer;
         this.semicolonToken = semicolonToken;
 
-        addChildren(finalKeyword, typeName, variableName, equalsToken, initializer, semicolonToken);
+        addChildren(
+                finalKeyword,
+                typeName,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new VariableDeclaration(this, position, parent);
     }

@@ -17,37 +17,49 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.MethodCallExpression;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STMethodCallExpression extends STExpression {
+    public final STNode expression;
+    public final STNode dotToken;
+    public final STNode methodName;
+    public final STNode openParenToken;
+    public final STNode arguments;
+    public final STNode closeParenToken;
 
-    final STNode expression;
-    final STNode dotToken;
-    final STNode methodName;
-    final STNode openParen;
-    final STNode arguments;
-    final STNode closeParen;
-
-    STMethodCallExpression(STNode expression,
-                           STNode dotToken,
-                           STNode methodName,
-                           STNode openParen,
-                           STNode arguments,
-                           STNode closeParen) {
+    STMethodCallExpression(
+            STNode expression,
+            STNode dotToken,
+            STNode methodName,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
         super(SyntaxKind.METHOD_CALL);
         this.expression = expression;
         this.dotToken = dotToken;
         this.methodName = methodName;
-        this.openParen = openParen;
+        this.openParenToken = openParenToken;
         this.arguments = arguments;
-        this.closeParen = closeParen;
+        this.closeParenToken = closeParenToken;
 
-        addChildren(expression, dotToken, methodName, openParen, arguments, closeParen);
+        addChildren(
+                expression,
+                dotToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new MethodCallExpression(this, position, parent);
     }
 }

@@ -15,31 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.syntax.tree;
+package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
-public class RestArgumentNode extends FunctionArgumentNode {
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public abstract class STModuleMemberDeclaration extends STNode {
 
-    public RestArgumentNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
-    }
-
-    public Token leadingComma() {
-        return childInBucket(0);
-    }
-
-    public Node expression() {
-        return childInBucket(1);
-    }
-
-    @Override
-    public void accept(SyntaxNodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
-        return visitor.transform(this);
+    STModuleMemberDeclaration(SyntaxKind kind) {
+        super(kind);
     }
 }

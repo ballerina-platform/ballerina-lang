@@ -19,31 +19,46 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class TypeReferenceNode extends NonTerminalNode {
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class PositionalArgument extends FunctionArgument {
 
-    public TypeReferenceNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public PositionalArgument(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Node asterisk() {
+    public Token leadingComma() {
         return childInBucket(0);
     }
 
-    public Node type() {
+    public Expression expression() {
         return childInBucket(1);
     }
 
-    public Token semicolon() {
-        return childInBucket(2);
-    }
-
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public PositionalArgument modify(
+            Token leadingComma,
+            Expression expression) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                expression)) {
+            return this;
+        }
+
+        return NodeFactory.createPositionalArgument(
+                leadingComma,
+                expression);
     }
 }

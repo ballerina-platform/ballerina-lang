@@ -19,30 +19,46 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class RecordRestDescriptorNode extends NonTerminalNode {
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class ElseBlock extends Statement {
 
-    public RecordRestDescriptorNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public ElseBlock(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Node fieldType() {
+    public Token elseKeyword() {
         return childInBucket(0);
     }
 
-    public Token ellipsis() {
+    public Node elseBody() {
         return childInBucket(1);
     }
 
-    public Token semicolon() {
-        return childInBucket(2);
-    }
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public ElseBlock modify(
+            Token elseKeyword,
+            Node elseBody) {
+        if (checkForReferenceEquality(
+                elseKeyword,
+                elseBody)) {
+            return this;
+        }
+
+        return NodeFactory.createElseBlock(
+                elseKeyword,
+                elseBody);
     }
 }

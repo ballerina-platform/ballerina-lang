@@ -19,35 +19,46 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class FunctionCallExpressionNode extends ExpressionTree {
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class CheckExpression extends Expression {
 
-    public FunctionCallExpressionNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public CheckExpression(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Node functionName() {
+    public Token checkKeyword() {
         return childInBucket(0);
     }
 
-    public Token openParenToken() {
+    public Node expression() {
         return childInBucket(1);
     }
 
-    public NodeList<FunctionArgumentNode> arguments() {
-        return new NodeList<>(childInBucket(2));
-    }
-
-    public Token closeParenToken() {
-        return childInBucket(3);
-    }
-
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public CheckExpression modify(
+            Token checkKeyword,
+            Node expression) {
+        if (checkForReferenceEquality(
+                checkKeyword,
+                expression)) {
+            return this;
+        }
+
+        return NodeFactory.createCheckExpression(
+                checkKeyword,
+                expression);
     }
 }

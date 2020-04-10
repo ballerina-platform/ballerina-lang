@@ -19,10 +19,15 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class FunctionDefinitionNode extends ModuleMemberDeclaration {
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class FunctionDefinition extends ModuleMemberDeclaration {
 
-    public FunctionDefinitionNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public FunctionDefinition(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Token visibilityQualifier() {
@@ -58,29 +63,44 @@ public class FunctionDefinitionNode extends ModuleMemberDeclaration {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
     }
 
-    public FunctionDefinitionNode modify(Token visibilityQualifier,
-                                         Token functionKeyword,
-                                         Identifier functionName,
-                                         Token openParenToken,
-                                         NodeList<Parameter> parameters,
-                                         Token closeParenToken,
-                                         Node returnTypeDesc,
-                                         BlockStatement functionBody) {
-        if (checkForReferenceEquality(visibilityQualifier, functionKeyword, functionName, openParenToken,
-                parameters.underlyingListNode(), closeParenToken, returnTypeDesc, functionBody)) {
+    public FunctionDefinition modify(
+            Token visibilityQualifier,
+            Token functionKeyword,
+            Identifier functionName,
+            Token openParenToken,
+            NodeList<Parameter> parameters,
+            Token closeParenToken,
+            Node returnTypeDesc,
+            BlockStatement functionBody) {
+        if (checkForReferenceEquality(
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                openParenToken,
+                parameters.underlyingListNode(),
+                closeParenToken,
+                returnTypeDesc,
+                functionBody)) {
             return this;
         }
 
-        return NodeFactory.createFunctionDefinitionNode(visibilityQualifier, functionKeyword, functionName, openParenToken,
-                parameters, closeParenToken, returnTypeDesc, functionBody);
+        return NodeFactory.createFunctionDefinition(
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc,
+                functionBody);
     }
 }

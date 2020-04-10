@@ -17,13 +17,13 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionDefinition;
 import io.ballerinalang.compiler.syntax.tree.Identifier;
 import io.ballerinalang.compiler.syntax.tree.ModulePart;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTreeModifier;
+import io.ballerinalang.compiler.syntax.tree.TreeModifier;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclaration;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -43,10 +43,10 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         VariableDeclModifier variableDeclModifier = new VariableDeclModifier();
         ModulePart newRoot = (ModulePart) oldRoot.apply(variableDeclModifier);
 
-        FunctionDefinitionNode oldFuncNode = (FunctionDefinitionNode) oldRoot.members().get(0);
+        FunctionDefinition oldFuncNode = (FunctionDefinition) oldRoot.members().get(0);
         VariableDeclaration oldStmt = (VariableDeclaration) oldFuncNode.functionBody().statements().get(0);
 
-        FunctionDefinitionNode newFuncNode = (FunctionDefinitionNode) newRoot.members().get(0);
+        FunctionDefinition newFuncNode = (FunctionDefinition) newRoot.members().get(0);
         VariableDeclaration newStmt = (VariableDeclaration) newFuncNode.functionBody().statements().get(0);
 
         Assert.assertNotEquals(newFuncNode, oldFuncNode);
@@ -63,10 +63,10 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         IdentifierModifier identifierModifier = new IdentifierModifier();
         ModulePart newRoot = (ModulePart) oldRoot.apply(identifierModifier);
 
-        FunctionDefinitionNode oldFuncNode = (FunctionDefinitionNode) oldRoot.members().get(0);
+        FunctionDefinition oldFuncNode = (FunctionDefinition) oldRoot.members().get(0);
         String oldFuncName = oldFuncNode.functionName().text();
 
-        FunctionDefinitionNode newFuncNode = (FunctionDefinitionNode) newRoot.members().get(0);
+        FunctionDefinition newFuncNode = (FunctionDefinition) newRoot.members().get(0);
         String newFuncName = newFuncNode.functionName().text();
 
         Assert.assertEquals(newFuncName, oldFuncName + "_new");
@@ -75,7 +75,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
     /**
      * An implementation of {@code SyntaxTreeModifier} that modify all variable declaration statements.
      */
-    private static class VariableDeclModifier extends SyntaxTreeModifier {
+    private static class VariableDeclModifier extends TreeModifier {
 
         @Override
         public Node transform(VariableDeclaration varDeclStmt) {
@@ -89,7 +89,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
     /**
      * An implementation of {@code SyntaxTreeModifier} that rename all identifiers in the tree.
      */
-    private static class IdentifierModifier extends SyntaxTreeModifier {
+    private static class IdentifierModifier extends TreeModifier {
 
         @Override
         public Node transform(Identifier identifier) {

@@ -19,35 +19,53 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class NamedArgumentNode extends FunctionArgumentNode {
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class ReturnTypeDescriptor extends NonTerminalNode {
 
-    public NamedArgumentNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public ReturnTypeDescriptor(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Token leadingComma() {
+    public Token returnsKeyword() {
         return childInBucket(0);
     }
 
-    public Node argumentName() {
-        return childInBucket(1);
+    public NodeList<Node> annotations() {
+        return new NodeList<>(childInBucket(1));
     }
 
-    public Token equalsToken() {
+    public Node type() {
         return childInBucket(2);
     }
 
-    public Node expression() {
-        return childInBucket(3);
-    }
-
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public ReturnTypeDescriptor modify(
+            Token returnsKeyword,
+            NodeList<Node> annotations,
+            Node type) {
+        if (checkForReferenceEquality(
+                returnsKeyword,
+                annotations.underlyingListNode(),
+                type)) {
+            return this;
+        }
+
+        return NodeFactory.createReturnTypeDescriptor(
+                returnsKeyword,
+                annotations,
+                type);
     }
 }

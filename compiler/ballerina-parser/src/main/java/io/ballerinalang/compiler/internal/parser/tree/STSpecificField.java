@@ -17,30 +17,41 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SpecificField;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
+ * This is a generated internal syntax tree node.
+ *
  * @since 1.3.0
  */
 public class STSpecificField extends STMappingField {
-
     public final STNode leadingComma;
-    public final STNode key;
+    public final STNode fieldName;
     public final STNode colon;
     public final STNode valueExpr;
 
-    STSpecificField(STNode leadingComma, STNode key, STNode colon, STNode valueExpr) {
+    STSpecificField(
+            STNode leadingComma,
+            STNode fieldName,
+            STNode colon,
+            STNode valueExpr) {
         super(SyntaxKind.SPECIFIC_FIELD);
         this.leadingComma = leadingComma;
-        this.key = key;
+        this.fieldName = fieldName;
         this.colon = colon;
         this.valueExpr = valueExpr;
 
-        addChildren(leadingComma, key, colon, valueExpr);
+        addChildren(
+                leadingComma,
+                fieldName,
+                colon,
+                valueExpr);
     }
 
-    public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
+    public Node createFacade(int position, NonTerminalNode parent) {
         return new SpecificField(this, position, parent);
     }
 }

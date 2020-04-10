@@ -17,32 +17,41 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
+import io.ballerinalang.compiler.syntax.tree.NamedArgument;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
-public class STNamedArg extends STNode {
-
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class STNamedArgument extends STFunctionArgument {
     public final STNode leadingComma;
-    public final STNode argName;
+    public final STNode argumentName;
     public final STNode equalsToken;
     public final STNode expression;
 
-    STNamedArg(STNode leadingComma,
-               STNode variableName,
-               STNode equalsToken,
-               STNode expression) {
+    STNamedArgument(
+            STNode leadingComma,
+            STNode argumentName,
+            STNode equalsToken,
+            STNode expression) {
         super(SyntaxKind.NAMED_ARG);
         this.leadingComma = leadingComma;
-        this.argName = variableName;
+        this.argumentName = argumentName;
         this.equalsToken = equalsToken;
         this.expression = expression;
 
-        addChildren(leadingComma, variableName, equalsToken, expression);
+        addChildren(
+                leadingComma,
+                argumentName,
+                equalsToken,
+                expression);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new NamedArgumentNode(this, position, parent);
+        return new NamedArgument(this, position, parent);
     }
 }

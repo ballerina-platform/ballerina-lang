@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 
 public class STToken extends STNode {
@@ -33,7 +34,7 @@ public class STToken extends STNode {
 
     STToken(SyntaxKind kind, STNode leadingTrivia, STNode trailingTrivia) {
         super(kind);
-        this.width = kind.strValue.length();
+        this.width = kind.stringValue().length();
         this.leadingTrivia = leadingTrivia;
         this.trailingTrivia = trailingTrivia;
         this.addTrivia(leadingTrivia);
@@ -49,7 +50,7 @@ public class STToken extends STNode {
     }
 
     public String text() {
-        return kind.strValue;
+        return kind.stringValue();
     }
 
     @Override
@@ -59,6 +60,6 @@ public class STToken extends STNode {
 
     @Override
     public String toString() {
-        return leadingTrivia + kind.strValue + trailingTrivia;
+        return leadingTrivia + kind.stringValue() + trailingTrivia;
     }
 }

@@ -19,13 +19,18 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class RecordTypeDescriptorNode extends NonTerminalNode {
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class RecordTypeDescriptor extends NonTerminalNode {
 
-    public RecordTypeDescriptorNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public RecordTypeDescriptor(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Token recordKeyword() {
+    public Token objectKeyword() {
         return childInBucket(0);
     }
 
@@ -33,8 +38,8 @@ public class RecordTypeDescriptorNode extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public Node fields() {
-        return childInBucket(2);
+    public NodeList<Node> fields() {
+        return new NodeList<>(childInBucket(2));
     }
 
     public Token bodyEndDelimiter() {
@@ -42,12 +47,32 @@ public class RecordTypeDescriptorNode extends NonTerminalNode {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public RecordTypeDescriptor modify(
+            Token objectKeyword,
+            Token bodyStartDelimiter,
+            NodeList<Node> fields,
+            Token bodyEndDelimiter) {
+        if (checkForReferenceEquality(
+                objectKeyword,
+                bodyStartDelimiter,
+                fields.underlyingListNode(),
+                bodyEndDelimiter)) {
+            return this;
+        }
+
+        return NodeFactory.createRecordTypeDescriptor(
+                objectKeyword,
+                bodyStartDelimiter,
+                fields,
+                bodyEndDelimiter);
     }
 }

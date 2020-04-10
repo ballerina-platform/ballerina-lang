@@ -19,35 +19,53 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class RecordFieldNode extends NonTerminalNode {
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class FieldAccessExpression extends Expression {
 
-    public RecordFieldNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public FieldAccessExpression(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Node fieldType() {
+    public Node expression() {
         return childInBucket(0);
     }
 
-    public Token fieldName() {
+    public Token dotToken() {
         return childInBucket(1);
     }
 
-    public Token questionMark() {
+    public Token fieldName() {
         return childInBucket(2);
     }
 
-    public Token semicolon() {
-        return childInBucket(3);
-    }
-
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public FieldAccessExpression modify(
+            Node expression,
+            Token dotToken,
+            Token fieldName) {
+        if (checkForReferenceEquality(
+                expression,
+                dotToken,
+                fieldName)) {
+            return this;
+        }
+
+        return NodeFactory.createFieldAccessExpression(
+                expression,
+                dotToken,
+                fieldName);
     }
 }

@@ -20,41 +20,59 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
-public class ServiceDeclarationNode extends ModuleMemberDeclaration {
+public class NamedArgument extends FunctionArgument {
 
-    public ServiceDeclarationNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public NamedArgument(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Token serviceKeyword() {
+    public Token leadingComma() {
         return childInBucket(0);
     }
 
-    public Token serviceName() {
+    public Token argumentName() {
         return childInBucket(1);
     }
 
-    public Token onKeyword() {
+    public Token equalsToken() {
         return childInBucket(2);
     }
 
-    public NodeList<Node> expressionList() {
-        return new NodeList<>(childInBucket(3));
-    }
-
-    public Node returnTypeDesc() {
-        return childInBucket(4);
+    public Expression expression() {
+        return childInBucket(3);
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public NamedArgument modify(
+            Token leadingComma,
+            Token argumentName,
+            Token equalsToken,
+            Expression expression) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                argumentName,
+                equalsToken,
+                expression)) {
+            return this;
+        }
+
+        return NodeFactory.createNamedArgument(
+                leadingComma,
+                argumentName,
+                equalsToken,
+                expression);
     }
 }

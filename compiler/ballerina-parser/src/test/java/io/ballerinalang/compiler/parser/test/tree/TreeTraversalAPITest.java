@@ -17,10 +17,10 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.ModulePart;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import org.testng.Assert;
