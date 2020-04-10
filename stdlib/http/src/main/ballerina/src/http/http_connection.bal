@@ -188,7 +188,7 @@ function nativeRespond(Caller caller, Response response) returns ListenerError? 
 } external;
 
 function nativeGetRemoteHostName(Caller caller) returns handle = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.connection.getRemoteHostName",
+    class: "org.ballerinalang.net.http.nativeimpl.connection.GetRemoteHostName",
     name: "nativeGetRemoteHostName"
 } external;
 

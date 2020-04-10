@@ -29,7 +29,7 @@ import java.net.InetSocketAddress;
  *
  * @since 1.1.5
  */
-public class getRemoteHostName {
+public class GetRemoteHostName {
 
     public static Object nativeGetRemoteHostName(ObjectValue caller) {
         Object remoteSocketAddress = caller.getNativeData(HttpConstants.REMOTE_SOCKET_ADDRESS);
