@@ -147,6 +147,21 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
+    public static STNode createCompoundAssignmentStatement(
+            STNode lhsExpression,
+            STNode binaryOperator,
+            STNode equalsToken,
+            STNode rhsExpression,
+            STNode semicolonToken) {
+
+        return new STCompoundAssignmentStatement(
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
+                semicolonToken);
+    }
+
     public static STNode createVariableDeclaration(
             STNode finalKeyword,
             STNode typeName,
@@ -368,6 +383,24 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openBracket,
                 keyExpression,
                 closeBracket);
+    }
+
+    public static STNode createTypeofExpression(
+            STNode typeofKeyword,
+            STNode expression) {
+
+        return new STTypeofExpression(
+                typeofKeyword,
+                expression);
+    }
+
+    public static STNode createUnaryExpression(
+            STNode unaryOperator,
+            STNode expression) {
+
+        return new STUnaryExpression(
+                unaryOperator,
+                expression);
     }
 
     public static STNode createComputedNameField(
@@ -597,6 +630,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 returnsKeyword,
                 annotations,
                 type);
+    }
+
+    public static STNode createNilTypeDescriptor(
+            STNode openParenToken,
+            STNode closeParenToken) {
+
+        return new STNilTypeDescriptor(
+                openParenToken,
+                closeParenToken);
     }
 
     public static STNode createObjectField(

@@ -19,7 +19,6 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
-
 import java.util.Objects;
 
 /**
@@ -189,6 +188,27 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 expression.internalNode(),
                 semicolonToken.internalNode());
         return stAssignmentStatement.createUnlinkedFacade();
+    }
+
+    public static CompoundAssignmentStatement createCompoundAssignmentStatement(
+            Expression lhsExpression,
+            Token binaryOperator,
+            Token equalsToken,
+            Expression rhsExpression,
+            Token semicolonToken) {
+        Objects.requireNonNull(lhsExpression, "lhsExpression must not be null");
+        Objects.requireNonNull(binaryOperator, "binaryOperator must not be null");
+        Objects.requireNonNull(equalsToken, "equalsToken must not be null");
+        Objects.requireNonNull(rhsExpression, "rhsExpression must not be null");
+        Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+
+        STNode stCompoundAssignmentStatement = STNodeFactory.createCompoundAssignmentStatement(
+                lhsExpression.internalNode(),
+                binaryOperator.internalNode(),
+                equalsToken.internalNode(),
+                rhsExpression.internalNode(),
+                semicolonToken.internalNode());
+        return stCompoundAssignmentStatement.createUnlinkedFacade();
     }
 
     public static VariableDeclaration createVariableDeclaration(
@@ -493,6 +513,30 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 keyExpression.internalNode(),
                 closeBracket.internalNode());
         return stMemberAccessExpression.createUnlinkedFacade();
+    }
+
+    public static TypeofExpression createTypeofExpression(
+            Token typeofKeyword,
+            Node expression) {
+        Objects.requireNonNull(typeofKeyword, "typeofKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stTypeofExpression = STNodeFactory.createTypeofExpression(
+                typeofKeyword.internalNode(),
+                expression.internalNode());
+        return stTypeofExpression.createUnlinkedFacade();
+    }
+
+    public static UnaryExpression createUnaryExpression(
+            Token unaryOperator,
+            Node expression) {
+        Objects.requireNonNull(unaryOperator, "unaryOperator must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stUnaryExpression = STNodeFactory.createUnaryExpression(
+                unaryOperator.internalNode(),
+                expression.internalNode());
+        return stUnaryExpression.createUnlinkedFacade();
     }
 
     public static ComputedNameField createComputedNameField(
@@ -808,6 +852,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 annotations.underlyingListNode().internalNode(),
                 type.internalNode());
         return stReturnTypeDescriptor.createUnlinkedFacade();
+    }
+
+    public static NilTypeDescriptor createNilTypeDescriptor(
+            Token openParenToken,
+            Token closeParenToken) {
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stNilTypeDescriptor = STNodeFactory.createNilTypeDescriptor(
+                openParenToken.internalNode(),
+                closeParenToken.internalNode());
+        return stNilTypeDescriptor.createUnlinkedFacade();
     }
 
     public static ObjectField createObjectField(

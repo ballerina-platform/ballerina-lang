@@ -180,6 +180,9 @@ public class BallerinaLexer {
             case LexerTerminals.BITWISE_XOR:
                 token = getSyntaxToken(SyntaxKind.BITWISE_XOR_TOKEN);
                 break;
+            case LexerTerminals.NEGATION:
+                token = getSyntaxToken(SyntaxKind.NEGATION_TOKEN);
+                break;
 
             // Numbers
             case '0':
@@ -646,6 +649,8 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.CONST_KEYWORD);
             case LexerTerminals.FINAL:
                 return getSyntaxToken(SyntaxKind.FINAL_KEYWORD);
+            case LexerTerminals.TYPEOF:
+                return getSyntaxToken(SyntaxKind.TYPEOF_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

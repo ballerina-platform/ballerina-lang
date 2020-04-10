@@ -1,3 +1,3 @@
 public function foo() {
-    int a = 3 + check ;
+    int a = typeof bar();
 }

@@ -85,6 +85,7 @@ public enum ParserRuleContext {
     CONSTANT_DECL("const-decl"),
     CONST_DECL_TYPE("const-decl-type"),
     CONST_DECL_RHS("const-decl-rhs"),
+    NIL_TYPE_DESCRIPTOR("nil-type-descriptor"),
 
     // Statements
     STATEMENT("statement"),
@@ -106,6 +107,7 @@ public enum ParserRuleContext {
     PANIC_STMT("panic-statement"),
     RETURN_STMT("return-stmt"),
     RETURN_STMT_RHS("return-stmt-rhs"),
+    COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -165,6 +167,9 @@ public enum ParserRuleContext {
     SERVICE_NAME("service-name"),
     LISTENER_KEYWORD("const-keyword"),
     CONST_KEYWORD("const-keyword"),
+    COMPOUND_BINARY_OPERATOR("compound-binary-operator"),
+    TYPEOF_KEYWORD("typeof-keyword"),
+    UNARY_OPERATOR("unary-operator"),
 
     // Expressions
     EXPRESSION("expression"),
@@ -179,7 +184,9 @@ public enum ParserRuleContext {
     MAPPING_FIELD("maping-field"),
     MAPPING_FIELD_NAME("maping-field-name"),
     SPECIFIC_FIELD_RHS("specific-field-rhs"),
-    COMPUTED_FIELD_NAME("computed-field-name")
+    COMPUTED_FIELD_NAME("computed-field-name"),
+    TYPEOF_EXPRESSION("typeof-expr"),
+    UNARY_EXPRESSION("unary-expr"),
     ;
 
     private String value;

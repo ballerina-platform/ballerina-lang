@@ -141,6 +141,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(CompoundAssignmentStatement compoundAssignmentStatement) {
+        Expression lhsExpression = modifyNode(compoundAssignmentStatement.lhsExpression());
+        Token binaryOperator = modifyToken(compoundAssignmentStatement.binaryOperator());
+        Token equalsToken = modifyToken(compoundAssignmentStatement.equalsToken());
+        Expression rhsExpression = modifyNode(compoundAssignmentStatement.rhsExpression());
+        Token semicolonToken = modifyToken(compoundAssignmentStatement.semicolonToken());
+        return compoundAssignmentStatement.modify(
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
+                semicolonToken);
+    }
+
+    @Override
     public Node transform(VariableDeclaration variableDeclaration) {
         Token finalKeyword = modifyToken(variableDeclaration.finalKeyword());
         Node typeName = modifyNode(variableDeclaration.typeName());
@@ -359,6 +374,24 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openBracket,
                 keyExpression,
                 closeBracket);
+    }
+
+    @Override
+    public Node transform(TypeofExpression typeofExpression) {
+        Token typeofKeyword = modifyToken(typeofExpression.typeofKeyword());
+        Node expression = modifyNode(typeofExpression.expression());
+        return typeofExpression.modify(
+                typeofKeyword,
+                expression);
+    }
+
+    @Override
+    public Node transform(UnaryExpression unaryExpression) {
+        Token unaryOperator = modifyToken(unaryExpression.unaryOperator());
+        Node expression = modifyNode(unaryExpression.expression());
+        return unaryExpression.modify(
+                unaryOperator,
+                expression);
     }
 
     @Override
@@ -588,6 +621,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 returnsKeyword,
                 annotations,
                 type);
+    }
+
+    @Override
+    public Node transform(NilTypeDescriptor nilTypeDescriptor) {
+        Token openParenToken = modifyToken(nilTypeDescriptor.openParenToken());
+        Token closeParenToken = modifyToken(nilTypeDescriptor.closeParenToken());
+        return nilTypeDescriptor.modify(
+                openParenToken,
+                closeParenToken);
     }
 
     @Override

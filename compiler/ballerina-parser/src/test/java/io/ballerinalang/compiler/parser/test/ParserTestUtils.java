@@ -349,6 +349,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CONST_KEYWORD;
             case "FINAL_KEYWORD":
                 return SyntaxKind.FINAL_KEYWORD;
+            case "TYPEOF_KEYWORD":
+                return SyntaxKind.TYPEOF_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -393,6 +395,8 @@ public class ParserTestUtils {
                 return SyntaxKind.LOGICAL_AND_TOKEN;
             case "LOGICAL_OR_TOKEN":
                 return SyntaxKind.LOGICAL_OR_TOKEN;
+            case "NEGATION_TOKEN":
+                return SyntaxKind.NEGATION_TOKEN;
 
             // Separators
             case "OPEN_BRACE_TOKEN":
@@ -461,6 +465,10 @@ public class ParserTestUtils {
                 return SyntaxKind.CHECK_EXPRESSION;
             case "MAPPING_CONSTRUCTOR":
                 return SyntaxKind.MAPPING_CONSTRUCTOR;
+            case "TYPEOF_EXPRESSION":
+                return SyntaxKind.TYPEOF_EXPRESSION;
+            case "UNARY_EXPRESSION":
+                return SyntaxKind.UNARY_EXPRESSION;
 
             // Statements
             case "BLOCK_STATEMENT":
@@ -485,6 +493,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BREAK_STATEMENT;
             case "RETURN_STATEMENT":
                 return SyntaxKind.RETURN_STATEMENT;
+            case "COMPOUND_ASSIGNMENT_STATEMENT":
+                return SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT;
 
             // Others
             case "SIMPLE_TYPE":
@@ -533,6 +543,8 @@ public class ParserTestUtils {
                 return SyntaxKind.SERVICE_BODY;
             case "EXPRESSION_LIST_ITEM":
                 return SyntaxKind.EXPRESSION_LIST_ITEM;
+            case "NIL_TYPE":
+                return SyntaxKind.NIL_TYPE;
 
             // Trivia
             case "EOF_TOKEN":

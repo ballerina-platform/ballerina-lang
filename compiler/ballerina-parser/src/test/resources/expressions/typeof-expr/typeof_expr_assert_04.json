@@ -53,17 +53,18 @@
                                             "value": "3"
                                         },
                                         {
-                                            "kind": "PLUS_TOKEN"
+                                            "kind": "PLUS_TOKEN",
+                                            "isMissing": true
                                         },
                                         {
-                                            "kind": "CHECK_EXPRESSION",
+                                            "kind": "TYPEOF_EXPRESSION",
                                             "children": [
                                                 {
-                                                    "kind": "CHECK_KEYWORD"
+                                                    "kind": "TYPEOF_KEYWORD"
                                                 },
                                                 {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "isMissing": true
+                                                    "kind": "DECIMAL_INTEGER_LITERAL",
+                                                    "value": "2"
                                                 }
                                             ]
                                         }

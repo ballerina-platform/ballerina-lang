@@ -56,10 +56,10 @@
                                             "kind": "PLUS_TOKEN"
                                         },
                                         {
-                                            "kind": "CHECK_EXPRESSION",
+                                            "kind": "TYPEOF_EXPRESSION",
                                             "children": [
                                                 {
-                                                    "kind": "CHECK_KEYWORD"
+                                                    "kind": "TYPEOF_KEYWORD"
                                                 },
                                                 {
                                                     "kind": "IDENTIFIER_TOKEN",

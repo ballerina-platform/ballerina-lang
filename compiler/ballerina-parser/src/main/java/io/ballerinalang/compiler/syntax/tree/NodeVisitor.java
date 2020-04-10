@@ -67,6 +67,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(assignmentStatement);
     }
 
+    public void visit(CompoundAssignmentStatement compoundAssignmentStatement) {
+        visitSyntaxNode(compoundAssignmentStatement);
+    }
+
     public void visit(VariableDeclaration variableDeclaration) {
         visitSyntaxNode(variableDeclaration);
     }
@@ -143,6 +147,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(memberAccessExpression);
     }
 
+    public void visit(TypeofExpression typeofExpression) {
+        visitSyntaxNode(typeofExpression);
+    }
+
+    public void visit(UnaryExpression unaryExpression) {
+        visitSyntaxNode(unaryExpression);
+    }
+
     public void visit(ComputedNameField computedNameField) {
         visitSyntaxNode(computedNameField);
     }
@@ -217,6 +229,10 @@ public abstract class NodeVisitor {
 
     public void visit(ReturnTypeDescriptor returnTypeDescriptor) {
         visitSyntaxNode(returnTypeDescriptor);
+    }
+
+    public void visit(NilTypeDescriptor nilTypeDescriptor) {
+        visitSyntaxNode(nilTypeDescriptor);
     }
 
     public void visit(ObjectField objectField) {

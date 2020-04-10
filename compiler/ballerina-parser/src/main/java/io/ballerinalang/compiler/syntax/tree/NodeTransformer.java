@@ -68,6 +68,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(assignmentStatement);
     }
 
+    public T transform(CompoundAssignmentStatement compoundAssignmentStatement) {
+        return transformSyntaxNode(compoundAssignmentStatement);
+    }
+
     public T transform(VariableDeclaration variableDeclaration) {
         return transformSyntaxNode(variableDeclaration);
     }
@@ -144,6 +148,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(memberAccessExpression);
     }
 
+    public T transform(TypeofExpression typeofExpression) {
+        return transformSyntaxNode(typeofExpression);
+    }
+
+    public T transform(UnaryExpression unaryExpression) {
+        return transformSyntaxNode(unaryExpression);
+    }
+
     public T transform(ComputedNameField computedNameField) {
         return transformSyntaxNode(computedNameField);
     }
@@ -218,6 +230,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(ReturnTypeDescriptor returnTypeDescriptor) {
         return transformSyntaxNode(returnTypeDescriptor);
+    }
+
+    public T transform(NilTypeDescriptor nilTypeDescriptor) {
+        return transformSyntaxNode(nilTypeDescriptor);
     }
 
     public T transform(ObjectField objectField) {
