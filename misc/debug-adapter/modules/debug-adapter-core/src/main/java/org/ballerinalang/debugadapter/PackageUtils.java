@@ -16,7 +16,6 @@
 
 package org.ballerinalang.debugadapter;
 
-
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
@@ -29,6 +28,7 @@ import java.nio.file.Paths;
  * Package Utils.
  */
 public class PackageUtils {
+
     public static final String MANIFEST_FILE_NAME = "Ballerina.toml";
     /**
      * Find the project root by recursively up to the root.
@@ -48,25 +48,6 @@ public class PackageUtils {
         return null;
     }
 
-    /**
-     * Get the relative file path to a bal file from its project root.
-     * @param balFilePath absolute path to bal file
-     * @return relative path from project root
-     */
-    public static String getRelativeFilePath(String balFilePath) {
-        Path path = Paths.get(balFilePath);
-        Path projectRoot = findProjectRoot(path);
-        Path relativePath = projectRoot.relativize(path);
-
-        String packagePath = relativePath.toString();
-        Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-        String orgName = manifest.getProject().getOrgName();
-        if (packagePath.startsWith("src")) {
-            packagePath = packagePath.replaceFirst("src", orgName);
-        }
-        return packagePath;
-    }
-
     public static String getOrgName(String balFilePath) {
         Path path = Paths.get(balFilePath);
         Path projectRoot = findProjectRoot(path);
@@ -81,10 +62,10 @@ public class PackageUtils {
         Path relativePath = projectRoot.relativize(path);
 
         String packagePath = relativePath.toString();
-        String fileSeparatorChar = File.separatorChar == '\\' ? "\\\\" : File.separator;
         if (packagePath.startsWith("src")) {
-            packagePath = packagePath.replaceFirst("src" + fileSeparatorChar, "");
+            packagePath = packagePath.replaceFirst("src" + File.separator, "");
         }
-        return packagePath.split(fileSeparatorChar)[0];
+        // Directly using file separator as a regex will fail on windows.
+        return packagePath.split(File.separatorChar == '\\' ? "\\\\" : File.separator)[0];
     }
 }
