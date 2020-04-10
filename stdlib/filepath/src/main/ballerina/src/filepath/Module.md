@@ -3,4 +3,4 @@ the target operating system.
 
 For information on the operations, which you can perform with this module, see the below **Functions**.
 
-* [File Path Examples](https://ballerina.io/v1-2/learn/by-example/filepath.html).
+* For an example on the usage of the operations, see the [File Path Example](https://ballerina.io/v1-2/learn/by-example/filepath.html).

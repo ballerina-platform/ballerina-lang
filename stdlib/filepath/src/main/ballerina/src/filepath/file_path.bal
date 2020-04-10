@@ -29,8 +29,8 @@ string pathListSeparator = isWindows ? ";" : ":";
 #  string absolutePath = checkpanic filepath:absolute(<@untainted> "test.txt");
 # ```
 #
-# + path - String value of file path
-# + return - The absolute path reference or an error if the path cannot be derived
+# + path - String value of the file path
+# + return - The absolute path reference or else an error if the path cannot be derived
 public function absolute(@untainted string path) returns string|Error {
     var result = externAbsolute(java:fromString(path));
     if (result is Error) {
@@ -52,22 +52,22 @@ function externAbsolute(handle path) returns handle|Error =
     class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
 } external;
 
-# Returns path separator of underline operating system.
+# Returns the path separator of the underlying operating system.
 # ```ballerina
 #  string pathSeparator = filepath:getPathSeparator();
 # ```
 #
-# + return - String value of path separator
+# + return - String value of the path separator
 public function getPathSeparator() returns string {
     return pathSeparator;
 }
 
-# Returns path list separator of the underline operating system.
+# Returns the path list separator of the underlying operating system.
 # ```ballerina
 #  string pathListSeparator = filepath:getPathListSeparator();
 # ```
 #
-# + return - String value of path list separator
+# + return - String value of the path list separator
 public function getPathListSeparator() returns string {
     return pathListSeparator;
 }
@@ -75,13 +75,13 @@ public function getPathListSeparator() returns string {
 # Reports whether the path is absolute.
 # A path is absolute if it is independent of the current directory.
 # On Unix, a path is absolute if it starts with the root.
-# On Windows, a path is absolute if it has a prefix and starts with the root: c:\windows is absolute.
+# On Windows, a path is absolute if it has a prefix and starts with the root: c:\windows.
 # ```ballerina
 #  boolean|filepath:Error isAbsolute = filepath:isAbsolute("/A/B/C");
 # ```
 #
-# + path - String value of file path
-# + return - True if path is absolute, else false
+# + path - String value of the file path
+# + return - True if path is absolute or else false
 public function isAbsolute(string path) returns boolean|Error {
     if (path.length() <= 0) {
         return false;
@@ -93,8 +93,8 @@ public function isAbsolute(string path) returns boolean|Error {
     }
 }
 
-# Retrieves the base name of the file from the provided location.
-# Which is the last element of the path.
+# Retrieves the base name of the file from the provided location,
+# which is the last element of the path.
 # Trailing path separators are removed before extracting the last element.
 # ```ballerina
 #  string|filepath:Error name = filepath:filename("/A/B/C.txt");
@@ -125,8 +125,8 @@ public function filename(string path) returns string|Error {
 #  string|filepath:Error parentPath = filepath:parent("/A/B/C.txt");
 # ```
 #
-# + path - String value of file path
-# + return - Path of parent folder or an error, if error occurred while getting parent directory
+# + path - String value of the file path
+# + return - Path of the parent folder or else an error if error occurred while getting the parent directory
 public function parent(string path) returns string|Error {
     string validatedPath = check parse(path);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
@@ -147,7 +147,7 @@ public function parent(string path) returns string|Error {
     return validatedPath.substring(0, len);
 }
 
-# Returns the shortest path name equivalent to path by purely lexical processing.
+# Returns the shortest path name equivalent to the path by purely lexical processing.
 # Replace multiple Separator elements with a single one.
 # Eliminate each "." path name element (the current directory).
 # Eliminate each inner ".." path name element (the parent directory).
@@ -155,7 +155,7 @@ public function parent(string path) returns string|Error {
 #  string|filepath:Error normalizedPath = filepath:normalize("foo/../bar");
 # ```
 #
-# + path - String value of file path
+# + path - String value of the file path
 # + return - Normalized file path
 public function normalize(string path) returns string|Error {
     string validatedPath = check parse(path);
@@ -241,7 +241,7 @@ public function normalize(string path) returns string|Error {
 #  string[]|filepath:Error parts = filepath:split("/A/B/C");
 # ```
 #
-# + path - String value of file path
+# + path - String value of the file path
 # + return - String array of part components
 public function split(string path) returns string[]|Error {
     string validatedPath = check parse(path);
@@ -270,8 +270,8 @@ public function split(string path) returns string[]|Error {
 #  string|filepath:Error path = filepath:build("/", "foo", "bar");
 # ```
 #
-# + parts - String values of file path parts
-# + return - String value of file path
+# + parts - String values of the file path parts
+# + return - String value of the file path
 public function build(string... parts) returns string|Error {
     if (isWindows) {
         return check buildWindowsPath(...parts);
@@ -287,7 +287,7 @@ public function build(string... parts) returns string|Error {
 # ```
 #
 # + name - Filename
-# + return - True, if path is a Windows reserved name
+# + return - True if path is a Windows reserved name or else false otherwise
 public function isReservedName(string name) returns boolean {
     if (isWindows) {
         return isWindowsReservedName(name);
@@ -303,8 +303,8 @@ public function isReservedName(string name) returns boolean {
 #  string|filepath:Error extension = filepath:extension("path.bal");
 # ```
 #
-# + path - String value of file path
-# + return - The extension of the file, or an empty string if there is no extension
+# + path - String value of the file path
+# + return - The extension of the file or else an empty string if there is no extension
 public function extension(string path) returns string|Error {
     if (path.endsWith(pathSeparator) || (isWindows && path.endsWith("/"))) {
       return  "";
@@ -337,7 +337,7 @@ public function extension(string path) returns string|Error {
 #
 # + base - String value of the base file path
 # + target - String value of the target file path
-# + return - The extension of the file, or an empty string if there is no extension
+# + return - The extension of the file or else an empty string if there is no extension
 public function relative(string base, string target) returns string|Error {
     string cleanBase = check normalize(base);
     string cleanTarget = check normalize(target);
@@ -400,14 +400,14 @@ public function relative(string base, string target) returns string|Error {
 }
 
 # Returns the filepath after the evaluation of any symbolic links.
-# If path is relative, the result will be relative to the current directory,
+# If path is relative, the result will be relative to the current directory
 # unless one of the components is an absolute symbolic link.
-# Resolve calls normalize on the result.
+# Resolves normalising calls on the result.
 # ```ballerina
 #  string|filepath:Error resolvedPath = filepath:resolve("a/b/c");
 # ```
 #
-# + path - String value of file path
+# + path - String value of the file path
 # + return - Resolved file path
 public function resolve(@untainted string path) returns string|Error {
     var result = externResolve(java:fromString(path));
@@ -430,7 +430,7 @@ function externResolve(handle path) returns handle|Error =
     class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
 } external;
 
-# Reports whether all of filename matches the provided Glob pattern, not just a substring.
+# Reports whether all (not just a substring) of the filename matches the provided Glob pattern.
 # An error is returned if the pattern is malformed.
 # ```ballerina
 #  boolean|filepath:Error matches = filepath:matches("a/b/c.java", "glob:*.{java,class}");
@@ -438,7 +438,7 @@ function externResolve(handle path) returns handle|Error =
 #
 # + path - String value of the file path
 # + pattern - String value of the target file path
-# + return - True if filename of the path matches with the pattern, else false
+# + return - True if filename of the path matches with the pattern or else false otherwise
 public function matches(string path, string pattern) returns boolean|Error {
     return externMatches(java:fromString(path), java:fromString(pattern));
 }
