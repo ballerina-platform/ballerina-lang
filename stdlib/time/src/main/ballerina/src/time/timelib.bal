@@ -40,7 +40,7 @@ public type Time record {|
     TimeZone zone;
 |};
 
-# Returns ISO 8601 string representation of the given time.
+# Returns the ISO 8601 string representation of the given time.
 # ```ballerina
 #  time:TimeZone zoneValue = {id: "America/Panama"};
 #  time:Time time = {time: 1578488382444, zone: zoneValue};
@@ -63,7 +63,7 @@ function externToString(Time time) returns handle = @java:Method {
     class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
-# Returns formatted string representation of the given time.
+# Returns the formatted string representation of the given time.
 # ```ballerina
 #  time:TimeZone zoneValue = {id: "America/Panama"};
 #  time:Time time = {time: 1578488382444, zone: zoneValue};
@@ -71,8 +71,8 @@ function externToString(Time time) returns handle = @java:Method {
 # ```
 #
 # + time - The Time record to be formatted
-# + timeFormat - The format which is used to format the time represented by this object
-# + return - The formatted string of the given time or an error if failed to format the time
+# + timeFormat - The format, which is used to format the time represented by this object
+# + return - The formatted string of the given time or else an error if failed to format the time
 public function format(Time time, string timeFormat) returns string|Error {
     var result = externFormat(time, java:fromString(timeFormat));
     if (result is Error) {
@@ -118,7 +118,7 @@ function externGetYear(Time time) returns int = @java:Method {
 # ```
 #
 # + time - The Time record to get the month representation from
-# + return - The month-of-year, from 1 (January) to 12 (December)
+# + return - The month-of-year from 1 (January) to 12 (December)
 public function getMonth(Time time) returns int {
     return externGetMonth(time);
 }
@@ -249,9 +249,9 @@ function externGetMilliSecond(Time time) returns int = @java:Method {
 # ```
 #
 # + time - The Time record to get the date representation
-# + return - The year representation
-#            The month-of-year, from 1 (January) to 12 (December)
-#            The day-of-month, from 1 to 31
+# + return - The year representation with
+#            the month-of-year from 1 (January) to 12 (December) and 
+#            the day-of-month from 1 to 31
 public function getDate(Time time) returns [int, int, int] {
     return externGetDate(time);
 }
@@ -269,10 +269,10 @@ function externGetDate(Time time) returns [int, int, int] = @java:Method {
 # ```
 #
 # + time - The Time record
-# + return - The hour-of-day, from 0 to 23
-#            The minute-of-hour to represent, from 0 to 59
-#            The second-of-minute, from 0 to 59
-#            The milli-of-second, from 0 to 999
+# + return - The hour-of-day to represent from 0 to 23,
+#            the minute-of-hour to represent from 0 to 59,
+#            the second-of-minute from 0 to 59,
+#            and the milli-of-second from 0 to 999
 public function getTime(Time time) returns [int, int, int, int] {
     return externGetTime(time);
 }
@@ -350,10 +350,10 @@ function externSubtractDuration(Time time, int years, int months, int days, int 
 #  time:Time|time:Error newTime = time:toTimeZone(time, zoneId);
 # ```
 #
-# + time - The Time record of which the time-zone to be changed
-# + zoneId - The new time-zone id
-# + return - Time object containing time and zone information after the conversion
-#            or an error if failed to format the time
+# + time - The Time record of which the time-zone is to be changed
+# + zoneId - The new time-zone ID
+# + return - Time object containing the time and zone information after the conversion
+#            or else an error if failed to format the time
 public function toTimeZone(Time time, string zoneId) returns Time|Error {
     return externToTimeZone(time, java:fromString(zoneId));
 }
@@ -399,7 +399,7 @@ function externNanoTime() returns int = @java:Method {
 # ```
 #
 # + year - The year representation
-# + month - The month-of-year to represent, from 1 (January) to 12 (December)
+# + month - The month-of-year to represent from 1 (January) to 12 (December)
 # + date - The day-of-month to represent, from 1 to 31
 # + hour - The hour-of-day to represent, from 0 to 23
 # + minute - The minute-of-hour to represent, from 0 to 59
@@ -425,8 +425,8 @@ function externCreateTime(int year, int month, int date, int hour, int minute, i
 # ```
 #
 # + data - The time text to parse
-# + timeFormat - The format which is used to parse the given text
-# + return - Time object containing time and zone information or an error if failed to parse the given string
+# + timeFormat - The format, which is used to parse the given text
+# + return - Time object containing the time and zone information or else an error if failed to parse the given string
 public function parse(string data, string timeFormat) returns Time|Error {
     return externParse(java:fromString(data), java:fromString(timeFormat));
 }
