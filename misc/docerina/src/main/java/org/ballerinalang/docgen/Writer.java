@@ -85,6 +85,21 @@ public class Writer {
             handlebars.registerHelper("typeName", (Helper<Type>)
                     (type, options) -> getTypeLabel(type, options.context));
 
+            handlebars.registerHelper("defVal", (Helper<Type>) (type, options) -> {
+                String defaultValue;
+                String name = options.param(0);
+                Context context = options.context;
+                String root = getRootPath(context);
+                String link = root + type.moduleName + "/" + type.category + "/" + name + ".html";
+                if (type.category.equals("objects")) {
+                    defaultValue = "<span class=\"default\">(default</span> <span class=\"type\">" +
+                            "<a href=\"" + link + "\">" + name + "</a>" + "</span><span class=\"default\">)</span>";
+                } else {
+                    defaultValue = "<span class=\"default\">(default " + options.param(0) + ")</span>";
+                }
+                return defaultValue;
+            });
+
             handlebars.registerHelper("equals", (arg1, options) -> {
                 CharSequence result;
                 Object param0 = options.param(0);
