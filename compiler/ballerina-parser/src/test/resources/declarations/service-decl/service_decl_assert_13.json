@@ -28,18 +28,8 @@
                             "kind": "ON_KEYWORD"
                         },
                         {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "EXPRESSION_LIST_ITEM",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "x"
-                                        }
-                                    ]
-                                }
-                            ]
+                            "kind": "IDENTIFIER_TOKEN",
+                            "isMissing": true
                         },
                         {
                             "kind": "SERVICE_BODY",

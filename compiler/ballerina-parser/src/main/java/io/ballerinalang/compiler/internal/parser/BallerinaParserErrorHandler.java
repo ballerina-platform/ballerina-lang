@@ -189,6 +189,9 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] CONST_DECL_RHS =
             { ParserRuleContext.STATEMENT_START_IDENTIFIER, ParserRuleContext.ASSIGN_OP };
 
+    private static final ParserRuleContext[] PARAMETER_WITHOUT_QUALIFIER =
+            { ParserRuleContext.ANNOTATIONS, ParserRuleContext.TYPE_DESCRIPTOR };
+
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
@@ -252,7 +255,7 @@ public class BallerinaParserErrorHandler {
 
         Result bestMatch = seekMatch(currentCtx);
         if (bestMatch.matches > 0) {
-            Solution sol = bestMatch.fixes.pop();
+            Solution sol = bestMatch.solution;
             applyFix(currentCtx, sol, args);
             return sol;
         } else {
@@ -355,6 +358,7 @@ public class BallerinaParserErrorHandler {
             case MAPPING_FIELD:
             case SPECIFIC_FIELD_RHS:
             case RESOURCE_DEF:
+            case PARAMETER_WITHOUT_QUALIFIER:
                 return true;
             default:
                 return false;
@@ -515,6 +519,8 @@ public class BallerinaParserErrorHandler {
         boolean hasMatch;
         boolean skipRule;
         int matchingRulesCount = 0;
+
+        boolean isEntryPoint = true;
 
         while (currentDepth < lookaheadLimit) {
             hasMatch = true;
@@ -834,6 +840,9 @@ public class BallerinaParserErrorHandler {
                 case AT:
                     hasMatch = nextToken.kind == SyntaxKind.AT_TOKEN;
                     break;
+                case PARAMETER_WITHOUT_QUALIFIER:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                            PARAMETER_WITHOUT_QUALIFIER);
 
                 // productions
                 case COMP_UNIT:
@@ -891,6 +900,13 @@ public class BallerinaParserErrorHandler {
                 Result fixedPathResult = fixAndContinue(currentCtx, lookahead, currentDepth + 1);
                 // Do not consider the current rule as match, since we had to fix it.
                 // i.e: do not increment the match count by 1;
+
+                if (isEntryPoint) {
+                    fixedPathResult.solution = fixedPathResult.fixes.peek();
+                } else {
+                    fixedPathResult.solution = new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx),
+                            currentCtx.toString());
+                }
                 return getFinalResult(matchingRulesCount, fixedPathResult);
             }
 
@@ -900,11 +916,15 @@ public class BallerinaParserErrorHandler {
                 currentDepth++;
                 matchingRulesCount++;
                 lookahead++;
+                isEntryPoint = false;
             }
 
         }
 
-        return new Result(new ArrayDeque<>(), matchingRulesCount, currentCtx);
+        Result result = new Result(new ArrayDeque<>(), matchingRulesCount, currentCtx);
+        result.solution =
+                new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString());
+        return result;
     }
 
     /**
@@ -1288,6 +1308,7 @@ public class BallerinaParserErrorHandler {
             case FUNC_BODY_BLOCK:
                 return ParserRuleContext.OPEN_BRACE;
             case STATEMENT:
+            case STATEMENT_WITHOUT_ANNOTS:
                 // We reach here only if an end of a block is reached.
                 endContext(); // end statement
                 return ParserRuleContext.CLOSE_BRACE;
@@ -1778,10 +1799,14 @@ public class BallerinaParserErrorHandler {
                     return ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA;
                 } else if (parentCtx == ParserRuleContext.SERVICE_DECL) {
                     return ParserRuleContext.RESOURCE_DEF;
+                } else if (parentCtx == ParserRuleContext.FUNC_BODY_BLOCK) {
+                    return ParserRuleContext.STATEMENT_WITHOUT_ANNOTS;
+                } else if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY) {
+                    return ParserRuleContext.EXTERNAL_KEYWORD;
                 }
-                throw new IllegalStateException("Annotation is ending in a " + parentCtx);
+                throw new IllegalStateException("annotation is ending inside " + parentCtx);
             default:
-                throw new IllegalStateException("Close-brace to end: " + parentCtx);
+                throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
     }
 
@@ -2288,20 +2313,20 @@ public class BallerinaParserErrorHandler {
 
         public ParserRuleContext ctx;
         public Action action;
-        public String token;
+        public String tokenText;
         public SyntaxKind tokenKind;
         public STNode recoveredNode;
 
         public Solution(Action action, ParserRuleContext ctx, SyntaxKind tokenKind, String tokenText) {
             this.action = action;
             this.ctx = ctx;
-            this.token = tokenText;
+            this.tokenText = tokenText;
             this.tokenKind = tokenKind;
         }
 
         @Override
         public String toString() {
-            return action.toString() + "'" + token + "'";
+            return action.toString() + "'" + tokenText + "'";
         }
     }
 
@@ -2310,8 +2335,17 @@ public class BallerinaParserErrorHandler {
      * traverse in that sub-tree, and the number of matching tokens it found, without the fixed tokens.
      */
     public static class Result {
+
         private int matches;
         private ArrayDeque<Solution> fixes;
+
+        /**
+         * Represent the end solution to be applied to the next immediate token, to recover from the error.
+         * If the solution is to insert/remove next immediate token, then this is equivalent to the
+         * <code>fixes.peek()</code>. Else, if the solution is to insert/remove a token that is not the
+         * immediate next token, then this will have a solution with {@link Action#KEEP} as the action.
+         */
+        private Solution solution;
 
         // Rule which produced this result
         private ParserRuleContext ctx;
@@ -2329,6 +2363,6 @@ public class BallerinaParserErrorHandler {
      * @since 1.2.0
      */
     enum Action {
-        INSERT, REMOVE;
+        INSERT, REMOVE, KEEP;
     }
 }

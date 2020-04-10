@@ -89,4 +89,9 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
     public void testMissingCloseBraceBeforeService2() {
         testFile("service-decl/service_decl_source_12.bal", "service-decl/service_decl_assert_12.json");
     }
+
+    @Test
+    public void testKeywordsInListenersList() {
+        testFile("service-decl/service_decl_source_13.bal", "service-decl/service_decl_assert_13.json");
+    }
 }

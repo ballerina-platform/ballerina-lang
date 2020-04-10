@@ -33,6 +33,7 @@ public enum ParserRuleContext {
     TOP_LEVEL_NODE_WITHOUT_MODIFIER("top-level-node-without-modifier"),
     FUNC_DEFINITION("func-definition"),
     PARAM_LIST("parameters"),
+    PARAMETER_WITHOUT_QUALIFIER("parameter-without-qualifier"),
     REQUIRED_PARAM("parameter"),
     DEFAULTABLE_PARAM("defaultable-parameter"),
     REST_PARAM("rest-parameter"),

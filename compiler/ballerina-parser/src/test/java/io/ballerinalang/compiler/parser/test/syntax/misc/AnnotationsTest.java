@@ -36,6 +36,11 @@ public class AnnotationsTest extends AbstractMiscTest {
         testFile("annotations/annotations_source_02.bal", "annotations/annotations_assert_02.json");
     }
 
+    @Test
+    public void testAnnotsInFuncSignatureAndVars() {
+        testFile("annotations/annotations_source_07.bal", "annotations/annotations_assert_07.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -58,4 +63,13 @@ public class AnnotationsTest extends AbstractMiscTest {
         testFile("annotations/annotations_source_06.bal", "annotations/annotations_assert_06.json");
     }
 
+    @Test
+    public void testRecoveryInFuncSigAnnots() {
+        testFile("annotations/annotations_source_08.bal", "annotations/annotations_assert_08.json");
+    }
+
+    @Test
+    public void testAdditionalTokensBeforeParamAnnot() {
+        testFile("annotations/annotations_source_09.bal", "annotations/annotations_assert_09.json");
+    }
 }
