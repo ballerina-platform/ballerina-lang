@@ -47,9 +47,12 @@ public type OutboundOAuth2Provider object {
         };
     }
 
-    # Generate token for OAuth2 authentication.
-    #
-    # + return - Generated `string` token or `auth:Error` if an error occurred
+# Generate token for OAuth2 authentication.
+# ```ballerina
+# string:auth:Error token = outboundOAuth2Provider.generateToken();
+# ```
+#
+# + return - Generated `string` token or `auth:Error` if an error occurred
     public function generateToken() returns @tainted (string|auth:Error) {
         GrantTypeConfig? oauth2ProviderConfig = self.oauth2ProviderConfig;
         if (oauth2ProviderConfig is ()) {
@@ -71,11 +74,14 @@ public type OutboundOAuth2Provider object {
         }
     }
 
-    # Inspect the incoming data and generate the token for OAuth2 authentication.
-    #
-    # + data - Map of data which is extracted from the HTTP response
-    # + return - Generated `string` token, or `auth:Error` occurred when generating token or `()` if nothing to be
-    #            returned
+# Inspect the incoming data and generate the token for OAuth2 authentication.
+# ```ballerina
+# string:auth:Error? token = outboundOAuth2Provider.inspect(data);
+# ```
+#
+# + data - Map of data which is extracted from the HTTP response
+# + return - Generated `string` token, or `auth:Error` occurred when generating token or `()` if nothing to be
+#            returned
     public function inspect(map<anydata> data) returns @tainted (string|auth:Error?) {
         GrantTypeConfig? oauth2ProviderConfig = self.oauth2ProviderConfig;
         if (oauth2ProviderConfig is ()) {

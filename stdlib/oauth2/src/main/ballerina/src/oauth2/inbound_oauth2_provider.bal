@@ -45,10 +45,13 @@ public type InboundOAuth2Provider object {
         self.defaultTokenExpTimeInSeconds = config.defaultTokenExpTimeInSeconds;
     }
 
-    # Attempts to authenticate with credential.
-    #
-    # + credential - Credential to be authenticated
-    # + return - `true` if authentication is successful, otherwise `false` or `auth:Error` if an error occurred
+# Authenticates provider OAuth2 tokens with introspection endpoint.
+# ```ballerina
+# boolean|auth:Error result = inboundOAuth2Provider.authenticate("<credential>");
+# ```
+#
+# + credential - OAuth2 token to be authenticated
+# + return - `true` if authentication is successful, otherwise `false` or `auth:Error` if an error occurred
     public function authenticate(string credential) returns boolean|auth:Error {
         if (credential == "") {
             return false;
