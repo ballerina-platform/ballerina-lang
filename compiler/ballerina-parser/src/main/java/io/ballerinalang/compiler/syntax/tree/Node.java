@@ -17,7 +17,6 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
@@ -67,22 +66,22 @@ public abstract class Node {
     }
 
     /**
-     * Accepts an instance of the {@code SyntaxNodeVisitor}, which can be used to
+     * Accepts an instance of the {@code NodeVisitor}, which can be used to
      * traverse the syntax tree.
      *
-     * @param visitor an instance of the {@code SyntaxNodeVisitor}
+     * @param visitor an instance of the {@code NodeVisitor}
      */
-    public abstract void accept(SyntaxNodeVisitor visitor);
+    public abstract void accept(NodeVisitor visitor);
 
     /**
-     * Applies the given {@code SyntaxNodeTransformer} to this node and returns
+     * Applies the given {@code NodeTransformer} to this node and returns
      * the transformed object.
      *
-     * @param transformer an instance of the {@code SyntaxNodeTransformer}
+     * @param transformer an instance of the {@code NodeTransformer}
      * @param <T>         the type of transformed object
      * @return the transformed object
      */
-    public abstract <T> T apply(SyntaxNodeTransformer<T> transformer);
+    public abstract <T> T apply(NodeTransformer<T> transformer);
 
     // TODO Temp method. We need to find a way to get the green node from a red node.
     public STNode internalNode() {

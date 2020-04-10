@@ -18,7 +18,6 @@
 package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 
 import java.util.Iterator;
 import java.util.Spliterator;

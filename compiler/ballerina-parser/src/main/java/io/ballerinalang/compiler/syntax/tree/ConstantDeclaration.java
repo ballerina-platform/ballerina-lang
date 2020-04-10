@@ -20,19 +20,21 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
-public class ConstantDeclaration extends ModuleMemberDeclaration {
+public class ConstantDeclaration extends Statement {
 
-    public ConstantDeclaration(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public ConstantDeclaration(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Node qualifier() {
+    public Token visibilityQualifier() {
         return childInBucket(0);
     }
 
-    public Node constKeyword() {
+    public Token constKeyword() {
         return childInBucket(1);
     }
 
@@ -57,12 +59,41 @@ public class ConstantDeclaration extends ModuleMemberDeclaration {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public ConstantDeclaration modify(
+            Token visibilityQualifier,
+            Token constKeyword,
+            Node typeDescriptor,
+            Token variableName,
+            Token equalsToken,
+            Node initializer,
+            Token semicolonToken) {
+        if (checkForReferenceEquality(
+                visibilityQualifier,
+                constKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken)) {
+            return this;
+        }
+
+        return NodeFactory.createConstantDeclaration(
+                visibilityQualifier,
+                constKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken);
     }
 }

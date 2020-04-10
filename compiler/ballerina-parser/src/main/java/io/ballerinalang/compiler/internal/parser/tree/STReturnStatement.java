@@ -20,23 +20,33 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ReturnStatement;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STReturnStatement extends STStatement {
-
     public final STNode returnKeyword;
-    public final STNode actionOrExpr;
+    public final STNode expression;
     public final STNode semicolonToken;
 
-    public STReturnStatement(SyntaxKind kind,STNode returnKeyword,STNode actionOrExpr,STNode semicolonToken) {
-        super(kind);
+    STReturnStatement(
+            STNode returnKeyword,
+            STNode expression,
+            STNode semicolonToken) {
+        super(SyntaxKind.RETURN_STATEMENT);
         this.returnKeyword = returnKeyword;
-        this.actionOrExpr = actionOrExpr;
+        this.expression = expression;
         this.semicolonToken = semicolonToken;
 
-        addChildren(returnKeyword, actionOrExpr, semicolonToken);
+        addChildren(
+                returnKeyword,
+                expression,
+                semicolonToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReturnStatement(this, position, parent);
     }

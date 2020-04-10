@@ -20,12 +20,14 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
 public class ExpressionListItem extends NonTerminalNode {
 
-    public ExpressionListItem(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public ExpressionListItem(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Token leadingComma() {
@@ -37,12 +39,26 @@ public class ExpressionListItem extends NonTerminalNode {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public ExpressionListItem modify(
+            Token leadingComma,
+            Node expression) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                expression)) {
+            return this;
+        }
+
+        return NodeFactory.createExpressionListItem(
+                leadingComma,
+                expression);
     }
 }

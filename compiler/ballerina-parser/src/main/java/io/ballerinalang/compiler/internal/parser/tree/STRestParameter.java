@@ -19,31 +19,39 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.RestParameter;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STRestParameter extends STParameter {
-
     public final STNode leadingComma;
     public final STNode type;
-    public final STNode ellipsis;
+    public final STNode ellipsisToken;
     public final STNode paramName;
 
-    STRestParameter(SyntaxKind kind,
-                    STNode leadingComma,
-                    STNode type,
-                    STNode ellipsis,
-                    STNode paramName) {
-        super(kind);
+    STRestParameter(
+            STNode leadingComma,
+            STNode type,
+            STNode ellipsisToken,
+            STNode paramName) {
+        super(SyntaxKind.PARAMETER);
         this.leadingComma = leadingComma;
         this.type = type;
-        this.ellipsis = ellipsis;
+        this.ellipsisToken = ellipsisToken;
         this.paramName = paramName;
 
-        addChildren(leadingComma, type, ellipsis, paramName);
+        addChildren(
+                leadingComma,
+                type,
+                ellipsisToken,
+                paramName);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        // TODO
-        return null;
+        return new RestParameter(this, position, parent);
     }
 }

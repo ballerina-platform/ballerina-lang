@@ -19,15 +19,15 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-// TODO for each node, we need to offer a way to query its child nodes.
-// TODO in fact we need to offer two ways to query the child nodes
-//  1) Direct access to specific nodes such as the list of imports or list of module level declaration
-//  2) A generic tree traversal which should be a structure-agnostic way to query child nodes.
-//  In both these we need to lazily crete the child nodes.
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class ModulePart extends NonTerminalNode {
 
-    public ModulePart(STNode syntaxNode, int position, NonTerminalNode parent) {
-        super(syntaxNode, position, parent);
+    public ModulePart(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public NodeList<ImportDeclaration> imports() {
@@ -43,12 +43,29 @@ public class ModulePart extends NonTerminalNode {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public ModulePart modify(
+            NodeList<ImportDeclaration> imports,
+            NodeList<ModuleMemberDeclaration> members,
+            Token eofToken) {
+        if (checkForReferenceEquality(
+                imports.underlyingListNode(),
+                members.underlyingListNode(),
+                eofToken)) {
+            return this;
+        }
+
+        return NodeFactory.createModulePart(
+                imports,
+                members,
+                eofToken);
     }
 }

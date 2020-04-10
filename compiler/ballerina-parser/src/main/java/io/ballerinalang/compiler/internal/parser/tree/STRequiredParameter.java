@@ -20,29 +20,37 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameter;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STRequiredParameter extends STParameter {
-
     public final STNode leadingComma;
-    public final STNode accessModifier;
+    public final STNode visibilityQualifier;
     public final STNode type;
     public final STNode paramName;
 
-    STRequiredParameter(SyntaxKind kind,
-                        STNode leadingComma,
-                        STNode accessModifier,
-                        STNode type,
-                        STNode paramName) {
-        super(kind);
+    STRequiredParameter(
+            STNode leadingComma,
+            STNode visibilityQualifier,
+            STNode type,
+            STNode paramName) {
+        super(SyntaxKind.PARAMETER);
         this.leadingComma = leadingComma;
-        this.accessModifier = accessModifier;
+        this.visibilityQualifier = visibilityQualifier;
         this.type = type;
         this.paramName = paramName;
 
-        addChildren(leadingComma, accessModifier, type, paramName);
+        addChildren(
+                leadingComma,
+                visibilityQualifier,
+                type,
+                paramName);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RequiredParameter(this, position, parent);
     }

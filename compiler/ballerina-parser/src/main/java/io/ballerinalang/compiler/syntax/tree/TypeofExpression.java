@@ -19,14 +19,19 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class TypeofExpression extends ExpressionTree {
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class TypeofExpression extends Expression {
 
-    public TypeofExpression(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public TypeofExpression(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Token typeofToken() {
-        return (Token) childInBucket(0);
+    public Token typeofKeyword() {
+        return childInBucket(0);
     }
 
     public Node expression() {
@@ -34,12 +39,26 @@ public class TypeofExpression extends ExpressionTree {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public TypeofExpression modify(
+            Token typeofKeyword,
+            Node expression) {
+        if (checkForReferenceEquality(
+                typeofKeyword,
+                expression)) {
+            return this;
+        }
+
+        return NodeFactory.createTypeofExpression(
+                typeofKeyword,
+                expression);
     }
 }

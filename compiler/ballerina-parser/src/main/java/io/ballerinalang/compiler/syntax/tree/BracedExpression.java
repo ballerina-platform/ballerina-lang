@@ -20,18 +20,18 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
- * Represents a braced expression in Ballerina.
+ * This is a generated syntax tree node.
  *
  * @since 1.3.0
  */
-public class BracedExpression extends NonTerminalNode {
+public class BracedExpression extends Expression {
 
-    public BracedExpression(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public BracedExpression(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Token openParen() {
-        return (Token) childInBucket(0);
+        return childInBucket(0);
     }
 
     public Node expression() {
@@ -39,16 +39,35 @@ public class BracedExpression extends NonTerminalNode {
     }
 
     public Token closeParen() {
-        return (Token) childInBucket(2);
+        return childInBucket(2);
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> transformer) {
-        return transformer.transform(this);
+    public <T> T apply(NodeTransformer<T> visitor) {
+        return visitor.transform(this);
+    }
+
+    public BracedExpression modify(
+            SyntaxKind kind,
+            Token openParen,
+            Node expression,
+            Token closeParen) {
+        if (checkForReferenceEquality(
+                openParen,
+                expression,
+                closeParen)) {
+            return this;
+        }
+
+        return NodeFactory.createBracedExpression(
+                kind,
+                openParen,
+                expression,
+                closeParen);
     }
 }

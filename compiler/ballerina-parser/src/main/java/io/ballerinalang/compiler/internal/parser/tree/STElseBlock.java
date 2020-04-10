@@ -17,24 +17,33 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.ElseBlock;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STElseBlock extends STStatement {
-
     public final STNode elseKeyword;
     public final STNode elseBody;
 
-    STElseBlock(STNode elseKeyword, STNode elseBody) {
+    STElseBlock(
+            STNode elseKeyword,
+            STNode elseBody) {
         super(SyntaxKind.ELSE_BLOCK);
         this.elseKeyword = elseKeyword;
         this.elseBody = elseBody;
 
-        addChildren(elseKeyword, elseBody);
+        addChildren(
+                elseKeyword,
+                elseBody);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new ElseBlock(this, position, parent);
     }
 }

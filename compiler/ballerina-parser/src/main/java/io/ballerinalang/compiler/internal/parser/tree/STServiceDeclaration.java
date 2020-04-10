@@ -19,37 +19,43 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.ServiceDeclaration;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
+ * This is a generated internal syntax tree node.
+ *
  * @since 1.3.0
  */
-public class STServiceDeclaration extends STNode {
-
+public class STServiceDeclaration extends STModuleMemberDeclaration {
     public final STNode serviceKeyword;
     public final STNode serviceName;
     public final STNode onKeyword;
-    public final STNode expressionList;
+    public final STNode expressions;
     public final STNode serviceBody;
 
-    STServiceDeclaration(STNode serviceKeyword,
-                         STNode serviceName,
-                         STNode onKeyword,
-                         STNode expressionList,
-                         STNode serviceBody) {
-
+    STServiceDeclaration(
+            STNode serviceKeyword,
+            STNode serviceName,
+            STNode onKeyword,
+            STNode expressions,
+            STNode serviceBody) {
         super(SyntaxKind.SERVICE_DECLARATION);
         this.serviceKeyword = serviceKeyword;
         this.serviceName = serviceName;
         this.onKeyword = onKeyword;
-        this.expressionList = expressionList;
+        this.expressions = expressions;
         this.serviceBody = serviceBody;
 
-        addChildren(serviceKeyword, serviceName, onKeyword, expressionList, serviceBody);
+        addChildren(
+                serviceKeyword,
+                serviceName,
+                onKeyword,
+                expressions,
+                serviceBody);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ServiceDeclarationNode(this, position, parent);
+        return new ServiceDeclaration(this, position, parent);
     }
 }

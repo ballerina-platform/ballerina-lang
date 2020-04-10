@@ -17,25 +17,33 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SubModuleName;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
+ * This is a generated internal syntax tree node.
+ *
  * @since 1.3.0
  */
 public class STSubModuleName extends STNode {
     public final STNode leadingDot;
     public final STNode moduleName;
 
-    STSubModuleName(STNode dotToken, STNode identifier) {
+    STSubModuleName(
+            STNode leadingDot,
+            STNode moduleName) {
         super(SyntaxKind.SUB_MODULE_NAME);
-        this.leadingDot = dotToken;
-        this.moduleName = identifier;
+        this.leadingDot = leadingDot;
+        this.moduleName = moduleName;
 
-        addChildren(dotToken, identifier);
+        addChildren(
+                leadingDot,
+                moduleName);
     }
 
-    public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
+    public Node createFacade(int position, NonTerminalNode parent) {
         return new SubModuleName(this, position, parent);
     }
 }

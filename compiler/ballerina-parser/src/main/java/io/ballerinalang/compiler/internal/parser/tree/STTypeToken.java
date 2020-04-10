@@ -17,12 +17,18 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+
 public class STTypeToken extends STToken {
     public final String text;
 
     STTypeToken(SyntaxKind kind, String text, STNode leadingTrivia, STNode trailingTrivia) {
         super(kind, text.length(), leadingTrivia, trailingTrivia);
         this.text = text;
+    }
+
+    public String text() {
+        return text;
     }
 
     @Override

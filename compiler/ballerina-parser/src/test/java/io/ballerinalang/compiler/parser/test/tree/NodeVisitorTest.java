@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatement;
-import io.ballerinalang.compiler.syntax.tree.SyntaxNodeVisitor;
+import io.ballerinalang.compiler.syntax.tree.NodeVisitor;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import org.testng.Assert;
@@ -67,7 +67,7 @@ public class NodeVisitorTest extends AbstractSyntaxTreeAPITest {
      *
      * @since 1.3.0
      */
-    private static class TokenVisitor extends SyntaxNodeVisitor {
+    private static class TokenVisitor extends NodeVisitor {
         List<SyntaxKind> tokenList = new ArrayList<>();
 
         public void visit(Token token) {
@@ -80,7 +80,7 @@ public class NodeVisitorTest extends AbstractSyntaxTreeAPITest {
      *
      * @since 1.3.0
      */
-    private static class AssignmentStmtVisitor extends SyntaxNodeVisitor {
+    private static class AssignmentStmtVisitor extends NodeVisitor {
         List<AssignmentStatement> stmtList = new ArrayList<>();
 
         public void visit(AssignmentStatement assignmentStatement) {

@@ -19,30 +19,39 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptor;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STRecordTypeDescriptor extends STNode {
-
-    public final STNode recordKeyword;
+    public final STNode objectKeyword;
     public final STNode bodyStartDelimiter;
     public final STNode fields;
     public final STNode bodyEndDelimiter;
 
-    STRecordTypeDescriptor(STNode recordKeyword,
-                           STNode bodyStartDelimiter,
-                           STNode fields,
-                           STNode bodyEndDelimiter) {
+    STRecordTypeDescriptor(
+            STNode objectKeyword,
+            STNode bodyStartDelimiter,
+            STNode fields,
+            STNode bodyEndDelimiter) {
         super(SyntaxKind.RECORD_TYPE_DESCRIPTOR);
-        this.recordKeyword = recordKeyword;
+        this.objectKeyword = objectKeyword;
         this.bodyStartDelimiter = bodyStartDelimiter;
         this.fields = fields;
         this.bodyEndDelimiter = bodyEndDelimiter;
 
-        addChildren(recordKeyword, bodyStartDelimiter, fields, bodyEndDelimiter);
+        addChildren(
+                objectKeyword,
+                bodyStartDelimiter,
+                fields,
+                bodyEndDelimiter);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new RecordTypeDescriptorNode(this, position, parent);
+        return new RecordTypeDescriptor(this, position, parent);
     }
 }

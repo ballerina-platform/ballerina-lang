@@ -18,19 +18,24 @@
 package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STToken;
 
 public class Token extends Node {
     public Token(STNode token, int position, NonTerminalNode parent) {
         super(token, position, parent);
     }
 
+    public String text() {
+        return ((STToken) this.internalNode).text();
+    }
+
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
     }
 }

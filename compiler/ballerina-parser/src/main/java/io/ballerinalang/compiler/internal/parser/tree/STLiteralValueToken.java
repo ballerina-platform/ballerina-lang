@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+
 public class STLiteralValueToken extends STToken {
     public final String text;
     public final long value;
@@ -25,6 +27,10 @@ public class STLiteralValueToken extends STToken {
         super(kind, text.length(), leadingTrivia, trailingTrivia);
         this.text = text;
         this.value = value;
+    }
+
+    public String text() {
+        return text;
     }
 
     @Override
