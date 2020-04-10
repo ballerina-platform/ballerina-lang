@@ -19,12 +19,12 @@ public function main() {
         keyPassword: "ballerina"
     };
 
-    // Defines the JWT header and set the values.
+    // Defines the JWT header and sets the values.
     jwt:JwtHeader header = {};
     header.alg = jwt:RS256;
     header.typ = "JWT";
 
-    // Defines the JWT payload and set the values.
+    // Defines the JWT payload and sets the values.
     jwt:JwtPayload payload = {};
     payload.sub = "John";
     payload.iss = "wso2";
@@ -32,10 +32,10 @@ public function main() {
     payload.aud = ["ballerina", "ballerinaSamples"];
     payload.exp = time:currentTime().time/1000 + 600;
 
-    // Issues a JWT based on provided header, payload and config.
+    // Issues a JWT based on the provided header, payload and config.
     string|error jwt = jwt:issueJwt(header, payload, config);
     if (jwt is string) {
-        io:println(jwt);
+        io:println("Issued JWT: ", jwt);
     } else {
         io:println("An error occurred while issuing the JWT: ", jwt.detail()?.message);
     }
@@ -60,7 +60,7 @@ public function main() {
     // Validates the created JWT.
     jwt:JwtPayload|error result = jwt:validateJwt(jwt.toString(), validatorConfig);
     if (result is jwt:JwtPayload) {
-        io:println(result);
+        io:println("Validated JWT Payload: ", result);
     } else {
         io:println("An error occurred while validating the JWT: ", result.detail()?.message);
     }

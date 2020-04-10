@@ -33,7 +33,7 @@ public const JWT_ERROR = "{ballerina/jwt}Error";
 # JWT or any operation related to JWT.
 public type Error error<JWT_ERROR, Detail>;
 
-# Logs and prepares `error` as an `Error`.
+# Logs and prepares the `error` as an `Error`.
 #
 # + message - Error message
 # + err - An `error` instance
@@ -49,7 +49,7 @@ function prepareError(string message, error? err = ()) returns Error {
     return jwtError;
 }
 
-# Logs and prepares `error` as an `auth:Error`.
+# Logs and prepares the `error` as an `auth:Error`.
 #
 # + message - Error message
 # + err - An `error` instance

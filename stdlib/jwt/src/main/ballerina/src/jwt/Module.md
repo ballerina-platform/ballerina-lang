@@ -37,4 +37,4 @@ jwt:OutboundJwtAuthProvider jwtAuthProvider = new({
 });
 ```
 
-For information on the operations, which you can perform with this module, see the below **Functions**. For examples on the usage of the operations, see [JWT Token Validation](https://ballerina.io/v1-2/learn/by-example/jwt-issue-validate.html), [Secured Client with JWT Auth](https://ballerina.io/v1-2/learn/by-example/secured-client-with-jwt-auth.html), [Secured Service with JWT Auth](https://ballerina.io/v1-2/learn/by-example/secured-service-with-jwt-auth.html).
+For information on the operations, which you can perform with this module, see the below **Functions**. For examples on the usage of the operations, see the [JWT Token Validation Example](https://ballerina.io/learn/by-example/jwt-issue-validate.html), [Secured Client with JWT Auth Example](https://ballerina.io/learn/by-example/secured-client-with-jwt-auth.html), and [Secured Service with JWT Auth Example](https://ballerina.io/learn/by-example/secured-service-with-jwt-auth.html).
