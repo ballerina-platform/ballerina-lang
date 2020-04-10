@@ -46,8 +46,11 @@ public const string AUTH_SCHEME_BEARER = "Bearer ";
 const string CONFIG_USER_SECTION = "b7a.users";
 
 # Extracts the username and the password from the credential values.
+# ```ballerina
+#   [string, string]|auth:Error [username, password] = auth:extractUsernameAndPassword("credential");
+# ```
 #
-# + credential - The credential value
+# + credential - Credential value
 # + return - A `string` tuple with the extracted username and password or else an `Error` if occurred while extracting
 #            credentials
 public function extractUsernameAndPassword(string credential) returns [string, string]|Error {
@@ -70,6 +73,9 @@ public function extractUsernameAndPassword(string credential) returns [string, s
 }
 
 # Sets the authentication related values (scheme, auth token) to the authentication context of the invocation context.
+# ```ballerina
+#    auth:setAuthenticationContext("jwt", "credential");
+# ```
 #
 # + scheme - Auth scheme (`JWT`, `LDAP`, `OAuth2`, `Basic` etc.)
 # + authToken - Auth token (credential)
@@ -104,13 +110,13 @@ public function setPrincipal(public string? userId = (), public string? username
     }
 }
 
-# Check whether the scopes of the user and scopes of resource matches.
+# Check whether the scopes of the user matches the scopes of the resource.
 #
-# + resourceScopes - Scopes of resource
-# + userScopes - Scopes of user
+# + resourceScopes - Scopes of the resource
+# + userScopes - Scopes of the user
 # + authzCacheKey - Authorization cache key
-# + positiveAuthzCache - The cache for positive authorizations
-# + negativeAuthzCache - The cache for negative authorizations
+# + positiveAuthzCache - Cache for positive authorizations
+# + negativeAuthzCache - Cache for negative authorizations
 # + return - `true` if there is a match between resource and user scopes, else `false`
 public function checkForScopeMatch(string[]|string[][] resourceScopes, string[] userScopes, string authzCacheKey,
                                    cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) returns boolean {
@@ -136,8 +142,8 @@ public function checkForScopeMatch(string[]|string[][] resourceScopes, string[] 
 # Tries to retrieve authorization decision from the cached information, if any.
 #
 # + authzCacheKey - Cache key
-# + positiveAuthzCache - The cache for positive authorizations
-# + negativeAuthzCache - The cache for negative authorizations
+# + positiveAuthzCache - Cache for positive authorizations
+# + negativeAuthzCache - Cache for negative authorizations
 # + return - `true` or `false` in case of a cache hit, `()` in case of a cache miss
 function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCache,
                             cache:Cache? negativeAuthzCache) returns boolean? {
@@ -163,8 +169,8 @@ function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCach
 #
 # + authorized - `boolean` flag to indicate the authorization decision
 # + authzCacheKey - Cache key
-# + positiveAuthzCache - The cache for positive authorizations
-# + negativeAuthzCache - The cache for negative authorizations
+# + positiveAuthzCache - Cache for positive authorizations
+# + negativeAuthzCache - Cache for negative authorizations
 function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache? positiveAuthzCache,
                           cache:Cache? negativeAuthzCache) {
     if (authorized) {
@@ -196,7 +202,7 @@ function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache?
 #
 # + resourceScopes - Scopes of resource
 # + userScopes - Scopes of the user
-# + return - true if one of the resourceScopes can be found at userScopes, else false
+# + return - `true` if one of the resourceScopes can be found at userScopes, else `false`
 function matchScopes(string[] resourceScopes, string[] userScopes) returns boolean {
     foreach string resourceScope in resourceScopes {
         foreach string userScope in userScopes {

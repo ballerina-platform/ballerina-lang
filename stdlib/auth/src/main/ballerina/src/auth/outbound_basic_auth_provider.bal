@@ -33,9 +33,12 @@ public type OutboundBasicAuthProvider object {
         self.credential = credential;
     }
 
-    # Generates a token for Basic authentication.
-    #
-    # + return - The generated token or else an `Error` if occurred during validation.
+# Generates a token for Basic authentication.
+# ```ballerina
+#    string|auth:Error token = outboundBasicAuthProvider.generateToken();
+# ```
+#
+# + return - The generated token or else an `Error` if occurred during the validation.
     public function generateToken() returns string|Error {
         Credential? credential = self.credential;
         if (credential is ()) {
@@ -56,7 +59,7 @@ public type OutboundBasicAuthProvider object {
     # Inspects the incoming data and generates the token for Basic authentication.
     #
     # + data - Map of the data, which is extracted from the HTTP response.
-    # + return - The token as a `string`, or else an `Error` if occurred when generating the token, or `()`
+    # + return - The token as a `string`, or an `Error` if occurred when generating the token, or `()`
     #            if nothing is to be returned
     public function inspect(map<anydata> data) returns string|Error? {
         return ();
@@ -65,8 +68,8 @@ public type OutboundBasicAuthProvider object {
 
 # Represents Basic Authentication configurations, which is used by the HTTP endpoint.
 #
-# + username - The username for Basic authentication
-# + password - The password for Basic authentication
+# + username - Username for Basic authentication
+# + password - Password for Basic authentication
 public type Credential record {|
     string username;
     string password;
@@ -74,8 +77,8 @@ public type Credential record {|
 
 # Processes the auth token for Basic Auth.
 #
-# + credential - The credential configurations
-# + return - The auth token or else an `Error` if occurred during validation
+# + credential - Credential configurations
+# + return - The auth token or else an `Error` if occurred during the validation
 function getAuthTokenForBasicAuth(Credential credential) returns string|Error {
     string username = credential.username;
     string password = credential.password;

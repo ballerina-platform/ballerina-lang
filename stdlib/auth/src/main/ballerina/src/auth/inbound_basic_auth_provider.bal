@@ -18,7 +18,7 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/stringutils;
 
-# Represents the inbound basic Auth provider, which is a configuration-file-based Auth provider.
+# Represents the inbound Basic Auth provider, which is a configuration-file-based Auth provider.
 #
 # + basicAuthConfig - The Basic Auth provider configurations
 public type InboundBasicAuthProvider object {
@@ -29,7 +29,7 @@ public type InboundBasicAuthProvider object {
 
     # Provides authentication based on the provided configurations.
     #
-    # + basicAuthConfig - The Basic Auth provider configurations
+    # + basicAuthConfig - Basic Auth provider configurations
     public function __init(BasicAuthConfig? basicAuthConfig = ()) {
         if (basicAuthConfig is BasicAuthConfig) {
             self.basicAuthConfig = basicAuthConfig;
@@ -38,11 +38,14 @@ public type InboundBasicAuthProvider object {
         }
     }
 
-    # Attempts to authenticate with the given credentials.
-    #
-    # + credential - Credential
-    # + return - `true` if authentication is successful, otherwise `false` or else an `Error` if any error occurred
-    #             while extracting credentials
+# Attempts to authenticate with the given credentials.
+# ```ballerina
+#    boolean|auth:Error authenticationResult = inboundBasicAuthProvider.authenticate("credential");
+# ```
+#
+# + credential - Credential
+# + return - `true` if authentication is successful, otherwise `false` or else an `Error` if any error occurred
+#             while extracting credentials
     public function authenticate(string credential) returns boolean|Error {
         if (credential == "") {
             return false;
@@ -88,8 +91,8 @@ public type BasicAuthConfig record {|
 
 # Reads the scope(s) of the user identified by the given username.
 #
-# + username - The username of the user
-# + tableName - The table name specified in the user-store TOML configuration
+# + username - Username of the user
+# + tableName - Table name specified in the user-store TOML configuration
 # + return - An array of scopes of the user identified by the username
 function getScopes(string username, string tableName) returns string[] {
     // First, reads the user ID from the user->id mapping.
@@ -107,7 +110,7 @@ function extractHash(string configValue) returns string {
 
 # Reads the password hash of a user.
 #
-# + username - Username
+# + username - Username of the user
 # + return - Password hash read from userstore, or nil if not found
 function readPassword(string username) returns string {
     // First, read the user ID from user->id mapping
@@ -119,10 +122,10 @@ function getConfigAuthValue(string instanceId, string property) returns string {
     return config:getAsString(instanceId + "." + property, "");
 }
 
-# Constructs an array of groups from the comma separed group string passed.
+# Constructs an array of groups from the given comma separed string of groups.
 #
 # + groupString - Comma separated string of groups
-# + return - Array of groups, nil if the groups string is empty/nil
+# + return - An array of groups, nil if the groups string is empty/nil
 function getArray(string groupString) returns string[] {
     if (groupString.length() == 0) {
         return [];
