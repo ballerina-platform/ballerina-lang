@@ -1107,6 +1107,10 @@
                 "url": "secured-service-with-oauth2"
             },
             {
+                "name": "Secured Service with LDAP",
+                "url": "secured-service-with-ldap"
+            },
+            {
                 "name": "Secured Client with Basic Auth",
                 "url": "secured-client-with-basic-auth"
             },
