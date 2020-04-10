@@ -1,8 +1,8 @@
-This module provides an inbound OAuth2 authentication provider which can be used to authenticate the provided credentials against an introspection endpoint, and an outbound OAuth2 authentication provider which can be used to authenticate with an external endpoint.
+This module provides an inbound OAuth2 authentication provider, which can be used to authenticate the provided credentials against an introspection endpoint and an outbound OAuth2 authentication provider, which can be used to authenticate an external endpoint.
 
 ### Inbound OAuth2 Provider
 
-The `oauth2:InboundOAuth2Provider` is an implementation of the `auth:InboundAuthProvider` interface. This calls an introspection endpoint, validate the token, and performs authentication and authorization.
+The `oauth2:InboundOAuth2Provider` is an implementation of the `auth:InboundAuthProvider` interface. This calls an introspection endpoint, validates the token, and performs authentication and authorization.
 
 ```ballerina
 oauth2:IntrospectionServerConfig introspectionServerConfig = {

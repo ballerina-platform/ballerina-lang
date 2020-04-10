@@ -24,7 +24,7 @@ import ballerina/time;
 # Represents the grant type configs supported for OAuth2.
 type GrantTypeConfig ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig;
 
-# Represents outbound OAuth2 provider, which generates OAtuh2 tokens.
+# Represents the outbound OAuth2 provider, which generates OAtuh2 tokens.
 #
 # + oauth2ProviderConfig - Outbound OAuth2 provider configurations
 # + oauth2CacheEntry - Outbound OAuth2 cache entry
@@ -47,7 +47,7 @@ public type OutboundOAuth2Provider object {
         };
     }
 
-# Generate token for OAuth2 authentication.
+# Generate a token for OAuth2 authentication.
 # ```ballerina
 # string:auth:Error token = outboundOAuth2Provider.generateToken();
 # ```
@@ -79,7 +79,7 @@ public type OutboundOAuth2Provider object {
 # string:auth:Error? token = outboundOAuth2Provider.inspect(data);
 # ```
 #
-# + data - Map of data which is extracted from the HTTP response
+# + data - Map of data, which is extracted from the HTTP response
 # + return - Generated `string` token, or `auth:Error` occurred when generating token or `()` if nothing to be
 #            returned
     public function inspect(map<anydata> data) returns @tainted (string|auth:Error?) {
@@ -100,7 +100,7 @@ public type OutboundOAuth2Provider object {
     }
 };
 
-# The data structure which is used to configue OAuth2 client credentials grant type.
+# The data structure, which is used to configure the OAuth2 client credentials grant type.
 #
 # + tokenUrl - Token URL for the authorization endpoint
 # + clientId - Client ID for the client credentials grant authentication
@@ -108,8 +108,8 @@ public type OutboundOAuth2Provider object {
 # + scopes - Scope(s) of the access request
 # + clockSkewInSeconds - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
-# + credentialBearer - Bearer of authentication credentials which are sent to the authorization endpoint
-# + clientConfig - HTTP client configurations which is used to call the authorization endpoint
+# + credentialBearer - Bearer of authentication credentials, which are sent to the authorization endpoint
+# + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 public type ClientCredentialsGrantConfig record {|
     string tokenUrl;
     string clientId;
@@ -121,7 +121,7 @@ public type ClientCredentialsGrantConfig record {|
     http:ClientConfiguration clientConfig = {};
 |};
 
-# The data structure which is used to configue OAuth2 password grant type.
+# The data structure, which is used to configue OAuth2 password grant type.
 #
 # + tokenUrl - Token URL for the authorization endpoint
 # + username - Username for password grant authentication
@@ -132,8 +132,8 @@ public type ClientCredentialsGrantConfig record {|
 # + refreshConfig - Configurations for refreshing the access token
 # + clockSkewInSeconds - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
-# + credentialBearer - Bearer of authentication credentials which are sent to the authorization endpoint
-# + clientConfig - HTTP client configurations which is used to call the authorization endpoint
+# + credentialBearer - Bearer of the authentication credentials, which are sent to the authorization endpoint
+# + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 public type PasswordGrantConfig record {|
     string tokenUrl;
     string username;
@@ -148,13 +148,13 @@ public type PasswordGrantConfig record {|
     http:ClientConfiguration clientConfig = {};
 |};
 
-# The data structure which is used to configure OAuth2 access token directly.
+# The data structure, which is used to configure OAuth2 access token directly.
 #
 # + accessToken - Access token for the authorization endpoint
 # + refreshConfig - Configurations for refreshing the access token
 # + clockSkewInSeconds - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
-# + credentialBearer - Bearer of authentication credentials which are sent to the authorization endpoint
+# + credentialBearer - Bearer of the authentication credentials, which are sent to the authorization endpoint
 public type DirectTokenConfig record {|
     string accessToken?;
     DirectTokenRefreshConfig refreshConfig?;
@@ -163,13 +163,13 @@ public type DirectTokenConfig record {|
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
 |};
 
-# The data structure which can be used to pass the configurations for refreshing the access token of
-# password grant type.
+# The data structure, which can be used to pass the configurations for refreshing the access token of
+# the password grant type.
 #
 # + refreshUrl - Refresh token URL for the refresh token server
 # + scopes - Scope(s) of the access request
-# + credentialBearer - Bearer of authentication credentials which are sent to the authorization endpoint
-# + clientConfig - HTTP client configurations which is used to call the authorization endpoint
+# + credentialBearer - Bearer of the authentication credentials, which are sent to the authorization endpoint
+# + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 public type RefreshConfig record {|
     string refreshUrl;
     string[] scopes?;
@@ -177,15 +177,15 @@ public type RefreshConfig record {|
     http:ClientConfiguration clientConfig = {};
 |};
 
-# The data structure which can be used pass the configurations for refreshing the access token directly.
+# The data structure, which can be used to pass the configurations for refreshing the access token directly.
 #
 # + refreshUrl - Refresh token URL for the refresh token server
 # + refreshToken - Refresh token for the refresh token server
 # + clientId - Client ID for authentication with the authorization endpoint
 # + clientSecret - Client secret for authentication with the authorization endpoint
 # + scopes - Scope(s) of the access request
-# + credentialBearer - Bearer of authentication credentials which are sent to the authorization endpoint
-# + clientConfig - HTTP client configurations which is used to call the authorization endpoint
+# + credentialBearer - Bearer of authentication credentials, which are sent to the authorization endpoint
+# + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 public type DirectTokenRefreshConfig record {|
     string refreshUrl;
     string refreshToken;
@@ -196,7 +196,7 @@ public type DirectTokenRefreshConfig record {|
     http:ClientConfiguration clientConfig = {};
 |};
 
-# The data structure which stores the values received from the authorization/token server to use them
+# The data structure, which stores the values received from the authorization/token server to use them
 # for the latter requests without requesting tokens again.
 #
 # + accessToken - Access token received from the authorization endpoint
@@ -208,14 +208,14 @@ public type OutboundOAuth2CacheEntry record {
     int expTime;
 };
 
-# The data structure which stores the values needed to prepare the HTTP request, which is to be sent to the
+# The data structure, which stores the values needed to prepare the HTTP request, which are to be sent to the
 # authorization endpoint.
 #
 # + payload - Payload of the request
 # + clientId - Client ID for client credentials grant authentication
 # + clientSecret - Client secret for client credentials grant authentication
 # + scopes - Scope(s) of the access request
-# + credentialBearer - Bearer of authentication credentials which are sent to the authorization endpoint
+# + credentialBearer - Bearer of the authentication credentials, which are sent to the authorization endpoint
 type RequestConfig record {|
     string payload;
     string clientId?;
@@ -240,7 +240,7 @@ function generateAuthTokenForOAuth2(GrantTypeConfig authConfig, @tainted Outboun
     }
 }
 
-# Process the OAuth2 token at inspection flow.
+# Processes the OAuth2 token at the inspection flow.
 #
 # + authConfig - OAuth2 configurations
 # + oauth2CacheEntry - OAuth2 cache entry
@@ -264,7 +264,7 @@ function inspectAuthTokenForOAuth2(GrantTypeConfig authConfig, @tainted Outbound
     return prepareError("Failed to get the access token since retry request is set as false.");
 }
 
-# Process the OAuth2 token for password grant type.
+# Processes the OAuth2 token for the password grant type.
 #
 # + grantTypeConfig - Password grant type configurations
 # + oauth2CacheEntry - OAuth2 cache entry
@@ -305,7 +305,7 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
     }
 }
 
-# Process the OAuth2 token for client credentials grant type.
+# Processes the OAuth2 token for the client credentials grant type.
 #
 # + grantTypeConfig - Client credentials grant type configurations
 # + oauth2CacheEntry - OAuth2 cache entry
@@ -346,7 +346,7 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
     }
 }
 
-# Process the OAuth2 token for direct token mode.
+# Processes the OAuth2 token for the direct token mode.
 #
 # + grantTypeConfig - Direct token mode configurations
 # + oauth2CacheEntry - OAuth2 cache entry
@@ -395,7 +395,7 @@ function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
     }
 }
 
-# Checks the validity of the access token which is in the cache. If the expiry time is 0, that means no expiry time is
+# Checks the validity of the access token, which is in the cache. If the expiry time is 0, that means no expiry time is
 # returned with the authorization request. This implies that the token is valid forever.
 #
 # + oauth2CacheEntry - OAuth2 cache entry
@@ -541,11 +541,11 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
     return doRequest(refreshUrl, refreshRequest, clientConfig, oauth2CacheEntry, clockSkewInSeconds);
 }
 
-# Executes the actual request and get the access token from authorization endpoint.
+# Executes the actual request and gets the access token from the authorization endpoint.
 #
 # + url - URL of the authorization endpoint
 # + request - Prepared request to be sent to the authorization endpoint
-# + clientConfig - HTTP client configurations which is used to call the authorization endpoint
+# + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 # + oauth2CacheEntry - OAuth2 cache entry
 # + clockSkewInSeconds - Clock skew in seconds
 # + return - Received OAuth2 access token or `oauth2:Error` if an error occurred during HTTP client invocation
@@ -605,7 +605,7 @@ function prepareRequest(RequestConfig config) returns http:Request|Error {
     return req;
 }
 
-# Extracts the access token from the JSON payload of a given HTTP response and update the token cache.
+# Extracts the access token from the JSON payload of a given HTTP response and updates the token cache.
 #
 # + response - HTTP response object
 # + oauth2CacheEntry - OAuth2 cache entry
