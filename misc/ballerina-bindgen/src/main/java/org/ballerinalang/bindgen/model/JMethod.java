@@ -142,7 +142,7 @@ public class JMethod {
                 hasPrimitiveParam = true;
                 hasException = true;
             }
-            if (parameter.isObjArrayParam()) {
+            if (parameter.isObjArrayParam() || parameter.getIsStringArray()) {
                 hasException = true;
             }
         }

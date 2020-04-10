@@ -88,17 +88,14 @@ public class JField {
     }
 
     public String getExternalType() {
-
         return externalType;
     }
 
     public boolean isStatic() {
-
         return isStatic;
     }
 
     public boolean isSetter() {
-
         return isSetter;
     }
 }
