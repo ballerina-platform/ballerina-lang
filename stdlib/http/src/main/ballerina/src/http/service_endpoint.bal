@@ -174,7 +174,7 @@ function externDetach(Listener listenerObj, service s) returns error? = @java:Me
 
 # Presents a read-only view of the remote address.
 #
-# + host - The remote host name/IP
+# + host - The remote host IP
 # + port - The remote port
 public type Remote record {|
     string host = "";

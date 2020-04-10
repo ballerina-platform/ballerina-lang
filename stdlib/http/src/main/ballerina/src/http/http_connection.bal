@@ -172,11 +172,24 @@ public type Caller client object {
         response.statusCode = STATUS_ACCEPTED;
         return self->respond(response);
     }
+
+    # Gets the hostname from the remote address. This method may trigger a DNS reverse lookup if the address was created
+    # with a literal IP address.
+    #
+    # + return - The hostname of the address or `nil` if it is unresolved
+    public function getRemoteHostName() returns string? {
+        return java:toString(nativeGetRemoteHostName(self));
+    }
 };
 
 function nativeRespond(Caller caller, Response response) returns ListenerError? = @java:Method {
     class: "org.ballerinalang.net.http.nativeimpl.connection.Respond",
     name: "nativeRespond"
+} external;
+
+function nativeGetRemoteHostName(Caller caller) returns handle = @java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.connection.getRemoteHostName",
+    name: "nativeGetRemoteHostName"
 } external;
 
 
