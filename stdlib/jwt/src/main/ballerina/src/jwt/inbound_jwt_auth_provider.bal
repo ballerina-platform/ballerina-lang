@@ -44,8 +44,7 @@ public type InboundJwtAuthProvider object {
 # ```
 #
 # + credential - JWT to be authenticated
-# + return - `true` if authentication is successful or `false` or else an `auth:Error` if JWT validation
-#             failed
+# + return - `true` if authentication is successful, `false` otherwise or else an `auth:Error` if JWT validation failed
     public function authenticate(string credential) returns @tainted (boolean|auth:Error) {
         string[] jwtComponents = stringutils:split(credential, "\\.");
         if (jwtComponents.length() != 3) {
