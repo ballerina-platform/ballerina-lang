@@ -50,7 +50,7 @@ public type JwtKeyStoreConfig record {|
 # Issues a JWT based on the provided header and payload. JWT will be signed (JWS) if `crypto:KeyStore` information is
 # provided in the `jwt:JwtKeyStoreConfig` and the `alg` field of the `jwt:JwtHeader` is not `jwt:NONE`.
 # ```ballerina
-# string|error jwt = jwt:issueJwt(header, payload, config);
+# string|jwt:error jwt = jwt:issueJwt(header, payload, keyStoreConfig);
 # ```
 #
 # + header - JwtHeader object
@@ -118,9 +118,9 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtKeyStoreConfig
     }
 }
 
-# Builds the header string from the `JwtHeader` record.
+# Builds the header string from the `jwt:JwtHeader` record.
 # ```ballerina
-# string|Error jwtHeader = buildHeaderString(header);
+# string|jwt:Error jwtHeader = buildHeaderString(header);
 # ```
 #
 # + header - JWT header record to be built as a string
@@ -170,7 +170,7 @@ public function buildHeaderString(JwtHeader header) returns string|Error {
 
 # Builds the payload string from the `jwt:JwtPayload` record.
 # ```ballerina
-# string|Error jwtPayload = buildPayloadString(payload);
+# string|jwt:Error jwtPayload = jwt:buildPayloadString(payload);
 # ```
 #
 # + payload - JWT payload record to be built as a string

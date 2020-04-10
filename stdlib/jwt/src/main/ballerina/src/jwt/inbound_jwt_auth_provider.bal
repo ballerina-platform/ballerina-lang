@@ -38,12 +38,12 @@ public type InboundJwtAuthProvider object {
         self.inboundJwtCache = jwtValidatorConfig.jwtCache;
     }
 
-# Authenticates with a JWT.
+# Authenticates provided JWT against `jwt:JwtValidatorConfig`.
 #```ballerina
-# boolean|auth:Error result = authenticate(string credential);
+# boolean|auth:Error result = inboundJwtAuthProvider.authenticate("<credential>");
 # ```
 #
-# + credential - JWT extracted from the authentication header
+# + credential - JWT to be authenticated
 # + return - `true` if authentication is successful or `false` or else an `auth:Error` if JWT validation
 #             failed
     public function authenticate(string credential) returns @tainted (boolean|auth:Error) {

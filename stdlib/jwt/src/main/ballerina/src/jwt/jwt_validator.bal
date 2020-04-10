@@ -58,7 +58,7 @@ public type InboundJwtCacheEntry record {|
 
 # Validates the given JWT string.
 #```ballerina
-# jwt:JwtPayload|error result = jwt:validateJwt(jwt, validatorConfig);
+# jwt:JwtPayload|jwt:error result = jwt:validateJwt(jwt, validatorConfig);
 # ```
 #
 # + jwtToken - JWT that needs to be validated
@@ -79,7 +79,7 @@ function getJwtComponents(string jwtToken) returns string[]|Error {
 
 # Decodes the given JWT string.
 # ```ballerina
-# [JwtHeader, JwtPayload]|Error [header, payload] = decodeJwt(jwtToken);
+# [jwt:JwtHeader, jwt:JwtPayload]|jwt:Error [header, payload] = jwt:decodeJwt(jwtToken);
 # ```
 #
 # + jwtToken - JWT that needs to be decoded

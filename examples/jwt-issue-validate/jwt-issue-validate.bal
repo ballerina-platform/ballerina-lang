@@ -13,7 +13,7 @@ public function main() {
     };
 
     // Defines the JWT keystore configurations.
-    jwt:JwtKeyStoreConfig config = {
+    jwt:JwtKeyStoreConfig keyStoreConfig = {
         keyStore: keyStore,
         keyAlias: "ballerina",
         keyPassword: "ballerina"
@@ -33,7 +33,7 @@ public function main() {
     payload.exp = time:currentTime().time/1000 + 600;
 
     // Issues a JWT based on the provided header, payload and config.
-    string|error jwt = jwt:issueJwt(header, payload, config);
+    string|jwt:Error jwt = jwt:issueJwt(header, payload, keyStoreConfig);
     if (jwt is string) {
         io:println("Issued JWT: ", jwt);
     } else {
@@ -58,7 +58,7 @@ public function main() {
     };
 
     // Validates the created JWT.
-    jwt:JwtPayload|error result = jwt:validateJwt(jwt.toString(), validatorConfig);
+    jwt:JwtPayload|jwt:Error result = jwt:validateJwt(<string>jwt, validatorConfig);
     if (result is jwt:JwtPayload) {
         io:println("Validated JWT Payload: ", result);
     } else {

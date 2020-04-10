@@ -37,7 +37,7 @@ public type OutboundJwtAuthProvider object {
 
 # Generates the token for JWT authentication.
 # ```ballerina
-# string|auth:Error token = generateToken();
+# string|auth:Error token = outboundJwtAuthProvider.generateToken();
 # ```
 #
 # + return - Generated token or else an `auth:Error` if token can't be generated
@@ -63,9 +63,6 @@ public type OutboundJwtAuthProvider object {
     }
 
 # Inspects the incoming data and generates the token for JWT authentication.
-#```ballerina
-# string|auth:Error? result = inspect(data);
-# ```
 #
 # + data - Map of data, which is extracted from the HTTP response
 # + return - JWT as `string` or `()` if nothing to be returned or else an `auth:Error` if token can't be generated
