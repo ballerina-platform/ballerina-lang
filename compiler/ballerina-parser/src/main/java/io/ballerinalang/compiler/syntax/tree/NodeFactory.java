@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
+
 import java.util.Objects;
 
 /**
@@ -81,7 +82,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ImportDeclaration createImportDeclaration(
             Token importKeyword,
-            Token orgName,
+            Node orgName,
             Node moduleName,
             Node version,
             Node prefix,
@@ -775,7 +776,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static PositionalArgument createPositionalArgument(
             Token leadingComma,
-            Expression expression) {
+            Token expression) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
