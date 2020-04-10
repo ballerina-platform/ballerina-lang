@@ -31,10 +31,13 @@ public type SmtpClient client object {
             java:fromString(password), clientConfig);
     }
 
-    # Sends a message.
-    #
-    # + email - A `email:Email` message which needs to send to the recipient
-    # + return - A `email:SendError` if failed to send the message to the recipient or else ()
+# Sends a message.
+# ```ballerina
+# email:Error? response = smtpClient->send(email);
+# ```
+#
+# + email - A `email:Email` message which needs to send to the recipient
+# + return - A `email:SendError` if failed to send the message to the recipient or else ()
     public remote function send(Email email) returns Error? {
         return send(self, email);
     }

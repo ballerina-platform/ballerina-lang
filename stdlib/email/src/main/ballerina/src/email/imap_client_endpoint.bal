@@ -32,11 +32,14 @@ public type ImapClient client object {
             clientConfig);
     }
 
-    # Reads a message.
-    #
-    # + folder - Folder to read emails. Default value is `INDOX`
-    # + return - An`email:Email` if read message is successful, () if there is no emails in the specified folder
-    #            or else a `email:Error` if failed to receive the message to the recipient
+# Reads a message.
+# ```ballerina
+# email:Email|email:Error emailResponse = imapClient->read();
+# ```
+#
+# + folder - Folder to read emails. Default value is `INDOX`
+# + return - An`email:Email` if read message is successful, () if there is no emails in the specified folder
+#            or else a `email:Error` if failed to receive the message to the recipient
     public remote function read(string folder = DEFAULT_FOLDER) returns Email|Error? {
         return imapRead(self, java:fromString(folder));
     }
