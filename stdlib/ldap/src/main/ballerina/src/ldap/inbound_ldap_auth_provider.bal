@@ -46,14 +46,14 @@ public type InboundLdapAuthProvider object {
         }
     }
 
-    # Authenticates base64-encoded `username:password` credential.
-    # ```ballerina
-    # boolean|auth:Error result = inboundLdapAuthProvider.authenticate("<credential>");
-    # ```
-    #
-    # + credential - Base64-encoded `username:password` value
-    # + return - `true` if authentication is successful, `false` otherwise, or else `auth:Error` occurred while
-    #            authenticating the credentials
+# Authenticates base64-encoded `username:password` credential.
+# ```ballerina
+# boolean|auth:Error result = inboundLdapAuthProvider.authenticate("<credential>");
+# ```
+#
+# + credential - Base64-encoded `username:password` value
+# + return - `true` if authentication is successful, `false` otherwise, or else `auth:Error` occurred while
+#            authenticating the credentials
     public function authenticate(string credential) returns boolean|auth:Error {
         if (credential == "") {
             return false;
