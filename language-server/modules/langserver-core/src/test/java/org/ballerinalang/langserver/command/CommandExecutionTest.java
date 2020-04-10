@@ -29,6 +29,8 @@ import org.ballerinalang.langserver.command.executors.ChangeAbstractTypeObjExecu
 import org.ballerinalang.langserver.command.executors.CreateFunctionExecutor;
 import org.ballerinalang.langserver.command.executors.CreateTestExecutor;
 import org.ballerinalang.langserver.command.executors.ImportModuleExecutor;
+import org.ballerinalang.langserver.command.executors.openapi.ballerinatoopenapi.CreateBallerinaServiceResourceExecutor;
+import org.ballerinalang.langserver.command.executors.openapi.ballerinatoopenapi.CreateBallerinaServiceResourceMethodExecutor;
 import org.ballerinalang.langserver.command.executors.openapi.openapitoballerina.AddMissingParameterInBallerinaExecutor;
 import org.ballerinalang.langserver.command.executors.openapi.openapitoballerina.CreateOpenApiServiceResourceExecutor;
 import org.ballerinalang.langserver.command.executors.openapi.openapitoballerina.CreateOpenApiServiceResourceMethodExecutor;
@@ -60,6 +62,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -373,6 +376,63 @@ public class CommandExecutionTest {
         Assert.assertEquals(responseJson, expected, "Test Failed for: " + config);
     }
 
+    @Test(dataProvider = "openApi-create-service-resource-in-contract-data-provider")
+    public void testOpenCreateServiceResourceInContract(String config, Path source, Path contract, Path expected)
+            throws IOException {
+        LSContextManager.getInstance().clearAllContexts();
+        String configJsonPath = "command" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+
+        List<Object> args = new ArrayList<>();
+        JsonObject arguments = configJsonObject.get("arguments").getAsJsonObject();
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_PATH, arguments.get("resource.path").getAsString()));
+        getCommandResponse(args, CreateBallerinaServiceResourceExecutor.COMMAND);
+
+        File file1 = new File(sourcesPath.resolve("source").resolve(contract).toString());
+        String contractContent = org.apache.commons.io.FileUtils.readFileToString(file1, StandardCharsets.UTF_8);
+
+        File file2 = new File(sourcesPath.resolve("source").resolve(expected).toString());
+        String expectedContractContent = org.apache.commons.io.FileUtils.readFileToString(file2,
+                StandardCharsets.UTF_8);
+
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+        Assert.assertEquals(contractContent, expectedContractContent, "Test Failed for: " + config);
+    }
+
+    @Test(dataProvider = "openApi-create-service-resource-method-in-contract-data-provider")
+    public void testOpenCreateServiceResourceMethodInContract(String config, Path source, Path contract, Path expected)
+            throws IOException {
+        LSContextManager.getInstance().clearAllContexts();
+        String configJsonPath = "command" + File.separator + config;
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+
+        List<Object> args = new ArrayList<>();
+        JsonObject arguments = configJsonObject.get("arguments").getAsJsonObject();
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_METHOD, arguments.get("node.method").getAsString()));
+        args.add(new CommandArgument(CommandConstants.ARG_KEY_PATH, arguments.get("resource.path").getAsString()));
+        getCommandResponse(args, CreateBallerinaServiceResourceMethodExecutor.COMMAND);
+
+        File file1 = new File(sourcesPath.resolve("source").resolve(contract).toString());
+        String contractContent = org.apache.commons.io.FileUtils.readFileToString(file1, StandardCharsets.UTF_8);
+
+        File file2 = new File(sourcesPath.resolve("source").resolve(expected).toString());
+        String expectedContractContent = org.apache.commons.io.FileUtils.readFileToString(file2,
+                StandardCharsets.UTF_8);
+
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+        Assert.assertEquals(contractContent, expectedContractContent, "Test Failed for: " + config);
+    }
+
     @DataProvider(name = "package-import-data-provider")
     public Object[][] addImportDataProvider() {
         log.info("Test workspace/executeCommand for command {}", ImportModuleExecutor.COMMAND);
@@ -461,10 +521,10 @@ public class CommandExecutionTest {
     public Object[][] openApiCreateResourceInBallerinaDataProvider() {
         log.info("Test workspace/executeCommand for command {}", CreateOpenApiServiceResourceExecutor.COMMAND);
         return new Object[][]{
-                {"openApiCreateResourceInBallerina.json", Paths.get("openApi", "src", "module-giga",
-                                                                      "gigaclient.bal")},
-                {"openApiCreateResourceMethodInBallerina.json", Paths.get("openApi", "src", "module-giga",
-                                                                            "gigaclient.bal")},
+                {"openApiCreateResourceInBallerina.json", Paths.get("openApi", "openApiToBallerina",
+                        "src", "module-giga",  "gigaclient.bal")},
+                {"openApiCreateResourceMethodInBallerina.json", Paths.get("openApi", "openApiToBallerina",
+                        "src", "module-giga", "gigaclient.bal")},
         };
     }
 
@@ -472,8 +532,8 @@ public class CommandExecutionTest {
     public Object[][] openApiCreateResourceMethodInBallerinaDataProvider() {
         log.info("Test workspace/executeCommand for command {}", CreateOpenApiServiceResourceExecutor.COMMAND);
         return new Object[][]{
-                {"openApiCreateResourceMethodInBallerina.json", Paths.get("openApi", "src", "module-giga",
-                                                                            "gigaclient.bal")},
+                {"openApiCreateResourceMethodInBallerina.json", Paths.get("openApi", "openApiToBallerina",
+                        "src", "module-giga", "gigaclient.bal")},
         };
     }
 
@@ -481,8 +541,36 @@ public class CommandExecutionTest {
     public Object[][] openApiAddParameterInBallerinaDataProvider() {
         log.info("Test workspace/executeCommand for command {}", CreateOpenApiServiceResourceExecutor.COMMAND);
         return new Object[][]{
-                {"openApiAddMissingParameterInBallerina.json", Paths.get("openApi", "src", "module-giga",
-                                                                            "gigaclient2.bal")},
+                {"openApiAddMissingParameterInBallerina.json", Paths.get("openApi", "openApiToBallerina",
+                        "src", "module-giga", "gigaclient2.bal")},
+        };
+    }
+
+    @DataProvider(name = "openApi-create-service-resource-in-contract-data-provider")
+    public Object[][] testOpenApiCreateServiceResourceInContractDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", CreateBallerinaServiceResourceExecutor.COMMAND);
+        return new Object[][]{
+                {"openApiCreateServiceResourceInContract.json",
+                        Paths.get("openApi", "ballerinaToOpenApi", "src", "module-giga", "gigaclient.bal"),
+                        Paths.get("openApi", "ballerinaToOpenApi", "src",
+                                "module-giga", "resources", "petstore.yaml"),
+                        Paths.get("openApi", "ballerinaToOpenApi", "src",
+                                "module-giga", "resources", "petstore_expected.yaml")
+                },
+        };
+    }
+
+    @DataProvider(name = "openApi-create-service-resource-method-in-contract-data-provider")
+    public Object[][] testOpenApiCreateServiceResourceMethodInContractDataProvider() {
+        log.info("Test workspace/executeCommand for command {}", CreateBallerinaServiceResourceMethodExecutor.COMMAND);
+        return new Object[][]{
+                {"openApiCreateServiceResourceMethodInContract.json",
+                        Paths.get("openApi", "ballerinaToOpenApi", "src", "module-giga", "gigaclient2.bal"),
+                        Paths.get("openApi", "ballerinaToOpenApi", "src",
+                                "module-giga", "resources", "petstore2.yaml"),
+                        Paths.get("openApi", "ballerinaToOpenApi", "src",
+                                "module-giga", "resources", "petstore_expected2.yaml")
+                },
         };
     }
 

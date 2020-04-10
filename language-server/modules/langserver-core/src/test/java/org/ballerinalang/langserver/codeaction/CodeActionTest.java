@@ -370,8 +370,10 @@ public class CodeActionTest {
                 {"openApiMissingResourceMethod.json", Paths.get("openApi", "src", "module-giga", "gigaclient.bal")},
                 {"openApiMissingResource.json", Paths.get("openApi", "src", "module-giga", "gigaclient2.bal")},
                 {"openApiAddMissingParameter.json", Paths.get("openApi", "src", "module-giga", "gigaclient3.bal")},
-                {"openApiCreateBallerinaServiceResource.json", Paths.get("openApi", "src", "module-giga", "gigaclient4.bal")},
-                {"openApiCreateBallerinaServiceResourceMethod.json", Paths.get("openApi", "src", "module-giga", "gigaclient4.bal")}
+                {"openApiCreateBallerinaServiceResource.json",
+                        Paths.get("openApi", "src", "module-giga", "gigaclient4.bal")},
+                {"openApiCreateBallerinaServiceResourceMethod.json",
+                        Paths.get("openApi", "src", "module-giga", "gigaclient4.bal")}
         };
     }
 
