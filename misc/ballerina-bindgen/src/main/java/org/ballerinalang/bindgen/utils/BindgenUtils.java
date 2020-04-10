@@ -310,7 +310,7 @@ public class BindgenUtils {
             if (listOfFiles.size() > 1) {
                 for (String className : classList) {
                     for (File file : listOfFiles) {
-                        String fileName = className.substring(className.lastIndexOf('.') + 1) + BAL_EXTENSION;
+                        String fileName = getDependencyFileName(className);
                         if (file.getName().equals(fileName)) {
                             try {
                                 Files.delete(file.toPath());
@@ -333,7 +333,7 @@ public class BindgenUtils {
             if (listOfFiles.size() > 1) {
                 for (String className : classList) {
                     for (File file : listOfFiles) {
-                        String fileName = className.substring(className.lastIndexOf('.') + 1) + BAL_EXTENSION;
+                        String fileName = getDependencyFileName(className);
                         if (file.getName().equals(fileName)) {
                             removeList.add(className);
                             break;
@@ -343,6 +343,16 @@ public class BindgenUtils {
             }
         }
         return removeList;
+    }
+
+    private static String getDependencyFileName(String className) {
+        char prefix;
+        if (className.contains("$")) {
+            prefix = '$';
+        } else {
+            prefix = '.';
+        }
+        return className.substring(className.lastIndexOf(prefix) + 1) + BAL_EXTENSION;
     }
 
     public static Set<String> getUpdatedConstantsList(Path existingPath, Set<String> classList) {
