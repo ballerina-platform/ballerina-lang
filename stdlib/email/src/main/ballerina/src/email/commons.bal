@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Email message sending and receiving configurations.
+# Email message properties.
 #
 # + to - TO address list
 # + cc - CC address list
@@ -35,5 +35,5 @@ public type Email record {|
     string[] replyTo?;
 |};
 
-# Default email folder to read emails.
+# Default folder to read emails.
 public const DEFAULT_FOLDER = "INBOX";

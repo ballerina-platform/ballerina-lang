@@ -19,23 +19,24 @@ import ballerina/java;
 # Represents a POP Client, which interacts with a POP Server.
 public type PopClient client object {
 
-    # Gets invoked during object initialization.
+    # Gets invoked during `email:PopClient` initialization.
     #
     # + host - Host of the POP Client
     # + username - Username of the POP Client
     # + password - Password of the POP Client
     # + clientConfig - Configurations for the POP Client
-    # + return - An `Error` if failed while creating the client
+    # + return - An `email:Error` if failed while creating the client or else ()
     public function __init(@untainted string host, @untainted string username, @untainted string password,
             PopConfig clientConfig = {}) returns Error? {
         return initPopClientEndpoint(self, java:fromString(host), java:fromString(username),
             java:fromString(password), clientConfig);
     }
 
-    # Used to read a message.
+    # Reads a message.
     #
-    # + folder - Folder to read emails
-    # + return - An`Email` in success and `Error` if failed to receive the message to the recipient
+    # + folder - Folder to read emails. Default value is `INDOX`
+    # + return - An`email:Email` if read message is successful, () if there is no emails in the specified folder
+    #            or else a `email:Error` if failed to receive the message to the recipient
     public remote function read(string folder = DEFAULT_FOLDER) returns Email|Error? {
         return popRead(self, java:fromString(folder));
     }
@@ -57,7 +58,7 @@ function popRead(PopClient clientEndpoint, handle folder) returns Email|Error? =
 #
 # + port - Port number of the POP server
 # + enableSsl - If set to true, use SSL to connect and use the SSL port by default.
-#   Defaults to true for the "pop3s" protocol and false for the "pop3" protocol.
+#               Defaults to true for the "pop3s" protocol and false for the "pop3" protocol.
 public type PopConfig record {|
     int port = 995;
     boolean enableSsl = true;
