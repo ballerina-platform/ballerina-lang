@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the message, which a NATS Server sends to its subscribed services.
+# Represents the message, which a NATS server sends to its subscribed services.
 public type Message object {
     byte[] content;
     string? replyTo;

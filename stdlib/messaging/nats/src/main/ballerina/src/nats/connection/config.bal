@@ -19,11 +19,11 @@ import ballerina/crypto;
 # Configurations related to creating a NATS streaming subscription.
 #
 # + connectionName - Name of the connection (this is optional)
-# + maxReconnect - Maximum number of reconnect attempts. The reconnect state is entered when the connection is connected
-#                  and when that connection is lost. During the initial connection attempt, the client will cycle
+# + maxReconnect - Maximum number of reconnect attempts. The reconnect state is triggered when already established
+#                  connection is losted. During the initial connection attempt, the client will cycle
 #                  over its server list one time regardless of the `maxReconnects` value that is set.
 #                  Use 0 to turn off auto reconnect.
-#                  Use -1 to turn on infinite reconnects
+#                  Use -1 to turn on infinite reconnects.
 # + reconnectWaitInSeconds - The time(in seconds) to wait between reconnect attempts to reconnect to the same server
 # + connectionTimeoutInSeconds - The timeout(in seconds) for connection attempts
 # + pingIntervalInMinutes - The interval(in minutes) between the attempts of pinging the server

@@ -48,7 +48,7 @@ public type StreamingListener object {
     #
     # + s - Type descriptor of the service
     # + name - Name of the service
-    # + return - () or the error upon failure to register the listener
+    # + return - () or else a `nats:Error` upon failure to register the listener
     public function __attach(service s, string? name = ()) returns error? {
         streamingAttach(self, s, self.connection);
     }
@@ -56,28 +56,28 @@ public type StreamingListener object {
     # Stops consuming messages and detaches the service from the `nats:StreamingListener`.
     #
     # + s - Type descriptor of the service
-    # + return - () or error upon failure to detach the service
+    # + return - () or else a `nats:Error` upon failure to detach the service
     public function __detach(service s) returns error? {
         streamingDetach(self, s);
     }
 
     # Starts the `nats:StreamingListener`.
     #
-    # + return - () or error upon failure to start the listener
+    # + return - () or else a `nats:Error` upon failure to start the listener
     public function __start() returns error? {
          streamingSubscribe(self, self.connection, java:fromString(self.clusterId), self.clientId, self.streamingConfig);
     }
 
     # Gracefully stops the `nats:StreamingListener`.
     #
-    # + return - () or error upon failure to stop the listener
+    # + return - () or else a `nats:Error` upon failure to stop the listener
     public function __gracefulStop() returns error? {
         return ();
     }
 
     # Forcefully stops the `nats:StreamingListener`.
     #
-    # + return - () or error upon failure to stop the listener
+    # + return - () or else a `nats:Error` upon failure to stop the listener
     public function __immediateStop() returns error? {
         return self.close();
     }

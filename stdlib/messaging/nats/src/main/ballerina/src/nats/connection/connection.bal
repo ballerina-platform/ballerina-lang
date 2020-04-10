@@ -36,7 +36,7 @@ public type Connection object {
     #
     # + forceful - The graceful shutdown flag. If `true`, the connection closes immediately.
     #              The default value is `false`.
-    # + return - () or the error if unable to complete the close operation.
+    # + return - () or else a `nats:Error` if unable to complete the close operation.
     public function close(boolean forceful = false) returns Error? {
         return externClose(self, forceful);
     }

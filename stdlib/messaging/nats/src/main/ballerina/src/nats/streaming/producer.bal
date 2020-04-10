@@ -39,11 +39,11 @@ public type StreamingProducer client object {
     # + subject - The subject to send the message 
     # + data - Data to publish
     # + return - `string` value representing the NUID (NATS Unique Identifier) of the published message, if the
-    #           message gets successfully published and acknowledged by the NATS server or
-    #           `nats:Error` with NUID and `message` fields in case an error occurs in publishing, the timeout
-    #           elapses while waiting for the acknowledgement or
-    #           `nats:Error` only with the `message` field in case an error occurs even before publishing
-    #           is completed
+    #            message gets successfully published and acknowledged by the NATS server or else
+    #            a `nats:Error` with NUID and `message` fields in case an error occurs in publishing, the timeout
+    #            elapses while waiting for the acknowledgement or else
+    #            a `nats:Error` only with the `message` field in case an error occurs even before publishing
+    #            is completed
     public remote function publish(string subject,@untainted Content data) returns string|Error {
         Connection? natsConnection = self.conn;
         if (natsConnection is ()) {
@@ -71,7 +71,7 @@ public type StreamingProducer client object {
 
     # Close the producer.
     #
-    # + return - () or the error if unable to complete the close operation.
+    # + return - () or else a `nats:Error` if unable to complete the close operation.
     public function close() returns error? {
         Connection? natsConnection = self.conn;
         if (natsConnection is Connection) {

@@ -42,7 +42,7 @@ public type StreamingMessage client object {
 
    # Acknowledges the NATS streaming server upon the receipt of the message.
    #
-   # + return - () or error upon failure to acknowledge the server
+   # + return - () or else a `nats:Error` upon failure to acknowledge the server
    public remote function ack() returns Error? {
        return externAck(self);
    }

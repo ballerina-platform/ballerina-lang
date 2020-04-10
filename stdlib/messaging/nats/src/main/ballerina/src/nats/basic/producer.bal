@@ -31,13 +31,15 @@ public type Producer client object {
         producerInit(connection);
     }
 
-    # Publishes data to a given subject.
-    # ```ballerina nats:Error? result = producer->publish(subject, <@untainted>message);```
-    #
-    # + subject - The subject to send the message to
-    # + data - Data to publish
-    # + replyTo - The subject or the callback service the receiver should send the response to
-    # + return -  () or error if there is a problem when publishing the message
+# Publishes data to a given subject.
+# ```ballerina
+# nats:Error? result = producer->publish(subject, <@untainted>message);
+# ```
+#
+# + subject - The subject to send the message to
+# + data - Data to publish
+# + replyTo - The subject or the callback service the receiver should send the response to
+# + return -  () or else a `nats:Error` if there is a problem when publishing the message
     public remote function publish(string subject, @untainted Content data, (string | service)? replyTo = ())
                     returns Error? {
         string | byte[] | error converted = convertData(data);
@@ -48,13 +50,15 @@ public type Producer client object {
         }
     }
 
-    # Publishes data to a given subject and waits for a response.
-    # ```ballerina nats:Message|nats:Error reqReply = producer->request(subject, <@untainted>message, 5000);```
-    #
-    # + subject - The subject to send the message to
-    # + data - Data to publish
-    # + duration - The time(in milliseconds) to wait for the response
-    # + return -  The response message or an error
+# Publishes data to a given subject and waits for a response.
+# ```ballerina
+# nats:Message|nats:Error reqReply = producer->request(subject, <@untainted>message, 5000);
+# ```
+#
+# + subject - The subject to send the message to
+# + data - Data to publish
+# + duration - The time(in milliseconds) to wait for the response
+# + return -  The response `nats:Message` or else a `nats:Error` if an error is encountered
     public remote function request(string subject, @untainted Content data, int? duration = ()) returns Message|Error {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
@@ -66,7 +70,7 @@ public type Producer client object {
 
     # Closes a given connection.
     #
-    # + return - () or the error if unable to complete the close operation
+    # + return - () or else a `nats:Error` if unable to complete the close operation
     public function close() returns Error? {
         closeConnection(self);
         if (self.conn is Connection) {

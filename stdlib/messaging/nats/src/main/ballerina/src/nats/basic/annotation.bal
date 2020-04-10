@@ -32,8 +32,8 @@ public type SubscriptionConfigData record {|
 #
 # + maxMessages - Maximum number of pending messages retrieved and held by the consumer service.
 #                 The default value is 65536
-# + maxBytes - Total size of pending messages in bytes retrieved and held by the consumer service,
-#              defaults to 67108864
+# + maxBytes - Total size of pending messages in bytes retrieved and held by the consumer service.
+#              The default value is 67108864
 public type PendingLimits record {|
     int maxMessages;
     int maxBytes;
