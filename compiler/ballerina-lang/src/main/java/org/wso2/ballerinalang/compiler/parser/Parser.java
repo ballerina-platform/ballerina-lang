@@ -93,10 +93,8 @@ public class Parser {
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         this.pkgCache.put(pkgId, pkgNode);
 
-        BDiagnosticSource diagnosticSource = new BDiagnosticSource(pkgId,
-                pkgSource.getName());
-
         for (CompilerInput sourceInput : pkgSource.getPackageSourceEntries()) {
+            BDiagnosticSource diagnosticSource = getDiagnosticSource(sourceInput, pkgId);
             if (ProjectDirs.isTestSource(((FileSystemSourceInput) sourceInput).getPath(),
                     sourceRootPath, pkgId.getName().value)) {
                 // This check is added to ensure that there is exactly one testable package per bLangPackage
@@ -112,7 +110,7 @@ public class Parser {
             }
         }
 
-        pkgNode.pos = new DiagnosticPos(diagnosticSource, 1, 1, 1, 1);
+        pkgNode.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, pkgSource.getName()), 1, 1, 1, 1);
         pkgNode.repos = pkgSource.getRepoHierarchy();
         return pkgNode;
     }
