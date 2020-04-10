@@ -18,10 +18,10 @@ import ballerina/auth;
 import ballerina/crypto;
 import ballerina/java;
 
-# Represents Ballerina configuration for LDAP based auth provider.
+# Represents inbound LDAP auth provider.
 #
-# + instanceId - Endpoint instance id
-# + ldapConnection - LDAP connection
+# + instanceId - Instance ID of the endpoint
+# + ldapConnection - LDAP connection instance
 # + ldapConnectionConfig - LDAP connection configurations
 public type InboundLdapAuthProvider object {
 
@@ -33,8 +33,8 @@ public type InboundLdapAuthProvider object {
 
     # Create an LDAP auth store with the given configurations.
     #
-    # + ldapConnectionConfig - LDAP connection configurations
-    # + instanceId - Endpoint instance id
+    # + ldapConnectionConfig - `ldap:LdapConnectionConfig` instance
+    # + instanceId - Instance ID of the endpoint
     public function __init(LdapConnectionConfig ldapConnectionConfig, string instanceId) {
         self.instanceId = instanceId;
         self.ldapConnectionConfig = ldapConnectionConfig;
@@ -46,10 +46,14 @@ public type InboundLdapAuthProvider object {
         }
     }
 
-    # Authenticate with username and password.
+    # Authenticates base64-encoded `username:password` credential.
+    # ```ballerina
+    # boolean|auth:Error result = inboundLdapAuthProvider.authenticate("<credential>");
+    # ```
     #
-    # + credential - Credential value
-    # + return - `true` if authentication is successful, otherwise `false` or `auth:Error` occurred while extracting credentials
+    # + credential - Base64-encoded `username:password` value
+    # + return - `true` if authentication is successful, `false` otherwise, or else `auth:Error` occurred while
+    #            authenticating the credentials
     public function authenticate(string credential) returns boolean|auth:Error {
         if (credential == "") {
             return false;
@@ -81,7 +85,7 @@ public type InboundLdapAuthProvider object {
 # + domainName - Unique name to identify the user store
 # + connectionURL - Connection URL to the LDAP server
 # + connectionName - The username used to connect to the LDAP server
-# + connectionPassword - Password for the ConnectionName user
+# + connectionPassword - The Password used to connect to the LDAP server
 # + userSearchBase - DN of the context or object under which the user entries are stored in the LDAP server
 # + userEntryObjectClass - Object class used to construct user entries
 # + userNameAttribute - The attribute used for uniquely identifying a user entry
@@ -96,10 +100,10 @@ public type InboundLdapAuthProvider object {
 # + userRolesCacheEnabled -  To indicate whether to cache the role list of a user
 # + connectionPoolingEnabled - Define whether LDAP connection pooling is enabled
 # + connectionTimeoutInMillis - Timeout in making the initial LDAP connection in milliseconds
-# + readTimeoutInMillis - The value of this property is the read timeout in milliseconds for LDAP operations
+# + readTimeoutInMillis - Read timeout in milliseconds for LDAP operations
 # + retryAttempts - Retry the authentication request if a timeout happened
-# + secureSocket - The SSL configurations for the ldap client socket. This needs to be configured in order to
-#                  communicate through ldaps.
+# + secureSocket - The SSL configurations for the LDAP client socket. This needs to be configured in order to
+#                  communicate through LDAPs.
 public type LdapConnectionConfig record {|
     string domainName;
     string connectionURL;
@@ -127,20 +131,24 @@ public type LdapConnectionConfig record {|
 # Configures the SSL/TLS options to be used for LDAP communication.
 #
 # + trustStore - Configures the trust store to be used
-# + trustedCertFile - A file containing a list of certificates or a single certificate that the client trusts
+# + trustedCertFile - A file containing the certificate(s) that client trusts
 public type SecureSocket record {|
     crypto:TrustStore trustStore?;
     string trustedCertFile?;
 |};
 
+# Represets the LDAP connection.
 public type LdapConnection record {|
 |};
 
-# Reads the scope(s) for the user with the given username.
+# Retrievs the group(s) of the user related to provided username.
+# ```ballerina
+# string[]|ldap:Error groups = ldap:getGroups(ldapConnection, username);
+# ```
 #
-# + ldapConnection - `LdapConnection` instance
-# + username - Username of the user to check the groups
-# + return - Array of groups for the user denoted by the username or `Error` if error occurred
+# + ldapConnection - `ldap:LdapConnection` instance
+# + username - Username of the user to be checked for the groups
+# + return - Array of groups of the provided user or `ldap:Error` if error occurred
 public function getGroups(LdapConnection ldapConnection, string username) returns string[]|Error {
     return externGetGroups(ldapConnection, java:fromString(username));
 }
@@ -150,12 +158,15 @@ function externGetGroups(LdapConnection ldapConnection, handle username) returns
     class: "org.ballerinalang.stdlib.ldap.nativeimpl.GetGroups"
 } external;
 
-# Authenticate with username and password.
+# Authenticates with username and password.
+# ```ballerina
+# boolean|ldap:Error result = ldap:doAuthenticate(ldapConnection, username, password);
+# ```
 #
-# + ldapConnection - `LdapConnection` instance
+# + ldapConnection - `ldap:LdapConnection` instance
 # + username - Username of the user to be authenticated
 # + password - Password of the user to be authenticated
-# + return - true if authentication is a success, else false or `Error` if error occurred
+# + return - `true` if authentication is a successful, `false` otherwise, or else `ldap:Error` if error occurred
 public function doAuthenticate(LdapConnection ldapConnection, string username, string password) returns boolean|Error {
     return externDoAuthenticate(ldapConnection, java:fromString(username), java:fromString(password));
 }
@@ -167,10 +178,13 @@ public function externDoAuthenticate(LdapConnection ldapConnection, handle usern
 } external;
 
 # Initailizes LDAP connection context.
+# ```ballerina
+# ldap:LdapConnection|ldap:Error connection = ldap:initLdapConnectionContext(ldapConnectionConfig, instanceId);
+# ```
 #
-# + ldapConnectionConfig - `LdapConnectionConfig` instance
-# + instanceId - Unique id generated to identify an endpoint
-# + return - `LdapConnection` instance, or `Error` if error occurred
+# + ldapConnectionConfig - `ldap:LdapConnectionConfig` instance
+# + instanceId - Instance ID of the endpoint
+# + return - `ldap:LdapConnection` instance or else `ldap:Error` if error occurred
 public function initLdapConnectionContext(LdapConnectionConfig ldapConnectionConfig, string instanceId)
                                           returns LdapConnection|Error {
     return externInitLdapConnectionContext(ldapConnectionConfig, java:fromString(instanceId));
