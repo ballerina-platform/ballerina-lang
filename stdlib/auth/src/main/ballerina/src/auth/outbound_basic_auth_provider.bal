@@ -28,17 +28,17 @@ public type OutboundBasicAuthProvider object {
 
     # Provides authentication based on the provided Basic Auth configurations.
     #
-    # + credential - Credential configurations.
+    # + credential - Credential configurations
     public function __init(Credential? credential = ()) {
         self.credential = credential;
     }
 
 # Generates a token for Basic authentication.
 # ```ballerina
-#    string|auth:Error token = outboundBasicAuthProvider.generateToken();
+# string|auth:Error token = outboundBasicAuthProvider.generateToken();
 # ```
 #
-# + return - The generated token or else an `Error` if occurred during the validation.
+# + return - The generated token or else an `Error` if occurred during the validation
     public function generateToken() returns string|Error {
         Credential? credential = self.credential;
         if (credential is ()) {

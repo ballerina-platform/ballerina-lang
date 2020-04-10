@@ -47,7 +47,7 @@ const string CONFIG_USER_SECTION = "b7a.users";
 
 # Extracts the username and the password from the credential values.
 # ```ballerina
-#   [string, string]|auth:Error [username, password] = auth:extractUsernameAndPassword("credential");
+# [string, string]|auth:Error [username, password] = auth:extractUsernameAndPassword("<credential>");
 # ```
 #
 # + credential - Credential value
@@ -74,7 +74,7 @@ public function extractUsernameAndPassword(string credential) returns [string, s
 
 # Sets the authentication related values (scheme, auth token) to the authentication context of the invocation context.
 # ```ballerina
-#    auth:setAuthenticationContext("jwt", "credential");
+# auth:setAuthenticationContext("jwt", "<credential>");
 # ```
 #
 # + scheme - Auth scheme (`JWT`, `LDAP`, `OAuth2`, `Basic` etc.)

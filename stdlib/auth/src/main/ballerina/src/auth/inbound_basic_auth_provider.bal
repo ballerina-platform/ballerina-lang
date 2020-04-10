@@ -40,7 +40,7 @@ public type InboundBasicAuthProvider object {
 
 # Attempts to authenticate with the given credentials.
 # ```ballerina
-#    boolean|auth:Error authenticationResult = inboundBasicAuthProvider.authenticate("credential");
+# boolean|auth:Error authenticationResult = inboundBasicAuthProvider.authenticate("<credential>");
 # ```
 #
 # + credential - Credential
