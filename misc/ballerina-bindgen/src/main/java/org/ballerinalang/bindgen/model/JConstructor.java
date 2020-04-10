@@ -66,9 +66,16 @@ public class JConstructor implements Cloneable {
         }
 
         // Populate fields to identify error return types.
-        if (c.getExceptionTypes().length > 0) {
-            hasException = true;
-            handleException = true;
+        for (Class<?> exceptionType : c.getExceptionTypes()) {
+            try {
+                if (!this.getClass().getClassLoader().loadClass(RuntimeException.class.getCanonicalName())
+                        .isAssignableFrom(exceptionType)) {
+                    hasException = true;
+                    handleException = true;
+                    break;
+                }
+            } catch (ClassNotFoundException ignore) {
+            }
         }
     }
 
