@@ -45,14 +45,14 @@ public const string AUTH_SCHEME_BEARER = "Bearer ";
 # The table name specified in the user section of the TOML configuration.
 const string CONFIG_USER_SECTION = "b7a.users";
 
-# Extracts the username and the password from the credential values.
+# Extracts the username and the password from the base64-encoded `username:password` value.
 # ```ballerina
 # [string, string]|auth:Error [username, password] = auth:extractUsernameAndPassword("<credential>");
 # ```
 #
-# + credential - Credential value
-# + return - A `string` tuple with the extracted username and password or else an `Error` if occurred while extracting
-#            credentials
+# + credential - Base64-encoded `username:password` value
+# + return - A `string` tuple with the extracted username and password or else an `auth:Error` if occurred while
+#            extracting credentials
 public function extractUsernameAndPassword(string credential) returns [string, string]|Error {
     byte[]|error result = arrays:fromBase64(credential);
     if (result is error) {
@@ -72,12 +72,12 @@ public function extractUsernameAndPassword(string credential) returns [string, s
     }
 }
 
-# Sets the authentication related values (scheme, auth token) to the authentication context of the invocation context.
+# Sets the authentication-related values (scheme, auth token) to the authentication context of the invocation context.
 # ```ballerina
 # auth:setAuthenticationContext("jwt", "<credential>");
 # ```
 #
-# + scheme - Auth scheme (`JWT`, `LDAP`, `OAuth2`, `Basic` etc.)
+# + scheme - Auth scheme (`JWT`, `LDAP`, `OAuth2`, `Basic`, etc.)
 # + authToken - Auth token (credential)
 public function setAuthenticationContext(string scheme, string authToken) {
     runtime:InvocationContext invocationContext = runtime:getInvocationContext();
@@ -87,7 +87,7 @@ public function setAuthenticationContext(string scheme, string authToken) {
     };
 }
 
-# Sets the authentication related values (user id, username, scopes, claims) to the principal of the invocation context.
+# Sets the authentication-related values (user ID, username, scopes, claims) to the principal of the invocation context.
 #
 # + userId - User ID of the authenticated user
 # + username - Username of the authenticated user
@@ -110,14 +110,14 @@ public function setPrincipal(public string? userId = (), public string? username
     }
 }
 
-# Check whether the scopes of the user matches the scopes of the resource.
+# Checks whether the scopes of the user matches the scopes of the resource.
 #
 # + resourceScopes - Scopes of the resource
 # + userScopes - Scopes of the user
 # + authzCacheKey - Authorization cache key
-# + positiveAuthzCache - Cache for positive authorizations
-# + negativeAuthzCache - Cache for negative authorizations
-# + return - `true` if there is a match between resource and user scopes, else `false`
+# + positiveAuthzCache - `cache:Cache` for positive authorizations
+# + negativeAuthzCache - `cache:Cache` for negative authorizations
+# + return - `true` if there is a match between resource and user scopes, `false` otherwise
 public function checkForScopeMatch(string[]|string[][] resourceScopes, string[] userScopes, string authzCacheKey,
                                    cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) returns boolean {
     boolean? authorizedFromCache = authorizeFromCache(authzCacheKey, positiveAuthzCache, negativeAuthzCache);
@@ -144,7 +144,7 @@ public function checkForScopeMatch(string[]|string[][] resourceScopes, string[] 
 # + authzCacheKey - Cache key
 # + positiveAuthzCache - Cache for positive authorizations
 # + negativeAuthzCache - Cache for negative authorizations
-# + return - `true` or `false` in case of a cache hit, `()` in case of a cache miss
+# + return - `true` or `false` in case of a cache hit or else `()` in case of a cache miss
 function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCache,
                             cache:Cache? negativeAuthzCache) returns boolean? {
     cache:Cache? pCache = positiveAuthzCache;
@@ -169,8 +169,8 @@ function authorizeFromCache(string authzCacheKey, cache:Cache? positiveAuthzCach
 #
 # + authorized - `boolean` flag to indicate the authorization decision
 # + authzCacheKey - Cache key
-# + positiveAuthzCache - Cache for positive authorizations
-# + negativeAuthzCache - Cache for negative authorizations
+# + positiveAuthzCache - `cache:Cache` for positive authorizations
+# + negativeAuthzCache - `cache:Cache` for negative authorizations
 function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache? positiveAuthzCache,
                           cache:Cache? negativeAuthzCache) {
     if (authorized) {
@@ -202,7 +202,7 @@ function cacheAuthzResult(boolean authorized, string authzCacheKey, cache:Cache?
 #
 # + resourceScopes - Scopes of resource
 # + userScopes - Scopes of the user
-# + return - `true` if one of the resourceScopes can be found at userScopes, else `false`
+# + return - `true` if one of the resourceScopes can be found at userScopes, `false` otherwise
 function matchScopes(string[] resourceScopes, string[] userScopes) returns boolean {
     foreach string resourceScope in resourceScopes {
         foreach string userScope in userScopes {

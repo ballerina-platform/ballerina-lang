@@ -19,7 +19,7 @@ import ballerina/runtime;
 
 # Represents the outbound Basic Auth authenticator.
 #
-# + credential - Credential configurations
+# + credential - `auth:Credential` configurations
 public type OutboundBasicAuthProvider object {
 
     *OutboundAuthProvider;
@@ -38,7 +38,7 @@ public type OutboundBasicAuthProvider object {
 # string|auth:Error token = outboundBasicAuthProvider.generateToken();
 # ```
 #
-# + return - The generated token or else an `Error` if occurred during the validation
+# + return - The generated token or else an `auth:Error` if occurred during the validation
     public function generateToken() returns string|Error {
         Credential? credential = self.credential;
         if (credential is ()) {
@@ -49,8 +49,7 @@ public type OutboundBasicAuthProvider object {
                     return authToken;
                 }
             }
-            return prepareError("Failed to generate basic auth token since credential config is not defined and auth " +
-                            "token is not defined in the authentication context at invocation context.");
+            return prepareError("Failed to generate basic auth token since credential config is not defined and auth token is not defined in the authentication context at invocation context.");
         } else {
             return getAuthTokenForBasicAuth(credential);
         }
@@ -59,7 +58,7 @@ public type OutboundBasicAuthProvider object {
     # Inspects the incoming data and generates the token for Basic authentication.
     #
     # + data - Map of the data, which is extracted from the HTTP response.
-    # + return - The token as a `string`, or an `Error` if occurred when generating the token, or `()`
+    # + return - The token as a `string`, an `auth:Error` if occurred when generating the token, or else `()`
     #            if nothing is to be returned
     public function inspect(map<anydata> data) returns string|Error? {
         return ();
@@ -77,8 +76,8 @@ public type Credential record {|
 
 # Processes the auth token for Basic Auth.
 #
-# + credential - Credential configurations
-# + return - The auth token or else an `Error` if occurred during the validation
+# + credential - `auth:Credential` configurations
+# + return - The auth token or else an `auth:Error` if occurred during the validation
 function getAuthTokenForBasicAuth(Credential credential) returns string|Error {
     string username = credential.username;
     string password = credential.password;

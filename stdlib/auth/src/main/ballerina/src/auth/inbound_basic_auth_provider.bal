@@ -38,14 +38,14 @@ public type InboundBasicAuthProvider object {
         }
     }
 
-# Attempts to authenticate with the given credentials.
+# Attempts to authenticate base64-encoded `username:password` credential.
 # ```ballerina
 # boolean|auth:Error authenticationResult = inboundBasicAuthProvider.authenticate("<credential>");
 # ```
 #
-# + credential - Credential
-# + return - `true` if authentication is successful, otherwise `false` or else an `Error` if any error occurred
-#             while extracting credentials
+# + credential - Base64-encoded `username:password` value
+# + return - `true` if authentication is successful, otherwise `false` or else an `auth:Error` if any error occurred
+#             while authenticating credentials
     public function authenticate(string credential) returns boolean|Error {
         if (credential == "") {
             return false;
@@ -113,8 +113,8 @@ function extractHash(string configValue) returns string {
 # + username - Username of the user
 # + return - Password hash read from userstore, or nil if not found
 function readPassword(string username) returns string {
-    // First, read the user ID from user->id mapping
-    // read the hashed password from the user-store file, using the user id
+    // First, read the user ID from user->id mapping.
+    // Then, read the hashed password from the user-store file, using the user ID.
     return getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "password");
 }
 
@@ -122,10 +122,10 @@ function getConfigAuthValue(string instanceId, string property) returns string {
     return config:getAsString(instanceId + "." + property, "");
 }
 
-# Constructs an array of groups from the given comma separed string of groups.
+# Constructs an array of groups from the given comma-separed string of groups.
 #
 # + groupString - Comma separated string of groups
-# + return - An array of groups, nil if the groups string is empty/nil
+# + return - An array of groups or else () if the groups string is empty/nil
 function getArray(string groupString) returns string[] {
     if (groupString.length() == 0) {
         return [];

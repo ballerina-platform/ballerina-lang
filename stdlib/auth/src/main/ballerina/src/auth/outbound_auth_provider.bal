@@ -20,13 +20,13 @@ public type OutboundAuthProvider abstract object {
 
     # Generates a token for the outbound request.
     #
-    # + return - The token as a `string` or else an `Error` if occurred when generating the token
+    # + return - The token as a `string` or else an `auth:Error` if occurred when generating the token
     public function generateToken() returns string|Error;
 
     # Inspects the incoming data and generates the token as needed.
     #
     # + data - Map of data which is extracted from the HTTP response
-    # + return - The token as a `string` or an `Error` if occurred when generating the token,
-    #            or `()` if nothing is to be returned
+    # + return - The token as a `string` or an `auth:Error` if occurred when generating the token,
+    #            or else `()` if nothing is to be returned
     public function inspect(map<anydata> data) returns string|Error?;
 };
