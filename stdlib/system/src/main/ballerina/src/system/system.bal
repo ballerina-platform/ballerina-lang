@@ -17,6 +17,9 @@
 import ballerina/java;
 
 # Returns the environment variable value associated with the provided name.
+# ```ballerina
+# string port = system:getEnv("HTTP_PORT");
+# ```
 #
 # + name - Name of the environment variable
 # + return - Environment variable value if it exists, else an empty string
@@ -35,6 +38,9 @@ function nativeGetEnv(handle key) returns handle = @java:Method {
 } external;
 
 # Returns the current user's name.
+# ```ballerina
+# string username = system:getUsername();
+# ```
 #
 # + return - Current user's name if it can be determined, else an empty string
 public function getUsername() returns string {
@@ -47,6 +53,9 @@ function nativeGetUsername() returns handle = @java:Method {
 } external;
 
 # Returns the current user's home directory path.
+# ```ballerina
+# string userHome = system:getUserHome();
+# ```
 #
 # + return - Current user's home directory if it can be determined, else an empty string
 public function getUserHome() returns string {
@@ -59,6 +68,9 @@ function nativeGetUserHome() returns handle = @java:Method {
 } external;
 
 # Returns a random UUID string.
+# ```ballerina
+# string providerId = system:uuid();
+# ```
 #
 # + return - The random string
 public function uuid() returns string {
@@ -71,12 +83,15 @@ function nativeUuid() returns handle = @java:Method {
 } external;
 
 # Executes an operating system command as a subprocess of the current process.
+# ```ballerina
+# system:Process|system:Error proc = system:exec("ls", {}, "/", "-la")
+# ```
 #
 # + command - The name of the command to be executed
 # + env - Environment variables to be set to the process
 # + dir - The current working directory to be set to the process
 # + args - Command arguments to be passed in
-# + return - Returns a `Process` object in success, or an `Error` if a failure occurs
+# + return - A `system:Process` object in success, or an `system:Error` if a failure occurs
 public function exec(@untainted string command, @untainted map<string> env = {},
                      @untainted string? dir = (), @untainted string... args) returns Process|Error {
     return nativeExec(java:fromString(command), env, dir, args);
