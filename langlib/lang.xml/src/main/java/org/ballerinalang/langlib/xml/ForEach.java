@@ -53,4 +53,8 @@ public class ForEach {
             func.call(new Object[]{strand, xmlOrStringVal, true});
         }
     }
+
+    public static void forEach_bstring(Strand strand, XMLValue x, FPValue<Object, Object> func) {
+        forEach(strand, x, func);
+    }
 }

@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.jvm.types;
 
+import org.ballerinalang.jvm.AnnotationUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
 
@@ -40,6 +41,17 @@ public class BServiceType extends BObjectType {
         this.generatedInitializer = originalType.generatedInitializer;
 
         processServiceAnnotations(globalAnnotationMap, this, strand);
+    }
+
+    public void setAttachedFuncsAndProcessAnnots_bstring(MapValue globalAnnotationMap, Strand strand,
+                                                         BServiceType originalType,
+                                                         AttachedFunction[] attachedFunctions) {
+        this.setAttachedFunctions(attachedFunctions);
+        this.setFields(originalType.getFields());
+        this.initializer = originalType.initializer;
+        this.generatedInitializer = originalType.generatedInitializer;
+
+        AnnotationUtils.processServiceAnnotations_bstring(globalAnnotationMap, this, strand);
     }
 
     @Override

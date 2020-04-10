@@ -278,7 +278,7 @@ public class TypeConverter {
         switch (targetTypeTag) {
             case TypeTags.UNION_TAG:
                 for (BType memType : ((BUnionType) targetType).getMemberTypes()) {
-                    convertibleTypes.addAll(getConvertibleTypes(inputValue, memType, unresolvedValues));
+                    convertibleTypes.addAll(getConvertibleTypes_bstring(inputValue, memType, unresolvedValues));
                 }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
@@ -368,12 +368,12 @@ public class TypeConverter {
             String fieldName = valueEntry.getKey().toString();
 
             if (targetFieldTypes.containsKey(fieldName)) {
-                if (getConvertibleTypes(valueEntry.getValue(), targetFieldTypes.get(fieldName),
+                if (getConvertibleTypes_bstring(valueEntry.getValue(), targetFieldTypes.get(fieldName),
                                         unresolvedValues).size() != 1) {
                     return false;
                 }
             } else if (!targetType.sealed) {
-                if (getConvertibleTypes(valueEntry.getValue(), restFieldType, unresolvedValues).size() != 1) {
+                if (getConvertibleTypes_bstring(valueEntry.getValue(), restFieldType, unresolvedValues).size() != 1) {
                     return false;
                 }
             } else {

@@ -85,8 +85,11 @@ import static org.ballerinalang.jvm.util.BLangConstants.UNSIGNED8_MAX_VALUE;
  *
  * @since 0.995.0
  */
-@SuppressWarnings({ "rawtypes" })
+@SuppressWarnings({"rawtypes"})
 public class TypeChecker {
+
+    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
+    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
 
     public static Object checkCast(Object sourceVal, BType targetType) {
 
@@ -1622,10 +1625,14 @@ public class TypeChecker {
         }
 
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
-            String fieldName = targetTypeEntry.getKey().toString();
-
+            Object fieldName;
+            if (USE_BSTRING) {
+                fieldName = StringUtils.fromString(targetTypeEntry.getKey().toString());
+            } else {
+                fieldName = targetTypeEntry.getKey().toString();
+            }
             if (!(((MapValueImpl) sourceValue).containsKey(fieldName)) &&
-                    !Flags.isFlagOn(targetType.getFields().get(fieldName).flags, Flags.OPTIONAL)) {
+                    !Flags.isFlagOn(targetType.getFields().get(fieldName.toString()).flags, Flags.OPTIONAL)) {
                 return false;
             }
         }
@@ -1635,8 +1642,8 @@ public class TypeChecker {
             String fieldName = valueEntry.getKey().toString();
 
             if (targetTypeField.containsKey(fieldName)) {
-                if (!checkIsLikeType((valueEntry.getValue()), targetTypeField.get(fieldName), unresolvedValues,
-                                     allowNumericConversion)) {
+                if (!checkIsLikeType((valueEntry.getValue()), targetTypeField.get(fieldName),
+                                     unresolvedValues, allowNumericConversion)) {
                     return false;
                 }
             } else {

@@ -71,4 +71,7 @@ public class Filter {
 
         return newMap;
     }
+    public static MapValue filter_bstring(Strand strand, MapValue<?, ?> m, FPValue<Object, Boolean> func) {
+        return filter(strand, m, func);
+    }
 }

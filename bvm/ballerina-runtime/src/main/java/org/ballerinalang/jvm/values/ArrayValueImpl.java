@@ -617,6 +617,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
+                if (USE_BSTRING) {
+                    valueArray = new ArrayValueImpl(Arrays.copyOf(bStringValues, this.size));
+                    break;
+                }
                 valueArray = new ArrayValueImpl(Arrays.copyOf(stringValues, this.size));
                 break;
             default:

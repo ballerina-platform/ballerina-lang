@@ -54,6 +54,26 @@
             <package name="org.ballerinalang.test.endpoint.*" />
             <package name="org.ballerinalang.test.error.*" />
             <package name="org.ballerinalang.test.execution.*" />
+            <package name="org.ballerinalang.test.expressions.access.*" />
+            <package name="org.ballerinalang.test.expressions.binaryoperations.*" />
+            <package name="org.ballerinalang.test.expressions.builtinfunctions.*" />
+            <package name="org.ballerinalang.test.expressions.builtinoperations.*" />
+            <package name="org.ballerinalang.test.expressions.checkedexpr.*" />
+            <package name="org.ballerinalang.test.expressions.checkpanicexpr.*" />
+            <package name="org.ballerinalang.test.expressions.conversion.*" />
+            <package name="org.ballerinalang.test.expressions.elvis.*" />
+            <package name="org.ballerinalang.test.expressions.group.*" />
+            <package name="org.ballerinalang.test.expressions.invocations.*" />
+            <package name="org.ballerinalang.test.expressions.lambda.*" />
+            <package name="org.ballerinalang.test.expressions.listconstructor.*" />
+            <package name="org.ballerinalang.test.expressions.literals.*" />
+            <package name="org.ballerinalang.test.expressions.mappingconstructor.*" />
+            <package name="org.ballerinalang.test.expressions.stamp.*" />
+            <package name="org.ballerinalang.test.expressions.ternary.*" />
+            <package name="org.ballerinalang.test.expressions.typecast.*" />
+            <package name="org.ballerinalang.test.expressions.typeof.*" />
+            <package name="org.ballerinalang.test.expressions.unaryoperations.*" />
+            <package name="org.ballerinalang.test.expressions.varref.*" />
             <package name="org.ballerinalang.test.types.any.*" />
             <package name="org.ballerinalang.test.types.anydata.*" />
             <package name="org.ballerinalang.test.types.bytetype.*" />
@@ -79,5 +99,17 @@
         </packages>
         <!--<class name="org.ballerinalang.test.types.TypeUnificationTest"/>-->
 
+        <classes>
+            <class name="org.ballerinalang.test.expressions.async.BasicAsyncOperationsTest">
+                <methods>
+                    <exclude name="testAsyncNonNativeBasic6" />
+                    <exclude name="testAsyncNonNativeBasic7" />
+                    <exclude name="testAsyncNonNativeBasic8" />
+                    <exclude name="testAsyncNonNativeBasic9" />
+                    <exclude name="testAsyncNonNativeBasic10" />
+                    <exclude name="testAsyncNonNativeBasic11" />
+                </methods>
+            </class>
+        </classes>
     </test>
 </suite>

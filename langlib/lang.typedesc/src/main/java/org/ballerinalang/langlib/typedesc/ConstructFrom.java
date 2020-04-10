@@ -57,7 +57,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.jvm.BallerinaErrors.createError;
-import static org.ballerinalang.jvm.TypeConverter.getConvertibleTypes;
 import static org.ballerinalang.jvm.TypeConverter.getConvertibleTypes_bstring;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
@@ -163,7 +162,7 @@ public class ConstructFrom {
             }
         }
 
-        return convert_bstring((RefValue) value, matchingType, unresolvedValues);
+        return convert((RefValue) value, matchingType, unresolvedValues);
     }
 
     private static Object convert(Object value, BType targetType, List<TypeValuePair> unresolvedValues,
@@ -175,9 +174,13 @@ public class ConstructFrom {
             return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
                                BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
         }
-
-        List<BType> convertibleTypes = getConvertibleTypes(value, targetType);
-        if (convertibleTypes.size() == 0) {
+        List<BType> convertibleTypes;
+        if (TypeChecker.USE_BSTRING) {
+            convertibleTypes = getConvertibleTypes_bstring(value, targetType);
+        } else {
+            convertibleTypes = TypeConverter.getConvertibleTypes(value, targetType);
+        }
+        if (convertibleTypes.isEmpty()) {
             throw createConversionError(value, targetType);
         } else if (!allowAmbiguity && convertibleTypes.size() > 1) {
             throw createConversionError(value, targetType, AMBIGUOUS_TARGET);
@@ -198,38 +201,6 @@ public class ConstructFrom {
         return convert((RefValue) value, matchingType, unresolvedValues);
     }
 
-    private static Object convert_bstring(RefValue value, BType targetType, List<TypeValuePair> unresolvedValues) {
-        TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
-        if (unresolvedValues.contains(typeValuePair)) {
-            throw new BallerinaException(CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR,
-                                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE,
-                                                                              value.getType()));
-        }
-        unresolvedValues.add(typeValuePair);
-
-        Object newValue;
-        switch (value.getType().getTag()) {
-            case TypeTags.MAP_TAG:
-            case TypeTags.RECORD_TYPE_TAG:
-                newValue = convertMap_bstring((MapValue<?, ?>) value, targetType, unresolvedValues);
-                break;
-            case TypeTags.ARRAY_TAG:
-            case TypeTags.TUPLE_TAG:
-                newValue = convertArray((ArrayValue) value, targetType, unresolvedValues);
-                break;
-            case TypeTags.XML_TAG:
-            case TypeTags.ERROR_TAG:
-                newValue = value.copy(new HashMap<Object, Object>());
-                break;
-            default:
-                // should never reach here
-                throw BallerinaErrors.createConversionError(value, targetType);
-        }
-
-        unresolvedValues.remove(typeValuePair);
-        return newValue;
-    }
-
     private static Object convert(RefValue value, BType targetType, List<TypeValuePair> unresolvedValues) {
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
         if (unresolvedValues.contains(typeValuePair)) {
@@ -243,6 +214,10 @@ public class ConstructFrom {
         switch (value.getType().getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
+                if (TypeChecker.USE_BSTRING) {
+                    newValue = convertMap_bstring((MapValue<?, ?>) value, targetType, unresolvedValues);
+                    break;
+                }
                 newValue = convertMap((MapValue<?, ?>) value, targetType, unresolvedValues);
                 break;
             case TypeTags.ARRAY_TAG:
@@ -293,7 +268,7 @@ public class ConstructFrom {
                 return newRecord;
             case TypeTags.JSON_TAG:
                 BType matchingType = TypeConverter.resolveMatchingTypeForUnion(map, targetType);
-                return convert_bstring(map, matchingType, unresolvedValues);
+                return convert(map, matchingType, unresolvedValues);
             default:
                 break;
         }
@@ -342,6 +317,11 @@ public class ConstructFrom {
                 BArrayType arrayType = (BArrayType) targetType;
                 ArrayValueImpl newArray = new ArrayValueImpl(arrayType);
                 for (int i = 0; i < array.size(); i++) {
+                    if (TypeChecker.USE_BSTRING) {
+                        Object newValue = convert_bstring(array.get(i), arrayType.getElementType(), unresolvedValues);
+                        newArray.add(i, newValue);
+                        continue;
+                    }
                     Object newValue = convert(array.get(i), arrayType.getElementType(), unresolvedValues);
                     newArray.add(i, newValue);
                 }
@@ -352,6 +332,11 @@ public class ConstructFrom {
                 int minLen = tupleType.getTupleTypes().size();
                 for (int i = 0; i < array.size(); i++) {
                     BType elementType = (i < minLen) ? tupleType.getTupleTypes().get(i) : tupleType.getRestType();
+                    if (TypeChecker.USE_BSTRING) {
+                        Object newValue = convert_bstring(array.get(i), elementType, unresolvedValues);
+                        newTuple.add(i, newValue);
+                        continue;
+                    }
                     Object newValue = convert(array.get(i), elementType, unresolvedValues);
                     newTuple.add(i, newValue);
                 }

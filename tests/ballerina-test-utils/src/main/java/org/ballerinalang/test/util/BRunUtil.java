@@ -588,6 +588,10 @@ public class BRunUtil {
                             jvmArray.add(i, array.getBoolean(i) == 1);
                             break;
                         case TypeTags.STRING_TAG:
+                            if (ArrayValueImpl.USE_BSTRING) {
+                                jvmArray.add(i, StringUtils.fromString(array.getString(i)));
+                                break;
+                            }
                             jvmArray.add(i, array.getString(i));
                             break;
                         case TypeTags.FLOAT_TAG:
@@ -809,6 +813,9 @@ public class BRunUtil {
             case TypeTags.BOOLEAN_TAG:
                 return ((BBoolean) value).booleanValue();
             case TypeTags.STRING_TAG:
+                if (ArrayValueImpl.USE_BSTRING) {
+                    return StringUtils.fromString(value.stringValue());
+                }
                 return value.stringValue();
             case TypeTags.FLOAT_TAG:
                 return ((BFloat) value).floatValue();
@@ -831,6 +838,10 @@ public class BRunUtil {
                             jvmArray.add(i, array.getBoolean(i) == 1);
                             break;
                         case TypeTags.STRING_TAG:
+                            if (ArrayValueImpl.USE_BSTRING) {
+                                jvmArray.add(i, StringUtils.fromString(array.getString(i)));
+                                break;
+                            }
                             jvmArray.add(i, array.getString(i));
                             break;
                         case TypeTags.FLOAT_TAG:
@@ -864,7 +875,11 @@ public class BRunUtil {
                 jvmMap = new MapValueImpl<>(new org.ballerinalang.jvm.types.BMapType(getJVMType(type)));
                 bMap.getMap().forEach((k, v) -> {
                     BValue bValue = bMap.get(k);
-                    jvmMap.put(k, bValue != null ? getJVMValue(bValue.getType(), bValue) : null);
+                    Object key = k;
+                    if (ArrayValueImpl.USE_BSTRING) {
+                        key = StringUtils.fromString(k.toString());
+                    }
+                    jvmMap.put(key, bValue != null ? getJVMValue(bValue.getType(), bValue) : null);
                 });
                 return jvmMap;
             case TypeTags.OBJECT_TYPE_TAG:
