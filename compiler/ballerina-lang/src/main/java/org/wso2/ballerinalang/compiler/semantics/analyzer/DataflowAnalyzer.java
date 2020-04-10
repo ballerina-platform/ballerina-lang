@@ -268,8 +268,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         });
         sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
-        this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency);
         this.globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
+        this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency);
         checkUnusedImports(pkgNode.imports);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
