@@ -2326,6 +2326,8 @@ public class BallerinaParser {
                 return parseBreakStatement();
             case RETURN_KEYWORD:
                 return parseReturnStatement();
+            case TYPE_KEYWORD:
+                return parseLocalTypeDefinitionStatement();
             default:
                 // If the next token in the token stream does not match to any of the statements and
                 // if it is not the end of statement, then try to fix it and continue.
@@ -4677,6 +4679,22 @@ public class BallerinaParser {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Parse local type definition statement statement.
+     * <code>ocal-type-defn-stmt := [annots] type identifier type-descriptor ;</code>
+     *
+     * @return local type definition statement statement
+     */
+    private STNode parseLocalTypeDefinitionStatement() {
+        startContext(ParserRuleContext.LOCAL_TYPE_DEFINITION_STMT);
+        STNode typeKeyword = parseTypeKeyword();
+        STNode typeName = parseTypeName();
+        STNode typeDescriptor = parseTypeDescriptor();
+        STNode semicolon = parseSemicolon();
+        endContext();
+        return STNodeFactory.createLocalTypeDefinitionStatement(typeKeyword, typeName, typeDescriptor, semicolon);
     }
 }
 

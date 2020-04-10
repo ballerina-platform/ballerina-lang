@@ -162,6 +162,19 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
+    public static STNode createLocalTypeDefinitionStatement(
+            STNode typeKeyword,
+            STNode identifier,
+            STNode typeDescriptor,
+            STNode semicolonToken) {
+
+        return new STLocalTypeDefinitionStatement(
+                typeKeyword,
+                identifier,
+                typeDescriptor,
+                semicolonToken);
+    }
+
     public static STNode createVariableDeclaration(
             STNode finalKeyword,
             STNode typeName,

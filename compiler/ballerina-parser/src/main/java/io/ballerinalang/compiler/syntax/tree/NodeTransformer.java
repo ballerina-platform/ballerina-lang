@@ -72,6 +72,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(compoundAssignmentStatement);
     }
 
+    public T transform(LocalTypeDefinitionStatement localTypeDefinitionStatement) {
+        return transformSyntaxNode(localTypeDefinitionStatement);
+    }
+
     public T transform(VariableDeclaration variableDeclaration) {
         return transformSyntaxNode(variableDeclaration);
     }

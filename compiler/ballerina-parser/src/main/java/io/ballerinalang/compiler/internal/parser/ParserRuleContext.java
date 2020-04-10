@@ -108,6 +108,7 @@ public enum ParserRuleContext {
     RETURN_STMT("return-stmt"),
     RETURN_STMT_RHS("return-stmt-rhs"),
     COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
+    LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),

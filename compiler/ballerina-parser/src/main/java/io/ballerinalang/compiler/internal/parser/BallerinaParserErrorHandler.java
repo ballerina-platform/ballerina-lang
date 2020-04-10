@@ -71,7 +71,7 @@ public class BallerinaParserErrorHandler {
             ParserRuleContext.ASSIGNMENT_STMT, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK,
             ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CALL_STMT, ParserRuleContext.PANIC_STMT,
             ParserRuleContext.CONTINUE_STATEMENT, ParserRuleContext.BREAK_STATEMENT, ParserRuleContext.RETURN_STMT,
-            ParserRuleContext.COMPOUND_ASSIGNMENT_STMT };
+            ParserRuleContext.COMPOUND_ASSIGNMENT_STMT, ParserRuleContext.LOCAL_TYPE_DEFINITION_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -861,6 +861,7 @@ public class BallerinaParserErrorHandler {
                 case LISTENER_DECL:
                 case CONSTANT_DECL:
                 case NIL_TYPE_DESCRIPTOR:
+                case LOCAL_TYPE_DEFINITION_STMT:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1232,6 +1233,7 @@ public class BallerinaParserErrorHandler {
             case CONSTANT_DECL:
             case NIL_TYPE_DESCRIPTOR:
             case COMPOUND_ASSIGNMENT_STMT:
+            case LOCAL_TYPE_DEFINITION_STMT:
                 startContext(currentCtx);
                 break;
             default:
@@ -1515,6 +1517,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.UNARY_OPERATOR;
             case UNARY_OPERATOR:
                 return ParserRuleContext.EXPRESSION;
+            case LOCAL_TYPE_DEFINITION_STMT:
+                return ParserRuleContext.TYPE_KEYWORD;
 
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
@@ -1860,6 +1864,7 @@ public class BallerinaParserErrorHandler {
             case BREAK_STATEMENT:
             case RETURN_STMT:
             case COMPOUND_ASSIGNMENT_STMT:
+            case LOCAL_TYPE_DEFINITION_STMT:
                 return true;
             default:
                 return false;
@@ -2159,6 +2164,7 @@ public class BallerinaParserErrorHandler {
             case LISTENER_DECL:
             case CONSTANT_DECL:
             case CONST_DECL_RHS:
+            case LOCAL_TYPE_DEFINITION_STMT:
             default:
                 break;
         }

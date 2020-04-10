@@ -211,6 +211,24 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stCompoundAssignmentStatement.createUnlinkedFacade();
     }
 
+    public static LocalTypeDefinitionStatement createLocalTypeDefinitionStatement(
+            Token typeKeyword,
+            Node typeName,
+            Node typeDescriptor,
+            Token semicolonToken) {
+        Objects.requireNonNull(typeKeyword, "typeKeyword must not be null");
+        Objects.requireNonNull(typeName, "typeName must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+
+        STNode stLocalTypeDefinitionStatement = STNodeFactory.createLocalTypeDefinitionStatement(
+                typeKeyword.internalNode(),
+                typeName.internalNode(),
+                typeDescriptor.internalNode(),
+                semicolonToken.internalNode());
+        return stLocalTypeDefinitionStatement.createUnlinkedFacade();
+    }
+
     public static VariableDeclaration createVariableDeclaration(
             Token finalKeyword,
             Node typeName,
