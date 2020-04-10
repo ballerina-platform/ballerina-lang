@@ -3,7 +3,7 @@ import ballerina/config;
 import ballerina/log;
 import ballerina/ldap;
 
-// Define LDAP connection configurations.
+// Defines the LDAP connection configurations.
 ldap:LdapConnectionConfig ldapConfig = {
     domainName: "ballerina.io",
     connectionURL: "ldap://localhost:9095",
