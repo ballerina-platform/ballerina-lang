@@ -17,25 +17,33 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.CheckExpression;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STCheckExpression extends STExpression {
+    public final STNode checkKeyword;
+    public final STNode expression;
 
-    public final STNode checkingKeyword;
-    public final STNode rhsExpr;
-
-    STCheckExpression(STNode checkingKeyword, STNode rhsExpr) {
+    STCheckExpression(
+            STNode checkKeyword,
+            STNode expression) {
         super(SyntaxKind.CHECK_EXPRESSION);
-        this.checkingKeyword = checkingKeyword;
-        this.rhsExpr = rhsExpr;
+        this.checkKeyword = checkKeyword;
+        this.expression = expression;
 
-        addChildren(checkingKeyword, rhsExpr);
+        addChildren(
+                checkKeyword,
+                expression);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        // TODO:
-        return null;
+        return new CheckExpression(this, position, parent);
     }
 }

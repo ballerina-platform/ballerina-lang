@@ -19,35 +19,67 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class RequiredParameter extends Parameter {
 
-    public RequiredParameter(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public RequiredParameter(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Token leadingComma() {
         return childInBucket(0);
     }
 
-    public Token visibilityQualifier() {
-        return childInBucket(1);
+    public NodeList<Annotation> annotations() {
+        return new NodeList<>(childInBucket(1));
     }
 
-    public Token type() {
+    public Token visibilityQualifier() {
         return childInBucket(2);
     }
 
-    public Token paramName() {
+    public Node type() {
         return childInBucket(3);
     }
 
+    public Token paramName() {
+        return childInBucket(4);
+    }
+
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public RequiredParameter modify(
+            Token leadingComma,
+            NodeList<Annotation> annots,
+            Token visibilityQualifier,
+            Node type,
+            Token paramName) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                annots.underlyingListNode(),
+                visibilityQualifier,
+                type,
+                paramName)) {
+            return this;
+        }
+
+        return NodeFactory.createRequiredParameter(
+                leadingComma,
+                annots,
+                visibilityQualifier,
+                type,
+                paramName);
     }
 }

@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.internal.parser;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -185,6 +185,9 @@ public class BallerinaLexer {
                 break;
             case LexerTerminals.BITWISE_XOR:
                 token = getSyntaxToken(SyntaxKind.BITWISE_XOR_TOKEN);
+                break;
+            case LexerTerminals.NEGATION:
+                token = getSyntaxToken(SyntaxKind.NEGATION_TOKEN);
                 break;
 
             // Numbers
@@ -571,12 +574,9 @@ public class BallerinaLexer {
 
         String tokenText = getLexeme();
         switch (tokenText) {
-            case LexerTerminals.PUBLIC:
-                return getSyntaxToken(SyntaxKind.PUBLIC_KEYWORD);
-            case LexerTerminals.PRIVATE:
-                return getSyntaxToken(SyntaxKind.PRIVATE_KEYWORD);
-            case LexerTerminals.FUNCTION:
-                return getSyntaxToken(SyntaxKind.FUNCTION_KEYWORD);
+
+            // Simple types
+
             case LexerTerminals.INT:
             case LexerTerminals.FLOAT:
             case LexerTerminals.STRING:
@@ -587,7 +587,18 @@ public class BallerinaLexer {
             case LexerTerminals.HANDLE:
             case LexerTerminals.ANY:
             case LexerTerminals.ANYDATA:
+            case LexerTerminals.VAR:
+            case LexerTerminals.NEVER:
                 return getTypeToken(tokenText);
+
+            //Keywords
+
+            case LexerTerminals.PUBLIC:
+                return getSyntaxToken(SyntaxKind.PUBLIC_KEYWORD);
+            case LexerTerminals.PRIVATE:
+                return getSyntaxToken(SyntaxKind.PRIVATE_KEYWORD);
+            case LexerTerminals.FUNCTION:
+                return getSyntaxToken(SyntaxKind.FUNCTION_KEYWORD);
             case LexerTerminals.RETURN:
                 return getSyntaxToken(SyntaxKind.RETURN_KEYWORD);
             case LexerTerminals.RETURNS:
@@ -644,6 +655,8 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.CONST_KEYWORD);
             case LexerTerminals.FINAL:
                 return getSyntaxToken(SyntaxKind.FINAL_KEYWORD);
+            case LexerTerminals.TYPEOF:
+                return getSyntaxToken(SyntaxKind.TYPEOF_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

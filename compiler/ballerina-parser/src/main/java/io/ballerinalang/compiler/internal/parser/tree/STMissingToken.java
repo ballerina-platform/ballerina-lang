@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+
 import java.util.ArrayList;
 
 public class STMissingToken extends STToken {
@@ -31,6 +33,6 @@ public class STMissingToken extends STToken {
     @Override
     public String toString() {
         // TODO for testing purpose only
-        return " MISSING[" + kind.strValue + "]";
+        return " MISSING[" + kind.stringValue() + "]";
     }
 }

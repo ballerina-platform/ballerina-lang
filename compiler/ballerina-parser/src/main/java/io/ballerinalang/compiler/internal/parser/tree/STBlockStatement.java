@@ -17,28 +17,36 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.BlockStatement;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.BlockStatement;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STBlockStatement extends STStatement {
-
     public final STNode openBraceToken;
     public final STNode statements;
     public final STNode closeBraceToken;
 
-    STBlockStatement(STNode openBraceToken,
-                     STNode statements,
-                     STNode closeBraceToken) {
+    STBlockStatement(
+            STNode openBraceToken,
+            STNode statements,
+            STNode closeBraceToken) {
         super(SyntaxKind.BLOCK_STATEMENT);
         this.openBraceToken = openBraceToken;
         this.statements = statements;
         this.closeBraceToken = closeBraceToken;
 
-        this.addChildren(openBraceToken, statements, closeBraceToken);
+        addChildren(
+                openBraceToken,
+                statements,
+                closeBraceToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BlockStatement(this, position, parent);
     }

@@ -20,23 +20,29 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.ExpressionListItem;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
+ * This is a generated internal syntax tree node.
+ *
  * @since 1.3.0
  */
 public class STExpressionListItem extends STNode {
-
     public final STNode leadingComma;
     public final STNode expression;
 
-    STExpressionListItem(STNode leadingComma, STNode expression) {
+    STExpressionListItem(
+            STNode leadingComma,
+            STNode expression) {
         super(SyntaxKind.EXPRESSION_LIST_ITEM);
         this.leadingComma = leadingComma;
         this.expression = expression;
-        addChildren(leadingComma, expression);
+
+        addChildren(
+                leadingComma,
+                expression);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ExpressionListItem(this, position, parent);
     }

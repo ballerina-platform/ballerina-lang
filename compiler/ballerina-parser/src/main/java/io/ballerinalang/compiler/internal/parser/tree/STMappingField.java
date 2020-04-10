@@ -17,7 +17,11 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+
 /**
+ * This is a generated internal syntax tree node.
+ *
  * @since 1.3.0
  */
 public abstract class STMappingField extends STNode {

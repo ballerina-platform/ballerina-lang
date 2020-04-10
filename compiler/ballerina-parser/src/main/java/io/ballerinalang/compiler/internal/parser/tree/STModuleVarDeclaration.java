@@ -20,10 +20,11 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclaration;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 public class STModuleVarDeclaration extends STStatement {
 
-    public final STNode annots;
+    public final STNode metadata;
     public final STNode finalKeyword;
     public final STNode typeName;
     public final STNode variableName;
@@ -39,7 +40,7 @@ public class STModuleVarDeclaration extends STStatement {
                            STNode initializer,
                            STNode semicolonToken) {
         super(SyntaxKind.MODULE_VAR_DECL);
-        this.annots = metadata;
+        this.metadata = metadata;
         this.finalKeyword = finalKeyword;
         this.typeName = typeName;
         this.variableName = variableName;

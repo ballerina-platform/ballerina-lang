@@ -88,6 +88,7 @@ public enum ParserRuleContext {
     CONSTANT_DECL("const-decl"),
     CONST_DECL_TYPE("const-decl-type"),
     CONST_DECL_RHS("const-decl-rhs"),
+    NIL_TYPE_DESCRIPTOR("nil-type-descriptor"),
     ANNOT_REFERENCE("annot-reference"),
     ANNOTATIONS("annots"),
     DOC_STRING("doc-string"),
@@ -115,6 +116,7 @@ public enum ParserRuleContext {
     PANIC_STMT("panic-statement"),
     RETURN_STMT("return-stmt"),
     RETURN_STMT_RHS("return-stmt-rhs"),
+    COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -142,6 +144,9 @@ public enum ParserRuleContext {
     ON_KEYWORD("on"),
     RESOURCE_KEYWORD("resource"),
     FINAL_KEYWORD("final"),
+    LISTENER_KEYWORD("listener"),
+    CONST_KEYWORD("const"),
+    TYPEOF_KEYWORD("typeof"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -162,7 +167,7 @@ public enum ParserRuleContext {
     CLOSE_BRACKET("]"),
     SLASH("/"),
     AT("@"),
-    
+
     // Other terminals
     FUNC_NAME("function-name"),
     VARIABLE_NAME("variable"),
@@ -173,9 +178,8 @@ public enum ParserRuleContext {
     BOOLEAN_LITERAL("boolean-literal"),
     CHECKING_KEYWORD("checking-keyword"),
     SERVICE_NAME("service-name"),
-    LISTENER_KEYWORD("const-keyword"),
-    CONST_KEYWORD("const-keyword"),
-    
+    COMPOUND_BINARY_OPERATOR("compound-binary-operator"),
+    UNARY_OPERATOR("unary-operator"),
 
     // Expressions
     EXPRESSION("expression"),
@@ -191,6 +195,8 @@ public enum ParserRuleContext {
     MAPPING_FIELD_NAME("maping-field-name"),
     SPECIFIC_FIELD_RHS("specific-field-rhs"),
     COMPUTED_FIELD_NAME("computed-field-name"),
+    TYPEOF_EXPRESSION("typeof-expr"),
+    UNARY_EXPRESSION("unary-expr"),
     ;
 
     private String value;

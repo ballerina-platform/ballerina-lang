@@ -19,27 +19,35 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.TypeReference;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STTypeReference extends STNode {
-
-    public final STNode asterisk;
+    public final STNode asteriskToken;
     public final STNode type;
     public final STNode semicolonToken;
 
-    STTypeReference(STNode asterisk,
-                    STNode type,
-                    STNode semicolonToken) {
+    STTypeReference(
+            STNode asteriskToken,
+            STNode type,
+            STNode semicolonToken) {
         super(SyntaxKind.TYPE_REFERENCE);
-        this.asterisk = asterisk;
+        this.asteriskToken = asteriskToken;
         this.type = type;
         this.semicolonToken = semicolonToken;
 
-        addChildren(asterisk, type, semicolonToken);
+        addChildren(
+                asteriskToken,
+                type,
+                semicolonToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new TypeReferenceNode(this, position, parent);
+        return new TypeReference(this, position, parent);
     }
 }

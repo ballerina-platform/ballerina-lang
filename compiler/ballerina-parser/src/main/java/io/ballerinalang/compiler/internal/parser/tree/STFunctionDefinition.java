@@ -17,15 +17,17 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionDefinition;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
-// function foo(int k) returns int = a => a;
-// function foo(int k) returns int {}
-// function foo(int k) returns int = extern
-public class STFunctionDefinition extends STNode {
-
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class STFunctionDefinition extends STModuleMemberDeclaration {
     public final STNode metadata;
     public final STNode visibilityQualifier;
     public final STNode functionKeyword;
@@ -33,19 +35,19 @@ public class STFunctionDefinition extends STNode {
     public final STNode openParenToken;
     public final STNode parameters;
     public final STNode closeParenToken;
-    public final STNode returnTypeDesc; 
+    public final STNode returnTypeDesc;
     public final STNode functionBody;
 
-    STFunctionDefinition(STNode metadata,
-                         STNode visibilityQualifier,
-                         STNode functionKeyword,
-                         STNode functionName,
-                         STNode openParenToken,
-                         STNode parameters,
-                         STNode closeParenToken,
-                         STNode returnTypeDesc,
-                         STNode functionBody) {
-
+    STFunctionDefinition(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode functionKeyword,
+            STNode functionName,
+            STNode openParenToken,
+            STNode parameters,
+            STNode closeParenToken,
+            STNode returnTypeDesc,
+            STNode functionBody) {
         super(SyntaxKind.FUNCTION_DEFINITION);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
@@ -57,12 +59,19 @@ public class STFunctionDefinition extends STNode {
         this.returnTypeDesc = returnTypeDesc;
         this.functionBody = functionBody;
 
-        addChildren(metadata, visibilityQualifier, functionKeyword, functionName,
-                openParenToken, parameters, closeParenToken, returnTypeDesc, functionBody);
+        addChildren(
+                metadata,
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc,
+                functionBody);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new FunctionDefinitionNode(this, position, parent);
+        return new FunctionDefinition(this, position, parent);
     }
 }

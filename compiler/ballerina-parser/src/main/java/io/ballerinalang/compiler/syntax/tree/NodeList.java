@@ -42,6 +42,14 @@ public class NodeList<T extends Node> implements Iterable<T> {
         return this.size;
     }
 
+    public boolean isEmpty() {
+        return this.size == 0;
+    }
+
+    NonTerminalNode underlyingListNode() {
+        return this.node;
+    }
+
     @Override
     public Iterator<T> iterator() {
         return new NodeListIterator();

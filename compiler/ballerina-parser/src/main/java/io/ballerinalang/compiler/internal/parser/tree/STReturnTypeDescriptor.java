@@ -17,29 +17,37 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.VariableDeclaration;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptor;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STReturnTypeDescriptor extends STNode {
-
     public final STNode returnsKeyword;
-    public final STNode annotation;
+    public final STNode annotations;
     public final STNode type;
 
-    STReturnTypeDescriptor(STNode returnsKeyword,
-                           STNode annotation,
-                           STNode type) {
+    STReturnTypeDescriptor(
+            STNode returnsKeyword,
+            STNode annotations,
+            STNode type) {
         super(SyntaxKind.RETURN_TYPE_DESCRIPTOR);
         this.returnsKeyword = returnsKeyword;
-        this.annotation = annotation;
+        this.annotations = annotations;
         this.type = type;
 
-        addChildren(returnsKeyword, annotation, type);
+        addChildren(
+                returnsKeyword,
+                annotations,
+                type);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new VariableDeclaration(this, position, parent);
+        return new ReturnTypeDescriptor(this, position, parent);
     }
 }

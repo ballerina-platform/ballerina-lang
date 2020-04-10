@@ -19,10 +19,15 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectField;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STObjectField extends STNode {
-
     public final STNode metadata;
     public final STNode visibilityQualifier;
     public final STNode type;
@@ -31,13 +36,14 @@ public class STObjectField extends STNode {
     public final STNode expression;
     public final STNode semicolonToken;
 
-    STObjectField(STNode metadata,
-                  STNode visibilityQualifier,
-                  STNode type,
-                  STNode fieldName,
-                  STNode equalsToken,
-                  STNode expression,
-                  STNode semicolonToken) {
+    STObjectField(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode type,
+            STNode fieldName,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken) {
         super(SyntaxKind.OBJECT_FIELD);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
@@ -47,11 +53,17 @@ public class STObjectField extends STNode {
         this.expression = expression;
         this.semicolonToken = semicolonToken;
 
-        addChildren(metadata, visibilityQualifier, type, fieldName, equalsToken, expression, semicolonToken);
+        addChildren(
+                metadata,
+                visibilityQualifier,
+                type,
+                fieldName,
+                equalsToken,
+                expression,
+                semicolonToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ObjectFieldNode(this, position, parent);
+        return new ObjectField(this, position, parent);
     }
 }

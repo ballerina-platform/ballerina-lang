@@ -18,23 +18,36 @@
 package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.ModulePart;
+import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STModulePart extends STNode {
     public final STNode imports;
     public final STNode members;
     public final STNode eofToken;
 
-    STModulePart(STNode imports, STNode members, STNode eofToken) {
+    STModulePart(
+            STNode imports,
+            STNode members,
+            STNode eofToken) {
         super(SyntaxKind.MODULE_PART);
         this.imports = imports;
         this.members = members;
         this.eofToken = eofToken;
 
-        addChildren(imports, members, eofToken);
+        addChildren(
+                imports,
+                members,
+                eofToken);
     }
 
-    public NonTerminalNode createFacade(int position, NonTerminalNode parent) {
+    public Node createFacade(int position, NonTerminalNode parent) {
         return new ModulePart(this, position, parent);
     }
 }

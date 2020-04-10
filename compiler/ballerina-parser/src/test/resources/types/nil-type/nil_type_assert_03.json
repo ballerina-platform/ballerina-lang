@@ -1,0 +1,29 @@
+{
+    "kind": "MODULE_VAR_DECL",
+    "children": [
+        {
+            "kind": "METADATA",
+            "children": [
+            ]
+        },
+        {
+            "kind": "NIL_TYPE",
+            "children": [
+                {
+                    "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                    "kind": "CLOSE_PAREN_TOKEN",
+                    "isMissing": true
+                }
+            ]
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}

@@ -19,9 +19,9 @@ package io.ballerinalang.compiler.internal.syntax;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
+import io.ballerinalang.compiler.syntax.tree.NodeVisitor;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxNodeTransformer;
-import io.ballerinalang.compiler.syntax.tree.SyntaxNodeVisitor;
 
 /**
  * Represents a list of {@code Node}s. This class is not exposed with the syntax tre API.
@@ -38,12 +38,12 @@ public class ExternalTreeNodeList extends NonTerminalNode {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
 
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> transformer) {
+    public <T> T apply(NodeTransformer<T> transformer) {
         return null;
     }
 

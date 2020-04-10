@@ -19,10 +19,15 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
+import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValue;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STRecordFieldWithDefaultValue extends STNode {
-
     public final STNode metadata;
     public final STNode type;
     public final STNode fieldName;
@@ -30,12 +35,13 @@ public class STRecordFieldWithDefaultValue extends STNode {
     public final STNode expression;
     public final STNode semicolonToken;
 
-    STRecordFieldWithDefaultValue(STNode metadata,
-                                  STNode type,
-                                  STNode fieldName,
-                                  STNode equalsToken,
-                                  STNode expression,
-                                  STNode semicolonToken) {
+    STRecordFieldWithDefaultValue(
+            STNode metadata,
+            STNode type,
+            STNode fieldName,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken) {
         super(SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE);
         this.metadata = metadata;
         this.type = type;
@@ -44,11 +50,16 @@ public class STRecordFieldWithDefaultValue extends STNode {
         this.expression = expression;
         this.semicolonToken = semicolonToken;
 
-        addChildren(metadata, type, fieldName, equalsToken, expression, semicolonToken);
+        addChildren(
+                metadata,
+                type,
+                fieldName,
+                equalsToken,
+                expression,
+                semicolonToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new RecordFieldWithDefaultValueNode(this, position, parent);
+        return new RecordFieldWithDefaultValue(this, position, parent);
     }
 }

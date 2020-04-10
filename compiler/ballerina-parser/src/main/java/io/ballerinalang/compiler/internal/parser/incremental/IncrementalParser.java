@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.internal.parser.incremental;
 import io.ballerinalang.compiler.internal.parser.AbstractTokenReader;
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.function.Predicate;
 

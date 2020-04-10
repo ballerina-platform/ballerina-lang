@@ -20,29 +20,45 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
 public class SubModuleName extends NonTerminalNode {
 
-    public SubModuleName(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public SubModuleName(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Token leadingDot() {
         return childInBucket(0);
     }
 
-    public Node moduleName() {
+    public Identifier moduleName() {
         return childInBucket(1);
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public SubModuleName modify(
+            Token leadingDot,
+            Identifier moduleName) {
+        if (checkForReferenceEquality(
+                leadingDot,
+                moduleName)) {
+            return this;
+        }
+
+        return NodeFactory.createSubModuleName(
+                leadingDot,
+                moduleName);
     }
 }

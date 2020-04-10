@@ -20,12 +20,14 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
-public class BinaryExpression extends ExpressionTree {
+public class BinaryExpression extends Expression {
 
-    public BinaryExpression(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public BinaryExpression(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Node lhsExpr() {
@@ -33,7 +35,7 @@ public class BinaryExpression extends ExpressionTree {
     }
 
     public Token operator() {
-        return (Token) childInBucket(1);
+        return childInBucket(1);
     }
 
     public Node rhsExpr() {
@@ -41,12 +43,31 @@ public class BinaryExpression extends ExpressionTree {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public BinaryExpression modify(
+            SyntaxKind kind,
+            Node lhsExpr,
+            Token operator,
+            Node rhsExpr) {
+        if (checkForReferenceEquality(
+                lhsExpr,
+                operator,
+                rhsExpr)) {
+            return this;
+        }
+
+        return NodeFactory.createBinaryExpression(
+                kind,
+                lhsExpr,
+                operator,
+                rhsExpr);
     }
 }

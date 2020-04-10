@@ -20,16 +20,18 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
 public class VariableDeclaration extends Statement {
 
-    public VariableDeclaration(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public VariableDeclaration(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Token annotations() {
-        return childInBucket(0);
+    public NodeList<Annotation> annotations() {
+        return new NodeList<>(childInBucket(1));
     }
 
     public Token finalKeyword() {
@@ -48,7 +50,7 @@ public class VariableDeclaration extends Statement {
         return childInBucket(4);
     }
 
-    public Node initializer() {
+    public Expression initializer() {
         return childInBucket(5);
     }
 
@@ -57,12 +59,41 @@ public class VariableDeclaration extends Statement {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public VariableDeclaration modify(
+            NodeList<Annotation> annots,
+            Token finalKeyword,
+            Node typeName,
+            Token variableName,
+            Token equalsToken,
+            Expression initializer,
+            Token semicolonToken) {
+        if (checkForReferenceEquality(
+                annots.underlyingListNode(),
+                finalKeyword,
+                typeName,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken)) {
+            return this;
+        }
+
+        return NodeFactory.createVariableDeclaration(
+                annots,
+                finalKeyword,
+                typeName,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken);
     }
 }

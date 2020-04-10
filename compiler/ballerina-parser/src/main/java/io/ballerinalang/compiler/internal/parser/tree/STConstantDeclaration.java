@@ -20,44 +20,54 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.ConstantDeclaration;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
+ * This is a generated internal syntax tree node.
+ *
  * @since 1.3.0
  */
 public class STConstantDeclaration extends STStatement {
 
     public final STNode metadata;
-    public final STNode qualifier;
-    public final STNode listenerKeyword;
-    public final STNode typeDesc;
+    public final STNode visibilityQualifier;
+    public final STNode constKeyword;
+    public final STNode typeDescriptor;
     public final STNode variableName;
     public final STNode equalsToken;
     public final STNode initializer;
     public final STNode semicolonToken;
 
-    STConstantDeclaration(STNode metadata,
-                          STNode qualifier,
-                          STNode constKeyword,
-                          STNode typeDesc,
-                          STNode variableName,
-                          STNode equalsToken,
-                          STNode initializer,
-                          STNode semicolonToken) {
+    STConstantDeclaration(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode constKeyword,
+            STNode typeDescriptor,
+            STNode variableName,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken) {
         super(SyntaxKind.CONST_DECLARATION);
         this.metadata = metadata;
-        this.qualifier = qualifier;
-        this.listenerKeyword = constKeyword;
-        this.typeDesc = typeDesc;
+        this.visibilityQualifier = visibilityQualifier;
+        this.constKeyword = constKeyword;
+        this.typeDescriptor = typeDescriptor;
         this.variableName = variableName;
         this.equalsToken = equalsToken;
         this.initializer = initializer;
         this.semicolonToken = semicolonToken;
 
-        addChildren(metadata, qualifier, constKeyword, typeDesc, variableName, equalsToken, initializer,
+        addChildren(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
                 semicolonToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ConstantDeclaration(this, position, parent);
     }

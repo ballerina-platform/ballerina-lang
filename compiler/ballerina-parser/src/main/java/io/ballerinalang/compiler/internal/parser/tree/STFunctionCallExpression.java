@@ -17,32 +17,41 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionCallExpression;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STFunctionCallExpression extends STExpression {
-    
-    final STNode functionName;
-    final STNode openParen;
-    final STNode arguments;
-    final STNode closeParen;
+    public final STNode functionName;
+    public final STNode openParenToken;
+    public final STNode arguments;
+    public final STNode closeParenToken;
 
-    STFunctionCallExpression(STNode functionName,
-                             STNode openParen,
-                             STNode arguments,
-                             STNode closeParen) {
+    STFunctionCallExpression(
+            STNode functionName,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
         super(SyntaxKind.FUNCTION_CALL);
         this.functionName = functionName;
-        this.openParen = openParen;
+        this.openParenToken = openParenToken;
         this.arguments = arguments;
-        this.closeParen = closeParen;
+        this.closeParenToken = closeParenToken;
 
-        addChildren(functionName, openParen, arguments, closeParen);
+        addChildren(
+                functionName,
+                openParenToken,
+                arguments,
+                closeParenToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new FunctionCallExpressionNode(this, position, parent);
+        return new FunctionCallExpression(this, position, parent);
     }
 }

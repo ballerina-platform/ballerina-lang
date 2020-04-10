@@ -20,29 +20,34 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpression;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
+ * This is a generated internal syntax tree node.
+ *
  * @since 1.3.0
  */
 public class STBinaryExpression extends STExpression {
-    
-    final STNode lhsExpr;
-    final STNode operator;
-    final STNode rhsExpr;
+    public final STNode lhsExpr;
+    public final STNode operator;
+    public final STNode rhsExpr;
 
-    STBinaryExpression(SyntaxKind kind,
-                       STNode lhsExpr,
-                       STNode operator,
-                       STNode rhsExpr) {
+    STBinaryExpression(
+            SyntaxKind kind,
+            STNode lhsExpr,
+            STNode operator,
+            STNode rhsExpr) {
         super(kind);
         this.lhsExpr = lhsExpr;
         this.operator = operator;
         this.rhsExpr = rhsExpr;
 
-        this.addChildren(lhsExpr, operator, rhsExpr);
+        addChildren(
+                lhsExpr,
+                operator,
+                rhsExpr);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BinaryExpression(this, position, parent);
     }

@@ -19,13 +19,18 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class TypeDefinitionNode extends ModuleMemberDeclaration {
 
-    public TypeDefinitionNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public TypeDefinitionNode(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Token metadata() {
+    public Metadata metadata() {
         return childInBucket(0);
     }
 
@@ -45,17 +50,43 @@ public class TypeDefinitionNode extends ModuleMemberDeclaration {
         return childInBucket(4);
     }
 
-    public Token comma() {
+    public Token semicolonToken() {
         return childInBucket(5);
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public TypeDefinitionNode modify(
+            Metadata metadata,
+            Token visibilityQualifier,
+            Token typeKeyword,
+            Token typeName,
+            Node typeDescriptor,
+            Token semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                visibilityQualifier,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken)) {
+            return this;
+        }
+
+        return NodeFactory.createTypeDefinitionNode(
+                metadata,
+                visibilityQualifier,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken);
     }
 }

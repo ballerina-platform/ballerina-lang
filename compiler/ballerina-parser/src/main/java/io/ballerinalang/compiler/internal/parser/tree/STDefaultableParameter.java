@@ -17,41 +17,53 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.DefaultableParameter;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STDefaultableParameter extends STParameter {
-
     public final STNode leadingComma;
     public final STNode annots;
     public final STNode visibilityQualifier;
     public final STNode type;
     public final STNode paramName;
-    public final STNode equal;
-    public final STNode expr;
+    public final STNode equalsToken;
+    public final STNode expression;
 
-    STDefaultableParameter(STNode leadingComma,
-                           STNode annots,
-                           STNode visibilityQualifier,
-                           STNode type,
-                           STNode paramName,
-                           STNode equal,
-                           STNode expr) {
+    STDefaultableParameter(
+            STNode leadingComma,
+            STNode annots,
+            STNode visibilityQualifier,
+            STNode type,
+            STNode paramName,
+            STNode equalsToken,
+            STNode expression) {
         super(SyntaxKind.DEFAULTABLE_PARAM);
         this.leadingComma = leadingComma;
         this.annots = annots;
         this.visibilityQualifier = visibilityQualifier;
         this.type = type;
         this.paramName = paramName;
-        this.equal = equal;
-        this.expr = expr;
+        this.equalsToken = equalsToken;
+        this.expression = expression;
 
-        addChildren(leadingComma, annots, visibilityQualifier, type, paramName, equal, expr);
+        addChildren(
+                leadingComma,
+                annots,
+                visibilityQualifier,
+                type,
+                paramName,
+                equalsToken,
+                expression);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        // TODO
-        return null;
+        return new DefaultableParameter(this, position, parent);
     }
 }
