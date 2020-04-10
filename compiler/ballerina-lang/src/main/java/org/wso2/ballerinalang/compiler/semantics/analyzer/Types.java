@@ -837,10 +837,10 @@ public class Types {
             BArrayType lhsArrayType = (BArrayType) target;
             BArrayType rhsArrayType = (BArrayType) source;
             if (lhsArrayType.state == BArrayState.UNSEALED) {
-                return isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType, unresolvedTypes);
+                return isAssignable(rhsArrayType.eType, lhsArrayType.eType, unresolvedTypes);
             }
             return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType)
-                    && isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType, unresolvedTypes);
+                    && isAssignable(rhsArrayType.eType, lhsArrayType.eType, unresolvedTypes);
 
         } else if (source.tag == TypeTags.ARRAY) {
             // Only the right-hand side is an array type
