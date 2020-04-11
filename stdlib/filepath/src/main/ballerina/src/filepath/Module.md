@@ -1,5 +1,4 @@
-This module provides the utility functions for manipulating the file path in a way that is compatible with 
-the target operating system.
+This module provides a platform-independent API for working with file paths.
 
 For information on the operations, which you can perform with this module, see the below **Functions**.
 

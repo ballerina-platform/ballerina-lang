@@ -236,7 +236,7 @@ public function normalize(string path) returns string|Error {
     return parse(normalizedPath);
 }
 
-# Splits a list of paths joined by the OS-specific Path Separator.
+# Splits a list of paths joined by the OS-specific path separator.
 # ```ballerina
 #  string[]|filepath:Error parts = filepath:split("/A/B/C");
 # ```
