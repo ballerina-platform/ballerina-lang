@@ -124,8 +124,18 @@ class JvmObservabilityGen {
         return moduleOrg + "/" + moduleName + "/" + funcName;
     }
 
+    /**
+     * Rewrite all observable functions in a package.
+     *
+     * @param pkg The package to instrument
+     */
     public static void rewriteObservableFunctions(BIRPackage pkg) {
         for (BIRFunction func : pkg.functions) {
+            if ("main".equals(func.name.value)) {
+                Map<String, String> tags = new HashMap<>();
+                tags.put("source.entry_point.main", "true");
+                rewriteObservableFunctionBody(func, pkg, false, func.workerName.value, tags);
+            }
             rewriteObservableFunctionInvocations(func.basicBlocks, func.localVars, pkg);
         }
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
@@ -133,7 +143,7 @@ class JvmObservabilityGen {
             for (BIRFunction func : typeDef.attachedFuncs) {
                 if (isService && !func.name.value.startsWith("$")) {
                     Map<String, String> tags = new HashMap<>();
-                    tags.put("source.service", "true");
+                    tags.put("source.entry_point.resource", "true");
                     rewriteObservableFunctionBody(func, pkg, true, cleanUpServiceName(typeDef.name.value), tags);
                 }
                 rewriteObservableFunctionInvocations(func.basicBlocks, func.localVars, pkg);
@@ -141,6 +151,18 @@ class JvmObservabilityGen {
         }
     }
 
+    /**
+     * Rewrite a function so that the internal body will be observed. This adds the relevant start and stop calls at
+     * the beginning and return basic blocks of the function.
+     *
+     * This is only to be used in entry-point functions such as service resource functions and main method.
+     *
+     * @param func The function to instrument
+     * @param pkg The package which contains the function
+     * @param isResourceObservation True if the function is a service resource
+     * @param serviceName The name of the service
+     * @param additionalTags The map of additional tags to be added to the observation
+     */
     private static void rewriteObservableFunctionBody(BIRFunction func, BIRPackage pkg, boolean isResourceObservation,
                                                       String serviceName, Map<String, String> additionalTags) {
         DiagnosticPos desugaredInsPosition = func.pos;
@@ -152,12 +174,14 @@ class JvmObservabilityGen {
 
             injectObserveStartCall(startBB, func.localVars, pkg, desugaredInsPosition, isResourceObservation,
                     serviceName, func.name.value, additionalTags);
+
+            // Fix the Basic Blocks linked list
             startBB.terminator.thenBB = newStartBB;
         }
         // Injecting error report call and observe end call at the start of the function
         boolean isErrorCheckRequired = isErrorAssignable(func.returnVariable);
         BIROperand returnValOperand = new BIROperand(func.returnVariable);
-        int i = 1;
+        int i = 1;  // Since the first block is now the start observation call
         while (i < func.basicBlocks.size()) {
             BIRBasicBlock currentBB = func.basicBlocks.get(i);
             BIRTerminator currentTerminator = currentBB.terminator;
@@ -172,23 +196,32 @@ class JvmObservabilityGen {
                             desugaredInsPosition, returnValOperand);
                     injectObserveEndCall(observeEndBB, desugaredInsPosition);
 
+                    // Fix the Basic Blocks linked list
                     observeEndBB.terminator.thenBB = newCurrentBB;
                     errorReportBB.terminator.thenBB = observeEndBB;
-                    i += 3;
+                    i += 3; // Number of inserted BBs
                 } else {
                     BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(func.basicBlocks, i + 1, "desugaredBB");
                     swapBasicBlockContent(currentBB, newCurrentBB);
 
                     injectObserveEndCall(currentBB, desugaredInsPosition);
 
+                    // Fix the Basic Blocks linked list
                     currentBB.terminator.thenBB = newCurrentBB;
-                    i += 1;
+                    i += 1; // Number of inserted BBs
                 }
             }
             i++;
         }
     }
 
+    /**
+     * Re-write the relevant basic blocks in the list of basic blocks to observe function invocations.
+     *
+     * @param basicBlocks The list of basic blocks to check and instrument
+     * @param scopeVarList The variables list in the scope
+     * @param pkg The package which contains the instruction which will be observed
+     */
     private static void rewriteObservableFunctionInvocations(List<BIRBasicBlock> basicBlocks,
                                                              List<BIRVariableDcl> scopeVarList, BIRPackage pkg) {
         int i = 0;
@@ -242,11 +275,12 @@ class JvmObservabilityGen {
                                 desugaredInsPosition, callIns.lhsOp);
                         injectObserveEndCall(observeEndBB, desugaredInsPosition);
 
+                        // Fix the Basic Blocks linked list
                         observeEndBB.terminator.thenBB = newCurrentBB.terminator.thenBB;
                         errorReportBB.terminator.thenBB = observeEndBB;
                         newCurrentBB.terminator.thenBB = errorCheckBranchBB;
                         currentBB.terminator.thenBB = newCurrentBB; // Current BB now contains observe start call
-                        i += 4;
+                        i += 4; // Number of inserted BBs
                     } else {
                         BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(basicBlocks, i + 1, "desugaredBB");
                         BIRBasicBlock observeEndBB = insertAndGetNextBasicBlock(basicBlocks, i + 2, "desugaredBB");
@@ -256,10 +290,11 @@ class JvmObservabilityGen {
                                 action, tags);
                         injectObserveEndCall(observeEndBB, desugaredInsPosition);
 
+                        // Fix the Basic Blocks linked list
                         observeEndBB.terminator.thenBB = newCurrentBB.terminator.thenBB;
                         newCurrentBB.terminator.thenBB = observeEndBB;
                         currentBB.terminator.thenBB = newCurrentBB; // Current BB now contains observe start call
-                        i += 2;
+                        i += 2; // Number of inserted BBs
                     }
                 }
             }
@@ -267,6 +302,19 @@ class JvmObservabilityGen {
         }
     }
 
+    /**
+     * Inject start observation call to a basic block.
+     *
+     * @param observeStartBB The basic block to which the start observation call should be injected
+     * @param scopeVarList The variables list in the scope
+     * @param pkg The package which contains the instruction which will be observed
+     * @param pos The position of all instructions, variables declarations, terminators, etc.
+     *            and the instructions which will be observed
+     * @param isResourceObservation True if a service resource will be observed by the observation
+     * @param serviceOrConnector The service or connector name to which the instruction was attached to
+     * @param resourceOrAction The resource or action name which will be observed
+     * @param additionalTags The map of additional tags to be added to the observation
+     */
     private static void injectObserveStartCall(BIRBasicBlock observeStartBB, List<BIRVariableDcl> scopeVarList,
                                                BIRPackage pkg, DiagnosticPos pos, boolean isResourceObservation,
                                                String serviceOrConnector, String resourceOrAction,
@@ -294,6 +342,16 @@ class JvmObservabilityGen {
         observeStartBB.terminator = observeStartCallTerminator;
     }
 
+    /**
+     * Inject branch condition for checking if the return value is an error and call report error if it is an error.
+     *
+     * @param errorCheckBranchBB The basic block to which the error check should be injected
+     * @param errorReportBB The basic block to which the report error call should be injected
+     * @param observeEndBB The basic block which will contain the stop observation call
+     * @param scopeVarList The variables list in the scope
+     * @param pos The position of all instructions, variables declarations, terminators, etc.
+     * @param returnValueOperand Operand for passing the return value which should be checked if it is an error
+     */
     private static void injectCheckAndReportErrorCalls(BIRBasicBlock errorCheckBranchBB, BIRBasicBlock errorReportBB,
                                                        BIRBasicBlock observeEndBB, List<BIRVariableDcl> scopeVarList,
                                                        DiagnosticPos pos, BIROperand returnValueOperand) {
@@ -325,6 +383,12 @@ class JvmObservabilityGen {
         errorReportBB.terminator = reportErrorCallTerminator;
     }
 
+    /**
+     * Inject a stop observation call to a basic block.
+     *
+     * @param observeEndBB The basic block to which the stop observation call should be injected
+     * @param pos The position of all instructions, variables declarations, terminators, etc.
+     */
     private static void injectObserveEndCall(BIRBasicBlock observeEndBB, DiagnosticPos pos) {
         JIMethodCall observeEndCallTerminator = new JIMethodCall(pos);
         observeEndCallTerminator.invocationType = INVOKESTATIC;
@@ -335,6 +399,16 @@ class JvmObservabilityGen {
         observeEndBB.terminator = observeEndCallTerminator;
     }
 
+    /**
+     * Generate a constant operand from a string value.
+     *
+     * @param uniqueId A unique ID to identify this constant value
+     * @param constantValue The constant value which should end up being passed in the operand
+     * @param scopeVarList The variables list in the scope
+     * @param basicBlock The basic block to which additional instructions should be added
+     * @param pos The position of all instructions, variables declarations, terminators, etc.
+     * @return The generated operand which will pass the constant
+     */
     private static BIROperand generateConstantOperand(String uniqueId, String constantValue,
                                                       List<BIRVariableDcl> scopeVarList, BIRBasicBlock basicBlock,
                                                       DiagnosticPos pos) {
@@ -348,6 +422,16 @@ class JvmObservabilityGen {
         return operand;
     }
 
+    /**
+     * Generate a Map type operand for a map of string keys and string values.
+     *
+     * @param uniqueId A unique ID to identify this map
+     * @param map The map of which entries should end up being passed in the operand
+     * @param scopeVarList The variables list in the scope
+     * @param basicBlock The basic block to which additional instructions should be added
+     * @param pos The position of all instructions, variables declarations, etc.
+     * @return The generated operand which will pass the map
+     */
     private static BIROperand generateMapOperand(String uniqueId, Map<String, String> map,
                                                  List<BIRVariableDcl> scopeVarList, BIRBasicBlock basicBlock,
                                                  DiagnosticPos pos) {
@@ -374,6 +458,12 @@ class JvmObservabilityGen {
         return tagsMapOperand;
     }
 
+    /**
+     * Swap the effective content of two basic blocks.
+     *
+     * @param firstBB The first BB of which content should end up in second BB
+     * @param secondBB The second BB of which content should end up in first BB
+     */
     private static void swapBasicBlockContent(BIRBasicBlock firstBB, BIRBasicBlock secondBB) {
         List<BIRNonTerminator> firstBBInstructions = firstBB.instructions;
         firstBB.instructions = secondBB.instructions;
@@ -384,6 +474,12 @@ class JvmObservabilityGen {
         secondBB.terminator = firstBBTerminator;
     }
 
+    /**
+     * Check is an error is assignable to a variable declaration.
+     *
+     * @param variableDcl The variable declaration which should be checked.
+     * @return True if an error can be assigned and false otherwise
+     */
     private static boolean isErrorAssignable(BIRVariableDcl variableDcl) {
         boolean isErrorAssignable = false;
         if (variableDcl.type instanceof BUnionType) {

@@ -290,8 +290,7 @@ public class JvmMethodGen {
         @Nilable Label tryStart = null;
         boolean isObserved = false;
         boolean isWorker = (func.flags & Flags.WORKER) == Flags.WORKER;
-        if ((isWorker || "main".equals(funcName))
-                && !"__init".equals(funcName) && !"$__init$".equals(funcName)) {
+        if (isWorker) {
             // create try catch block to start and stop observability.
             isObserved = true;
             tryStart = labelGen.getLabel("observe-try-start");
