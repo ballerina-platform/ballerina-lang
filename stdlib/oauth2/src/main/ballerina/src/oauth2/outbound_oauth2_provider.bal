@@ -24,7 +24,45 @@ import ballerina/time;
 # Represents the grant type configs supported for OAuth2.
 type GrantTypeConfig ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig;
 
-# Represents the outbound OAuth2 provider, which generates OAtuh2 tokens.
+# Represents the outbound OAuth2 provider, which generates OAtuh2 tokens. This supports client credentials grant type,
+# password grant type and the direct token mode which sends the access token directly.
+# The `oauth2:OutboundOAuth2Provider` is an implementation of the `auth:OutboundAuthProvider` interface.
+#
+# 1. Client Credentials Grant Type
+# ```ballerina
+# oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
+#     tokenUrl: "https://localhost:9196/oauth2/token",
+#     clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L",
+#     clientSecret: "9205371918321623741",
+#     scopes: ["token-scope1", "token-scope2"]
+# });
+# ```
+#
+# 2. Password Grant Type
+# ```ballerina
+# oauth2:OutboundOAuth2Provider oauth2Provider5 = new({
+#     tokenUrl: "https://localhost:9196/oauth2/token/authorize/header",
+#     username: "johndoe",
+#     password: "A3ddj3w",
+#     clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L",
+#     clientSecret: "9205371918321623741",
+#     scopes: ["token-scope1", "token-scope2"]
+# });
+# ```
+#
+# 3. Direct Token Mode
+# ```ballerina
+# oauth2:OutboundOAuth2Provider oauth2Provider13 = new({
+#     accessToken: "2YotnFZFEjr1zCsicMWpAA",
+#     refreshConfig: {
+#         refreshUrl: "https://localhost:9196/oauth2/token/refresh",
+#         refreshToken: "XlfBs91yquexJqDaKEMzVg==",
+#         clientId: "3MVG9YDQS5WtC11paU2WcQjBB3L",
+#         clientSecret: "9205371918321623741",
+#         scopes: ["token-scope1", "token-scope2"]
+#     }
+# });
+# ```
 #
 # + oauth2ProviderConfig - Outbound OAuth2 provider configurations
 # + oauth2CacheEntry - Outbound OAuth2 cache entry

@@ -22,7 +22,15 @@ import ballerina/mime;
 import ballerina/stringutils;
 import ballerina/time;
 
-# Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials.
+# Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials,
+# and performs authentication and authorization. The `oauth2:InboundOAuth2Provider` is an implementation of the
+# `auth:InboundAuthProvider` interface.
+# ```ballerina
+# oauth2:IntrospectionServerConfig introspectionServerConfig = {
+#     url: "https://localhost:9196/oauth2/token/introspect"
+# };
+# oauth2:InboundOAuth2Provider inboundOAuth2Provider = new(introspectionServerConfig);
+# ```
 #
 # + introspectionClient - Introspection client endpoint
 # + tokenTypeHint - A hint about the type of the token submitted for introspection
