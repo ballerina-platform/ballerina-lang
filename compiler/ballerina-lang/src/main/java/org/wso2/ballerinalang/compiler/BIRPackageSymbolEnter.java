@@ -115,7 +115,6 @@ public class BIRPackageSymbolEnter {
     private final Names names;
     private final TypeParamAnalyzer typeParamAnalyzer;
     private final BLangDiagnosticLogHelper dlog;
-    private BIRTypeReader typeReader;
 
     private BIRPackageSymbolEnv env;
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
@@ -174,14 +173,10 @@ public class BIRPackageSymbolEnter {
             BPackageSymbol pkgSymbol = definePackage(dataInStream);
             this.env = prevEnv;
             return pkgSymbol;
-        } catch (IOException e) {
-            // TODO dlog.error();
-            throw new BLangCompilerException(e.getMessage(), e);
-            //            return null;
         } catch (Throwable e) {
+            // TODO dlog.error();
             // TODO format error
             throw new BLangCompilerException(e.getMessage(), e);
-            //            return null;
         }
     }
 
@@ -240,7 +235,6 @@ public class BIRPackageSymbolEnter {
         // Define annotations.
         defineSymbols(dataInStream, rethrow(this::defineAnnotations));
 
-        this.typeReader = null;
         return this.env.pkgSymbol;
     }
 
@@ -380,10 +374,6 @@ public class BIRPackageSymbolEnter {
             }
         }
 
-        // Read annotation attachments
-        // Skip annotation attachments for now
-        dataInStream.skip(dataInStream.readLong());
-
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, dataInStream);
 
@@ -392,22 +382,10 @@ public class BIRPackageSymbolEnter {
 
         defineMarkDownDocAttachment(invokableSymbol, readDocBytes(dataInStream));
 
-        dataInStream.skip(dataInStream.readLong()); // read and skip method body
-
         scopeToDefine.define(invokableSymbol.name, invokableSymbol);
     }
 
-    private void skipPosition(DataInputStream dataInStream) throws IOException {
-        // TODO find a better way to skip this
-        dataInStream.readInt();
-        dataInStream.readInt();
-        dataInStream.readInt();
-        dataInStream.readInt();
-        dataInStream.readInt();
-    }
-
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
-        skipPosition(dataInStream);
         String typeDefName = getStringCPEntryValue(dataInStream);
 
         int flags = dataInStream.readInt();
@@ -584,9 +562,6 @@ public class BIRPackageSymbolEnter {
 
         defineMarkDownDocAttachment(constantSymbol, docBytes);
 
-        // read and ignore constant value's byte chunk length.
-        dataInStream.readLong();
-
         constantSymbol.value = readConstLiteralValue(dataInStream);
         constantSymbol.literalType = constantSymbol.value.type;
 
@@ -627,7 +602,6 @@ public class BIRPackageSymbolEnter {
     }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {
-        dataInStream.readByte(); // Read and ignore the kind as it is anyway global variable
         String varName = getStringCPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
 

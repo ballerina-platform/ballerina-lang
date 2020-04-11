@@ -80,7 +80,7 @@ public class BIRBinaryWriter {
         // Write constants
         writeConstants(birbuf, birPackage.constants);
         // Write type defs
-        writeTypeDefs(birbuf, typeWriter, insWriter, birPackage.typeDefs);
+        writeTypeDefs(birbuf, typeWriter, birPackage.typeDefs);
         // Write global vars
         writeGlobalVars(birbuf, typeWriter, birPackage.globalVars);
         // Write type def bodies
@@ -121,13 +121,11 @@ public class BIRBinaryWriter {
      * 
      * @param buf ByteBuf
      * @param typeWriter Type writer
-     * @param insWriter Instruction writer              
      * @param birTypeDefList Type definitions list
      */
-    private void writeTypeDefs(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
-                List<BIRTypeDefinition> birTypeDefList) {
+    private void writeTypeDefs(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRTypeDefinition> birTypeDefList) {
         buf.writeInt(birTypeDefList.size());
-        birTypeDefList.forEach(typeDef -> writeType(buf, typeWriter, insWriter, typeDef));
+        birTypeDefList.forEach(typeDef -> writeType(buf, typeWriter, typeDef));
     }
 
     /**
@@ -155,7 +153,6 @@ public class BIRBinaryWriter {
     private void writeGlobalVars(ByteBuf buf, BIRTypeWriter typeWriter, List<BIRGlobalVariableDcl> birGlobalVars) {
         buf.writeInt(birGlobalVars.size());
         for (BIRGlobalVariableDcl birGlobalVar : birGlobalVars) {
-            buf.writeByte(birGlobalVar.kind.getValue());
             // Name
             buf.writeInt(addStringCPEntry(birGlobalVar.name.value));
             // Flags
@@ -168,9 +165,7 @@ public class BIRBinaryWriter {
         }
     }
 
-    private void writeType(ByteBuf buf, BIRTypeWriter typeWriter, BIRInstructionWriter insWriter,
-                           BIRTypeDefinition typeDef) {
-        insWriter.writePosition(typeDef.pos);
+    private void writeType(ByteBuf buf, BIRTypeWriter typeWriter, BIRTypeDefinition typeDef) {
         // Type name CP Index
         buf.writeInt(addStringCPEntry(typeDef.name.value));
         // Flags
@@ -202,9 +197,6 @@ public class BIRBinaryWriter {
         // Function type as a CP Index
         writeType(buf, birFunction.type);
 
-        // Store annotations here...
-        writeAnnotAttachments(buf, insWriter, birFunction.annotAttachments);
-
         buf.writeInt(birFunction.requiredParams.size());
         for (BIRParameter parameter : birFunction.requiredParams) {
             buf.writeInt(addStringCPEntry(parameter.name.value));
@@ -229,72 +221,6 @@ public class BIRBinaryWriter {
         writeTaintTable(buf, birFunction.taintTable);
 
         typeWriter.writeMarkdownDocAttachment(buf, birFunction.markdownDocAttachment);
-
-        ByteBuf birbuf = Unpooled.buffer();
-        BIRTypeWriter funcTypeWriter = new BIRTypeWriter(birbuf, cp);
-        BIRInstructionWriter funcInsWriter = new BIRInstructionWriter(birbuf, funcTypeWriter, cp, this);
-
-        // Arg count
-        birbuf.writeInt(birFunction.argsCount);
-        // Local variables
-
-        birbuf.writeBoolean(birFunction.returnVariable != null);
-        if (birFunction.returnVariable != null) {
-            birbuf.writeByte(birFunction.returnVariable.kind.getValue());
-            writeType(birbuf, birFunction.returnVariable.type);
-            birbuf.writeInt(addStringCPEntry(birFunction.returnVariable.name.value));
-        }
-
-        birbuf.writeInt(birFunction.parameters.size());
-        for (BIRNode.BIRFunctionParameter param : birFunction.parameters.keySet()) {
-            birbuf.writeByte(param.kind.getValue());
-            writeType(birbuf, param.type);
-            birbuf.writeInt(addStringCPEntry(param.name.value));
-            if (param.kind.equals(VarKind.ARG)) {
-                birbuf.writeInt(addStringCPEntry(param.metaVarName != null ? param.metaVarName : ""));
-            }
-            birbuf.writeBoolean(param.hasDefaultExpr);
-        }
-
-        birbuf.writeInt(birFunction.localVars.size());
-        for (BIRNode.BIRVariableDcl localVar : birFunction.localVars) {
-            birbuf.writeByte(localVar.kind.getValue());
-            writeType(birbuf, localVar.type);
-            birbuf.writeInt(addStringCPEntry(localVar.name.value));
-            // skip compiler added vars and only write metaVarName for user added vars
-            if (localVar.kind.equals(VarKind.LOCAL) || localVar.kind.equals(VarKind.ARG)) {
-                birbuf.writeInt(addStringCPEntry(localVar.metaVarName != null ? localVar.metaVarName : ""));
-            }
-            // add enclosing basic block id
-            if (localVar.kind.equals(VarKind.LOCAL)) {
-                birbuf.writeInt(addStringCPEntry(localVar.endBB != null ? localVar.endBB.id.value : ""));
-                birbuf.writeInt(addStringCPEntry(localVar.startBB != null ? localVar.startBB.id.value : ""));
-                birbuf.writeInt(localVar.insOffset);
-            }
-        }
-
-        // Write basic blocks related to parameter default values
-        birFunction.parameters.values().stream().filter(bbList -> !bbList.isEmpty()).forEach(funcInsWriter::writeBBs);
-
-        // Write basic blocks
-        funcInsWriter.writeBBs(birFunction.basicBlocks);
-
-        // Write error table
-        funcInsWriter.writeErrorTable(birFunction.errorTable);
-
-        // write worker interaction channels info
-        birbuf.writeInt(birFunction.workerChannels.length);
-        for (BIRNode.ChannelDetails details : birFunction.workerChannels) {
-            birbuf.writeInt(addStringCPEntry(details.name));
-            birbuf.writeBoolean(details.channelInSameStrand);
-            birbuf.writeBoolean(details.send);
-        }
-
-
-        // Write length of the function body so that it can be skipped easily.
-        int length = birbuf.nioBuffer().limit();
-        buf.writeLong(length);
-        buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
     }
 
     private void writeTaintTable(ByteBuf buf, TaintTable taintTable) {
@@ -351,11 +277,10 @@ public class BIRBinaryWriter {
 
         writeType(buf, birConstant.type);
 
-        // write the length of the conctant value, so that it can be skipped.
+        // write the length of the constant value, so that it can be skipped.
         ByteBuf birbuf = Unpooled.buffer();
         writeConstValue(birbuf, birConstant.constValue);
         int length = birbuf.nioBuffer().limit();
-        buf.writeLong(length);
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
     }
 
