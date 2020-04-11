@@ -15,7 +15,7 @@
 // under the License.
 
 # Represents the outbound Auth provider that could be used to authenticate external endpoints. Any type of
-# implementation such as JWT and OAuth2 should be object-wise similar to the `OutboundAuthProvider` object.
+# implementation such as JWT, OAuth2, LDAP, JDBC, file-based etc. should be object-wise similar to the `auth:OutboundAuthProvider` object.
 public type OutboundAuthProvider abstract object {
 
     # Generates a authentication token for the outbound request with outbound Auth providers such as JWT and OAuth2.

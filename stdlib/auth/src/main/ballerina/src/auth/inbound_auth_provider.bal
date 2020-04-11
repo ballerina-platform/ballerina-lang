@@ -15,8 +15,8 @@
 // under the License.
 
 # Represents the inbound Auth provider that could be used to authenticate endpoints. The `auth:InboundAuthProvider` acts
-# as the interface for all the inbound authentication providers. Any type of implementation such as `JWT`, `OAuth2`,
-# `LDAP`, `JDBC`, `file-based` etc. should be object-wise similar.
+# as the interface for all the inbound authentication providers. Any type of implementation such as JWT, OAuth2,
+# LDAP, JDBC, file-based etc. should be object-wise similar.
 public type InboundAuthProvider abstract object {
 
     # Authenticates the user based on the user credentials (i.e., the username/password) or a token such as JWT or
