@@ -57,7 +57,7 @@ public type InboundLdapAuthProvider object {
 # ```
 #
 # + credential - Base64-encoded `username:password` value
-# + return - `true` if authentication is successful, `false` otherwise, or else `auth:Error` occurred while
+# + return - `true` if authentication is successful, `false` otherwise, or else an `auth:Error` occurred while
 #            authenticating the credentials
     public function authenticate(string credential) returns boolean|auth:Error {
         if (credential == "") {
@@ -104,7 +104,7 @@ public type InboundLdapAuthProvider object {
 # + membershipAttribute - Define the attribute that contains the distinguished names (DN) of user objects that are in a group
 # + userRolesCacheEnabled -  To indicate whether to cache the role list of a user
 # + connectionPoolingEnabled - Define whether LDAP connection pooling is enabled
-# + connectionTimeoutInMillis - Timeout in making the initial LDAP connection in milliseconds
+# + connectionTimeoutInMillis - Timeout (in milliseconds) in making the initial LDAP connection 
 # + readTimeoutInMillis - Read timeout in milliseconds for LDAP operations
 # + retryAttempts - Retry the authentication request if a timeout happened
 # + secureSocket - The SSL configurations for the LDAP client socket. This needs to be configured in order to
