@@ -20,7 +20,7 @@ import ballerina/runtime;
 # Represents the outbound Basic Auth authenticator which is an implementation of the `auth:OutboundAuthProvider` interface,
 # This uses usernames and passwords provided Ballerina configurations to authenticate external endpoints.
 # ```ballerina
-#  auth:OutboundBasicAuthProvider basicAuthProvider = new({
+#  auth:OutboundBasicAuthProvider outboundBasicAuthProvider = new({
 #      username: "tom",
 #      password: "123"
 #  });

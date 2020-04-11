@@ -21,7 +21,7 @@ import ballerina/stringutils;
 # Represents the configuration-file-based inbound Basic Auth provider which is an implementation of the
 # `auth:InboundAuthProvider` interface.
 # ```ballerina
-#  auth:InboundBasicAuthProvider basicAuthProvider = new;
+#  auth:InboundBasicAuthProvider inboundBasicAuthProvider = new;
 #  ```
 # A user is denoted by a section in the Ballerina configuration file. The password and the scopes assigned to the user
 # are denoted as keys under the relevant user section as shown below.
