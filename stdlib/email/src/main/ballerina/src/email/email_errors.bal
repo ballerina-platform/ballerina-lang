@@ -23,7 +23,7 @@ public type Detail record {
     error cause?;
 };
 
-# Represents the reason for the email send related errors.
+# Represents the reason for the email sending related errors.
 public const SEND_ERROR = "{ballerina/email}SendError";
 # Represents an error that occurs when sending an email fails.
 public type SendError error<SEND_ERROR, Detail>;
@@ -33,7 +33,7 @@ public const READ_CLIENT_INIT_ERROR = "{ballerina/email}ReadClientInitError";
 # Represents an error that occurs when the email store access fails.
 public type ReadClientInitError error<READ_CLIENT_INIT_ERROR, Detail>;
 
-# Represents the reason for the email receive related errors.
+# Represents the reason for the email receipt related errors.
 public const READ_ERROR = "{ballerina/email}ReadError";
 # Represents an error that occurs an email read operation fails.
 public type ReadError error<READ_ERROR, Detail>;

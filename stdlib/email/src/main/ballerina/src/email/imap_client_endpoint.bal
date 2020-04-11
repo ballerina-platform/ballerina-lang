@@ -19,7 +19,7 @@ import ballerina/java;
 # Represents an IMAP Client, which interacts with an IMAP Server.
 public type ImapClient client object {
 
-    # Gets invoked during `email:ImapClient` initialization.
+    # Gets invoked during the `email:ImapClient` initialization.
     #
     # + host - Host of the IMAP Client
     # + username - Username of the IMAP Client
@@ -38,8 +38,8 @@ public type ImapClient client object {
 # ```
 #
 # + folder - Folder to read emails. Default value is `INDOX`
-# + return - An`email:Email` if read message is successful, () if there is no emails in the specified folder
-#            or else a `email:Error` if failed to receive the message to the recipient
+# + return - An`email:Email` if read message is successful, () if there is no emails in the specified folder,
+#            or else an `email:Error` if failed to receive the message to the recipient
     public remote function read(string folder = DEFAULT_FOLDER) returns Email|Error? {
         return imapRead(self, java:fromString(folder));
     }

@@ -2,11 +2,11 @@ This module contains functions to perform email operations such as sending and r
 
 ### Client
 
-This module supports following three client types, 
+This module supports the following three client types.
 
-- `email:SmtpClient` - The client that supports sending an email using the SMTP protocol.
-- `email:PopClient` - The client that supports receiving an email using the POP3 protocol.
-- `email:ImapClient` - The client that supports receiving an email using the IMAP4 protocol.
+- `email:SmtpClient` - The client, which supports sending an email using the SMTP protocol.
+- `email:PopClient` - The client, which supports receiving an email using the POP3 protocol.
+- `email:ImapClient` - The client, which supports receiving an email using the IMAP4 protocol.
 
 #### SMTP Client
 
@@ -15,13 +15,13 @@ To send an email using the SMTP protocol, you must first create a `email:SmtpCli
 
 ##### Creating a client
 
-The following code creates a SMTP client which connects to default port(465) and enables SSL.
+The following code creates an SMTP client, which connects to the default port(465) and enables SSL.
 ```ballerina
 email:SmtpClient smtpClient = new ("smtp.email.com",
                                    "sender@email.com",
                                    "pass123");
 ```
-The port number of the server and/or the SSL support can be also configured by passing following configurations,
+The port number of the server and/or the SSL support can be also configured by passing the following configurations.
 
 ```ballerina
 email:SmtpConfig smtpConfig = {
@@ -37,7 +37,7 @@ email:SmtpClient smtpClient = new ("smtp.email.com",
 
 ##### Sending an email
 
-Once the `email:SmtpClient` is created, an email using the SMTP protocol can be sent through that client.
+Once the `email:SmtpClient` is created, an email can be sent using the SMTP protocol through that client.
 Samples for this operation can be found below.
 
 ```ballerina
@@ -57,19 +57,19 @@ email:Error? response = smtpClient->send(email);
 
 #### POP3 Client
 
-To receive an email using the POP3 protocol, you must first create a `email:PopClient` object. The code for creating a
+To receive an email using the POP3 protocol, you must first create an `email:PopClient` object. The code for creating an
  `email:PopClient` can be found below.
 
 ##### Creating a client
 
-The following code creates a POP3 client which connects default port(995) and enables SSL.
+The following code creates a POP3 client, which connects to the default port(995) and enables SSL.
 ```ballerina
 email:PopClient|email:Error popClient = new ("pop.email.com",
                                              "reader@email.com",
                                              "pass456");
 ```
 
-The port number of the server and/or the SSL support can be also configured by passing following configurations,
+The port number of the server and/or the SSL support can also be configured by passing the following configurations.
 ```ballerina
 email:PopConfig popConfig = {
     port: 995,
@@ -92,19 +92,19 @@ email:Email|email:Error? emailResponse = popClient->read();
 
 #### IMAP4 Client
 
-To receive an email using the IMAP4 protocol, you must first create a `email:ImapClient` object. The code for creating a
+To receive an email using the IMAP4 protocol, you must first create an `email:ImapClient` object. The code for creating an
  `email:ImapClient` can be found below.
 
 ##### Creating a client
 
-The following code creates a IMAP4 client which connects to default port(993) and enables SSL.
+The following code creates an IMAP4 client, which connects to the default port(993) and enables SSL.
 ```ballerina
 email:ImapClient|email:Error imapClient = new ("imap.email.com",
                                                "reader@email.com",
                                                "pass456");
 ```
 
-The port number of the server and/or the SSL support can be also configured by passing following configurations,
+The port number of the server and/or the SSL support can also be configured by passing the following configurations.
 ```ballerina
 email:ImapConfig imapConfig = {
     port: 993,
