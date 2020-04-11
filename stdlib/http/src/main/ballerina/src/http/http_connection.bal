@@ -173,11 +173,14 @@ public type Caller client object {
         return self->respond(response);
     }
 
-    # Sends the outbound response to the caller with the status 204 No Content. If the given response contains a body
-    # that will be removed.
-    #
-    # + message - The outbound response is optional
-    # + return - Returns an `http:ListenerError` if failed to respond
+# Sends the outbound response to the caller with the status 204 No Content. If the given response contains a body
+# that will be removed.
+# ```ballerina
+# http:ListenerError? err = caller->noContent();
+# ```
+#
+# + message - The outbound response, which is optional
+# + return - An `http:ListenerError` if failed to respond or else `()`
     public remote function noContent(Response? message = ()) returns ListenerError? {
         Response newResponse = new;
         if message is Response {
@@ -187,33 +190,42 @@ public type Caller client object {
         return self->respond(newResponse);
     }
 
-    # Sends the outbound response to the caller with the status 400 Bad Request.
-    #
-    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-    #             or `mime:Entity[]`. This message is optional.
-    # + return - Returns an `http:ListenerError` if failed to respond
+# Sends the outbound response to the caller with the status 400 Bad Request.
+# ```ballerina
+# http:ListenerError? err = caller->badRequest();
+# ```
+#
+# + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`,
+#             or `mime:Entity[]`
+# + return - An `http:ListenerError` if failed to respond or else `()`
     public remote function badRequest(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = STATUS_BAD_REQUEST;
         return self->respond(response);
     }
 
-    # Sends the outbound response to the caller with the status 404 Not Found.
-    #
-    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-    #             or `mime:Entity[]`. This message is optional.
-    # + return - Returns an `http:ListenerError` if failed to respond
+# Sends the outbound response to the caller with the status 404 Not Found.
+# ```ballerina
+# http:ListenerError? err = caller->notFound();
+# ```
+#
+# + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`,
+#             or `mime:Entity[]`
+# + return - An `http:ListenerError` if failed to respond or else `()`
     public remote function notFound(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = STATUS_NOT_FOUND;
         return self->respond(response);
     }
 
-    # Sends the outbound response to the caller with the status 500 Internal Server Error.
-    #
-    # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`
-    #             or `mime:Entity[]`. This message is optional.
-    # + return - Returns an `http:ListenerError` if failed to respond
+# Sends the outbound response to the caller with the status 500 Internal Server Error.
+# ```ballerina
+# http:ListenerError? err = caller->internalServerError();
+# ```
+#
+# + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`,
+#             or `mime:Entity[]`
+# + return - An `http:ListenerError` if failed to respond or else `()`
     public remote function internalServerError(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = STATUS_INTERNAL_SERVER_ERROR;
