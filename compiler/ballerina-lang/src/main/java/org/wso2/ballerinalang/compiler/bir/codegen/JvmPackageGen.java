@@ -327,7 +327,7 @@ public class JvmPackageGen {
             // generate methods
             for (BIRFunction func : v.functions) {
                 String workerName = getFunction(func).workerName == null ? null : func.workerName.value;
-                generateMethod(getFunction(func), cw, module, null, false, workerName);
+                generateMethod(getFunction(func), cw, module, null, workerName);
             }
             // generate lambdas created during generating methods
             for (Map.Entry<String, BIRInstruction> l : lambdas.entrySet()) {

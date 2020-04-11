@@ -191,7 +191,7 @@ public class InteropMethodGen {
 
             @Nilable List<BIRBasicBlock> basicBlocks = birFunc.parameters.get(birFuncParam);
             generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1, -1,
-                    strandParamIndex, true, birModule, currentPackageName, null, false, false, null);
+                    strandParamIndex, true, birModule, currentPackageName, null, false, null);
             mv.visitLabel(paramNextLabel);
 
             birFuncParamIndex += 1;

@@ -239,20 +239,18 @@ public class JvmMethodGen {
                                ClassWriter cw,
                                BIRPackage birModule,
                                @Nilable BType attachedType /* = () */,
-                               boolean isService /* = false */,
                                String serviceName /* = "" */) {
 
         if (isExternFunc(birFunc)) {
             genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType);
         } else {
-            genJMethodForBFunc(birFunc, cw, birModule, isService, serviceName, attachedType);
+            genJMethodForBFunc(birFunc, cw, birModule, serviceName, attachedType);
         }
     }
 
     public static void genJMethodForBFunc(BIRFunction func,
                                           ClassWriter cw,
                                           BIRPackage module,
-                                          boolean isService,
                                           String serviceName,
                                           @Nilable BType attachedType /* = () */) {
 
@@ -292,7 +290,7 @@ public class JvmMethodGen {
         @Nilable Label tryStart = null;
         boolean isObserved = false;
         boolean isWorker = (func.flags & Flags.WORKER) == Flags.WORKER;
-        if ((isService || isWorker || "main".equals(funcName))
+        if ((isWorker || "main".equals(funcName))
                 && !"__init".equals(funcName) && !"$__init$".equals(funcName)) {
             // create try catch block to start and stop observability.
             isObserved = true;
@@ -396,7 +394,7 @@ public class JvmMethodGen {
         mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), lables.toArray(new Label[0]));
 
         generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                stateVarIndex, localVarOffset, false, module, currentPackageName, attachedType, isObserved, isService,
+                stateVarIndex, localVarOffset, false, module, currentPackageName, attachedType, isObserved,
                 serviceName);
 
         String frameName = getFrameClassName(currentPackageName, funcName, attachedType);
@@ -866,7 +864,7 @@ public class JvmMethodGen {
                                            int localVarOffset, boolean isArg, BIRPackage module,
                                            String currentPackageName, @Nilable BType attachedType,
                                            boolean isObserved /* = false */,
-                                           boolean isService /* = false */, String serviceName /* = "" */) {
+                                           String serviceName /* = "" */) {
 
         int j = 0;
         String funcName = cleanupFunctionName(func.name.value);
@@ -889,8 +887,8 @@ public class JvmMethodGen {
 
             if (isObserved && j == 0) {
                 String serviceOrConnectorName = serviceName;
-                String observationStartMethod = isService ? "startResourceObservation" : "startCallableObservation";
-                if (!isService && attachedType != null && attachedType.tag == TypeTags.OBJECT) {
+                String observationStartMethod = "startCallableObservation";
+                if (attachedType != null && attachedType.tag == TypeTags.OBJECT) {
                     // add module org and module name to remote spans.
                     BObjectType attachedTypeObj = (BObjectType) attachedType;
                     serviceOrConnectorName = getFullQualifiedRemoteFunctionName(
@@ -901,9 +899,6 @@ public class JvmMethodGen {
                 tags.put("source.invocation_fqn", String.format("%s:%s:%s:%s:%d:%d", module.org.value,
                         module.name.value, module.version.value, func.pos.src.cUnitName, func.pos.sLine,
                         func.pos.sCol));
-                if (isService) {
-                    tags.put("source.service", "true");
-                }
                 emitStartObservationInvocation(mv, serviceOrConnectorName, funcName,
                         observationStartMethod, tags);
             }
