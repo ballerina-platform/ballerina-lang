@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
+import io.ballerinalang.compiler.internal.parser.tree.STOptionalTypeDescriptor;
+
 import java.util.Objects;
 
 /**
@@ -987,6 +989,22 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 resources.underlyingListNode().internalNode(),
                 closeBraceToken.internalNode());
         return stServiceBody.createUnlinkedFacade();
+    }
+
+    public static STNode createOptionalTypeDescriptor(STNode typeDescriptorNode, STNode questionMarkToken) {
+        return new STOptionalTypeDescriptor(typeDescriptorNode, questionMarkToken);
+    }
+
+    public static OptionalTypeDescriptor createOptionalTypeDescriptor(
+            Node typeDescriptorNode,
+            Token questionMarkToken) {
+        Objects.requireNonNull(typeDescriptorNode, "typeDescriptorNode must not be null");
+        Objects.requireNonNull(questionMarkToken, "questionMarkToken must not be null");
+
+        STNode stOptionalTypeDescriptor = STNodeFactory.createOptionalTypeDescriptor(
+                typeDescriptorNode.internalNode(),
+                questionMarkToken.internalNode());
+        return stOptionalTypeDescriptor.createUnlinkedFacade();
     }
 }
 

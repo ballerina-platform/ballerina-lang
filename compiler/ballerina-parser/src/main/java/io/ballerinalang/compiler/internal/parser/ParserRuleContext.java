@@ -86,6 +86,7 @@ public enum ParserRuleContext {
     CONST_DECL_TYPE("const-decl-type"),
     CONST_DECL_RHS("const-decl-rhs"),
     NIL_TYPE_DESCRIPTOR("nil-type-descriptor"),
+    OPTIONAL_TYPE_DESCRIPTOR("optional-type-descriptor"),
 
     // Statements
     STATEMENT("statement"),
