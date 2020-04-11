@@ -151,7 +151,7 @@ public type Entity object {
 # ```
 #
 # + mediaType - Content type, which needs to be set to the entity
-# + return - Nil if successful or else an `mime:InvalidContentTypeError` in case of invalid media-type
+# + return - `()` if successful or else an `mime:InvalidContentTypeError` in case of invalid media-type
     public function setContentType(@untainted string mediaType) returns InvalidContentTypeError? {
         self.cType = check getMediaType(mediaType);
         self.setHeader(CONTENT_TYPE, mediaType);
@@ -368,7 +368,7 @@ public type Entity object {
     }
 
     # Gets the entity body as a `byte[]` from a given entity. If the entity size is considerably large, consider
-    # using the `getByteChannel()` method instead.
+    # using the getByteChannel() method instead.
     #
     # + return - `byte[]` data extracted from the the entity body or else a `mime:ParserError` in case of
     #            errors
@@ -640,10 +640,9 @@ function externHasHeader(Entity entity, handle headerName, HeaderPosition positi
 #
 # + contentToBeEncoded - Content that needs to be encoded can be of type `string`, `byte[]` or `io:ReadableByteChannel`
 # + charset - Charset to be used. This is used only with the string input
-# + return - An encoded `string` if the given input is of type string, an encoded `byte[]`if the given input is of type byte[], an encoded `io:ReadableByteChannel` if the given input is of type `io:ReadableByteChannel`, or else a `mime:EncodeError` record in case of errors.
-#            If the given input is of type byte[], an encoded `byte[]` is returned.
-#            If the given input is of type io:ReadableByteChannel, an encoded `io:ReadableByteChannel` is returned.
-#            In case of errors, an `mime:EncodeError` record is returned.
+# + return - An encoded `string` if the given input is of type string, an encoded `byte[]` if the given input is of
+#            type byte[], an encoded `io:ReadableByteChannel` if the given input is of type `io:ReadableByteChannel`,
+#            or else a `mime:EncodeError` record in case of errors
 public function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, string charset = "utf-8")
                 returns (string|byte[]|io:ReadableByteChannel|EncodeError) {
     return externBase64Encode(contentToBeEncoded, java:fromString(charset));
@@ -660,10 +659,9 @@ function externBase64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEn
 #
 # + contentToBeDecoded - Content that needs to be decoded can be of type `string`, `byte[]` or `io:ReadableByteChannel`
 # + charset - Charset to be used. This is used only with the string input
-# + return - If the given input is of type string, a decoded `string` is returned.
-#            If the given input is of type byte[], a decoded `byte[]` is returned.
-#            If the given input is of type io:ReadableByteChannel, a decoded `io:ReadableByteChannel` is returned.
-#            In case of errors, an `mime:DecodeError` record is returned.
+# + return - A decoded `string` if the given input is of type string, a decoded `byte[]` if the given input is of
+#            type byte[], a decoded `io:ReadableByteChannel` if the given input is of type io:ReadableByteChannel
+#            or else a `mime:DecodeError` in case of errors
 public function base64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDecoded, string charset = "utf-8")
     returns (string|byte[]|io:ReadableByteChannel|DecodeError) {
     return externBase64Decode(contentToBeDecoded, java:fromString(charset));
@@ -692,7 +690,7 @@ public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|EncodeE
 # **Deprecated API**. Decodes a given byte[] using the Base64 encoding scheme.
 #
 # + valueToBeDecoded - Content, which needs to be decoded
-# + return - A decoded `byte[]`or else a `mime:DecodeError` record in case of errors
+# + return - A decoded `byte[]` or else a `mime:DecodeError` record in case of errors
 public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|DecodeError {
     var result = base64Decode(valueToBeDecoded);
     if (result is byte[]|DecodeError) {
