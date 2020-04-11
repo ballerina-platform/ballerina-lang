@@ -19,7 +19,22 @@ import ballerina/runtime;
 import ballerina/system;
 import ballerina/time;
 
-# Represents outbound JWT authenticator.
+# Represents the outbound JWT auth provider, which is used to authenticate with an external endpoint by generating a JWT.
+# The `jwt:OutboundJwtAuthProvider` is another implementation of the `auth:OutboundAuthProvider` interface.
+# ```ballerina
+# jwt:OutboundJwtAuthProvider jwtAuthProvider = new({
+#     issuer: "example",
+#     audience: ["ballerina"],
+#     keyStoreConfig: {
+#         keyAlias: "ballerina",
+#         keyPassword: "ballerina",
+#         keyStore: {
+#             path: "${ballerina.home}/bre/security/ballerinaKeystore.p12",
+#             password: "ballerina"
+#         }
+#     }
+# });
+# ```
 #
 # + jwtIssuerConfig - JWT issuer configurations
 public type OutboundJwtAuthProvider object {

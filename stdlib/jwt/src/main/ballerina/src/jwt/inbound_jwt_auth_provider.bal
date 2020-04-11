@@ -20,7 +20,21 @@ import ballerina/log;
 import ballerina/stringutils;
 import ballerina/time;
 
-# Represents the inbound JWT auth provider.
+# Represents the inbound JWT auth provider, which authenticates by validating a JWT.
+# The `jwt:InboundJwtAuthProvider` is another implementation of the `auth:InboundAuthProvider` interface.
+# ```ballerina
+# jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new({
+#     issuer: "example",
+#     audience: "ballerina",
+#     trustStoreConfig: {
+#         certificateAlias: "ballerina",
+#         trustStore: {
+#             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+#             password: "ballerina"
+#         }
+#     }
+# });
+# ```
 #
 # + jwtValidatorConfig - JWT validator configurations
 public type InboundJwtAuthProvider object {
