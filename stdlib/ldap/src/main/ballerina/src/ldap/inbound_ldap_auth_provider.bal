@@ -18,7 +18,12 @@ import ballerina/auth;
 import ballerina/crypto;
 import ballerina/java;
 
-# Represents the inbound LDAP auth provider.
+# Represents the inbound LDAP auth provider. This connects to an active directory or an LDAP, retrieves the necessary
+# user information, and performs authentication and authorization.
+# The `ldap:InboundLdapAuthProvider` is another implementation of the `auth:InboundAuthProvider` interface.
+# ```ballerina
+# ldap:InboundLdapAuthProvider inboundLdapAuthProvider = new(ldapConfig, "instanceId");
+# ```
 #
 # + instanceId - Instance ID of the endpoint
 # + ldapConnection - LDAP connection instance
