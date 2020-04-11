@@ -8,7 +8,8 @@ public function main() {
 
     // Defines the keystore.
     crypto:KeyStore keyStore = {
-        path: config:getAsString("b7a.home") + "bre/security/ballerinaKeystore.p12",
+        path: config:getAsString("b7a.home") +
+              "/bre/security/ballerinaKeystore.p12",
         password: "ballerina"
     };
 
@@ -37,12 +38,14 @@ public function main() {
     if (jwt is string) {
         io:println("Issued JWT: ", jwt);
     } else {
-        io:println("An error occurred while issuing the JWT: ", jwt.detail()?.message);
+        io:println("An error occurred while issuing the JWT: ",
+                    jwt.detail()?.message);
     }
 
     // Defines the truststore.
     crypto:TrustStore trustStore = {
-        path: config:getAsString("b7a.home") + "bre/security/ballerinaTruststore.p12",
+        path: config:getAsString("b7a.home") +
+              "/bre/security/ballerinaTruststore.p12",
         password: "ballerina"
     };
 
@@ -62,6 +65,7 @@ public function main() {
     if (result is jwt:JwtPayload) {
         io:println("Validated JWT Payload: ", result);
     } else {
-        io:println("An error occurred while validating the JWT: ", result.detail()?.message);
+        io:println("An error occurred while validating the JWT: ",
+                    result.detail()?.message);
     }
 }
