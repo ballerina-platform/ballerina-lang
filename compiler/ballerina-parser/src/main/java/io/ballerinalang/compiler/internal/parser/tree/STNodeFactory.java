@@ -784,5 +784,9 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 resources,
                 closeBraceToken);
     }
+
+    public static STNode createOptionalTypeDescriptor(STNode typeDescriptorNode, STNode questionMarkToken) {
+        return new STOptionalTypeDescriptor(typeDescriptorNode, questionMarkToken);
+    }
 }
 

@@ -289,6 +289,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(minutiae);
     }
 
+    public T transform(OptionalTypeDescriptor optionalTypeDescriptor) {
+        return transformSyntaxNode(optionalTypeDescriptor);
+    }
+
     public T transform(Annotation annotation) {
         return transformSyntaxNode(annotation);
     }

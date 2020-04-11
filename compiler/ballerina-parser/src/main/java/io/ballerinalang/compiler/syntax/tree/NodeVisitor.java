@@ -263,6 +263,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(serviceBody);
     }
 
+    public void visit(OptionalTypeDescriptor optionalTypeDescriptor) {
+        visitSyntaxNode(optionalTypeDescriptor);
+    }
+
     // Tokens
 
     public void visit(Token token) {
@@ -290,6 +294,7 @@ public abstract class NodeVisitor {
     public void visit(ModuleVariableDeclaration moduleVarDecl) {
         visitSyntaxNode(moduleVarDecl);
     }
+
     protected void visitSyntaxNode(Node node) {
         // TODO Find a better way to check for token
         if (node instanceof Token) {

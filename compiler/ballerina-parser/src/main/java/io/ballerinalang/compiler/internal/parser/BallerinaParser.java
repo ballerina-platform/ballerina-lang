@@ -498,6 +498,8 @@ public class BallerinaParser {
             case EQUAL_TOKEN:
                 // Scenario: foo =
                 // Even though this is not valid, consider this as a var-decl and continue;
+            case QUESTION_MARK_TOKEN:
+                //Scenario foo? (Optional type descriptor with custom type)
                 return true;
             case IDENTIFIER_TOKEN:
                 switch (peek(lookahead + 2).kind) {
@@ -1603,18 +1605,27 @@ public class BallerinaParser {
      */
     private STNode parseTypeDescriptor() {
         STToken token = peek();
-        return parseTypeDescriptor(token.kind);
+        STNode type = parseTypeDescriptor(token.kind);
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            //If next token after a type descriptor is <code>?</code> then it is an Optional type descriptor
+            case QUESTION_MARK_TOKEN:
+                return parseOptionalTypeDescriptor(type);
+            default:
+                return type;
+        }
     }
 
     /**
      * <p>
      * Parse a type descriptor, given the next token kind.
      * </p>
-     * 
+     * If the preceding token is <code>?</code> then it is an optional type descriptor
      * @param tokenKind Next token kind
      * @return Parsed node
      */
     private STNode parseTypeDescriptor(SyntaxKind tokenKind) {
+
         switch (tokenKind) {
             case SIMPLE_TYPE:
             case SERVICE_KEYWORD:
@@ -5138,7 +5149,19 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse unary expression.
+     * Parse optional type descriptor.
+     *
+     * @return Parsed node
+     */
+    private STNode parseOptionalTypeDescriptor(STNode typeDescriptorNode) {
+        startContext(ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR);
+        STNode questionMarkToken = parseQuestionMark();
+        endContext();
+
+        return STNodeFactory.createOptionalTypeDescriptor(typeDescriptorNode, questionMarkToken);
+    }
+
+     /** Parse unary expression.
      * <p>
      * <code>
      * unary-expr := + expression | - expression | ~ expression | ! expression

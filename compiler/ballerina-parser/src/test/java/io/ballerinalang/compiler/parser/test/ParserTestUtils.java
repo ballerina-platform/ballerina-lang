@@ -557,6 +557,8 @@ public class ParserTestUtils {
                 return SyntaxKind.EXPRESSION_LIST_ITEM;
             case "NIL_TYPE":
                 return SyntaxKind.NIL_TYPE;
+            case "OPTIONAL_TYPE":
+                return SyntaxKind.OPTIONAL_TYPE;
             case "METADATA":
                 return SyntaxKind.METADATA;
             case "ANNOTATION":

@@ -114,7 +114,8 @@ public class BallerinaParserErrorHandler {
             { ParserRuleContext.CLOSED_RECORD_BODY_END, ParserRuleContext.CLOSE_BRACE };
 
     private static final ParserRuleContext[] TYPE_DESCRIPTORS = { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR,
-            ParserRuleContext.RECORD_TYPE_DESCRIPTOR, ParserRuleContext.OBJECT_TYPE_DESCRIPTOR };
+            ParserRuleContext.RECORD_TYPE_DESCRIPTOR, ParserRuleContext.OBJECT_TYPE_DESCRIPTOR
+            , ParserRuleContext.NIL_TYPE_DESCRIPTOR };
 
     private static final ParserRuleContext[] RECORD_FIELD =
             { ParserRuleContext.ANNOTATIONS, ParserRuleContext.ASTERISK, ParserRuleContext.TYPE_DESCRIPTOR };
@@ -902,6 +903,7 @@ public class BallerinaParserErrorHandler {
                 case LISTENER_DECL:
                 case CONSTANT_DECL:
                 case NIL_TYPE_DESCRIPTOR:
+                case OPTIONAL_TYPE_DESCRIPTOR:
                 case ANNOTATIONS:
                 case DOC_STRING:
 
@@ -1296,6 +1298,7 @@ public class BallerinaParserErrorHandler {
             case CONSTANT_DECL:
             case NIL_TYPE_DESCRIPTOR:
             case COMPOUND_ASSIGNMENT_STMT:
+            case OPTIONAL_TYPE_DESCRIPTOR:
             case ANNOTATIONS:
             case VARIABLE_REF:
             case TYPE_REFERENCE:
@@ -1454,7 +1457,7 @@ public class BallerinaParserErrorHandler {
                 }
                 return ParserRuleContext.VARIABLE_NAME;
             case QUESTION_MARK:
-                return ParserRuleContext.SEMICOLON;
+                return getNextRuleForQuestionMark();
             case RECORD_KEYWORD:
                 return ParserRuleContext.RECORD_BODY_START;
             case TYPE_KEYWORD:
@@ -1593,6 +1596,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.TYPEOF_KEYWORD;
             case TYPEOF_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
+            case OPTIONAL_TYPE_DESCRIPTOR:
+                return ParserRuleContext.TYPE_DESCRIPTOR;
             case UNARY_EXPRESSION:
                 return ParserRuleContext.UNARY_OPERATOR;
             case UNARY_OPERATOR:
@@ -1732,6 +1737,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.SEMICOLON;
             case RETURN_TYPE_DESCRIPTOR:
                 return ParserRuleContext.FUNC_BODY;
+            case OPTIONAL_TYPE_DESCRIPTOR:
+                return ParserRuleContext.QUESTION_MARK;
             default:
                 if (isStatement(parentCtx) || isParameter(parentCtx)) {
                     return ParserRuleContext.VARIABLE_NAME;
@@ -1994,6 +2001,31 @@ public class BallerinaParserErrorHandler {
             return ParserRuleContext.IMPORT_MODULE_NAME;
         }
         return ParserRuleContext.FIELD_OR_FUNC_NAME;
+    }
+
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#QUESTION_MARK}.
+     *
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForQuestionMark() {
+        ParserRuleContext parentCtx = getParentContext();
+        switch (parentCtx) {
+            case OPTIONAL_TYPE_DESCRIPTOR:
+                endContext();
+                parentCtx = getParentContext();
+                switch (parentCtx) {
+                    case MODULE_TYPE_DEFINITION:
+                        return ParserRuleContext.SEMICOLON;
+                    case RETURN_TYPE_DESCRIPTOR:
+                        return ParserRuleContext.FUNC_BODY;
+                    default:
+                        return ParserRuleContext.VARIABLE_NAME;
+                }
+
+            default:
+                return ParserRuleContext.SEMICOLON;
+        }
     }
 
     /**
@@ -2261,6 +2293,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.NIL_TYPE;
             case TYPEOF_KEYWORD:
                 return SyntaxKind.TYPEOF_KEYWORD;
+            case OPTIONAL_TYPE_DESCRIPTOR:
+                return SyntaxKind.OPTIONAL_TYPE;
             case UNARY_OPERATOR:
                 return SyntaxKind.PLUS_TOKEN;
             case AT:
