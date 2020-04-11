@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.stdlib.services.configuration.compression;
+package org.ballerinalang.stdlib.services.compilation.compression;
 
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;

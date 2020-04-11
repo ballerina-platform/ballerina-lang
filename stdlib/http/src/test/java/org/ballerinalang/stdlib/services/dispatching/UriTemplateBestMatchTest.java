@@ -476,6 +476,27 @@ public class UriTemplateBestMatchTest {
                             "{\"name1\":\"a\", \"name2\":\"b\", \"name3\":null, \"name4\":\"c\"}");
     }
 
+    @Test(description = "Test suitable method with URL. /echo155?foo=a,b&bar=c&foo=d")
+    public void testSameNameQueryParamViaAnnotations() {
+        String path = "/hello/echo155unsafe?foo=a,b&bar=c&foo=d";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response),
+                            "{\"name1\":\"a\", \"name2\":\"b\", \"name3\":\"c\", \"name4\":\"d\"}");
+
+        path = "/hello/echo155unsafe?foo=a,b,c";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        int statusCode = response.getHttpStatusCode();
+        Assert.assertEquals(statusCode, 400, "statusCode not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response),
+                            "query param retrieval failed : no query value found for `bar`");
+    }
+
     @Test(description = "Test suitable method with URL.")
     public void testQueryParamWithSpecialChars() {
         String path = "/hello/echo125?foo=%25aaa";
@@ -497,7 +518,7 @@ public class UriTemplateBestMatchTest {
                 , "Resource dispatched to wrong template");
     }
 
-    @Test(description = "Test GetQueryParamValue method when params are not set with URL. /paramNeg")
+    @Test(description = "Test GetQueryParamValue method when params are not set with URL. /hello?bar=")
     public void testGetQueryParamValueNegative() {
         String path = "/hello?bar=";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
@@ -507,6 +528,19 @@ public class UriTemplateBestMatchTest {
         BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("third").stringValue(), "go",
                             "param value is not null");
+    }
+
+    @Test(description = "Test GetQueryParamValue via annotation when params are not set with URL. //hello/unsafe?bar=")
+    public void testGetQueryParamValueNegativeUnsafeCoding() {
+        String path = "/hello/unsafe?bar=";
+        HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        int statusCode = response.getHttpStatusCode();
+        Assert.assertEquals(statusCode, 400, "statusCode not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response),
+                            "query param retrieval failed : no query value found for `foo`");
     }
 
     @Test(description = "Test GetQueryParamValues method when params are not set with URL. /paramNeg")
@@ -529,7 +563,7 @@ public class UriTemplateBestMatchTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response),
-                            "{\"map\":\"c\", \"array\":\"c\", \"value\":\"c\", \"map_\":\"a\", \"array_\":\"d\"}");
+                            "{\"map\":\"c\", \"map_\":\"a\", \"array_\":\"d\"}");
 
         path = "/hello/echo156/zzz?zzz=x,X&bar=x&foo=";
         cMsg = MessageUtils.generateHTTPMessage(path, "GET");
@@ -537,7 +571,23 @@ public class UriTemplateBestMatchTest {
 
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(ResponseReader.getReturnValue(response),
-                            "{\"map\":\"x\", \"array\":\"x\", \"value\":\"x\", \"map_\":\"\", \"array_\":\"X\"}");
+                            "{\"map\":\"x\", \"map_\":\"\", \"array_\":\"X\"}");
+
+        path = "/hello/echo156unsafe/bar?foo=a,b&bar=c&bar=d";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response),
+                            "{\"arr_0\":\"c\", \"arr_1\":\"d\", \"string\":\"a\"}");
+
+        path = "/hello/echo156unsafe/bar?bar=x,X&zzz=x&foo=z";
+        cMsg = MessageUtils.generateHTTPMessage(path, "GET");
+        response = Services.invoke(TEST_EP_PORT, cMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response),
+                            "{\"arr_0\":\"x\", \"arr_1\":\"X\", \"string\":\"z\"}");
     }
 
         @Test(description = "Test dispatching without verbs")
@@ -795,5 +845,17 @@ public class UriTemplateBestMatchTest {
 
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("xxx").stringValue(), "123", "wrong param value");
         Assert.assertEquals(((BMap<String, BValue>) bJson).get("yyy").stringValue(), "456", "wrong param value");
+    }
+
+    @Test(description = "Test multiple params along with path param")
+    public void testAllParams() {
+        HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage(
+                "/uri/thisIsMyPathParam/info/321?bar=ballerina&baz=wso2,cmb", "POST", "This is my string payload");
+        HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
+
+        Assert.assertNotNull(responseMsg, "responseMsg message not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(responseMsg), "{\"path1\":\"thisIsMyPathParam\", " +
+                "\"path2\":321, \"body\":\"This is my string payload\", \"query1\":\"ballerina\", " +
+                "\"query2\":\"wso2\", \"query3\":\"wso2\"}");
     }
 }

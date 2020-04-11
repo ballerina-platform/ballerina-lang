@@ -98,8 +98,7 @@ public annotation WSServiceConfig WebSocketServiceConfig on service;
 # Configuration for an HTTP resource.
 #
 # + methods - The array of allowed HTTP methods
-# + path - The path of resource
-# + body - Inbound request entity body name which declared in signature
+# + path - The path of resource. Only the string literal or the compile constant are allowed as field value type
 # + consumes - The media types which are accepted by resource
 # + produces - The media types which are produced by resource
 # + cors - The cross origin resource sharing configurations for the resource. If not set, the resource will inherit the CORS behaviour of the enclosing service.
@@ -109,7 +108,6 @@ public annotation WSServiceConfig WebSocketServiceConfig on service;
 public type HttpResourceConfig record {|
     string[] methods = [];
     string path = "";
-    string body = "";
     string[] consumes = [];
     string[] produces = [];
     CorsConfig cors = {};
@@ -160,12 +158,11 @@ public type ResourceAuth record {|
 # The annotation which is used to configure an HTTP resource.
 public annotation HttpResourceConfig ResourceConfig on resource function;
 
-# Path param order config keep the signature path param index against the variable names for runtime path param processing.
-#
-# + pathParamOrder - Specifies index of signature path param against the param variable name
-type HttpParamOrderConfig record {|
-    map<int> pathParamOrder = {};
-|};
+# The annotation which is used to define a path parameter.
+public annotation PathParam on parameter;
 
-# The annotation which is used to configure an path param order.
-annotation HttpParamOrderConfig ParamOrderConfig on resource function;
+# The annotation which is used to define a query parameter.
+public annotation QueryParam on parameter;
+
+# The annotation which is used to define the entity body parameter.
+public annotation BodyParam on parameter;

@@ -20,13 +20,13 @@ package org.ballerinalang.stdlib.services.dispatching;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.JSONParser;
-import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.utils.HTTPTestRequest;
 import org.ballerinalang.stdlib.utils.MessageUtils;
+import org.ballerinalang.stdlib.utils.ResponseReader;
 import org.ballerinalang.stdlib.utils.Services;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -194,34 +194,45 @@ public class DataBindingTest {
                 "{'name':'WSO2', 'team':'ballerina'}", "Key variable not set properly.");
     }
 
-    @Test(description = "Test data binding without a payload", expectedExceptions = BallerinaConnectorException.class,
-          expectedExceptionsMessageRegExp = ".*data binding failed: error String payload is null *")
+    @Test(description = "Test data binding without a payload")
     public void testDataBindingWithoutPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body1", "GET");
-        HttpCarbonMessage responseMsg = Services.invoke(TEST_EP_PORT, requestMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, requestMsg);
 
-        Assert.assertNotNull(responseMsg, "responseMsg message not found");
-        BValue bJson = JsonParser.parse(new HttpMessageDataStreamer(responseMsg).getInputStream());
+        Assert.assertNotNull(response, "Response message not found");
+        int statusCode = response.getHttpStatusCode();
+        Assert.assertEquals(statusCode, 400, "statusCode not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response),
+                            "data binding failed: error String payload is null");
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp =
-                    ".*data binding failed: error failed to create xml: Unexpected character 'n'.*")
+    @Test()
     public void testDataBindingIncompatibleXMLPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body4", "POST", "name':'WSO2', 'team':'ballerina");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
-        Services.invoke(TEST_EP_PORT, requestMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, requestMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        int statusCode = response.getHttpStatusCode();
+        Assert.assertEquals(statusCode, 400, "statusCode not found");
+        Assert.assertTrue(ResponseReader.getReturnValue(response).contains(
+                "data binding failed: error failed to create xml: Unexpected character 'n'"));
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = ".*data binding failed: unrecognized token 'ballerina'.*")
+    @Test()
     public void testDataBindingIncompatibleStructPayload() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body6", "POST", "ballerina");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN);
-        Services.invoke(TEST_EP_PORT, requestMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, requestMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        int statusCode = response.getHttpStatusCode();
+        Assert.assertEquals(statusCode, 400, "statusCode not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response), "data binding failed: unrecognized token " +
+                "'ballerina' at line: 1 column: 11");
     }
 
     @Test
@@ -235,33 +246,45 @@ public class DataBindingTest {
         Assert.assertNull(((MapValue<String, Object>) bJson).get("Team"), "Team variable not set properly.");
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-          expectedExceptionsMessageRegExp = "data binding failed: error \\{ballerina/lang.typedesc\\}ConversionError " +
-                  "message='map<json>' value cannot be converted to 'Person'")
+    @Test()
     public void testDataBindingStructWithNoMatchingContent() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body6", "POST", "{'name':'WSO2', 'team':8}");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
-        Services.invoke(TEST_EP_PORT, requestMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, requestMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        int statusCode = response.getHttpStatusCode();
+        Assert.assertEquals(statusCode, 400, "statusCode not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response), "data binding failed: error {ballerina/lang" +
+                ".typedesc}ConversionError message='map<json>' value cannot be converted to 'Person'");
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-            expectedExceptionsMessageRegExp = "data binding failed: error \\{ballerina/lang" +
-                    ".typedesc\\}ConversionError message='map<json>' value cannot be converted to 'Stock'")
+    @Test()
     public void testDataBindingStructWithInvalidTypes() {
         HTTPTestRequest requestMsg = MessageUtils
                 .generateHTTPMessage("/echo/body7", "POST", "{'name':'WSO2', 'team':8}");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
-        Services.invoke(TEST_EP_PORT, requestMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, requestMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        int statusCode = response.getHttpStatusCode();
+        Assert.assertEquals(statusCode, 400, "statusCode not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response), "data binding failed: error " +
+                "{ballerina/lang.typedesc}ConversionError message='map<json>' value cannot be converted to 'Stock'");
     }
 
-    @Test(expectedExceptions = BallerinaConnectorException.class,
-          expectedExceptionsMessageRegExp = ".*data binding failed: error \\{ballerina/lang" +
-                  ".typedesc\\}ConversionError message='json\\[\\]' value cannot be converted to 'Person\\[\\]'.*")
+    @Test()
     public void testDataBindingWithRecordArrayNegative() {
         HTTPTestRequest requestMsg = MessageUtils.generateHTTPMessage("/echo/body8", "POST",
                   "[{'name':'wso2','team':12}, " + "{'lang':'ballerina','age':3}]");
         requestMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), APPLICATION_JSON);
-        Services.invoke(TEST_EP_PORT, requestMsg);
+        HttpCarbonMessage response = Services.invoke(TEST_EP_PORT, requestMsg);
+
+        Assert.assertNotNull(response, "Response message not found");
+        int statusCode = response.getHttpStatusCode();
+        Assert.assertEquals(statusCode, 400, "statusCode not found");
+        Assert.assertEquals(ResponseReader.getReturnValue(response), "data binding failed: error " +
+                "{ballerina/lang.typedesc}ConversionError message='json[]' value cannot be converted to 'Person[]'");
     }
 }

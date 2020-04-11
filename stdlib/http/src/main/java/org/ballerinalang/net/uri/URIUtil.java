@@ -40,7 +40,6 @@ public class URIUtil {
 
     public static final String URI_PATH_DELIMITER = "/";
     public static final char DOT_SEGMENT = '.';
-    private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
     public static String[] getPathSegments(String path) {
         if (path.startsWith(URI_PATH_DELIMITER)) {
@@ -80,7 +79,7 @@ public class URIUtil {
         for (Map.Entry entry : tempParamMap.entrySet()) {
             List<String> entryValue = (List<String>) entry.getValue();
             queryParamsMap.put(entry.getKey().toString(),
-                               BValueCreator.createArrayValue(entryValue.toArray(EMPTY_STRING_ARRAY)));
+                               BValueCreator.createArrayValue(entryValue.toArray(new String[0])));
         }
     }
 

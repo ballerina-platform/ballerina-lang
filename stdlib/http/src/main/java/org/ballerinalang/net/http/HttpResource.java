@@ -21,7 +21,6 @@ import org.ballerinalang.jvm.transactions.TransactionConstants;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.ballerinalang.net.http.HttpConstants.ANN_FIELD_PATH_PARAM_ORDER;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_INTERRUPTIBLE;
-import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_PARAM_ORDER_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.ANN_NAME_RESOURCE_CONFIG;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
@@ -208,7 +205,7 @@ public class HttpResource {
                     .setTransactionInfectable(resourceConfigAnnotation.getBooleanValue(TRANSACTION_INFECTABLE_FIELD));
 
             processResourceCors(httpResource, httpService);
-            httpResource.prepareAndValidateSignatureParams();
+            httpResource.populateSignatureParams();
             return httpResource;
         }
 
@@ -216,7 +213,7 @@ public class HttpResource {
             log.debug("resourceConfig not specified in the Resource instance, using default sub path");
         }
         httpResource.setPath(resource.getName());
-        httpResource.prepareAndValidateSignatureParams();
+        httpResource.populateSignatureParams();
         return httpResource;
     }
 
@@ -236,12 +233,6 @@ public class HttpResource {
      */
     public static MapValue getResourceConfigAnnotation(AttachedFunction resource) {
         return (MapValue) resource.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_RESOURCE_CONFIG);
-    }
-
-    protected static MapValue getPathParamOrderMap(AttachedFunction resource) {
-        Object annotation = resource.getAnnotation(HTTP_PACKAGE_PATH, ANN_NAME_PARAM_ORDER_CONFIG);
-        return annotation == null ? new MapValueImpl() :
-                (MapValue) ((MapValue) annotation).get(ANN_FIELD_PATH_PARAM_ORDER);
     }
 
     private static boolean hasInterruptibleAnnotation(AttachedFunction resource) {
@@ -282,9 +273,8 @@ public class HttpResource {
         corsHeaders.setAllowMethods(DispatcherUtil.addAllMethods());
     }
 
-    private void prepareAndValidateSignatureParams() {
-        signatureParams = new SignatureParams(this);
-        signatureParams.validate();
+    private void populateSignatureParams() {
+        signatureParams = new SignatureParams(this.getParamTypes(), this.balResource);
     }
 
     public List<BType> getParamTypes() {

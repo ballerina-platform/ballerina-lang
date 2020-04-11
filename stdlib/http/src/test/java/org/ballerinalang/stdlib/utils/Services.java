@@ -90,8 +90,15 @@ public class Services {
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
 
-        Object[] signatureParams = HttpDispatcher.getSignatureParameters(resource,
-                request, registryHolder.getEndpointConfig());
+        Object[] signatureParams;
+        try {
+            signatureParams = HttpDispatcher.getSignatureParameters(resource, request,
+                                                                    registryHolder.getEndpointConfig());
+        } catch (BallerinaException ex) {
+            HttpUtil.handleFailure(request, new BallerinaConnectorException(ex.getMessage()));
+            return callback.getResponseMsg();
+        }
+
         callback.setRequestStruct(signatureParams[0]);
 
         ObjectValue service = resource.getParentService().getBalService();

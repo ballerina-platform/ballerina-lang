@@ -11,7 +11,7 @@ service negativeTemplateURI on testEP {
         methods:["POST"],
         path:"/echo/{abc}/bar"
     }
-    resource function echo1(http:Caller caller, http:Request req, string abc) {
+    resource function echo1(http:Caller caller, http:Request req, @http:PathParam string abc) {
         http:Response res = new;
         json responseJson = {"first":abc, "echo":"echo"};
         res.setJsonPayload(<@untainted json> responseJson);
@@ -22,7 +22,7 @@ service negativeTemplateURI on testEP {
         methods:["POST"],
         path:"/echo/{xyz}/bar"
     }
-    resource function echo2(http:Caller caller, http:Request req, string xyz) {
+    resource function echo2(http:Caller caller, http:Request req, @http:PathParam string xyz) {
         http:Response res = new;
         json responseJson = {"first":xyz, "echo":"echo"};
         res.setJsonPayload(<@untainted json> responseJson);

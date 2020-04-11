@@ -16,29 +16,25 @@ type Stock record {|
 
 service echo on testEP {
 
-    @http:ResourceConfig {
-        body: "person"
-    }
-    resource function body1(http:Caller caller, http:Request req, string person) {
+    resource function body1(http:Caller caller, http:Request req, @http:BodyParam string person) {
         json responseJson = { "Person": person };
         checkpanic caller->respond(<@untainted json> responseJson);
     }
 
     @http:ResourceConfig {
         methods: ["POST"],
-        path: "/body2/{key}",
-        body: "person"
+        path: "/body2/{key}"
     }
-    resource function body2(http:Caller caller, http:Request req, string key, string person) {
+    resource function body2(http:Caller caller, http:Request req, @http:PathParam string key,
+                            @http:BodyParam string person) {
         json responseJson = { Key: key, Person: person };
         checkpanic caller->respond(<@untainted json> responseJson);
     }
 
     @http:ResourceConfig {
-        methods: ["GET", "POST"],
-        body: "person"
+        methods: ["GET", "POST"]
     }
-    resource function body3(http:Caller caller, http:Request req, json person) {
+    resource function body3(http:Caller caller, http:Request req, @http:BodyParam json person) {
         json|error val1 = person.name;
         json|error val2 = person.team;
         json name = val1 is json ? val1 : ();
@@ -47,10 +43,9 @@ service echo on testEP {
     }
 
     @http:ResourceConfig {
-        methods: ["POST"],
-        body: "person"
+        methods: ["POST"]
     }
-    resource function body4(http:Caller caller, http:Request req, xml person) {
+    resource function body4(http:Caller caller, http:Request req, @http:BodyParam xml person) {
         xmllib:Element elem = <xmllib:Element> person;
         string name = <@untainted string> elem.getName();
         string team = <@untainted string> (person/*).toString();
@@ -58,10 +53,9 @@ service echo on testEP {
     }
 
     @http:ResourceConfig {
-        methods: ["POST"],
-        body: "person"
+        methods: ["POST"]
     }
-    resource function body5(http:Caller caller, http:Request req, byte[] person) {
+    resource function body5(http:Caller caller, http:Request req, @http:BodyParam byte[] person) {
         http:Response res = new;
         var name = <@untainted> strings:fromBytes(person);
         if (name is string) {
@@ -74,28 +68,25 @@ service echo on testEP {
     }
 
     @http:ResourceConfig {
-        methods: ["POST"],
-        body: "person"
+        methods: ["POST"]
     }
-    resource function body6(http:Caller caller, http:Request req, Person person) {
+    resource function body6(http:Caller caller, http:Request req, @http:BodyParam Person person) {
         string name = <@untainted string> person.name;
         int age = <@untainted int> person.age;
         checkpanic caller->respond({ Key: name, Age: age });
     }
 
     @http:ResourceConfig {
-        methods: ["POST"],
-        body: "person"
+        methods: ["POST"]
     }
-    resource function body7(http:Caller caller, http:Request req, Stock person) {
+    resource function body7(http:Caller caller, http:Request req, @http:BodyParam Stock person) {
         checkpanic caller->respond();
     }
 
     @http:ResourceConfig {
-        methods: ["POST"],
-        body: "persons"
+        methods: ["POST"]
     }
-    resource function body8(http:Caller caller, http:Request req, Person[] persons) {
+    resource function body8(http:Caller caller, http:Request req, @http:BodyParam Person[] persons) {
         var jsonPayload = typedesc<json>.constructFrom(persons);
         if (jsonPayload is json) {
             checkpanic caller->respond(<@untainted json> jsonPayload);

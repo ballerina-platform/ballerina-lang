@@ -67,6 +67,10 @@ function testFailureScenario () returns @tainted http:Response | error {
         if (serviceResponse is http:Response) {
             counter = counter + 1;
             response = serviceResponse;
+        } else if (serviceResponse is http:PayloadType) {
+            http:IllegalDataBindingStateError payloadRetrievalErr = error(http:ILLEGAL_DATA_BINDING_STATE_ERROR,
+            message = "Payload cannot be retrived");
+            panic payloadRetrievalErr;
         } else {
             counter = counter + 1;
             return serviceResponse;
@@ -89,45 +93,40 @@ public type MockClient client object {
         self.httpClient = simpleClient;
     }
 
-    public remote function post(string path,
-                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                                                                returns http:Response|http:ClientError {
+    public remote function post(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity
+    []|() message, http:TargetType targetType = http:Response) returns http:Response|http:PayloadType|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function head(string path,
-                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                                                                                returns http:Response|http:ClientError {
+    public remote function head(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity
+    []|() message = ()) returns http:Response|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function put(string path,
-                               http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                                                                returns http:Response|http:ClientError {
+    public remote function put(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|
+    () message, http:TargetType targetType = http:Response) returns http:Response|http:PayloadType|http:ClientError {
         return getUnsupportedError();
     }
 
     public remote function execute(string httpVerb, string path,
-                                   http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|()
-                                        message) returns http:Response|http:ClientError {
+    http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message,
+    http:TargetType targetType = http:Response) returns http:Response|http:PayloadType|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function patch(string path,
-                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                                                                returns http:Response|http:ClientError {
+    public remote function patch(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity
+    []|() message, http:TargetType targetType = http:Response) returns http:Response|http:PayloadType|http:ClientError {
         return getUnsupportedError();
     }
 
     public remote function delete(string path,
-                           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                                                                returns http:Response|http:ClientError {
+    http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message,
+    http:TargetType targetType = http:Response) returns http:Response|http:PayloadType|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function get(string path,
-                            http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message)
-                                                                                returns http:Response|http:ClientError {
+    public remote function get(string path, http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|
+    () message, http:TargetType targetType = http:Response) returns http:Response|http:PayloadType|http:ClientError {
         http:Response response = new;
         var result = handleFailoverScenario(counter);
         if (result is http:Response) {
@@ -142,12 +141,13 @@ public type MockClient client object {
     }
 
     public remote function options(string path,
-           http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = ())
-                                                                                returns http:Response|http:ClientError {
+    http:Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|() message = (),
+    http:TargetType targetType = http:Response) returns http:Response|http:PayloadType|http:ClientError {
         return getUnsupportedError();
     }
 
-    public remote function forward(string path, http:Request req) returns http:Response|http:ClientError {
+    public remote function forward(string path, http:Request req, http:TargetType targetType = http:Response) returns
+    http:Response|http:PayloadType|http:ClientError {
         return getUnsupportedError();
     }
 

@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -41,7 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
-import static org.ballerinalang.net.http.compiler.ResourceSignatureValidator.COMPULSORY_PARAM_COUNT;
+import static org.ballerinalang.net.http.compiler.ResourceValidator.COMPULSORY_PARAM_COUNT;
 
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
@@ -79,12 +80,12 @@ public class HttpDispatcher {
             URI validatedUri = getValidatedURI(uriWithoutMatrixParams);
 
             String basePath = servicesRegistry.findTheMostSpecificBasePath(validatedUri.getRawPath(),
-                    servicesOnInterface, sortedServiceURIs);
+                                                                           servicesOnInterface, sortedServiceURIs);
 
             if (basePath == null) {
                 inboundReqMsg.setHttpStatusCode(404);
-                throw new BallerinaConnectorException("no matching service found for path : " +
-                        validatedUri.getRawPath());
+                throw new BallerinaConnectorException("no matching service found for path : "
+                                                              + validatedUri.getRawPath());
             }
 
             HttpService service = servicesOnInterface.get(basePath);
@@ -118,7 +119,7 @@ public class HttpDispatcher {
      * This method finds the matching resource for the incoming request.
      *
      * @param servicesRegistry HTTP service registry
-     * @param inboundMessage incoming message.
+     * @param inboundMessage   incoming message.
      * @return matching resource.
      */
     public static HttpResource findResource(HTTPServicesRegistry servicesRegistry, HttpCarbonMessage inboundMessage) {
@@ -154,32 +155,46 @@ public class HttpDispatcher {
         HttpUtil.populateInboundRequest(inRequest, inRequestEntity, httpCarbonMessage);
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
-        Object[] paramValues = new Object[signatureParams.getParamCount() * 2];
+        int signatureParamCount = signatureParams.getSignatureParamTypes().size();
+        Object[] paramValues = new Object[signatureParamCount * 2];
         int paramIndex = 0;
         paramValues[paramIndex++] = httpCaller;
         paramValues[paramIndex++] = true;
         paramValues[paramIndex++] = inRequest;
         paramValues[paramIndex] = true;
-        if (signatureParams.getParamCount() == COMPULSORY_PARAM_COUNT) {
+
+        if (signatureParamCount == COMPULSORY_PARAM_COUNT) {
             return paramValues;
         }
 
+        try {
+            populatePathParams(httpCarbonMessage, signatureParams, paramValues);
+            populateQueryParams(httpCarbonMessage, signatureParams, paramValues);
+            populateBodyParam(inRequest, inRequestEntity, signatureParams, paramValues);
+        } catch (BallerinaConnectorException exception) {
+            httpCarbonMessage.setHttpStatusCode(Integer.parseInt(HttpConstants.HTTP_BAD_REQUEST));
+            throw exception;
+        }
+        return paramValues;
+    }
+
+    private static void populatePathParams(HttpCarbonMessage httpCarbonMessage, SignatureParams signatureParams,
+                                           Object[] paramValues) {
         HttpResourceArguments resourceArgumentValues =
                 (HttpResourceArguments) httpCarbonMessage.getProperty(HttpConstants.RESOURCE_ARGS);
-        MapValue pathParamOrder = HttpResource.getPathParamOrderMap(httpResource.getBalResource());
 
-        for (Object paramName : pathParamOrder.getKeys()) {
-            String argumentValue = resourceArgumentValues.getMap().get(paramName.toString());
+        Map<String, Integer> pathParamOrder = signatureParams.getPathParamOrder();
+        for (String paramName : pathParamOrder.keySet()) {
+            String argumentValue = resourceArgumentValues.getMap().get(paramName);
             try {
                 argumentValue = URLDecoder.decode(argumentValue, "UTF-8");
             } catch (UnsupportedEncodingException e) {
                 // we can simply ignore and send the value to application and let the
                 // application deal with the value.
             }
-            int actualSignatureParamIndex = ((Long) pathParamOrder.get(paramName)).intValue();
-            paramIndex = actualSignatureParamIndex * 2;
-            BType signatureParamType = signatureParams.getPathParamTypes().get(
-                    actualSignatureParamIndex - COMPULSORY_PARAM_COUNT);
+            int actualPathParamIndex = pathParamOrder.get(paramName);
+            int paramIndex = actualPathParamIndex * 2;
+            BType signatureParamType = signatureParams.getSignatureParamTypes().get(actualPathParamIndex);
             try {
                 switch (signatureParamType.getTag()) {
                     case TypeTags.INT_TAG:
@@ -196,22 +211,53 @@ public class HttpDispatcher {
                 }
                 paramValues[paramIndex] = true;
             } catch (Exception ex) {
-                throw new BallerinaConnectorException("Error in casting path param : " + ex.getMessage());
+                throw new BallerinaConnectorException(
+                        "path param value casting failed for '" + argumentValue + "' : " + ex.getMessage());
             }
         }
+    }
 
-        if (signatureParams.getEntityBody() == null) {
-            return paramValues;
+    private static void populateQueryParams(HttpCarbonMessage httpCarbonMessage, SignatureParams signatureParams,
+                                            Object[] paramValues) {
+        Map<String, Integer> queryParamOrder = signatureParams.getQueryParamOrder();
+        if (queryParamOrder.size() == 0) {
+            return;
         }
+        MapValue<String, Object> queryParams = signatureParams
+                .getQueryParams(httpCarbonMessage.getProperty(HttpConstants.RAW_QUERY_STR));
+
+        for (String paramName : queryParamOrder.keySet()) {
+            int actualQueryParamIndex = queryParamOrder.get(paramName);
+            int paramIndex = actualQueryParamIndex * 2;
+            BType signatureParamType = signatureParams.getSignatureParamTypes().get(actualQueryParamIndex);
+            try {
+                Object queryValue = queryParams.get(paramName);
+                if (queryValue == null) { //TODO can we set empty value instead responding 400
+                    throw new BallerinaConnectorException("no query value found for `" + paramName + "`");
+                }
+                paramValues[paramIndex++] = signatureParamType.getTag() == TypeTags.ARRAY_TAG ? queryValue :
+                        ((ArrayValueImpl) queryValue).getString(0);
+                paramValues[paramIndex] = true;
+            } catch (Exception ex) {
+                throw new BallerinaConnectorException("query param retrieval failed : " + ex.getMessage());
+            }
+        }
+    }
+
+    private static void populateBodyParam(ObjectValue inRequest, ObjectValue inRequestEntity,
+                                          SignatureParams signatureParams, Object[] paramValues) {
+        if (!signatureParams.isBodyParamAvailable()) {
+            return;
+        }
+        int actualBodyParamIndex = signatureParams.getBodyParamOrderIndex();
+        int paramIndex = actualBodyParamIndex * 2;
+        BType bodyParamType = signatureParams.getSignatureParamTypes().get(actualBodyParamIndex);
         try {
-            paramValues[paramValues.length - 2] = populateAndGetEntityBody(inRequest, inRequestEntity,
-                                                                   signatureParams.getEntityBody());
-            paramValues[paramValues.length - 1] = true;
+            paramValues[paramIndex++] = populateAndGetEntityBody(inRequest, inRequestEntity, bodyParamType);
+            paramValues[paramIndex] = true;
         } catch (Exception ex) {
-            httpCarbonMessage.setHttpStatusCode(Integer.parseInt(HttpConstants.HTTP_BAD_REQUEST));
             throw new BallerinaConnectorException("data binding failed: " + ex.getMessage());
         }
-        return paramValues;
     }
 
     private static Object populateAndGetEntityBody(ObjectValue inRequest, ObjectValue inRequestEntity,
@@ -273,8 +319,7 @@ public class HttpDispatcher {
         try {
             return ConstructFrom.convert(entityBodyType, bjson);
         } catch (NullPointerException ex) {
-            throw new BallerinaConnectorException("cannot convert payload to record type: " +
-                    entityBodyType.getName());
+            throw new BallerinaConnectorException("cannot convert payload to record type: " + entityBodyType.getName());
         }
     }
 
@@ -291,7 +336,7 @@ public class HttpDispatcher {
     }
 
     public static boolean shouldDiffer(HttpResource httpResource) {
-        return (httpResource != null && httpResource.getSignatureParams().getEntityBody() != null);
+        return (httpResource != null && httpResource.getSignatureParams().isBodyParamAvailable());
     }
 
     private HttpDispatcher() {
