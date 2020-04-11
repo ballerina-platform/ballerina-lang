@@ -85,7 +85,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_ST
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteObservableFunctionInvocations;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.addInitAndTypeInitInstructions;
@@ -108,6 +107,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMainFu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.rewriteObservableFunctions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateCreateTypesMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateUserDefinedTypeFields;
@@ -277,7 +277,7 @@ public class JvmPackageGen {
         rewriteRecordInits(module.typeDefs);
 
         // Desugar Call Terminators to include Observe start and end calls surrounding them
-        rewriteObservableFunctionInvocations(module);
+        rewriteObservableFunctions(module);
 
         // generate object/record value classes
         ObjectGenerator objGen = new ObjectGenerator(module);
