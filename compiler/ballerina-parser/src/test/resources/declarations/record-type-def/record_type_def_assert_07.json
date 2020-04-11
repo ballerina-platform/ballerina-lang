@@ -4,6 +4,11 @@
         {
             "kind": "METADATA",
             "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
             ]
         },
         {
@@ -47,6 +52,11 @@
                                 {
                                     "kind": "METADATA",
                                     "children": [
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                            ]
+                                        }
                                     ]
                                 },
                                 {

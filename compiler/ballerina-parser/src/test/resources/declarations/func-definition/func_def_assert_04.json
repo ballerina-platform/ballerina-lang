@@ -4,6 +4,11 @@
         {
             "kind": "METADATA",
             "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
             ]
         },
         {
@@ -32,6 +37,11 @@
             "children": [
                 {
                     "kind": "RETURNS_KEYWORD"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
                 },
                 {
                     "kind": "SIMPLE_TYPE",

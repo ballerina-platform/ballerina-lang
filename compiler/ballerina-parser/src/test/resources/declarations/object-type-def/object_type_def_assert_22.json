@@ -4,6 +4,11 @@
         {
             "kind": "METADATA",
             "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
             ]
         },
         {
@@ -37,6 +42,11 @@
                             "kind": "LOCAL_VAR_DECL",
                             "children": [
                                 {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                },
+                                {
                                     "kind": "OBJECT_TYPE_DESCRIPTOR",
                                     "children": [
                                         {
@@ -62,6 +72,11 @@
                                                         {
                                                             "kind": "METADATA",
                                                             "children": [
+                                                                {
+                                                                    "kind": "LIST",
+                                                                    "children": [
+                                                                    ]
+                                                                }
                                                             ]
                                                         },
                                                         {
@@ -83,6 +98,11 @@
                                                         {
                                                             "kind": "METADATA",
                                                             "children": [
+                                                                {
+                                                                    "kind": "LIST",
+                                                                    "children": [
+                                                                    ]
+                                                                }
                                                             ]
                                                         },
                                                         {
@@ -127,6 +147,11 @@
                                                         {
                                                             "kind": "METADATA",
                                                             "children": [
+                                                                {
+                                                                    "kind": "LIST",
+                                                                    "children": [
+                                                                    ]
+                                                                }
                                                             ]
                                                         },
                                                         {

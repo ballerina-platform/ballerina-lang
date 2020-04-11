@@ -4,6 +4,11 @@
         {
             "kind": "METADATA",
             "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
             ]
         },
         {
@@ -22,6 +27,11 @@
                 {
                     "kind": "REQUIRED_PARAM",
                     "children": [
+                        {
+                            "kind": "LIST",
+                            "children": [
+                            ]
+                        },
                         {
                             "kind": "OBJECT_TYPE_DESCRIPTOR",
                             "children": [
@@ -45,6 +55,11 @@
                                                 {
                                                     "kind": "METADATA",
                                                     "children": [
+                                                        {
+                                                            "kind": "LIST",
+                                                            "children": [
+                                                            ]
+                                                        }
                                                     ]
                                                 },
                                                 {
@@ -69,6 +84,11 @@
                                                 {
                                                     "kind": "METADATA",
                                                     "children": [
+                                                        {
+                                                            "kind": "LIST",
+                                                            "children": [
+                                                            ]
+                                                        }
                                                     ]
                                                 },
                                                 {
@@ -94,6 +114,11 @@
                                                                         {
                                                                             "kind": "METADATA",
                                                                             "children": [
+                                                                                {
+                                                                                    "kind": "LIST",
+                                                                                    "children": [
+                                                                                    ]
+                                                                                }
                                                                             ]
                                                                         },
                                                                         {
@@ -122,6 +147,11 @@
                                                                         {
                                                                             "kind": "METADATA",
                                                                             "children": [
+                                                                                {
+                                                                                    "kind": "LIST",
+                                                                                    "children": [
+                                                                                    ]
+                                                                                }
                                                                             ]
                                                                         },
                                                                         {
@@ -182,6 +212,11 @@
                                                 {
                                                     "kind": "METADATA",
                                                     "children": [
+                                                        {
+                                                            "kind": "LIST",
+                                                            "children": [
+                                                            ]
+                                                        }
                                                     ]
                                                 },
                                                 {
@@ -238,6 +273,11 @@
                     "children": [
                         {
                             "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                            ]
                         },
                         {
                             "kind": "SIMPLE_TYPE",

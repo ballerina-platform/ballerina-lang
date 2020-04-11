@@ -4,6 +4,11 @@
         {
             "kind": "METADATA",
             "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
             ]
         },
         {
@@ -25,6 +30,11 @@
                 {
                     "kind": "REQUIRED_PARAM",
                     "children": [
+                        {
+                            "kind": "LIST",
+                            "children": [
+                            ]
+                        },
                         {
                             "kind": "IDENTIFIER_TOKEN",
                             "value": "foo"

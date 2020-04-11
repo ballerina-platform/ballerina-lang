@@ -107,10 +107,15 @@ public class BallerinaParser {
                 return parseAssignmentStmt();
             case EXPRESSION_RHS:
                 return parseExpressionRhs((STNode) args[0]);
+            case PARAMETER:
+                return parseParameter((STNode) args[0], (int) args[1]);
+            case PARAMETER_WITHOUT_ANNOTS:
+                return parseParamGivenAnnots((STNode) args[0], (STNode) args[1], (int) args[2]);
             case AFTER_PARAMETER_TYPE:
-                return parseAfterParamType((STNode) args[0], (STNode) args[1], (STNode) args[2]);
+                return parseAfterParamType((STNode) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3]);
             case PARAMETER_RHS:
-                return parseParameterRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3]);
+                return parseParameterRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3],
+                        (STNode) args[4]);
             case TOP_LEVEL_NODE:
                 return parseTopLevelNode();
             case TOP_LEVEL_NODE_WITHOUT_METADATA:
@@ -232,10 +237,6 @@ public class BallerinaParser {
                 return parseTypeofKeyword();
             case ANNOT_REFERENCE:
                 return parseIdentifier(context);
-            case PARAMETER_WITHOUT_QUALIFIER:
-                return parseParamGivenQualifier((STNode) args[0], (STNode) args[1], (int) args[2]);
-            // case SERVICE_DECL:
-            // return parseServiceDecl();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -388,7 +389,7 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // Nil type descriptor '()'
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
                 // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
                 // TODO: add type binding pattern
                 metadata = createEmptyMetadata();
@@ -456,14 +457,14 @@ public class BallerinaParser {
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
             case SERVICE_KEYWORD:
-            case OPEN_PAREN_TOKEN: // Nil type descriptor '()'
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
                 break;
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
                 if (isVarDeclStart(1)) {
-                    // This is an early exit, so that we dont have to do the same check again.
-                    return parseModuleVarDecl(metadata, qualifier);
+                    // This is an early exit, so that we don't have to do the same check again.
+                    return parseModuleVarDecl(metadata, null);
                 }
                 // Else fall through
             default:
@@ -1010,7 +1011,7 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // Nil type descriptor '()'
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
                 return parseModuleVarDecl(metadata, qualifier);
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
@@ -1019,7 +1020,6 @@ public class BallerinaParser {
                     return parseModuleVarDecl(metadata, qualifier);
                 }
                 // fall through
-                // Detect nil type descriptor '()'
             default:
                 STToken token = peek();
                 Solution solution =
@@ -1048,7 +1048,7 @@ public class BallerinaParser {
     }
 
     private void reportInvalidQualifier(STNode qualifier) {
-        if (qualifier != null) {
+        if (qualifier != null && qualifier.kind != SyntaxKind.NONE) {
             this.errorHandler.reportInvalidNode((STToken) qualifier,
                     "invalid qualifier '" + qualifier.toString().trim() + "'");
         }
@@ -1232,57 +1232,51 @@ public class BallerinaParser {
             startContext(this.currentParamKind);
         }
 
-        STNode qualifier;
-        if (token.kind == SyntaxKind.PUBLIC_KEYWORD) {
-            qualifier = parseQualifier();
-            token = peek();
-        } else {
-            qualifier = STNodeFactory.createEmptyNode();
-        }
-
-        return parseParamGivenQualifier(token.kind, leadingComma, qualifier, 1);
+        return parseParameter(token.kind, leadingComma, 1);
     }
 
-    private STNode parseParamGivenQualifier(STNode leadingComma, STNode qualifier, int nextNextTokenOffset) {
-        return parseParamGivenQualifier(peek().kind, leadingComma, qualifier, nextNextTokenOffset);
+    private STNode parseParameter(STNode leadingComma, int nextTokenOffset) {
+        return parseParameter(peek().kind, leadingComma, nextTokenOffset);
     }
 
-    private STNode parseParamGivenQualifier(SyntaxKind nextTokeKind, STNode leadingComma, STNode qualifier,
-                                            int nextNextTokenOffset) {
-        // TODO: use `qualifier`
-
+    private STNode parseParameter(SyntaxKind nextTokenKind, STNode leadingComma, int nextTokenOffset) {
         STNode annots;
-        switch (nextTokeKind) {
+        switch (nextTokenKind) {
             case AT_TOKEN:
-                annots = parseAnnotations(nextTokeKind);
+                annots = parseAnnotations(nextTokenKind);
+                nextTokenKind = peek().kind;
                 break;
+            case PUBLIC_KEYWORD:
+
+                // Type starting tokens. That means actual param starting
             case SIMPLE_TYPE:
             case SERVICE_KEYWORD:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // Nil type descriptor '()'
-                annots = STNodeFactory.createEmptyNode();
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+                annots = STNodeFactory.createNodeList(new ArrayList<>());
                 break;
+
             case IDENTIFIER_TOKEN:
-                if (isParamWithoutAnnotStart(nextNextTokenOffset)) {
-                    annots = STNodeFactory.createEmptyNode();
-                    break;
+                // This is a early exit
+                if (isParamWithoutAnnotStart(nextTokenOffset)) {
+                    annots = STNodeFactory.createNodeList(new ArrayList<>());
+                    STNode qualifier = STNodeFactory.createEmptyNode();
+                    return parseParamGivenAnnotsAndQualifier(leadingComma, annots, qualifier);
                 }
+
                 // else fall through
             default:
-                // TODO introduce KEEP to the recovery-solution
-
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.PARAMETER_WITHOUT_QUALIFIER, leadingComma,
-                        qualifier, nextNextTokenOffset);
+                Solution solution = recover(token, ParserRuleContext.PARAMETER, leadingComma, nextTokenOffset);
 
                 if (solution.action == Action.KEEP) {
                     // If the solution is {@link Action#KEEP}, that means next immediate token is
                     // at the correct place, but some token after that is not. There only one such
                     // cases here, which is the `case IDENTIFIER_TOKEN`. So accept it, and continue.
-                    annots = STNodeFactory.createEmptyNode();
+                    annots = STNodeFactory.createNodeList(new ArrayList<>());
                     break;
                 }
 
@@ -1295,11 +1289,63 @@ public class BallerinaParser {
 
                 // Since we come here after recovering by insertion, then the current token becomes the next token.
                 // So the nextNextToken offset becomes 1.
-                return parseParamGivenQualifier(solution.tokenKind, leadingComma, qualifier, 0);
+                return parseParameter(solution.tokenKind, leadingComma, 0);
         }
 
+        return parseParamGivenAnnots(nextTokenKind, leadingComma, annots, 1);
+    }
+
+    private STNode parseParamGivenAnnots(STNode leadingComma, STNode annots, int nextNextTokenOffset) {
+        return parseParamGivenAnnots(peek().kind, leadingComma, annots, nextNextTokenOffset);
+    }
+
+    private STNode parseParamGivenAnnots(SyntaxKind nextTokenKind, STNode leadingComma, STNode annots,
+                                         int nextTokenOffset) {
+        STNode qualifier;
+        switch (nextTokenKind) {
+            case PUBLIC_KEYWORD:
+                qualifier = parseQualifier();
+                break;
+            case SIMPLE_TYPE:
+            case SERVICE_KEYWORD:
+            case RECORD_KEYWORD:
+            case OBJECT_KEYWORD:
+            case ABSTRACT_KEYWORD:
+            case CLIENT_KEYWORD:
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+                qualifier = STNodeFactory.createEmptyNode();
+                break;
+            case IDENTIFIER_TOKEN:
+                // This is a early exit
+                if (isParamWithoutAnnotStart(nextTokenOffset)) {
+                    qualifier = STNodeFactory.createEmptyNode();
+                    break;
+                }
+                // fall through
+            case AT_TOKEN: // Annotations can't reach here
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.PARAMETER_WITHOUT_ANNOTS, leadingComma, annots,
+                        nextTokenOffset);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                // Since we come here after recovering by insertion, then the current token becomes the next token.
+                // So the nextNextToken offset becomes 1.
+                return parseParamGivenAnnots(solution.tokenKind, leadingComma, annots, 0);
+        }
+
+        return parseParamGivenAnnotsAndQualifier(leadingComma, annots, qualifier);
+    }
+
+    private STNode parseParamGivenAnnotsAndQualifier(STNode leadingComma, STNode annots, STNode qualifier) {
         STNode type = parseTypeDescriptor();
-        STNode param = parseAfterParamType(leadingComma, annots, type);
+        STNode param = parseAfterParamType(leadingComma, annots, qualifier, type);
         endContext();
         return param;
     }
@@ -1314,6 +1360,8 @@ public class BallerinaParser {
         // Assumes that we reach here after a peek()
         STToken nextToken = peek(tokenOffset + 1);
         switch (nextToken.kind) {
+            case PUBLIC_KEYWORD:
+                return isParamWithoutAnnotStart(tokenOffset + 1);
             case ELLIPSIS_TOKEN:
                 // scenario: foo...
                 return true;
@@ -1325,25 +1373,28 @@ public class BallerinaParser {
         }
     }
 
-    private STNode parseAfterParamType(STNode leadingComma, STNode annots, STNode type) {
+    private STNode parseAfterParamType(STNode leadingComma, STNode annots, STNode qualifier, STNode type) {
         STToken token = peek();
-        return parseAfterParamType(token.kind, leadingComma, annots, type);
+        return parseAfterParamType(token.kind, leadingComma, annots, qualifier, type);
     }
 
-    private STNode parseAfterParamType(SyntaxKind tokenKind, STNode leadingComma, STNode annots, STNode type) {
+    private STNode parseAfterParamType(SyntaxKind tokenKind, STNode leadingComma, STNode annots, STNode qualifier,
+                                       STNode type) {
         switch (tokenKind) {
             case ELLIPSIS_TOKEN:
                 this.currentParamKind = ParserRuleContext.REST_PARAM;
                 switchContext(ParserRuleContext.REST_PARAM);
+                reportInvalidQualifier(qualifier);
                 STNode ellipsis = parseEllipsis();
                 STNode paramName = parseVariableName();
                 return STNodeFactory.createRestParameter(leadingComma, annots, type, ellipsis, paramName);
             case IDENTIFIER_TOKEN:
                 paramName = parseVariableName();
-                return parseParameterRhs(leadingComma, annots, type, paramName);
+                return parseParameterRhs(leadingComma, annots, qualifier, type, paramName);
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.AFTER_PARAMETER_TYPE, leadingComma, annots, type);
+                Solution solution =
+                        recover(token, ParserRuleContext.AFTER_PARAMETER_TYPE, leadingComma, annots, qualifier, type);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -1352,7 +1403,7 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                return parseAfterParamType(solution.tokenKind, leadingComma, annots, type);
+                return parseAfterParamType(solution.tokenKind, leadingComma, annots, qualifier, type);
         }
     }
 
@@ -1379,17 +1430,19 @@ public class BallerinaParser {
      * 
      * @param leadingComma Comma that precedes this parameter
      * @param annots Annotations attached to the parameter
+     * @param qualifier Visibility qualifier
      * @param type Type descriptor
      * @param paramName Name of the parameter
      * @return Parsed parameter node
      */
-    private STNode parseParameterRhs(STNode leadingComma, STNode annots, STNode type, STNode paramName) {
+    private STNode parseParameterRhs(STNode leadingComma, STNode annots, STNode qualifier, STNode type,
+                                     STNode paramName) {
         STToken token = peek();
-        return parseParameterRhs(token.kind, leadingComma, annots, type, paramName);
+        return parseParameterRhs(token.kind, leadingComma, annots, qualifier, type, paramName);
     }
 
-    private STNode parseParameterRhs(SyntaxKind tokenKind, STNode leadingComma, STNode annots, STNode type,
-                                     STNode paramName) {
+    private STNode parseParameterRhs(SyntaxKind tokenKind, STNode leadingComma, STNode annots, STNode qualifier,
+                                     STNode type, STNode paramName) {
         // Required parameters
         if (isEndOfParameter(tokenKind)) {
             if (this.currentParamKind == ParserRuleContext.DEFAULTABLE_PARAM) {
@@ -1401,9 +1454,7 @@ public class BallerinaParser {
                         "cannot have a required parameter after a defaultable parameter");
             }
 
-            // TODO: add access modifier
-            STNode visibilityQualifier = STNodeFactory.createEmptyNode();
-            return STNodeFactory.createRequiredParameter(leadingComma, annots, visibilityQualifier, type, paramName);
+            return STNodeFactory.createRequiredParameter(leadingComma, annots, qualifier, type, paramName);
         } else if (tokenKind == SyntaxKind.EQUAL_TOKEN) {
 
             // If we were processing required params so far and found a defualtable
@@ -1416,12 +1467,12 @@ public class BallerinaParser {
             // Defaultable parameters
             STNode equal = parseAssignOp();
             STNode expr = parseExpression();
-            STNode visibilityQualifier = STNodeFactory.createEmptyNode();
-            return STNodeFactory.createDefaultableParameter(leadingComma, annots, visibilityQualifier, type, paramName,
-                    equal, expr);
+            return STNodeFactory.createDefaultableParameter(leadingComma, annots, qualifier, type, paramName, equal,
+                    expr);
         } else {
             STToken token = peek();
-            Solution solution = recover(token, ParserRuleContext.PARAMETER_RHS, leadingComma, annots, type, paramName);
+            Solution solution =
+                    recover(token, ParserRuleContext.PARAMETER_RHS, leadingComma, annots, qualifier, type, paramName);
 
             // If the parser recovered by inserting a token, then try to re-parse the same
             // rule with the inserted token. This is done to pick the correct branch
@@ -1430,7 +1481,7 @@ public class BallerinaParser {
                 return solution.recoveredNode;
             }
 
-            return parseParameterRhs(solution.tokenKind, leadingComma, annots, type, paramName);
+            return parseParameterRhs(solution.tokenKind, leadingComma, annots, qualifier, type, paramName);
         }
     }
 
@@ -1579,8 +1630,8 @@ public class BallerinaParser {
             case CLIENT_KEYWORD:
                 // Object type descriptor
                 return parseObjectTypeDescriptor();
-            // Nil type descriptor '()'
             case OPEN_PAREN_TOKEN:
+                // nil type descriptor '()'
                 return parseNilTypeDescriptor();
             default:
                 STToken token = peek();
@@ -2528,7 +2579,7 @@ public class BallerinaParser {
             case CONTINUE_KEYWORD:
             case BREAK_KEYWORD:
             case RETURN_KEYWORD:
-            case OPEN_PAREN_TOKEN: // Nil type descriptor '()'
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
                 break;
             default:
                 // If the next token in the token stream does not match to any of the statements and
@@ -2558,7 +2609,7 @@ public class BallerinaParser {
             return nullbaleAnnot;
         }
 
-        return STNodeFactory.createEmptyNode();
+        return STNodeFactory.createNodeList(new ArrayList<>());
     }
 
     private STNode parseStatement(STNode annots) {
@@ -2583,8 +2634,7 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
-                // Nil type descriptor '()'
-            case OPEN_PAREN_TOKEN:
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
                 // If the statement starts with a type, then its a var declaration.
                 // This is an optimization since if we know the next token is a type, then
                 // we can parse the var-def faster.
@@ -2791,7 +2841,7 @@ public class BallerinaParser {
         switch (nextTokenKind) {
             case IDENTIFIER_TOKEN:
                 // We assume module level var decl never reach here
-                STNode annots = STNodeFactory.createEmptyNode();
+                STNode annots = STNodeFactory.createNodeList(new ArrayList<>());
                 STNode finalKeyword = STNodeFactory.createEmptyNode();
                 STNode varName = parseVariableName();
                 return parseVarDeclRhs(annots, finalKeyword, identifier, varName, false);
@@ -3552,7 +3602,7 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // Nil type descriptor '()'
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
                 metadata = createEmptyMetadata();
                 break;
             case HASH_TOKEN:
@@ -3608,7 +3658,7 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // Nil type descriptor '()'
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
                 member = parseObjectField(metadata, STNodeFactory.createEmptyNode());
                 break;
             default:
@@ -3671,7 +3721,7 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // Nil type descriptor '()'
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
 
                 // Here we try to catch the common user error of missing the function keyword.
                 // In such cases, lookahead for the open-parenthesis and figure out whether
@@ -4672,7 +4722,6 @@ public class BallerinaParser {
             case CONST_KEYWORD:
             case FINAL_KEYWORD:
             case SIMPLE_TYPE:
-
                 return true;
             default:
                 return false;
@@ -4947,8 +4996,7 @@ public class BallerinaParser {
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
-                // Nil type descriptor '()'
-            case OPEN_PAREN_TOKEN:
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
                 STNode typeDesc = parseTypeDescriptor();
                 STNode variableName = parseVariableName();
                 STNode equalsToken = parseAssignOp();
@@ -5141,9 +5189,10 @@ public class BallerinaParser {
     /**
      * Parse annotations.
      * <p>
-     * <i>Note: In the ballerina spec ({@link https://ballerina.io/spec/lang/2020R1/#annots}) annotations-list
-     * is specified as one-or-more annotations. And the usage is marked as optional annotations-list.
-     * Hence we return an empty node if the annotation list is empty.</i>
+     * <i>Note: In the ballerina spec ({@link https://ballerina.io/spec/lang/2020R1/#annots})
+     * annotations-list is specified as one-or-more annotations. And the usage is marked as
+     * optional annotations-list. However, for the consistency of the tree But here we make the
+     * annotation-list as zero-or-more annotations, and the usage is not-optional.</i>
      * <p>
      * <code>annots := annotation+</code>
      * 
@@ -5151,10 +5200,6 @@ public class BallerinaParser {
      */
     private STNode parseAnnotations() {
         STToken nextToken = peek();
-        if (nextToken.kind != SyntaxKind.AT_TOKEN) {
-            return STNodeFactory.createEmptyNode();
-        }
-
         return parseAnnotations(nextToken.kind);
     }
 
@@ -5239,7 +5284,8 @@ public class BallerinaParser {
      * @return A metadata node with no doc string and no annotations
      */
     private STNode createEmptyMetadata() {
-        return STNodeFactory.createMetadata(STNodeFactory.createEmptyNode(), STNodeFactory.createEmptyNode());
+        return STNodeFactory.createMetadata(STNodeFactory.createEmptyNode(),
+                STNodeFactory.createNodeList(new ArrayList<>()));
     }
 
     /**

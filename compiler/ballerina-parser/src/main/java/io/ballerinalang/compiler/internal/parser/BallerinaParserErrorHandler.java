@@ -197,8 +197,11 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] CONST_DECL_RHS =
             { ParserRuleContext.STATEMENT_START_IDENTIFIER, ParserRuleContext.ASSIGN_OP };
 
-    private static final ParserRuleContext[] PARAMETER_WITHOUT_QUALIFIER =
-            { ParserRuleContext.ANNOTATIONS, ParserRuleContext.TYPE_DESCRIPTOR };
+    private static final ParserRuleContext[] PARAMETER =
+            { ParserRuleContext.ANNOTATIONS, ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TYPE_DESCRIPTOR };
+
+    private static final ParserRuleContext[] PARAMETER_WITHOUT_ANNOTS =
+            { ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TYPE_DESCRIPTOR };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -366,7 +369,8 @@ public class BallerinaParserErrorHandler {
             case MAPPING_FIELD:
             case SPECIFIC_FIELD_RHS:
             case RESOURCE_DEF:
-            case PARAMETER_WITHOUT_QUALIFIER:
+            case PARAMETER_WITHOUT_ANNOTS:
+            case PARAMETER:
                 return true;
             default:
                 return false;
@@ -855,9 +859,11 @@ public class BallerinaParserErrorHandler {
                 case AT:
                     hasMatch = nextToken.kind == SyntaxKind.AT_TOKEN;
                     break;
-                case PARAMETER_WITHOUT_QUALIFIER:
+                case PARAMETER:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, PARAMETER);
+                case PARAMETER_WITHOUT_ANNOTS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
-                            PARAMETER_WITHOUT_QUALIFIER);
+                            PARAMETER_WITHOUT_ANNOTS);
 
                 // Productions (Non-terminals which does'nt have alternative paths)
                 case COMP_UNIT:
@@ -1312,8 +1318,9 @@ public class BallerinaParserErrorHandler {
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.OBJECT_TYPE_DESCRIPTOR) {
                     return ParserRuleContext.OBJECT_FUNC_OR_FIELD;
+                } else if (isParameter(parentCtx)) {
+                    return ParserRuleContext.TYPE_DESCRIPTOR;
                 }
-
                 return ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER;
             case PRIVATE_KEYWORD:
                 return ParserRuleContext.OBJECT_FUNC_OR_FIELD;
@@ -2258,6 +2265,12 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.PLUS_TOKEN;
             case AT:
                 return SyntaxKind.AT_TOKEN;
+            case FIELD_DESCRIPTOR_RHS:
+                return SyntaxKind.SEMICOLON_TOKEN;
+            case AFTER_PARAMETER_TYPE:
+                return SyntaxKind.IDENTIFIER_TOKEN;
+            case CONST_DECL_RHS:
+                return SyntaxKind.EQUAL_TOKEN;
 
             // TODO:
             case COMP_UNIT:
@@ -2269,8 +2282,6 @@ public class BallerinaParserErrorHandler {
             case PARAMETER_RHS:
             case STATEMENT:
             case STATEMENT_WITHOUT_ANNOTS:
-            case AFTER_PARAMETER_TYPE:
-            case FIELD_DESCRIPTOR_RHS:
             case FIELD_OR_REST_DESCIPTOR_RHS:
             case MODULE_TYPE_DEFINITION:
             case TYPE_DESCRIPTOR:
@@ -2315,7 +2326,6 @@ public class BallerinaParserErrorHandler {
             case CONTINUE_STATEMENT:
             case LISTENER_DECL:
             case CONSTANT_DECL:
-            case CONST_DECL_RHS:
             case ANNOT_REFERENCE:
             case DOC_STRING:
             case OBJECT_MEMBER_WITHOUT_METADATA:

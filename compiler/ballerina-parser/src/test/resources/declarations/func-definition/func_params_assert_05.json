@@ -4,6 +4,11 @@
         {
             "kind": "METADATA",
             "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
             ]
         },
         {
@@ -23,6 +28,11 @@
                     "kind": "REQUIRED_PARAM",
                     "children": [
                         {
+                            "kind": "LIST",
+                            "children": [
+                            ]
+                        },
+                        {
                             "kind": "SIMPLE_TYPE",
                             "value": "int"
                         },
@@ -37,6 +47,11 @@
                     "children": [
                         {
                             "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                            ]
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",
@@ -58,6 +73,11 @@
             "children": [
                 {
                     "kind": "RETURNS_KEYWORD"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
                 },
                 {
                     "kind": "IDENTIFIER_TOKEN",

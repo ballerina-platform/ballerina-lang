@@ -4,6 +4,11 @@
         {
             "kind": "METADATA",
             "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
             ]
         },
         {
@@ -34,6 +39,11 @@
                     "kind": "RETURNS_KEYWORD"
                 },
                 {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                },
+                {
                     "kind": "SIMPLE_TYPE",
                     "value": "int"
                 }
@@ -51,6 +61,11 @@
                         {
                             "kind": "LOCAL_VAR_DECL",
                             "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                },
                                 {
                                     "kind": "SIMPLE_TYPE",
                                     "value": "int"

@@ -1,6 +1,11 @@
 {
     "kind": "LOCAL_VAR_DECL",
-    "children": [
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                },
         {
             "kind": "IDENTIFIER_TOKEN",
             "value": "Foo"

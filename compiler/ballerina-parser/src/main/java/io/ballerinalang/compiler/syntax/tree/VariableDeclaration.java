@@ -31,7 +31,7 @@ public class VariableDeclaration extends Statement {
     }
 
     public NodeList<Annotation> annotations() {
-        return new NodeList<>(childInBucket(1));
+        return new NodeList<>(childInBucket(0));
     }
 
     public Token finalKeyword() {

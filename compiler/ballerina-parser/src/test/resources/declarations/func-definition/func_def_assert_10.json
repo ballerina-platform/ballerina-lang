@@ -4,6 +4,11 @@
         {
             "kind": "METADATA",
             "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
             ]
         },
         {
@@ -30,6 +35,11 @@
                 {
                     "kind": "EQUAL_TOKEN",
                     "isMissing": true
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
                 },
                 {
                     "kind": "EXTERNAL_KEYWORD"

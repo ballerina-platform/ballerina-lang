@@ -41,14 +41,15 @@ public class STRequiredParameter extends STParameter {
             STNode type,
             STNode paramName) {
         super(SyntaxKind.REQUIRED_PARAM);
-        this.annots = annots;
         this.leadingComma = leadingComma;
+        this.annots = annots;
         this.visibilityQualifier = visibilityQualifier;
         this.type = type;
         this.paramName = paramName;
 
         addChildren(
                 leadingComma,
+                annots,
                 visibilityQualifier,
                 type,
                 paramName);

@@ -4,6 +4,11 @@
         {
             "kind": "METADATA",
             "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
             ]
         },
         {
@@ -23,6 +28,11 @@
                     "kind": "REST_PARAM",
                     "children": [
                         {
+                            "kind": "LIST",
+                            "children": [
+                            ]
+                        },
+                        {
                             "kind": "SIMPLE_TYPE",
                             "value": "string"
                         },
@@ -40,6 +50,11 @@
                     "children": [
                         {
                             "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                            ]
                         },
                         {
                             "kind": "SIMPLE_TYPE",
@@ -64,6 +79,11 @@
                     "children": [
                         {
                             "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                            ]
                         },
                         {
                             "kind": "SIMPLE_TYPE",

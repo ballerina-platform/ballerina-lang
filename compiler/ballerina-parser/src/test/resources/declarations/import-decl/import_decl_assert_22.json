@@ -47,6 +47,11 @@
                         {
                             "kind": "METADATA",
                             "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                }
                             ]
                         },
                         {
