@@ -18,7 +18,18 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/stringutils;
 
-# Represents the inbound Basic Auth provider, which is a configuration-file-based Auth provider.
+# Represents the configuration-file-based inbound Basic Auth provider which is an implementation of the
+# `auth:InboundAuthProvider` interface.
+# ```ballerina
+#  auth:InboundBasicAuthProvider basicAuthProvider = new;
+#  ```
+# A user is denoted by a section in the Ballerina configuration file. The password and the scopes assigned to the user
+# are denoted as keys under the relevant user section as shown below.
+# ```
+# [b7a.users.<username>]
+# password="<password>"
+# scopes="<comma_separated_scopes>"
+# ```
 #
 # + basicAuthConfig - The Basic Auth provider configurations
 public type InboundBasicAuthProvider object {

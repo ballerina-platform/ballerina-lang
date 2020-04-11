@@ -14,16 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the outbound Auth provider. Any type of implementation such as JWT and OAuth2 should be object-wise similar
-# to the `OutboundAuthProvider` object.
+# Represents the outbound Auth provider that could be used to authenticate external endpoints. Any type of
+# implementation such as JWT and OAuth2 should be object-wise similar to the `OutboundAuthProvider` object.
 public type OutboundAuthProvider abstract object {
 
-    # Generates a token for the outbound request.
+    # Generates a authentication token for the outbound request with outbound Auth providers such as JWT and OAuth2.
     #
     # + return - The token as a `string` or else an `auth:Error` if occurred when generating the token
     public function generateToken() returns string|Error;
 
-    # Inspects the incoming data and generates the token as needed.
+    # Inspects the incoming data and generates the authentication token as needed. For example, if the incoming data
+    # indicates that it needs to regenerate the token because the previously-generated token is invalid, this method
+    # will generate it.
     #
     # + data - Map of data which is extracted from the HTTP response
     # + return - The token as a `string` or an `auth:Error` if occurred when generating the token,
