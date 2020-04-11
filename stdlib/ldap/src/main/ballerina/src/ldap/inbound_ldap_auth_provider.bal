@@ -51,7 +51,7 @@ public type InboundLdapAuthProvider object {
         }
     }
 
-# Authenticates base64-encoded `username:password` credential.
+# Authenticates the base64-encoded `username:password` credentials.
 # ```ballerina
 # boolean|auth:Error result = inboundLdapAuthProvider.authenticate("<credential>");
 # ```
@@ -88,7 +88,7 @@ public type InboundLdapAuthProvider object {
 # Represents configurations that required for LDAP auth store.
 #
 # + domainName - Unique name to identify the user store
-# + connectionURL - Connection URL to the LDAP server
+# + connectionURL - Connection URL of the LDAP server
 # + connectionName - The username used to connect to the LDAP server
 # + connectionPassword - The password used to connect to the LDAP server
 # + userSearchBase - DN of the context or object under which the user entries are stored in the LDAP server
@@ -101,11 +101,11 @@ public type InboundLdapAuthProvider object {
 # + groupNameAttribute - The attribute used for uniquely identifying a group entry
 # + groupNameSearchFilter - Filtering criteria used to search for a particular group entry
 # + groupNameListFilter - Filtering criteria for searching group entries in the LDAP server
-# + membershipAttribute - Define the attribute that contains the distinguished names (DN) of user objects that are in a group
+# + membershipAttribute - Define the attribute, which contains the distinguished names (DN) of user objects that are there in a group
 # + userRolesCacheEnabled -  To indicate whether to cache the role list of a user
 # + connectionPoolingEnabled - Define whether LDAP connection pooling is enabled
 # + connectionTimeoutInMillis - Timeout (in milliseconds) in making the initial LDAP connection 
-# + readTimeoutInMillis - Read timeout in milliseconds for LDAP operations
+# + readTimeoutInMillis - Reading timeout in milliseconds for LDAP operations
 # + retryAttempts - Retry the authentication request if a timeout happened
 # + secureSocket - The SSL configurations for the LDAP client socket. This needs to be configured in order to
 #                  communicate through LDAPs
