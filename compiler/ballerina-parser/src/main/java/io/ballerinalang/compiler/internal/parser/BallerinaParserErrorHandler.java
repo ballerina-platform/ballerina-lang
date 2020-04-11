@@ -113,9 +113,9 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] RECORD_BODY_END =
             { ParserRuleContext.CLOSED_RECORD_BODY_END, ParserRuleContext.CLOSE_BRACE };
 
-    private static final ParserRuleContext[] TYPE_DESCRIPTORS = { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR,
-            ParserRuleContext.RECORD_TYPE_DESCRIPTOR, ParserRuleContext.OBJECT_TYPE_DESCRIPTOR
-            , ParserRuleContext.NIL_TYPE_DESCRIPTOR };
+    private static final ParserRuleContext[] TYPE_DESCRIPTORS =
+            { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.RECORD_TYPE_DESCRIPTOR,
+                    ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR };
 
     private static final ParserRuleContext[] RECORD_FIELD =
             { ParserRuleContext.ANNOTATIONS, ParserRuleContext.ASTERISK, ParserRuleContext.TYPE_DESCRIPTOR };
@@ -1355,7 +1355,7 @@ public class BallerinaParserErrorHandler {
                 if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR) {
                     endContext();
                     // After parsing nil type descriptor all the other parsing is same as next rule of simple type
-                    return getNextRuleForSimpleTypeDesc();
+                    return getNextRuleForTypeDescriptor();
                 }
                 // endContext(); // end func signature
                 return ParserRuleContext.FUNC_BODY;
@@ -1408,7 +1408,7 @@ public class BallerinaParserErrorHandler {
             case SEMICOLON:
                 return getNextRuleForSemicolon(nextLookahead);
             case SIMPLE_TYPE_DESCRIPTOR:
-                return getNextRuleForSimpleTypeDesc();
+                return getNextRuleForTypeDescriptor();
             case VARIABLE_NAME:
             case PARAMETER_RHS:
                 return getNextRuleForVarName(nextLookahead);
@@ -1721,11 +1721,11 @@ public class BallerinaParserErrorHandler {
     }
 
     /**
-     * Get the next parser context to visit after a {@link ParserRuleContext#SIMPLE_TYPE_DESCRIPTOR}.
+     * Get the next parser context to visit after a type descriptor.
      * 
      * @return Next parser context
      */
-    private ParserRuleContext getNextRuleForSimpleTypeDesc() {
+    private ParserRuleContext getNextRuleForTypeDescriptor() {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
             case RECORD_FIELD:
@@ -1811,11 +1811,7 @@ public class BallerinaParserErrorHandler {
             case RECORD_TYPE_DESCRIPTOR:
             case OBJECT_TYPE_DESCRIPTOR:
                 endContext(); // end record/object type def
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.MODULE_TYPE_DEFINITION) {
-                    return ParserRuleContext.SEMICOLON;
-                }
-                return ParserRuleContext.TOP_LEVEL_NODE;
+                return getNextRuleForTypeDescriptor();
             case BLOCK_STMT:
                 endContext(); // end block stmt
                 parentCtx = getParentContext();
@@ -1841,24 +1837,27 @@ public class BallerinaParserErrorHandler {
 
                 endContext(); // end annotations
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.COMP_UNIT) {
-                    return ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_METADATA;
-                } else if (parentCtx == ParserRuleContext.RETURN_TYPE_DESCRIPTOR) {
-                    return ParserRuleContext.TYPE_DESCRIPTOR;
-                } else if (isParameter(parentCtx)) {
-                    return ParserRuleContext.REQUIRED_PARAM;
-                } else if (parentCtx == ParserRuleContext.RECORD_FIELD) {
-                    return ParserRuleContext.RECORD_FIELD_WITHOUT_METADATA;
-                } else if (parentCtx == ParserRuleContext.OBJECT_MEMBER) {
-                    return ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA;
-                } else if (parentCtx == ParserRuleContext.SERVICE_DECL) {
-                    return ParserRuleContext.RESOURCE_DEF;
-                } else if (parentCtx == ParserRuleContext.FUNC_BODY_BLOCK) {
-                    return ParserRuleContext.STATEMENT_WITHOUT_ANNOTS;
-                } else if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY) {
-                    return ParserRuleContext.EXTERNAL_KEYWORD;
+                switch (parentCtx) {
+                    case COMP_UNIT:
+                        return ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_METADATA;
+                    case RETURN_TYPE_DESCRIPTOR:
+                        return ParserRuleContext.TYPE_DESCRIPTOR;
+                    case RECORD_FIELD:
+                        return ParserRuleContext.RECORD_FIELD_WITHOUT_METADATA;
+                    case OBJECT_MEMBER:
+                        return ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA;
+                    case SERVICE_DECL:
+                        return ParserRuleContext.RESOURCE_DEF;
+                    case FUNC_BODY_BLOCK:
+                        return ParserRuleContext.STATEMENT_WITHOUT_ANNOTS;
+                    case EXTERNAL_FUNC_BODY:
+                        return ParserRuleContext.EXTERNAL_KEYWORD;
+                    default:
+                        if (isParameter(parentCtx)) {
+                            return ParserRuleContext.REQUIRED_PARAM;
+                        }
+                        throw new IllegalStateException("annotation is ending inside a " + parentCtx);
                 }
-                throw new IllegalStateException("annotation is ending inside " + parentCtx);
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }

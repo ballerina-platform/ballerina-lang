@@ -4907,10 +4907,8 @@ public class BallerinaParser {
                     case ON_KEYWORD: // service foo on ...
                         return true;
                     default:
-                        // TODO handle compound assignment
-
                         // If not any of above, this is not a valid syntax. Hence try to recover
-                        // silently and find whats the best token. From that recovered token try
+                        // silently and find what's the best token. From that recovered token try
                         // to determine whether the next construct is a service decl or not.
                         ParserRuleContext sol = this.errorHandler.findBestPath(currentContext);
                         return sol == ParserRuleContext.SERVICE_DECL || sol == ParserRuleContext.CLOSE_BRACE;
@@ -4921,7 +4919,7 @@ public class BallerinaParser {
                 return true;
             default:
                 // If not any of above, this is not a valid syntax. Hence try to recover
-                // silently and find whats the best token. From that recovered token try
+                // silently and find what's the best token. From that recovered token try
                 // to determine whether the next construct is a service decl or not.
 
                 Solution sol = recover(peek(), ParserRuleContext.STATEMENT);
