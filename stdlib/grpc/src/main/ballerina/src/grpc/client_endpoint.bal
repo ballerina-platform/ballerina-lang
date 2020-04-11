@@ -28,8 +28,8 @@ public type Client client object {
     # Gets invoked to initialize the endpoint. During initialization, configurations provided through the `config`
     # record is used for endpoint initialization.
     #
-    # + url - The server url.
-    # + config - - The ClientConfiguration of the endpoint.
+    # + url - The server url
+    # + config - - The `grpc:ClientConfiguration` of the endpoint
     public function __init(string url, ClientConfiguration? config = ()) {
         self.config = config ?: {};
         self.url = url;
@@ -39,23 +39,29 @@ public type Client client object {
         }
     }
 
-    # Calls when initializing client endpoint with service descriptor data extracted from proto file.
-    #
-    # + clientEndpoint -  Client endpoint
-    # + stubType - Service Stub type. possible values: blocking, nonblocking.
-    # + descriptorKey - Proto descriptor key. Key of proto descriptor.
-    # + descriptorMap - Proto descriptor map. descriptor map with all dependent descriptors.
-    # + return - Returns an error if encounters an error while initializing the stub, returns nill otherwise.
+# Calls when initializing client endpoint with service descriptor data extracted from proto file.
+# ```ballerina
+# grpc:Error? result = grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
+# ```
+#
+# + clientEndpoint -  Client endpoint
+# + stubType - Service Stub type. possible values: blocking, nonblocking
+# + descriptorKey - Proto descriptor key. Key of proto descriptor
+# + descriptorMap - Proto descriptor map. descriptor map with all dependent descriptors
+# + return - An `grpc:Error` if encounters an error while initializing the stub or else ()
     public function initStub(AbstractClientEndpoint clientEndpoint, string stubType, string descriptorKey, map<any> descriptorMap) returns Error? {
         return externInitStub(self, clientEndpoint, java:fromString(stubType), java:fromString(descriptorKey), descriptorMap);
     }
 
-    # Calls when executing blocking call with gRPC service.
-    #
-    # + methodID - Remote service method id.
-    # + payload - Request message. Message type varies with remote service method parameter.
-    # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
-    # + return - Returns response message and headers if executes successfully, error otherwise.
+# Calls when executing blocking call with gRPC service.
+# ```ballerina
+# [anydata, grpc:Headers]|grpc:Error result = grpcClient->blockingExecute("HelloWorld/hello", req, headers);
+# ```
+#
+# + methodID - Remote service method id
+# + payload - Request message. Message type varies with remote service method parameter
+# + headers - Optional headers parameter. Passes header value if needed. Default sets to ()
+# + return - The response message and headers if executes successfully or else an `grpc:Error`
     public remote function blockingExecute(string methodID, anydata payload, Headers? headers = ()) returns ([anydata, Headers]|Error) {
         var retryConfig = self.config.retryConfiguration;
         handle methodIdHandle = java:fromString(methodID);
@@ -65,24 +71,29 @@ public type Client client object {
         return externBlockingExecute(self, methodIdHandle, payload, headers);
     }
 
-    # Calls when executing non-blocking call with gRPC service.
-    #
-    # + methodID - Remote service method id.
-    # + payload - Request message. Message type varies with remote service method parameter..
-    # + listenerService - Call back listener service. This service listens the response message from service.
-    # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
-    # + return - Returns an error if encounters an error while sending the request, returns nil otherwise.
+# Calls when executing non-blocking call with gRPC service.
+# ```ballerina
+# grpc:Error? result = grpcClient->nonBlockingExecute("HelloWorld/hello", req, msgListener, headers);
+# ```
+#
+# + methodID - Remote service method id
+# + payload - Request message. Message type varies with remote service method parameter
+# + listenerService - Call back listener service. This service listens the response message from service
+# + headers - Optional headers parameter. Passes header value if needed. Default sets to ()
+# + return - An `grpc:Error` if encounters an error while sending the request or else ()
     public remote function nonBlockingExecute(string methodID, anydata payload, service listenerService, Headers? headers = ()) returns Error? {
          return externNonBlockingExecute(self, java:fromString(methodID), payload, listenerService, headers);
     }
 
 
-    # Calls when executing streaming call with gRPC service.
-    #
-    # + methodID - Remote service method id.
-    # + listenerService - Call back listener service. This service listens the response message from service.
-    # + headers - Optional headers parameter. Passes header value if needed. Default sets to nil.
-    # + return - Returns client connection if executes successfully, error otherwise.
+# Calls when executing streaming call with gRPC service.
+# ```ballerina
+# grpc:StreamingClient|grpc:Error result = grpcClient->streamingExecute("HelloWorld/lotsOfGreetings", msgListener, headers);
+# ```
+# + methodID - Remote service method id
+# + listenerService - Call back listener service. This service listens the response message from service
+# + headers - Optional headers parameter. Passes header value if needed. Default sets to ()
+# + return - A `grpc:StreamingClient` object if executes successfully or else ()
     public remote function streamingExecute(string methodID, service listenerService, Headers? headers = ()) returns StreamingClient|Error {
         return externStreamingExecute(self, java:fromString(methodID), listenerService, headers);
     }
@@ -179,7 +190,7 @@ public type ClientConfiguration record {|
 
 # Provides configurations for facilitating secure communication with a remote HTTP endpoint.
 #
-# + disable - Disable ssl validation.
+# + disable - Disable ssl validation
 # + trustStore - Configurations associated with TrustStore
 # + keyStore - Configurations associated with KeyStore
 # + certFile - A file containing the certificate of the client

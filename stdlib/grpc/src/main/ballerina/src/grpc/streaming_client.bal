@@ -19,26 +19,35 @@ import ballerina/java;
 # Provides the gRPC streaming client actions for interacting with gRPC server.
 public type StreamingClient client object {
 
-    # Sends request message to the server.
-    #
-    # + res - The inbound request message.
-    # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
+# Sends request message to the server.
+# ```ballerina
+# grpc:Error? err = caller->send(message);
+# ```
+#
+# + res - The inbound request message
+# + return - An `grpc:Error` if encounters an error while sending the response or else ()
     public remote function send(anydata res) returns Error? {
         return streamSend(self, res);
     }
 
-    # Informs the server, caller finished sending messages.
-    #
-    # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
+# Informs the server, caller finished sending messages.
+# ```ballerina
+# grpc:Error? result = caller->complete();
+# ```
+#
+# + return - An `grpc:Error` if encounters an error while sending the response or else ()
     public remote function complete() returns Error? {
         return streamComplete(self);
     }
 
-    # Sends error message to the server.
-    #
-    # + statusCode - Error status code.
-    # + message - Error message.
-    # + return - Returns an error if encounters an error while sending the response, returns nil otherwise.
+# Sends error message to the server.
+# ```ballerina
+# grpc:Error? result = streamingClient->sendError(grpc:ABORTED, "Operation aborted");
+# ```
+#
+# + statusCode - Error status code
+# + message - Error message
+# + return - An `grpc:Error` if encounters an error while sending the response or else ()
     public remote function sendError(int statusCode, string message) returns Error? {
         return streamSendError(self, statusCode, java:fromString(message));
     }
