@@ -12,7 +12,7 @@ jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new ({
         certificateAlias: "ballerina",
         trustStore: {
             path: config:getAsString("b7a.home") +
-                  "bre/security/ballerinaTruststore.p12",
+                  "/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }
@@ -26,7 +26,7 @@ listener http:Listener ep = new (9090, config = {
     secureSocket: {
         keyStore: {
             path: config:getAsString("b7a.home") +
-                  "bre/security/ballerinaKeystore.p12",
+                  "/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
