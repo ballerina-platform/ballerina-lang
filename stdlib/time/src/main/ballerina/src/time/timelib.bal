@@ -353,7 +353,7 @@ function externSubtractDuration(Time time, int years, int months, int days, int 
 # + time - The Time record of which the time-zone is to be changed
 # + zoneId - The new time-zone ID
 # + return - Time object containing the time and zone information after the conversion
-#            or else  a `time:Error` if failed to format the time
+#            or else a `time:Error` if failed to format the time
 public function toTimeZone(Time time, string zoneId) returns Time|Error {
     return externToTimeZone(time, java:fromString(zoneId));
 }
@@ -363,7 +363,7 @@ function externToTimeZone(Time time, handle zoneId) returns Time|Error = @java:M
     class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
-# Returns the current time value with the system default time-zone.
+# Returns the current time value with the default system time-zone.
 # ```ballerina
 #  time:Time now = time:currentTime();
 # ```
