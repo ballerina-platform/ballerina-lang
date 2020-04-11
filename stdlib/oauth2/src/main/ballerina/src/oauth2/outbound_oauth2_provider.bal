@@ -90,7 +90,7 @@ public type OutboundOAuth2Provider object {
 # string:auth:Error token = outboundOAuth2Provider.generateToken();
 # ```
 #
-# + return - Generated `string` token or else `auth:Error` if an error occurred
+# + return - Generated `string` token or else an `auth:Error` if an error occurred
     public function generateToken() returns @tainted (string|auth:Error) {
         GrantTypeConfig? oauth2ProviderConfig = self.oauth2ProviderConfig;
         if (oauth2ProviderConfig is ()) {
@@ -112,7 +112,7 @@ public type OutboundOAuth2Provider object {
         }
     }
 
-# Inspect the incoming data and generate the token for the OAuth2 authentication.
+# Inspects the incoming data and generates the token for the OAuth2 authentication.
 # ```ballerina
 # string:auth:Error? token = outboundOAuth2Provider.inspect(data);
 # ```
@@ -146,7 +146,7 @@ public type OutboundOAuth2Provider object {
 # + scopes - Scope(s) of the access request
 # + clockSkewInSeconds - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
-# + credentialBearer - Bearer of the authentication credentials, which are sent to the authorization endpoint
+# + credentialBearer - Bearer of the authentication credentials, which is sent to the authorization endpoint
 # + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 public type ClientCredentialsGrantConfig record {|
     string tokenUrl;

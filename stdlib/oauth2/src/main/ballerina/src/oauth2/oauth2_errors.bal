@@ -32,7 +32,7 @@ public const OAUTH2_ERROR = "{ballerina/oauth2}Error";
 # Represents the OAuth2 error type with details.
 public type Error error<OAUTH2_ERROR, Detail>;
 
-# Log and prepare the `error` as an `oauth2:Error`.
+# Logs and prepares the `error` as an `oauth2:Error`.
 #
 # + message - Error message
 # + err - `error` instance
