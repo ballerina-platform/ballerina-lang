@@ -10,7 +10,7 @@ This module supports the following three client types.
 
 #### SMTP Client
 
-To send an email using the SMTP protocol, you must first create a `email:SmtpClient` object. The code for creating a `email:SmtpClient` can be found
+To send an email using the SMTP protocol, you must first create an `email:SmtpClient` object. The code for creating an `email:SmtpClient` can be found
  below.
 
 ##### Creating a client
@@ -125,4 +125,4 @@ Samples for this operation can be found below.
 email:Email|email:Error emailResponse = imapClient->read();
 ```
 
-For information on the operation, which you can perform with this module, see the below **Functions**. For examples on the usage of the operation, see the [Send and Receive Emails Example](https://ballerina.io/learn/by-example/send-and-receive-emails.html).
+For information on the operations, which you can perform with this module, see the below **Functions**. For examples on the usage of the operation, see the [Send and Receive Emails Example](https://ballerina.io/learn/by-example/send-and-receive-emails.html).

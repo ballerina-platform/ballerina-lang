@@ -37,7 +37,7 @@ public type PopClient client object {
 # email:Email|email:Error? emailResponse = popClient->read();
 # ```
 #
-# + folder - Folder to read emails. Default value is `INDOX`
+# + folder - Folder to read emails. Default value is `INBOX`
 # + return - An`email:Email` if read message is successful, () if there is no emails in the specified folder,
 #            or else an `email:Error` if failed to receive the message to the recipient
     public remote function read(string folder = DEFAULT_FOLDER) returns Email|Error? {
