@@ -283,6 +283,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(optionalTypeDescriptor);
     }
 
+    public void visit(ArrayTypeDescriptor arrayTypeDescriptor) {
+        visitSyntaxNode(arrayTypeDescriptor);
+    }
+
     protected void visitSyntaxNode(Node node) {
         // TODO Find a better way to check for token
         if (node instanceof Token) {

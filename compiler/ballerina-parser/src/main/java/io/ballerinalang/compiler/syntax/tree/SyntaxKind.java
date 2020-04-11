@@ -150,6 +150,7 @@ public enum SyntaxKind {
     OBJECT_TYPE_DESCRIPTOR(2001),
     NIL_TYPE(2002),
     OPTIONAL_TYPE(2003),
+    ARRAY_TYPE(2004),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),

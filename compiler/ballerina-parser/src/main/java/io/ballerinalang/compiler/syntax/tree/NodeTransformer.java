@@ -293,6 +293,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(optionalTypeDescriptor);
     }
 
+    public T transform(ArrayTypeDescriptor arrayTypeDescriptor) {
+        return transformSyntaxNode(arrayTypeDescriptor);
+    }
+
     /**
      * Transforms the given {@code Node} into an object of type T.
      * <p>

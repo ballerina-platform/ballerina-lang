@@ -25,7 +25,7 @@ public class OptionalTypeDescriptor extends NonTerminalNode{
         super(node, position, parent);
     }
 
-    public Token typeDescriptor() {
+    public Node typeDescriptor() {
         return childInBucket(0);
     }
 

@@ -1383,9 +1383,12 @@ public class BallerinaParser {
         STNode type = parseTypeDescriptor(token.kind);
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            //If next token after a type descriptor is <code>?</code> then it is an Optional type descriptor
+            //If next token after a type descriptor is <code>?</code> then it is an optional type descriptor
             case QUESTION_MARK_TOKEN:
                 return parseOptionalTypeDescriptor(type);
+            //If next token after a type descriptor is <code>[</code> then it is an array type descriptor
+            case OPEN_BRACKET_TOKEN:
+                return parseArrayTypeDescriptor(type);
             default:
                 return type;
         }
@@ -4601,7 +4604,9 @@ public class BallerinaParser {
 
     /**
      * Parse nil type descriptor.
-     *
+     *<p>
+     *<code>nil-type-descriptor :=  ( ) </code>
+     *</p>
      * @return Parsed node
      */
     private STNode parseNilTypeDescriptor() {
@@ -4645,7 +4650,9 @@ public class BallerinaParser {
 
     /**
      * Parse optional type descriptor.
-     *
+     * <p>
+     * <code>optional-type-descriptor := type-descriptor ? </code>
+     * </p>
      * @return Parsed node
      */
     private STNode parseOptionalTypeDescriptor(STNode typeDescriptorNode) {
@@ -4702,5 +4709,77 @@ public class BallerinaParser {
                 return false;
         }
     }
-}
 
+    /**
+     * Parse array type descriptor.
+     * <p>
+     * <code>
+     * array-type-descriptor := member-type-descriptor [ [ array-length ] ]
+     * member-type-descriptor := type-descriptor
+     * array-length :=
+     *    int-literal
+     *    | constant-reference-expr
+     *    | inferred-array-length
+     * inferred-array-length := *
+     * </code>
+     * </p>
+     * @param typeDescriptorNode
+     * @return Parsed Node
+     */
+
+    private STNode parseArrayTypeDescriptor(STNode typeDescriptorNode) {
+        startContext(ParserRuleContext.ARRAY_TYPE_DESCRIPTOR);
+
+        STNode firstDimensionOpenBracket = parseOpenBracket();
+        STNode firstDimensionArrayLength = parseArrayLength();
+        STNode firstDimensionCloseBracket = parseCloseBracket();
+        STNode secondDimensionOpenBracket;
+        STNode secondDimensionArrayLength;
+        STNode secondDimensionCloseBracket;
+
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case OPEN_BRACE_TOKEN:
+                secondDimensionOpenBracket = parseOpenBracket();
+                secondDimensionArrayLength = parseArrayLength();
+                secondDimensionCloseBracket = parseCloseBracket();
+                break;
+            default:
+                secondDimensionOpenBracket = STNodeFactory.createEmptyNode();
+                secondDimensionArrayLength = STNodeFactory.createEmptyNode();
+                secondDimensionCloseBracket = STNodeFactory.createEmptyNode();
+        }
+        return STNodeFactory.createArrayTypeDescriptor(typeDescriptorNode, firstDimensionOpenBracket,
+                firstDimensionArrayLength, firstDimensionCloseBracket, secondDimensionOpenBracket,
+                secondDimensionArrayLength, secondDimensionCloseBracket);
+    }
+
+    /**
+     * Parse array length.
+     * <p>
+     * <code>
+     *     array-length :=
+     *    int-literal
+     *    | constant-reference-expr
+     *    | inferred-array-length
+     * constant-reference-expr := variable-reference-expr
+     * </code>
+     * </p>
+     * @return Parsed array lenght
+     */
+    private STNode parseArrayLength() {
+        STToken token = peek();
+        switch(token.kind) {
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case ASTERISK_TOKEN:
+                return consume();
+            //Parsing variable-reference-expr is same as parsing qualified identifier
+            case IDENTIFIER_TOKEN:
+                return parseQualifiedIdentifier(ParserRuleContext.ARRAY_LENGTH);
+            default:
+                Solution sol = recover(token, ParserRuleContext.ARRAY_LENGTH);
+                return sol.recoveredNode;
+        }
+    }
+}

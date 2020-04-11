@@ -733,5 +733,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createOptionalTypeDescriptor(STNode typeDescriptorNode, STNode questionMarkToken) {
         return new STOptionalTypeDescriptor(typeDescriptorNode, questionMarkToken);
     }
+
+    public static STNode createArrayTypeDescriptor(STNode typeDescriptorNode, STNode firstDimensionOpenBracket,
+                                                   STNode firstDimensionArrayLength, STNode firstDimensionCloseBracket,
+                                                   STNode secondDimensionOpenBracket, STNode secondDimensionArrayLength,
+                                                   STNode secondDimensionCloseBracket) {
+        return new STArrayTypeDescriptor(typeDescriptorNode, firstDimensionOpenBracket, firstDimensionArrayLength,
+                firstDimensionCloseBracket, secondDimensionOpenBracket, secondDimensionArrayLength,
+                secondDimensionCloseBracket);
+    }
 }
 
