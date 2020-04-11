@@ -122,7 +122,7 @@ function extractHash(string configValue) returns string {
 # Reads the password hash of a user.
 #
 # + username - Username of the user
-# + return - Password hash read from userstore, or nil if not found
+# + return - Password hash read from userstore, or `()` if not found
 function readPassword(string username) returns string {
     // First, read the user ID from user->id mapping.
     // Then, read the hashed password from the user-store file, using the user ID.
@@ -136,7 +136,7 @@ function getConfigAuthValue(string instanceId, string property) returns string {
 # Constructs an array of groups from the given comma-separed string of groups.
 #
 # + groupString - Comma separated string of groups
-# + return - An array of groups or else () if the groups string is empty/nil
+# + return - An array of groups or else () if the groups string is empty/`()`
 function getArray(string groupString) returns string[] {
     if (groupString.length() == 0) {
         return [];
