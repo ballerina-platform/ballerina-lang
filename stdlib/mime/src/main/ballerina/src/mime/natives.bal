@@ -51,7 +51,7 @@ public const string CONTENT_DISPOSITION = "content-disposition";
 
 # Represents values in `Content-Disposition` header.
 #
-# + fileName - Default filename for storing the bodypart, if the receiving agent wishes to store it in an external
+# + fileName - Default filename for storing the body part if the receiving agent wishes to store it in an external
 #              file
 # + disposition - Indicates how the body part should be presented (`inline`, `attachment`, or as `form-data`)
 # + name - Represents the field name in case of `multipart/form-data`
@@ -82,9 +82,9 @@ function convertContentDispositionToString(ContentDisposition contentDisposition
 # Describes the nature of the data in the body of a MIME entity.
 #
 # + primaryType - Declares the general type of data
-# + subType - A specific format of the primary type data
+# + subType - A specific format of the primary-type data
 # + suffix - Identifies the semantics of a specific media type
-# + parameters - A set of parameters, specified in an `attribute=value` notation
+# + parameters - A set of parameters specified in an `attribute=value` notation
 public type MediaType object {
 
     public string primaryType = "";
@@ -92,17 +92,17 @@ public type MediaType object {
     public string suffix = "";
     public map<string> parameters = {};
 
-# Gets “primaryType/subtype+suffix” combination in `string` format.
+# Gets the “primaryType/subtype+suffix” combination in a `string` format.
 # ```ballerina
 # string baseType = mediaType.getBaseType();
 # ```
 #
-# + return - Base type as a `string` from MediaType struct
+# + return - Base type as a `string` from the `MediaType` struct
     public function getBaseType() returns string {
         return self.primaryType + "/" + self.subType;
     }
 
-# Converts the media type to a `string`, suitable to be used as the value of a corresponding HTTP header.
+# Converts the media type to a `string`, which is suitable to be used as the value of a corresponding HTTP header.
 # ```ballerina
 # string mediaTypeString = mediaType.toString();
 # ```
@@ -150,7 +150,7 @@ public type Entity object {
 # mime:InvalidContentTypeError? contentType = mimeEntity.setContentType("application/json");
 # ```
 #
-# + mediaType - Content type that needs to be set to the entity
+# + mediaType - Content type, which needs to be set to the entity
 # + return - Nil if successful or else an `mime:InvalidContentTypeError` in case of invalid media-type
     public function setContentType(@untainted string mediaType) returns InvalidContentTypeError? {
         self.cType = check getMediaType(mediaType);
@@ -176,7 +176,7 @@ public type Entity object {
 # mimeEntity.setContentId("test-id");
 # ```
 #
-# + contentId - Content ID that needs to be set to the entity
+# + contentId - Content ID, which needs to be set to the entity
     public function setContentId(@untainted string contentId) {
         self.cId = contentId;
         self.setHeader(CONTENT_ID, contentId);
@@ -201,7 +201,7 @@ public type Entity object {
 # mimeEntity.setContentLength(45555);
 # ```
 #
-# + contentLength - Content length that needs to be set to the entity
+# + contentLength - Content length, which needs to be set to the entity
     public function setContentLength(@untainted int contentLength) {
         self.cLength = contentLength;
         var contentLengthStr = contentLength.toString();
@@ -231,7 +231,7 @@ public type Entity object {
 # mimeEntity.setContentDisposition(contentDisposition);
 # ```
 #
-# + contentDisposition - Content disposition that needs to be set to the entity
+# + contentDisposition - Content disposition, which needs to be set to the entity
     public function setContentDisposition(ContentDisposition contentDisposition) {
         self.cDisposition = contentDisposition;
         self.setHeader(CONTENT_DISPOSITION, contentDisposition.toString());
@@ -272,7 +272,7 @@ public type Entity object {
     }
 
 # Sets the entity body with a given file. This method overrides any existing `content-type` headers
-# with the default content-type `application/octet-stream`. The default value `application/octet-stream`
+# with the default content-type, which is `application/octet-stream`. This default value
 # can be overridden by passing the content type as an optional parameter.
 # ```ballerina
 # mimeEntity.setFileAsEntityBody("<file path>");
@@ -280,27 +280,27 @@ public type Entity object {
 #
 # + filePath - Path of the file
 # + contentType - Content type to be used with the payload. This is an optional parameter.
-#                 `application/octet-stream` is used as the default value
+#                 The default value is `application/octet-stream`
     public function setFileAsEntityBody(@untainted string filePath, public string contentType = "application/octet-stream") {
         io:ReadableByteChannel byteChannel = checkpanic io:openReadableFile(filePath);
         self.setByteChannel(byteChannel, contentType = contentType);
     }
 
 # Sets the entity body with the given `json` content. This method overrides any existing `content-type` headers
-# with the default content-type `application/json`. The default value `application/json` can be overridden
+# with the default content-type, which is `application/json`. This default value can be overridden
 # by passing the content type as an optional parameter.
 # ```ballerina
 # mimeEntity.setJson({ "Hello": "World" });
 # ```
 #
-# + jsonContent - JSON content that needs to be set to the entity
-# + contentType - Content type to be used with the payload. This is an optional parameter. `application/json`
-#                 is used as the default value
+# + jsonContent - JSON content, which needs to be set to the entity
+# + contentType - Content type to be used with the payload. This is an optional parameter. 
+#                The default value is `application/json`
     public function setJson(@untainted json jsonContent, @untainted public string contentType = "application/json") {
         return externSetJson(self, jsonContent, java:fromString(contentType));
     }
 
-    # Extracts JSON body from the entity.
+    # Extracts the JSON body from the entity.
     #
     # + return - `json` data extracted from the entity body or else an `mime:ParserError` if the entity body is not a JSON
     public function getJson() returns @tainted json|ParserError {
@@ -308,20 +308,20 @@ public type Entity object {
     }
 
 # Sets the entity body with the given XML content. This method overrides any existing content-type headers
-# with the default content-type `application/xml`. The default value `application/xml` can be overridden
+# with the default content-type, which is `application/xml`. This default value can be overridden
 # by passing the content-type as an optional parameter.
 # ```ballerina
 # mimeEntity.setXml(xml `<hello> world </hello>`);
 # ```
 #
-# + xmlContent - XML content that needs to be set to the entity
-# + contentType - Content type to be used with the payload. This is an optional parameter. `application/xml`
-#                 is used as the default value
+# + xmlContent - XML content, which needs to be set to the entity
+# + contentType - Content type to be used with the payload. This is an optional parameter. 
+#               The default value is `application/xml` 
     public function setXml(@untainted xml xmlContent, @untainted public string contentType = "application/xml") {
         return externSetXml(self, xmlContent, java:fromString(contentType));
     }
 
-    # Extracts `xml` body from the entity.
+    # Extracts the `xml` body from the entity.
     #
     # + return - `xml` data extracted from the entity body or else an `mime:ParserError` if the entity body is not an XML
     public function getXml() returns @tainted xml|ParserError {
@@ -329,20 +329,20 @@ public type Entity object {
     }
 
 # Sets the entity body with the given text content. This method overrides any existing content-type headers
-# with the default content-type `text/plain`. The default value `text/plain` can be overridden
+# with the default content-type, which is `text/plain`. This default value can be overridden
 # by passing the content type as an optional parameter.
 # ```ballerina
 # mimeEntity.setText("Hello World");
 # ```
 #
-# + textContent - Text content that needs to be set to the entity
-# + contentType - Content type to be used with the payload. This is an optional parameter. `text/plain`
-#                 is used as the default value
+# + textContent - Text content, which needs to be set to the entity
+# + contentType - Content type to be used with the payload. This is an optional parameter. 
+#                The default value is `text/plain` 
     public function setText(@untainted string textContent, @untainted public string contentType = "text/plain") {
         return externSetText(self, java:fromString(textContent), java:fromString(contentType));
     }
 
-    # Extracts text body from the entity. If the entity body is not text compatible an error is returned.
+    # Extracts the text body from the entity. If the entity body is not text compatible, an error is returned.
     #
     # + return - `string` data extracted from the the entity body or else an `mime:ParserError` if the entity body is not
     #            text compatible
@@ -356,33 +356,33 @@ public type Entity object {
     }
 
     # Sets the entity body with the given byte[] content. This method overrides any existing `content-type` headers
-    # with the default content-type `application/octet-stream`. The default value `application/octet-stream`
+    # with the default content-type, which is `application/octet-stream`. This default value 
     # can be overridden by passing the content type as an optional parameter.
     #
     # + blobContent - byte[] content that needs to be set to the entity
-    # + contentType - Content type to be used with the payload. This is an optional parameter
-    #                 `application/octet-stream` is used as the default value
+    # + contentType - Content type to be used with the payload. This is an optional parameter.
+    #                 The default value is `application/octet-stream` 
     public function setByteArray(@untainted byte[] blobContent, @untainted public string contentType =
                                                                 "application/octet-stream") {
         return externSetByteArray(self, blobContent, java:fromString(contentType));
     }
 
-    # Gets the entity body as a `byte[]` from a given entity. If the entity size is considerably large consider
-    # using getByteChannel() method instead.
+    # Gets the entity body as a `byte[]` from a given entity. If the entity size is considerably large, consider
+    # using the `getByteChannel()` method instead.
     #
-    # + return - `byte[]` data extracted from the the entity body or else an `mime:ParserError` in case of
+    # + return - `byte[]` data extracted from the the entity body or else a `mime:ParserError` in case of
     #            errors
     public function getByteArray() returns @tainted byte[]|ParserError {
         return externGetByteArray(self);
     }
 
     # Sets the entity body with the given byte channel content. This method overrides any existing content-type headers
-    # with the default content-type `application/octet-stream`. The default value `application/octet-stream`
+    # with the default content-type, which is `application/octet-stream`. This default value
     # can be overridden by passing the content-type as an optional parameter.
     #
-    # + byteChannel - Byte channel that needs to be set to the entity
+    # + byteChannel - Byte channel, which needs to be set to the entity
     # + contentType - Content-type to be used with the payload. This is an optional parameter.
-    #                 `application/octet-stream` is used as the default value
+    #                 The `application/octet-stream` is the default value
     public function setByteChannel(io:ReadableByteChannel byteChannel, @untainted public string contentType =
                                                                                     "application/octet-stream") {
         return externSetByteChannel(self, byteChannel, java:fromString(contentType));
@@ -390,15 +390,15 @@ public type Entity object {
 
     # Gets the entity body as a byte channel from a given entity.
     #
-    # + return - An `io:ReadableByteChannel`. An `mime:ParserError` record will be returned in case of errors
+    # + return - An `io:ReadableByteChannel` or else a `mime:ParserError` record will be returned in case of errors
     public function getByteChannel() returns @tainted io:ReadableByteChannel|ParserError {
         return externGetByteChannel(self);
     }
 
     # Gets the body parts from a given entity.
     #
-    # + return - An array of body parts(`Entity[]`) extracted from the entity body or else an `mime:ParserError` if the
-    #            entity body is not a set of body parts
+    # + return - An array of body parts(`Entity[]`) extracted from the entity body or else a `mime:ParserError` if the
+    #            entity body is not a set of the body parts
     public function getBodyParts() returns Entity[]|ParserError {
         return externGetBodyParts(self);
     }
@@ -411,12 +411,12 @@ public type Entity object {
     }
 
     # Sets body parts to entity. This method overrides any existing `content-type` headers
-    # with the default content-type `multipart/form-data`. The default value `multipart/form-data` can be overridden
+    # with the default `multipart/form-data` content-type. The default `multipart/form-data` value can be overridden
     # by passing the content type as an optional parameter.
     #
-    # + bodyParts - Body parts that needs to be set to the entity
+    # + bodyParts - Body parts, which needs to be set to the entity
     # + contentType - Content-type to be used with the payload. This is an optional parameter.
-    #                 `multipart/form-data` is used as the default value
+    #                The default value is `multipart/form-data`.
     public function setBodyParts(@untainted Entity[] bodyParts, @untainted public string contentType =
                                                                                 "multipart/form-data") {
         return externSetBodyParts(self, bodyParts, java:fromString(contentType));
@@ -456,7 +456,7 @@ public type Entity object {
         return headers;
     }
 
-# Gets all header names.
+# Gets all the header names.
 # ```ballerina
 # string[] headerNames = mimeEntity.getHeaderNames();
 # ```
@@ -640,7 +640,7 @@ function externHasHeader(Entity entity, handle headerName, HeaderPosition positi
 #
 # + contentToBeEncoded - Content that needs to be encoded can be of type `string`, `byte[]` or `io:ReadableByteChannel`
 # + charset - Charset to be used. This is used only with the string input
-# + return - If the given input is of type string, an encoded `string` is returned.
+# + return - An encoded `string` if the given input is of type string, an encoded `byte[]`if the given input is of type byte[], an encoded `io:ReadableByteChannel` if the given input is of type `io:ReadableByteChannel`, or else a `mime:EncodeError` record in case of errors.
 #            If the given input is of type byte[], an encoded `byte[]` is returned.
 #            If the given input is of type io:ReadableByteChannel, an encoded `io:ReadableByteChannel` is returned.
 #            In case of errors, an `mime:EncodeError` record is returned.
@@ -676,10 +676,10 @@ function externBase64Decode((string|byte[]|io:ReadableByteChannel) contentToBeDe
     name: "base64Decode"
 } external;
 
-# **Deprecated API**. Encodes a given byte[] with Base64 encoding scheme.
+# **Deprecated API**. Encodes a given byte[] using the Base64 encoding scheme.
 #
-# + valueToBeEncoded - Content that needs to be encoded
-# + return - An encoded byte[]. In case of errors, an `mime:EncodeError` record is returned
+# + valueToBeEncoded - Content, which needs to be encoded
+# + return - An encoded byte[] or else a `mime:EncodeError` record in case of errors
 public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|EncodeError {
     var result = base64Encode(valueToBeEncoded);
     if (result is byte[]|EncodeError) {
@@ -689,10 +689,10 @@ public function base64EncodeBlob(byte[] valueToBeEncoded) returns byte[]|EncodeE
     }
 }
 
-# **Deprecated API**. Decodes a given byte[] with Base64 encoding scheme.
+# **Deprecated API**. Decodes a given byte[] using the Base64 encoding scheme.
 #
-# + valueToBeDecoded - Content that needs to be decoded
-# + return - A decoded `byte[]`. In case of errors, an `mime:DecodeError` record is returned
+# + valueToBeDecoded - Content, which needs to be decoded
+# + return - A decoded `byte[]`or else a `mime:DecodeError` record in case of errors
 public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|DecodeError {
     var result = base64Decode(valueToBeDecoded);
     if (result is byte[]|DecodeError) {
@@ -710,10 +710,10 @@ function getEncoding(MediaType contentType) returns (string?) {
     return contentType.parameters[CHARSET];
 }
 
-# Given the Content-Type in string, gets the MediaType object populated with it.
+# Gets the `MediaType` object populated with it when the `Content-Type` is in string.
 #
 # + contentType - Content-Type in string
-# + return - `MediaType` object or else an `mime:InvalidContentTypeError` in case of invalid content-type
+# + return - `MediaType` object or else a `mime:InvalidContentTypeError` in case of an invalid content-type
 public function getMediaType(string contentType) returns MediaType|InvalidContentTypeError {
     return externGetMediaType(java:fromString(contentType));
 }

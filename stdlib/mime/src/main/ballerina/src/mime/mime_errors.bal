@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Holds the details of entity header and body related errors.
+# Holds the details of the entity header and body-related errors.
 #
 # + message - Error message
 # + cause - Error cause
@@ -77,7 +77,7 @@ public type HeaderUnavailableError error<HEADER_UNAVAILABLE, Detail>;
 # Identifies errors related to read/write timeouts.
 public const IDLE_TIMEOUT_TRIGGERED = "{ballerina/mime}IdleTimeoutTriggeredError";
 
-# Represents a `IdleTimeoutTriggeredError` with a detailed message.
+# Represents an `IdleTimeoutTriggeredError` with a detailed message.
 public type IdleTimeoutTriggeredError error<IDLE_TIMEOUT_TRIGGERED, Detail>;
 
 # Identifies the errors occurred due to payloads with no content.
@@ -93,14 +93,14 @@ public type Error ParserError|EncodeError|DecodeError|GenericMimeError|SetHeader
 
 # Constructs an `EncodeError` with the given details.
 # + detail - Error details
-# + return - `EncodeError` with the given details set to message
+# + return - An `EncodeError` with the given details set to the message
 public function prepareEncodingErrorWithDetail(string detail) returns EncodeError {
     return error(ENCODE_ERROR, message = detail);
 }
 
 # Constructs a `DecodeError` with the given details.
 # + detail - Error details
-# + return - `DecodeError` with the given details set to message
+# + return - `DecodeError` with the given details set to the message
 public function prepareDecodingErrorWithDetail(string detail) returns DecodeError {
     return error(DECODE_ERROR, message = detail);
 }
