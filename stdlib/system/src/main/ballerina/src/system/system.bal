@@ -22,7 +22,7 @@ import ballerina/java;
 # ```
 #
 # + name - Name of the environment variable
-# + return - Environment variable value if it exists, else an empty string
+# + return - Environment variable value if it exists or else an empty string
 public function getEnv(@untainted string name) returns string {
     var value = java:toString(nativeGetEnv(java:fromString(name)));
     if (value is string) {
@@ -42,7 +42,7 @@ function nativeGetEnv(handle key) returns handle = @java:Method {
 # string username = system:getUsername();
 # ```
 #
-# + return - Current user's name if it can be determined, else an empty string
+# + return - Current user's name if it can be determined or else an empty string
 public function getUsername() returns string {
     return covertToString(nativeGetUsername());
 }
@@ -57,7 +57,7 @@ function nativeGetUsername() returns handle = @java:Method {
 # string userHome = system:getUserHome();
 # ```
 #
-# + return - Current user's home directory if it can be determined, else an empty string
+# + return - Current user's home directory if it can be determined or else an empty string
 public function getUserHome() returns string {
     return covertToString(nativeGetUserHome());
 }
@@ -91,7 +91,7 @@ function nativeUuid() returns handle = @java:Method {
 # + env - Environment variables to be set to the process
 # + dir - The current working directory to be set to the process
 # + args - Command arguments to be passed in
-# + return - A `system:Process` object in success, or an `system:Error` if a failure occurs
+# + return - A `system:Process` object if successful or else a `system:Error` if a failure occurs
 public function exec(@untainted string command, @untainted map<string> env = {},
                      @untainted string? dir = (), @untainted string... args) returns Process|Error {
     return nativeExec(java:fromString(command), env, dir, args);

@@ -23,12 +23,12 @@ public type Process object {
 
     private int BUF_SIZE = 10240;
 
-# Waits for the process to finish it's work and exit.
+# Waits for the process to finish its work and exit.
 # ```ballerina
 # int|error exitCode = process.waitForExit();
 # ```
 #
-# + return - Returns the exit code for the process, or an `Error` if a failure occurs
+# + return - Returns the exit code for the process or else an `Error` if a failure occurs
     public function waitForExit() returns int|Error {
         return nativeWaitForExit(self);
     }
@@ -39,7 +39,7 @@ public type Process object {
 # int|error exitCode = process.exitCode();
 # ```
 #
-# + return - Returns the exit code of the process, or an `Error` if the process hasn't exited yet
+# + return - Returns the exit code of the process or else an `Error` if the process hasn't exited yet
     public function exitCode() returns int|Error {
         return nativeExitCode(self);
     }
@@ -57,7 +57,7 @@ public type Process object {
 # io:WritableByteChannel output = process.stdin();
 # ```
 #
-# + return - The `io:WritableByteChannel` which represents the process's 'standard input'
+# + return - The `io:WritableByteChannel`, which represents the process's 'standard input'
     public function stdin() returns io:WritableByteChannel {
         return nativeStdin(self);
     }
@@ -67,7 +67,7 @@ public type Process object {
 # io:ReadableByteChannel input = process.stdout();
 # ```
 #
-# + return - The `io:ReadableByteChannel` which represents the process's 'standard output'
+# + return - The `io:ReadableByteChannel`, which represents the process's 'standard output'
     public function stdout() returns io:ReadableByteChannel {
         return nativeStdout(self);
     }
@@ -77,7 +77,7 @@ public type Process object {
 # io:ReadableByteChannel input = process.stderr();
 # ```
 #
-# + return - The `io:ReadableByteChannel` which represents the process's 'standard error'
+# + return - The `io:ReadableByteChannel`, which represents the process's 'standard error'
     public function stderr() returns io:ReadableByteChannel {
         return nativeStderr(self);
     }
@@ -88,7 +88,7 @@ public type Process object {
 # ```
 #
 # + process - The process to pipe the data to
-# + return - The process that is passed in, which is used to help chain pipe operations
+# + return - The process that is passed to be used to help the chain pipe operations
     public function pipe(Process process) returns Process {
         io:ReadableByteChannel input = self.stdout();
         io:WritableByteChannel output = process.stdin();
