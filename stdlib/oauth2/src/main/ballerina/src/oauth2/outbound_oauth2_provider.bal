@@ -24,8 +24,8 @@ import ballerina/time;
 # Represents the grant type configs supported for OAuth2.
 type GrantTypeConfig ClientCredentialsGrantConfig|PasswordGrantConfig|DirectTokenConfig;
 
-# Represents the outbound OAuth2 provider, which generates OAtuh2 tokens. This supports client credentials grant type,
-# password grant type and the direct token mode which sends the access token directly.
+# Represents the outbound OAuth2 provider, which generates OAtuh2 tokens. This supports the client credentials grant type,
+# password grant type, and the direct token mode, which sends the access token directly.
 # The `oauth2:OutboundOAuth2Provider` is an implementation of the `auth:OutboundAuthProvider` interface.
 #
 # 1. Client Credentials Grant Type
@@ -85,7 +85,7 @@ public type OutboundOAuth2Provider object {
         };
     }
 
-# Generate a token for OAuth2 authentication.
+# Generate a token for the OAuth2 authentication.
 # ```ballerina
 # string:auth:Error token = outboundOAuth2Provider.generateToken();
 # ```
@@ -112,14 +112,14 @@ public type OutboundOAuth2Provider object {
         }
     }
 
-# Inspect the incoming data and generate the token for OAuth2 authentication.
+# Inspect the incoming data and generate the token for the OAuth2 authentication.
 # ```ballerina
 # string:auth:Error? token = outboundOAuth2Provider.inspect(data);
 # ```
 #
 # + data - Map of data, which is extracted from the HTTP response
-# + return - Generated `string` token, `auth:Error` occurred while generating the token, or else 
-#            `()` if nothing to be returned
+# + return - Generated `string` token, an `auth:Error` occurred while generating the token, or else 
+#            `()` if nothing is to be returned
     public function inspect(map<anydata> data) returns @tainted (string|auth:Error?) {
         GrantTypeConfig? oauth2ProviderConfig = self.oauth2ProviderConfig;
         if (oauth2ProviderConfig is ()) {
@@ -146,7 +146,7 @@ public type OutboundOAuth2Provider object {
 # + scopes - Scope(s) of the access request
 # + clockSkewInSeconds - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
-# + credentialBearer - Bearer of authentication credentials, which are sent to the authorization endpoint
+# + credentialBearer - Bearer of the authentication credentials, which are sent to the authorization endpoint
 # + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 public type ClientCredentialsGrantConfig record {|
     string tokenUrl;
@@ -159,18 +159,18 @@ public type ClientCredentialsGrantConfig record {|
     http:ClientConfiguration clientConfig = {};
 |};
 
-# The data structure, which is used to configue OAuth2 password grant type.
+# The data structure, which is used to configure the OAuth2 password grant type.
 #
 # + tokenUrl - Token URL for the authorization endpoint
-# + username - Username for password grant authentication
-# + password - Password for password grant authentication
-# + clientId - Client ID for password grant authentication
-# + clientSecret - Client secret for password grant authentication
+# + username - Username for the password grant authentication
+# + password - Password for the password grant authentication
+# + clientId - Client ID for the password grant authentication
+# + clientSecret - Client secret for the password grant authentication
 # + scopes - Scope(s) of the access request
 # + refreshConfig - Configurations for refreshing the access token
 # + clockSkewInSeconds - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
-# + credentialBearer - Bearer of the authentication credentials, which are sent to the authorization endpoint
+# + credentialBearer - Bearer of the authentication credentials, which is sent to the authorization endpoint
 # + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 public type PasswordGrantConfig record {|
     string tokenUrl;
@@ -186,13 +186,13 @@ public type PasswordGrantConfig record {|
     http:ClientConfiguration clientConfig = {};
 |};
 
-# The data structure, which is used to configure OAuth2 access token directly.
+# The data structure, which is used to configure the OAuth2 access token directly.
 #
 # + accessToken - Access token for the authorization endpoint
 # + refreshConfig - Configurations for refreshing the access token
 # + clockSkewInSeconds - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
-# + credentialBearer - Bearer of the authentication credentials, which are sent to the authorization endpoint
+# + credentialBearer - Bearer of the authentication credentials, which is sent to the authorization endpoint
 public type DirectTokenConfig record {|
     string accessToken?;
     DirectTokenRefreshConfig refreshConfig?;
@@ -206,7 +206,7 @@ public type DirectTokenConfig record {|
 #
 # + refreshUrl - Refresh token URL for the refresh token server
 # + scopes - Scope(s) of the access request
-# + credentialBearer - Bearer of the authentication credentials, which are sent to the authorization endpoint
+# + credentialBearer - Bearer of the authentication credentials, which is sent to the authorization endpoint
 # + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 public type RefreshConfig record {|
     string refreshUrl;
@@ -222,7 +222,7 @@ public type RefreshConfig record {|
 # + clientId - Client ID for authentication with the authorization endpoint
 # + clientSecret - Client secret for authentication with the authorization endpoint
 # + scopes - Scope(s) of the access request
-# + credentialBearer - Bearer of authentication credentials, which are sent to the authorization endpoint
+# + credentialBearer - Bearer of authentication credentials, which is sent to the authorization endpoint
 # + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 public type DirectTokenRefreshConfig record {|
     string refreshUrl;
@@ -250,10 +250,10 @@ public type OutboundOAuth2CacheEntry record {
 # authorization endpoint.
 #
 # + payload - Payload of the request
-# + clientId - Client ID for client credentials grant authentication
-# + clientSecret - Client secret for client credentials grant authentication
+# + clientId - Client ID for the client credentials grant authentication
+# + clientSecret - Client secret for the client credentials grant authentication
 # + scopes - Scope(s) of the access request
-# + credentialBearer - Bearer of the authentication credentials, which are sent to the authorization endpoint
+# + credentialBearer - Bearer of the authentication credentials, which is sent to the authorization endpoint
 type RequestConfig record {|
     string payload;
     string clientId?;
@@ -266,7 +266,7 @@ type RequestConfig record {|
 #
 # + authConfig - OAuth2 configurations
 # + oauth2CacheEntry - OAuth2 cache entry
-# + return - OAuth2 token or else `oauth2:Error` if the validation failed
+# + return - OAuth2 token or else an `oauth2:Error` if the validation failed
 function generateAuthTokenForOAuth2(GrantTypeConfig authConfig, @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
                                     returns @tainted (string|Error) {
     if (authConfig is PasswordGrantConfig) {
@@ -282,7 +282,7 @@ function generateAuthTokenForOAuth2(GrantTypeConfig authConfig, @tainted Outboun
 #
 # + authConfig - OAuth2 configurations
 # + oauth2CacheEntry - OAuth2 cache entry
-# + return - OAuth2 token or else `oauth2:Error` if the validation failed
+# + return - OAuth2 token or else an `oauth2:Error` if the validation failed
 function inspectAuthTokenForOAuth2(GrantTypeConfig authConfig, @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
                                    returns @tainted (string|Error) {
     if (authConfig is PasswordGrantConfig) {
@@ -306,7 +306,7 @@ function inspectAuthTokenForOAuth2(GrantTypeConfig authConfig, @tainted Outbound
 #
 # + grantTypeConfig - Password grant type configurations
 # + oauth2CacheEntry - OAuth2 cache entry
-# + return - OAuth2 token or else `oauth2:Error` if an error occurred while HTTP client invocation or validation
+# + return - OAuth2 token or else an `oauth2:Error` occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
                                             @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
                                             returns @tainted (string|Error) {
@@ -347,7 +347,7 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
 #
 # + grantTypeConfig - Client credentials grant type configurations
 # + oauth2CacheEntry - OAuth2 cache entry
-# + return - OAuth2 token or else `oauth2:Error` if an error occurred while HTTP client invocation or validation
+# + return - OAuth2 token or else an `oauth2:Error` occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfig grantTypeConfig,
                                                      @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
                                                      returns @tainted (string|Error) {
@@ -388,7 +388,7 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
 #
 # + grantTypeConfig - Direct token mode configurations
 # + oauth2CacheEntry - OAuth2 cache entry
-# + return -OAuth2 token or else `oauth2:Error` if an error occurred while HTTP client invocation or validation
+# + return -OAuth2 token or else an `oauth2:Error` occurred during the HTTP client invocation or validation
 function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
                                               @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
                                               returns @tainted (string|Error) {
@@ -463,7 +463,7 @@ function isOAuth2CacheEntryValid(OutboundOAuth2CacheEntry oauth2CacheEntry) retu
 #
 # + config - OAuth2 grant type configurations
 # + oauth2CacheEntry - OAuth2 cache entry
-# + return - Received OAuth2 access token or else `oauth2:Error` if an error occurred while HTTP client invocation
+# + return - Received OAuth2 access token or else an `oauth2:Error` occurred during the HTTP client invocation
 function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|PasswordGrantConfig config,
                                                 @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
                                                 returns @tainted (string|Error) {
@@ -520,7 +520,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
 #
 # + config - Password grant type configuration or direct token configuration
 # + oauth2CacheEntry - OAuth2 cache entry
-# + return - Received access token or else `oauth2:Error` if an error occurred while HTTP client invocation
+# + return - Received access token or else an `oauth2:Error` occurred during the HTTP client invocation
 function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig config,
                                           @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
                                           returns @tainted (string|Error) {
@@ -586,7 +586,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
 # + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 # + oauth2CacheEntry - OAuth2 cache entry
 # + clockSkewInSeconds - Clock skew in seconds
-# + return - Received OAuth2 access token or else `oauth2:Error` if an error occurred while HTTP client invocation
+# + return - Received OAuth2 access token or else an `oauth2:Error` occurred during the HTTP client invocation
 function doRequest(string url, http:Request request, http:ClientConfiguration clientConfig,
                    @tainted OutboundOAuth2CacheEntry oauth2CacheEntry, int clockSkewInSeconds)
                    returns @tainted (string|Error) {
@@ -604,8 +604,8 @@ function doRequest(string url, http:Request request, http:ClientConfiguration cl
 
 # Prepares the request to be sent to the authorization endpoint by adding the relevant headers and payloads.
 #
-# + config - `oauth2:RequestConfig` record
-# + return - Prepared HTTP request object or else `oauth2:Error` if an error occurred while preparing the request
+# + config - The `oauth2:RequestConfig` record
+# + return - Prepared HTTP request object or else an `oauth2:Error` occurred while preparing the request
 function prepareRequest(RequestConfig config) returns http:Request|Error {
     http:Request req = new;
     string textPayload = config.payload;
@@ -648,7 +648,7 @@ function prepareRequest(RequestConfig config) returns http:Request|Error {
 # + response - HTTP response object
 # + oauth2CacheEntry - OAuth2 cache entry
 # + clockSkewInSeconds - Clock skew in seconds
-# + return - Extracted access token or else `oauth2:Error` if an error occurred while HTTP client invocation
+# + return - Extracted access token or else an `oauth2:Error` occurred during the HTTP client invocation
 function extractAccessTokenFromResponse(http:Response response, @tainted OutboundOAuth2CacheEntry oauth2CacheEntry,
                                         int clockSkewInSeconds) returns @tainted (string|Error) {
     if (response.statusCode == http:STATUS_OK) {
