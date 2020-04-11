@@ -85,7 +85,7 @@ public type InboundLdapAuthProvider object {
     }
 };
 
-# Represents configurations that required for LDAP auth store.
+# Represents the configurations that are required for an LDAP auth store.
 #
 # + domainName - Unique name to identify the user store
 # + connectionURL - Connection URL of the LDAP server

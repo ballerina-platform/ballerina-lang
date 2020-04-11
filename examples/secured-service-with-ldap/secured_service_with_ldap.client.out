@@ -1,6 +1,6 @@
 // Start the LDAP server and invoke the service using cURL. 
 // It is required to provide the correct basic authentication header or
-// `<username>:<password>` with `-u` parameter with the cURL command.
+// `<username>:<password>` with the `-u` parameter and the cURL command.
 // It will get validated against the LDAP server.
 $ curl -k -H "Authorization: Basic YWxpY2U6YWJjMTIz" \
 https://localhost:9090/hello/sayHello
