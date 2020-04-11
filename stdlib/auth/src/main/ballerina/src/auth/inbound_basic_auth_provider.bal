@@ -18,7 +18,7 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/stringutils;
 
-# Represents the configuration-file-based inbound Basic Auth provider which is an implementation of the
+# Represents the configuration file based inbound Basic Auth provider, which is an implementation of the
 # `auth:InboundAuthProvider` interface.
 # ```ballerina
 #  auth:InboundBasicAuthProvider inboundBasicAuthProvider = new;
@@ -49,14 +49,14 @@ public type InboundBasicAuthProvider object {
         }
     }
 
-# Attempts to authenticate base64-encoded `username:password` credential.
+# Attempts to authenticate the base64-encoded `username:password` credential.
 # ```ballerina
 # boolean|auth:Error authenticationResult = inboundBasicAuthProvider.authenticate("<credential>");
 # ```
 #
 # + credential - Base64-encoded `username:password` value
-# + return - `true` if authentication is successful, otherwise `false` or else an `auth:Error` if any error occurred
-#             while authenticating credentials
+# + return - `true` if authentication is successful, `false` otherwise, or else an `auth:Error` occurred
+#             while authenticating the credentials
     public function authenticate(string credential) returns boolean|Error {
         if (credential == "") {
             return false;
@@ -93,7 +93,7 @@ public type InboundBasicAuthProvider object {
     }
 };
 
-# Represents inbound Basic Authentication configurations.
+# Represents the inbound Basic Authentication configurations.
 #
 # + tableName - The table name specified in the user-store TOML configuration
 public type BasicAuthConfig record {|
@@ -107,7 +107,7 @@ public type BasicAuthConfig record {|
 # + return - An array of scopes of the user identified by the username
 function getScopes(string username, string tableName) returns string[] {
     // First, reads the user ID from the user->id mapping.
-    // Reads the scopes of the user-id.
+    // Then, reads the scopes of the user-id.
     return getArray(getConfigAuthValue(tableName + "." + username, "scopes"));
 }
 
@@ -122,10 +122,10 @@ function extractHash(string configValue) returns string {
 # Reads the password hash of a user.
 #
 # + username - Username of the user
-# + return - Password hash read from userstore, or `()` if not found
+# + return - Password hash read from userstore or else `()` if not found
 function readPassword(string username) returns string {
-    // First, read the user ID from user->id mapping.
-    // Then, read the hashed password from the user-store file, using the user ID.
+    // First, reads the user ID from user->id mapping.
+    // Then, reads the hashed password from the user-store file using the user ID.
     return getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "password");
 }
 
@@ -135,7 +135,7 @@ function getConfigAuthValue(string instanceId, string property) returns string {
 
 # Constructs an array of groups from the given comma-separed string of groups.
 #
-# + groupString - Comma separated string of groups
+# + groupString - Comma-separated string of groups
 # + return - An array of groups or else () if the groups string is empty/`()`
 function getArray(string groupString) returns string[] {
     if (groupString.length() == 0) {
