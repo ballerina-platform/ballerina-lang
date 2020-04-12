@@ -25,7 +25,6 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_ERROR;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 
 /**
@@ -115,10 +114,6 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
 
         Set<Tag> allTagsForCounts = new HashSet<>(allTags.size() + 1);
         Tags.tags(allTagsForCounts, allTags);
-        Boolean error = (Boolean) observerContext.getProperty(PROPERTY_ERROR);
-        if (error != null && error) {
-            Tags.tag(allTagsForCounts, "error", "true");
-        }
         try {
             Long startTime = (Long) observerContext.getProperty(PROPERTY_START_TIME);
             long duration = System.nanoTime() - startTime;

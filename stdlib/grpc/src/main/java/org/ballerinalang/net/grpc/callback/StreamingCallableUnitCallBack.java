@@ -17,11 +17,13 @@
  */
 package org.ballerinalang.net.grpc.callback;
 
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.net.grpc.StreamObserver;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.INTERNAL_SERVER_ERROR_STATUS_CODE_GROUP;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
 
 /**
@@ -51,7 +53,9 @@ public class StreamingCallableUnitCallBack extends AbstractCallableUnitCallBack 
             handleFailure(responseSender, error);
         }
         if (observerContext != null) {
-            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, INTERNAL_SERVER_ERROR_STATUS_CODE_GROUP);
+            observerContext.addProperty(PROPERTY_KEY_HTTP_STATUS_CODE, HttpResponseStatus.INTERNAL_SERVER_ERROR.code());
+            observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP,
+                    HttpResponseStatus.INTERNAL_SERVER_ERROR.code() / 100 + STATUS_CODE_GROUP_SUFFIX);
         }
         super.notifyFailure(error);
     }

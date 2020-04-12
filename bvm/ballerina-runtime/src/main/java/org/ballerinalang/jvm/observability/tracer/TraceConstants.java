@@ -37,6 +37,7 @@ public class TraceConstants {
     public static final String TAG_KEY_SPAN_KIND = "span.kind";
 
     public static final String TAG_KEY_STR_ERROR = "error";
+    public static final String TAG_KEY_HTTP_STATUS_CODE = "http.status_code";
     public static final String TAG_STR_TRUE = "true";
 
     public static final String TAG_SPAN_KIND_SERVER = "server";

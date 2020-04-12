@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.STATUS_CODE_GROUP_SUFFIX;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE_GROUP;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
@@ -73,8 +74,11 @@ public class FunctionUtils {
                 if (!MessageUtils.isEmptyResponse(outputType)) {
                     responseObserver.onCompleted();
                 }
-                observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP,
-                        HttpResponseStatus.OK.code() / 100 + STATUS_CODE_GROUP_SUFFIX));
+                observerContext.ifPresent(ctx -> {
+                    ctx.addProperty(PROPERTY_KEY_HTTP_STATUS_CODE, HttpResponseStatus.OK.code());
+                    ctx.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP,
+                            HttpResponseStatus.OK.code() / 100 + STATUS_CODE_GROUP_SUFFIX);
+                });
             } catch (Exception e) {
                 LOG.error("Error while sending complete message to caller.", e);
                 return MessageUtils.getConnectorError(e);
@@ -183,8 +187,11 @@ public class FunctionUtils {
                     headers.entries().forEach(
                             x -> observerContext.ifPresent(ctx -> ctx.addTag(x.getKey(), x.getValue())));
                 }
-                observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP,
-                        getMappingHttpStatusCode((int) statusCode) / 100 + STATUS_CODE_GROUP_SUFFIX));
+                int mappedStatusCode = getMappingHttpStatusCode((int) statusCode);
+                observerContext.ifPresent(ctx -> {
+                    ctx.addProperty(PROPERTY_KEY_HTTP_STATUS_CODE, mappedStatusCode);
+                    ctx.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, mappedStatusCode / 100 + STATUS_CODE_GROUP_SUFFIX);
+                });
                 responseObserver.onError(errorMessage);
             } catch (Exception e) {
                 LOG.error("Error while sending error to caller.", e);

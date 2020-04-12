@@ -49,8 +49,16 @@ import static org.ballerinalang.observe.trace.extension.choreo.Constants.EXTENSI
  */
 public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
     private static final Logger LOGGER = LogFactory.getLogger();
+
     private static final int PUBLISH_INTERVAL = 10 * 1000;
     private static final String UP_METRIC_NAME = "up";
+    private static final String TIME_WINDOW_TAG_KEY = "timeWindow";
+    private static final String PERCENTILE_TAG_KEY = "percentile";
+    private static final String METRIC_MEAN_POSTFIX = "_mean";
+    private static final String METRIC_MAX_POSTFIX = "_max";
+    private static final String METRIC_MIN_POSTFIX = "_min";
+    private static final String METRIC_STD_DEV_POSTFIX = "_stdDev";
+
     private Task task;
 
     @Override
@@ -100,45 +108,38 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
             long currentTimestamp = System.currentTimeMillis();
             Metric[] metrics = DefaultMetricRegistry.getInstance().getAllMetrics();
             for (Metric metric : metrics) {
-                Map<String, String> tags = new HashMap<>(metric.getId().getTags().size() + 1);
-                for (Tag tag : metric.getId().getTags()) {
-                    tags.put(tag.getKey(), tag.getValue());
-                }
                 String metricName = metric.getId().getName();
                 if (metric instanceof Counter) {
-                    Counter counter = (Counter) metric;
-                    // TODO: Request an atomic get and reset method to avoid loosing metrics
-                    long value = counter.getValue();
-                    counter.reset();
-                    tags.put("timeWindow", String.valueOf(currentTimestamp - lastCounterResetTimestamp));
-                    ChoreoMetric counterMetric = new ChoreoMetric(currentTimestamp, metricName, value, tags);
+                    Map<String, String> tags = generateTagsMap(metric, 1);
+                    tags.put(TIME_WINDOW_TAG_KEY, String.valueOf(currentTimestamp - lastCounterResetTimestamp));
+                    ChoreoMetric counterMetric = new ChoreoMetric(currentTimestamp, metricName,
+                            ((Counter) metric).getValueThenReset(), tags);
                     choreoMetrics.add(counterMetric);
                 } else if (metric instanceof Gauge) {
                     for (Snapshot snapshot : ((Gauge) metric).getSnapshots()) {
-                        Map<String, String> timeWindowTags = new HashMap<>(tags.size());
-                        timeWindowTags.putAll(tags);
-                        timeWindowTags.put("timeWindow", String.valueOf(snapshot.getTimeWindow().toMillis()));
+                        Map<String, String> tags = generateTagsMap(metric, 1);
+                        tags.put(TIME_WINDOW_TAG_KEY, String.valueOf(snapshot.getTimeWindow().toMillis()));
 
-                        ChoreoMetric meanMetric = new ChoreoMetric(currentTimestamp, metricName + "_mean",
-                                snapshot.getMean(), timeWindowTags);
+                        ChoreoMetric meanMetric = new ChoreoMetric(currentTimestamp, metricName
+                                + METRIC_MEAN_POSTFIX, snapshot.getMean(), tags);
                         choreoMetrics.add(meanMetric);
 
-                        ChoreoMetric maxMetric = new ChoreoMetric(currentTimestamp, metricName + "_max",
-                                snapshot.getMean(), timeWindowTags);
+                        ChoreoMetric maxMetric = new ChoreoMetric(currentTimestamp, metricName
+                                + METRIC_MAX_POSTFIX, snapshot.getMax(), tags);
                         choreoMetrics.add(maxMetric);
 
-                        ChoreoMetric minMetric = new ChoreoMetric(currentTimestamp, metricName + "_min",
-                                snapshot.getMin(), timeWindowTags);
+                        ChoreoMetric minMetric = new ChoreoMetric(currentTimestamp, metricName
+                                + METRIC_MIN_POSTFIX, snapshot.getMin(), tags);
                         choreoMetrics.add(minMetric);
 
-                        ChoreoMetric stdDevMetric = new ChoreoMetric(currentTimestamp, metricName + "_stdDev",
-                                snapshot.getStdDev(), timeWindowTags);
+                        ChoreoMetric stdDevMetric = new ChoreoMetric(currentTimestamp, metricName
+                                + METRIC_STD_DEV_POSTFIX, snapshot.getStdDev(), tags);
                         choreoMetrics.add(stdDevMetric);
 
                         for (PercentileValue percentileValue : snapshot.getPercentileValues()) {
-                            Map<String, String> percentileTags = new HashMap<>(timeWindowTags.size() + 1);
-                            percentileTags.putAll(timeWindowTags);
-                            percentileTags.put("percentile", String.valueOf(percentileValue.getPercentile()));
+                            Map<String, String> percentileTags = new HashMap<>(tags.size() + 1);
+                            percentileTags.putAll(tags);
+                            percentileTags.put(PERCENTILE_TAG_KEY, String.valueOf(percentileValue.getPercentile()));
 
                             ChoreoMetric percentileMetric = new ChoreoMetric(currentTimestamp, metricName,
                                     percentileValue.getValue(), percentileTags);
@@ -146,6 +147,7 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
                         }
                     }
                 } else if (metric instanceof PolledGauge) {
+                    Map<String, String> tags = generateTagsMap(metric, 0);
                     ChoreoMetric polledGaugeMetric = new ChoreoMetric(currentTimestamp, metricName,
                             ((PolledGauge) metric).getValue(), tags);
                     choreoMetrics.add(polledGaugeMetric);
@@ -162,6 +164,21 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
                 LOGGER.error("failed to publish metrics to Choreo due to " + t.getMessage());
             }
             lastCounterResetTimestamp = currentTimestamp;
+        }
+
+        /**
+         * Generate tags map form metric.
+         *
+         * @param metric The metric to generate the tags map from
+         * @return The map of tags
+         */
+        private Map<String, String> generateTagsMap(Metric metric, int requiredAdditionalCapacity) {
+            Map<String, String> tags = new HashMap<>(metric.getId().getTags().size()
+                    + requiredAdditionalCapacity);
+            for (Tag tag : metric.getId().getTags()) {
+                tags.put(tag.getKey(), tag.getValue());
+            }
+            return tags;
         }
     }
 }

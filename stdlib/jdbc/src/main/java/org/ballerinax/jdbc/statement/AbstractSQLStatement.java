@@ -465,7 +465,7 @@ public abstract class AbstractSQLStatement implements SQLStatement {
     protected void checkAndObserveSQLError(Strand context, String message) {
         Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context);
         observerContext.ifPresent(ctx -> {
-            ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
+            ctx.addTag(ObservabilityConstants.TAG_KEY_ERROR, ObservabilityConstants.TAG_ERROR_TRUE_VALUE);
             ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR_MESSAGE, message);
         });
     }

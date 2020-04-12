@@ -115,6 +115,14 @@ public class ObserverContext {
         tagsValueMap.put(key, tag);
     }
 
+    public Tag getTag(String key) {
+        Tag tag = mainTags.get(key);
+        if (tag == null) {
+            tag = additionalTags.get(key);
+        }
+        return tag;
+    }
+
     public Set<Tag> getMainTags() {
         Set<Tag> tagSet = new HashSet<>(mainTags.size());
         tagSet.addAll(mainTags.values());
