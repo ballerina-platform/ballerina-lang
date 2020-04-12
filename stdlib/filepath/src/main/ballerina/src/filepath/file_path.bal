@@ -30,7 +30,7 @@ string pathListSeparator = isWindows ? ";" : ":";
 # ```
 #
 # + path - String value of the file path
-# + return - The absolute path reference or else an error if the path cannot be derived
+# + return - The absolute path reference or else a `crypto:Error` if the path cannot be derived
 public function absolute(@untainted string path) returns string|Error {
     var result = externAbsolute(java:fromString(path));
     if (result is Error) {
@@ -62,7 +62,7 @@ public function getPathSeparator() returns string {
     return pathSeparator;
 }
 
-# Returns the path list separator of the underlying operating system.
+# Returns the path variable's separating character for paths of the underlying operating system.
 # ```ballerina
 #  string pathListSeparator = filepath:getPathListSeparator();
 # ```
@@ -81,7 +81,8 @@ public function getPathListSeparator() returns string {
 # ```
 #
 # + path - String value of the file path
-# + return - True if path is absolute or else false
+# + return - True if path is absolute or else false.
+#            If an error occurred while processing `crypto:Error`
 public function isAbsolute(string path) returns boolean|Error {
     if (path.length() <= 0) {
         return false;
@@ -101,7 +102,7 @@ public function isAbsolute(string path) returns boolean|Error {
 # ```
 #
 # + path - String value of file path
-# + return - The name of the file
+# + return - The name of the file or else a `crypto:Error` if the path is invalid
 public function filename(string path) returns string|Error {
     string validatedPath = check parse(path);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
@@ -125,8 +126,9 @@ public function filename(string path) returns string|Error {
 #  string|filepath:Error parentPath = filepath:parent("/A/B/C.txt");
 # ```
 #
-# + path - String value of the file path
-# + return - Path of the parent folder or else an error if error occurred while getting the parent directory
+# + path - String value of the file/directory path
+# + return - Path of the parent directory or else a `crypto:Error`
+#            if an error occurred while getting the parent directory
 public function parent(string path) returns string|Error {
     string validatedPath = check parse(path);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
@@ -147,7 +149,7 @@ public function parent(string path) returns string|Error {
     return validatedPath.substring(0, len);
 }
 
-# Returns the shortest path name equivalent to the path by purely lexical processing.
+# Returns the shortest path name equivalent to the given path.
 # Replace multiple Separator elements with a single one.
 # Eliminate each "." path name element (the current directory).
 # Eliminate each inner ".." path name element (the parent directory).
@@ -156,7 +158,7 @@ public function parent(string path) returns string|Error {
 # ```
 #
 # + path - String value of the file path
-# + return - Normalized file path
+# + return - Normalized file path or else a `crypto:Error` if the path is invalid
 public function normalize(string path) returns string|Error {
     string validatedPath = check parse(path);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
@@ -242,7 +244,7 @@ public function normalize(string path) returns string|Error {
 # ```
 #
 # + path - String value of the file path
-# + return - String array of part components
+# + return - String array of part components or else a `crypto:Error` if the path is invalid
 public function split(string path) returns string[]|Error {
     string validatedPath = check parse(path);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
@@ -271,7 +273,7 @@ public function split(string path) returns string[]|Error {
 # ```
 #
 # + parts - String values of the file path parts
-# + return - String value of the file path
+# + return - String value of the file path or else a `crypto:Error` if the parts are invalid
 public function build(string... parts) returns string|Error {
     if (isWindows) {
         return check buildWindowsPath(...parts);
@@ -287,7 +289,7 @@ public function build(string... parts) returns string|Error {
 # ```
 #
 # + name - Filename
-# + return - True if path is a Windows reserved name or else false otherwise
+# + return - True if path is a Windows reserved name or else false
 public function isReservedName(string name) returns boolean {
     if (isWindows) {
         return isWindowsReservedName(name);
@@ -304,7 +306,8 @@ public function isReservedName(string name) returns boolean {
 # ```
 #
 # + path - String value of the file path
-# + return - The extension of the file or else an empty string if there is no extension
+# + return - The extension of the file or an empty string if there is no extension,
+#            or else `crypto:Error` if the path is invalid
 public function extension(string path) returns string|Error {
     if (path.endsWith(pathSeparator) || (isWindows && path.endsWith("/"))) {
       return  "";
@@ -337,7 +340,8 @@ public function extension(string path) returns string|Error {
 #
 # + base - String value of the base file path
 # + target - String value of the target file path
-# + return - The extension of the file or else an empty string if there is no extension
+# + return - The extension of the file or an empty string if there is no extension.
+#            A `crypto:Error` if the base or target paths are invalid
 public function relative(string base, string target) returns string|Error {
     string cleanBase = check normalize(base);
     string cleanTarget = check normalize(target);
@@ -407,8 +411,8 @@ public function relative(string base, string target) returns string|Error {
 #  string|filepath:Error resolvedPath = filepath:resolve("a/b/c");
 # ```
 #
-# + path - String value of the file path
-# + return - Resolved file path
+# + path - Security validated string value of the file path
+# + return - Resolved file path or else a `crypto:Error` if the path is invalid
 public function resolve(@untainted string path) returns string|Error {
     var result = externResolve(java:fromString(path));
     if (result is Error) {
@@ -438,7 +442,8 @@ function externResolve(handle path) returns handle|Error =
 #
 # + path - String value of the file path
 # + pattern - String value of the target file path
-# + return - True if filename of the path matches with the pattern or else false otherwise
+# + return - True if the filename of the path matches with the pattern or else false.
+#            A `crypto:Error` if the path or pattern is invalid
 public function matches(string path, string pattern) returns boolean|Error {
     return externMatches(java:fromString(path), java:fromString(pattern));
 }
@@ -451,8 +456,8 @@ function externMatches(handle path, handle pattern) returns boolean|Error =
 
 # Parses the give path and remove redundent slashes.
 #
-# + input - string path value
-# + return - parsed path,error if given path is invalid.
+# + input - String path value
+# + return - Parsed path or else a `crypto:Error` if the given path is invalid
 function parse(string input) returns string|Error {
     if (input.length() <= 0) {
         return input;
