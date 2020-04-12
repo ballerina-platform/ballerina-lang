@@ -39,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -134,6 +135,10 @@ class JvmObservabilityGen {
             if ("main".equals(func.name.value)) {
                 Map<String, String> tags = new HashMap<>();
                 tags.put("source.entry_point.main", "true");
+                rewriteObservableFunctionBody(func, pkg, false, func.workerName.value, tags);
+            } else if ((func.flags & Flags.WORKER) == Flags.WORKER) {
+                Map<String, String> tags = new HashMap<>();
+                tags.put("worker", func.workerName.value);
                 rewriteObservableFunctionBody(func, pkg, false, func.workerName.value, tags);
             }
             rewriteObservableFunctionInvocations(func.basicBlocks, func.localVars, pkg);
