@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.model.elements.Flag;
-import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
@@ -41,24 +40,15 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.objectweb.asm.Opcodes.ALOAD;
-import static org.objectweb.asm.Opcodes.DUP;
-import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
-import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
 import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.objectweb.asm.Opcodes.NEW;
-import static org.objectweb.asm.Opcodes.POP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE_IMPL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVABLE_ANNOTATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -68,62 +58,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPacka
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 
 /**
- * BIR observability model to JVM byte code generation class.
+ * BIR desugar to inject observations class.
  *
  * @since 1.2.0
  */
 class JvmObservabilityGen {
-
-    static void emitStopObservationInvocation(MethodVisitor mv) {
-        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "stopObservation", "()V", false);
-    }
-
-    static void emitReportErrorInvocation(MethodVisitor mv, int errorIndex) {
-        mv.visitVarInsn(ALOAD, errorIndex);
-        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "reportError", String.format("(L%s;)V", ERROR_VALUE), false);
-    }
-
-    static void emitStartObservationInvocation(MethodVisitor mv, String serviceOrConnectorName,
-                                               String resourceOrActionName, String observationStartMethod,
-                                               Map<String, String> tags) {
-        mv.visitLdcInsn(cleanUpServiceName(serviceOrConnectorName));
-        mv.visitLdcInsn(resourceOrActionName);
-
-        mv.visitTypeInsn(NEW, MAP_VALUE_IMPL);
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "<init>", "()V", false);
-        for (Map.Entry<String, String> entry : tags.entrySet()) {
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn(entry.getKey());
-            mv.visitLdcInsn(entry.getValue());
-            mv.visitMethodInsn(INVOKEINTERFACE, MAP_VALUE, "put",
-                    String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
-            mv.visitInsn(POP);
-        }
-
-        mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, observationStartMethod,
-                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, MAP_VALUE), false);
-    }
-
-    private static String cleanUpServiceName(String serviceName) {
-        final String serviceIdentifier = "$$service$";
-        if (serviceName.contains(serviceIdentifier)) {
-            if (serviceName.contains("$anonService$")) {
-                return serviceName.replace(serviceIdentifier, "_");
-            } else {
-                return serviceName.substring(0, serviceName.lastIndexOf(serviceIdentifier));
-            }
-        }
-        return serviceName;
-    }
-
-    static String getFullQualifiedRemoteFunctionName(String moduleOrg, String moduleName, String funcName) {
-
-        if (moduleName.equals("")) {
-            return funcName;
-        }
-        return moduleOrg + "/" + moduleName + "/" + funcName;
-    }
 
     /**
      * Rewrite all observable functions in a package.
@@ -171,7 +110,7 @@ class JvmObservabilityGen {
     private static void rewriteObservableFunctionBody(BIRFunction func, BIRPackage pkg, boolean isResourceObservation,
                                                       String serviceName, Map<String, String> additionalTags) {
         DiagnosticPos desugaredInsPosition = func.pos;
-        // Injecting observe start call at the start of the function
+        // Injecting observe start call at the start of the function body
         {
             BIRBasicBlock startBB = func.basicBlocks.get(0);
             BIRBasicBlock newStartBB = insertAndGetNextBasicBlock(func.basicBlocks, 1, "desugaredBB");
@@ -183,7 +122,7 @@ class JvmObservabilityGen {
             // Fix the Basic Blocks linked list
             startBB.terminator.thenBB = newStartBB;
         }
-        // Injecting error report call and observe end call at the start of the function
+        // Injecting error report call and observe end call just before the return statements
         boolean isErrorCheckRequired = isErrorAssignable(func.returnVariable);
         BIROperand returnValOperand = new BIROperand(func.returnVariable);
         int i = 1;  // Since the first block is now the start observation call
@@ -269,7 +208,8 @@ class JvmObservabilityGen {
 
                     if (isErrorCheckRequired) {
                         BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(basicBlocks, i + 1, "desugaredBB");
-                        BIRBasicBlock errorCheckBranchBB = insertAndGetNextBasicBlock(basicBlocks, i + 2, "desugaredBB");
+                        BIRBasicBlock errorCheckBranchBB = insertAndGetNextBasicBlock(basicBlocks, i + 2,
+                                "desugaredBB");
                         BIRBasicBlock errorReportBB = insertAndGetNextBasicBlock(basicBlocks, i + 3, "desugaredBB");
                         BIRBasicBlock observeEndBB = insertAndGetNextBasicBlock(basicBlocks, i + 4, "desugaredBB");
                         swapBasicBlockContent(currentBB, newCurrentBB);
@@ -327,7 +267,7 @@ class JvmObservabilityGen {
         BIROperand connectorNameOperand = generateConstantOperand(
                 String.format("%s_service_or_connector", observeStartBB.id.value), serviceOrConnector, scopeVarList,
                 observeStartBB, pos);
-        BIROperand actionNameOperand = generateConstantOperand( String.format("%s_resource_or_action",
+        BIROperand actionNameOperand = generateConstantOperand(String.format("%s_resource_or_action",
                 observeStartBB.id.value), resourceOrAction, scopeVarList, observeStartBB, pos);
         Map<String, String> tags = new HashMap<>();
         tags.put("source.invocation_fqn", String.format("%s:%s:%s:%s:%d:%d", pkg.org.value, pkg.name.value,
@@ -375,8 +315,8 @@ class JvmObservabilityGen {
                 VarKind.TEMP);
         scopeVarList.add(castedErrorVariableDcl);
         BIROperand castedErrorOperand = new BIROperand(castedErrorVariableDcl);
-        BIRNonTerminator.TypeCast errorCastInstruction = new BIRNonTerminator.TypeCast(pos, castedErrorOperand, returnValueOperand, symbolTable.errorType,
-                false);
+        BIRNonTerminator.TypeCast errorCastInstruction = new BIRNonTerminator.TypeCast(pos, castedErrorOperand,
+                returnValueOperand, symbolTable.errorType, false);
         errorReportBB.instructions.add(errorCastInstruction);
 
         JIMethodCall reportErrorCallTerminator = new JIMethodCall(pos);
@@ -421,8 +361,8 @@ class JvmObservabilityGen {
                 new Name(String.format("$_%s_const_$", uniqueId)), VarScope.FUNCTION, VarKind.TEMP);
         scopeVarList.add(variableDcl);
         BIROperand operand = new BIROperand(variableDcl);
-        BIRNonTerminator.ConstantLoad instruction = new BIRNonTerminator.ConstantLoad(pos, constantValue, symbolTable.stringType,
-                operand);
+        BIRNonTerminator.ConstantLoad instruction = new BIRNonTerminator.ConstantLoad(pos, constantValue,
+                symbolTable.stringType, operand);
         basicBlock.instructions.add(instruction);
         return operand;
     }
@@ -495,5 +435,24 @@ class JvmObservabilityGen {
             isErrorAssignable = true;
         }
         return isErrorAssignable;
+    }
+
+    /**
+     * Remove the additional prefixes and postfixes added by the compiler.
+     * This is done to get the original name used by the developer.
+     *
+     * @param serviceName The service name to be cleaned up
+     * @return The cleaned up service name which should be equal to the name given by the developer
+     */
+    private static String cleanUpServiceName(String serviceName) {
+        final String serviceIdentifier = "$$service$";
+        if (serviceName.contains(serviceIdentifier)) {
+            if (serviceName.contains("$anonService$")) {
+                return serviceName.replace(serviceIdentifier, "_");
+            } else {
+                return serviceName.substring(0, serviceName.lastIndexOf(serviceIdentifier));
+            }
+        }
+        return serviceName;
     }
 }

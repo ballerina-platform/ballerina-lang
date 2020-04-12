@@ -56,7 +56,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -172,10 +171,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.Inst
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitReportErrorInvocation;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStartObservationInvocation;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.getFullQualifiedRemoteFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.JavaClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.birFunctionMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
@@ -238,20 +233,18 @@ public class JvmMethodGen {
     static void generateMethod(BIRFunction birFunc,
                                ClassWriter cw,
                                BIRPackage birModule,
-                               @Nilable BType attachedType /* = () */,
-                               String serviceName /* = "" */) {
+                               @Nilable BType attachedType /* = () */) {
 
         if (isExternFunc(birFunc)) {
             genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType);
         } else {
-            genJMethodForBFunc(birFunc, cw, birModule, serviceName, attachedType);
+            genJMethodForBFunc(birFunc, cw, birModule, attachedType);
         }
     }
 
     public static void genJMethodForBFunc(BIRFunction func,
                                           ClassWriter cw,
                                           BIRPackage module,
-                                          String serviceName,
                                           @Nilable BType attachedType /* = () */) {
 
         String currentPackageName = getPackageName(module.org.value, module.name.value);
@@ -286,14 +279,6 @@ public class JvmMethodGen {
         LabelGenerator labelGen = new LabelGenerator();
 
         mv.visitCode();
-
-        @Nilable Label tryStart = null;
-        boolean isObserved = false;
-        if (isObserved) {
-            // create try catch block to start and stop observability.
-            tryStart = labelGen.getLabel("observe-try-start");
-            mv.visitLabel(tryStart);
-        }
 
         Label methodStartLabel = new Label();
         mv.visitLabel(methodStartLabel);
@@ -391,8 +376,7 @@ public class JvmMethodGen {
         mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), lables.toArray(new Label[0]));
 
         generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                stateVarIndex, localVarOffset, false, module, currentPackageName, attachedType, isObserved,
-                serviceName);
+                stateVarIndex, localVarOffset, false, module, currentPackageName, attachedType);
 
         String frameName = getFrameClassName(currentPackageName, funcName, attachedType);
         mv.visitLabel(resumeLable);
@@ -442,48 +426,8 @@ public class JvmMethodGen {
 
         Label methodEndLabel = new Label();
         // generate the try catch finally to stop observing if an error occurs.
-        if (isObserved) {
-            Label tryEnd = labelGen.getLabel("observe-try-end");
-            Label tryCatch = labelGen.getLabel("observe-try-handler");
-            Label tryCatchFinally = labelGen.getLabel("observe-try-catch-finally");
-            Label tryFinally = labelGen.getLabel("observe-try-finally");
-
-            // visitTryCatchBlock visited at the end since order of the error table matters.
-            mv.visitTryCatchBlock((Label) tryStart, tryEnd, tryCatch, ERROR_VALUE);
-            mv.visitTryCatchBlock((Label) tryStart, tryEnd, tryFinally, null);
-            mv.visitTryCatchBlock(tryCatch, tryCatchFinally, tryFinally, null);
-
-            BIRVariableDcl catchVarDcl = new BIRVariableDcl(symbolTable.anyType, new Name("$_catch_$"),
-                    VarScope.FUNCTION, VarKind.ARG);
-            int catchVarIndex = indexMap.getIndex(catchVarDcl);
-            BIRVariableDcl throwableVarDcl = new BIRVariableDcl(symbolTable.anyType, new Name("$_throwable_$"),
-                    VarScope.FUNCTION, VarKind.ARG);
-            int throwableVarIndex = indexMap.getIndex(throwableVarDcl);
-
-            // Try-To-Finally
-            mv.visitLabel(tryEnd);
-            mv.visitJumpInsn(GOTO, methodEndLabel);
-
-            // Catch Block
-            mv.visitLabel(tryCatch);
-            mv.visitVarInsn(ASTORE, catchVarIndex);
-            emitReportErrorInvocation(mv, catchVarIndex);
-
-            mv.visitLabel(tryCatchFinally);
-            emitStopObservationInvocation(mv);
-            // Re-throw caught error value
-            mv.visitVarInsn(ALOAD, catchVarIndex);
-            mv.visitInsn(ATHROW);
-
-            // Finally Block
-            mv.visitLabel(tryFinally);
-            mv.visitVarInsn(ASTORE, throwableVarIndex);
-            emitStopObservationInvocation(mv);
-            mv.visitVarInsn(ALOAD, throwableVarIndex);
-            mv.visitInsn(ATHROW);
-        }
         mv.visitLabel(methodEndLabel);
-        termGen.genReturnTerm(new Return(null), returnVarRefIndex, func, false, -1);
+        termGen.genReturnTerm(new Return(null), returnVarRefIndex, func, -1);
 
         // Create Local Variable Table
         k = localVarOffset;
@@ -859,9 +803,7 @@ public class JvmMethodGen {
                                            InstructionGenerator instGen, TerminatorGenerator termGen,
                                            BIRFunction func, int returnVarRefIndex, int stateVarIndex,
                                            int localVarOffset, boolean isArg, BIRPackage module,
-                                           String currentPackageName, @Nilable BType attachedType,
-                                           boolean isObserved /* = false */,
-                                           String serviceName /* = "" */) {
+                                           String currentPackageName, @Nilable BType attachedType) {
 
         int j = 0;
         String funcName = cleanupFunctionName(func.name.value);
@@ -880,24 +822,6 @@ public class JvmMethodGen {
                 mv.visitIntInsn(SIPUSH, caseIndex);
                 mv.visitVarInsn(ISTORE, stateVarIndex);
                 caseIndex += 1;
-            }
-
-            if (isObserved && j == 0) {
-                String serviceOrConnectorName = serviceName;
-                String observationStartMethod = "startCallableObservation";
-                if (attachedType != null && attachedType.tag == TypeTags.OBJECT) {
-                    // add module org and module name to remote spans.
-                    BObjectType attachedTypeObj = (BObjectType) attachedType;
-                    serviceOrConnectorName = getFullQualifiedRemoteFunctionName(
-                            attachedTypeObj.tsymbol.pkgID.orgName.value,
-                            attachedTypeObj.tsymbol.pkgID.name.value, serviceName);
-                }
-                Map<String, String> tags = new HashMap<>();
-                tags.put("source.invocation_fqn", String.format("%s:%s:%s:%s:%d:%d", module.org.value,
-                        module.name.value, module.version.value, func.pos.src.cUnitName, func.pos.sLine,
-                        func.pos.sCol));
-                emitStartObservationInvocation(mv, serviceOrConnectorName, funcName,
-                        observationStartMethod, tags);
             }
 
             // generate instructions
@@ -1050,8 +974,7 @@ public class JvmMethodGen {
                 if (isModuleInitFunction(module, func) && terminator instanceof Return) {
                     generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
                 }
-                termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
-                        isObserved);
+                termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType);
             }
 
             errorGen.generateTryCatch(func, funcName, bb, instGen, termGen, labelGen);

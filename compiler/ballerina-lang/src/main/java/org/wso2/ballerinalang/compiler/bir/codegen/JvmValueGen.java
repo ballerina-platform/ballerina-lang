@@ -300,13 +300,13 @@ class JvmValueGen {
         }
 
         private void createObjectMethods(ClassWriter cw, @Nilable List<BIRFunction> attachedFuncs,
-                                         String className, String typeName) {
+                                         String className) {
 
             for (BIRFunction func : attachedFuncs) {
                 if (func == null) {
                     continue;
                 }
-                generateMethod(func, cw, this.module, this.currentObjectType, typeName);
+                generateMethod(func, cw, this.module, this.currentObjectType);
             }
         }
 
@@ -561,7 +561,7 @@ class JvmValueGen {
                 if (func == null) {
                     continue;
                 }
-                generateMethod(func, cw, this.module, null, "");
+                generateMethod(func, cw, this.module, null);
             }
         }
 
@@ -1196,7 +1196,7 @@ class JvmValueGen {
 
             @Nilable List<BIRFunction> attachedFuncs = typeDef.attachedFuncs;
             if (attachedFuncs != null) {
-                this.createObjectMethods(cw, attachedFuncs, className, typeDef.name.value);
+                this.createObjectMethods(cw, attachedFuncs, className);
             }
 
             this.createObjectInit(cw, fields, className);

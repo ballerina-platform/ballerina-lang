@@ -276,7 +276,7 @@ public class JvmPackageGen {
         // Desugar the record init function
         rewriteRecordInits(module.typeDefs);
 
-        // Desugar Call Terminators to include Observe start and end calls surrounding them
+        // Desugar BIR to include the observations
         rewriteObservableFunctions(module);
 
         // generate object/record value classes
@@ -326,8 +326,7 @@ public class JvmPackageGen {
             cw.visitSource(v.sourceFileName, null);
             // generate methods
             for (BIRFunction func : v.functions) {
-                String workerName = getFunction(func).workerName == null ? null : func.workerName.value;
-                generateMethod(getFunction(func), cw, module, null, workerName);
+                generateMethod(getFunction(func), cw, module, null);
             }
             // generate lambdas created during generating methods
             for (Map.Entry<String, BIRInstruction> l : lambdas.entrySet()) {
