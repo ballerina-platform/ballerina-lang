@@ -68,3 +68,13 @@ function runParallelUsingLocks() {
         panic error("Error in parallel run using locks");
     }
 }
+
+int x = 0;
+int y = 0;
+
+function add() {
+    x = x + 1;
+    y = y + 1;
+}
+
+function
