@@ -135,7 +135,6 @@ public class JvmConstants {
     public static final String ANNOTATION_MAP_NAME = "$annotation_data";
     public static final String DEFAULTABLE_ARGS_ANOT_NAME = "DefaultableArgs";
     public static final String DEFAULTABLE_ARGS_ANOT_FIELD = "args";
-    public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
 
     // types related constants
     public static final String TYPES_ERROR = "typeError";
@@ -186,6 +185,11 @@ public class JvmConstants {
     // observability related constants
     public static final String OBSERVER_CONTEXT = "org/ballerinalang/jvm/observability/ObserverContext";
     public static final String OBSERVE_UTILS = "org/ballerinalang/jvm/observability/ObserveUtils";
+    public static final String START_RESOURCE_OBSERVATION_METHOD = "startResourceObservation";
+    public static final String START_CALLABLE_OBSERVATION_METHOD = "startCallableObservation";
+    public static final String REPORT_ERROR_METHOD = "reportError";
+    public static final String STOP_OBSERVATION_METHOD = "stopObservation";
+    public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
 
     // visibility flags
     public static final int BAL_PUBLIC = 1;

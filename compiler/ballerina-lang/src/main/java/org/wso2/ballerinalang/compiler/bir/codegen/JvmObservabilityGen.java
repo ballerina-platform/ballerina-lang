@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.model.elements.Flag;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JIMethodCall;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRAnnotationAttachment;
@@ -51,6 +52,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVABLE_ANNOTATION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_UTILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REPORT_ERROR_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_CALLABLE_OBSERVATION_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_RESOURCE_OBSERVATION_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_OBSERVATION_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
@@ -63,6 +68,20 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTa
  * @since 1.2.0
  */
 class JvmObservabilityGen {
+    private static final String ENTRY_POINT_MAIN_METHOD_NAME = "main";
+    private static final String NEW_BB_PREFIX = "obsDesugaredBB";
+    private static final String SERVICE_IDENTIFIER = "$$service$";
+    private static final String ANONYMOUS_SERVICE_IDENTIFIER = "$anonService$";
+
+    // Observability tags related constants
+    private static final String SRC_TAG_KEYS_PREFIX = "source.";
+    private static final String ENTRY_POINT_TAG_KEYS_PREFIX = SRC_TAG_KEYS_PREFIX + "entry_point.";
+    private static final String IS_MAIN_ENTRY_POINT_TAG_KEY = ENTRY_POINT_TAG_KEYS_PREFIX + "main";
+    private static final String IS_RESOURCE_ENTRY_POINT_TAG_KEY = ENTRY_POINT_TAG_KEYS_PREFIX + "resource";
+    private static final String IS_REMOTE_TAG_KEY = SRC_TAG_KEYS_PREFIX + "remote";
+    private static final String IS_WORKER_TAG_KEY = SRC_TAG_KEYS_PREFIX + "worker";
+    private static final String INVOCATION_FQN_TAG_KEY = SRC_TAG_KEYS_PREFIX + "invocation_fqn";
+    private static final String TAG_VALUE_TRUE = "true";
 
     /**
      * Rewrite all observable functions in a package.
@@ -71,24 +90,27 @@ class JvmObservabilityGen {
      */
     public static void rewriteObservableFunctions(BIRPackage pkg) {
         for (BIRFunction func : pkg.functions) {
-            if ("main".equals(func.name.value)) {
+            if (ENTRY_POINT_MAIN_METHOD_NAME.equals(func.name.value)) {
                 Map<String, String> tags = new HashMap<>();
-                tags.put("source.entry_point.main", "true");
-                rewriteObservableFunctionBody(func, pkg, false, func.workerName.value, tags);
-            } else if ((func.flags & Flags.WORKER) == Flags.WORKER) {
+                tags.put(IS_MAIN_ENTRY_POINT_TAG_KEY, TAG_VALUE_TRUE);
+                rewriteObservableFunctionBody(func, pkg, false, StringUtils.EMPTY,
+                        func.name.value, tags);
+            } else if ((func.flags & Flags.WORKER) == Flags.WORKER) {   // Identifying lambdas generated for workers
                 Map<String, String> tags = new HashMap<>();
-                tags.put("worker", func.workerName.value);
-                rewriteObservableFunctionBody(func, pkg, false, func.workerName.value, tags);
+                tags.put(IS_WORKER_TAG_KEY, func.workerName.value);
+                rewriteObservableFunctionBody(func, pkg, false, StringUtils.EMPTY,
+                        func.workerName.value, tags);
             }
             rewriteObservableFunctionInvocations(func.basicBlocks, func.localVars, pkg);
         }
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
             boolean isService = typeDef.type instanceof BServiceType;
             for (BIRFunction func : typeDef.attachedFuncs) {
-                if (isService && !func.name.value.startsWith("$")) {
+                if (isService && !func.name.value.contains("$")) {
                     Map<String, String> tags = new HashMap<>();
-                    tags.put("source.entry_point.resource", "true");
-                    rewriteObservableFunctionBody(func, pkg, true, cleanUpServiceName(typeDef.name.value), tags);
+                    tags.put(IS_RESOURCE_ENTRY_POINT_TAG_KEY, TAG_VALUE_TRUE);
+                    rewriteObservableFunctionBody(func, pkg, true, cleanUpServiceName(typeDef.name.value),
+                            func.name.value, tags);
                 }
                 rewriteObservableFunctionInvocations(func.basicBlocks, func.localVars, pkg);
             }
@@ -99,25 +121,26 @@ class JvmObservabilityGen {
      * Rewrite a function so that the internal body will be observed. This adds the relevant start and stop calls at
      * the beginning and return basic blocks of the function.
      *
-     * This is only to be used in entry-point functions such as service resource functions and main method.
+     * This is only to be used in service resource functions, workers and main method.
      *
      * @param func The function to instrument
      * @param pkg The package which contains the function
      * @param isResourceObservation True if the function is a service resource
      * @param serviceName The name of the service
+     * @param resourceOrAction The name of the resource or action which will be observed
      * @param additionalTags The map of additional tags to be added to the observation
      */
     private static void rewriteObservableFunctionBody(BIRFunction func, BIRPackage pkg, boolean isResourceObservation,
-                                                      String serviceName, Map<String, String> additionalTags) {
-        DiagnosticPos desugaredInsPosition = func.pos;
+                                                      String serviceName, String resourceOrAction,
+                                                      Map<String, String> additionalTags) {
         // Injecting observe start call at the start of the function body
         {
             BIRBasicBlock startBB = func.basicBlocks.get(0);
-            BIRBasicBlock newStartBB = insertAndGetNextBasicBlock(func.basicBlocks, 1, "desugaredBB");
+            BIRBasicBlock newStartBB = insertAndGetNextBasicBlock(func.basicBlocks, 1, NEW_BB_PREFIX);
             swapBasicBlockContent(startBB, newStartBB);
 
-            injectObserveStartCall(startBB, func.localVars, pkg, desugaredInsPosition, isResourceObservation,
-                    serviceName, func.name.value, additionalTags);
+            injectObserveStartCall(startBB, func.localVars, pkg, null, func.pos, isResourceObservation,
+                    serviceName, resourceOrAction, additionalTags);
 
             // Fix the Basic Blocks linked list
             startBB.terminator.thenBB = newStartBB;
@@ -131,24 +154,24 @@ class JvmObservabilityGen {
             BIRTerminator currentTerminator = currentBB.terminator;
             if (currentTerminator.kind == InstructionKind.RETURN) {
                 if (isErrorCheckRequired) {
-                    BIRBasicBlock errorReportBB = insertAndGetNextBasicBlock(func.basicBlocks, i + 1, "desugaredBB");
-                    BIRBasicBlock observeEndBB = insertAndGetNextBasicBlock(func.basicBlocks, i + 2, "desugaredBB");
-                    BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(func.basicBlocks, i + 3, "desugaredBB");
+                    BIRBasicBlock errorReportBB = insertAndGetNextBasicBlock(func.basicBlocks, i + 1, NEW_BB_PREFIX);
+                    BIRBasicBlock observeEndBB = insertAndGetNextBasicBlock(func.basicBlocks, i + 2, NEW_BB_PREFIX);
+                    BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(func.basicBlocks, i + 3, NEW_BB_PREFIX);
                     swapBasicBlockContent(currentBB, newCurrentBB);
 
                     injectCheckAndReportErrorCalls(currentBB, errorReportBB, observeEndBB, func.localVars,
-                            desugaredInsPosition, returnValOperand);
-                    injectObserveEndCall(observeEndBB, desugaredInsPosition);
+                            null, returnValOperand);
+                    injectObserveEndCall(observeEndBB, null);
 
                     // Fix the Basic Blocks linked list
                     observeEndBB.terminator.thenBB = newCurrentBB;
                     errorReportBB.terminator.thenBB = observeEndBB;
                     i += 3; // Number of inserted BBs
                 } else {
-                    BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(func.basicBlocks, i + 1, "desugaredBB");
+                    BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(func.basicBlocks, i + 1, NEW_BB_PREFIX);
                     swapBasicBlockContent(currentBB, newCurrentBB);
 
-                    injectObserveEndCall(currentBB, desugaredInsPosition);
+                    injectObserveEndCall(currentBB, null);
 
                     // Fix the Basic Blocks linked list
                     currentBB.terminator.thenBB = newCurrentBB;
@@ -185,10 +208,6 @@ class JvmObservabilityGen {
                 }
                 if (isRemote || isObservableAnnotationPresent) {
                     DiagnosticPos desugaredInsPosition = callIns.pos;
-                    Map<String, String> tags = new HashMap<>();
-                    if (isRemote) {
-                        tags.put("source.remote", "true");
-                    }
                     String action;
                     if (callIns.name.value.contains(".")) {
                         String[] split = callIns.name.value.split("\\.");
@@ -206,16 +225,20 @@ class JvmObservabilityGen {
                     }
                     boolean isErrorCheckRequired = isErrorAssignable(callIns.lhsOp.variableDcl);
 
+                    Map<String, String> tags = new HashMap<>();
+                    if (isRemote) {
+                        tags.put(IS_REMOTE_TAG_KEY, TAG_VALUE_TRUE);
+                    }
                     if (isErrorCheckRequired) {
-                        BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(basicBlocks, i + 1, "desugaredBB");
+                        BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(basicBlocks, i + 1, NEW_BB_PREFIX);
                         BIRBasicBlock errorCheckBranchBB = insertAndGetNextBasicBlock(basicBlocks, i + 2,
-                                "desugaredBB");
-                        BIRBasicBlock errorReportBB = insertAndGetNextBasicBlock(basicBlocks, i + 3, "desugaredBB");
-                        BIRBasicBlock observeEndBB = insertAndGetNextBasicBlock(basicBlocks, i + 4, "desugaredBB");
+                                NEW_BB_PREFIX);
+                        BIRBasicBlock errorReportBB = insertAndGetNextBasicBlock(basicBlocks, i + 3, NEW_BB_PREFIX);
+                        BIRBasicBlock observeEndBB = insertAndGetNextBasicBlock(basicBlocks, i + 4, NEW_BB_PREFIX);
                         swapBasicBlockContent(currentBB, newCurrentBB);
 
-                        injectObserveStartCall(currentBB, scopeVarList, pkg, desugaredInsPosition, false, connectorName,
-                                action, tags);
+                        injectObserveStartCall(currentBB, scopeVarList, pkg, desugaredInsPosition, callIns.pos, false,
+                                connectorName, action, tags);
                         injectCheckAndReportErrorCalls(errorCheckBranchBB, errorReportBB, observeEndBB, scopeVarList,
                                 desugaredInsPosition, callIns.lhsOp);
                         injectObserveEndCall(observeEndBB, desugaredInsPosition);
@@ -227,12 +250,12 @@ class JvmObservabilityGen {
                         currentBB.terminator.thenBB = newCurrentBB; // Current BB now contains observe start call
                         i += 4; // Number of inserted BBs
                     } else {
-                        BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(basicBlocks, i + 1, "desugaredBB");
-                        BIRBasicBlock observeEndBB = insertAndGetNextBasicBlock(basicBlocks, i + 2, "desugaredBB");
+                        BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(basicBlocks, i + 1, NEW_BB_PREFIX);
+                        BIRBasicBlock observeEndBB = insertAndGetNextBasicBlock(basicBlocks, i + 2, NEW_BB_PREFIX);
                         swapBasicBlockContent(currentBB, newCurrentBB);
 
-                        injectObserveStartCall(currentBB, scopeVarList, pkg, desugaredInsPosition, false, connectorName,
-                                action, tags);
+                        injectObserveStartCall(currentBB, scopeVarList, pkg, desugaredInsPosition, callIns.pos, false,
+                                connectorName, action, tags);
                         injectObserveEndCall(observeEndBB, desugaredInsPosition);
 
                         // Fix the Basic Blocks linked list
@@ -253,36 +276,37 @@ class JvmObservabilityGen {
      * @param observeStartBB The basic block to which the start observation call should be injected
      * @param scopeVarList The variables list in the scope
      * @param pkg The package which contains the instruction which will be observed
-     * @param pos The position of all instructions, variables declarations, terminators, etc.
-     *            and the instructions which will be observed
+     * @param desugaredInsPos The position of all instructions, variables declarations, terminators to be generated
+     * @param originalInsPos Position of the original instruction which will be added as a tag to the observation
      * @param isResourceObservation True if a service resource will be observed by the observation
      * @param serviceOrConnector The service or connector name to which the instruction was attached to
-     * @param resourceOrAction The resource or action name which will be observed
+     * @param resourceOrAction The name of the resource or action which will be observed
      * @param additionalTags The map of additional tags to be added to the observation
      */
     private static void injectObserveStartCall(BIRBasicBlock observeStartBB, List<BIRVariableDcl> scopeVarList,
-                                               BIRPackage pkg, DiagnosticPos pos, boolean isResourceObservation,
+                                               BIRPackage pkg, DiagnosticPos desugaredInsPos,
+                                               DiagnosticPos originalInsPos, boolean isResourceObservation,
                                                String serviceOrConnector, String resourceOrAction,
                                                Map<String, String> additionalTags) {
         BIROperand connectorNameOperand = generateConstantOperand(
                 String.format("%s_service_or_connector", observeStartBB.id.value), serviceOrConnector, scopeVarList,
-                observeStartBB, pos);
+                observeStartBB, desugaredInsPos);
         BIROperand actionNameOperand = generateConstantOperand(String.format("%s_resource_or_action",
-                observeStartBB.id.value), resourceOrAction, scopeVarList, observeStartBB, pos);
+                observeStartBB.id.value), resourceOrAction, scopeVarList, observeStartBB, desugaredInsPos);
         Map<String, String> tags = new HashMap<>();
-        tags.put("source.invocation_fqn", String.format("%s:%s:%s:%s:%d:%d", pkg.org.value, pkg.name.value,
-                pkg.version.value, pos.src.cUnitName, pos.sLine, pos.sCol));
+        tags.put(INVOCATION_FQN_TAG_KEY, String.format("%s:%s:%s:%s:%d:%d", pkg.org.value, pkg.name.value,
+                pkg.version.value, originalInsPos.src.cUnitName, originalInsPos.sLine, originalInsPos.sCol));
         tags.putAll(additionalTags);
         BIROperand tagsMapOperand = generateMapOperand(String.format("%s_tags", observeStartBB.id.value), tags,
-                scopeVarList, observeStartBB, pos);
+                scopeVarList, observeStartBB, desugaredInsPos);
 
-        JIMethodCall observeStartCallTerminator = new JIMethodCall(pos);
+        JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsPos);
         observeStartCallTerminator.invocationType = INVOKESTATIC;
         observeStartCallTerminator.jClassName = OBSERVE_UTILS;
         observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE,
                 MAP_VALUE);
         observeStartCallTerminator.name = isResourceObservation
-                ? "startResourceObservation" : "startCallableObservation";
+                ? START_RESOURCE_OBSERVATION_METHOD : START_CALLABLE_OBSERVATION_METHOD;
         observeStartCallTerminator.args = Arrays.asList(connectorNameOperand, actionNameOperand, tagsMapOperand);
         observeStartBB.terminator = observeStartCallTerminator;
     }
@@ -323,7 +347,7 @@ class JvmObservabilityGen {
         reportErrorCallTerminator.invocationType = INVOKESTATIC;
         reportErrorCallTerminator.jClassName = OBSERVE_UTILS;
         reportErrorCallTerminator.jMethodVMSig = String.format("(L%s;)V", ERROR_VALUE);
-        reportErrorCallTerminator.name = "reportError";
+        reportErrorCallTerminator.name = REPORT_ERROR_METHOD;
         reportErrorCallTerminator.args = Collections.singletonList(castedErrorOperand);
         errorReportBB.terminator = reportErrorCallTerminator;
     }
@@ -339,7 +363,7 @@ class JvmObservabilityGen {
         observeEndCallTerminator.invocationType = INVOKESTATIC;
         observeEndCallTerminator.jClassName = OBSERVE_UTILS;
         observeEndCallTerminator.jMethodVMSig = "()V";
-        observeEndCallTerminator.name = "stopObservation";
+        observeEndCallTerminator.name = STOP_OBSERVATION_METHOD;
         observeEndCallTerminator.args = Collections.emptyList();
         observeEndBB.terminator = observeEndCallTerminator;
     }
@@ -445,12 +469,11 @@ class JvmObservabilityGen {
      * @return The cleaned up service name which should be equal to the name given by the developer
      */
     private static String cleanUpServiceName(String serviceName) {
-        final String serviceIdentifier = "$$service$";
-        if (serviceName.contains(serviceIdentifier)) {
-            if (serviceName.contains("$anonService$")) {
-                return serviceName.replace(serviceIdentifier, "_");
+        if (serviceName.contains(SERVICE_IDENTIFIER)) {
+            if (serviceName.contains(ANONYMOUS_SERVICE_IDENTIFIER)) {
+                return serviceName.replace(SERVICE_IDENTIFIER, "_");
             } else {
-                return serviceName.substring(0, serviceName.lastIndexOf(serviceIdentifier));
+                return serviceName.substring(0, serviceName.lastIndexOf(SERVICE_IDENTIFIER));
             }
         }
         return serviceName;
