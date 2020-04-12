@@ -328,15 +328,9 @@ public class BIRPackageSymbolEnter {
     }
 
     private void defineFunction(DataInputStream dataInStream) throws IOException {
-        dataInStream.readInt(); // skip line start
-        dataInStream.readInt(); // skip line end
-        dataInStream.readInt(); // skip col start
-        dataInStream.readInt(); // skip col end
         String source = getStringCPEntryValue(dataInStream);
-
         // Consider attached functions.. remove the first variable
         String funcName = getStringCPEntryValue(dataInStream);
-        String workerName = getStringCPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
 
         BInvokableType funcType = (BInvokableType) readBType(dataInStream);
