@@ -165,7 +165,7 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] EXPRESSIONS = { ParserRuleContext.BASIC_LITERAL,
             ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION, ParserRuleContext.TYPEOF_EXPRESSION,
-            ParserRuleContext.UNARY_EXPRESSION };
+            ParserRuleContext.UNARY_EXPRESSION, ParserRuleContext.IS_EXPRESSION };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -823,8 +823,13 @@ public class BallerinaParserErrorHandler {
                 case UNARY_OPERATOR:
                     hasMatch = isUnaryOperator(nextToken);
                     break;
+                case IS_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.IS_KEYWORD;
+                    break;
+                case IS_EXPRESSION:
+                    return seekInIsExpression(currentCtx, lookahead, currentDepth, matchingRulesCount);
 
-                // Productions (Non-terminals which does'nt have alternative paths)
+                // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
                 case FUNC_DEFINITION:
                 case RETURN_TYPE_DESCRIPTOR:
@@ -1020,7 +1025,8 @@ public class BallerinaParserErrorHandler {
         }
 
         ParserRuleContext[] alternatives = { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
-                ParserRuleContext.OPEN_BRACKET, ParserRuleContext.OPEN_PARENTHESIS, nextContext };
+                ParserRuleContext.OPEN_BRACKET, ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.IS_KEYWORD,
+                nextContext };
         return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives);
     }
 
@@ -1471,6 +1477,7 @@ public class BallerinaParserErrorHandler {
                 // return ParserRuleContext.ACCESS_EXPRESSION_RHS;
             case BASIC_LITERAL:
             case VARIABLE_REF:
+            case IS_EXPRESSION:
                 return ParserRuleContext.EXPRESSION_RHS;
             case MAPPING_FIELD_NAME:
                 return ParserRuleContext.SPECIFIC_FIELD_RHS;
@@ -1515,6 +1522,9 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.UNARY_OPERATOR;
             case UNARY_OPERATOR:
                 return ParserRuleContext.EXPRESSION;
+            case IS_KEYWORD:
+                startContext(ParserRuleContext.IS_EXPRESSION);
+                return ParserRuleContext.TYPE_DESCRIPTOR;
 
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
@@ -1619,6 +1629,9 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.SEMICOLON;
             case RETURN_TYPE_DESCRIPTOR:
                 return ParserRuleContext.FUNC_BODY;
+            case IS_EXPRESSION:
+                endContext();
+                return ParserRuleContext.EXPRESSION_RHS;
             default:
                 if (isStatement(parentCtx) || isParameter(parentCtx)) {
                     return ParserRuleContext.VARIABLE_NAME;
@@ -2103,6 +2116,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.TYPEOF_KEYWORD;
             case UNARY_OPERATOR:
                 return SyntaxKind.PLUS_TOKEN;
+            case IS_KEYWORD:
+                return SyntaxKind.IS_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
@@ -2197,6 +2212,61 @@ public class BallerinaParserErrorHandler {
             case MINUS_TOKEN:
             case NEGATION_TOKEN:
             case EXCLAMATION_MARK_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Search for matching token sequences within is expression and returns the most optimal solution.
+     *
+     * @param currentCtx Current context
+     * @param lookahead Position of the next token to consider, relative to the position of the original error
+     * @param currentDepth Amount of distance traveled so far
+     * @param currentMatches Matching tokens found so far
+     * @param fixes Fixes made so far
+     * @return Recovery result
+     */
+    private Result seekInIsExpression(ParserRuleContext currentCtx, int lookahead, int currentDepth,
+                                          int currentMatches) {
+        STToken nextToken = this.tokenReader.peek(lookahead);
+        currentDepth++;
+        if (!isTypeDescriptor(nextToken.kind)) {
+            Result fixedPathResult = fixAndContinue(currentCtx, lookahead, currentDepth);
+            return getFinalResult(currentMatches, fixedPathResult);
+        }
+
+        ParserRuleContext nextContext;
+        STToken nextNextToken = this.tokenReader.peek(lookahead + 1);
+        switch (nextNextToken.kind) {
+            case IS_KEYWORD:
+                nextContext = ParserRuleContext.IS_KEYWORD;
+                break;
+            default:
+                nextContext = ParserRuleContext.EXPRESSION_RHS;
+                break;
+        }
+
+        currentMatches++;
+        lookahead++;
+        Result result = seekMatch(nextContext, lookahead, currentDepth);
+        result.ctx = currentCtx;
+        return getFinalResult(currentMatches, result);
+    }
+
+    /**
+     * Check whether a token kind is a type descriptor.
+     *
+     * @param kind Token kind to check
+     * @return <code>true</code> if the given token kind belongs to a type descriptor.<code>false</code> otherwise
+     */
+    private boolean isTypeDescriptor(SyntaxKind kind) {
+        switch (kind) {
+            case SIMPLE_TYPE:
+            case RECORD_TYPE_DESCRIPTOR:
+            case OBJECT_TYPE_DESCRIPTOR:
+            case RETURN_TYPE_DESCRIPTOR:
                 return true;
             default:
                 return false;
