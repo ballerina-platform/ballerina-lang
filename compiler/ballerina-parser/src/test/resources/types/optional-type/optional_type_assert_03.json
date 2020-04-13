@@ -1,0 +1,26 @@
+{
+  "kind": "VARIABLE_DECL",
+  "children": [
+    {
+      "kind": "OPTIONAL_TYPE",
+      "children": [
+        {
+          "kind": "SIMPLE_TYPE",
+          "value": "int"
+        },
+        {
+          "kind": "QUESTION_MARK_TOKEN"
+        }
+      ]
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true
+    }
+  ]
+}
+
