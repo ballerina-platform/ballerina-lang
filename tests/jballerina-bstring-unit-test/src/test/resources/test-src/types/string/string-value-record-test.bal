@@ -45,3 +45,19 @@ function testMapToKeys() returns int {
             "city🇻🇦": "Colombo 03", "country🇱🇰": "Sri Lanka" };
     return addrMap.keys().toString().length();
 }
+
+public function main() {
+_ = testOpenRecord();
+}
+
+type Fruit record {|
+    string name;
+    string color;
+    string...;
+|};
+
+function testOpenRecord() returns int {
+    Fruit fruit = { name: "apple", color: "green", "type": "foreign🌳"};
+    string s = fruit.name + fruit.color + <string>fruit["type"];
+    return s.length();
+}

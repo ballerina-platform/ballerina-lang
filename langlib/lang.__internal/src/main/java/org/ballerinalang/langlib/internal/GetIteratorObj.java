@@ -42,4 +42,7 @@ public class GetIteratorObj {
         return strm.getIteratorObj();
     }
 
+    public static Object getIteratorObj_bstring(Strand strand, StreamValue strm) {
+        return getIteratorObj(strand, strm);
+    }
 }

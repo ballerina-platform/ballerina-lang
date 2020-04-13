@@ -125,7 +125,7 @@ public class StringTest {
     @Test
     public void testJsonValueOf() {
         BValue[] args = {JsonParser.parse("{\"name\":\"chanaka\"}")};
-        BValue[] returns = BRunUtil.invoke(result, "jsonValueOf", args);
+        BValue[] returns = BRunUtil.invoke_bstring(result, "jsonValueOf", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);

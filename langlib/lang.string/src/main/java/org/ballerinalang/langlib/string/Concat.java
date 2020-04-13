@@ -18,8 +18,10 @@
 
 package org.ballerinalang.langlib.string;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -47,5 +49,8 @@ public class Concat {
         }
 
         return stringBuilder.toString();
+    }
+    public static BString concat_bstring(Strand strand, ArrayValue arrayValue) {
+        return StringUtils.fromString(concat(strand, arrayValue));
     }
 }
