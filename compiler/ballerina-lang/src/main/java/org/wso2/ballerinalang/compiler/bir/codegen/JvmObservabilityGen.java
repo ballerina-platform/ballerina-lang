@@ -159,8 +159,9 @@ class JvmObservabilityGen {
                     BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(func.basicBlocks, i + 3, NEW_BB_PREFIX);
                     swapBasicBlockContent(currentBB, newCurrentBB);
 
-                    injectCheckAndReportErrorCalls(currentBB, errorReportBB, observeEndBB, func.localVars,
-                            null, returnValOperand);
+                    injectCheckErrorCalls(currentBB, errorReportBB, observeEndBB, func.localVars, null,
+                            returnValOperand);
+                    injectReportErrorCall(errorReportBB, func.localVars, null, returnValOperand);
                     injectObserveEndCall(observeEndBB, null);
 
                     // Fix the Basic Blocks linked list
@@ -177,6 +178,19 @@ class JvmObservabilityGen {
                     currentBB.terminator.thenBB = newCurrentBB;
                     i += 1; // Number of inserted BBs
                 }
+            } else if (currentTerminator.kind == InstructionKind.PANIC) {
+                BIRTerminator.Panic panicCall = (BIRTerminator.Panic) currentTerminator;
+                BIRBasicBlock observeEndBB = insertAndGetNextBasicBlock(func.basicBlocks, i + 1, NEW_BB_PREFIX);
+                BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(func.basicBlocks, i + 2, NEW_BB_PREFIX);
+                swapBasicBlockTerminator(currentBB, newCurrentBB);
+
+                injectReportErrorCall(currentBB, func.localVars, currentTerminator.pos, panicCall.errorOp);
+                injectObserveEndCall(observeEndBB, currentTerminator.pos);
+
+                // Fix the Basic Blocks linked list
+                currentBB.terminator.thenBB = observeEndBB;
+                observeEndBB.terminator.thenBB = newCurrentBB;
+                i += 2; // Number of inserted BBs
             }
             i++;
         }
@@ -239,8 +253,9 @@ class JvmObservabilityGen {
 
                         injectObserveStartCall(currentBB, scopeVarList, pkg, desugaredInsPosition, callIns.pos, false,
                                 connectorName, action, tags);
-                        injectCheckAndReportErrorCalls(errorCheckBranchBB, errorReportBB, observeEndBB, scopeVarList,
+                        injectCheckErrorCalls(errorCheckBranchBB, errorReportBB, observeEndBB, scopeVarList,
                                 desugaredInsPosition, callIns.lhsOp);
+                        injectReportErrorCall(errorReportBB, scopeVarList, desugaredInsPosition, callIns.lhsOp);
                         injectObserveEndCall(observeEndBB, desugaredInsPosition);
 
                         // Fix the Basic Blocks linked list
@@ -312,35 +327,46 @@ class JvmObservabilityGen {
     }
 
     /**
-     * Inject branch condition for checking if the return value is an error and call report error if it is an error.
+     * Inject branch condition for checking if a value is an error.
      *
      * @param errorCheckBranchBB The basic block to which the error check should be injected
      * @param errorReportBB The basic block to which the report error call should be injected
      * @param observeEndBB The basic block which will contain the stop observation call
      * @param scopeVarList The variables list in the scope
      * @param pos The position of all instructions, variables declarations, terminators, etc.
-     * @param returnValueOperand Operand for passing the return value which should be checked if it is an error
+     * @param valueOperand Operand for passing the value which should be checked if it is an error
      */
-    private static void injectCheckAndReportErrorCalls(BIRBasicBlock errorCheckBranchBB, BIRBasicBlock errorReportBB,
-                                                       BIRBasicBlock observeEndBB, List<BIRVariableDcl> scopeVarList,
-                                                       DiagnosticPos pos, BIROperand returnValueOperand) {
+    private static void injectCheckErrorCalls(BIRBasicBlock errorCheckBranchBB, BIRBasicBlock errorReportBB,
+                                              BIRBasicBlock observeEndBB, List<BIRVariableDcl> scopeVarList,
+                                              DiagnosticPos pos, BIROperand valueOperand) {
         BIRVariableDcl isErrorVariableDcl = new BIRVariableDcl(symbolTable.booleanType,
                 new Name(String.format("$_%s_is_error_$", errorCheckBranchBB.id.value)), VarScope.FUNCTION,
                 VarKind.TEMP);
         scopeVarList.add(isErrorVariableDcl);
         BIROperand isErrorOperand = new BIROperand(isErrorVariableDcl);
         BIRNonTerminator.TypeTest errorTypeTestInstruction = new BIRNonTerminator.TypeTest(pos, symbolTable.errorType,
-                isErrorOperand, returnValueOperand);
+                isErrorOperand, valueOperand);
         errorCheckBranchBB.instructions.add(errorTypeTestInstruction);
         errorCheckBranchBB.terminator = new BIRTerminator.Branch(pos, isErrorOperand, errorReportBB, observeEndBB);
+    }
 
+    /**
+     * Inject report error call.
+     *
+     * @param errorReportBB The basic block to which the report error call should be injected
+     * @param scopeVarList The variables list in the scope
+     * @param pos The position of all instructions, variables declarations, terminators, etc.
+     * @param errorOperand Operand for passing the error
+     */
+    private static void injectReportErrorCall(BIRBasicBlock errorReportBB, List<BIRVariableDcl> scopeVarList,
+                                              DiagnosticPos pos, BIROperand errorOperand) {
         BIRVariableDcl castedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorType,
                 new Name(String.format("$_%s_casted_error_$", errorReportBB.id.value)), VarScope.FUNCTION,
                 VarKind.TEMP);
         scopeVarList.add(castedErrorVariableDcl);
         BIROperand castedErrorOperand = new BIROperand(castedErrorVariableDcl);
         BIRNonTerminator.TypeCast errorCastInstruction = new BIRNonTerminator.TypeCast(pos, castedErrorOperand,
-                returnValueOperand, symbolTable.errorType, false);
+                errorOperand, symbolTable.errorType, false);
         errorReportBB.instructions.add(errorCastInstruction);
 
         JIMethodCall reportErrorCallTerminator = new JIMethodCall(pos);
@@ -437,7 +463,16 @@ class JvmObservabilityGen {
         List<BIRNonTerminator> firstBBInstructions = firstBB.instructions;
         firstBB.instructions = secondBB.instructions;
         secondBB.instructions = firstBBInstructions;
+        swapBasicBlockTerminator(firstBB, secondBB);
+    }
 
+    /**
+     * Swap the terminators of two basic blocks.
+     *
+     * @param firstBB The first BB of which terminator should end up in second BB
+     * @param secondBB The second BB of which terminator should end up in first BB
+     */
+    private static void swapBasicBlockTerminator(BIRBasicBlock firstBB, BIRBasicBlock secondBB) {
         BIRTerminator firstBBTerminator = firstBB.terminator;
         firstBB.terminator = secondBB.terminator;
         secondBB.terminator = firstBBTerminator;
