@@ -1,5 +1,5 @@
 # The _treegen_ tool
-This tool generates source code required to work with Ballerina syntax trees. By default, it generates following classes.
+This tool generates source code required to work with Ballerina syntax trees. By default, it generates the following classes.
 
 - [Internal syntax tree nodes](../ballerina-parser/src/main/java/io/ballerinalang/compiler/internal/parser/tree/)
 - [External syntax tree nodes](../ballerina-parser/src/main/java/io/ballerinalang/compiler/syntax/tree/)
@@ -14,7 +14,7 @@ This tool generates source code required to work with Ballerina syntax trees. By
 Update the [`syntax_tree_descriptor.json`](src/main/resources/syntax_tree_descriptor.json) with the necessary changes. 
 
 ### Step 2:
-Run the following command. By default, the tool does and in-place update of the above mentioned classes.
+Run the following command. By default, the tool does an in-place update of the above-mentioned classes.
 ```bash
 ./gradle treegen
 ```
