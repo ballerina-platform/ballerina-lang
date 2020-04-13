@@ -832,21 +832,22 @@ public class Types {
     }
 
     public boolean isArrayTypesAssignable(BArrayType source, BType target, Set<TypePair> unresolvedTypes) {
+        BType sourceElementType = source.getElementType();
         if (target.tag == TypeTags.ARRAY) {
             // Both types are array types
             BArrayType lhsArrayType = (BArrayType) target;
-            if (source.state == BArrayState.UNSEALED) {
-                return isAssignable(source.eType, lhsArrayType.eType, unresolvedTypes);
+            if (lhsArrayType.state == BArrayState.UNSEALED) {
+                return isAssignable(sourceElementType, lhsArrayType.eType, unresolvedTypes);
             }
             return checkSealedArraySizeEquality(source, lhsArrayType)
-                    && isAssignable(source.eType, lhsArrayType.eType, unresolvedTypes);
+                    && isAssignable(sourceElementType, lhsArrayType.eType, unresolvedTypes);
         }
 
         if (target.tag == TypeTags.UNION) {
-            return isAssignable(source.eType, target, unresolvedTypes);
+            return isAssignable(sourceElementType, target, unresolvedTypes);
         }
 
-        BType sourceElementType = source.getElementType();
+
         // If the target type is a JSON, then element type of the rhs array
         // should only be a JSON supported type.
         if (target.tag == TypeTags.JSON) {
