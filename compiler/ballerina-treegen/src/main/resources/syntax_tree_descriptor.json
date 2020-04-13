@@ -1109,6 +1109,21 @@
         }
       ]
     },
+    {
+      "name": "OptionalTypeDescriptor",
+      "base": "Node",
+      "kind": "OPTIONAL_TYPE",
+      "attributes": [
+        {
+          "name": "typeDescriptor",
+          "type": "Node"
+        },
+        {
+          "name": "questionMarkToken",
+          "type": "Token"
+        }
+      ]
+    },
 
     {
       "name": "ObjectField",

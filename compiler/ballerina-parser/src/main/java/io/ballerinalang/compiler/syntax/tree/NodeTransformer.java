@@ -236,6 +236,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(nilTypeDescriptor);
     }
 
+    public T transform(OptionalTypeDescriptor optionalTypeDescriptor) {
+        return transformSyntaxNode(optionalTypeDescriptor);
+    }
+
     public T transform(ObjectField objectField) {
         return transformSyntaxNode(objectField);
     }
@@ -287,10 +291,6 @@ public abstract class NodeTransformer<T> {
     // TODO Why Minutiae is in this visitor? Check on this.
     public T transform(Minutiae minutiae) {
         return transformSyntaxNode(minutiae);
-    }
-
-    public T transform(OptionalTypeDescriptor optionalTypeDescriptor) {
-        return transformSyntaxNode(optionalTypeDescriptor);
     }
 
     /**

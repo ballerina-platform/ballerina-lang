@@ -633,6 +633,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(OptionalTypeDescriptor optionalTypeDescriptor) {
+        Node typeDescriptor = modifyNode(optionalTypeDescriptor.typeDescriptor());
+        Token questionMarkToken = modifyToken(optionalTypeDescriptor.questionMarkToken());
+        return optionalTypeDescriptor.modify(
+                typeDescriptor,
+                questionMarkToken);
+    }
+
+    @Override
     public Node transform(ObjectField objectField) {
         Token visibilityQualifier = modifyToken(objectField.visibilityQualifier());
         Node type = modifyNode(objectField.type());
