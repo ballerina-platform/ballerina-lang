@@ -133,7 +133,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethod
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.loadDefaultValue;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.BIRFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.birFunctionMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
@@ -275,8 +274,7 @@ public class JvmTerminatorGen {
         }
 
         void genTerminator(BIRTerminator terminator, BIRFunction func, String funcName,
-                           int localVarOffset, int returnVarRefIndex, @Nilable BType attachedType,
-                           boolean isObserved /* = false */) {
+                           int localVarOffset, int returnVarRefIndex, @Nilable BType attachedType) {
 
             switch (terminator.kind) {
                 case LOCK:
@@ -298,8 +296,7 @@ public class JvmTerminatorGen {
                     this.genBranchTerm((BIRTerminator.Branch) terminator, funcName);
                     return;
                 case RETURN:
-                    this.genReturnTerm((BIRTerminator.Return) terminator, returnVarRefIndex, func, isObserved,
-                            localVarOffset);
+                    this.genReturnTerm((BIRTerminator.Return) terminator, returnVarRefIndex, func, localVarOffset);
                     return;
                 case PANIC:
                     this.errorGen.genPanic((BIRTerminator.Panic) terminator);
@@ -1181,11 +1178,8 @@ public class JvmTerminatorGen {
         }
 
         public void genReturnTerm(BIRTerminator.Return returnIns, int returnVarRefIndex, BIRFunction func,
-                                  boolean isObserved /* = false */, int localVarOffset /* = -1 */) {
+                                  int localVarOffset /* = -1 */) {
 
-            if (isObserved) {
-                emitStopObservationInvocation(this.mv);
-            }
             BType bType = func.type.retType;
             if (bType.tag == TypeTags.NIL) {
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);

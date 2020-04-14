@@ -121,9 +121,8 @@ public class MetricsTestCase extends BaseTest {
                 "service=\"metricsTest\",http_status_code_group=\"2xx\"," +
                 "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:49:24\",source_remote=\"true\"," +
                 "action=\"respond\",resource=\"getProduct\",connector_name=\"ballerina/http/Caller\",}", regexNumber);
-        expectedMetrics.put("response_time_seconds_value{" +
-                "service=\"metricsTest\",connector_name=\"http\"," +
-                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:39:5\",source_service=\"true\"," +
+        expectedMetrics.put("response_time_seconds_value{service=\"metricsTest\",connector_name=\"http\"," +
+                "source_entry_point_resource=\"true\",source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:39:5\"," +
                 "protocol=\"http\",resource=\"getProduct\",http_url=\"/test\",http_method=\"GET\",}", regexNumber);
         expectedMetrics.put("response_time_seconds_value{" +
                 "service=\"metricsTest\",source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:43:24\"," +
@@ -138,9 +137,8 @@ public class MetricsTestCase extends BaseTest {
                 "service=\"metricsTest\",http_status_code_group=\"2xx\"," +
                 "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:49:24\",source_remote=\"true\"," +
                 "action=\"respond\",resource=\"getProduct\",connector_name=\"ballerina/http/Caller\",}", regexNumber);
-        expectedMetrics.put("response_time_nanoseconds_total_value{" +
-                "service=\"metricsTest\",connector_name=\"http\"," +
-                "source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:39:5\",source_service=\"true\"," +
+        expectedMetrics.put("response_time_nanoseconds_total_value{service=\"metricsTest\",connector_name=\"http\"," +
+                "source_entry_point_resource=\"true\",source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:39:5\"," +
                 "protocol=\"http\",resource=\"getProduct\",http_url=\"/test\",http_method=\"GET\",}", regexNumber);
         expectedMetrics.put("response_time_nanoseconds_total_value{" +
                 "service=\"metricsTest\",source_invocation_fqn=\"_anon:.:0.0.0:metrics_test.bal:43:24\"," +

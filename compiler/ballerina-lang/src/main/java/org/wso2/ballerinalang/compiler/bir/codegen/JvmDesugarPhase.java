@@ -17,49 +17,27 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
-import org.ballerinalang.model.elements.Flag;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JIMethodCall;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.ConstantLoad;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.FieldAccess;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.NewStructure;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeCast;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.TypeTest;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.UnaryOP;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
-import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.InstructionKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import static org.objectweb.asm.Opcodes.INVOKESTATIC;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVABLE_ANNOTATION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBSERVE_UTILS;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupFunctionName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getBasicBlock;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunction;
@@ -67,7 +45,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFuncti
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariableDcl;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextVarId;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
@@ -264,195 +241,5 @@ public class JvmDesugarPhase {
             index += 1;
         }
         func.localVars = updatedLocalVars;
-    }
-
-    public static void rewriteObservableFunctionInvocations(BIRPackage pkg) {
-        for (BIRFunction func : pkg.functions) {
-            rewriteObservableFunctionInvocations(func.basicBlocks, func.localVars, pkg);
-        }
-        for (BIRTypeDefinition typeDef : pkg.typeDefs) {
-            for (BIRFunction attachedFunc : typeDef.attachedFuncs) {
-                rewriteObservableFunctionInvocations(attachedFunc.basicBlocks, attachedFunc.localVars, pkg);
-            }
-        }
-    }
-
-    public static void rewriteObservableFunctionInvocations(List<BIRBasicBlock> basicBlocks,
-                                                            List<BIRVariableDcl> scopeVarList, BIRPackage pkg) {
-        int i = 0;
-        while (i < basicBlocks.size()) {
-            BIRBasicBlock currentBB = basicBlocks.get(i);
-            BIRTerminator currentTerminator = currentBB.terminator;
-            if (currentTerminator.kind == InstructionKind.CALL) {
-                BIRTerminator.Call callIns = (BIRTerminator.Call) currentTerminator;
-                boolean isRemote = callIns.calleeFlags.contains(Flag.REMOTE);
-                boolean isObservableAnnotationPresent = false;
-                for (BIRNode.BIRAnnotationAttachment annot : callIns.calleeAnnotAttachments) {
-                    if (OBSERVABLE_ANNOTATION.equals(annot.packageID.orgName.value + "/"
-                            + annot.packageID.name.value + "/" + annot.annotTagRef.value)) {
-                        isObservableAnnotationPresent = true;
-                        break;
-                    }
-                }
-                if (isRemote || isObservableAnnotationPresent) {
-                    DiagnosticPos desugaredInsPosition = callIns.pos;
-                    String action;
-                    if (callIns.name.value.contains(".")) {
-                        String[] split = callIns.name.value.split("\\.");
-                        action = split[1];
-                    } else {
-                        action = callIns.name.value;
-                    }
-                    String connectorName;
-                    if (callIns.isVirtual) {
-                        BIRVariableDcl selfArg = getVariableDcl(callIns.args.get(0).variableDcl);
-                        connectorName = getPackageName(selfArg.type.tsymbol.pkgID.orgName,
-                                selfArg.type.tsymbol.pkgID.name) + selfArg.type.tsymbol.name.value;
-                    } else {
-                        connectorName = "";
-                    }
-
-                    boolean isErrorCheckRequired = false;
-                    if (callIns.lhsOp.variableDcl.type instanceof BUnionType) {
-                        BUnionType returnUnionType = (BUnionType) callIns.lhsOp.variableDcl.type;
-                        isErrorCheckRequired = returnUnionType.getMemberTypes().stream()
-                                .anyMatch(type -> type instanceof BErrorType);
-                    } else if (callIns.lhsOp.variableDcl.type instanceof BErrorType) {
-                        isErrorCheckRequired = true;
-                    }
-
-                    BIRBasicBlock newCurrentBB = insertAndGetNextBasicBlock(basicBlocks, i + 1, "desugaredBB");
-                    BIRBasicBlock errorCheckBranchBB = null;
-                    BIRBasicBlock errorReportBB = null;
-                    if (isErrorCheckRequired) {
-                        errorCheckBranchBB = insertAndGetNextBasicBlock(basicBlocks, i + 2, "desugaredBB");
-                        errorReportBB = insertAndGetNextBasicBlock(basicBlocks, i + 3, "desugaredBB");
-                    }
-                    BIRBasicBlock observeEndBB = insertAndGetNextBasicBlock(basicBlocks,
-                            i + (isErrorCheckRequired ? 4 : 2), "desugaredBB");
-
-                    newCurrentBB.instructions = currentBB.instructions;
-                    newCurrentBB.terminator = currentBB.terminator;
-                    currentBB.instructions = new ArrayList<>(0);
-                    currentBB.terminator = null;
-
-                    {
-                        BIROperand connectorNameOperand = generateConstantOperand(
-                                String.format("%s_connector", currentBB.id.value), connectorName, scopeVarList,
-                                currentBB, desugaredInsPosition);
-                        BIROperand actionNameOperand = generateConstantOperand(
-                                String.format("%s_action", currentBB.id.value), action, scopeVarList, currentBB,
-                                desugaredInsPosition);
-                        Map<String, String> tags = new HashMap<>();
-                        tags.put("source.invocation_fqn", String.format("%s:%s:%s:%s:%d:%d", pkg.org.value,
-                                pkg.name.value, pkg.version.value, callIns.pos.src.cUnitName, callIns.pos.sLine,
-                                callIns.pos.sCol));
-                        if (isRemote) {
-                            tags.put("source.remote", "true");
-                        }
-                        BIROperand tagsMapOperand = generateMapOperand(String.format("%s_tags", currentBB.id.value),
-                                tags, scopeVarList, currentBB, desugaredInsPosition);
-
-                        JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsPosition);
-                        observeStartCallTerminator.invocationType = INVOKESTATIC;
-                        observeStartCallTerminator.jClassName = OBSERVE_UTILS;
-                        observeStartCallTerminator.jMethodVMSig = String.format("(L%s;L%s;L%s;)V", STRING_VALUE,
-                                STRING_VALUE, MAP_VALUE);
-                        observeStartCallTerminator.name = "startCallableObservation";
-                        observeStartCallTerminator.args = Arrays.asList(connectorNameOperand, actionNameOperand,
-                                tagsMapOperand);
-                        currentBB.terminator = observeStartCallTerminator;
-                    }
-
-                    if (isErrorCheckRequired) {
-                        BIRVariableDcl isErrorVariableDcl = new BIRVariableDcl(symbolTable.booleanType,
-                                new Name(String.format("$_%s_is_error_$", errorCheckBranchBB.id.value)),
-                                VarScope.FUNCTION, VarKind.TEMP);
-                        scopeVarList.add(isErrorVariableDcl);
-                        BIROperand isErrorOperand = new BIROperand(isErrorVariableDcl);
-                        TypeTest errorTypeTestInstruction = new TypeTest(desugaredInsPosition, symbolTable.errorType,
-                                isErrorOperand, callIns.lhsOp);
-                        errorCheckBranchBB.instructions.add(errorTypeTestInstruction);
-                        errorCheckBranchBB.terminator = new Branch(desugaredInsPosition, isErrorOperand, errorReportBB,
-                                observeEndBB);
-
-                        BIRVariableDcl castedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorType,
-                                new Name(String.format("$_%s_casted_error_$", errorReportBB.id.value)),
-                                VarScope.FUNCTION, VarKind.TEMP);
-                        scopeVarList.add(castedErrorVariableDcl);
-                        BIROperand castedErrorOperand = new BIROperand(castedErrorVariableDcl);
-                        TypeCast errorCastInstruction = new TypeCast(desugaredInsPosition, castedErrorOperand,
-                                callIns.lhsOp, symbolTable.errorType, false);
-                        errorReportBB.instructions.add(errorCastInstruction);
-
-                        JIMethodCall reportErrorCallTerminator = new JIMethodCall(desugaredInsPosition);
-                        reportErrorCallTerminator.invocationType = INVOKESTATIC;
-                        reportErrorCallTerminator.jClassName = OBSERVE_UTILS;
-                        reportErrorCallTerminator.jMethodVMSig = String.format("(L%s;)V", ERROR_VALUE);
-                        reportErrorCallTerminator.name = "reportError";
-                        reportErrorCallTerminator.args = Collections.singletonList(castedErrorOperand);
-                        errorReportBB.terminator = reportErrorCallTerminator;
-                    }
-
-                    JIMethodCall observeEndCallTerminator = new JIMethodCall(desugaredInsPosition);
-                    observeEndCallTerminator.invocationType = INVOKESTATIC;
-                    observeEndCallTerminator.jClassName = OBSERVE_UTILS;
-                    observeEndCallTerminator.jMethodVMSig = "()V";
-                    observeEndCallTerminator.name = "stopObservation";
-                    observeEndCallTerminator.args = Collections.emptyList();
-                    observeEndBB.terminator = observeEndCallTerminator;
-
-                    observeEndBB.terminator.thenBB = newCurrentBB.terminator.thenBB;
-                    if (isErrorCheckRequired) {
-                        errorReportBB.terminator.thenBB = observeEndBB;
-                        newCurrentBB.terminator.thenBB = errorCheckBranchBB;
-                    } else {
-                        newCurrentBB.terminator.thenBB = observeEndBB;
-                    }
-                    currentBB.terminator.thenBB = newCurrentBB; // Current BB now contains observe start call
-                    i += (isErrorCheckRequired ? 4 : 2);
-                }
-            }
-            i++;
-        }
-    }
-
-    public static BIROperand generateConstantOperand(String uniqueId, String constantValue,
-                                                     List<BIRVariableDcl> scopeVarList, BIRBasicBlock basicBlock,
-                                                     DiagnosticPos desugaredInsPosition) {
-        BIRVariableDcl variableDcl = new BIRVariableDcl(symbolTable.stringType,
-                new Name(String.format("$_%s_const_$", uniqueId)), VarScope.FUNCTION, VarKind.TEMP);
-        scopeVarList.add(variableDcl);
-        BIROperand operand = new BIROperand(variableDcl);
-        ConstantLoad instruction = new ConstantLoad(desugaredInsPosition, constantValue, symbolTable.stringType,
-                operand);
-        basicBlock.instructions.add(instruction);
-        return operand;
-    }
-
-    public static BIROperand generateMapOperand(String uniqueId, Map<String, String> map,
-                                                List<BIRVariableDcl> scopeVarList, BIRBasicBlock basicBlock,
-                                                DiagnosticPos desugaredInsPosition) {
-        BIRVariableDcl variableDcl = new BIRVariableDcl(symbolTable.mapType,
-                new Name(String.format("$_%s_map_$", uniqueId)), VarScope.FUNCTION, VarKind.TEMP);
-        scopeVarList.add(variableDcl);
-        BIROperand tagsMapOperand = new BIROperand(variableDcl);
-
-        NewStructure bMapNewInstruction = new NewStructure(desugaredInsPosition,
-                new BMapType(TypeTags.MAP, symbolTable.stringType, null), tagsMapOperand);
-        basicBlock.instructions.add(bMapNewInstruction);
-
-        int entryIndex = 0;
-        for (Map.Entry<String, String> tagEntry: map.entrySet()) {
-            BIROperand keyOperand = generateConstantOperand(String.format("%s_map_%d_key", uniqueId, entryIndex),
-                    tagEntry.getKey(), scopeVarList, basicBlock, desugaredInsPosition);
-            BIROperand valueOperand = generateConstantOperand(String.format("%s_map_%d_value", uniqueId,
-                    entryIndex), tagEntry.getValue(), scopeVarList, basicBlock, desugaredInsPosition);
-            FieldAccess fieldAccessIns = new FieldAccess(desugaredInsPosition,
-                    InstructionKind.MAP_STORE, tagsMapOperand, keyOperand, valueOperand);
-            basicBlock.instructions.add(fieldAccessIns);
-            entryIndex++;
-        }
-        return tagsMapOperand;
     }
 }
