@@ -341,7 +341,8 @@ body .content-wrapper .constants .method-list .param-sum .param-name {
   padding-right: 5px;
   line-height: 1.5em;
   font-weight: 500;
-  width: 180px;
+  min-width: 160px;
+  width: 160px;
   text-overflow: ellipsis;
   overflow: hidden;
 }
