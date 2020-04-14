@@ -1187,7 +1187,8 @@ public class BLangPackageBuilder {
     void markLastInvocationAsAsync(DiagnosticPos pos, int numAnnotations) {
         final ExpressionNode expressionNode = this.exprNodeStack.peek();
         if (expressionNode.getKind() == NodeKind.INVOCATION) {
-            BLangInvocation invocation = (BLangInvocation) this.exprNodeStack.peek();
+            BLangInvocation.BLangActionInvocation invocation =
+                    (BLangInvocation.BLangActionInvocation) this.exprNodeStack.peek();
             invocation.async = true;
             attachAnnotations(invocation, numAnnotations, false);
         } else {
@@ -1659,7 +1660,7 @@ public class BLangPackageBuilder {
         BLangInvocation invocationNode;
 
         if (remoteMethodCall) {
-            invocationNode = (BLangInvocation) TreeBuilder.createRemoteMethodCall();
+            invocationNode = (BLangInvocation) TreeBuilder.createActionInvocation();
         } else {
             invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         }
@@ -1684,9 +1685,19 @@ public class BLangPackageBuilder {
         invocationWsStack.push(ws);
     }
 
+    // Note: This method is for creating invocation nodes for the invocation types defined in the grammar rule
+    // `variableReference`. The assumption here is that those invocations can only become an action invocation if
+    // it's an async op (i.e., preceded by `start`).
     void createInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, String invocation, boolean argsAvailable,
-                              DiagnosticPos identifierPos) {
-        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+                              DiagnosticPos identifierPos, boolean async, int annots) {
+        BLangInvocation invocationNode;
+        if (async) {
+            invocationNode = (BLangInvocation.BLangActionInvocation) TreeBuilder.createActionInvocation();
+            invocationNode.async = async;
+            attachAnnotations(invocationNode, annots, false);
+        } else {
+            invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        }
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
         invocationNode.addWS(invocationWsStack.pop());
@@ -1711,7 +1722,7 @@ public class BLangPackageBuilder {
     }
 
     void createWorkerLambdaInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, String invocation) {
-        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
+        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createActionInvocation();
         invocationNode.pos = pos;
         invocationNode.addWS(ws);
         invocationNode.addWS(invocationWsStack.pop());
@@ -1722,14 +1733,15 @@ public class BLangPackageBuilder {
     }
 
     void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, boolean async, int numAnnotations) {
-        BLangInvocation invocationExpr = (BLangInvocation) exprNodeStack.pop();
-        invocationExpr.pos = pos;
-        invocationExpr.addWS(ws);
-        invocationExpr.async = async;
+        BLangInvocation.BLangActionInvocation actionInvocation =
+                (BLangInvocation.BLangActionInvocation) exprNodeStack.pop();
+        actionInvocation.pos = pos;
+        actionInvocation.addWS(ws);
+        actionInvocation.async = async;
 
-        invocationExpr.expr = (BLangExpression) exprNodeStack.pop();
-        attachAnnotations(invocationExpr, numAnnotations, false);
-        exprNodeStack.push(invocationExpr);
+        actionInvocation.expr = (BLangExpression) exprNodeStack.pop();
+        attachAnnotations(actionInvocation, numAnnotations, false);
+        exprNodeStack.push(actionInvocation);
     }
 
     void createFieldBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws, String fieldName, DiagnosticPos fieldNamePos,

@@ -494,7 +494,7 @@ public class TreeBuilder {
         return new BLangInvocation();
     }
 
-    public static InvocationNode createRemoteMethodCall() {
+    public static InvocationNode createActionInvocation() {
         return new BLangInvocation.BLangActionInvocation();
     }
 
