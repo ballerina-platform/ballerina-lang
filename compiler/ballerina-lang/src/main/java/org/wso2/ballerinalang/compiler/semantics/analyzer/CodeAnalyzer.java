@@ -23,10 +23,12 @@ import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
+import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -2043,33 +2045,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private void validateActionParentNode(DiagnosticPos pos, BLangNode node) {
         // Validate for parent nodes.
         BLangNode parent = node.parent;
-        if (parent.getKind() == NodeKind.BLOCK) {
-            return;
-        }
+
         while (parent != null) {
             final NodeKind kind = parent.getKind();
-            // Allowed node types.
-            if (kind == NodeKind.ASSIGNMENT
-                    || kind == NodeKind.EXPRESSION_STATEMENT || kind == NodeKind.RETURN
-                    || kind == NodeKind.RECORD_DESTRUCTURE || kind == NodeKind.ERROR_DESTRUCTURE
-                    || kind == NodeKind.TUPLE_DESTRUCTURE || kind == NodeKind.VARIABLE
-                    || kind == NodeKind.RECORD_VARIABLE || kind == NodeKind.TUPLE_VARIABLE
-                    || kind == NodeKind.ERROR_VARIABLE || kind == NodeKind.MATCH
-                    || kind == NodeKind.FOREACH) {
+            if (parent instanceof StatementNode) {
                 return;
-            } else if (kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.CHECK_EXPR
-                    || kind == NodeKind.WORKER_RECEIVE || kind == NodeKind.WORKER_FLUSH
-                    || kind == NodeKind.WORKER_SEND || kind == NodeKind.WAIT_EXPR
-                    || kind == NodeKind.GROUP_EXPR || kind == NodeKind.TRAP_EXPR) {
+            } else if (parent instanceof ActionNode || parent instanceof BLangVariable || kind == NodeKind.CHECK_EXPR ||
+                    kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.TRAP_EXPR || kind == NodeKind.GROUP_EXPR) {
                 parent = parent.parent;
                 if (parent.getKind() == NodeKind.BLOCK || parent.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
                     return;
                 }
-                continue;
-            } else if (kind == NodeKind.ELVIS_EXPR
-                    && ((BLangElvisExpr) parent).lhsExpr.getKind() == NodeKind.INVOCATION
-                    && ((BLangInvocation) ((BLangElvisExpr) parent).lhsExpr).actionInvocation) {
-                parent = parent.parent;
                 continue;
             }
             break;
