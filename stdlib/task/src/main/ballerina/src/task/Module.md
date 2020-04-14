@@ -14,11 +14,9 @@ Below are the two types of configurations that can be used to configure a Task L
 
 The `TimerConfiguration` can be used to configure a task that needs to be executed periodically.
 
-The following code creates a listener, which registers a task with an initial delay of 3000 milliseconds and is
- executed every 1000 milliseconds for 10 times.
+The following code snippet shows how to create a listener, which registers a task with an initial delay of 3000 milliseconds and is executed every 1000 milliseconds for 10 times.
 
 ```ballerina
-// Task Timer configuration record to configure a Task Listener.
 task:TimerConfiguration timerConfiguration = {
     intervalInMillis: 1000,
     initialDelayInMillis: 3000,
@@ -35,11 +33,9 @@ For an example on the usage of the `task:Listener` as a timer, see the [Task Ser
 
 The `AppointmentConfiguration` can be used to schedule an appointment.
   
-The following code creates a task appointment, which registers a service using a CRON expression to execute the task
- every second for 10 times.
+The following code snippet shows how to create a task appointment, which registers a service using a CRON expression to execute the task every second for 10 times.
 
 ```ballerina
-// Task Appointment configuration record to task Listener.
 task:AppointmentConfiguration appointmentConfiguration = {
     // This cron expression will schedule the appointment once every second.
     appointmentDetails: "* * * * * ?",
@@ -65,7 +61,7 @@ Similar to Task Listeners, below are the two types of configurations that an be 
 
 A `Scheduler` can be used to create timers via its `TimerConfiguration`.
 
-The following code creates a `task:Scheduler` as a timer.
+The following code snippet shows how to create a `task:Scheduler` as a timer.
 
 ```ballerina
 task:TimerConfiguration timerConfiguration = {
@@ -82,7 +78,7 @@ For an example on the usage of the `task:Scheduler` as a timer, see the [Task Sc
 
 A `Scheduler` can also be used to create appointments via its `AppointmentConfiguration`. 
 
-The following code creates a Task Scheduler as an appointment.
+The following code snippet shows how to create a Task Scheduler as an appointment.
 
 ```ballerina
 task:AppointmentConfiguration appointmentConfiguration = {

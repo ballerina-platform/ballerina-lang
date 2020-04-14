@@ -26,13 +26,13 @@ public type Detail record {
 # Used as the error reason for the `task:SchedulerError` type.
 public const SCHEDULER_ERROR_REASON = "{ballerina/task}SchedulerError";
 
-# Error type specific to `task:Scheduler` object functions.
+# Error type specific to the `task:Scheduler` object functions.
 public type SchedulerError error<SCHEDULER_ERROR_REASON, Detail>;
 
 # Used as the error reason for the `task:ListenerError` type.
 public const LISTENER_ERROR_REASON = "{ballerina/task}ListenerError";
 
-# Error type specific to `task:Listener` object functions.
+# Error type specific to the `task:Listener` object functions.
 public type ListenerError error<LISTENER_ERROR_REASON, Detail>;
 
 # Represents Union error type of ballerina/task module. This error type represents any error that can occur during the

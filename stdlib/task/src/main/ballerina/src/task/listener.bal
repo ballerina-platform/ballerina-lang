@@ -27,7 +27,7 @@ public type Listener object {
     # Initializes the `task:Listener` object. This may panic if the initialization is failed due to a configuration
     # error.
     #
-    # + configuration - `task:TimerConfiguration` or `task:AppointmentConfiguration` record to define the
+    # + configuration - The `task:TimerConfiguration` or `task:AppointmentConfiguration` record to define the
     #   `task:Listener` behavior
     public function __init(TimerConfiguration|AppointmentConfiguration configuration) {
         if (configuration is TimerConfiguration) {
@@ -46,7 +46,7 @@ public type Listener object {
     #
     # + s - Service to attach to the listener
     # + name - Name of the service
-    # + return - Nil if attaching the service is successful
+    # + return - () if attaching the service is successful
     public function __attach(service s, string? name = ()) returns error? {
         // ignore param 'name'
         var result = attachExternal(self, s);
@@ -58,7 +58,7 @@ public type Listener object {
     # Detaches the given `service` from the `task:Listener`.
     #
     # + s - Service to be detached from the listener
-    # + return - Nil if detaching the service is successful
+    # + return - () if detaching the service is successful
     public function __detach(service s) returns error? {
         return detachExternal(self, s);
     }
@@ -66,7 +66,7 @@ public type Listener object {
     # Starts dispatching the services attached to the `task:Listener`. This may panic if the service dispatching causes
     # any error.
     #
-    # + return - Nil if starting the services is successful
+    # + return - () if starting the services is successful
     public function __start() returns error? {
         var result = startExternal(self);
         if (result is error) {
@@ -80,7 +80,7 @@ public type Listener object {
     # Gracefully stops the `task:Listener` and the attached services. It will wait if there are any tasks still to be
     # completed. This may panic if the stopping causes any error.
     #
-    # + return - Nil if stopping the listener is successful
+    # + return - () if stopping the listener is successful
     public function __gracefulStop() returns error? {
         var result = stopExternal(self);
         if (result is error) {
@@ -94,7 +94,7 @@ public type Listener object {
     # Stops the `task:Listener` and the attached services immediately. This will cancel any ongoing tasks. This may
     # panic if the stopping causes any error.
     #
-    # + return - Nil if the stopping the listener is successful
+    # + return - () if the stopping the listener is successful
     public function __immediateStop() returns error? {
         var result = stopExternal(self);
         if (result is error) {
@@ -111,14 +111,14 @@ public type Listener object {
 
     # Pauses the `task:Listener` and the attached services.
     #
-    # + return - `task:ListenerError` if an error is occurred while pausing or nil otherwise
+    # + return - `task:ListenerError` if an error is occurred while pausing or else ()
     public function pause() returns ListenerError? {
         return pauseExternal(self);
     }
 
     # Resumes a paused `task:Listener`. Calling this on an already running `task:Listener` will not cause any error.
     #
-    # + return - `task:ListenerError` when an error occurred while resuming or nil otherwise
+    # + return - `task:ListenerError` when an error occurred while resuming or else ()
     public function resume() returns ListenerError? {
         return resumeExternal(self);
     }
