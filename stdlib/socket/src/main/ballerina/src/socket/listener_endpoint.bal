@@ -17,11 +17,15 @@
 import ballerina/lang.'object as lang;
 import ballerina/java;
 
-# Represents service endpoint where socket server service registered and start.
+# Represents the socket server on which the socket server service is registered and started.
 public type Listener object {
 
     *lang:Listener;
 
+    # Creates a new socket Listener.
+    #
+    # + port - The port number of the remote service
+    # + config - Configurations related to the `socket:Listener`
     public function __init(int port, ListenerConfig? config = ()) {
         var result = initServer(self, port, config ?: {});
         if (result is error) {
@@ -29,22 +33,55 @@ public type Listener object {
         }
     }
 
+# Starts the `socket:Listener`.
+# ```ballerina
+# socket:error? result = socketListener.__start();
+# ```
+#
+# + return - () or else a `socket:Error` upon failure to start the listener
     public function __start() returns error? {
         return startService(self);
     }
 
+# Gracefully stops the `socket:Listener`.
+# ```ballerina
+# socket:error? result = socketListener.__gracefulStop();
+# ```
+#
+# + return - () or else a `socket:Error` upon failure to stop the listener
     public function __gracefulStop() returns error? {
         return externStop(self, true);
     }
 
+# Forcefully stops the `socket:Listener`.
+# ```ballerina
+# socket:error? result = socketListener.__immediateStop();
+# ```
+#
+# + return - () or else a `socket:Error` upon failure to stop the listener
     public function __immediateStop() returns error? {
         return externStop(self, false);
     }
 
+# Binds a service to the `socket:Listener`.
+# ```ballerina
+# socket:error? result = socketListener.__attach(helloService);
+# ```
+#
+# + s - Type descriptor of the service
+# + name - Name of the service
+# + return - `()` or else a `socket:Error` upon failure to register the listener
     public function __attach(service s, string? name = ()) returns error? {
         return externRegister(self, s);
     }
 
+# Stops consuming messages and detaches the service from the `socket:Listener`.
+# ```ballerina
+# socket:error? result = socketListener.__detach(helloService);
+# ```
+#
+# + s - Type descriptor of the service
+# + return - `()` or else a `socket:Error` upon failure to detach the service
     public function __detach(service s) returns error? {
         // Socket listener operations are strictly bound to the attached service. In fact, listener doesn't support
         // for multiple services. So not removing already attached service during the detach.
