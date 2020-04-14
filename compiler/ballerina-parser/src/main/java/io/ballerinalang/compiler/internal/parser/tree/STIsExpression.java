@@ -16,23 +16,35 @@
  *  under the License.
  */
 package io.ballerinalang.compiler.internal.parser.tree;
-import io.ballerinalang.compiler.syntax.tree.IsExpression;
+
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.IsExpression;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STIsExpression extends STExpression {
-
     public final STNode expression;
     public final STNode isKeyword;
     public final STNode typeDescriptor;
 
-    STIsExpression(STNode expression, STNode isKeyword, STNode typeDescriptor) {
+    STIsExpression(
+            STNode expression,
+            STNode isKeyword,
+            STNode typeDescriptor) {
         super(SyntaxKind.IS_EXPRESSION);
         this.expression = expression;
         this.isKeyword = isKeyword;
         this.typeDescriptor = typeDescriptor;
 
-        addChildren(expression, isKeyword,typeDescriptor);
+        addChildren(
+                expression,
+                isKeyword,
+                typeDescriptor);
     }
 
     @Override

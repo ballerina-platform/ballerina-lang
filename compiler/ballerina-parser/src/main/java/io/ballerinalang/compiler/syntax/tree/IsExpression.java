@@ -19,9 +19,16 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class IsExpression extends ExpressionTree{
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class IsExpression extends Expression{
 
-    public IsExpression(STNode node, int position, NonTerminalNode parent) { super(node, position, parent); }
+    public IsExpression(STNode node, int position, NonTerminalNode parent) {
+        super(node, position, parent);
+    }
 
     public Node expression() {
         return childInBucket(0);
@@ -31,13 +38,28 @@ public class IsExpression extends ExpressionTree{
         return (Token) childInBucket(1);
     }
 
-    public Node typeDescriptor() {
-        return childInBucket(2);
+    public Node typeDescriptor() { return childInBucket(2); }
+
+    @Override
+    public void accept(NodeVisitor visitor) { visitor.visit(this); }
+
+    @Override
+    public <T> T apply(NodeTransformer<T> visitor) { return visitor.transform(this); }
+
+    public IsExpression modify(
+            Node expression,
+            Token isKeyword,
+            Node typeDescriptor) {
+        if (checkForReferenceEquality(
+                expression,
+                isKeyword,
+                typeDescriptor)) {
+            return this;
+        }
+
+        return NodeFactory.createIsExpression(
+                expression,
+                isKeyword,
+                typeDescriptor);
     }
-
-    @Override
-    public void accept(SyntaxNodeVisitor visitor) { visitor.visit(this); }
-
-    @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) { return visitor.transform(this); }
 }

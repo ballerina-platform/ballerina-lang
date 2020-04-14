@@ -541,6 +541,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stUnaryExpression.createUnlinkedFacade();
     }
 
+    public static IsExpression createIsExpression(
+            Node expression,
+            Token isKeyword,
+            Node typeDescriptor) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(isKeyword, "isKeyword must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+
+        STNode stIsExpression = STNodeFactory.createIsExpression(
+                expression.internalNode(),
+                isKeyword.internalNode(),
+                typeDescriptor.internalNode());
+        return stIsExpression.createUnlinkedFacade();
+    }
+
     public static ComputedNameField createComputedNameField(
             Token leadingComma,
             Token openBracket,

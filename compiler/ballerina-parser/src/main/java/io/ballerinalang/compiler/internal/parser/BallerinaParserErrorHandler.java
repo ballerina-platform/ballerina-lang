@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.internal.parser;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -2266,7 +2266,7 @@ public class BallerinaParserErrorHandler {
                                       int currentMatches) {
         STToken nextToken = this.tokenReader.peek(lookahead);
         currentDepth++;
-        if (!isTypeDescriptor(nextToken.kind)) {
+        if (nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
             Result fixedPathResult = fixAndContinue(currentCtx, lookahead, currentDepth);
             return getFinalResult(currentMatches, fixedPathResult);
         }
@@ -2287,24 +2287,6 @@ public class BallerinaParserErrorHandler {
         Result result = seekMatch(nextContext, lookahead, currentDepth);
         result.ctx = currentCtx;
         return getFinalResult(currentMatches, result);
-    }
-
-    /**
-     * Check whether a token kind is a type descriptor.
-     *
-     * @param kind Token kind to check
-     * @return <code>true</code> if the given token kind belongs to a type descriptor.<code>false</code> otherwise
-     */
-    private boolean isTypeDescriptor(SyntaxKind kind) {
-        switch (kind) {
-            case SIMPLE_TYPE:
-            case RECORD_TYPE_DESCRIPTOR:
-            case OBJECT_TYPE_DESCRIPTOR:
-            case RETURN_TYPE_DESCRIPTOR:
-                return true;
-            default:
-                return false;
-        }
     }
 
     public ParserRuleContext findBestPath(ParserRuleContext context) {
