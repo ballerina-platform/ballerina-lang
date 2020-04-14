@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -672,7 +673,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * @param expr expression to be validated.
      */
     private void validateWorkerAnnAttachments(BLangExpression expr) {
-        if (expr != null && expr.getKind() == NodeKind.INVOCATION && ((BLangInvocation) expr).async) {
+        if (expr != null && expr instanceof BLangInvocation.BLangActionInvocation &&
+                ((BLangInvocation.BLangActionInvocation) expr).async) {
             ((BLangInvocation) expr).annAttachments.forEach(annotationAttachment -> {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.WORKER);
                 annotationAttachment.accept(this);

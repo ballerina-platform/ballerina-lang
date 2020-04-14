@@ -3597,7 +3597,7 @@ public class Desugar extends BLangNodeVisitor {
                     argExprs.add(0, iExpr.expr);
                     BLangAttachedFunctionInvocation attachedFunctionInvocation =
                             new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.restArgs, iExpr.symbol,
-                                                                iExpr.type, iExpr.expr, iExpr.async);
+                                                                iExpr.type, iExpr.expr, false);
                     attachedFunctionInvocation.name = iExpr.name;
                     attachedFunctionInvocation.annAttachments = iExpr.annAttachments;
                     result = genIExpr = attachedFunctionInvocation;

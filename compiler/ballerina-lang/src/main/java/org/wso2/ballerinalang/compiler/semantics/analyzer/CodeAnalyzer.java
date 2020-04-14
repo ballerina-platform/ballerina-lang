@@ -23,7 +23,6 @@ import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -1995,17 +1994,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 dlog.warning(invocationExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, invocationExpr);
             }
         }
-
-        if (invocationExpr instanceof ActionNode || invocationExpr.async) {
-            if (invocationExpr instanceof ActionNode || !this.withinLockBlock) {
-                validateActionInvocation(invocationExpr.pos, invocationExpr);
-                return;
-            }
-
-            dlog.error(invocationExpr.pos, invocationExpr.functionPointerInvocation ?
-                    DiagnosticCode.USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED :
-                    DiagnosticCode.USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED);
-        }
     }
 
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
@@ -2014,8 +2002,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExprs(actionInvocation.restArgs);
 
         if (actionInvocation.symbol.kind == SymbolKind.FUNCTION &&
-                Symbols.isFlagOn(actionInvocation.symbol.flags,Flags.DEPRECATED)) {
+                Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.DEPRECATED)) {
             dlog.warning(actionInvocation.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, actionInvocation);
+        }
+
+        if (actionInvocation.async && this.withinLockBlock) {
+            dlog.error(actionInvocation.pos, actionInvocation.functionPointerInvocation ?
+                    DiagnosticCode.USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED :
+                    DiagnosticCode.USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED);
+            return;
         }
 
         validateActionInvocation(actionInvocation.pos, actionInvocation);
