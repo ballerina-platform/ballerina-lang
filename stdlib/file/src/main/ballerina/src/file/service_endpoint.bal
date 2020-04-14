@@ -20,13 +20,16 @@ import ballerina/java;
 ///////////////////////////////////
 /// Direcotry Listener Endpoint ///
 ///////////////////////////////////
+
 # Represents directory listener endpoint where used to listen to a directory in the local file system.
-#
 public type Listener object {
     private ListenerConfig config;
 
     *lang:Listener;
 
+    # Creates a new Directory listener.
+    # 
+    # + listenerConfig - ListenerConfig record with directory details 
     public function __init(ListenerConfig listenerConfig) {
         self.config = listenerConfig;
         var result = initEndpoint(self);
@@ -35,22 +38,39 @@ public type Listener object {
         }
     }
 
+    # Starts the `file:Listener`.
+    # 
+    # + return - (), or else error upon failure to start the listener 
     public function __start() returns error? {
         return start(self);
     }
 
-    public function __gracefulStop() returns error? {
+    # Gracefully stops the `file:Listener`.
+    # 
+    # + return - (), or else error upon failure to stop the listener 
+        public function __gracefulStop() returns error? {
         return ();
     }
 
+    # Forecefully stops the `file:Listener`.
+    # 
+    # + return - (), or else error upon failure to stop the listener 
     public function __immediateStop() returns error? {
         return ();
     }
 
+    # Binds a service to `file:Listener`.
+    # 
+    # + s - Type descriptor of the service
+    # + name - Name of the service
+    # + return - (), or else error upon failure to attach to the service
     public function __attach(service s, string? name = ()) returns error? {
         return register(self, s, name);
     }
 
+    # Stops listening to the directory and detaches service from the `file:Listener`.
+    # 
+    # + return - (), or else error upon failure to detach to the service
     public function __detach(service s) returns error? {
     }
 };
