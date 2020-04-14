@@ -16,13 +16,26 @@
 
 import ballerina/java;
 
-# Represents socket client and related remote functions.
+# Represents the socket client and related remote functions.
 #
-# + config - The configurations for the socket client endpoint
+# + remotePort - The remote port number to which this socket is connected
+# + localPort - The local port number to which this socket is bound
+# + remoteAddress - The remote IP address string in textual presentation to which the socket is connected
+# + localAddress - The local IP address string in textual presentation to which the socket is bound
+# + id - A unique identifier to identify each client
+# + config - The configurations for the socket client
 public type Client client object {
 
     private ClientConfig? config = ();
+    public int remotePort = 0;
+    public int localPort = 0;
+    public string? remoteAddress = ();
+    public string? localAddress = ();
+    public int id = 0;
 
+    # Initializes the TCP socket client with the given client configuration.
+    #
+    # + clientConfig - This is used to provide the configurations like host, port, and timeout
     public function __init(ClientConfig? clientConfig) {
         if (clientConfig is ClientConfig) {
             self.config = clientConfig;
@@ -38,7 +51,7 @@ public type Client client object {
         return ();
     }
 
-# Writes given data to the client socket.
+# Writes the given data to the client socket.
 # ```ballerina
 # int|socket:Error writeResult = socketClient:write(payloadByte);
 # ```
@@ -70,27 +83,27 @@ public type Client client object {
 # socket:Error? closeResult = socketClient->close();
 # ```
 #
-# + return - A `socket:Error` if client can't be closed the connection or else `nil`
+# + return - A `socket:Error` if the client can't close the connection or else `()`
     public remote function close() returns Error? {
         return closeClient(self);
     }
 
-# Shutdowns the further read from socket.
+# Shuts down any further reading from the socket.
 # ```ballerina
 # socket:Error? result = socketClient->shutdownRead();
 # ```
 #
-# + return - A `socket:Error` if client can't be shutdown the read from socket or else `nil`
+# + return - A `socket:Error` if the client can't be shut down to stop reading from the socket or else `()`
     public remote function shutdownRead() returns Error? {
         return externShutdownRead(self);
     }
 
-# Shutdowns the further write from socket.
+# Shuts down any further writing from the socket.
 # ```ballerina
 # socket:Error? result = socketClient->shutdownWrite();
 # ```
 #
-# + return - A `socket:Error` if client can't be shutdown the write from socket or else `nil`
+# + return - A `socket:Error` if the client can't shut down to stop the writing to the socket or else `()`
     public remote function shutdownWrite() returns Error? {
         return externShutdownWrite(self);
     }

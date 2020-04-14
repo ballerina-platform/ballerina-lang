@@ -16,17 +16,23 @@
 
 import ballerina/java;
 
-# Represents UDP socket client and related remote functions.
+# Initializes the UDP client based on the provided configurations.
 #
+# + localPort - The local port number to which this socket is bound
 # + localAddress - The local IP address string in textual presentation to which the socket is bound
+# + interface - The network interface to bind to
+# + id - An unique identifier to identify each client
 public type UdpClient client object {
 
     private Address? localAddress = ();
+    public int localPort = 0;
+    public string? interface = ();
+    public int id = 0;
 
-    # Initialize the UDP client based on provided configuration.
+    # Initializes the UDP client based on the provided configurations.
     #
-    # + localAddress - Locally binding interface and port
-    # + config - The configuration for the UDP client.
+    # + localAddress - Local binding of the interface and port
+    # + config - The configurations for the UDP client
     public function __init(Address? localAddress = (), UdpClientConfig? config = ()) {
         UdpClientConfig configuration = config ?: {};
         self.localAddress = localAddress;
@@ -39,7 +45,7 @@ public type UdpClient client object {
         }
     }
 
-# Send given data to the specified remote client.
+# Sends the given data to the specified remote client.
 # ```ballerina
 # int|socket:Error result = socketClient->sendTo(c1, {host: "localhost", port: 48826});
 # ```
@@ -52,7 +58,7 @@ public type UdpClient client object {
     }
 
 # Reads data from the remote client. If the data has the specified length, then wait until that number of bytes
-# are received from the client. Else, return the data available in the OS buffer or wait until data receive.
+# are received from the client. Else, return the data available in the OS buffer or wait until data is received.
 # If the request length is lesser than the data in the buffer, then the rest will be discarded.
 # ```ballerina
 # [byte[], int, Address]|ReadTimedOutError result = socketClient->receiveFrom();
@@ -70,7 +76,7 @@ public type UdpClient client object {
 # socket:Error? closeResult = socketClient->close();
 # ```
 #
-# + return - A `socket:Error` if can't be closed the connection or else `nil`
+# + return - A `socket:Error` if it can't close the connection or else `()`
     public remote function close() returns Error? {
         return closeUdpClient(self);
     }
