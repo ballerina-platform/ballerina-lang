@@ -17,38 +17,38 @@
 # Represents the hub persistence configuration and functions.
 public type HubPersistenceStore abstract object {
 
-    # Function to add or update subscription details.
+    # Adds or updates subscription details.
     #
     # + subscriptionDetails - The details of the subscription to add or update
-    # + return - `error` if an error occurred while adding the subscription, `()` otherwise
+    # + return - An `error` if an error occurred while adding the subscription, `()` otherwise
     public function addSubscription(SubscriptionDetails subscriptionDetails) returns error?;
 
-    # Function to remove subscription details.
+    # Removes subscription details.
     #
     # + subscriptionDetails - The details of the subscription to remove
-    # + return - `error` if an error occurred while removing the subscription, `()` otherwise
+    # + return - An `error` if an error occurred while removing the subscription, `()` otherwise
     public function removeSubscription(SubscriptionDetails subscriptionDetails) returns error?;
 
     # Function to add a topic.
     #
     # + topic - The topic to add
-    # + return - `error` if an error occurred while adding the topic, `()` otherwise
+    # + return - An `error` if an error occurred while adding the topic, `()` otherwise
     public function addTopic(string topic) returns error?;
 
     # Function to remove a topic.
     #
     # + topic - The topic to remove
-    # + return - `error` if an error occurred while removing the topic, `()` otherwise
+    # + return - An `error` if an error occurred while removing the topic, `()` otherwise
     public function removeTopic(string topic) returns error?;
 
     # Function to retrieve subscription details of all subscribers.
     #
-    # + return - `error` if an error occurred while retrieving the subscriptions, an array of subscriber details
+    # + return - An `error` if an error occurred while retrieving the subscriptions, an array of subscriber details
     #               otherwise
     public function retrieveAllSubscribers() returns SubscriptionDetails[]|error;
 
     # Function to retrieve all registered topics.
     #
-    # + return - `error` if an error occurred while retrieving the topics, an array of topics otherwise
+    # + return - An `error` if an error occurred while retrieving the topics, an array of topics otherwise
     public function retrieveTopics() returns string[]|error;
 };

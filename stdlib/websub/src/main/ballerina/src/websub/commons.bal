@@ -130,7 +130,7 @@ public const TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
 # + challenge - The challenge to be echoed to verify intent to subscribe/unsubscribe
 # + leaseSeconds - The lease seconds period for which a subscription will be active if intent verification
 #                  is being done for subscription
-# + request - The HTTP request received for intent verification
+# + request - The `http:Request` received for intent verification
 public type IntentVerificationRequest object {
 
     public string mode = "";
@@ -142,7 +142,7 @@ public type IntentVerificationRequest object {
     # Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
     #
     # + expectedTopic - The topic for which subscription should be accepted
-    # + return - `http:Response` The response to the hub verifying/denying intent to subscribe
+    # + return - The `http:Response` for the hub verifying/denying intent to subscribe
     public function buildSubscriptionVerificationResponse(string expectedTopic) returns http:Response {
         return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, expectedTopic);
     }
@@ -150,7 +150,7 @@ public type IntentVerificationRequest object {
     # Builds the response for the request, verifying intention to unsubscribe, if the topic matches that expected.
     #
     # + expectedTopic - The topic for which unsubscription should be accepted
-    # + return - `http:Response` The response to the hub verifying/denying intent to unsubscribe
+    # + return - The `http:Response` for the hub verifying/denying intent to unsubscribe
     public function buildUnsubscriptionVerificationResponse(string expectedTopic) returns http:Response {
         return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, expectedTopic);
     }
@@ -161,7 +161,7 @@ public type IntentVerificationRequest object {
 # + intentVerificationRequest - The intent verification request from the hub
 # + mode - The mode (subscription/unsubscription) for which a request was sent
 # + topic - The intended topic for which subscription change should be verified
-# + return - `http:Response` The response to the hub verifying/denying intent to subscripe/unsubscribe
+# + return - The `http:Response` for the hub verifying/denying intent to subscripe/unsubscribe
 function buildIntentVerificationResponse(IntentVerificationRequest intentVerificationRequest, string mode,
                                          string topic)
     returns http:Response {
@@ -186,7 +186,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
 #
 # + request - The request received
 # + serviceType - The service for which the request was rceived
-# + return - `error`, if an error occurred in extraction or signature validation failed
+# + return - An `error`, if an error occurred in extraction or signature validation failed or else `()`
 function processWebSubNotification(http:Request request, service serviceType) returns @tainted error? {
     SubscriberServiceConfiguration? subscriberConfig = retrieveSubscriberServiceAnnotations(serviceType);
     string secret = subscriberConfig?.secret ?: "";
@@ -219,12 +219,12 @@ function processWebSubNotification(http:Request request, service serviceType) re
     }
 }
 
-# Function to validate the signature header included in the notification.
+# Validates the signature header included in the notification.
 #
 # + xHubSignature - The X-Hub-Signature header included in the notification request from the hub
 # + stringPayload - The string representation of the notification payload received
 # + secret - The secret used when subscribing
-# + return - `error` if an error occurs validating the signature or the signature is invalid
+# + return - An `error`, if an error occurred in extraction or signature validation failed or else `()`
 function validateSignature(string xHubSignature, string stringPayload, string secret) returns error? {
     string[] splitSignature = stringutils:split(xHubSignature, "=");
     string method = splitSignature[0];
@@ -247,7 +247,7 @@ function validateSignature(string xHubSignature, string stringPayload, string se
     return;
 }
 
-# Object representing the WebSub Content Delivery Request received.
+# Represents the WebSub Content Delivery Request received.
 #
 # + request - The HTTP POST request received as the notification
 public type Notification object {
@@ -261,9 +261,9 @@ public type Notification object {
         return self.request.getQueryParams();
     }
 
-    # Retrieves the `Entity` associated with the content delivery request.
+    # Retrieves the `mime:Entity` associated with the content delivery request.
     #
-    # + return - The `Entity` of the request. An `error` is returned, if entity construction fails
+    # + return - The `mime:Entity` of the request or else an `error` if entity construction fails
     public function getEntity() returns mime:Entity|error {
         return self.request.getEntity();
     }
@@ -271,7 +271,7 @@ public type Notification object {
     # Returns whether the requested header key exists in the header map of the content delivery request.
     #
     # + headerName - The header name
-    # + return - Returns true if the specified header key exists
+    # + return - An `true` if the specified header key exists or else `false`
     public function hasHeader(string headerName) returns boolean {
         return self.request.hasHeader(headerName);
     }
@@ -280,8 +280,7 @@ public type Notification object {
     # these values is returned.
     #
     # + headerName - The header name
-    # + return - The first header value for the specified header name. Panic if no header is found. Ideally, the
-    #            `Notification.hasHeader()` needs to be used to check the existence of a header initially.
+    # + return - The first header value for the specified header name or else Panics if no header is found.
     public function getHeader(string headerName) returns @tainted string {
         return self.request.getHeader(headerName);
     }
@@ -289,8 +288,7 @@ public type Notification object {
     # Retrieves all the header values to which the specified header key maps to.
     #
     # + headerName - The header name
-    # + return - The header values the specified header key maps to. Panic if no header is found. Ideally, the
-    #            `Notification.hasHeader()` needs to be used to check the existence of a header initially.
+    # + return - The header values the specified header key maps to or else Panics if no header is found.
     public function getHeaders(string headerName) returns @tainted string[] {
         return self.request.getHeaders(headerName);
     }
@@ -304,59 +302,58 @@ public type Notification object {
 
     # Retrieves the type of the payload of the content delivery request (i.e: the `content-type` header value).
     #
-    # + return - Returns the `content-type` header value as a string
+    # + return - The `content-type` header value as a `string`
     public function getContentType() returns @tainted string {
         return self.request.getContentType();
     }
 
     # Extracts `json` payload from the content delivery request.
     #
-    # + return - The `json` payload or `error` in case of errors. If the content type is not JSON, an `error` is returned.
+    # + return - The `json` payload or else an `error` if the content type is not JSON
     public function getJsonPayload() returns @tainted json|error {
         return self.request.getJsonPayload();
     }
 
     # Extracts `xml` payload from the content delivery request.
     #
-    # + return - The `xml` payload or `error` in case of errors. If the content type is not XML, an `error` is returned.
+    # + return - The `xml` payload or else an `error` if the content type is not in XML
     public function getXmlPayload() returns @tainted xml|error {
         return self.request.getXmlPayload();
     }
 
     # Extracts `text` payload from the content delivery request.
     #
-    # + return - The `text` payload or `error` in case of errors.
-    #            If the content type is not of type text, an `error` is returned.
+    # + return - The payload as a `text` or else  an `error` if the content type is not in `string`
     public function getTextPayload() returns @tainted string|error {
         return self.request.getTextPayload();
     }
 
     # Retrieves the request payload as a `ByteChannel` except in the case of multiparts.
     #
-    # + return - A byte channel from which the message payload can be read or `error` in case of errors
+    # + return - A byte channel from which the message payload can be read or esle an `error` in case of errors
     public function getByteChannel() returns @tainted io:ReadableByteChannel|error {
         return self.request.getByteChannel();
     }
 
     # Retrieves the request payload as a `byte[]`.
     #
-    # + return - The byte[] representation of the message payload or `error` in case of errors
+    # + return - The message payload as a `byte[]` or else an `error` if the content type is not in `byte[]`
     public function getBinaryPayload() returns @tainted byte[]|error {
         return self.request.getBinaryPayload();
     }
 
     # Retrieves the form parameters from the content delivery request as a `map`.
     #
-    # + return - The map of form params or `error` in case of errors
+    # + return - The form params as a `map` or else an `error` in case of errors
     public function getFormParams() returns @tainted map<string>|error {
         return self.request.getFormParams();
     }
 };
 
-# Function to retrieve hub and topic URLs from the `http:response` from a publisher to a discovery request.
+# Retrieves hub and topic URLs from the `http:response` from a publisher to a discovery request.
 #
 # + response - The `http:Response` received
-# + return - `(topic, hubs)` if parsing and extraction is successful, `error` if not
+# + return - A `(topic, hubs)` if parsing and extraction is successful or else an `error` if not
 public function extractTopicAndHubUrls(http:Response response) returns @tainted [string, string[]]|error {
     string[] linkHeaders = [];
     if (response.hasHeader("Link")) {
@@ -463,7 +460,10 @@ public type RemotePublishConfig record {|
 |};
 
 # Starts up the Ballerina Hub.
-#
+# ```ballerina
+#  websub:Hub|websub:HubStartedUpError|websub:HubStartupError webSubHub = websub:startHub(new http:Listener(9191),
+#                                                                               "/websub", "/hub");
+# ```
 # + hubServiceListener - The `http:Listener` to which the hub service is attached
 # + basePath - The base path of the hub service
 # + subscriptionResourcePath - The resource path for subscription changes
@@ -477,9 +477,7 @@ public type RemotePublishConfig record {|
 #               The publish URL is defined as {publicUrl}/{basePath}/{publishResourcePath} if `publicUrl` is
 #               specified, defaults to `http(s)://localhost:{port}/{basePath}/{publishResourcePath}` if not.
 # + hubConfiguration - The hub specific configuration
-# + return - `Hub` The WebSub Hub object representing the newly started up hub, or `HubStartedUpError` indicating
-#            that the hub is already started, and including the `websub:Hub` object representing the
-#            already started up hub
+# + return - The newly started WebSub Hub or else a `websub:HubStartedUpError` if the hub is already started
 public function startHub(http:Listener hubServiceListener,
                          public string basePath = "/",
                          public string subscriptionResourcePath = "/",
@@ -530,7 +528,7 @@ public function startHub(http:Listener hubServiceListener,
     return res;
 }
 
-# Object representing a Ballerina WebSub Hub.
+# Represents the Ballerina WebSub Hub.
 #
 # + subscriptionUrl - The URL for subscription changes
 # + publishUrl - The URL for publishing and topic registration
@@ -546,9 +544,12 @@ public type Hub object {
          self.hubHttpListener = hubHttpListener;
     }
 
-    # Stops the started up Ballerina WebSub Hub.
-    #
-    # + return - `boolean` indicating whether the internal Ballerina Hub was stopped
+# Stops the started up Ballerina WebSub Hub.
+# ```ballerina
+# error? registrationResponse = webSubHub.stop();
+# ```
+#
+# + return - An `error` if hub can't be stoped or else `()`
     public function stop() returns error? {
         var stopResult = self.hubHttpListener.__gracefulStop();
         var stopHubServiceResult = stopHubService(self);
@@ -567,12 +568,16 @@ public type Hub object {
         return error(WEBSUB_ERROR_CODE, cause = <error> stopHubServiceResult);
     }
 
-    # Publishes an update against the topic in the initialized Ballerina Hub.
-    #
-    # + topic - The topic for which the update should happen
-    # + payload - The update payload
-    # + contentType - The content type header to set for the request delivering the payload
-    # + return - `error` if the hub is not initialized or does not represent the internal hub
+# Publishes an update against the topic in the initialized Ballerina Hub.
+# ```ballerina
+# error? publishResponse = webSubHub.publishUpdate("http://websubpubtopic.com",{"action": "publish",
+#                                       "mode": "internal-hub"});
+# ```
+#
+# + topic - The topic for which the update should happen
+# + payload - The update payload
+# + contentType - The content type header to set for the request delivering the payload
+# + return - An `error` if the hub is not initialized or does not represent the internal hub or else `()`
     public function publishUpdate(string topic, string|xml|json|byte[]|io:ReadableByteChannel payload,
                                   string? contentType = ()) returns error? {
         if (self.publishUrl == "") {
@@ -606,10 +611,13 @@ public type Hub object {
         return validateAndPublishToInternalHub(self.publishUrl, topic, content);
     }
 
-    # Registers a topic in the Ballerina Hub.
-    #
-    # + topic - The topic to register
-    # + return - `error` if an error occurred with registration
+# Registers a topic in the Ballerina Hub.
+# ```ballerina
+# error? registrationResponse = webSubHub.registerTopic("http://websubpubtopic.com");
+# ```
+#
+# + topic - The topic to register
+# + return - An `error` if an error occurred with registration or else `()`
     public function registerTopic(string topic) returns error? {
         if (!hubTopicRegistrationRequired) {
             error e = error(WEBSUB_ERROR_CODE, message = "Topic registration not allowed/not required at the Hub");
@@ -618,10 +626,13 @@ public type Hub object {
         return registerTopic(topic);
     }
 
-    # Unregisters a topic in the Ballerina Hub.
-    #
-    # + topic - The topic to unregister
-    # + return - `error` if an error occurred with unregistration
+# Unregisters a topic in the Ballerina Hub.
+# ```ballerina
+# error? registrationResponse = webSubHub.unregisterTopic("http://websubpubtopic.com");
+# ```
+#
+# + topic - The topic to unregister
+# + return - An `error` if an error occurred with unregistration or else `()`
     public function unregisterTopic(string topic) returns error? {
         if (!hubTopicRegistrationRequired) {
             error e = error(WEBSUB_ERROR_CODE, message = "Topic unregistration not allowed/not required at the Hub");
@@ -630,11 +641,14 @@ public type Hub object {
         return unregisterTopic(topic);
     }
 
-    # Removes a subscription from the Ballerina Hub, without verifying intent.
-    #
-    # + topic - The topic for which the subscription should be removed
-    # + callback - The callback for which the subscription should be removed
-    # + return - `error` if an error occurred with removal
+# Removes a subscription from the Ballerina Hub, without verifying intent.
+# ```ballerina
+# error? registrationResponse = webSubHub.removeSubscription("http://websubpubtopic.com",
+#                                                       "removeSubscriptioCallback");
+# ```
+# + topic - The topic for which the subscription should be removed
+# + callback - The callback for which the subscription should be removed
+# + return - An `error` if an error occurred with removal or else `()`
     public function removeSubscription(string topic, string callback) returns error? {
         removeNativeSubscription(topic, callback);
         if (hubPersistenceEnabled) {
@@ -642,17 +656,23 @@ public type Hub object {
         }
     }
 
-    # Retrieves topics currently recognized by the Hub.
-    #
-    # + return - An array of available topics
-    public function getAvailableTopics() returns string[] {
+# Retrieves topics currently recognized by the Hub.
+# ```ballerina
+# string[] topic = webSubHub.getAvailableTopics();
+# ```
+#
+# + return - An array of available topics
+public function getAvailableTopics() returns string[] {
         return externGetAvailableTopics(self);
     }
 
-    # Retrieves details of subscribers registered to receive updates for a particular topic.
-    #
-    # + topic - The topic for which details need to be retrieved
-    # + return - An array of subscriber details
+# Retrieves details of subscribers registered to receive updates for a particular topic.
+# ```ballerina
+# string[] topic = webSubHub.getSubscribers("http://websubpubtopic.com");
+# ```
+#
+# + topic - The topic for which details need to be retrieved
+# + return - An array of subscriber details
     public function getSubscribers(string topic) returns SubscriberDetails[] {
         return externGetSubscribers(self, java:fromString(topic));
     }

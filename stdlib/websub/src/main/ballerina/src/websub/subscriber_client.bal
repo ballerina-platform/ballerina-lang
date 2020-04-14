@@ -26,7 +26,7 @@ public type SubscriptionClient client object {
     private http:Client httpClient;
     private http:FollowRedirects? followRedirects = ();
 
-    # Initializer function for the client.
+    # Initializes the `websub:SubscriptionClient`.
     #
     # + url    - The URL to change subscription at
     # + config - The `http:ClientConfiguration` for the underlying client or `()`
@@ -36,11 +36,14 @@ public type SubscriptionClient client object {
         self.followRedirects = config?.followRedirects;
     }
 
-    # Sends a subscription request to a WebSub Hub.
-    #
-    # + subscriptionRequest - The `SubscriptionChangeRequest` containing subscription details
-    # + return - `SubscriptionChangeResponse` indicating subscription details, if the request was successful else
-    #            `error` if an error occurred with the subscription request
+# Sends a subscription request to a WebSub Hub.
+# ```ballerina
+# websub:SubscriptionChangeResponse|error response = websubHubClientEP->subscribe(subscriptionRequest);
+# ```
+#
+# + subscriptionRequest - The `SubscriptionChangeRequest` containing subscription details
+# + return - A subscription details if the request was successful or else an `error` if an error
+#            occurred with the subscription request
     public remote function subscribe(SubscriptionChangeRequest subscriptionRequest)
         returns @tainted SubscriptionChangeResponse|error {
 
@@ -52,11 +55,13 @@ public type SubscriptionClient client object {
                                   redirectCount);
     }
 
-    # Sends an unsubscription request to a WebSub Hub.
-    #
-    # + unsubscriptionRequest - The `SubscriptionChangeRequest` containing unsubscription details
-    # + return - `SubscriptionChangeResponse` indicating unsubscription details, if the request was successful else
-    #            `error` if an error occurred with the unsubscription request
+# Sends an unsubscription request to a WebSub Hub.
+# ```ballerina
+# websub:SubscriptionChangeResponse|websub:error response = websubHubClientEP->unsubscribe(subscriptionRequest);
+# ```
+# + unsubscriptionRequest - The `SubscriptionChangeRequest` containing unsubscription details
+# + return - An unsubscription details if the request was successful or else an `error` if an error occurred
+#            with the unsubscription request
     public remote function unsubscribe(SubscriptionChangeRequest unsubscriptionRequest)
         returns @tainted SubscriptionChangeResponse|error {
 
@@ -72,10 +77,10 @@ public type SubscriptionClient client object {
 
 # Function to build the subscription request to subscribe at the hub.
 #
-# + mode - Whether the request is for subscription or unsubscription
+# + mode - The status for whether the request is for registration or unregistration
 # + subscriptionChangeRequest - The SubscriptionChangeRequest specifying the topic to subscribe to and the
 #                               parameters to use
-# + return - `http:Request` The Request to send to the hub to subscribe/unsubscribe
+# + return - A `http:Request` The Request to send to the hub to subscribe/unsubscribe
 function buildSubscriptionChangeRequest(@untainted string mode,
                                         SubscriptionChangeRequest subscriptionChangeRequest) returns (http:Request) {
     http:Request request = new;
@@ -105,12 +110,12 @@ function buildSubscriptionChangeRequest(@untainted string mode,
 # Function to process the response from the hub on subscription/unsubscription and extract required information.
 #
 # + hub - The hub to which the subscription/unsubscription request was sent
-# + mode - Whether the request was sent for subscription or unsubscription
+# + mode - The status for whether the request was sent for subscription or unsubscription
 # + subscriptionChangeRequest - The subscription change request sent
 # + response - The http:Response or error received on request to the hub
 # + httpClient - The underlying HTTP Client Endpoint
-# + return - `SubscriptionChangeResponse` indicating subscription/unsubscription details, if the request was successful
-#            else `error` if an error occurred
+# + return - The subscription/unsubscription details if the request was successful or else an `error`
+#            if an error occurred
 function processHubResponse(@untainted string hub, @untainted string mode,
                             SubscriptionChangeRequest subscriptionChangeRequest,
                             http:Response|error response, http:Client httpClient,
@@ -158,15 +163,15 @@ function processHubResponse(@untainted string hub, @untainted string mode,
     }
 }
 
-# Function to invoke the WebSubSubscriberConnector's remote functions for subscription/unsubscription on redirection from the
+# Invokes the WebSubSubscriberConnector's remote functions for subscription/unsubscription on redirection from the
 # original hub.
 #
 # + hub - The hub to which the subscription/unsubscription request is to be sent
 # + mode - Whether the request is for subscription or unsubscription
 # + subscriptionChangeRequest - The request containing subscription/unsubscription details
 # + auth - The auth config to use at the hub, if specified
-# + return - `SubscriptionChangeResponse` indicating subscription/unsubscription details, if the request was successful
-#            else `error` if an error occurred
+# + return - The subscription/unsubscription details if the request was successful or else an `error`
+#            if an error occurred
 function invokeClientConnectorOnRedirection(@untainted string hub, @untainted string mode,
                                             SubscriptionChangeRequest subscriptionChangeRequest,
                                             http:OutboundAuthConfig? auth, int remainingRedirects)
