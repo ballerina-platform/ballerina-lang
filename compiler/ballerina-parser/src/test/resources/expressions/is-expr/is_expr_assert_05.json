@@ -2,15 +2,15 @@
     "kind": "IS_EXPRESSION",
     "children": [
         {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": "3"
+            "kind": "IDENTIFIER_TOKEN",
+            "isMissing": true
         },
         {
             "kind": "IS_KEYWORD"
         },
         {
             "kind": "SIMPLE_TYPE",
-            "isMissing": true
+            "value": "int"
         }
     ]
 }

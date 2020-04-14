@@ -27,27 +27,34 @@ public class IsExpressionTest extends AbstractExpressionsTest {
     // Valid source tests
 
     @Test
-    public void testSimpleIsExpr() { test("3 is int", "is-expr/is_expr_assert_01.json"); }
+    public void testSimpleIsExpr() {
+        test("3 is int", "is-expr/is_expr_assert_01.json");
+    }
+
+    @Test
+    public void testIsExpr() {
+        test("3 is int is decimal", "is-expr/is_expr_assert_02.json");
+    }
 
     @Test
     public void testIsExprOpPrecedence() {
-        test("a == b / c is int + d", "is-expr/is_expr_assert_02.json");
+        test("a == b / c is int + d", "is-expr/is_expr_assert_03.json");
     }
 
     // Recovery test
 
     @Test
     public void testIsExprWithMissingTypeDescriptor() {
-        testFile("is-expr/is_expr_source_03.bal", "is-expr/is_expr_assert_03.json");
+        test("3 is", "is-expr/is_expr_assert_04.json");
     }
 
     @Test
     public void testIsExprWithMissingExpr() {
-        testFile("is-expr/is_expr_source_04.bal", "is-expr/is_expr_assert_04.json");
+        test("is int", "is-expr/is_expr_assert_05.json");
     }
 
-//    @Test
-//    public void testIsExprWithMissingIsKeyword() {
-//        testFile("is-expr/is_expr_source_05.bal", "is-expr/is_expr_assert_05.json");
-//    }
+    @Test
+    public void testIsExprRecovery() {
+        test("x a is b c is d", "is-expr/is_expr_assert_06.json");
+    }
 }
