@@ -1648,18 +1648,13 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        Name pkgAlias = names.fromIdNode(iExpr.pkgAlias);
-        if (pkgAlias != Names.EMPTY) {
-            dlog.error(iExpr.pos, DiagnosticCode.PKG_ALIAS_NOT_ALLOWED_HERE);
+        // Module aliases cannot be used with methods
+        if (!validateModuleAliasUsage(iExpr)) {
             return;
         }
 
         // Find the variable reference expression type
         checkExpr(iExpr.expr, this.env, symTable.noType);
-
-        if (iExpr instanceof ActionNode) {
-            return;
-        }
 
         BType varRefType = iExpr.expr.type;
 
@@ -1683,16 +1678,27 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangInvocation.BLangActionInvocation iExpr) {
-        this.visit((BLangInvocation) iExpr); // TODO: check if this is ok
+    public void visit(BLangInvocation.BLangActionInvocation aInv) {
+        // For an action invocation, this will only be satisfied when it's an async call of a function.
+        // e.g., start foo();
+        if (aInv.expr == null) {
+            checkFunctionInvocationExpr(aInv);
+            return;
+        }
 
-        BType exprType = iExpr.expr.type;
+        // Module aliases cannot be used with remote method call actions
+        if (!validateModuleAliasUsage(aInv)) {
+            return;
+        }
+
+        // Find the variable reference expression type
+        BType exprType = checkExpr(aInv.expr, this.env, symTable.noType);
         BType actualType = symTable.semanticError;
-        BLangVariableReference varRef = (BLangVariableReference) iExpr.expr;
+        BLangVariableReference varRef = (BLangVariableReference) aInv.expr;
 
         if (exprType == symTable.semanticError || exprType.tag != TypeTags.OBJECT ||
-                (varRef.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) {
-            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
+                ((varRef.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) && !aInv.async) {
+            dlog.error(aInv.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
             resultType = actualType;
             return;
         }
@@ -1701,22 +1707,32 @@ public class TypeChecker extends BLangNodeVisitor {
         final BVarSymbol epSymbol = (BVarSymbol) varRef.symbol;
 
         Name remoteFuncQName = names
-                .fromString(Symbols.getAttachedFuncSymbolName(exprType.tsymbol.name.value, iExpr.name.value));
-        Name actionName = names.fromIdNode(iExpr.name);
+                .fromString(Symbols.getAttachedFuncSymbolName(exprType.tsymbol.name.value, aInv.name.value));
+        Name actionName = names.fromIdNode(aInv.name);
         BSymbol remoteFuncSymbol = symResolver
-                .lookupMemberSymbol(iExpr.pos, ((BObjectTypeSymbol) epSymbol.type.tsymbol).methodScope, env,
+                .lookupMemberSymbol(aInv.pos, ((BObjectTypeSymbol) epSymbol.type.tsymbol).methodScope, env,
                                     remoteFuncQName, SymTag.FUNCTION);
 
         // TODO: break this in to two separate error messages
-        if (remoteFuncSymbol == symTable.notFoundSymbol || !Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE)) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.type.tsymbol.name);
+        if (remoteFuncSymbol == symTable.notFoundSymbol ||
+                (!Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE) && !aInv.async)) {
+            dlog.error(aInv.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.type.tsymbol.name);
             resultType = actualType;
             return;
         }
 
-        iExpr.symbol = remoteFuncSymbol;
+        aInv.symbol = remoteFuncSymbol;
 
-        checkInvocationParamAndReturnType(iExpr);
+        checkInvocationParamAndReturnType(aInv);
+    }
+
+    private boolean validateModuleAliasUsage(BLangInvocation invocation) {
+        Name pkgAlias = names.fromIdNode(invocation.pkgAlias);
+        if (pkgAlias != Names.EMPTY) {
+            dlog.error(invocation.pos, DiagnosticCode.PKG_ALIAS_NOT_ALLOWED_HERE);
+            return false;
+        }
+        return true;
     }
 
     public void visit(BLangLetExpression letExpression) {
@@ -3709,7 +3725,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkRestArgs(iExpr.restArgs, vararg, invokableTypeSymbol.restParam, iExpr.langLibInvocation);
         BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
 
-        if (iExpr.async) {
+        if (iExpr instanceof ActionNode && ((BLangInvocation.BLangActionInvocation) iExpr).async) {
             return this.generateFutureType(invokableSymbol, retType);
         } else {
             return retType;
