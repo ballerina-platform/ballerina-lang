@@ -130,7 +130,7 @@ public const TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
 # + challenge - The challenge to be echoed to verify intent to subscribe/unsubscribe
 # + leaseSeconds - The lease seconds period for which a subscription will be active if intent verification
 #                  is being done for subscription
-# + request - The `http:Request` received for intent verification
+# + request - A `http:Request` received for intent verification
 public type IntentVerificationRequest object {
 
     public string mode = "";
@@ -142,7 +142,7 @@ public type IntentVerificationRequest object {
     # Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
     #
     # + expectedTopic - The topic for which subscription should be accepted
-    # + return - The `http:Response` for the hub verifying/denying intent to subscribe
+    # + return - A`http:Response` for the hub verifying/denying intent to subscribe
     public function buildSubscriptionVerificationResponse(string expectedTopic) returns http:Response {
         return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, expectedTopic);
     }
@@ -150,7 +150,7 @@ public type IntentVerificationRequest object {
     # Builds the response for the request, verifying intention to unsubscribe, if the topic matches that expected.
     #
     # + expectedTopic - The topic for which unsubscription should be accepted
-    # + return - The `http:Response` for the hub verifying/denying intent to unsubscribe
+    # + return - A`http:Response` for the hub verifying/denying intent to unsubscribe
     public function buildUnsubscriptionVerificationResponse(string expectedTopic) returns http:Response {
         return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, expectedTopic);
     }
@@ -161,7 +161,7 @@ public type IntentVerificationRequest object {
 # + intentVerificationRequest - The intent verification request from the hub
 # + mode - The mode (subscription/unsubscription) for which a request was sent
 # + topic - The intended topic for which subscription change should be verified
-# + return - The `http:Response` for the hub verifying/denying intent to subscripe/unsubscribe
+# + return - A`http:Response` for the hub verifying/denying intent to subscripe/unsubscribe
 function buildIntentVerificationResponse(IntentVerificationRequest intentVerificationRequest, string mode,
                                          string topic)
     returns http:Response {
@@ -288,7 +288,7 @@ public type Notification object {
     # Retrieves all the header values to which the specified header key maps to.
     #
     # + headerName - The header name
-    # + return - The header values the specified header key maps to or else Panics if no header is found.
+    # + return - The header values for the specified header key maps to or else Panics if no header is found.
     public function getHeaders(string headerName) returns @tainted string[] {
         return self.request.getHeaders(headerName);
     }
@@ -352,7 +352,7 @@ public type Notification object {
 
 # Retrieves hub and topic URLs from the `http:response` from a publisher to a discovery request.
 #
-# + response - The `http:Response` received
+# + response - A`http:Response` received
 # + return - A `(topic, hubs)` if parsing and extraction is successful or else an `error` if not
 public function extractTopicAndHubUrls(http:Response response) returns @tainted [string, string[]]|error {
     string[] linkHeaders = [];
@@ -477,7 +477,7 @@ public type RemotePublishConfig record {|
 #               The publish URL is defined as {publicUrl}/{basePath}/{publishResourcePath} if `publicUrl` is
 #               specified, defaults to `http(s)://localhost:{port}/{basePath}/{publishResourcePath}` if not.
 # + hubConfiguration - The hub specific configuration
-# + return - The newly started WebSub Hub or else a `websub:HubStartedUpError` if the hub is already started
+# + return - A newly started WebSub Hub or else a `websub:HubStartedUpError` if the hub is already started
 public function startHub(http:Listener hubServiceListener,
                          public string basePath = "/",
                          public string subscriptionResourcePath = "/",

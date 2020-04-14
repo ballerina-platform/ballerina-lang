@@ -403,7 +403,7 @@ function persistTopicRegistrationChange(string mode, string topic) returns error
 
 # Adds/Changes/Removes the persisted subscription details.
 #
-# + mode - Whether the subscription change is for unsubscription/unsubscription
+# + mode - Whether the subscription change is for subscription/unsubscription
 # + subscriptionDetails - The details of the subscription changing
 # + return - An `error` if an error occurred while persisting the change or else `()`
 function persistSubscriptionChange(string mode, SubscriptionDetails subscriptionDetails) returns error? {

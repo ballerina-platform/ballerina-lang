@@ -170,9 +170,9 @@ public type PublisherClient client object {
 
 # Builds the topic registration change request to register or unregister a topic at the hub.
 #
-# + mode - The status for whether the request is for registration or unregistration
+# + mode - Whether the request is for registration or unregistration
 # + topic - The topic to register/unregister
-# + return - The `http:Request` to send to the hub to register/unregister
+# + return - A `http:Request` to send to the hub to register/unregister
 function buildTopicRegistrationChangeRequest(@untainted string mode, @untainted string topic) returns (http:Request) {
     http:Request request = new;
     request.setTextPayload(HUB_MODE + "=" + mode + "&" + HUB_TOPIC + "=" + topic);

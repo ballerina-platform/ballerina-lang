@@ -77,7 +77,7 @@ public type SubscriptionClient client object {
 
 # Function to build the subscription request to subscribe at the hub.
 #
-# + mode - The status for whether the request is for registration or unregistration
+# + mode - Whether the request is for registration or unregistration
 # + subscriptionChangeRequest - The SubscriptionChangeRequest specifying the topic to subscribe to and the
 #                               parameters to use
 # + return - A `http:Request` The Request to send to the hub to subscribe/unsubscribe
@@ -110,7 +110,7 @@ function buildSubscriptionChangeRequest(@untainted string mode,
 # Function to process the response from the hub on subscription/unsubscription and extract required information.
 #
 # + hub - The hub to which the subscription/unsubscription request was sent
-# + mode - The status for whether the request was sent for subscription or unsubscription
+# + mode - Whether the request was sent for subscription or unsubscription
 # + subscriptionChangeRequest - The subscription change request sent
 # + response - The http:Response or error received on request to the hub
 # + httpClient - The underlying HTTP Client Endpoint
@@ -170,7 +170,7 @@ function processHubResponse(@untainted string hub, @untainted string mode,
 # + mode - Whether the request is for subscription or unsubscription
 # + subscriptionChangeRequest - The request containing subscription/unsubscription details
 # + auth - The auth config to use at the hub, if specified
-# + return - The subscription/unsubscription details if the request was successful or else an `error`
+# + return - A subscription/unsubscription details if the request was successful or else an `error`
 #            if an error occurred
 function invokeClientConnectorOnRedirection(@untainted string hub, @untainted string mode,
                                             SubscriptionChangeRequest subscriptionChangeRequest,
