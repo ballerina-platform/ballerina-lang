@@ -23,7 +23,7 @@ public type Serializer abstract object {
     # Serializes the provided data. Implement this to serialize any data type, and return the `byte[]` value to use in
     # Kafka producer.
     #
-    # + data - Data which should be serialized
+    # + data - Data, which should be serialized
     # + return - Serialized `byte[]` value
     public function serialize(any data) returns byte[];
 };

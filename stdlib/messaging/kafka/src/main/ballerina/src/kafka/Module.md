@@ -23,7 +23,7 @@ ballerina add consumer
 ```
  ##### Dependencies
  To use Avro, you need to add the necessary dependencies to the Ballerina project you created. 
- To do so, download the necessary dependencies and put them inside the `resources
+ To do so, download the necessary dependencies and add them inside the `resources
  ` directory. Also, add those dependencies to the `Ballerina.toml` file of your project.
  The following is a sample `Ballerina.toml` file with the dependencies.
  
@@ -85,7 +85,7 @@ ballerina add consumer
      groupId = "com.fasterxml.jackson.core"
 ```
 
-Now, the directory structure will look like follows. (Some of the files are ignored)
+Now, the directory structure will look like follows (some of the files are ignored).
 
 ```shell script
 ├── Ballerina.toml

@@ -26,7 +26,7 @@ const ANY = "anydata";
 
 // Consumer-related constants.
 
-// Deserializer types
+// Deserializer types.
 # In-built Kafka byte array deserializer.
 public const DES_BYTE_ARRAY = "BYTE_ARRAY";
 
@@ -45,15 +45,15 @@ public const DES_CUSTOM = "CUSTOM";
 # Apache Avro deserializer.
 public const DES_AVRO = "AVRO";
 
-// Isolation levels
+// Isolation levels.
 # Configures the consumer to read the committed messages only in transactional mode when poll() is called.
 public const ISOLATION_COMMITTED = "read_committed";
 
-# Configures the consumer to read all the messages, even the aborted ones.
+# Configures the consumer to read all the messages even the aborted ones.
 public const ISOLATION_UNCOMMITTED = "read_uncommitted";
 
-// Producer related constants
-// Produce Ack types
+// Producer related constants.
+// Produce Ack types.
 # Producer acknowledgement type 'all'. This will gurantee that the record will not be lost as long as at least one
 # in-sync replica is alive.
 public const ACKS_ALL = "all";
@@ -66,7 +66,7 @@ public const ACKS_NONE = "0";
 # local log but will respond without awaiting full acknowledgement from all followers.
 public const ACKS_SINGLE = "1";
 
-// Serializer types
+// Serializer types.
 # In-built Kafka Byte Array serializer.
 public const SER_BYTE_ARRAY = "BYTE_ARRAY";
 
@@ -85,7 +85,7 @@ public const SER_CUSTOM = "CUSTOM";
 # Apache avro serializer.
 public const SER_AVRO = "AVRO";
 
-// Compression types
+// Compression types.
 # No compression.
 public const COMPRESSION_NONE = "none";
 

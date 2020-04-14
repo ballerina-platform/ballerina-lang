@@ -17,7 +17,7 @@
 import ballerina/system;
 import ballerina/java;
 
-# Represents Kafka Producer configuration.
+# Represents the Kafka Producer configuration.
 #
 # + bootstrapServers - List of remote server endpoints of Kafka brokers
 # + acks - Number of acknowledgments
@@ -25,19 +25,19 @@ import ballerina/java;
 # + clientId - Identifier to be used for server side logging
 # + metricsRecordingLevel - Metrics recording level
 # + metricReporterClasses - Metrics reporter classes
-# + partitionerClass - Partitioner class to be used to select partition to which the message is sent
+# + partitionerClass - Partitioner class to be used to select the partition to which the message is sent
 # + interceptorClasses - Interceptor classes to be used before sending records
 # + transactionalId - Transactional ID to be used in transactional delivery
 # + keySerializerType - Serializer used for the Kafka record key. This can be either `kafka:SerializerType` or a
 #                       user-defined serializer
 # + valueSerializerType - Serializer used for the Kafka record value. This can be either `kafka:SerializerType` or a
 #                         user-defined serializer
-# + keySerializer - Custom serializer object to serialize kafka keys. This should be implement the `kafka:Serializer`
+# + keySerializer - Custom serializer object to serialize Kafka keys. This should implement the `kafka:Serializer`
 #                   object
-# + valueSerializer - Custom serializer object to serialize kafka values. This should be implement the
+# + valueSerializer - Custom serializer object to serialize Kafka values. This should be implement the
 #                     `kafka:Serializer` object
-# + schemaRegistryUrl - Avro schema registry url. Use this field to specify schema registry url if Avro serializer
-#                       is used
+# + schemaRegistryUrl - Avro schema registry URL. Use this field to specify the schema registry URL if the Avro
+#                       serializer is used
 # + bufferMemory - Total bytes of memory the producer can use to buffer records
 # + retryCount - Number of retries to resend a record
 # + batchSize - Number of records to be batched for a single request. Use 0 for no batching
@@ -48,10 +48,10 @@ import ballerina/java;
 # + reconnectBackoffTimeInMillis - Time to wait before attempting to reconnect
 # + reconnectBackoffMaxTimeInMillis - Maximum amount of time in milliseconds to wait when reconnecting
 # + retryBackoffTimeInMillis - Time to wait before attempting to retry a failed request
-# + maxBlock - Maximum block time which the send is blocked, when the buffer is full
-# + requestTimeoutInMillis - Wait time for response of a request
+# + maxBlock - Maximum block time during which the sending is blocked, when the buffer is full
+# + requestTimeoutInMillis - Wait time for the response of a request
 # + metadataMaxAgeInMillis - Maximum time to force a refresh of metadata
-# + metricsSampleWindowInMillis - Time window for a metrics sample to computed over
+# + metricsSampleWindowInMillis - Time window for a metrics sample to compute over
 # + metricsNumSamples - Number of samples maintained to compute metrics
 # + maxInFlightRequestsPerConnection - Maximum number of unacknowledged requests on a single connection
 # + connectionsMaxIdleTimeInMillis - Close idle connections after the number of milliseconds
@@ -101,8 +101,8 @@ public type ProducerConfiguration record {|
 
 # Defines a records to send data using Avro serialization.
 #
-# + schemaString - The string which defines the Avro schema
-# + dataRecord - Records which should be serialized using Avro
+# + schemaString - The string, which defines the Avro schema
+# + dataRecord - Records, which should be serialized using Avro
 public type AvroRecord record {|
     string schemaString;
     anydata dataRecord;
@@ -174,20 +174,20 @@ public type Producer client object {
 
     public string connectorId = system:uuid();
 
-# Closes producer connection to the external Kafka broker.
+# Closes the producer connection to the external Kafka broker.
 # ```ballerina
 # kafka:ProducerError? result = producer->close();
 # ```
 #
-# + return - `kafka:ProducerError` if closing the producer is failed or else nil otherwise
+# + return - `kafka:ProducerError` if closing the producer is failed or else ()
     public remote function close() returns ProducerError? {
         return producerClose(self);
     }
 
-    # Commits consumer consumed offsets to offset topic.
+    # Commits the offsets consumed by the provided consumer.
     #
-    # + consumer - Consumer which needs offsets to be committed
-    # + return - `kafka:ProducerError` if committing the consumer failed or else nil otherwise
+    # + consumer - Consumer, which needs offsets to be committed
+    # + return - `kafka:ProducerError` if committing the consumer failed or else ()
     public remote function commitConsumer(Consumer consumer) returns ProducerError? {
         return producerCommitConsumer(self, consumer);
     }
@@ -196,43 +196,43 @@ public type Producer client object {
     #
     # + offsets - Consumer offsets to commit for given transaction
     # + groupID - Consumer group id
-    # + return - `kafka:ProducerError` if committing consumer offsets failed or else nil otherwise
+    # + return - `kafka:ProducerError` if committing consumer offsets failed or else ()
     public remote function commitConsumerOffsets(PartitionOffset[] offsets, string groupID) returns ProducerError? {
         return producerCommitConsumerOffsets(self, offsets, java:fromString(groupID));
     }
 
-# Flushes batch of records.
+# Flushes the batch of records already sent to the broker by the producer.
 # ```ballerina
 # kafka:ProducerError? result = producer->flushRecords();
 # ```
 #
-# + return - `kafka:ProducerError` if records couldn't be flushed or else nil otherwise
+# + return - `kafka:ProducerError` if records couldn't be flushed or else ()
     public remote function flushRecords() returns ProducerError? {
         return producerFlushRecords(self);
     }
 
-# Retrieves given topic partition information.
+# Retrieves topic partition information for the provided topic.
 # ```ballerina
 # kafka:TopicPartition[]|kafka:ProducerError result = producer->getTopicPartitions("kafka-topic");
 # ```
 #
-# + topic - Topic which the partition information is given
+# + topic - Topic to which the partition information is given
 # + return - `kafka:TopicPartition` array for the given topic or else `kafka:ProducerError` if operation fails
     public remote function getTopicPartitions(string topic) returns TopicPartition[]|ProducerError {
         return producerGetTopicPartitions(self, java:fromString(topic));
     }
 
-# Produces records to Kafka server.
+# Produces records to the Kafka server.
 # ```ballerina
 # kafka:ProducerError? result = producer->send("Hello World, Ballerina", "kafka-topic");
 # ```
 #
 # + value - Record contents
-# + topic - Topic to which the record will be appended to
+# + topic - Topic to which the record will be appended
 # + key - Key that will be included in the record
 # + partition - Partition to which the record should be sent
-# + timestamp - Timestamp of the record, in milliseconds since epoch
-# + return -  `kafka:ProducerError` if send action fails to send data or else nil otherwise
+# + timestamp - Timestamp of the record in milliseconds since epoch
+# + return -  `kafka:ProducerError` if send action fails to send data or else ()
     public remote function send(anydata value, string topic, public anydata? key = (), public int? partition = (),
         public int? timestamp = ()) returns ProducerError? {
         handle topicHandle = java:fromString(topic);

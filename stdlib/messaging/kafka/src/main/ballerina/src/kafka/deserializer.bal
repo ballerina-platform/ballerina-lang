@@ -22,7 +22,7 @@ public type Deserializer abstract object {
 
     # Deserializes the provided data. Implement this to deserialize `byte[]` and return any data type.
     #
-    # + data - Data which should be deserialized
+    # + data - Data, which should be deserialized
     # + return - Deserialized value
     public function deserialize(byte[] data) returns any;
 };
