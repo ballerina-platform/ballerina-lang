@@ -119,7 +119,8 @@ objectFieldDefinition
     ;
 
 fieldDefinition
-    :   documentationString? annotationAttachment* typeName Identifier QUESTION_MARK? (ASSIGN expression)? SEMICOLON
+    :   documentationString? annotationAttachment* TYPE_READONLY? typeName Identifier QUESTION_MARK?
+            (ASSIGN expression)? SEMICOLON
     ;
 
 recordRestFieldDefinition
@@ -354,8 +355,8 @@ staticMatchLiterals
     ;
 
 recordField
-    :   Identifier
-    |   recordKey COLON expression
+    :   TYPE_READONLY? Identifier
+    |   TYPE_READONLY? recordKey COLON expression
     |   ELLIPSIS expression
     ;
 
