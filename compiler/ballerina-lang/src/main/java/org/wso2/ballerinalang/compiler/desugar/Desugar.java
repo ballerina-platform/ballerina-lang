@@ -115,6 +115,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStringAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTableAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTupleAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
@@ -3546,6 +3547,9 @@ public class Desugar extends BLangNodeVisitor {
         } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
+        } else if (varRefType.tag == TypeTags.TABLE) {
+            targetVarRef = new BLangTableAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
+                    indexAccessExpr.indexExpr);
         }
 
         targetVarRef.lhsVar = indexAccessExpr.lhsVar;
@@ -4362,6 +4366,11 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleAccessExpr arrayIndexAccessExpr) {
         result = arrayIndexAccessExpr;
+    }
+
+    @Override
+    public void visit(BLangTableAccessExpr tableKeyAccessExpr) {
+        result = tableKeyAccessExpr;
     }
 
     @Override

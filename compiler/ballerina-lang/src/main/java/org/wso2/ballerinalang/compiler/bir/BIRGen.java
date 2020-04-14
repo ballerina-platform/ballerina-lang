@@ -97,6 +97,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStringAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTableAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
@@ -1473,6 +1474,33 @@ public class BIRGen extends BLangNodeVisitor {
         emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_LOAD, tempVarRef,
                 keyRegIndex, varRefRegIndex, astMapAccessExpr.optionalFieldAccess,
                                               astMapAccessExpr.lhsVar && !astMapAccessExpr.leafNode));
+        this.env.targetOperand = tempVarRef;
+        this.varAssignment = variableStore;
+    }
+
+    @Override
+    public void visit(BLangTableAccessExpr astTableAccessExpr) {
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+        BIROperand rhsOp = this.env.targetOperand;
+
+        astTableAccessExpr.expr.accept(this);
+        BIROperand varRefRegIndex = this.env.targetOperand;
+
+        astTableAccessExpr.indexExpr.accept(this);
+        BIROperand keyRegIndex = this.env.targetOperand;
+        if (variableStore) {
+            emit(new BIRNonTerminator.FieldAccess(astTableAccessExpr.pos, InstructionKind.TABLE_STORE, varRefRegIndex,
+                    keyRegIndex, rhsOp));
+            return;
+        }
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(astTableAccessExpr.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand tempVarRef = new BIROperand(tempVarDcl);
+
+        emit(new BIRNonTerminator.FieldAccess(astTableAccessExpr.pos, InstructionKind.TABLE_LOAD, tempVarRef,
+                keyRegIndex, varRefRegIndex));
         this.env.targetOperand = tempVarRef;
         this.varAssignment = variableStore;
     }

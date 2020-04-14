@@ -1161,6 +1161,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangIndexBasedAccess.BLangTableAccessExpr tableKeyAccessExpr) {
+        tableKeyAccessExpr.indexExpr = rewriteExpr(tableKeyAccessExpr.indexExpr);
+        tableKeyAccessExpr.expr = rewriteExpr(tableKeyAccessExpr.expr);
+        result = tableKeyAccessExpr;
+    }
+
+    @Override
     public void visit(BLangIndexBasedAccess.BLangArrayAccessExpr arrayIndexAccessExpr) {
         arrayIndexAccessExpr.indexExpr = rewriteExpr(arrayIndexAccessExpr.indexExpr);
         arrayIndexAccessExpr.expr = rewriteExpr(arrayIndexAccessExpr.expr);
