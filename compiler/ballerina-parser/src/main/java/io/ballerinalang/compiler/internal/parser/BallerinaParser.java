@@ -1412,7 +1412,12 @@ public class BallerinaParser {
                 return parseNilTypeDescriptor();
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.TYPE_DESCRIPTOR);
+                Solution solution;
+                if (token.kind == SyntaxKind.EOF_TOKEN) {
+                    solution = recover(token, ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
+                } else {
+                    solution = recover(token, ParserRuleContext.TYPE_DESCRIPTOR);
+                }
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
