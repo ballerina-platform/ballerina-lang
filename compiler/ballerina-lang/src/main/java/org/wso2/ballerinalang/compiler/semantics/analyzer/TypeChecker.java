@@ -3852,7 +3852,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
                     BType spreadExprType = spreadExpr.type;
                     if (spreadExprType.tag == TypeTags.MAP) {
-                        return symTable.noType;
+                        return types.checkType(spreadExpr.pos, ((BMapType) spreadExprType).constraint,
+                                               getAllFieldType((BRecordType) mappingType),
+                                               DiagnosticCode.INCOMPATIBLE_TYPES);
                     }
 
                     if (spreadExprType.tag != TypeTags.RECORD) {
@@ -3940,6 +3942,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (this.nonErrorLoggingCheck) {
             valueExpr.cloneAttempt++;
             exprToCheck = nodeCloner.clone(valueExpr);
+        } else {
+            ((BLangNode) field).type = fieldType;
         }
 
         return checkExpr(exprToCheck, this.env, fieldType);
@@ -3991,6 +3995,22 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return recordType.restFieldType;
+    }
+
+    private BType getAllFieldType(BRecordType recordType) {
+        LinkedHashSet<BType> possibleTypes = new LinkedHashSet<>();
+
+        for (BField field : recordType.fields) {
+            possibleTypes.add(field.type);
+        }
+
+        BType restFieldType = recordType.restFieldType;
+
+        if (restFieldType != null && restFieldType != symTable.noType) {
+            possibleTypes.add(restFieldType);
+        }
+
+        return BUnionType.create(null, possibleTypes);
     }
 
     private boolean checkValidJsonOrMapLiteralKeyExpr(BLangExpression keyExpr, boolean computedKey) {
