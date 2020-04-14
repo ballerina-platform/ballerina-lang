@@ -17,6 +17,9 @@
 import ballerina/java;
 
 # Checks whether the given key is in the configuration registry.
+# ```ballerina
+# boolean configAvailable = config:contains("host");
+# ```
 #
 # + key - The configuration key to be looked-up
 # + return - Returns true if the key is present; if not returs false
@@ -30,6 +33,9 @@ function externContains(handle key) returns boolean = @java:Method {
 } external;
 
 # Sets the specified key/value pair as a configuration.
+# ```ballerina
+# config:setConfig("john.country", "USA");
+# ```
 #
 # + key - The key of the configuration value to be set
 # + value - The configuration value to be set

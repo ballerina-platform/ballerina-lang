@@ -15,7 +15,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider1 = new ({
         secureSocket: {
             trustStore: {
                 path: config:getAsString("b7a.home") +
-                      "bre/security/ballerinaTruststore.p12",
+                      "/bre/security/ballerinaTruststore.p12",
                 password: "ballerina"
             }
         }
@@ -30,7 +30,7 @@ http:Client clientEP1 = new ("<URL of the secured endpoint>", {
     secureSocket: {
         trustStore: {
             path: config:getAsString("b7a.home") +
-                  "bre/security/ballerinaTruststore.p12",
+                  "/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }
@@ -52,7 +52,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider2 = new ({
         secureSocket: {
             trustStore: {
                 path: config:getAsString("b7a.home") +
-                      "bre/security/ballerinaTruststore.p12",
+                      "/bre/security/ballerinaTruststore.p12",
                 password: "ballerina"
             }
         }
@@ -63,7 +63,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider2 = new ({
             secureSocket: {
                 trustStore: {
                     path: config:getAsString("b7a.home") +
-                          "bre/security/ballerinaTruststore.p12",
+                          "/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 }
             }
@@ -79,7 +79,7 @@ http:Client clientEP2 = new ("<URL of the secured endpoint>", {
     secureSocket: {
         trustStore: {
             path: config:getAsString("b7a.home") +
-                  "bre/security/ballerinaTruststore.p12",
+                  "/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }
@@ -101,7 +101,7 @@ oauth2:OutboundOAuth2Provider oauth2Provider3 = new ({
             secureSocket: {
                 trustStore: {
                     path: config:getAsString("b7a.home") +
-                          "bre/security/ballerinaTruststore.p12",
+                          "/bre/security/ballerinaTruststore.p12",
                     password: "ballerina"
                 }
             }
@@ -117,7 +117,7 @@ http:Client clientEP3 = new ("<URL of the secured endpoint>", {
     secureSocket: {
         trustStore: {
             path: config:getAsString("b7a.home") +
-                  "bre/security/ballerinaTruststore.p12",
+                  "/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }

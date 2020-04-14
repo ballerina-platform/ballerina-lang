@@ -1,0 +1,4 @@
+// A service can be secured using LDAP and optionally by enforcing
+// authorization. The LDAP auth provider verifies the token against the
+// configured LDAP server. The result returned from the LDAP
+// server is used for authentication and authorization.
