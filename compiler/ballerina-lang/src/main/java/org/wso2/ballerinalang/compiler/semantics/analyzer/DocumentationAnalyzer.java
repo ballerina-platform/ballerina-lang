@@ -360,7 +360,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             case BACKTICK_CONTENT:
             case FUNCTION:
                 tag = SymTag.FUNCTION;
-                // Check if function is available as parameter to a function
+                // Check if the function is available as a parameter
                 if (documentableNode.getKind() == NodeKind.FUNCTION) {
                     BLangFunction funcNode = (BLangFunction) documentableNode;
                     SymbolEnv tempEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
