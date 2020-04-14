@@ -3526,13 +3526,16 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (varRefType.tag == TypeTags.MAP) {
-            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, indexAccessExpr.indexExpr);
+            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
+                                                  indexAccessExpr.indexExpr, indexAccessExpr.isStoreOnCreation);
         } else if (types.isSubTypeOfMapping(types.getSafeType(varRefType, true, false))) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
-                    indexAccessExpr.indexExpr, (BVarSymbol) indexAccessExpr.symbol, false);
+                                                          indexAccessExpr.indexExpr,
+                                                          (BVarSymbol) indexAccessExpr.symbol, false,
+                                                          indexAccessExpr.isStoreOnCreation);
         } else if (types.isSubTypeOfList(varRefType)) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
-                    indexAccessExpr.indexExpr);
+                                                    indexAccessExpr.indexExpr, indexAccessExpr.isStoreOnCreation);
         } else if (types.isAssignable(varRefType, symTable.stringType)) {
             indexAccessExpr.expr = addConversionExprIfRequired(indexAccessExpr.expr, symTable.stringType);
             targetVarRef = new BLangStringAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
@@ -6525,6 +6528,8 @@ public class Desugar extends BLangNodeVisitor {
         indexAccessNode.indexExpr = rewriteExpr(indexExpr);
         indexAccessNode.type = accessType != null ? accessType : value.type;
         assignmentStmt.varRef = indexAccessNode;
+
+        indexAccessNode.isStoreOnCreation = true;
     }
 
     private Map<String, BLangExpression> getKeyValuePairs(BLangStatementExpression desugaredMappingConst) {
