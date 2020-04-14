@@ -34,7 +34,7 @@ public class ImportDeclaration extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Token orgName() {
+    public ImportOrgName orgName() {
         return childInBucket(1);
     }
 
@@ -66,7 +66,7 @@ public class ImportDeclaration extends NonTerminalNode {
 
     public ImportDeclaration modify(
             Token importKeyword,
-            Token orgName,
+            Node orgName,
             Node moduleName,
             Node version,
             Node prefix,
