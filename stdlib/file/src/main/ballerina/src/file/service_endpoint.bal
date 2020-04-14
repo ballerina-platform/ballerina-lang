@@ -70,6 +70,7 @@ public type Listener object {
 
     # Stops listening to the directory and detaches service from the `file:Listener`.
     # 
+    # + s - Type descriptor of the service
     # + return - (), or else error upon failure to detach to the service
     public function __detach(service s) returns error? {
     }
