@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.DocReferenceErrorType;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.DocumentationReferenceType;
@@ -359,6 +360,18 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
             case BACKTICK_CONTENT:
             case FUNCTION:
                 tag = SymTag.FUNCTION;
+                // Check if function is available as parameter to a function
+                if (documentableNode.getKind() == NodeKind.FUNCTION) {
+                    BLangFunction funcNode = (BLangFunction) documentableNode;
+                    SymbolEnv tempEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.env);
+                    BSymbol symbol = resolveFullyQualifiedSymbol(reference.pos, tempEnv, reference.qualifier,
+                            reference.typeName, reference.identifier, tag);
+                    if (symbol != symTable.notFoundSymbol) {
+                        if (symbol.kind == SymbolKind.FUNCTION) {
+                            return DocReferenceErrorType.NO_ERROR;
+                        }
+                    }
+                }
                 break;
         }
 
