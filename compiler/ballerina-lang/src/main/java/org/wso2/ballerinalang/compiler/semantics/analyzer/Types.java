@@ -505,6 +505,7 @@ public class Types {
         if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.CHAR_STRING) {
             return true;
         }
+
         if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ERROR) {
             return isErrorTypeAssignable((BErrorType) source, (BErrorType) target, unresolvedTypes);
         } else if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ANY) {
@@ -834,27 +835,22 @@ public class Types {
     public boolean isArrayTypesAssignable(BArrayType source, BType target, Set<TypePair> unresolvedTypes) {
         BType sourceElementType = source.getElementType();
         if (target.tag == TypeTags.ARRAY) {
-            // Both types are array types
-            BArrayType lhsArrayType = (BArrayType) target;
-            if (lhsArrayType.state == BArrayState.UNSEALED) {
-                return isAssignable(sourceElementType, lhsArrayType.eType, unresolvedTypes);
+            BArrayType targetArrayType = (BArrayType) target;
+            BType targetElementType = targetArrayType.getElementType();
+            if (targetArrayType.state == BArrayState.UNSEALED) {
+                return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
             }
-            return checkSealedArraySizeEquality(source, lhsArrayType)
-                    && isAssignable(sourceElementType, lhsArrayType.eType, unresolvedTypes);
+
+            if (targetArrayType.size == source.size) {
+                return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
+            }
+            return false;
         }
 
-        if (target.tag == TypeTags.UNION) {
+        if ((target.tag == TypeTags.UNION) || (target.tag == TypeTags.JSON)) {
             return isAssignable(sourceElementType, target, unresolvedTypes);
         }
 
-
-        // If the target type is a JSON, then element type of the rhs array
-        // should only be a JSON supported type.
-        if (target.tag == TypeTags.JSON) {
-            return isAssignable(sourceElementType, target, unresolvedTypes);
-        }
-
-        // Then lhs type should 'any' type
         return (target.tag == TypeTags.ANY) && (sourceElementType.tag != TypeTags.ERROR);
     }
 

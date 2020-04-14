@@ -121,3 +121,24 @@ function panicOnNonErrorMemberUnion() {
 function errorDefinitionNegative() {
     error<string, record { string message?; error cause?; int i;}> e  = 1;
 }
+
+public const C_ERROR = "CError";
+public const L_ERROR = "LError";
+
+public type Detail record {
+    string message;
+    error cause?;
+};
+
+type CError error<C_ERROR, Detail>;
+type LError error<L_ERROR, Detail>;
+type MyError CError|LError;
+
+function nonAssingableErrorTypeArrayAssign() {
+    MyError? [] err = [];
+    error? [] errs = err;
+    ProcessErrors(errs);
+    err = errs;
+}
+
+function ProcessErrors(MyError?[] errors) {}
