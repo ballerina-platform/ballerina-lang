@@ -22,8 +22,8 @@ public type Client abstract client object {
 
     # Queries the database with the query provided by the user, and returns the result as stream.
     #
-    # + sqlQuery - The query which needs to be executed as `string` or `ParameterizedString` if the SQL query has
-    #              params to be passed in.
+    # + sqlQuery - The query which needs to be executed as `string` or `ParameterizedString` when the SQL query has
+    #              params to be passed in
     # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
     #             column names of the query result set be used for the record attributes
     # + return - Stream of records in the type of `rowType`
