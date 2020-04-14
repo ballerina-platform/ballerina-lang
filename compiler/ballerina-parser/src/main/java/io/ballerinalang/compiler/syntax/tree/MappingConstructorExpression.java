@@ -20,20 +20,22 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
-public class MappingConstructorExpression extends NonTerminalNode {
+public class MappingConstructorExpression extends Expression {
 
-    public MappingConstructorExpression(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public MappingConstructorExpression(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Node openBrace() {
+    public Token openBrace() {
         return childInBucket(0);
     }
 
-    public Node fields() {
-        return childInBucket(1);
+    public NodeList<MappingField> fields() {
+        return new NodeList<>(childInBucket(1));
     }
 
     public Token closeBrace() {
@@ -41,12 +43,29 @@ public class MappingConstructorExpression extends NonTerminalNode {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public MappingConstructorExpression modify(
+            Token openBrace,
+            NodeList<MappingField> fields,
+            Token closeBrace) {
+        if (checkForReferenceEquality(
+                openBrace,
+                fields.underlyingListNode(),
+                closeBrace)) {
+            return this;
+        }
+
+        return NodeFactory.createMappingConstructorExpression(
+                openBrace,
+                fields,
+                closeBrace);
     }
 }

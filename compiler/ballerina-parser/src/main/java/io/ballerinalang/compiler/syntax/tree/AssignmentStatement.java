@@ -19,35 +19,60 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class AssignmentStatement extends Statement {
 
-    public AssignmentStatement(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public AssignmentStatement(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Token variableName() {
-        return (Token) childInBucket(0);
+    public Node varRef() {
+        return childInBucket(0);
     }
 
     public Token equalsToken() {
-        return (Token) childInBucket(1);
+        return childInBucket(1);
     }
 
-    public Node expression() {
+    public Expression expression() {
         return childInBucket(2);
     }
 
     public Token semicolonToken() {
-        return (Token) childInBucket(3);
+        return childInBucket(3);
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public AssignmentStatement modify(
+            Node varRef,
+            Token equalsToken,
+            Expression expression,
+            Token semicolonToken) {
+        if (checkForReferenceEquality(
+                varRef,
+                equalsToken,
+                expression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return NodeFactory.createAssignmentStatement(
+                varRef,
+                equalsToken,
+                expression,
+                semicolonToken);
     }
 }

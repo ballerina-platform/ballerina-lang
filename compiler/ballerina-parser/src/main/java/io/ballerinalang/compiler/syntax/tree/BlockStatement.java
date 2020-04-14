@@ -19,31 +19,53 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class BlockStatement extends NonTerminalNode {
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class BlockStatement extends Statement {
 
-    public BlockStatement(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public BlockStatement(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Token openBraceToken() {
-        return (Token) childInBucket(0);
+        return childInBucket(0);
     }
 
     public NodeList<Statement> statements() {
-        return new NodeList<>((NonTerminalNode) childInBucket(1));
+        return new NodeList<>(childInBucket(1));
     }
 
     public Token closeBraceToken() {
-        return (Token) childInBucket(2);
+        return childInBucket(2);
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public BlockStatement modify(
+            Token openBraceToken,
+            NodeList<Statement> statements,
+            Token closeBraceToken) {
+        if (checkForReferenceEquality(
+                openBraceToken,
+                statements.underlyingListNode(),
+                closeBraceToken)) {
+            return this;
+        }
+
+        return NodeFactory.createBlockStatement(
+                openBraceToken,
+                statements,
+                closeBraceToken);
     }
 }

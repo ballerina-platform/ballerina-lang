@@ -19,21 +19,27 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptor;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STObjectTypeDescriptor extends STNode {
-
     public final STNode objectTypeQualifiers;
     public final STNode objectKeyword;
     public final STNode openBrace;
     public final STNode members;
     public final STNode closeBrace;
 
-    STObjectTypeDescriptor(STNode objectTypeQualifiers,
-                           STNode objectKeyword,
-                           STNode openBrace,
-                           STNode members,
-                           STNode closeBrace) {
+    STObjectTypeDescriptor(
+            STNode objectTypeQualifiers,
+            STNode objectKeyword,
+            STNode openBrace,
+            STNode members,
+            STNode closeBrace) {
         super(SyntaxKind.OBJECT_TYPE_DESCRIPTOR);
         this.objectTypeQualifiers = objectTypeQualifiers;
         this.objectKeyword = objectKeyword;
@@ -41,11 +47,15 @@ public class STObjectTypeDescriptor extends STNode {
         this.members = members;
         this.closeBrace = closeBrace;
 
-        addChildren(objectTypeQualifiers, objectKeyword, openBrace, members, closeBrace);
+        addChildren(
+                objectTypeQualifiers,
+                objectKeyword,
+                openBrace,
+                members,
+                closeBrace);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ObjectTypeDescriptorNode(this, position, parent);
+        return new ObjectTypeDescriptor(this, position, parent);
     }
 }

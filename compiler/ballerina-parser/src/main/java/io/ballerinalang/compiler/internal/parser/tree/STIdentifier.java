@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.Identifier;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
  * Represents an identifier in the internal syntax tree.
@@ -33,6 +34,10 @@ public class STIdentifier extends STToken {
     STIdentifier(String text, STNode leadingTrivia, STNode trailingTrivia) {
         super(SyntaxKind.IDENTIFIER_TOKEN, text.length(), leadingTrivia, trailingTrivia);
         this.text = text;
+    }
+
+    public String text() {
+        return text;
     }
 
     @Override

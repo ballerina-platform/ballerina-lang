@@ -20,12 +20,14 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
-public class SpreadField extends NonTerminalNode {
+public class SpreadField extends MappingField {
 
-    public SpreadField(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public SpreadField(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Token leadingComma() {
@@ -36,17 +38,34 @@ public class SpreadField extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public Node expression() {
+    public Expression valueExpr() {
         return childInBucket(2);
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public SpreadField modify(
+            Token leadingComma,
+            Token ellipsis,
+            Expression valueExpr) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                ellipsis,
+                valueExpr)) {
+            return this;
+        }
+
+        return NodeFactory.createSpreadField(
+                leadingComma,
+                ellipsis,
+                valueExpr);
     }
 }

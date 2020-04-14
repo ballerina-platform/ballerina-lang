@@ -20,19 +20,21 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
 public class ListenerDeclaration extends ModuleMemberDeclaration {
 
-    public ListenerDeclaration(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public ListenerDeclaration(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Node qualifier() {
+    public Token visibilityQualifier() {
         return childInBucket(0);
     }
 
-    public Node listenerKeyword() {
+    public Token listenerKeyword() {
         return childInBucket(1);
     }
 
@@ -57,12 +59,41 @@ public class ListenerDeclaration extends ModuleMemberDeclaration {
     }
 
     @Override
-    public void accept(SyntaxNodeVisitor visitor) {
+    public void accept(NodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
-    public <T> T apply(SyntaxNodeTransformer<T> visitor) {
+    public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public ListenerDeclaration modify(
+            Token visibilityQualifier,
+            Token listenerKeyword,
+            Node typeDescriptor,
+            Token variableName,
+            Token equalsToken,
+            Node initializer,
+            Token semicolonToken) {
+        if (checkForReferenceEquality(
+                visibilityQualifier,
+                listenerKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken)) {
+            return this;
+        }
+
+        return NodeFactory.createListenerDeclaration(
+                visibilityQualifier,
+                listenerKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken);
     }
 }

@@ -19,22 +19,30 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeofExpression;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STTypeofExpression extends STExpression {
-
     public final STNode typeofKeyword;
-    public final STNode rhsExpr;
+    public final STNode expression;
 
-    STTypeofExpression(STNode typeofKeyword, STNode rhsExpr) {
+    STTypeofExpression(
+            STNode typeofKeyword,
+            STNode expression) {
         super(SyntaxKind.TYPEOF_EXPRESSION);
         this.typeofKeyword = typeofKeyword;
-        this.rhsExpr = rhsExpr;
+        this.expression = expression;
 
-        addChildren(typeofKeyword, rhsExpr);
+        addChildren(
+                typeofKeyword,
+                expression);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeofExpression(this, position, parent);
     }

@@ -19,27 +19,35 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptor;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STRecordRestDescriptor extends STNode {
-
     public final STNode type;
-    public final STNode ellipsis;
+    public final STNode ellipsisToken;
     public final STNode semicolonToken;
 
-    STRecordRestDescriptor(STNode type,
-                           STNode ellipsis,
-                           STNode semicolonToken) {
+    STRecordRestDescriptor(
+            STNode type,
+            STNode ellipsisToken,
+            STNode semicolonToken) {
         super(SyntaxKind.RECORD_REST_TYPE);
         this.type = type;
-        this.ellipsis = ellipsis;
+        this.ellipsisToken = ellipsisToken;
         this.semicolonToken = semicolonToken;
 
-        addChildren(type, ellipsis, semicolonToken);
+        addChildren(
+                type,
+                ellipsisToken,
+                semicolonToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new RecordRestDescriptorNode(this, position, parent);
+        return new RecordRestDescriptor(this, position, parent);
     }
 }

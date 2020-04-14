@@ -30,9 +30,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STTypeToken;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxKind;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
 import io.ballerinalang.compiler.syntax.BLModules;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocuments;
@@ -549,6 +549,8 @@ public class ParserTestUtils {
                 return SyntaxKind.EXPRESSION_LIST_ITEM;
             case "NIL_TYPE":
                 return SyntaxKind.NIL_TYPE;
+            case "OPTIONAL_TYPE":
+                return SyntaxKind.OPTIONAL_TYPE;
 
             // Trivia
             case "EOF_TOKEN":

@@ -19,26 +19,35 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.WhileStatement;
 
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class STWhileStatement extends STStatement {
-
     public final STNode whileKeyword;
     public final STNode condition;
     public final STNode whileBody;
 
-    STWhileStatement(STNode whileKeyword,
-                     STNode condition,
-                     STNode whileBody) {
+    STWhileStatement(
+            STNode whileKeyword,
+            STNode condition,
+            STNode whileBody) {
         super(SyntaxKind.WHILE_STATEMENT);
         this.whileKeyword = whileKeyword;
         this.condition = condition;
         this.whileBody = whileBody;
 
-        addChildren(whileKeyword, condition, whileBody);
+        addChildren(
+                whileKeyword,
+                condition,
+                whileBody);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return null;
+        return new WhileStatement(this, position, parent);
     }
 }

@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import java.util.List;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
  * A factory that constructs internal tree nodes.
@@ -27,409 +27,721 @@ import java.util.List;
  * Note that {@code STNodeFactory} must be used to create {@code STNode} instances. This approach allows
  * us to manage {@code STNode} production in the future. We could load nodes from a cache or add debug logs etc.
  *
+ * This is a generated class.
+ *
  * @since 1.3.0
  */
-public class STNodeFactory {
+public class STNodeFactory extends STAbstractNodeFactory {
 
     private STNodeFactory() {
     }
 
-    public static STNode createModulePart(STNode imports, STNode members, STNode eofToken) {
-        return new STModulePart(imports, members, eofToken);
+    public static STNode createModulePart(
+            STNode imports,
+            STNode members,
+            STNode eofToken) {
+
+        return new STModulePart(
+                imports,
+                members,
+                eofToken);
     }
 
-    // Module level declarations
+    public static STNode createFunctionDefinition(
+            STNode visibilityQualifier,
+            STNode functionKeyword,
+            STNode functionName,
+            STNode openParenToken,
+            STNode parameters,
+            STNode closeParenToken,
+            STNode returnTypeDesc,
+            STNode functionBody) {
 
-    public static STNode createFunctionDefinition(STNode visibilityQualifier,
-                                                  STNode functionKeyword,
-                                                  STNode functionName,
-                                                  STNode openParenToken,
-                                                  STNode parameters,
-                                                  STNode closeParenToken,
-                                                  STNode returnTypeDesc,
-                                                  STNode functionBody) {
-
-        return new STFunctionDefinition(visibilityQualifier, functionKeyword, functionName,
-                openParenToken, parameters, closeParenToken, returnTypeDesc, functionBody);
+        return new STFunctionDefinition(
+                visibilityQualifier,
+                functionKeyword,
+                functionName,
+                openParenToken,
+                parameters,
+                closeParenToken,
+                returnTypeDesc,
+                functionBody);
     }
 
-    public static STNode createModuleTypeDefinition(STNode visibilityQualifier,
-                                                    STNode typeKeyword,
-                                                    STNode typeName,
-                                                    STNode typeDescriptor,
-                                                    STNode semicolon) {
-        return new STModuleTypeDefinition(visibilityQualifier, typeKeyword, typeName, typeDescriptor, semicolon);
+    public static STNode createImportDeclaration(
+            STNode importKeyword,
+            STNode orgName,
+            STNode moduleName,
+            STNode version,
+            STNode prefix,
+            STNode semicolon) {
+
+        return new STImportDeclaration(
+                importKeyword,
+                orgName,
+                moduleName,
+                version,
+                prefix,
+                semicolon);
     }
 
-    // Statements
+    public static STNode createListenerDeclaration(
+            STNode visibilityQualifier,
+            STNode listenerKeyword,
+            STNode typeDescriptor,
+            STNode variableName,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken) {
 
-    public static STNode createAssignmentStatement(SyntaxKind kind,
-                                                   STNode lhsExpression,
-                                                   STNode equalsToken,
-                                                   STNode expr,
-                                                   STNode semicolonToken) {
-        return new STAssignmentStatement(kind, lhsExpression, equalsToken, expr, semicolonToken);
-    }
-
-    public static STNode createWhileStatement(STNode whileKeyword, STNode condition, STNode whileBody) {
-        return new STWhileStatement(whileKeyword, condition, whileBody);
-    }
-
-    public static STNode createPanicStatement(STNode panicKeyword, STNode expression, STNode semicolonToken) {
-        return new STPanicStatement(panicKeyword, expression, semicolonToken);
-    }
-
-    public static STNode createBlockStatement(STNode openBraceToken, STNode statements, STNode closeBraceToken) {
-        return new STBlockStatement(openBraceToken, statements, closeBraceToken);
-    }
-
-    public static STNode createCallStatement(STNode expression, STNode semicolonToken) {
-        return new STCallStatement(expression, semicolonToken);
-    }
-
-    public static STNode createElseBlock(STNode elseKeyword, STNode elseBody) {
-        return new STElseBlock(elseKeyword, elseBody);
-    }
-
-    public static STNode createExternalFunctionBody(SyntaxKind kind,
-                                                    STNode assign,
-                                                    STNode annotation,
-                                                    STNode externalKeyword,
-                                                    STNode semicolon) {
-        return new STExternalFuncBody(kind, assign, annotation, externalKeyword, semicolon);
-    }
-
-    public static STNode createIfElseStatement(STNode ifKeyword,
-                                               STNode condition,
-                                               STNode ifBody,
-                                               STNode elseBody) {
-        return new STIfElseStatement(ifKeyword, condition, ifBody, elseBody);
-    }
-
-    public static STNode createVariableDeclaration(SyntaxKind kind,
-                                                   STNode finalKeyword,
-                                                   STNode typeName,
-                                                   STNode variableName,
-                                                   STNode equalsToken,
-                                                   STNode initializer,
-                                                   STNode semicolonToken) {
-        return new STVariableDeclaration(kind, finalKeyword, typeName, variableName, equalsToken, initializer,
+        return new STListenerDeclaration(
+                visibilityQualifier,
+                listenerKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
                 semicolonToken);
     }
 
-    public static STNode createContinueStatement(STNode continueKeyword, STNode semicolonToken) {
-        return new STContinueStatement(continueKeyword, semicolonToken);
-    }
+    public static STNode createTypeDefinitionNode(
+            STNode visibilityQualifier,
+            STNode typeKeyword,
+            STNode typeName,
+            STNode typeDescriptor,
+            STNode semicolonToken) {
 
-    public static STNode createBreakStatement(STNode breakKeyword, STNode semicolonToken) {
-        return new STBreakStatement(breakKeyword, semicolonToken);
-    }
-    public static STNode createReturnStatement(SyntaxKind kind, STNode returnKeyword, STNode actionOrExpr, STNode semicolonToken) {
-        return new STReturnStatement(kind, returnKeyword, actionOrExpr, semicolonToken);
-    }
-
-    public static STNode createCompoundAssignmentStatement(STNode lhsExpression,
-                                                   STNode binaryOperator,
-                                                   STNode equalsToken,
-                                                   STNode expr,
-                                                   STNode semicolonToken) {
-        return new STCompoundAssignmentStatement(lhsExpression, binaryOperator, equalsToken, expr, semicolonToken);
-    }
-
-    // Expressions
-
-    public static STNode createBinaryExpression(SyntaxKind kind,
-                                                STNode lhsExpr,
-                                                STNode operator,
-                                                STNode rhsExpr) {
-        return new STBinaryExpression(kind, lhsExpr, operator, rhsExpr);
-    }
-
-    public static STNode createBracedExpression(SyntaxKind kind,
-                                                STNode openParen,
-                                                STNode expr,
-                                                STNode closeParen) {
-        return new STBracedExpression(kind, openParen, expr, closeParen);
-    }
-
-    public static STNode createCheckExpression(STNode checkingKeyword, STNode rhsExpr) {
-        return new STCheckExpression(checkingKeyword, rhsExpr);
-    }
-
-    public static STNode createFieldAccessExpression(STNode expression, STNode dotToken, STNode fieldName) {
-        return new STFieldAccessExpression(expression, dotToken, fieldName);
-    }
-
-    public static STNode createFunctionCallExpression(STNode functionName,
-                                                      STNode openParen,
-                                                      STNode arguments,
-                                                      STNode closeParen) {
-        return new STFunctionCallExpression(functionName, openParen, arguments, closeParen);
-    }
-
-    public static STNode createMemberAccessExpression(STNode containerExpr,
-                                                      STNode openBracket,
-                                                      STNode keyExpression,
-                                                      STNode closeBracket) {
-        return new STMemberAccessExpression(containerExpr, openBracket, keyExpression, closeBracket);
-    }
-
-    public static STNode createMethodCallExpression(STNode expression,
-                                                    STNode dotToken,
-                                                    STNode methodName,
-                                                    STNode openParen,
-                                                    STNode arguments,
-                                                    STNode closeParen) {
-        return new STMethodCallExpression(expression, dotToken, methodName, openParen, arguments, closeParen);
-    }
-
-    public static STNode createTypeofExpression(STNode typeofKeyword, STNode rhsExpr) {
-        return new STTypeofExpression(typeofKeyword, rhsExpr);
-    }
-
-    public static STNode createUnaryExpression(STNode unaryOperator, STNode rhsExpr) {
-        return new STUnaryExpression(unaryOperator, rhsExpr);
-    }
-
-    public static STNode createIsExpression(STNode expression, STNode isKeyword, STNode typeDescriptor) {
-        return new STIsExpression(expression, isKeyword, typeDescriptor);
-    }
-
-    // Misc
-
-    public static STNode createRequiredParameter(SyntaxKind kind,
-                                                 STNode leadingComma,
-                                                 STNode accessModifier,
-                                                 STNode type,
-                                                 STNode paramName) {
-        return new STRequiredParameter(kind, leadingComma, accessModifier, type, paramName);
-    }
-
-    public static STNode createDefaultableParameter(SyntaxKind kind,
-                                                    STNode leadingComma,
-                                                    STNode visibilityQualifier,
-                                                    STNode type,
-                                                    STNode paramName,
-                                                    STNode equal,
-                                                    STNode expr) {
-        return new STDefaultableParameter(kind, leadingComma, visibilityQualifier, type, paramName, equal, expr);
-    }
-
-    public static STNode createRestParameter(SyntaxKind kind,
-                                             STNode leadingComma,
-                                             STNode type,
-                                             STNode ellipsis,
-                                             STNode paramName) {
-        return new STRestParameter(kind, leadingComma, type, ellipsis, paramName);
-    }
-
-    public static STNode createPositionalArg(STNode leadingComma, STNode expression) {
-        return new STPositionalArg(leadingComma, expression);
-    }
-
-    public static STNode createNamedArg(STNode leadingComma,
-                                        STNode variableName,
-                                        STNode equalsToken,
-                                        STNode expression) {
-        return new STNamedArg(leadingComma, variableName, equalsToken, expression);
-    }
-
-    public static STNode createRestArg(STNode leadingComma,
-                                       STNode ellipsis,
-                                       STNode expression) {
-        return new STRestArg(leadingComma, ellipsis, expression);
-    }
-
-    public static STNode createObjectField(STNode visibilityQualifier,
-                                           STNode type,
-                                           STNode fieldName,
-                                           STNode equalsToken,
-                                           STNode expression,
-                                           STNode semicolonToken) {
-        return new STObjectField(visibilityQualifier, type, fieldName, equalsToken, expression, semicolonToken);
-    }
-
-    public static STNode createRecordField(STNode type,
-                                           STNode fieldName,
-                                           STNode questionMarkToken,
-                                           STNode semicolonToken) {
-        return new STRecordField(type, fieldName, questionMarkToken, semicolonToken);
-    }
-
-    public static STNode createRecordFieldWithDefaultValue(STNode type,
-                                                           STNode fieldName,
-                                                           STNode equalsToken,
-                                                           STNode expression,
-                                                           STNode semicolonToken) {
-        return new STRecordFieldWithDefaultValue(type, fieldName, equalsToken, expression, semicolonToken);
-    }
-
-    public static STNode createRecordRestDescriptor(STNode type, STNode ellipsis, STNode semicolonToken) {
-        return new STRecordRestDescriptor(type, ellipsis, semicolonToken);
-    }
-
-    public static STNode createObjectTypeDescriptor(STNode objectTypeQualifiers,
-                                                    STNode objectKeyword,
-                                                    STNode openBrace,
-                                                    STNode members,
-                                                    STNode closeBrace) {
-        return new STObjectTypeDescriptor(objectTypeQualifiers, objectKeyword, openBrace, members, closeBrace);
-    }
-
-    public static STNode createRecordTypeDescriptor(STNode recordKeyword,
-                                                    STNode bodyStartDelimiter,
-                                                    STNode fields,
-                                                    STNode bodyEndDelimiter) {
-        return new STRecordTypeDescriptor(recordKeyword, bodyStartDelimiter, fields, bodyEndDelimiter);
-    }
-
-    public static STNode createReturnTypeDescriptor(STNode returnsKeyword,
-                                                    STNode annotation,
-                                                    STNode type) {
-        return new STReturnTypeDescriptor(returnsKeyword, annotation, type);
-    }
-
-    public static STNode createTypeReference(STNode asterisk,
-                                             STNode type,
-                                             STNode semicolonToken) {
-        return new STTypeReference(asterisk, type, semicolonToken);
-    }
-
-    public static STNode createQualifiedIdentifier(STNode modulePrefix, STNode colon, STNode identifier) {
-        return new STQualifiedIdentifier(modulePrefix, colon, identifier);
-    }
-
-    public static STToken createIdentifier(String text, STNode leadingTrivia, STNode trailingTrivia) {
-        return new STIdentifier(text, leadingTrivia, trailingTrivia);
-    }
-
-    public static STNode createNodeList(List<STNode> children) {
-        return new STNodeList(children);
-    }
-
-    public static STNode createEmptyNode() {
-        // TODO Seems like we can use a single instance of this node
-        return new STEmptyNode();
-    }
-
-    public static STNode createMissingToken(SyntaxKind kind) {
-        // TODO Seems like we can get these tokens from a cache
-        return new STMissingToken(kind);
-    }
-
-    public static STToken createToken(SyntaxKind kind, STNode leadingTrivia, STNode trailingTrivia) {
-        return new STToken(kind, leadingTrivia, trailingTrivia);
-    }
-
-    public static STToken createToken(SyntaxKind kind, int width, STNode leadingTrivia, STNode trailingTrivia) {
-        return new STToken(kind, width, leadingTrivia, trailingTrivia);
-    }
-
-    public static STToken createTypeToken(SyntaxKind kind, String text, STNode leadingTrivia, STNode trailingTrivia) {
-        return new STTypeToken(kind, text, leadingTrivia, trailingTrivia);
-    }
-
-    public static STToken createLiteralValueToken(SyntaxKind kind,
-                                                  String text,
-                                                  long value,
-                                                  STNode leadingTrivia,
-                                                  STNode trailingTrivia) {
-        return new STLiteralValueToken(kind, text, value, leadingTrivia, trailingTrivia);
-    }
-
-    public static STNode createSyntaxTrivia(SyntaxKind kind, String text) {
-        return new SyntaxTrivia(kind, text);
-    }
-
-    public static STNode createImportDecl(STNode importKeyword,
-                                          STNode orgName,
-                                          STNode moduleName,
-                                          STNode version,
-                                          STNode alias,
-                                          STNode semicolon) {
-        return new STImportDeclaration(importKeyword, orgName, moduleName, version, alias, semicolon);
-    }
-
-    public static STNode createOrgName(STNode identifier, STNode slashToken) {
-        return new STImportOrgName(identifier, slashToken);
-    }
-
-    public static STNode createModuleNamePart(STNode dotToken, STNode identifier) {
-        return new STSubModuleName(dotToken, identifier);
-    }
-
-    public static STNode createImportVersion(STNode versionKeyword, STNode versionNumber) {
-        return new STImportVersion(versionKeyword, versionNumber);
-    }
-
-    public static STNode createVersionPart(STNode leadingDot, STNode versionNumber) {
-        return new STImportSubVersion(leadingDot, versionNumber);
-    }
-
-    public static STNode createImportPrefix(STNode asKeyword, STNode prefix) {
-        return new STImportPrefix(asKeyword, prefix);
-    }
-
-    public static STNode createMappingConstructorExpr(STNode openBrace, STNode fields, STNode closeBrace) {
-        return new STMappingConstructorExpression(openBrace, fields, closeBrace);
-    }
-
-    public static STNode createSpreadField(STNode leadingComma, STNode ellipsis, STNode expr) {
-        return new STSpreadField(leadingComma, ellipsis, expr);
-    }
-
-    public static STNode createSpecificField(STNode leadingComma, STNode key, STNode colon, STNode valueExpr) {
-        return new STSpecificField(leadingComma, key, colon, valueExpr);
-    }
-
-    public static STNode createComputedNameField(STNode leadingComma,
-                                                 STNode openBracket,
-                                                 STNode fieldNameExpr,
-                                                 STNode closeBracket,
-                                                 STNode colon,
-                                                 STNode valueExpr) {
-        return new STComputedNameField(leadingComma, openBracket, fieldNameExpr, closeBracket, colon, valueExpr);
-    }
-
-    public static STNode createServiceDecl(STNode serviceKeyword,
-                                           STNode serviceName,
-                                           STNode onKeyword,
-                                           STNode expressionList,
-                                           STNode serviceBody) {
-        return new STServiceDeclaration(serviceKeyword, serviceName, onKeyword, expressionList, serviceBody);
-    }
-
-    public static STNode createExpressionListItem(STNode leadingComma, STNode expr) {
-        return new STExpressionListItem(leadingComma, expr);
-    }
-
-    public static STNode createServiceBody(STNode openBraceToken, STNode resources, STNode closeBraceToken) {
-        return new STServiceBody(openBraceToken, resources, closeBraceToken);
-    }
-
-    public static STNode createListenerDeclaration(STNode qualifier,
-                                                   STNode listenerKeyword,
-                                                   STNode typeDesc,
-                                                   STNode variableName,
-                                                   STNode equalsToken,
-                                                   STNode initializer,
-                                                   STNode semicolonToken) {
-        return new STListenerDeclaration(qualifier, listenerKeyword, typeDesc, variableName, equalsToken, initializer,
-                semicolonToken);
-    }
-    
-    public static STNode createConstDeclaration(STNode qualifier,
-                                                STNode constKeyword,
-                                                STNode typeDesc,
-                                                STNode variableName,
-                                                STNode equalsToken,
-                                                STNode initializer,
-                                                STNode semicolonToken) {
-        return new STConstantDeclaration(qualifier, constKeyword, typeDesc, variableName, equalsToken, initializer,
+        return new STTypeDefinitionNode(
+                visibilityQualifier,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
                 semicolonToken);
     }
 
-    public static STNode createNilTypeDescriptor(STNode openParenthesisToken, STNode closeParenthesisToken) {
-        return new STNilTypeDescriptor(openParenthesisToken, closeParenthesisToken);
+    public static STNode createServiceDeclaration(
+            STNode serviceKeyword,
+            STNode serviceName,
+            STNode onKeyword,
+            STNode expressions,
+            STNode serviceBody) {
+
+        return new STServiceDeclaration(
+                serviceKeyword,
+                serviceName,
+                onKeyword,
+                expressions,
+                serviceBody);
+    }
+
+    public static STNode createAssignmentStatement(
+            STNode varRef,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken) {
+
+        return new STAssignmentStatement(
+                varRef,
+                equalsToken,
+                expression,
+                semicolonToken);
+    }
+
+    public static STNode createCompoundAssignmentStatement(
+            STNode lhsExpression,
+            STNode binaryOperator,
+            STNode equalsToken,
+            STNode rhsExpression,
+            STNode semicolonToken) {
+
+        return new STCompoundAssignmentStatement(
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
+                semicolonToken);
+    }
+
+    public static STNode createVariableDeclaration(
+            STNode finalKeyword,
+            STNode typeName,
+            STNode variableName,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken) {
+
+        return new STVariableDeclaration(
+                finalKeyword,
+                typeName,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken);
+    }
+
+    public static STNode createBlockStatement(
+            STNode openBraceToken,
+            STNode statements,
+            STNode closeBraceToken) {
+
+        return new STBlockStatement(
+                openBraceToken,
+                statements,
+                closeBraceToken);
+    }
+
+    public static STNode createBreakStatement(
+            STNode breakToken,
+            STNode semicolonToken) {
+
+        return new STBreakStatement(
+                breakToken,
+                semicolonToken);
+    }
+
+    public static STNode createCallStatement(
+            STNode expression,
+            STNode semicolonToken) {
+
+        return new STCallStatement(
+                expression,
+                semicolonToken);
+    }
+
+    public static STNode createContinueStatement(
+            STNode continueToken,
+            STNode semicolonToken) {
+
+        return new STContinueStatement(
+                continueToken,
+                semicolonToken);
+    }
+
+    public static STNode createExternalFunctionBody(
+            STNode equalsToken,
+            STNode annotation,
+            STNode externalKeyword,
+            STNode semicolonToken) {
+
+        return new STExternalFunctionBody(
+                equalsToken,
+                annotation,
+                externalKeyword,
+                semicolonToken);
+    }
+
+    public static STNode createIfElseStatement(
+            STNode ifKeyword,
+            STNode condition,
+            STNode ifBody,
+            STNode elseBody) {
+
+        return new STIfElseStatement(
+                ifKeyword,
+                condition,
+                ifBody,
+                elseBody);
+    }
+
+    public static STNode createElseBlock(
+            STNode elseKeyword,
+            STNode elseBody) {
+
+        return new STElseBlock(
+                elseKeyword,
+                elseBody);
+    }
+
+    public static STNode createWhileStatement(
+            STNode whileKeyword,
+            STNode condition,
+            STNode whileBody) {
+
+        return new STWhileStatement(
+                whileKeyword,
+                condition,
+                whileBody);
+    }
+
+    public static STNode createPanicStatement(
+            STNode panicKeyword,
+            STNode expression,
+            STNode semicolonToken) {
+
+        return new STPanicStatement(
+                panicKeyword,
+                expression,
+                semicolonToken);
+    }
+
+    public static STNode createReturnStatement(
+            STNode returnKeyword,
+            STNode expression,
+            STNode semicolonToken) {
+
+        return new STReturnStatement(
+                returnKeyword,
+                expression,
+                semicolonToken);
+    }
+
+    public static STNode createBinaryExpression(
+            SyntaxKind kind,
+            STNode lhsExpr,
+            STNode operator,
+            STNode rhsExpr) {
+
+        return new STBinaryExpression(
+                kind,
+                lhsExpr,
+                operator,
+                rhsExpr);
+    }
+
+    public static STNode createBracedExpression(
+            SyntaxKind kind,
+            STNode openParen,
+            STNode expression,
+            STNode closeParen) {
+
+        return new STBracedExpression(
+                kind,
+                openParen,
+                expression,
+                closeParen);
+    }
+
+    public static STNode createCheckExpression(
+            STNode checkKeyword,
+            STNode expression) {
+
+        return new STCheckExpression(
+                checkKeyword,
+                expression);
+    }
+
+    public static STNode createFieldAccessExpression(
+            STNode expression,
+            STNode dotToken,
+            STNode fieldName) {
+
+        return new STFieldAccessExpression(
+                expression,
+                dotToken,
+                fieldName);
+    }
+
+    public static STNode createFunctionCallExpression(
+            STNode functionName,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+
+        return new STFunctionCallExpression(
+                functionName,
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
+
+    public static STNode createMethodCallExpression(
+            STNode expression,
+            STNode dotToken,
+            STNode methodName,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+
+        return new STMethodCallExpression(
+                expression,
+                dotToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken);
+    }
+
+    public static STNode createMappingConstructorExpression(
+            STNode openBrace,
+            STNode fields,
+            STNode closeBrace) {
+
+        return new STMappingConstructorExpression(
+                openBrace,
+                fields,
+                closeBrace);
+    }
+
+    public static STNode createMemberAccessExpression(
+            STNode containerExpression,
+            STNode openBracket,
+            STNode keyExpression,
+            STNode closeBracket) {
+
+        return new STMemberAccessExpression(
+                containerExpression,
+                openBracket,
+                keyExpression,
+                closeBracket);
+    }
+
+    public static STNode createTypeofExpression(
+            STNode typeofKeyword,
+            STNode expression) {
+
+        return new STTypeofExpression(
+                typeofKeyword,
+                expression);
+    }
+
+    public static STNode createUnaryExpression(
+            STNode unaryOperator,
+            STNode expression) {
+
+        return new STUnaryExpression(
+                unaryOperator,
+                expression);
+    }
+
+    public static STNode createIsExpression(
+            STNode expression,
+            STNode isKeyword,
+            STNode typeDescriptor) {
+
+        return new STIsExpression(
+                expression,
+                isKeyword,
+                typeDescriptor);
+    }
+
+    public static STNode createComputedNameField(
+            STNode leadingComma,
+            STNode openBracket,
+            STNode fieldNameExpr,
+            STNode closeBracket,
+            STNode colonToken,
+            STNode valueExpr) {
+
+        return new STComputedNameField(
+                leadingComma,
+                openBracket,
+                fieldNameExpr,
+                closeBracket,
+                colonToken,
+                valueExpr);
+    }
+
+    public static STNode createConstantDeclaration(
+            STNode visibilityQualifier,
+            STNode constKeyword,
+            STNode typeDescriptor,
+            STNode variableName,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken) {
+
+        return new STConstantDeclaration(
+                visibilityQualifier,
+                constKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken);
+    }
+
+    public static STNode createDefaultableParameter(
+            STNode leadingComma,
+            STNode visibilityQualifier,
+            STNode type,
+            STNode paramName,
+            STNode equalsToken,
+            STNode expression) {
+
+        return new STDefaultableParameter(
+                leadingComma,
+                visibilityQualifier,
+                type,
+                paramName,
+                equalsToken,
+                expression);
+    }
+
+    public static STNode createRequiredParameter(
+            STNode leadingComma,
+            STNode visibilityQualifier,
+            STNode type,
+            STNode paramName) {
+
+        return new STRequiredParameter(
+                leadingComma,
+                visibilityQualifier,
+                type,
+                paramName);
+    }
+
+    public static STNode createRestParameter(
+            STNode leadingComma,
+            STNode type,
+            STNode ellipsisToken,
+            STNode paramName) {
+
+        return new STRestParameter(
+                leadingComma,
+                type,
+                ellipsisToken,
+                paramName);
+    }
+
+    public static STNode createExpressionListItem(
+            STNode leadingComma,
+            STNode expression) {
+
+        return new STExpressionListItem(
+                leadingComma,
+                expression);
+    }
+
+    public static STNode createImportOrgName(
+            STNode orgName,
+            STNode slashToken) {
+
+        return new STImportOrgName(
+                orgName,
+                slashToken);
+    }
+
+    public static STNode createImportPrefix(
+            STNode asKeyword,
+            STNode prefix) {
+
+        return new STImportPrefix(
+                asKeyword,
+                prefix);
+    }
+
+    public static STNode createImportSubVersion(
+            STNode leadingDot,
+            STNode versionNumber) {
+
+        return new STImportSubVersion(
+                leadingDot,
+                versionNumber);
+    }
+
+    public static STNode createImportVersion(
+            STNode versionKeyword,
+            STNode versionNumber) {
+
+        return new STImportVersion(
+                versionKeyword,
+                versionNumber);
+    }
+
+    public static STNode createSubModuleName(
+            STNode leadingDot,
+            STNode moduleName) {
+
+        return new STSubModuleName(
+                leadingDot,
+                moduleName);
+    }
+
+    public static STNode createSpecificField(
+            STNode leadingComma,
+            STNode fieldName,
+            STNode colon,
+            STNode valueExpr) {
+
+        return new STSpecificField(
+                leadingComma,
+                fieldName,
+                colon,
+                valueExpr);
+    }
+
+    public static STNode createSpreadField(
+            STNode leadingComma,
+            STNode ellipsis,
+            STNode valueExpr) {
+
+        return new STSpreadField(
+                leadingComma,
+                ellipsis,
+                valueExpr);
+    }
+
+    public static STNode createNamedArgument(
+            STNode leadingComma,
+            STNode argumentName,
+            STNode equalsToken,
+            STNode expression) {
+
+        return new STNamedArgument(
+                leadingComma,
+                argumentName,
+                equalsToken,
+                expression);
+    }
+
+    public static STNode createPositionalArgument(
+            STNode leadingComma,
+            STNode expression) {
+
+        return new STPositionalArgument(
+                leadingComma,
+                expression);
+    }
+
+    public static STNode createRestArgument(
+            STNode leadingComma,
+            STNode ellipsis,
+            STNode expression) {
+
+        return new STRestArgument(
+                leadingComma,
+                ellipsis,
+                expression);
+    }
+
+    public static STNode createObjectTypeDescriptor(
+            STNode objectTypeQualifiers,
+            STNode objectKeyword,
+            STNode openBrace,
+            STNode members,
+            STNode closeBrace) {
+
+        return new STObjectTypeDescriptor(
+                objectTypeQualifiers,
+                objectKeyword,
+                openBrace,
+                members,
+                closeBrace);
+    }
+
+    public static STNode createRecordTypeDescriptor(
+            STNode objectKeyword,
+            STNode bodyStartDelimiter,
+            STNode fields,
+            STNode bodyEndDelimiter) {
+
+        return new STRecordTypeDescriptor(
+                objectKeyword,
+                bodyStartDelimiter,
+                fields,
+                bodyEndDelimiter);
+    }
+
+    public static STNode createReturnTypeDescriptor(
+            STNode returnsKeyword,
+            STNode annotations,
+            STNode type) {
+
+        return new STReturnTypeDescriptor(
+                returnsKeyword,
+                annotations,
+                type);
+    }
+
+    public static STNode createNilTypeDescriptor(
+            STNode openParenToken,
+            STNode closeParenToken) {
+
+        return new STNilTypeDescriptor(
+                openParenToken,
+                closeParenToken);
+    }
+
+    public static STNode createObjectField(
+            STNode visibilityQualifier,
+            STNode type,
+            STNode fieldName,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken) {
+
+        return new STObjectField(
+                visibilityQualifier,
+                type,
+                fieldName,
+                equalsToken,
+                expression,
+                semicolonToken);
+    }
+
+    public static STNode createRecordField(
+            STNode type,
+            STNode fieldName,
+            STNode questionMarkToken,
+            STNode semicolonToken) {
+
+        return new STRecordField(
+                type,
+                fieldName,
+                questionMarkToken,
+                semicolonToken);
+    }
+
+    public static STNode createRecordFieldWithDefaultValue(
+            STNode type,
+            STNode fieldName,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken) {
+
+        return new STRecordFieldWithDefaultValue(
+                type,
+                fieldName,
+                equalsToken,
+                expression,
+                semicolonToken);
+    }
+
+    public static STNode createRecordRestDescriptor(
+            STNode type,
+            STNode ellipsisToken,
+            STNode semicolonToken) {
+
+        return new STRecordRestDescriptor(
+                type,
+                ellipsisToken,
+                semicolonToken);
+    }
+
+    public static STNode createTypeReference(
+            STNode asteriskToken,
+            STNode type,
+            STNode semicolonToken) {
+
+        return new STTypeReference(
+                asteriskToken,
+                type,
+                semicolonToken);
+    }
+
+    public static STNode createQualifiedIdentifier(
+            STNode modulePrefix,
+            STNode colon,
+            STNode identifier) {
+
+        return new STQualifiedIdentifier(
+                modulePrefix,
+                colon,
+                identifier);
+    }
+
+    public static STNode createServiceBody(
+            STNode openBraceToken,
+            STNode resources,
+            STNode closeBraceToken) {
+
+        return new STServiceBody(
+                openBraceToken,
+                resources,
+                closeBraceToken);
+    }
+
+    public static STNode createOptionalTypeDescriptor(STNode typeDescriptorNode, STNode questionMarkToken) {
+        return new STOptionalTypeDescriptor(typeDescriptorNode, questionMarkToken);
     }
 }
