@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.sql.utils;
 
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -61,7 +62,10 @@ import java.text.ParseException;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 /**
@@ -141,9 +145,10 @@ class Utils {
         }
     }
 
+    //TODO: Handle null values
     private static void setSqlTypedParam(Connection connection, PreparedStatement preparedStatement, int index,
                                          MapValue<String, Object> typedValue)
-            throws SQLException, ApplicationError, IOException, ParseException {
+            throws SQLException, ApplicationError, IOException {
         String sqlType = typedValue.getStringValue(Constants.TypedValueFields.SQL_TYPE);
         Object value = typedValue.get(Constants.TypedValueFields.VALUE);
         switch (sqlType) {
@@ -172,35 +177,35 @@ class Utils {
                 } else if (value instanceof Boolean) {
                     preparedStatement.setBoolean(index, (Boolean) value);
                 } else {
-                    throwInvalidParameterError(value, sqlType);
+                    throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
             case Constants.SqlTypes.TINYINT:
                 if (value instanceof Integer || value instanceof Long) {
                     preparedStatement.setByte(index, ((Number) value).byteValue());
                 } else {
-                    throwInvalidParameterError(value, sqlType);
+                    throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
             case Constants.SqlTypes.INTEGER:
                 if (value instanceof Integer || value instanceof Long) {
                     preparedStatement.setInt(index, ((Number) value).intValue());
                 } else {
-                    throwInvalidParameterError(value, sqlType);
+                    throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
             case Constants.SqlTypes.BIGINT:
                 if (value instanceof Integer || value instanceof Long) {
                     preparedStatement.setLong(index, ((Number) value).longValue());
                 } else {
-                    throwInvalidParameterError(value, sqlType);
+                    throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
             case Constants.SqlTypes.SMALLINT:
                 if (value instanceof Integer || value instanceof Long) {
                     preparedStatement.setShort(index, ((Number) value).shortValue());
                 } else {
-                    throwInvalidParameterError(value, sqlType);
+                    throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
             case Constants.SqlTypes.FLOAT:
@@ -212,7 +217,7 @@ class Utils {
                 } else if (value instanceof DecimalValue) {
                     preparedStatement.setDouble(index, ((DecimalValue) value).decimalValue().doubleValue());
                 } else {
-                    throwInvalidParameterError(value, sqlType);
+                    throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
             case Constants.SqlTypes.NUMERIC:
@@ -223,7 +228,7 @@ class Utils {
                 } else if (value instanceof DecimalValue) {
                     preparedStatement.setBigDecimal(index, ((DecimalValue) value).decimalValue());
                 } else {
-                    throwInvalidParameterError(value, sqlType);
+                    throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
             case Constants.SqlTypes.BINARY:
@@ -235,7 +240,7 @@ class Utils {
                     if (arrayValue.getElementType().getTag() == org.wso2.ballerinalang.compiler.util.TypeTags.BYTE) {
                         preparedStatement.setBytes(index, arrayValue.getBytes());
                     } else {
-                        throwInvalidParameterError(value, sqlType);
+                        throw throwInvalidParameterError(value, sqlType);
                     }
                 } else if (value instanceof ObjectValue) {
                     ObjectValue objectValue = (ObjectValue) value;
@@ -245,10 +250,10 @@ class Utils {
                         Channel byteChannel = (Channel) objectValue.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
                         preparedStatement.setBinaryStream(index, byteChannel.getInputStream());
                     } else {
-                        throwInvalidParameterError(value, sqlType);
+                        throw throwInvalidParameterError(value, sqlType);
                     }
                 } else {
-                    throwInvalidParameterError(value, sqlType);
+                    throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
             case Constants.SqlTypes.CLOB:
@@ -271,12 +276,12 @@ class Utils {
                                 IOConstants.CHARACTER_CHANNEL_NAME);
                         preparedStatement.setCharacterStream(index, new CharacterChannelReader(charChannel));
                     } else {
-                        throwInvalidParameterError(value, sqlType);
+                        throw throwInvalidParameterError(value, sqlType);
                     }
                 }
                 break;
             case Constants.SqlTypes.DATE:
-                Date date = null;
+                Date date;
                 if (value instanceof String) {
                     date = Date.valueOf(value.toString());
                 } else if (value instanceof Long) {
@@ -288,10 +293,10 @@ class Utils {
                         ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
                         date = new Date(zonedDateTime.toInstant().toEpochMilli());
                     } else {
-                        throwInvalidParameterError(value, sqlType);
+                        throw throwInvalidParameterError(value, sqlType);
                     }
                 } else {
-                    throwInvalidParameterError(value, sqlType);
+                    throw throwInvalidParameterError(value, sqlType);
                 }
                 preparedStatement.setDate(index, date);
                 break;
@@ -308,10 +313,10 @@ class Utils {
                         ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
                         time = new Time(zonedDateTime.toInstant().toEpochMilli());
                     } else {
-                        throwInvalidParameterError(value, sqlType);
+                        throw throwInvalidParameterError(value, sqlType);
                     }
                 } else {
-                    throwInvalidParameterError(value, sqlType);
+                    throw throwInvalidParameterError(value, sqlType);
                 }
                 preparedStatement.setTime(index, time);
                 break;
@@ -329,26 +334,160 @@ class Utils {
                         ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
                         timestamp = new Timestamp(zonedDateTime.toInstant().toEpochMilli());
                     } else {
-                        throwInvalidParameterError(value, sqlType);
+                        throw throwInvalidParameterError(value, sqlType);
                     }
                 } else {
-                    throwInvalidParameterError(value, sqlType);
+                    throw throwInvalidParameterError(value, sqlType);
                 }
                 preparedStatement.setTimestamp(index, timestamp);
+                break;
+            case Constants.SqlTypes.ARRAY:
+                Object[] arrayData = getArrayData(value);
+                if (arrayData[0] != null) {
+                    Array array = connection.createArrayOf((String) arrayData[1], (Object[]) arrayData[0]);
+                    preparedStatement.setArray(index, array);
+                } else {
+                    preparedStatement.setObject(index, null);
+                }
+                break;
+            case Constants.SqlTypes.STRUCT:
+                Object[] structData = getStructData(value, connection);
+                Object[] dataArray = (Object[]) structData[0];
+                String structuredSQLType = (String) structData[1];
+                if (dataArray == null) {
+                    preparedStatement.setNull(index + 1, Types.STRUCT);
+                } else {
+                    Struct struct = connection.createStruct(structuredSQLType, dataArray);
+                    preparedStatement.setObject(index + 1, struct);
+                }
                 break;
             default:
                 throw new ApplicationError("Unsupported SQL type: " + sqlType);
         }
     }
 
-    private static void throwInvalidParameterError(Object value, String sqlType) throws ApplicationError {
+    private static Object[] getArrayData(Object value) throws ApplicationError {
+        BType type = TypeChecker.getType(value);
+        if (value == null || type.getTag() != TypeTags.ARRAY_TAG) {
+            return new Object[]{null, null};
+        }
+        BType elementType = ((BArrayType) type).getElementType();
+        int typeTag = elementType.getTag();
+        Object[] arrayData;
+        int arrayLength;
+        switch (typeTag) {
+            case TypeTags.INT_TAG:
+                arrayLength = ((ArrayValue) value).size();
+                arrayData = new Long[arrayLength];
+                for (int i = 0; i < arrayLength; i++) {
+                    arrayData[i] = ((ArrayValue) value).getInt(i);
+                }
+                return new Object[]{arrayData, Constants.SqlTypes.BIGINT};
+            case TypeTags.FLOAT_TAG:
+                arrayLength = ((ArrayValue) value).size();
+                arrayData = new Double[arrayLength];
+                for (int i = 0; i < arrayLength; i++) {
+                    arrayData[i] = ((ArrayValue) value).getFloat(i);
+                }
+                return new Object[]{arrayData, Constants.SqlTypes.DOUBLE};
+            case TypeTags.DECIMAL_TAG:
+                arrayLength = ((ArrayValue) value).size();
+                arrayData = new BigDecimal[arrayLength];
+                for (int i = 0; i < arrayLength; i++) {
+                    arrayData[i] = ((DecimalValue) ((ArrayValue) value).getRefValue(i)).value();
+                }
+                return new Object[]{arrayData, Constants.SqlTypes.DECIMAL};
+            case TypeTags.STRING_TAG:
+                arrayLength = ((ArrayValue) value).size();
+                arrayData = new String[arrayLength];
+                for (int i = 0; i < arrayLength; i++) {
+                    arrayData[i] = ((ArrayValue) value).getString(i);
+                }
+                return new Object[]{arrayData, Constants.SqlTypes.VARCHAR};
+            case TypeTags.BOOLEAN_TAG:
+                arrayLength = ((ArrayValue) value).size();
+                arrayData = new Boolean[arrayLength];
+                for (int i = 0; i < arrayLength; i++) {
+                    arrayData[i] = ((ArrayValue) value).getBoolean(i);
+                }
+                return new Object[]{arrayData, Constants.SqlTypes.BOOLEAN};
+            case TypeTags.ARRAY_TAG:
+                BType elementTypeOfArrayElement = ((BArrayType) elementType)
+                        .getElementType();
+                if (elementTypeOfArrayElement.getTag() == TypeTags.BYTE_TAG) {
+                    ArrayValue arrayValue = (ArrayValue) value;
+                    arrayData = new byte[arrayValue.size()][];
+                    for (int i = 0; i < arrayData.length; i++) {
+                        arrayData[i] = ((ArrayValue) arrayValue.get(i)).getBytes();
+                    }
+                    return new Object[]{arrayData, Constants.SqlTypes.BINARY};
+                } else {
+                    throw throwInvalidParameterError(value, Constants.SqlTypes.ARRAY);
+                }
+            default:
+                throw throwInvalidParameterError(value, Constants.SqlTypes.ARRAY);
+        }
+    }
+
+    private static Object[] getStructData(Object value, Connection conn) throws SQLException, ApplicationError {
+        BType type = TypeChecker.getType(value);
+        if (value == null || (type.getTag() != TypeTags.OBJECT_TYPE_TAG
+                && type.getTag() != TypeTags.RECORD_TYPE_TAG)) {
+            return new Object[]{null, null};
+        }
+        String structuredSQLType = type.getName().toUpperCase(Locale.getDefault());
+        Map<String, BField> structFields = ((BStructureType) type)
+                .getFields();
+        int fieldCount = structFields.size();
+        Object[] structData = new Object[fieldCount];
+        Iterator<BField> fieldIterator = structFields.values().iterator();
+        for (int i = 0; i < fieldCount; ++i) {
+            BField field = fieldIterator.next();
+            Object bValue = ((MapValue) value).get(field.getFieldName());
+            int typeTag = field.getFieldType().getTag();
+            switch (typeTag) {
+                case TypeTags.INT_TAG:
+                case TypeTags.FLOAT_TAG:
+                case TypeTags.STRING_TAG:
+                case TypeTags.BOOLEAN_TAG:
+                case TypeTags.DECIMAL_TAG:
+                    structData[i] = bValue;
+                    break;
+                case TypeTags.ARRAY_TAG:
+                    BType elementType = ((BArrayType) field
+                            .getFieldType()).getElementType();
+                    if (elementType.getTag() == TypeTags.BYTE_TAG) {
+                        structData[i] = ((ArrayValue) bValue).getBytes();
+                        break;
+                    } else {
+                        throw new ApplicationError("unsupported data type of " + structuredSQLType
+                                + " specified for struct parameter");
+                    }
+                case TypeTags.RECORD_TYPE_TAG:
+                    Object structValue = bValue;
+                    Object[] internalStructData = getStructData(structValue, conn);
+                    Object[] dataArray = (Object[]) internalStructData[0];
+                    String internalStructType = (String) internalStructData[1];
+                    structValue = conn.createStruct(internalStructType, dataArray);
+                    structData[i] = structValue;
+                    break;
+                default:
+                    throw new ApplicationError("unsupported data type of " + structuredSQLType
+                            + " specified for struct parameter");
+            }
+        }
+        return new Object[]{structData, structuredSQLType};
+    }
+
+    private static ApplicationError throwInvalidParameterError(Object value, String sqlType) {
         String valueName;
         if (value instanceof BValue) {
             valueName = ((BValue) value).getType().getName();
         } else {
             valueName = value.getClass().getName();
         }
-        throw new ApplicationError("Invalid parameter :" + valueName + " is passed as value for sql type : " + sqlType);
+        return new ApplicationError("Invalid parameter :" + valueName + " is passed as value for sql type : "
+                + sqlType);
     }
 
 

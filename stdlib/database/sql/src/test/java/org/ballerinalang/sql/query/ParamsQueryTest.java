@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.sql.utils.SQLDBUtils;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -477,6 +478,31 @@ public class ParamsQueryTest {
         validateDateTimeTypesTableResult(returns);
     }
 
+    @Test
+    public void testQueryArrayBasicParams() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryArrayBasicParams", args);
+        validateArrayTypeTableResult(returns);
+    }
+
+    @Test
+    public void testQueryArrayBasicNullParams() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryArrayBasicNullParams", args);
+        Assert.assertEquals(returns.length, 1);
+        SQLDBUtils.assertNotError(returns[0]);
+        LinkedHashMap result = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(result.size(), 9);
+
+        Assert.assertNull(result.get("INT_ARRAY"));
+        Assert.assertNull(result.get("LONG_ARRAY"));
+        Assert.assertNull(result.get("FLOAT_ARRAY"));
+        Assert.assertNull(result.get("DOUBLE_ARRAY"));
+        Assert.assertNull(result.get("DECIMAL_ARRAY"));
+        Assert.assertNull(result.get("DECIMAL_ARRAY"));
+        Assert.assertNull(result.get("BOOLEAN_ARRAY"));
+        Assert.assertNull(result.get("STRING_ARRAY"));
+        Assert.assertNull(result.get("BLOB_ARRAY"));
+    }
+
     private void validateDataTableResult(BValue[] returns) {
         SQLDBUtils.assertNotError(returns[0]);
         Assert.assertTrue(returns[0] instanceof BMap);
@@ -526,5 +552,46 @@ public class ParamsQueryTest {
         DecimalFormat df = new DecimalFormat("###.###");
         Assert.assertEquals(df.format(((BFloat) result.get("FLOAT_TYPE")).floatValue()), "1234.567");
         Assert.assertEquals(df.format(((BFloat) result.get("REAL_TYPE")).floatValue()), "1234.567");
+    }
+
+    private void validateArrayTypeTableResult(BValue[] returns) {
+        Assert.assertEquals(returns.length, 1);
+        SQLDBUtils.assertNotError(returns[0]);
+        LinkedHashMap result = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(result.size(), 9);
+
+        BValueArray intArray = (BValueArray) result.get("INT_ARRAY");
+        Assert.assertEquals(((BInteger) intArray.getBValue(0)).intValue(), 1);
+        Assert.assertEquals(((BInteger) intArray.getBValue(1)).intValue(), 2);
+        Assert.assertEquals(((BInteger) intArray.getBValue(2)).intValue(), 3);
+
+        BValueArray longArray = (BValueArray) result.get("LONG_ARRAY");
+        Assert.assertEquals(((BInteger) longArray.getBValue(0)).intValue(), 100000000);
+        Assert.assertEquals(((BInteger) longArray.getBValue(1)).intValue(), 200000000);
+        Assert.assertEquals(((BInteger) longArray.getBValue(2)).intValue(), 300000000);
+
+        BValueArray floatArray = (BValueArray) result.get("FLOAT_ARRAY");
+        Assert.assertEquals(((BFloat) floatArray.getBValue(0)).floatValue(), 245.23);
+        Assert.assertEquals(((BFloat) floatArray.getBValue(1)).floatValue(), 5559.49);
+        Assert.assertEquals(((BFloat) floatArray.getBValue(2)).floatValue(), 8796.123);
+
+        BValueArray doubleArray = (BValueArray) result.get("DOUBLE_ARRAY");
+        Assert.assertEquals(doubleArray.getBValue(0).stringValue(), "245.23");
+        Assert.assertEquals(doubleArray.getBValue(1).stringValue(), "5559.49");
+        Assert.assertEquals(doubleArray.getBValue(2).stringValue(), "8796.123");
+
+        BValueArray decimalArray = (BValueArray) result.get("DECIMAL_ARRAY");
+        Assert.assertEquals(((BDecimal) decimalArray.getBValue(0)).decimalValue().doubleValue(), 245.0);
+        Assert.assertEquals(((BDecimal) decimalArray.getBValue(1)).decimalValue().doubleValue(), 5559.0);
+        Assert.assertEquals(((BDecimal) decimalArray.getBValue(2)).decimalValue().doubleValue(), 8796.0);
+
+        BValueArray booleanArray = (BValueArray) result.get("BOOLEAN_ARRAY");
+        Assert.assertTrue(((BBoolean) booleanArray.getBValue(0)).booleanValue());
+        Assert.assertFalse(((BBoolean) booleanArray.getBValue(1)).booleanValue());
+        Assert.assertTrue(((BBoolean) booleanArray.getBValue(2)).booleanValue());
+
+        BValueArray stringArray = (BValueArray) result.get("STRING_ARRAY");
+        Assert.assertEquals(stringArray.getBValue(0).stringValue().trim(), "Hello");
+        Assert.assertEquals(stringArray.getBValue(1).stringValue().trim(), "Ballerina");
     }
 }

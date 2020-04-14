@@ -804,6 +804,38 @@ function queryTimeTimeRecordWithTimeZone2Param(string url, string user, string p
     return queryMockClient(url, user, password, sqlQuery);
 }
 
+function queryArrayBasicParams(string url, string user, string password) returns @tainted record {}|error? {
+    int[] dataint = [1, 2, 3];
+    int[] datalong = [100000000, 200000000, 300000000];
+    float[] datafloat = [245.23, 5559.49, 8796.123];
+    float[] datadouble = [245.23, 5559.49, 8796.123];
+    decimal[] datadecimal = [245, 5559, 8796];
+    string[] datastring = ["Hello", "Ballerina"];
+    boolean[] databoolean = [true, false, true];
+    sql:TypedValue paraInt = {sqlType: sql:TYPE_ARRAY, value: dataint};
+    sql:TypedValue paraLong = {sqlType: sql:TYPE_ARRAY, value: datalong};
+    sql:TypedValue paraFloat = {sqlType: sql:TYPE_ARRAY, value: datafloat};
+    sql:TypedValue paraDecimal = {sqlType: sql:TYPE_ARRAY, value: datadecimal};
+    sql:TypedValue paraDouble = {sqlType: sql:TYPE_ARRAY, value: datadouble};
+    sql:TypedValue paraString = {sqlType: sql:TYPE_ARRAY, value: datastring};
+    sql:TypedValue paraBool = {sqlType: sql:TYPE_ARRAY, value: databoolean};
+
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ArrayTypes WHERE int_array = ", "AND long_array = ",  "AND float_array = ", "AND double_array = ", "AND decimal_array = " , "AND string_array = ", "AND boolean_array = ", ""],
+        insertions: [paraInt, paraLong, paraFloat, paraDouble, paraDecimal, paraString, paraBool]
+    };
+
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
+function queryArrayBasicNullParams(string url, string user, string password) returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT * from ArrayTypes WHERE int_array is null AND long_array is null AND float_array is null AND double_array is null AND decimal_array is null AND string_array is null AND boolean_array is null"],
+            insertions: []
+     };
+    return queryMockClient(url, user, password, sqlQuery);
+}
+
 function getByteColumnChannel() returns @untainted io:ReadableByteChannel|error {
     io:ReadableByteChannel byteChannel = check io:openReadableFile("./src/test/resources/files/byteValue.txt");
     return byteChannel;

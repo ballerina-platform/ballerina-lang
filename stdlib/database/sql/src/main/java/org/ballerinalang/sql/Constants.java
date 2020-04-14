@@ -132,7 +132,6 @@ public final class Constants {
         public static final String TIMESTAMP = "TIMESTAMP";
         public static final String ARRAY = "ARRAY";
         public static final String STRUCT = "STRUCT";
-        public static final String REFCURSOR = "REFCURSOR";
     }
 
     /**
