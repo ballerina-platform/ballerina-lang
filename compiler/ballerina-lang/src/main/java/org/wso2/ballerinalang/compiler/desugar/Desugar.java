@@ -3597,7 +3597,7 @@ public class Desugar extends BLangNodeVisitor {
 
         if (!enclLocks.isEmpty()) {
             BLangLockStmt lock = enclLocks.peek();
-            lock.lockVariables.addAll(((BInvokableSymbol)iExpr.symbol).dependentGlobalVars);
+            lock.lockVariables.addAll(((BInvokableSymbol) iExpr.symbol).dependentGlobalVars);
         }
 
         // Reorder the arguments to match the original function signature.
