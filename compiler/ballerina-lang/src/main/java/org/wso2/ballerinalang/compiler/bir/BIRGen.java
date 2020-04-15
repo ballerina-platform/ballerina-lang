@@ -201,6 +201,9 @@ public class BIRGen extends BLangNodeVisitor {
     // This is a global variable cache
     public Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
 
+    // This map is used to create dependencies for imported module global variables
+    private Map<BSymbol, BIRGlobalVariableDcl> dummyGlobalVarMapForLocks = new HashMap<>();
+
     // This is to cache the lockstmt to BIR Lock
     private Map<BLangLockStmt, BIRTerminator.Lock> lockStmtMap = new HashMap<>();
 
@@ -2024,11 +2027,15 @@ public class BIRGen extends BLangNodeVisitor {
     private void populateBirLockWithGlobalVars(BLangLockStmt lockStmt) {
         for (BVarSymbol globalVar : lockStmt.lockVariables) {
             BIRGlobalVariableDcl birGlobalVar = globalVarMap.get(globalVar);
+
+            // If null query the dummy map for dummy variables.
             if (birGlobalVar == null) {
-                // TODO: Check how to handle global variables of imported modules.
-                //throw new RuntimeException("invalid global variable defined inside lock statment");
-                continue;
+                birGlobalVar = dummyGlobalVarMapForLocks.computeIfAbsent(globalVar, k ->
+                        new BIRGlobalVariableDcl(null, globalVar.flags, globalVar.type, globalVar.pkgID,
+                                globalVar.name, VarScope.GLOBAL, VarKind.GLOBAL, globalVar.name.value)
+                );
             }
+
             ((BIRTerminator.Lock) this.env.enclBB.terminator).lockVariables.add(birGlobalVar);
         }
     }
