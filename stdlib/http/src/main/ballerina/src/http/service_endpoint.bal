@@ -69,7 +69,7 @@ public type Listener object {
     # The functionality of the existing connections.
     #
     # + s - The service to be detached
-    # + return - An `error` if one occurred during detaching of a service or `()`
+    # + return - An `error` if one occurred during detaching of a service or else `()`
     public function __detach(service s) returns error? {
         return self.detach(s);
     }
