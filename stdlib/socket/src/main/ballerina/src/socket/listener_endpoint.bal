@@ -43,7 +43,7 @@ public type Listener object {
         return startService(self);
     }
 
-# Gracefully stops the `socket:Listener`.
+# Stops the `socket:Listener` gracefully.
 # ```ballerina
 # socket:error? result = socketListener.__gracefulStop();
 # ```
