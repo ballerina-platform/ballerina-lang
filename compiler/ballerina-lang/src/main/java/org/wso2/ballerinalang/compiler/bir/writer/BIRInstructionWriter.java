@@ -53,7 +53,9 @@ import java.util.List;
  * Responsible for serializing BIR instructions and operands.
  *
  * @since 0.980.0
+ * @deprecated this class is no longer used as we do not write any instruction to the  BIR binary
  */
+@Deprecated
 public class BIRInstructionWriter extends BIRVisitor {
     private ByteBuf buf;
     private BIRTypeWriter typeWriter;
@@ -249,7 +251,7 @@ public class BIRInstructionWriter extends BIRVisitor {
             buf.writeByte(0);
         }
 
-        binaryWriter.writeAnnotAttachments(buf, this, birAsyncCall.annotAttachments);
+//        binaryWriter.writeAnnotAttachments(buf, this, birAsyncCall.annotAttachments);
         addCpAndWriteString(birAsyncCall.thenBB.id.value);
     }
 
