@@ -51,6 +51,7 @@ public class JClass {
     private boolean isInterface = false;
     private boolean isDirectClass = false;
     private boolean isAbstract = false;
+    private boolean hasJavaModuleImport = false;
 
     private Set<String> superClasses = new HashSet<>();
     private List<JField> fieldList = new ArrayList<>();
@@ -93,6 +94,9 @@ public class JClass {
             handleOverloadedMethods(methodList);
             methodList.sort(Comparator.comparing(JMethod::getJavaMethodName));
             populateFields(c.getFields());
+            if (!methodList.isEmpty() || !constructorList.isEmpty() || !fieldList.isEmpty()) {
+                hasJavaModuleImport = true;
+            }
         }
     }
 
@@ -111,8 +115,11 @@ public class JClass {
         int i = 1;
         for (Constructor constructor : constructors) {
             JConstructor jConstructor = new JConstructor(constructor);
-            jConstructor.setConstructorName("new" + shortClassName + i);
             constructorList.add(jConstructor);
+        }
+        constructorList.sort(Comparator.comparing(JConstructor::getParamTypes));
+        for (JConstructor jConstructor:constructorList) {
+            jConstructor.setConstructorName("new" + shortClassName + i);
             i++;
         }
     }
