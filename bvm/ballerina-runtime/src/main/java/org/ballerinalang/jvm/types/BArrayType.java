@@ -128,14 +128,14 @@ public class BArrayType extends BType {
 
     @Override
     public String toString() {
-        String array_string = "";
-        String array_type_name = getName();
-        array_string = size != -1 ? array_string + "[" + size + "]" : array_string + "[]";
-        array_string = array_string.concat(elementType.toString());
-        if (array_string.contains(array_type_name)) {
-            array_string = array_type_name + array_string.replaceAll(array_type_name, "");
+        String arrayString = "";
+        String arrayTypeName = getName();
+        arrayString = size != -1 ? arrayString + "[" + size + "]" : arrayString + "[]";
+        arrayString = arrayString.concat(elementType.toString());
+        if (arrayString.contains(arrayTypeName)) {
+            arrayString = arrayTypeName + arrayString.replace(arrayTypeName, "");
         }
-        return array_string;
+        return arrayString;
     }
 
     @Override
