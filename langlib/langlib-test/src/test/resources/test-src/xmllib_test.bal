@@ -217,3 +217,73 @@ function testGet() returns [xml|error, xml|error, xml|error, xml|error, xml|erro
 
     return [e1, e2, c1, item, item2];
 }
+
+function testChildren() {
+     xml brands = xml `<Brands><!-- Comment --><Apple>IPhone</Apple><Samsung>Galaxy</Samsung><OP>OP7</OP></Brands>`;
+
+     xml p = brands.children(); // equivalent to getChildren()
+     assert(p.length(), 4);
+     assert(p.toString(), "<!-- Comment --><Apple>IPhone</Apple><Samsung>Galaxy</Samsung><OP>OP7</OP>");
+
+     xml seq = brands/*;
+     xml q = seq.children();
+     assert(q.length(), 3);
+     assert(q.toString(), "IPhoneGalaxyOP7");
+}
+
+function testElements() {
+    xml presidents = xml `<Leaders>
+                            <!-- This is a comment -->
+                            <US>Obama</US>
+                            <US>Trump</US>
+                            <RUS>Putin</RUS>
+                          </Leaders>`;
+    xml seq = presidents/*;
+
+    xml y = seq.elements();
+    assert(y.length(), 3);
+    assert(y.toString(), "<US>Obama</US><US>Trump</US><RUS>Putin</RUS>");
+
+    xml z = seq.elements("RUS");
+    assert(z.length(), 1);
+    assert(z.toString(), "<RUS>Putin</RUS>");
+}
+
+function testElementChildren() {
+    xml letter = xml `<note>
+                        <to>Tove</to>
+                        <to>Irshad</to>
+                        <!-- This is a comment -->
+                        <from>Jani</from>
+                        <body>Don't forget me this weekend!</body>
+                      </note>`;
+
+    xml p = letter.elementChildren();
+    xml q = letter.elementChildren("to");
+
+    assert(p.length(), 4);
+    assert(p.toString(), "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>");
+    assert(q.length(), 2);
+    assert(q.toString(), "<to>Tove</to><to>Irshad</to>");
+
+    xml seq = 'xml:concat(letter, letter);
+    xml y = seq.elementChildren();
+    xml z = seq.elementChildren("to");
+
+    assert(y.length(), 8);
+    assert(y.toString(), "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>" +
+                         "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>");
+    assert(z.length(), 4);
+    assert(z.toString(), "<to>Tove</to><to>Irshad</to><to>Tove</to><to>Irshad</to>");
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
+}
