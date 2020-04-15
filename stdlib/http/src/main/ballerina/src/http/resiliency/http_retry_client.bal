@@ -115,7 +115,7 @@ public type RetryClient client object {
     #
     # + path - Resource path
     # + request - An HTTP inbound request message
-    # + return - The `http:Response` message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function forward(string path, Request request) returns @tainted Response|ClientError {
         var result = performRetryAction(path, request, HTTP_FORWARD, self);
         if (result is HttpFuture) {
