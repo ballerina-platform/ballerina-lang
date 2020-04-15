@@ -29,7 +29,7 @@ public type TimerConfiguration record {|
 # Configurations related to an appointment, which are used to define the behavior of an appointment when initializing
 # the `task:Listener`.
 #
-# + appointmentDetails - A cron expression as a string or `task:AppointmentData` for scheduling an appointment
+# + appointmentDetails - A CRON expression as a string or `task:AppointmentData` for scheduling an appointment
 # + noOfRecurrences - Number of times to trigger the task after which the task stops running
 public type AppointmentConfiguration record {|
     string|AppointmentData appointmentDetails;

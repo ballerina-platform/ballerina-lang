@@ -111,14 +111,14 @@ public type Listener object {
 
     # Pauses the `task:Listener` and the attached services.
     #
-    # + return - `task:ListenerError` if an error is occurred while pausing or else ()
+    # + return - A `task:ListenerError` if an error is occurred while pausing or else ()
     public function pause() returns ListenerError? {
         return pauseExternal(self);
     }
 
-    # Resumes a paused `task:Listener`. Calling this on an already running `task:Listener` will not cause any error.
+    # Resumes a paused `task:Listener`. Calling this on an already-running `task:Listener` will not cause any error.
     #
-    # + return - `task:ListenerError` when an error occurred while resuming or else ()
+    # + return -  A `task:ListenerError` when an error occurred while resuming or else ()
     public function resume() returns ListenerError? {
         return resumeExternal(self);
     }

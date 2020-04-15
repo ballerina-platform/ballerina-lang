@@ -31,7 +31,7 @@ public type Scheduler object {
     #
     # + serviceToAttach - Ballerina `service` object, which needs to be attached to the task
     # + attachments - Set of optional parameters, which need to be passed inside the resources
-    # + return - The `task:SchedulerError` if the process failed due to any reason or else ()
+    # + return - A `task:SchedulerError` if the process failed due to any reason or else ()
     public function attach(service serviceToAttach, any... attachments) returns SchedulerError? {
         var result = attachExternal(self.taskListener, serviceToAttach, ...attachments);
         if (result is ListenerError) {
@@ -43,7 +43,7 @@ public type Scheduler object {
     # Detaches the provided `service` from the task.
     #
     # + attachedService - Ballerina `service` object, which needs to be detached from the task
-    # + return - The `task:SchedulerError` if the process failed due to any reason or else ()
+    # + return - A `task:SchedulerError` if the process failed due to any reason or else ()
     public function detach(service attachedService) returns SchedulerError? {
         var result = detachExternal(self.taskListener, attachedService);
         if (result is ListenerError) {
@@ -54,7 +54,7 @@ public type Scheduler object {
 
     # Starts running the task. Task Scheduler will not run until this has been called.
     #
-    # + return - The `task:SchedulerError` if the process failed due to any reason or else ()
+    # + return - A `task:SchedulerError` if the process failed due to any reason or else ()
     public function start() returns SchedulerError? {
         var result = startExternal(self.taskListener);
         if (result is ListenerError) {
@@ -65,7 +65,7 @@ public type Scheduler object {
 
     # Stops the task. This will stop, after finish running the existing jobs.
     #
-    # + return - The `task:SchedulerError` if the process failed due to any reason or else ()
+    # + return - A `task:SchedulerError` if the process failed due to any reason or else ()
     public function stop() returns SchedulerError? {
         var result = stopExternal(self.taskListener);
         if (result is ListenerError) {
@@ -76,7 +76,7 @@ public type Scheduler object {
 
     # Pauses the task.
     #
-    # + return - The `task:SchedulerError` if an error is occurred while pausing or else ()
+    # + return - A `task:SchedulerError` if an error is occurred while pausing or else ()
     public function pause() returns SchedulerError? {
         var result = pauseExternal(self.taskListener);
         if (result is ListenerError) {
@@ -87,7 +87,7 @@ public type Scheduler object {
 
     # Resumes a paused task.
     #
-    # + return - The `task:SchedulerError` when an error occurred while resuming or else ()
+    # + return - A `task:SchedulerError` when an error occurred while resuming or else ()
     public function resume() returns SchedulerError? {
         var result = resumeExternal(self.taskListener);
         if (result is ListenerError) {
@@ -99,7 +99,7 @@ public type Scheduler object {
     # Checks whether the task listener is started or not.
     #
     # + return - `true` if the `Scheduler` is already started, `false` if the `Scheduler` is
-    #            not started yet or stopped calling the `Scheduler.stop()` function
+    #            not started yet, or stopped calling the `Scheduler.stop()` function
     public function isStarted() returns boolean {
         return self.taskListener.isStarted();
     }
