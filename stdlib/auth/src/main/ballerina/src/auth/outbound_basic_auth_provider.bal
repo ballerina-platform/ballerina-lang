@@ -84,7 +84,7 @@ public type Credential record {|
 #
 # + credential - The `auth:Credential` configurations
 # + return - The auth token or else an `auth:Error` occurred during the validation
-function getAuthTokenForBasicAuth(Credential credential) returns string|Error {
+function getBasicAuthToken(Credential credential) returns string|Error {
     string username = credential.username;
     string password = credential.password;
     if (username == "" || password == "") {
