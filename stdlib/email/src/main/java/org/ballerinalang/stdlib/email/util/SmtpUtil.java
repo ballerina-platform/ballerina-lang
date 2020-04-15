@@ -194,7 +194,7 @@ public class SmtpUtil {
         if (headerNames.length > 0) {
             for (String headerName : headerNames) {
                 String headerValue = EntityHeaders.getHeader(mimeEntity, headerName, MimeConstants.LEADING_HEADER);
-                if (stringIsNotNullOrEmpty(headerValue)) {
+                if (isNotEmpty(headerValue)) {
                     log.debug("Added a MIME body part header " + headerName + " with value " + headerValue);
                     attachmentBodyPart.setHeader(headerName, headerValue);
                 }
@@ -225,7 +225,7 @@ public class SmtpUtil {
         return string == null ? "" : string;
     }
 
-    private static boolean stringIsNotNullOrEmpty(String string) {
+    private static boolean isNotEmpty(String string) {
         return string != null && !string.isEmpty();
     }
 
