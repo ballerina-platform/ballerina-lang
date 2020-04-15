@@ -29,7 +29,7 @@ public type InvocationContext record {|
     map<any> attributes;
 |};
 
-# Represents the `runtime:AuthenticationContext` populated with authenticated information.
+# Represents the `runtime:AuthenticationContext` populated with the authenticated information.
 #
 # + scheme - Authentication scheme
 # + authToken - Token for the provided `scheme`
@@ -38,7 +38,7 @@ public type AuthenticationContext record {
     string authToken?;
 };
 
-# Represents the `runtime:Principal` populated with authenticated user information.
+# Represents the `runtime:Principal` populated with the authenticated user information.
 #
 # + userId - User ID of the authenticated user
 # + username - Username of the authenticated user
@@ -56,7 +56,7 @@ public type Principal record {
 # runtime:InvocationContext invocationContext = runtime:getInvocationContext();
 # ```
 #
-# + return - `runtime:InvocationContext` instance
+# + return - The `runtime:InvocationContext` instance
 public function getInvocationContext() returns InvocationContext = @java:Method {
     class: "org.ballerinalang.stdlib.runtime.nativeimpl.GetInvocationContext"
 } external;
