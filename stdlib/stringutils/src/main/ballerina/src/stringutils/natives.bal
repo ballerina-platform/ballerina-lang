@@ -138,7 +138,7 @@ public function replaceAll(string originalString, string regex, string replaceme
 #                    substrings that match the provided `regex`
 # + regex - The regex to match the first substring in the `originalString` to
 #           be replaced
-# + replacement - The `replacement` string to replace the first subsgring, which
+# + replacement - The `replacement` string to replace the first substring, which
 #                 matches the `regex`
 # + return - The resultant string with the replaced substring
 public function replaceFirst(string originalString, string regex, string replacement) returns string {
