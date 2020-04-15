@@ -214,7 +214,7 @@ public type HttpSecureClient client object {
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel`, or `mime:Entity[]`
-    # + return - An `http:HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
+    # + return - An `http:HttpFuture` that represents an asynchronous service invocation, or else an `http:ClientError` if the submission fails
     public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         Request req = <Request>message;
         req = check prepareSecureRequest(req, self.config);
