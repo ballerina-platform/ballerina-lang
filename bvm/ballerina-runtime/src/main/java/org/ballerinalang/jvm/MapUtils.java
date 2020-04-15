@@ -71,9 +71,11 @@ public class MapUtils {
                 BType recFieldType;
 
                 if (recField != null) {
-                    // If there is a corresponding field in the record, check if it can be updated.
+                    // If there is a corresponding field in the record, and an entry in the value, check if it can be
+                    // updated.
                     // i.e., it is not a `readonly` field or this is the first insertion of the field into the record.
-                    if (Flags.isFlagOn(recField.flags, Flags.READONLY) && !isStoreOnCreation) {
+                    if (mapValue.containsKey(fieldName) && Flags.isFlagOn(recField.flags, Flags.READONLY) &&
+                            !isStoreOnCreation) {
                         throw BallerinaErrors.createError(
                                 getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                                 BLangExceptionHelper.getErrorMessage(RuntimeErrors.RECORD_INVALID_READONLY_FIELD_UPDATE,
@@ -135,9 +137,11 @@ public class MapUtils {
                 BType recFieldType;
 
                 if (recField != null) {
-                    // If there is a corresponding field in the record, check if it can be updated.
+                    // If there is a corresponding field in the record, and an entry in the value, check if it can be
+                    // updated.
                     // i.e., it is not a `readonly` field or this is the first insertion of the field into the record.
-                    if (Flags.isFlagOn(recField.flags, Flags.READONLY) && !isStoreOnCreation) {
+                    if (mapValue.containsKey(fieldName) && Flags.isFlagOn(recField.flags, Flags.READONLY) &&
+                            !isStoreOnCreation) {
                         throw BallerinaErrors.createError(
                                 getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
                                 BLangExceptionHelper.getErrorMessage(RuntimeErrors.RECORD_INVALID_READONLY_FIELD_UPDATE,
