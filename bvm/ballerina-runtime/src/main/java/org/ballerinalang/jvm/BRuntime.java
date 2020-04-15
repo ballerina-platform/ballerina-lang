@@ -22,17 +22,25 @@ import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.State;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.connector.AsyncFunctionCallBack;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * External API to be used by the interop users to control Ballerina runtime behavior.
@@ -61,17 +69,117 @@ public class BRuntime {
         return new BRuntime(strand.scheduler);
     }
 
+    /**
+     * Invoke Function Pointer synchronously. This method will only work for function pointers with synchronous code.
+     * Please refer @scheduleFunctionPointer method for schedule function pointer asynchronously.
+     *
+     * @param func Function Pointer to be invoked.
+     * @param args Ballerina function arguments.
+     * @param <R>  Return Type.
+     * @return Invoked function result.
+     */
+    public <R> R invokeMethodSync(FPValue<Object, R> func, Object[] args) {
+        return func.getFunction().apply(args);
+    }
+
+    /**
+     * Invoke Function Pointer asynchronously. This will schedule the function and block the strand.
+     *
+     * @param func   Function Pointer to be invoked.
+     * @param strand Strand passed to function.
+     * @param args   Ballerina function arguments.
+     */
+    public void invokeFunctionPointerAsync(FPValue<?, ?> func, Strand strand, Object[] args) {
+        AtomicReference<Object> returnVal = new AtomicReference<>();
+        invokeFunctionPointerAsync(func, strand, args, future -> returnVal.set(future.result),
+                                   () -> true, returnVal::get);
+    }
+
+    /**
+     * Invoke Function Pointer asynchronously. This will schedule the function and block the strand.
+     *
+     * @param func                   Function Pointer to be invoked.
+     * @param strand                 Strand passed to function.
+     * @param args                   Ballerina function arguments.
+     * @param futureResultConsumer   Consumer used to process the future value received after execution of function.
+     *                               Future value result will have the return object of the function pointer.
+     * @param strandUnblockCondition Suppiler provides condition for unblock the strand and resume the execution.
+     * @param resultSupplier         Suppiler used to set the final return value for the parent function invocation.
+     */
+    public void invokeFunctionPointerAsync(FPValue<?, ?> func, Strand strand, Object[] args,
+                                           Consumer<FutureValue> futureResultConsumer,
+                                           Supplier<Boolean> strandUnblockCondition,
+                                           Supplier<Object> resultSupplier) {
+        AsyncFunctionCallBack callback = new AsyncFunctionCallBack(strand, futureResultConsumer,
+                                                                   strandUnblockCondition, resultSupplier);
+        if (!strand.blockedOnExtern) {
+            strand.blockedOnExtern = true;
+            strand.setState(State.BLOCK_AND_YIELD);
+            strand.setReturnValues(null);
+        }
+        FutureValue future = scheduler.createFuture(strand, callback, null, ((BFunctionType) func.getType()).retType);
+        callback.setFuture(future);
+        strand.scheduler.scheduleLocal(args, func, strand, future);
+    }
+
+    /**
+     * Invoke Function Pointer asynchronously. This will schedule the function and block the strand.
+     *
+     * @param func                 Function Pointer to be invoked.
+     * @param strand               Strand passed to function.
+     * @param collectionSize       Used to decide the no of iterations need to schedule the function pointer.
+     * @param argsFunction         Used to computer the args for each iteration.
+     * @param futureResultConsumer Consumer used to process the future value received after execution of function.
+     *                             Future value result will have the return object of the function pointer.
+     * @param returnValueSupplier  Suppiler used to set the final return value for the parent function invocation.
+     */
+    public void invokeFunctionPointerAsyncForCollection(FPValue<?, ?> func, Strand strand, int collectionSize,
+                                                        Function<Integer, Object[]> argsFunction,
+                                                        BiConsumer<Integer, FutureValue> futureResultConsumer,
+                                                        Supplier<Object> returnValueSupplier) {
+        if (collectionSize <= 0) {
+            return;
+        }
+        AtomicInteger callCount = new AtomicInteger(0);
+        scheduleNextFunction(func, strand, argsFunction, callCount, 0, collectionSize, futureResultConsumer,
+                             returnValueSupplier);
+    }
+
+    /**
+     * Invoke Object method asynchronously. This will schedule the function and block the strand.
+     *
+     * @param object     Object Value.
+     * @param methodName Name of the method.
+     * @param args       Ballerina function arguments.
+     */
     public void invokeMethodAsync(ObjectValue object, String methodName, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         scheduler.schedule(new Object[1], func, null, null);
     }
 
+    /**
+     * Invoke Object method asynchronously. This will schedule the function and block the strand.
+     *
+     * @param object     Object Value.
+     * @param methodName Name of the method.
+     * @param callback   Callback which will get notify once method execution done.
+     * @param args       Ballerina function arguments.
+     */
     public void invokeMethodAsync(ObjectValue object, String methodName,
                                   CallableUnitCallback callback, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         scheduler.schedule(new Object[1], func, null, callback);
     }
 
+    /**
+     * Invoke Object method asynchronously. This will schedule the function and block the strand.
+     *
+     * @param object     Object Value.
+     * @param methodName Name of the method.
+     * @param callback   Callback which will get notify once method execution done.
+     * @param properties Set of properties for strand
+     * @param args       Ballerina function arguments.
+     */
     public void invokeMethodAsync(ObjectValue object, String methodName,
                                   CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
         Function<Object[], Object> func = objects -> {
@@ -86,6 +194,13 @@ public class BRuntime {
         scheduler.schedule(new Object[1], func, null, callback, properties, BTypes.typeNull);
     }
 
+    /**
+     * Invoke Object method synchronously. This will block the thread.
+     *
+     * @param object     Object Value.
+     * @param methodName Name of the method.
+     * @param args       Ballerina function arguments.
+     */
     public void invokeMethodSync(ObjectValue object, String methodName, Object... args) {
         Function<?, ?> func = o -> object.call((Strand) (((Object[]) o)[0]), methodName, args);
         Semaphore semaphore = new Semaphore(0);
@@ -148,6 +263,19 @@ public class BRuntime {
             throw errorValue[0];
         }
         return futureValue.result;
+    }
+
+    private void scheduleNextFunction(FPValue<?, ?> func, Strand strand, Function<Integer, Object[]> argsFunction,
+                                      AtomicInteger callCount, int nextIndex, int dataSetSize,
+                                      BiConsumer<Integer, FutureValue> futureResultConsumer,
+                                      Supplier<Object> returnValueSupplier) {
+        invokeFunctionPointerAsync(func, strand, argsFunction.apply(nextIndex), future -> {
+            futureResultConsumer.accept(nextIndex, future);
+            if (callCount.incrementAndGet() != dataSetSize) {
+                scheduleNextFunction(func, strand, argsFunction, callCount, nextIndex + 1, dataSetSize,
+                                     futureResultConsumer, returnValueSupplier);
+            }
+        }, () -> callCount.get() == dataSetSize, returnValueSupplier);
     }
 
     private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {
