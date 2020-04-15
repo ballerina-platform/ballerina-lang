@@ -55,6 +55,7 @@ public enum NodeKind {
     WAIT_LITERAL_KEY_VALUE,
     TABLE_KEY_SPECIFIER,
     TABLE_KEY_TYPE_CONSTRAINT,
+    TABLE_MULTI_KEY,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,

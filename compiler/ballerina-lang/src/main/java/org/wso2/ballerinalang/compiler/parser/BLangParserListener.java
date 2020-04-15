@@ -1495,6 +1495,25 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void enterMultiKeyIndex(BallerinaParser.MultiKeyIndexContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startExprNodeList();
+    }
+
+    @Override
+    public void exitMultiKeyIndex(BallerinaParser.MultiKeyIndexContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.endExprNodeList(getWS(ctx), ctx.getChildCount() / 2 + 1);
+        this.pkgBuilder.createMultiKeyExpressionNode(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitTableConstructorExpr(BallerinaParser.TableConstructorExprContext ctx) {
         if (isInErrorState) {
             return;

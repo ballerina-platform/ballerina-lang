@@ -33,7 +33,7 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 public class TableNegativeTest {
 
     @Test
-    public void testFromClauseWithInvalidType() {
+    public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 6);
         int index = 0;
@@ -48,7 +48,7 @@ public class TableNegativeTest {
                 "key constraint type '[string]'", 30, 26);
         validateError(compileResult, index++, "field name 'address' used in key specifier is not " +
                 "found in table constraint type 'Customer'", 35, 44);
-        validateError(compileResult, index++, "member access not is not supported for keyless table " +
+        validateError(compileResult, index++, "member access is not supported for keyless table " +
                 "'customerTable'", 45, 21);
     }
 }

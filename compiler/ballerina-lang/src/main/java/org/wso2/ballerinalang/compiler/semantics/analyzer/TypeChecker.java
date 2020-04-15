@@ -1029,7 +1029,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.env = env;
         this.expType = symTable.noType;
         for (BLangExpression e : exprs) {
-            checkExpr(e, this.env);
+            e.accept(this);
             types.add(resultType);
         }
         this.env = prevEnv;
@@ -1773,6 +1773,14 @@ public class TypeChecker extends BLangNodeVisitor {
         ((BLangVariableReference) indexBasedAccessExpr.expr).compoundAssignmentLhsVar =
                 indexBasedAccessExpr.compoundAssignmentLhsVar;
         checkExpr(indexBasedAccessExpr.expr, this.env, symTable.noType);
+
+        if (indexBasedAccessExpr.multiKeyExpr != null && !types.isAssignable(indexBasedAccessExpr.expr.type,
+                symTable.tableType)) {
+            dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED,
+                    indexBasedAccessExpr.expr.type);
+            resultType = symTable.semanticError;
+            return;
+        }
 
         BType actualType = checkIndexAccessExpr(indexBasedAccessExpr);
 
@@ -4834,7 +4842,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             actualType = symTable.xmlType;
             indexBasedAccessExpr.originalType = actualType;
-        } else if (varRefType.tag == TypeTags.TABLE) {
+        } else if (types.isAssignable(varRefType, symTable.tableType)) {
             BTableType tableType = (BTableType) indexBasedAccessExpr.expr.type;
             BType keyTypeConstraint = tableType.keyTypeConstraint;
             if (tableType.keyTypeConstraint == null) {
@@ -4848,11 +4856,31 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
-            checkExpr(indexExpr, this.env, keyTypeConstraint);
-            if (indexExpr.type == symTable.semanticError) {
-                dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS,
-                        keyTypeConstraint);
-                return symTable.semanticError;
+            if (indexExpr != null) {
+                checkExpr(indexExpr, this.env, keyTypeConstraint);
+                if (indexExpr.type == symTable.semanticError) {
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS,
+                            keyTypeConstraint);
+                    return symTable.semanticError;
+                }
+            } else {
+                List<BLangExpression> multiKeyExpressionList = indexBasedAccessExpr.multiKeyExpr.multiKeyIndexExprs;
+                List<BType> keyConstraintTypes = ((BTupleType) keyTypeConstraint).tupleTypes;
+                if (keyConstraintTypes.size() != multiKeyExpressionList.size()) {
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS,
+                            keyTypeConstraint);
+                    return symTable.semanticError;
+                }
+
+                for (int i = 0; i < multiKeyExpressionList.size(); i++) {
+                    BLangExpression keyExpr = multiKeyExpressionList.get(0);
+                    checkExpr(keyExpr, this.env, keyConstraintTypes.get(0));
+                    if (keyExpr.type == symTable.semanticError) {
+                        dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS,
+                                keyTypeConstraint);
+                        return symTable.semanticError;
+                    }
+                }
             }
 
             if (expType.tag != TypeTags.NONE) {

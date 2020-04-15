@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 public class BLangIndexBasedAccess extends BLangAccessExpression implements IndexBasedAccessNode {
 
     public BLangExpression indexExpr;
+    public BLangTableMultiKeyExpr multiKeyExpr;
 
     @Override
     public BLangExpression getExpression() {
@@ -45,7 +46,16 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
 
     @Override
     public String toString() {
-        return String.valueOf(expr) + "[" + String.valueOf(indexExpr) + "]";
+        if (indexExpr != null) {
+            return String.valueOf(expr) + "[" + String.valueOf(indexExpr) + "]";
+        } else {
+            return String.valueOf(expr) + "[" + multiKeyExpr.toString();
+        }
+    }
+
+    @Override
+    public BLangTableMultiKeyExpr getMultiKeyExpr() {
+        return this.multiKeyExpr;
     }
 
     @Override

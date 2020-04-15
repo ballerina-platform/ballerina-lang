@@ -690,7 +690,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
-        tableConstructorExpr.recordLiteralList = rewriteExprs(tableConstructorExpr.recordLiteralList);
+        rewriteExprs(tableConstructorExpr.recordLiteralList);
         result = tableConstructorExpr;
     }
 

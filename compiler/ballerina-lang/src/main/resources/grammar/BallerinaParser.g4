@@ -707,7 +707,11 @@ xmlElementAccessFilter
     ;
 
 index
-    :   LEFT_BRACKET expression RIGHT_BRACKET
+    :   LEFT_BRACKET (expression | multiKeyIndex) RIGHT_BRACKET
+    ;
+
+multiKeyIndex
+    :   expression (COMMA expression)+
     ;
 
 xmlAttrib
