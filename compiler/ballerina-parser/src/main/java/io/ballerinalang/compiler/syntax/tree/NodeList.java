@@ -65,7 +65,7 @@ public class NodeList<T extends Node> implements Iterable<T> {
 
         @Override
         public boolean hasNext() {
-            return this.currentIndex > size;
+            return this.currentIndex < size;
         }
 
         @Override

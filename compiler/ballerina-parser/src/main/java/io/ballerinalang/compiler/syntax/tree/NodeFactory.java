@@ -19,8 +19,6 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
-import io.ballerinalang.compiler.internal.parser.tree.STOptionalTypeDescriptor;
-
 import java.util.Objects;
 
 /**
@@ -34,7 +32,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     private NodeFactory() {
     }
-
 
     public static ModulePart createModulePart(
             NodeList<ImportDeclaration> imports,
@@ -86,7 +83,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ImportDeclaration createImportDeclaration(
             Token importKeyword,
-            Token orgName,
+            Node orgName,
             Node moduleName,
             Node version,
             Node prefix,
@@ -804,7 +801,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static PositionalArgument createPositionalArgument(
             Token leadingComma,
-            Expression expression) {
+            Token expression) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
@@ -893,6 +890,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 openParenToken.internalNode(),
                 closeParenToken.internalNode());
         return stNilTypeDescriptor.createUnlinkedFacade();
+    }
+
+    public static OptionalTypeDescriptor createOptionalTypeDescriptor(
+            Node typeDescriptor,
+            Token questionMarkToken) {
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(questionMarkToken, "questionMarkToken must not be null");
+
+        STNode stOptionalTypeDescriptor = STNodeFactory.createOptionalTypeDescriptor(
+                typeDescriptor.internalNode(),
+                questionMarkToken.internalNode());
+        return stOptionalTypeDescriptor.createUnlinkedFacade();
     }
 
     public static ObjectField createObjectField(
@@ -1025,22 +1034,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 resources.underlyingListNode().internalNode(),
                 closeBraceToken.internalNode());
         return stServiceBody.createUnlinkedFacade();
-    }
-
-    public static STNode createOptionalTypeDescriptor(STNode typeDescriptorNode, STNode questionMarkToken) {
-        return new STOptionalTypeDescriptor(typeDescriptorNode, questionMarkToken);
-    }
-
-    public static OptionalTypeDescriptor createOptionalTypeDescriptor(
-            Node typeDescriptorNode,
-            Token questionMarkToken) {
-        Objects.requireNonNull(typeDescriptorNode, "typeDescriptorNode must not be null");
-        Objects.requireNonNull(questionMarkToken, "questionMarkToken must not be null");
-
-        STNode stOptionalTypeDescriptor = STNodeFactory.createOptionalTypeDescriptor(
-                typeDescriptorNode.internalNode(),
-                questionMarkToken.internalNode());
-        return stOptionalTypeDescriptor.createUnlinkedFacade();
     }
 }
 
