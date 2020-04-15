@@ -58,7 +58,7 @@ public type UdpClient client object {
     }
 
 # Reads data from the remote client. If the data has the specified length, then wait until that number of bytes
-# are received from the client. Else, return the data available in the OS buffer or wait until data is received.
+# are received from the client. Else, it returns the data available in the OS buffer or waits until the data is received.
 # If the request length is lesser than the data in the buffer, then the rest will be discarded.
 # ```ballerina
 # [byte[], int, Address]|ReadTimedOutError result = socketClient->receiveFrom();
