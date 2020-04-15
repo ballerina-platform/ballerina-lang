@@ -273,7 +273,7 @@ function createResponseHeaderMap(Response resp) returns @tainted map<anydata> {
 #
 # + message -The error message
 # + err - The `error` instance
-# + return - The prepared `AuthenticationError` instance
+# + return - The prepared `http:AuthenticationError` instance
 function prepareAuthenticationError(string message, error? err = ()) returns AuthenticationError {
     log:printDebug(function () returns string { return message; });
     if (err is error) {
