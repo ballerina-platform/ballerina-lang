@@ -22,7 +22,7 @@ public type InboundAuthProvider abstract object {
     # Authenticates the user based on the user credentials (i.e., the username/password) or a token such as JWT or
     # OAuth2.
     #
-    # + credential - `string` credential value
+    # + credential - The `string` credential value
     # + return - `true` if the authentication is successful, `false` otherwise, or else an `auth:Error` in case of an error
     public function authenticate(string credential) returns boolean|Error;
 };

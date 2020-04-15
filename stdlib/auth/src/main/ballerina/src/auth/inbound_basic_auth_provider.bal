@@ -136,7 +136,7 @@ function getConfigAuthValue(string instanceId, string property) returns string {
 # Constructs an array of groups from the given comma-separated string of groups.
 #
 # + groupString - Comma-separated string of groups
-# + return - An array of groups or else () if the groups string is empty/`()`
+# + return - An array of groups or else `()` if the groups string is empty/`()`
 function getArray(string groupString) returns string[] {
     if (groupString.length() == 0) {
         return [];
