@@ -212,7 +212,7 @@ function getScopes(FilterContext context) returns Scopes|boolean {
 # Retrieves the authentication annotation value for the service level.
 #
 # + context - The `FilterContext` instance
-# + return - The service-level authentication annotations
+# + return - The service-level authentication annotations or else `()`
 function getServiceAuthConfig(FilterContext context) returns ServiceAuth? {
     any annData = reflect:getServiceAnnotations(context.getService(), SERVICE_ANN_NAME, ANN_MODULE);
     if (!(annData is ())) {
