@@ -288,7 +288,7 @@ function prepareAuthenticationError(string message, error? err = ()) returns Aut
 #
 # + message -The error message
 # + err - The `error` instance
-# + return - The prepared `AuthorizationError` instance
+# + return - The prepared `http:AuthorizationError` instance
 function prepareAuthorizationError(string message, error? err = ()) returns AuthorizationError {
     log:printDebug(function () returns string { return message; });
     if (err is error) {
