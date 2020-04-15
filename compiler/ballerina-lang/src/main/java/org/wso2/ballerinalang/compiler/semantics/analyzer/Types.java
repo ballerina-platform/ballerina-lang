@@ -2624,7 +2624,7 @@ public class Types {
         }
 
         if (remainingTypes.isEmpty()) {
-            return symTable.emptyTypeSet;
+            return symTable.nullSet;
         }
 
         return BUnionType.create(null, new LinkedHashSet<>(remainingTypes));
