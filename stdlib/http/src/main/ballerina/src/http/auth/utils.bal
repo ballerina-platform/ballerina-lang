@@ -224,7 +224,7 @@ function getServiceAuthConfig(FilterContext context) returns ServiceAuth? {
 # Retrieves the authentication annotation value for the resource level and service level.
 #
 # + context - The `FilterContext` instance
-# + return - Returns the resource-level and service-level authentication annotations
+# + return - The resource-level and service-level authentication annotations
 function getResourceAuthConfig(FilterContext context) returns ResourceAuth? {
     any annData = reflect:getResourceAnnotations(context.getService(), context.getResourceName(), RESOURCE_ANN_NAME,
                                                  ANN_MODULE);
