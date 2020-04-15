@@ -416,6 +416,7 @@ public enum DiagnosticCode {
     INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS("invalid.key.constraint.provided.for.access"),
     MEMBER_ACCESS_NOT_SUPPORT_FOR_KEYLESS_TABLE("member.access.not.supported.keyless.table"),
     INVALID_FIELD_NAMES_IN_KEY_SPECIFIER("invalid.field.name.in.key.specifier"),
+    MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED("multi.key.member.access.not.supported"),
 
 
     // Taint checking related codes

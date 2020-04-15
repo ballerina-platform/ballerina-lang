@@ -2008,6 +2008,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterMultiKeyIndex(BallerinaParser.MultiKeyIndexContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMultiKeyIndex(BallerinaParser.MultiKeyIndexContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterXmlAttrib(BallerinaParser.XmlAttribContext ctx) { }
 	/**
 	 * {@inheritDoc}

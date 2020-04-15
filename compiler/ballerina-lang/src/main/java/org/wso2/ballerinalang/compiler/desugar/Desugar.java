@@ -3521,7 +3521,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        BLangVariableReference targetVarRef = indexAccessExpr;
+        BLangIndexBasedAccess targetVarRef = indexAccessExpr;
         indexAccessExpr.indexExpr = rewriteExpr(indexAccessExpr.indexExpr);
 
         // First get the type and then visit the expr. Order matters, since the desugar
@@ -3548,6 +3548,15 @@ public class Desugar extends BLangNodeVisitor {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         } else if (varRefType.tag == TypeTags.TABLE) {
+            if (targetVarRef.multiKeyExpr != null) {
+                BLangTupleLiteral listConstructorExpr =
+                        new BLangTupleLiteral();
+                listConstructorExpr.exprs = indexAccessExpr.multiKeyExpr.multiKeyIndexExprs;
+                List<BType> memberTypes = new ArrayList<>();
+                indexAccessExpr.multiKeyExpr.multiKeyIndexExprs.forEach(expression -> memberTypes.add(expression.type));
+                listConstructorExpr.type = new BTupleType(memberTypes);
+                indexAccessExpr.indexExpr = listConstructorExpr;
+            }
             targetVarRef = new BLangTableAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         }
