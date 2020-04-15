@@ -503,18 +503,6 @@ public final class XMLItem extends XMLValue {
      * {@inheritDoc}
      */
     @Override
-    public Object frozenCopy(Map<Object, Object> refs) {
-        XMLItem copy = (XMLItem) copy(refs);
-        if (!copy.isFrozen()) {
-            copy.freezeDirect();
-        }
-        return copy;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public XMLValue getItem(int index) {
         if (index != 0) {
             return new XMLSequence();

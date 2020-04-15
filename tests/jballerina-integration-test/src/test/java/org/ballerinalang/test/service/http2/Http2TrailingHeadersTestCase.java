@@ -36,33 +36,55 @@ public class Http2TrailingHeadersTestCase extends Http2BaseTest {
     @Test(description = "Test inbound response trailers with a payload lesser than 8K")
     public void testSmallPayloadResponseTrailers() throws IOException {
         HttpResponse response = HttpClientRequest.doPost(
-                serverInstance.getServiceURLHttp(servicePort, "initiator/echoResponseWithTrailer"), "Small payload",
-                new HashMap<>());
+                serverInstance.getServiceURLHttp(servicePort, "initiator/backend/echoResponseWithTrailer"),
+                "Small payload", new HashMap<>());
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "{\"foo\":\"Trailer for echo payload\", \"baz\":\"The second " +
-                "trailer\"}");
+                "trailer\", \"count\":2}");
         Assert.assertEquals(response.getHeaders().get("response-trailer"), "foo, baz");
     }
 
     @Test(description = "Test inbound response trailers with a payload greater than 8K")
     public void testLargePayloadResponseTrailers() throws IOException {
         HttpResponse response = HttpClientRequest.doPost(
-                serverInstance.getServiceURLHttp(servicePort, "initiator/echoResponseWithTrailer"),
+                serverInstance.getServiceURLHttp(servicePort, "initiator/backend/echoResponseWithTrailer"),
                 TestUtils.LARGE_ENTITY, new HashMap<>());
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "{\"foo\":\"Trailer for echo payload\", \"baz\":\"The second " +
-                "trailer\"}");
+                "trailer\", \"count\":2}");
         Assert.assertEquals(response.getHeaders().get("response-trailer"), "foo, baz");
     }
 
     @Test(description = "Test inbound response trailers with an empty payload")
     public void testEmptyPayloadResponseTrailers() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(
-                serverInstance.getServiceURLHttp(servicePort, "initiator/responseEmptyPayloadWithTrailer"));
+                serverInstance.getServiceURLHttp(servicePort, "initiator/backend/responseEmptyPayloadWithTrailer"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "{\"foo\":\"Trailer for empty payload\", \"baz\":\"The second " +
-                "trailer for empty payload\"}");
+                "trailer for empty payload\", \"count\":2}");
         Assert.assertEquals(response.getHeaders().get("response-trailer"), "foo, baz");
     }
 
+    @Test(description = "Test proxy behaviour with trailers and trailer count")
+    public void testProxiedTrailers() throws IOException {
+        HttpResponse response = HttpClientRequest.doPost(
+                serverInstance.getServiceURLHttp(servicePort, "initiator/passthroughsvc/forward"), "Small payload",
+                new HashMap<>());
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "{\"foo\":\"Trailer for echo payload\", \"baz\":\"The second " +
+                "trailer\", \"count\":2}");
+        Assert.assertEquals(response.getHeaders().get("response-trailer"), "foo, baz");
+    }
+
+    @Test(description = "Test pass-through setting trailers after building payload. Behavior is correct as user has " +
+            "built the datasource")
+    public void testPassThroughButBuildPayload() throws IOException {
+        HttpResponse response = HttpClientRequest.doPost(
+                serverInstance.getServiceURLHttp(servicePort, "initiator/passthroughsvc/buildPayload"), "Small payload",
+                new HashMap<>());
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "{\"foo\":\"Trailer for echo payload\", \"baz\":\"this trailer " +
+                "will get replaced\", \"count\":3}");
+        Assert.assertEquals(response.getHeaders().get("response-trailer"), "foo, baz, barr");
+    }
 }

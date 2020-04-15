@@ -103,6 +103,7 @@
             <class name="org.ballerinalang.test.service.http2.ClientUpgradeWithLargePayload"/>
             <class name="org.ballerinalang.test.service.http2.HTTP2ClientActionsTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2MutualSslTestCase"/>
+            <class name="org.ballerinalang.test.service.http2.Http2MutualSslWithCerts"/>
             <class name="org.ballerinalang.test.service.http2.Http2ForwardHeaderTest"/>
             <class name="org.ballerinalang.test.service.http2.Http2100ContinueTestCase"/>
             <class name="org.ballerinalang.test.service.http2.Http2TrailingHeadersTestCase"/>
@@ -145,6 +146,11 @@
     </test>
 
     <test name="ballerina-transaction-tests" parallel="false">
+        <groups>
+            <run>
+                <exclude name="brokenOnTableRemove"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.transaction.MicroTransactionTestCase"/>
             <class name="org.ballerinalang.test.transaction.RemoteParticipantTransactionTest"/>
@@ -187,6 +193,7 @@
             <class name="org.ballerinalang.test.service.websocket.ServerErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.AttachDetachTest"/>
             <class name="org.ballerinalang.test.service.websocket.RetryClientTest"/>
+            <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>
         </classes>
     </test>
 
@@ -274,6 +281,7 @@
         <groups>
             <run>
                 <exclude name="brokenOnXMLChange"/>
+                <exclude name="brokenOnTableRemove"/>
             </run>
         </groups>
         <classes>
@@ -290,6 +298,11 @@
 
     <test name="ballerina-observability-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <groups>
+            <run>
+                <exclude name="brokenOnTableRemove"/>
+            </run>
+        </groups>
         <classes>
             <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>

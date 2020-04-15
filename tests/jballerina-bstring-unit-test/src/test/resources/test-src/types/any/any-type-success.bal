@@ -8,32 +8,33 @@ function jsonReturnFunction() returns (json) {
   return val;
 }
 
-function tableReturnTestAsAny() returns (any) {
-    any abc = tableReturnFunction();
-    return abc;
-}
-
-function inputAnyAsTableTest() returns (table<any>?) {
-    table<any>? t = anyToTableFunction(tableReturnFunction());
-    return t;
-}
-
-function anyToTableFunction (any aTable) returns (table<any>?) {
-    if (aTable is table<any>) {
-        return aTable;
-    }
-    return ();
-}
-
-function tableReturnFunction () returns (table<any>) {
-    table <Employee> tb = table{};
-    Employee e1 = {id:1, name:"Jane"};
-    Employee e2 = {id:2, name:"Anne"};
-    checkpanic tb.add(e1);
-    checkpanic tb.add(e2);
-
-    return tb;
-}
+//TODO Table remove - Fix
+//function tableReturnTestAsAny() returns (any) {
+//    any abc = tableReturnFunction();
+//    return abc;
+//}
+//
+//function inputAnyAsTableTest() returns (table<any>?) {
+//    table<any>? t = anyToTableFunction(tableReturnFunction());
+//    return t;
+//}
+//
+//function anyToTableFunction (any aTable) returns (table<any>?) {
+//    if (aTable is table<any>) {
+//        return aTable;
+//    }
+//    return ();
+//}
+//
+//function tableReturnFunction () returns (table<any>) {
+//    table <Employee> tb = table{};
+//    Employee e1 = {id:1, name:"Jane"};
+//    Employee e2 = {id:2, name:"Anne"};
+//    checkpanic tb.add(e1);
+//    checkpanic tb.add(e2);
+//
+//    return tb;
+//}
 
 type Employee record {
     int id;

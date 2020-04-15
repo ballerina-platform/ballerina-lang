@@ -19,18 +19,6 @@ apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/birTestableProject.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
-if (project.name != "ballerina-jvm" && project.name != "ballerina-backend-jvm" && project.name != "ballerina-bir") {
-
-    dependencies {
-        testRuntime project(':ballerina-jvm')
-        testRuntime project(':ballerina-bir')
-        testRuntime project(':ballerina-backend-jvm')
-
-        testRuntime project(path: ':ballerina-backend-jvm', configuration: 'birJar')
-        testRuntime project(path: ':ballerina-jvm', configuration: 'birJar')
-        testRuntime project(path: ':ballerina-bir', configuration: 'birJar')
-    }
-}
 
 configurations {
     testLibs {
@@ -63,7 +51,6 @@ dependencies {
     implementation project(':ballerina-grpc')
     implementation project(':ballerina-kafka')
     implementation project(':protobuf-ballerina')
-    implementation project(':ballerina-jdbc')
     implementation project(':ballerina-transactions')
     implementation project(':protobuf-ballerina')
     implementation project(':ballerina-packerina')
@@ -78,8 +65,6 @@ dependencies {
     implementation project(':ballerina-ldap')
     implementation project(':ballerina-oauth2')
     implementation project(':ballerina-task')
-    implementation project(':ballerina-backend-jvm')
-    implementation project(':ballerina-jvm')
     implementation project(':ballerina-stringutils')
     implementation project(':ballerina-java')
     implementation project(':ballerina-jsonutils')
@@ -96,7 +81,6 @@ dependencies {
     balRuntime project(':ballerina-runtime')
 
     baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-jdbc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
@@ -127,7 +111,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-jsonutils', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-backend-jvm', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
 

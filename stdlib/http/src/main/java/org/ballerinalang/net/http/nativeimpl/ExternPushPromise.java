@@ -21,9 +21,9 @@ package org.ballerinalang.net.http.nativeimpl;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.net.http.HttpUtil;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
@@ -36,6 +36,8 @@ import java.util.TreeSet;
  * @since 1.1.0
  */
 public class ExternPushPromise {
+
+    private static final BArrayType bArrayType = new BArrayType(BTypes.typeHandle);
 
     public static void addHeader(ObjectValue pushPromiseObj, String headerName, String headerValue) {
         Http2PushPromise http2PushPromise =
@@ -53,17 +55,17 @@ public class ExternPushPromise {
         Http2PushPromise http2PushPromise =
                 HttpUtil.getPushPromise(pushPromiseObj, HttpUtil.createHttpPushPromise(pushPromiseObj));
         Set<String> httpHeaderNames = http2PushPromise.getHttpRequest().headers().names();
-        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeHandle));
-        if (httpHeaderNames != null && !httpHeaderNames.isEmpty()) {
-            int i = 0;
-            Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-            distinctNames.addAll(httpHeaderNames);
-            for (String headerName : distinctNames) {
-                stringArray.add(i, new HandleValue(headerName));
-                i++;
-            }
+        if (httpHeaderNames == null || httpHeaderNames.isEmpty()) {
+            return (ArrayValue) BValueCreator.createArrayValue(new HandleValue[0], bArrayType);
         }
-        return stringArray;
+        int i = 0;
+        Set<String> distinctNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        distinctNames.addAll(httpHeaderNames);
+        HandleValue[] handleValues = new HandleValue[distinctNames.size()];
+        for (String headerName : distinctNames) {
+            handleValues[i++] = new HandleValue(headerName);
+        }
+        return (ArrayValue) BValueCreator.createArrayValue(handleValues, bArrayType);
     }
 
     public static ArrayValue getHeaders(ObjectValue pushPromiseObj, String headerName) {
@@ -71,7 +73,7 @@ public class ExternPushPromise {
                 HttpUtil.getPushPromise(pushPromiseObj, HttpUtil.createHttpPushPromise(pushPromiseObj));
         String[] headers = http2PushPromise.getHeaders(headerName);
         int i = 0;
-        ArrayValue stringArray = new ArrayValueImpl(new BArrayType(BTypes.typeHandle));
+        ArrayValue stringArray = (ArrayValue) BValueCreator.createArrayValue(bArrayType);
         for (String header : headers) {
             stringArray.add(i, new HandleValue(header));
             i++;

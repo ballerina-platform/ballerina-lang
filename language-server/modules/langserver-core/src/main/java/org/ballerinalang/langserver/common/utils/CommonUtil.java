@@ -27,6 +27,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -73,7 +74,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -111,7 +111,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -146,6 +145,8 @@ public class CommonUtil {
     public static final String BALLERINAX_ORG_NAME = "ballerinax";
 
     public static final String SDK_VERSION = System.getProperty("ballerina.version");
+
+    private static final String BUILT_IN_PACKAGE_PREFIX = "lang.annotations";
 
     public static final Path LS_STDLIB_CACHE_DIR = TEMP_DIR.resolve("ls_stdlib_cache").resolve(SDK_VERSION);
 
@@ -740,11 +741,8 @@ public class CommonUtil {
         if (bType instanceof BStreamType) {
             return ((BStreamType) bType).constraint;
         }
-        if (bType instanceof BTypedescType) {
-            return ((BTypedescType) bType).constraint;
-        }
-        return ((BTableType) bType).constraint;
 
+        return ((BTypedescType) bType).constraint;
     }
 
     /**
@@ -1223,17 +1221,51 @@ public class CommonUtil {
         return null;
     }
 
-    public static String getPackagePrefix(BiConsumer<String, String> importsAcceptor, PackageID currentPkgId,
-                                          PackageID typePkgId) {
+    public static String getPackagePrefix(ImportsAcceptor importsAcceptor, PackageID currentPkgId,
+                                          PackageID typePkgId, LSContext context) {
         String pkgPrefix = "";
-        if (!typePkgId.equals(currentPkgId) &&
-                !(typePkgId.orgName.value.equals("ballerina") && typePkgId.name.value.startsWith("lang."))) {
-            pkgPrefix = typePkgId.name.value.replaceAll(".*\\.", "") + ":";
+        if (!typePkgId.equals(currentPkgId) && !BUILT_IN_PACKAGE_PREFIX.equals(typePkgId.name.value)) {
+            String moduleName = escapeModuleName(context, typePkgId.orgName.value + "/" + typePkgId.name.value);
+            String[] moduleParts = moduleName.split("/");
+            String orgName = moduleParts[0];
+            String alias = moduleParts[1];
+            pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
             if (importsAcceptor != null) {
-                importsAcceptor.accept(typePkgId.orgName.value, typePkgId.name.value);
+                importsAcceptor.getAcceptor().accept(orgName, alias);
             }
         }
         return pkgPrefix;
+    }
+
+    public static String escapeModuleName(LSContext context, String fullPackageNameAlias) {
+        Set<String> names = new HashSet<>();
+        Predicate<Scope.ScopeEntry> nonPkgNames = scopeEntry -> !(scopeEntry.symbol instanceof BPackageSymbol);
+        try {
+            names = CommonUtil.getAllNameEntries(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), nonPkgNames);
+        } catch (Exception e) {
+            // ignore
+        }
+
+        String[] moduleNameParts = fullPackageNameAlias.split("/");
+        String moduleName = moduleNameParts[0];
+        if (moduleNameParts.length > 1) {
+            String alias = moduleNameParts[1];
+            String[] aliasParts = moduleNameParts[1].split("\\.");
+            if (aliasParts.length > 1) {
+                String aliasPart1 = aliasParts[0];
+                String aliasPart2 = aliasParts[1];
+                if (names.contains(aliasPart2)) {
+                    aliasPart2 = "'" + aliasPart2;
+                }
+                alias = aliasPart1 + "." + aliasPart2;
+            } else {
+                if (names.contains(alias)) {
+                    alias = "'" + alias;
+                }
+            }
+            moduleName = moduleName + "/" + alias;
+        }
+        return moduleName;
     }
 
     /**
@@ -1265,14 +1297,32 @@ public class CommonUtil {
     /**
      * Get all available name entries.
      *
-     * @param context   {@link CompilerContext}
+     * @param context {@link CompilerContext}
      * @return set of strings
      */
     public static Set<String> getAllNameEntries(CompilerContext context) {
+        return getAllNameEntries(context, null);
+    }
+
+    /**
+     * Get all available name entries.
+     *
+     * @param context {@link CompilerContext}
+     * @return set of strings
+     */
+    public static Set<String> getAllNameEntries(CompilerContext context, Predicate<Scope.ScopeEntry> predicate) {
         Set<String> strings = new HashSet<>();
         SymbolTable symbolTable = SymbolTable.getInstance(context);
         Map<BPackageSymbol, SymbolEnv> pkgEnvMap = symbolTable.pkgEnvMap;
-        pkgEnvMap.values().forEach(env -> env.scope.entries.keySet().forEach(key -> strings.add(key.value)));
+        pkgEnvMap.values().forEach(env -> env.scope.entries.forEach((key, value) -> {
+            if (predicate != null) {
+                if (predicate.test(value)) {
+                    strings.add(key.value);
+                }
+            } else {
+                strings.add(key.value);
+            }
+        }));
         return strings;
     }
 

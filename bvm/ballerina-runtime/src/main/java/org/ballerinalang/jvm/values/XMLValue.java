@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.values.freeze.Status;
 
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.namespace.QName;
 
@@ -196,6 +197,18 @@ public abstract class XMLValue implements RefValue, BXML, CollectionValue {
     public abstract XMLValue children();
 
     public abstract XMLValue children(String qname);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        XMLValue copy = (XMLValue) copy(refs);
+        if (!copy.isFrozen()) {
+            copy.freezeDirect();
+        }
+        return copy;
+    }
 
     public abstract XMLValue getItem(int index);
 
