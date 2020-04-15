@@ -14,35 +14,37 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Configurations related to a Timer
+# Configurations related to a timer, which are used to define the behavior of a timer when initializing the
+# `task:Listener`.
 #
-# + intervalInMillis - Timer interval (in Milliseconds), which triggers the `onTrigger` resource.
-# + initialDelayInMillis - Delay (in Milliseconds) after which the timer will run.
-# + noOfRecurrences - Number of times to trigger the task, after which the task stops running.
+# + intervalInMillis - Timer interval (in milliseconds), which triggers the `onTrigger` resource
+# + initialDelayInMillis - Delay (in milliseconds) after which the timer will run
+# + noOfRecurrences - Number of times to trigger the task after which the task stops running
 public type TimerConfiguration record {|
     int intervalInMillis;
     int initialDelayInMillis?;
     int noOfRecurrences?;
 |};
 
-# Configurations related to an Appointment
+# Configurations related to an appointment, which are used to define the behavior of an appointment when initializing
+# the `task:Listener`.
 #
-# + appointmentDetails - A CronExpression (as a string) or `task:AppointmentDetails` for scheduling an Appointment.
-# + noOfRecurrences - Number of times to trigger the task, after which the task stops running.
+# + appointmentDetails - A CRON expression as a string or `task:AppointmentData` for scheduling an appointment
+# + noOfRecurrences - Number of times to trigger the task after which the task stops running
 public type AppointmentConfiguration record {|
     string|AppointmentData appointmentDetails;
     int noOfRecurrences?;
 |};
 
-# Details for schedule an Appointment.
+# The CRON expression required for scheduling an appointment.
 #
-# + seconds - Second(s) in a given minute, in which the appointment will run.
-# + minutes - Minute(s) in a given hour, in which the appointment will run.
-# + hours - Hour(s) in a given day, in which the appointment will run.
-# + daysOfMonth - Day(s) of the month, in which the appointment will run.
-# + months - Month(s) in a given year, in which the appointment will run.
-# + daysOfWeek - Day(s) of a week, in which the appointment will run.
-# + year - Year(s) in which the appointment will run.
+# + seconds - Second(s) in a given minute in which the appointment will run
+# + minutes - Minute(s) in a given hour in which the appointment will run
+# + hours - Hour(s) in a given day in which the appointment will run
+# + daysOfMonth - Day(s) of the month in which the appointment will run
+# + months - Month(s) in a given year in which the appointment will run
+# + daysOfWeek - Day(s) of a week in which the appointment will run
+# + year - Year(s) in which the appointment will run
 public type AppointmentData record {|
     string seconds?;
     string minutes?;
