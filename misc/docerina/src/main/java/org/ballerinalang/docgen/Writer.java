@@ -95,7 +95,7 @@ public class Writer {
                     defaultValue = "<span class=\"default\">(default</span> <span class=\"type\">" +
                             "<a href=\"" + link + "\">" + name + "</a>" + "</span><span class=\"default\">)</span>";
                 } else {
-                    defaultValue = "<span class=\"default\">(default " + options.param(0) + ")</span>";
+                    defaultValue = "<span class=\"default\">(default " + name + ")</span>";
                 }
                 return defaultValue;
             });
