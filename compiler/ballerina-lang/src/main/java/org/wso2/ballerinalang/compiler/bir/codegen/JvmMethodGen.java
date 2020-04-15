@@ -2224,11 +2224,10 @@ public class JvmMethodGen {
                 lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
         loadLocalType(mv, typeDef);
-        mv.visitMethodInsn(INVOKESTATIC, String.format("%s", ANNOTATION_UTILS), "processAnnotations",
+        String funcName = isBString ? "processAnnotations_bstring" : "processAnnotations";
+        mv.visitMethodInsn(INVOKESTATIC, String.format("%s", ANNOTATION_UTILS), funcName,
                 String.format("(L%s;L%s;)V", MAP_VALUE, BTYPE), false);
     }
-
-    ;
 
     static void generateFrameClasses(BIRPackage pkg, Map<String, byte[]> pkgEntries) {
 

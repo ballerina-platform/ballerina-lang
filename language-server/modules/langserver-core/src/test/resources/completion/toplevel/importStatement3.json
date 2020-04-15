@@ -6,11 +6,75 @@
   "source": "toplevel/source/importStatement3.bal",
   "items": [
     {
-      "label": "http",
+      "label": "lang.object",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
-      "insertText": "http",
+      "insertText": "lang.'object;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "jwt",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "jwt",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.boolean",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "lang.'boolean;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.xml",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "lang.'xml;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "crypto",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "crypto",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "lang.'array;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stringutils",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "stringutils",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "cache",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "cache",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "test",
       "insertTextFormat": "Snippet"
     },
     {
@@ -30,75 +94,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang.int",
+      "label": "config",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
-      "insertText": "lang.'int;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "lang.'value;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "io",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "io",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "socket",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "socket",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "nats",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "nats",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "oauth2",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "oauth2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "transactions",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "transactions",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.string",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "lang.'string;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "observe",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "observe",
+      "insertText": "config",
       "insertTextFormat": "Snippet"
     },
     {
@@ -110,155 +110,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "bir",
+      "label": "filepath",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
-      "insertText": "bir",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "stringutils",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "stringutils",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.typedesc",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "lang.'typedesc;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "mime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "mime",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.float",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "lang.'float;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "reflect",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "reflect",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "test",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "java",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "task",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "task",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.decimal",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "lang.'decimal;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "mysql",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "mysql",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.map",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "lang.'map;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "openapi",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "openapi",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "sql",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "sql",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "log",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "log",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "jwt",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "jwt",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "rabbitmq",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "rabbitmq",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.xml",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "lang.'xml;",
+      "insertText": "filepath",
       "insertTextFormat": "Snippet"
     },
     {
@@ -270,67 +126,43 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang.boolean",
+      "label": "reflect",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
-      "insertText": "lang.'boolean;",
+      "insertText": "reflect",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "cache",
+      "label": "lang.string",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
-      "insertText": "cache",
+      "insertText": "lang.'string;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang.stream",
+      "label": "io",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
-      "insertText": "lang.'stream;",
+      "insertText": "io",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang.object",
+      "label": "runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
-      "insertText": "lang.'object;",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang.future",
+      "label": "oauth2",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
-      "insertText": "lang.'future;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "system",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "system",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "crypto",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "crypto",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.error",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "lang.'error;",
+      "insertText": "oauth2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -342,27 +174,43 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "jvm",
+      "label": "java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
-      "insertText": "jvm",
+      "insertText": "java",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lang.array",
+      "label": "rabbitmq",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
-      "insertText": "lang.'array;",
+      "insertText": "rabbitmq",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "filepath",
+      "label": "lang.future",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
-      "insertText": "filepath",
+      "insertText": "lang.'future;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "lang.'value;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "openapi",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "openapi",
       "insertTextFormat": "Snippet"
     },
     {
@@ -374,6 +222,134 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "time",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "time",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "observe",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "observe",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "system",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "system",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.float",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "lang.'float;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transactions",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "transactions",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "nats",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "nats",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.decimal",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "lang.'decimal;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "http",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "http",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "mysql",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "mysql",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "task",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "task",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "log",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "log",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "mime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "mime",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.stream",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "lang.'stream;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.error",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "lang.'error;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.typedesc",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "lang.'typedesc;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lang.map",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "lang.'map;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "email",
       "kind": "Module",
       "detail": "Module",
@@ -382,19 +358,27 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "config",
+      "label": "lang.int",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
-      "insertText": "config",
+      "insertText": "lang.'int;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "time",
+      "label": "socket",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
-      "insertText": "time",
+      "insertText": "socket",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "sql",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "110",
+      "insertText": "sql",
       "insertTextFormat": "Snippet"
     }
   ]

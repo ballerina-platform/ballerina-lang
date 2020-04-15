@@ -42,4 +42,8 @@ public class IsReadOnly {
     public static boolean isReadOnly(Strand strand, Object value) {
         return !(value instanceof RefValue) || ((RefValue) value).isFrozen();
     }
+
+    public static boolean isReadOnly_bstring(Strand strand, Object value) {
+        return isReadOnly(strand, value);
+    }
 }

@@ -48,7 +48,7 @@ public type OutboundBasicAuthProvider object {
             }
             return prepareError("Failed to generate basic auth token since credential config is not defined and auth token is not defined in the authentication context at invocation context.");
         } else {
-            return getAuthTokenForBasicAuth(credential);
+            return getBasicAuthToken(credential);
         }
     }
 
@@ -74,7 +74,7 @@ public type Credential record {|
 #
 # + credential - The credential configurations.
 # + return - The auth token or the `Error` if an error occurred during validation.
-function getAuthTokenForBasicAuth(Credential credential) returns string|Error {
+function getBasicAuthToken(Credential credential) returns string|Error {
     string username = credential.username;
     string password = credential.password;
     if (username == "" || password == "") {

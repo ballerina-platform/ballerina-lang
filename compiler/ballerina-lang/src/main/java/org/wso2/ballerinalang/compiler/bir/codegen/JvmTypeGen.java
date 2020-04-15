@@ -753,8 +753,9 @@ class JvmTypeGen {
             mv.visitInsn(AASTORE);
             i += 1;
         }
-        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE, "setAttachedFuncsAndProcessAnnots",
-                String.format("(L%s;L%s;L%s;[L%s;)V", MAP_VALUE, STRAND, SERVICE_TYPE, ATTACHED_FUNCTION), false);
+        String funcName = isBString ? "setAttachedFuncsAndProcessAnnots_bstring" : "setAttachedFuncsAndProcessAnnots";
+        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE, funcName, String.format(
+                "(L%s;L%s;L%s;[L%s;)V", MAP_VALUE, STRAND, SERVICE_TYPE, ATTACHED_FUNCTION), false);
     }
 
     /**
