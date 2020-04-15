@@ -24,7 +24,7 @@ public type WritableTextRecordChannel object {
 
     # Constructs a DelimitedTextRecordChannel from a given WritableCharacterChannel.
 
-    # + characterChannel - WritableCharacterChannel, which will point to the input/output resource
+    # + characterChannel - The `WritableCharacterChannel`, which will point to the input/output resource
     # + fs - Field separator (this could be a regex)
     # + rs - Record separator (this could be a regex)
     # + fmt - The format, which will be used to represent the CSV (this could be 

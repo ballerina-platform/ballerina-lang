@@ -22,45 +22,45 @@ public type ReadableByteChannel object {
     # Adding default __init function to prevent object getting initialized from the user code.
     function __init() {}
 
-# Source bytes from a given input/output resource.Number of bytes returned will be < 0 if the file reached its end.
-# This operation will be asynchronous, where the total number of required bytes might not be returned at a given
-# time. `io:EofError` will return once channel reach to it end.
+# Source bytes from a given input/output resource. The number of bytes returned will be < 0 if the file reached its end.
+# This operation will be asynchronous in which the total number of required bytes might not be returned at a given
+# time. An `io:EofError` will return once the channel reaches the end.
 # ```ballerina
 # byte[]|io:Error result = readableByteChannel.read(1000);
 # ```
 # 
-# + nBytes - Positive integer. Represents the number of bytes which should be read
-# + return - Content, the number of bytes read or `EofError` once channel reach to it end, or else `Error`
+# + nBytes - A positive integer. Represents the number of bytes, which should be read
+# + return - Content (the number of bytes) read, an `EofError` once the channel reaches the end, or else an `Error`
     public function read(@untainted int nBytes) returns @tainted byte[]|Error {
         return byteReadExtern(self, nBytes);
     }
 
-# Encodes a given ReadableByteChannel with Base64 encoding scheme.
+# Encodes a given `ReadableByteChannel` using the Base64 encoding scheme.
 # ```ballerina
 # ReadableByteChannel|Error encodedChannel = readableByteChannel.base64Encode();
 # ```
 # 
-# + return - An encoded ReadableByteChannel, or else `Error`
+# + return - An encoded `ReadableByteChannel` or else an `Error`
     public function base64Encode() returns ReadableByteChannel|Error {
         return base64EncodeExtern(self);
     }
 
-# Decodes a given ReadableByteChannel with Base64 encoding scheme.
+# Decodes a given `ReadableByteChannel` using the Base64 encoding scheme.
 # ```ballerina
 # ReadableByteChannel|Error encodedChannel = readableByteChannel.base64Decode();
 # ```
 # 
-# + return - A decoded ReadableByteChannel, or else `Error`
+# + return - A decoded `ReadableByteChannel` or else an `Error`
     public function base64Decode() returns ReadableByteChannel|Error {
         return base64DecodeExtern(self);
     }
 
-# Closes a given ReadableByteChannel.
+# Closes a given `ReadableByteChannel`.
 # ```ballerina
 # io:Error? err = readableByteChannel.close();
 # ```
 #
-# + return - Will return () if there's no error
+# + return - Will return `()` if there is no error
     public function close() returns Error? {
         return closeReadableByteChannelExtern(self);
     }

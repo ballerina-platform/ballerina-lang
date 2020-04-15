@@ -16,7 +16,7 @@
 
 import ballerina/java;
 
-# Retrieves the input read from STDIN.
+# Retrieves the input read from the STDIN.
 # ```ballerina
 # string choice = io:readln("Enter choice 1 - 5: ");
 # ```

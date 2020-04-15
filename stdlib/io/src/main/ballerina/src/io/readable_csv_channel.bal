@@ -43,7 +43,7 @@ public type ReadableCSVChannel object {
 # readableCSVChannel.skipHeaders(5);
 # ```
 #
-# + nHeaders - Number of headers which should be skipped
+# + nHeaders - The number of headers, which should be skipped
     function skipHeaders(int nHeaders) {
         int count = MINIMUM_HEADER_COUNT;
         while (count < nHeaders) {
@@ -52,7 +52,7 @@ public type ReadableCSVChannel object {
         }
     }
 
-# Indicates whether there's another record which could be read.
+# Indicates whether there's another record, which could be read.
 # ```ballerina
 # boolean hasNext = readableCSVChannel.hasNext();
 # ```
@@ -73,7 +73,7 @@ public type ReadableCSVChannel object {
 # string[]|io:Error record = readableCSVChannel.getNext();
 # ```
 #
-# + return - List of fields in the CSV, or else `Error`
+# + return - List of fields in the CSV or else an `Error`
     public function getNext() returns @tainted string[]|Error? {
         if(self.dc is ReadableTextRecordChannel){
             var result = <ReadableTextRecordChannel> self.dc;
@@ -82,7 +82,7 @@ public type ReadableCSVChannel object {
         return ();
     }
 
-# Closes a given CSVChannel.
+# Closes a given `CSVChannel`.
 # ```ballerina
 # io:Error? err = readableCSVChannel.close();
 # ```
@@ -96,13 +96,13 @@ public type ReadableCSVChannel object {
         return ();
     }
 
-# Returns a table which corresponds to the CSV records.
+# Returns a table, which corresponds to the CSV records.
 # ```ballerina
 # var tblResult = readableCSVChannel.getTable(Employee);
 # ```
 #
-# + structType - The object the CSV records should be deserialized
-# + return - Table which represents CSV records, or else `Error`
+# + structType - The object in which the CSV records should be deserialized
+# + return - Table, which represents the CSV records or else an `Error`
     public function getTable(typedesc<record {}> structType) returns @tainted table<record {}>|Error {
         return getTableExtern(self, structType);
     }

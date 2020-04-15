@@ -60,8 +60,8 @@ public function println((any|error)... values) = @java:Method {
 # ```
 #
 # + format - A format string
-# + args   - Arguments referenced by the format specifiers in the format string
-# + return - Formatted string
+# + args   - Arguments referred by the format specifiers in the format string
+# + return - The formatted string
 public function sprintf(string format, (any|error)... args) returns string {
     return <string>java:toString(sprintfExtern(java:fromString(format), ...args));
 }

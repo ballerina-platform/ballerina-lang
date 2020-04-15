@@ -31,10 +31,10 @@ public const int MINIMUM_HEADER_COUNT = 0;
 public type WritableCSVChannel object {
     private WritableTextRecordChannel? dc;
 
-    # Constructs a CSV channel from a CharacterChannel to read/write CSV records.
+    # Constructs a CSV channel from a `CharacterChannel` to read/write CSV records.
     # 
-    # + CharacterChannel - The CharacterChannel, which will represent the content in the CSV file
-    # + fs - Field separator, which will separate between the records in the CSV
+    # + CharacterChannel - The `CharacterChannel`, which will represent the content in the CSV file
+    # + fs - Field separator, which will separate the records in the CSV
     public function __init(WritableCharacterChannel characterChannel, public Separator fs = ",") {
         if (fs == TAB) {
             self.dc = new WritableTextRecordChannel(characterChannel, fmt = "TDF");
@@ -62,7 +62,7 @@ public type WritableCSVChannel object {
         return ();
     }
 
-# Closes a given CSVChannel.
+# Closes a given `CSVChannel`.
 # ```ballerina
 # io:Error? err = csvChannel.close();
 # ```

@@ -16,13 +16,13 @@
 
 import ballerina/java;
 
-# Retrieves a ReadableByteChannel from a given file path.
+# Retrieves a `ReadableByteChannel` from a given file path.
 #```ballerina
 # io:ReadableByteChannel readableFieldResult = check io:openReadableFile("./files/sample.txt");
 #```
 #
 # + path - Relative/absolute path string to locate the file
-# + return - ByteChannel representation of the file resource, or else `Error` if any error occurred
+# + return - The `ByteChannel` representation of the file resource or else an `Error` if any error occurred
 public function openReadableFile(@untainted string path) returns @tainted ReadableByteChannel|Error {
     return openReadableFileExtern(java:fromString(path));
 }
@@ -32,14 +32,14 @@ function openReadableFileExtern(@untainted handle path) returns @tainted Readabl
     class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
 
-# Retrieves a WritableByteChannel from a given file path.
+# Retrieves a `WritableByteChannel` from a given file path.
 #```ballerina
 # io:WritableByteChannel writableFileResult = check io:openWritableFile("./files/sampleResponse.txt");
 # ```
 #
 # + path - Relative/absolute path string to locate the file
-# + append - Whether to append to end of file.
-# + return - ByteChannel representation of the file resource, or else `Error` if any error occurred
+# + append - Whether to append to the end of file
+# + return - The `ByteChannel` representation of the file resource or else an `Error` if any error occurred
 public function openWritableFile(@untainted string path, boolean append = false)
     returns @tainted WritableByteChannel|Error {
     return openWritableFileExtern(java:fromString(path), append);
@@ -51,13 +51,13 @@ function openWritableFileExtern(@untainted handle path, boolean append)
     class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
 
-# Creates an in-memory channel which will reference stream of bytes.
+# Creates an in-memory channel, which will be a reference stream of bytes.
 # ```ballerina
 # var byteChannel = io:createReadableChannel(content);
 # ```
 #
-# + content - Content which should be exposed as channel
-# + return - ByteChannel representation to read the memory content, or else `Error` if any error occurred
+# + content - Content, which should be exposed as a channel
+# + return - The `ByteChannel` representation to read the memory content or else an `Error` if any error occurred
 public function createReadableChannel(byte[] content) returns ReadableByteChannel|Error {
     return createReadableChannelExtern(content);
 }
@@ -67,16 +67,16 @@ function createReadableChannelExtern(byte[] content) returns ReadableByteChannel
     class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
 
-# Retrieves a readable CSV channel from a give file path.
+# Retrieves a readable CSV channel from a given file path.
 # ```ballerina
 # io:ReadableCSVChannel rCsvChannel = check io:openReadableCsvFile(srcFileName);
 # ```
 #
-# + path - File path which describes the location of the CSV
-# + fieldSeparator - CSV record separator (i.e comma or tab)
-# + charset - Encoding characters in the file represents
-# + skipHeaders - Number of headers which should be skipped
-# + return - ReadableCSVChannel which could be used to iterate through the CSV records, or else `Error` if any error occurred.
+# + path - File path, which describes the location of the CSV
+# + fieldSeparator - CSV record separator (i.e., comma or tab)
+# + charset - Representation of the encoding characters in the file 
+# + skipHeaders - Number of headers, which should be skipped
+# + return - The `ReadableCSVChannel`, which could be used to iterate through the CSV records or else an `Error` if any error occurred.
 public function openReadableCsvFile(@untainted string path,
                             @untainted public Separator fieldSeparator = ",",
                             @untainted public string charset = "UTF-8",
@@ -86,16 +86,16 @@ public function openReadableCsvFile(@untainted string path,
     return new ReadableCSVChannel(charChannel, fieldSeparator, skipHeaders);
 }
 
-# Retrieves a writable CSV channel from a give file path.
+# Retrieves a writable CSV channel from a given file path.
 # ```ballerina
 # io:WritableCSVChannel wCsvChannel = check io:openWritableCsvFile(srcFileName);
 # ```
 # 
-# + path - File path which describes the location of the CSV
-# + fieldSeparator - CSV record separator (i.e comma or tab)
-# + charset - Encoding characters in the file represents
-# + skipHeaders - Number of headers which should be skipped
-# + return - WritableCSVChannel which could be used to write CSV records, or else `Error` if any error occurred
+# + path - File path, which describes the location of the CSV
+# + fieldSeparator - CSV record separator (i.e., comma or tab)
+# + charset - Representation of the encoding characters in the file 
+# + skipHeaders - Number of headers, which should be skipped
+# + return - The `WritableCSVChannel`, which could be used to write the CSV records or else an `Error` if any error occurred
 public function openWritableCsvFile(@untainted string path,
                                     @untainted public Separator fieldSeparator = ",",
                                     @untainted public string charset = "UTF-8",

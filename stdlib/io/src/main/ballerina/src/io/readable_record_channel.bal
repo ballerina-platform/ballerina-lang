@@ -46,7 +46,7 @@ public type ReadableTextRecordChannel object {
         return hasNextExtern(self);
     }
 
-# Get next record from the input/output resource.
+# Get the next record from the input/output resource.
 # ```ballerina
 # string[]|io:Error record = readableRecChannel.getNext();
 # ```

@@ -20,7 +20,7 @@ public type StringReader object {
 
     # Constructs a channel to read string.
     #
-    # + content - The content which should be written
+    # + content - The content, which should be written
     # + encoding - Encoding of the characters of the content
     public function __init(string content, public string encoding = "UTF-8") {
         byte[] contentBytes = content.toBytes();
@@ -28,7 +28,7 @@ public type StringReader object {
         self.charChannel = new ReadableCharacterChannel(byteChannel, encoding);
     }
 
-# Reads string as json from reader.
+# Reads string as JSON using the reader.
 # ```ballerina
 # io:StringReader reader = new("{\"name\": \"Alice\"}");
 # json|io:Error? person = reader.readJson();
@@ -43,7 +43,7 @@ public type StringReader object {
         return ();
     }
 
-# Reads string as XML from reader.
+# Reads a string as XML using the reader.
 # ```ballerina
 # io:StringReader reader = new("<Person><Name>Alice</Name></Person>");
 # xml|io:Error? person = reader.readXml();
@@ -58,7 +58,7 @@ public type StringReader object {
         return ();
     }
 
-# Reads characters from the given string.
+# Reads the characters from the given string.
 # ```ballerina
 # io:StringReader reader = new("Some text");
 # string|io:Error? person = reader.readChar(4);
@@ -74,12 +74,12 @@ public type StringReader object {
         return ();
     }
 
-# Closes reader.
+# Closes the reader.
 # ```ballerina
 # io:Error? err = reader.close();
 # ```
 #
-# + return - An `Error` if could not close the channel, or else nil.
+# + return - An `Error` if could not close the channel, or else '()'.
     public function close() returns Error? {
         if(self.charChannel is ReadableCharacterChannel){
             var result = <ReadableCharacterChannel> self.charChannel;
