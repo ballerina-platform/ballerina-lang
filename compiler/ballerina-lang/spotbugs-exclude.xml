@@ -150,7 +150,15 @@
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
     <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRAnnotationValue"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRFunction"/>
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRFunction"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
     </Match>
 </FindBugsFilter>
