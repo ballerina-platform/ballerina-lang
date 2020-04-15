@@ -63,7 +63,7 @@ public type Client client object {
     }
 
 # Reads data from the client socket. If the data has the specified length, then it waits until that number of bytes
-# are received from the client. Else, return the data available in the OS buffer.
+# are received from the client. Else, it returns the data available in the OS buffer.
 # In the case of the connection being closed by the client, then return either -1 or the data
 # that is currently available in the buffer.
 # Number of bytes returned will be < 0 if the client closes the connection.
