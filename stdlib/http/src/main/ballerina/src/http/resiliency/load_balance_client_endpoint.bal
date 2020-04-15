@@ -166,7 +166,7 @@ public type LoadBalanceClient client object {
     # The getResponse implementation of the LoadBalancer Connector.
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP response message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         string errorMessage = "Load balancer client not supported for getResponse action";
         UnsupportedActionError err = error(UNSUPPORTED_ACTION, message = errorMessage);
