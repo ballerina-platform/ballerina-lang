@@ -130,7 +130,7 @@ public const TOPIC_ID_HEADER_AND_PAYLOAD = "TOPIC_ID_HEADER_AND_PAYLOAD";
 # + challenge - The challenge to be echoed to verify intent to subscribe/unsubscribe
 # + leaseSeconds - The lease seconds period for which a subscription will be active if intent verification
 #                  is being done for subscription
-# + request - A `http:Request` received for intent verification
+# + request - An `http:Request` received for intent verification
 public type IntentVerificationRequest object {
 
     public string mode = "";
@@ -142,7 +142,7 @@ public type IntentVerificationRequest object {
     # Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
     #
     # + expectedTopic - The topic for which subscription should be accepted
-    # + return - A`http:Response` for the hub verifying/denying intent to subscribe
+    # + return - An `http:Response`, which to the hub verifying/denying intent to subscribe
     public function buildSubscriptionVerificationResponse(string expectedTopic) returns http:Response {
         return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, expectedTopic);
     }
@@ -150,7 +150,7 @@ public type IntentVerificationRequest object {
     # Builds the response for the request, verifying intention to unsubscribe, if the topic matches that expected.
     #
     # + expectedTopic - The topic for which unsubscription should be accepted
-    # + return - A`http:Response` for the hub verifying/denying intent to unsubscribe
+    # + return - An `http:Response`, which to for the hub verifying/denying intent to unsubscribe
     public function buildUnsubscriptionVerificationResponse(string expectedTopic) returns http:Response {
         return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, expectedTopic);
     }
@@ -161,7 +161,7 @@ public type IntentVerificationRequest object {
 # + intentVerificationRequest - The intent verification request from the hub
 # + mode - The mode (subscription/unsubscription) for which a request was sent
 # + topic - The intended topic for which subscription change should be verified
-# + return - A`http:Response` for the hub verifying/denying intent to subscripe/unsubscribe
+# + return - An `http:Response`, which to the hub verifying/denying intent to subscripe/unsubscribe
 function buildIntentVerificationResponse(IntentVerificationRequest intentVerificationRequest, string mode,
                                          string topic)
     returns http:Response {
@@ -271,7 +271,7 @@ public type Notification object {
     # Returns whether the requested header key exists in the header map of the content delivery request.
     #
     # + headerName - The header name
-    # + return - An `true` if the specified header key exists or else `false`
+    # + return - `true` if the specified header key exists or else `false`
     public function hasHeader(string headerName) returns boolean {
         return self.request.hasHeader(headerName);
     }
@@ -280,7 +280,8 @@ public type Notification object {
     # these values is returned.
     #
     # + headerName - The header name
-    # + return - The first header value for the specified header name or else Panics if no header is found.
+    # + return - The first header value for the specified header name or else panic if no header is found. Ideally, the
+    #            `Notification.hasHeader()` needs to be used to check the existence of a header initially.
     public function getHeader(string headerName) returns @tainted string {
         return self.request.getHeader(headerName);
     }
@@ -288,7 +289,8 @@ public type Notification object {
     # Retrieves all the header values to which the specified header key maps to.
     #
     # + headerName - The header name
-    # + return - The header values for the specified header key maps to or else Panics if no header is found.
+    # + return - The header values the specified header key maps to or else panic if no header is found. Ideally, the
+    #            `Notification.hasHeader()` needs to be used to check the existence of a header initially.
     public function getHeaders(string headerName) returns @tainted string[] {
         return self.request.getHeaders(headerName);
     }
@@ -309,21 +311,24 @@ public type Notification object {
 
     # Extracts `json` payload from the content delivery request.
     #
-    # + return - The `json` payload or else an `error` if the content type is not JSON
+    # + return - The `json` payload or else an `error` in case of errors.
+    #            If the content; type is not JSON, an `error` is returned.
     public function getJsonPayload() returns @tainted json|error {
         return self.request.getJsonPayload();
     }
 
     # Extracts `xml` payload from the content delivery request.
     #
-    # + return - The `xml` payload or else an `error` if the content type is not in XML
+    # + return - The `xml` payload or else an `error` in case of errors.
+    #            If the content; type is not XML, an `error` is returned.
     public function getXmlPayload() returns @tainted xml|error {
         return self.request.getXmlPayload();
     }
 
     # Extracts `text` payload from the content delivery request.
     #
-    # + return - The payload as a `text` or else  an `error` if the content type is not in `string`
+    # + return - The payload as a `text` or else  an `error` in case of errors.
+    #            If the content type is not of type text, an `error` is returned.
     public function getTextPayload() returns @tainted string|error {
         return self.request.getTextPayload();
     }
@@ -337,7 +342,7 @@ public type Notification object {
 
     # Retrieves the request payload as a `byte[]`.
     #
-    # + return - The message payload as a `byte[]` or else an `error` if the content type is not in `byte[]`
+    # + return - The message payload as a `byte[]` or else an `error` in case of errors
     public function getBinaryPayload() returns @tainted byte[]|error {
         return self.request.getBinaryPayload();
     }
@@ -352,7 +357,7 @@ public type Notification object {
 
 # Retrieves hub and topic URLs from the `http:response` from a publisher to a discovery request.
 #
-# + response - A`http:Response` received
+# + response - An `http:Response` received
 # + return - A `(topic, hubs)` if parsing and extraction is successful or else an `error` if not
 public function extractTopicAndHubUrls(http:Response response) returns @tainted [string, string[]]|error {
     string[] linkHeaders = [];
@@ -452,8 +457,8 @@ public type HubConfiguration record {|
 #
 # + enabled - Whether remote publishers should be allowed to publish to this hub (HTTP requests)
 # + mode - If remote publishing is allowed, the mode to use, `direct` (default) - fat ping with
-#                          the notification payload specified or `fetch` - the hub fetches the topic URL
-#                          specified in the "publish" request to identify the payload
+#          the notification payload specified or `fetch` - the hub fetches the topic URL
+#          specified in the "publish" request to identify the payload
 public type RemotePublishConfig record {|
     boolean enabled = false;
     RemotePublishMode mode = PUBLISH_MODE_DIRECT;
@@ -477,7 +482,9 @@ public type RemotePublishConfig record {|
 #               The publish URL is defined as {publicUrl}/{basePath}/{publishResourcePath} if `publicUrl` is
 #               specified, defaults to `http(s)://localhost:{port}/{basePath}/{publishResourcePath}` if not.
 # + hubConfiguration - The hub specific configuration
-# + return - A newly started WebSub Hub or else a `websub:HubStartedUpError` if the hub is already started
+# + return - A newly started WebSub Hub or else a `websub:HubStartedUpError` indicating
+#            that the hub is already started, and including the `websub:Hub` object representing the
+#            already started up hub
 public function startHub(http:Listener hubServiceListener,
                          public string basePath = "/",
                          public string subscriptionResourcePath = "/",

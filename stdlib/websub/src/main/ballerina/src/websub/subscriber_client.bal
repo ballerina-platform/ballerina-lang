@@ -42,8 +42,8 @@ public type SubscriptionClient client object {
 # ```
 #
 # + subscriptionRequest - The `SubscriptionChangeRequest` containing subscription details
-# + return - A subscription details if the request was successful or else an `error` if an error
-#            occurred with the subscription request
+# + return - The `SubscriptionChangeResponse` indicating subscription details if the request was successful
+#           or else an `error` if an error occurred with the subscription request
     public remote function subscribe(SubscriptionChangeRequest subscriptionRequest)
         returns @tainted SubscriptionChangeResponse|error {
 
@@ -77,10 +77,10 @@ public type SubscriptionClient client object {
 
 # Function to build the subscription request to subscribe at the hub.
 #
-# + mode - Whether the request is for registration or unregistration
+# + mode - Whether the request is for subscribe or unsubscribe
 # + subscriptionChangeRequest - The SubscriptionChangeRequest specifying the topic to subscribe to and the
 #                               parameters to use
-# + return - A `http:Request` The Request to send to the hub to subscribe/unsubscribe
+# + return - An `http:Request` The Request to send to the hub to subscribe/unsubscribe
 function buildSubscriptionChangeRequest(@untainted string mode,
                                         SubscriptionChangeRequest subscriptionChangeRequest) returns (http:Request) {
     http:Request request = new;

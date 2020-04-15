@@ -43,7 +43,7 @@ public type PublisherClient client object {
 # ```
 #
 # + topic - The topic to register
-# + return - An `error`if an error occurred registering the topic or esle `()`
+# + return - An `error` if an error occurred registering the topic or esle `()`
     public remote function registerTopic(string topic) returns @tainted error? {
         http:Client httpClient = self.httpClient;
         http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic);
@@ -172,7 +172,7 @@ public type PublisherClient client object {
 #
 # + mode - Whether the request is for registration or unregistration
 # + topic - The topic to register/unregister
-# + return - A `http:Request` to send to the hub to register/unregister
+# + return - An `http:Request` to send to the hub to register/unregister
 function buildTopicRegistrationChangeRequest(@untainted string mode, @untainted string topic) returns (http:Request) {
     http:Request request = new;
     request.setTextPayload(HUB_MODE + "=" + mode + "&" + HUB_TOPIC + "=" + topic);

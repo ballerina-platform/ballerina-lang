@@ -465,7 +465,7 @@ function addSubscriptionsOnStartup(HubPersistenceStore persistenceStore) returns
 # Fetches updates for a particular topic.
 #
 # + topic - The topic URL to be fetched to retrieve updates
-# + return - A `http:Response` indicating the response received on fetching the topic URL if successful or else an
+# + return - An `http:Response` indicating the response received on fetching the topic URL if successful or else an
 #            `error` if an HTTP error occurred
 function fetchTopicUpdate(string topic) returns http:Response|error {
     http:Client topicEp = new http:Client(topic, hubClientConfig);

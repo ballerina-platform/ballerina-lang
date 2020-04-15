@@ -24,7 +24,7 @@ import ballerina/java;
 //////////////////////////////////////////
 /// WebSub Subscriber Service Endpoint ///
 //////////////////////////////////////////
-# Represents the WebSubSubscriber Service.
+# Represents the WebSubSubscriber Service Listener.
 #
 # + config - The configurations for the `websub:Listener`
 public type Listener object {
@@ -225,10 +225,10 @@ function externRetrieveSubscriptionParameters(Listener subscriberListener) retur
 } external;
 
 
-# Represents the configuration for the WebSub Subscriber Service.
+# Represents the configuration for the WebSub Subscriber Service Listener.
 #
-# + host - The host name/IP of the  WebSub Subscriber Servic
-# + httpServiceSecureSocket - The SSL configurations for the WebSub Subscriber Servic
+# + host - The host name/IP of the WebSub Subscriber Service Listener
+# + httpServiceSecureSocket - The SSL configurations for the WebSub Subscriber Service Listener
 # + extensionConfig - The extension configuration to introduce custom subscriber services (webhooks)
 public type SubscriberListenerConfiguration record {|
     string host = "";

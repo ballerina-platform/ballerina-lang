@@ -32,11 +32,13 @@ import ballerina/java;
 # + publicUrl - The URL for the hub to be included in content delivery requests, defaults to
 #               `http(s)://localhost:{port}/websub/hub` if unspecified
 # + hubListener - The `http:Listener` to which the hub service is attached
-# + return - The newly started up hub or else `websub:HubStartedUpError` if the hub is already started
+# + return - The newly started up hub or else `websub:HubStartedUpError` indicating
+#            that the hub is already started, and including the WebSub Hub object representing the
+#            already started up hub
 function startUpHubService(string basePath, string subscriptionResourcePath, string publishResourcePath,
                            boolean topicRegistrationRequired, string publicUrl, http:Listener hubListener)
                                     returns Hub|HubStartedUpError|HubStartupError {
-    return externStartUpHubService(java:fromString(basePath), java:fromString(subscriptionResourcePath),
+    return externStartUpHubS    ervice(java:fromString(basePath), java:fromString(subscriptionResourcePath),
                                    java:fromString(publishResourcePath), topicRegistrationRequired,
                                    java:fromString(publicUrl), hubListener);
 }
