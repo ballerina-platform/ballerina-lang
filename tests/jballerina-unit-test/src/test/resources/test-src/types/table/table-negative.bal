@@ -32,3 +32,14 @@ GlobalTable tab4 = table key(age) [
   { name: "BBB", age: 34 }
 ];
 
+CustomerTable invalidCustomerTable = table key(address) [
+ { id: 222, firstName: "Sanjiva", lastName: "Weerawarana" },
+ { id: 111, firstName: "James", lastName: "Clark" }
+];
+
+var customerTable = table [
+ { id: 222, firstName: "Sanjiva", lastName: "Weerawarana" },
+ { id: 111, firstName: "James", lastName: "Clark" }
+];
+
+Customer customer = customerTable[222];

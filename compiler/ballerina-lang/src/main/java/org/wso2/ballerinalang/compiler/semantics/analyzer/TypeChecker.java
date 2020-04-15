@@ -697,11 +697,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             BTableType tableType = new BTableType(TypeTags.TABLE, memTypes.get(0), null);
             if (tableConstructorExpr.tableKeySpecifier != null) {
-                List<String> fieldNameList = new ArrayList<>();
-                for (BLangIdentifier identifier : tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList) {
-                    fieldNameList.add(identifier.value);
-                }
-                tableType.fieldNameList = fieldNameList;
+                tableType.fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
             }
             resultType = tableType;
         } else if (expType.tag == TypeTags.TABLE) {
@@ -736,14 +732,26 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
 
-        if (tableType.fieldNameList != null && tableConstructorExpr.tableKeySpecifier != null) {
-            List<String> fieldNamesFromConstructor = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
+        if (tableConstructorExpr.tableKeySpecifier != null) {
+            List<String> fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
+            for (String fieldName : fieldNameList) {
+                BType type = getFieldType(constraintType, fieldName);
+                if (type == null) {
+                    dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
+                            DiagnosticCode.INVALID_FIELD_NAMES_IN_KEY_SPECIFIER,
+                            fieldName, constraintType);
+                    resultType = symTable.semanticError;
+                    return false;
+                }
+            }
 
-            if (!tableType.fieldNameList.equals(fieldNamesFromConstructor)) {
-                dlog.error(tableConstructorExpr.tableKeySpecifier.pos, DiagnosticCode.TABLE_KEY_SPECIFIER_MISMATCH,
-                        tableType.fieldNameList.toString(), fieldNamesFromConstructor.toString());
-                resultType = symTable.semanticError;
-                return false;
+            if (tableType.fieldNameList != null) {
+                if (!tableType.fieldNameList.equals(fieldNameList)) {
+                    dlog.error(tableConstructorExpr.tableKeySpecifier.pos, DiagnosticCode.TABLE_KEY_SPECIFIER_MISMATCH,
+                            tableType.fieldNameList.toString(), fieldNameList.toString());
+                    resultType = symTable.semanticError;
+                    return false;
+                }
             }
         }
 
@@ -815,6 +823,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType createTableKeyConstraint(List<String> fieldNames, BType constraintType) {
+        if (fieldNames == null) {
+            return null;
+        }
+
         List<BType> memTypes = new ArrayList<>();
         for (String fieldName : fieldNames) {
             BType fieldType = getFieldType(constraintType, fieldName);
@@ -4828,6 +4840,12 @@ public class TypeChecker extends BLangNodeVisitor {
             if (tableType.keyTypeConstraint == null) {
                 keyTypeConstraint = createTableKeyConstraint(((BTableType) indexBasedAccessExpr.expr.type).
                         fieldNameList, ((BTableType) indexBasedAccessExpr.expr.type).constraint);
+
+                if(keyTypeConstraint == null) {
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MEMBER_ACCESS_NOT_SUPPORT_FOR_KEYLESS_TABLE,
+                            indexBasedAccessExpr.expr);
+                    return symTable.semanticError;
+                }
             }
 
             checkExpr(indexExpr, this.env, keyTypeConstraint);
