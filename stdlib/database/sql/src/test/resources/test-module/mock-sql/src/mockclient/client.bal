@@ -33,12 +33,12 @@ public type Client client object {
         if (self.clientActive) {
             sql:ParameterizedString sqlParamString;
             if (sqlQuery is string) {
-            	 sqlParamString = {
-            	     parts : [sqlQuery],
-            	     insertions: []
-            	 };
+                sqlParamString = {
+                    parts: [sqlQuery],
+                    insertions: []
+                };
             } else {
-            	 sqlParamString = sqlQuery;
+                sqlParamString = sqlQuery;
             }
             return nativeQuery(self, sqlParamString, rowType);
         } else {

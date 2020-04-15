@@ -65,7 +65,7 @@ public type Client client object {
                 sqlParamString = {
                     parts : [sqlQuery],
                     insertions: []
-                    };
+                };
             } else {
                 sqlParamString = sqlQuery;
             }
