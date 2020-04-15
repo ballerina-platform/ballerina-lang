@@ -238,6 +238,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(nilTypeDescriptor);
     }
 
+    public void visit(OptionalTypeDescriptor optionalTypeDescriptor) {
+        visitSyntaxNode(optionalTypeDescriptor);
+    }
+
     public void visit(ObjectField objectField) {
         visitSyntaxNode(objectField);
     }
@@ -280,10 +284,6 @@ public abstract class NodeVisitor {
     }
 
     public void visit(Minutiae minutiae) {
-    }
-
-    public void visit(OptionalTypeDescriptor optionalTypeDescriptor) {
-        visitSyntaxNode(optionalTypeDescriptor);
     }
 
     protected void visitSyntaxNode(Node node) {

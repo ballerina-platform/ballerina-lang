@@ -652,6 +652,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
+    public static STNode createOptionalTypeDescriptor(
+            STNode typeDescriptor,
+            STNode questionMarkToken) {
+
+        return new STOptionalTypeDescriptor(
+                typeDescriptor,
+                questionMarkToken);
+    }
+
     public static STNode createObjectField(
             STNode visibilityQualifier,
             STNode type,
@@ -739,9 +748,5 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openBraceToken,
                 resources,
                 closeBraceToken);
-    }
-
-    public static STNode createOptionalTypeDescriptor(STNode typeDescriptorNode, STNode questionMarkToken) {
-        return new STOptionalTypeDescriptor(typeDescriptorNode, questionMarkToken);
     }
 }

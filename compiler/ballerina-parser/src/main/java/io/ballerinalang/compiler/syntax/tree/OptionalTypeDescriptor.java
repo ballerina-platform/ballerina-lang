@@ -19,17 +19,22 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class OptionalTypeDescriptor extends NonTerminalNode{
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class OptionalTypeDescriptor extends NonTerminalNode {
 
-    public OptionalTypeDescriptor(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public OptionalTypeDescriptor(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Token typeDescriptor() {
+    public Node typeDescriptor() {
         return childInBucket(0);
     }
 
-    public Token questionMark() {
+    public Token questionMarkToken() {
         return childInBucket(1);
     }
 
@@ -43,11 +48,17 @@ public class OptionalTypeDescriptor extends NonTerminalNode{
         return visitor.transform(this);
     }
 
-    public OptionalTypeDescriptor modify(Node typeDescriptor, Token questionMark) {
-        if (checkForReferenceEquality(typeDescriptor, questionMark)) {
+    public OptionalTypeDescriptor modify(
+            Node typeDescriptor,
+            Token questionMarkToken) {
+        if (checkForReferenceEquality(
+                typeDescriptor,
+                questionMarkToken)) {
             return this;
         }
 
-        return NodeFactory.createOptionalTypeDescriptor(typeDescriptor, questionMark);
+        return NodeFactory.createOptionalTypeDescriptor(
+                typeDescriptor,
+                questionMarkToken);
     }
 }
