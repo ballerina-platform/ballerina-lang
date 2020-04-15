@@ -79,12 +79,12 @@ public class BIRTypeWriter implements TypeVisitor {
 
     private final ConstantPool cp;
 
-    public BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
+    BIRTypeWriter(ByteBuf buff, ConstantPool cp) {
         this.buff = buff;
         this.cp = cp;
     }
 
-    public void visitType(BType type) {
+    void visitType(BType type) {
         buff.writeByte(type.tag);
         buff.writeInt(addStringCPEntry(type.name.getValue()));
         buff.writeInt(type.flags);
@@ -260,13 +260,7 @@ public class BIRTypeWriter implements TypeVisitor {
         BRecordTypeSymbol tsymbol = (BRecordTypeSymbol) bRecordType.tsymbol;
 
         // Write the package details in the form of constant pool entry TODO find a better approach
-        int orgCPIndex = addStringCPEntry(tsymbol.pkgID.orgName.value);
-        int nameCPIndex = addStringCPEntry(tsymbol.pkgID.name.value);
-        int versionCPIndex = addStringCPEntry(tsymbol.pkgID.version.value);
-        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
-        buff.writeInt(pkgIndex);
-
-        buff.writeInt(addStringCPEntry(tsymbol.name.value));
+        writePkgCPInfo(tsymbol);
         buff.writeBoolean(bRecordType.sealed);
         writeTypeCpIndex(bRecordType.restFieldType);
 
@@ -305,13 +299,7 @@ public class BIRTypeWriter implements TypeVisitor {
         BTypeSymbol tSymbol = bObjectType.tsymbol;
 
         // Write the package details in the form of constant pool entry TODO find a better approach
-        int orgCPIndex = addStringCPEntry(tSymbol.pkgID.orgName.value);
-        int nameCPIndex = addStringCPEntry(tSymbol.pkgID.name.value);
-        int versionCPIndex = addStringCPEntry(tSymbol.pkgID.version.value);
-        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
-        buff.writeInt(pkgIndex);
-
-        buff.writeInt(addStringCPEntry(tSymbol.name.value));
+        writePkgCPInfo(tSymbol);
         //TODO below two line are a temp solution, introduce a generic concept
         buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.ABSTRACT)); // Abstract object or not
         buff.writeBoolean(Symbols.isFlagOn(tSymbol.flags, Flags.CLIENT));
@@ -350,6 +338,15 @@ public class BIRTypeWriter implements TypeVisitor {
         }
     }
 
+    private void writePkgCPInfo(BTypeSymbol tSymbol) {
+        int orgCPIndex = addStringCPEntry(tSymbol.pkgID.orgName.value);
+        int nameCPIndex = addStringCPEntry(tSymbol.pkgID.name.value);
+        int versionCPIndex = addStringCPEntry(tSymbol.pkgID.version.value);
+        int pkgIndex = cp.addCPEntry(new PackageCPEntry(orgCPIndex, nameCPIndex, versionCPIndex));
+        buff.writeInt(pkgIndex);
+        buff.writeInt(addStringCPEntry(tSymbol.name.value));
+    }
+
     private void writeAttachFunction(BAttachedFunction attachedFunc) {
         buff.writeInt(addStringCPEntry(attachedFunc.funcName.value));
         buff.writeInt(attachedFunc.symbol.flags);
@@ -366,7 +363,7 @@ public class BIRTypeWriter implements TypeVisitor {
         writeTypeCpIndex(bxmlType.constraint);
     }
 
-    public void writeMarkdownDocAttachment(ByteBuf buf, MarkdownDocAttachment markdownDocAttachment) {
+    void writeMarkdownDocAttachment(ByteBuf buf, MarkdownDocAttachment markdownDocAttachment) {
         ByteBuf birbuf = Unpooled.buffer();
         if (markdownDocAttachment == null) {
             birbuf.writeBoolean(false);
