@@ -66,15 +66,16 @@ public class AnnotationUtils {
         String annotationKey = bType.getAnnotationKey();
         if (globalAnnotMap.containsKey(annotationKey)) {
             bType.setAnnotations((MapValue<String, Object>)
-                                         ((FPValue) globalAnnotMap.get(annotationKey)).call(new Object[]{strand}));
+                                         ((FPValue) globalAnnotMap.get(annotationKey)).getFunction()
+                                                 .apply(new Object[]{strand}));
         }
 
         for (AttachedFunction attachedFunction : bType.getAttachedFunctions()) {
             annotationKey = attachedFunction.getAnnotationKey();
             if (globalAnnotMap.containsKey(annotationKey)) {
                 attachedFunction.setAnnotations((MapValue<String, Object>)
-                                                        ((FPValue) globalAnnotMap.get(annotationKey))
-                                                                .call(new Object[]{strand}));
+                                                        ((FPValue) globalAnnotMap.get(annotationKey)).getFunction()
+                                                                .apply(new Object[]{strand}));
             }
         }
     }

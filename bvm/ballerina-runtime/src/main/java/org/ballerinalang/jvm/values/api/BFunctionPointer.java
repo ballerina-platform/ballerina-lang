@@ -32,14 +32,6 @@ import java.util.function.Function;
 public interface BFunctionPointer<T, R> extends BRefValue {
 
     /**
-     * Execute the {@code Function} with given parameter array.
-     *
-     * @param t {@code Function to be executed}
-     * @return The result of the executed function.
-     */
-    R call(T t);
-
-    /**
      * Returns the {@code Function} the FP is pointed to.
      *
      * @return {@code Function}

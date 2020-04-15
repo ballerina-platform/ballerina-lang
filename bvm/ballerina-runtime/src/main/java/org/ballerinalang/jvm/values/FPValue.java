@@ -51,10 +51,6 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
         this.isConcurrent = isConcurrent;
     }
 
-    public R call(T t) {
-        return this.function.apply(t);
-    }
-
     @Deprecated
     public FPValue(Consumer<T> consumer, BType type) {
         this.function = val -> {
@@ -62,11 +58,6 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
             return null;
         };
         this.type = type;
-    }
-
-    @Deprecated
-    public R apply(T t) {
-        return this.function.apply(t);
     }
 
     @Deprecated
