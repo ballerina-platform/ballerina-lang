@@ -9,6 +9,59 @@ For examples on the usage of the operations, see the following.
 * [Consumer Groups Example](https://ballerina.io/learn/by-example/kafka_message_consumer_group_service.html) 
 * [Transactional Producer Example](https://ballerina.io/learn/by-example/kafka_message_producer_transactional.html)
 
+#### Basic Usages
+
+##### Publishing Messages
+
+1. Initialize the Kafka message producer.
+```ballerina
+kafka:ProducerConfiguration producerConfiguration = {
+    bootstrapServers: "localhost:9092",
+    clientId: "basic-producer",
+    acks: "all",
+    retryCount: 3,
+    valueSerializerType: kafka:SER_STRING,
+    keySerializerType: kafka:SER_INT
+};
+
+kafka:Producer kafkaProducer = new (producerConfiguration);
+```
+2. Use `kafka:Producer` to publish messages. 
+```ballerina
+string message = "Hello World, Ballerina";
+kafka:ProducerError? result = kafkaProducer->send(message, "kafka-topic", key = 1);
+```
+
+##### Consuming Messages
+
+1. Initializing the Kafka message consumer. 
+```ballerina
+kafka:ConsumerConfiguration consumerConfiguration = {
+    bootstrapServers: "localhost:9092",
+    groupId: "group-id",
+    offsetReset: "earliest",
+    topics: ["kafka-topic"]
+};
+
+kafka:Consumer consumer = new (consumerConfiguration);
+```
+2. Use `kafka:Consumer` as a simple record consumer.
+```ballerina
+kafka:ConsumerRecord[]|kafka:ConsumerError result = consumer->poll(1000);
+```
+3. Use `kafka:Consumer` as a listener.
+```ballerina
+listener kafka:Consumer consumer = new (consumerConfiguration);
+
+service kafkaService on consumer {
+    // This resource will be executed when a message is published to the
+    // subscribed topic/topics.
+    resource function onMessage(kafka:Consumer kafkaConsumer,
+            kafka:ConsumerRecord[] records) {
+    }
+}
+```
+
 #### Send Data Using Avro
 The Ballerina Kafka module supports Avro serialization and deserialization.
 
