@@ -53,7 +53,7 @@ public type Listener object {
         return externStop(self, true);
     }
 
-# Forcefully stops the `socket:Listener`.
+# Stops the `socket:Listener` forcefully.
 # ```ballerina
 # socket:error? result = socketListener.__immediateStop();
 # ```
