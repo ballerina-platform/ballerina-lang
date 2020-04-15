@@ -263,7 +263,7 @@ public type RetryClient client object {
     }
 
     # Rejects an `http:PushPromise`.
-	# When an `http:PushPromise` is rejected, there is no chance of fetching a promised response using the rejected promise.
+    # When an `http:PushPromise` is rejected, there is no chance of fetching a promised response using the rejected promise.
     #
     # + promise - The Push Promise to be rejected
     public remote function rejectPromise(PushPromise promise) {
