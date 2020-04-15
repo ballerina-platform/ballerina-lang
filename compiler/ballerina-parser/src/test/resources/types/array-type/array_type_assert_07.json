@@ -1,43 +1,43 @@
 {
-  "kind": "MODULE_VAR_DECL",
-  "children": [
-    {
-      "kind": "METADATA",
-      "children": [
+    "kind": "MODULE_VAR_DECL",
+    "children": [
         {
-          "kind": "LIST",
-          "children": [
-          ]
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "ARRAY_TYPE",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "T"
+                },
+                {
+                    "kind": "OPEN_BRACKET_TOKEN"
+                },
+                {
+                    "kind": "CLOSE_BRACKET_TOKEN"
+                },
+                {
+                    "kind": "OPEN_BRACKET_TOKEN"
+                },
+                {
+                    "kind": "CLOSE_BRACKET_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
         }
-      ]
-    },
-    {
-      "kind": "ARRAY_TYPE",
-      "children": [
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "T"
-        },
-        {
-          "kind": "OPEN_BRACKET_TOKEN"
-        },
-        {
-          "kind": "CLOSE_BRACKET_TOKEN"
-        },
-        {
-          "kind": "OPEN_BRACKET_TOKEN"
-        },
-        {
-          "kind": "CLOSE_BRACKET_TOKEN"
-        }
-      ]
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
-    },
-    {
-      "kind": "SEMICOLON_TOKEN"
-    }
-  ]
+    ]
 }
