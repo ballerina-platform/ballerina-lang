@@ -274,7 +274,7 @@ public type HttpCachingClient client object {
     # Retrieves the `http:Response` for a previously-submitted request.
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP response message, or an `http:ClientError` if the invocation fails
+    # + return - A `http:Response` message, or else an `http:ClientError` if the invocation fails
     public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         return self.httpClient->getResponse(httpFuture);
     }
