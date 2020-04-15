@@ -177,7 +177,7 @@ public type Client client object {
     # This just pass the request to actual network call.
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP response message, or an error if the invocation fails
+    # + return - An `http:Response` message or else an `http: ClientError` if the invocation fails
     public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         return self.httpClient->getResponse(httpFuture);
     }
@@ -193,7 +193,7 @@ public type Client client object {
     # This just pass the request to actual network call.
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP Push Promise message, or an error if the invocation fails
+    # + return - An `http:PushPromise` message or else an `http:ClientError` if the invocation fails
     public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         return self.httpClient->getNextPromise(httpFuture);
     }
@@ -201,7 +201,7 @@ public type Client client object {
     # Passes the request to an actual network call.
     #
     # + promise - The related `http:PushPromise`
-    # + return - A promised `http:Response` message, or an error if the invocation fails
+    # + return - A promised `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         return self.httpClient->getPromisedResponse(promise);
     }
