@@ -299,7 +299,6 @@ public abstract class NodeVisitor {
     public void visit(Minutiae minutiae) {
     }
 
-
     protected void visitSyntaxNode(Node node) {
         // TODO Find a better way to check for token
         if (node instanceof Token) {

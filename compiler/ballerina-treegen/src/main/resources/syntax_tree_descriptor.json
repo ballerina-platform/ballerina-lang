@@ -1406,6 +1406,41 @@
           "type": "Token"
         }
       ]
+    },
+    {
+      "name": "ArrayTypeDescriptor",
+      "base": "Node",
+      "kind": "ARRAY_TYPE",
+      "attributes": [
+        {
+          "name": "typeDescriptorNode",
+          "type": "Node"
+        },
+        {
+          "name": "firstDimensionOpenBracket",
+          "type": "Token"
+        },
+        {
+          "name": "firstDimensionArrayLength",
+          "type": "Node"
+        },
+        {
+          "name": "firstDimensionCloseBracket",
+          "type": "Token"
+        },
+        {
+          "name": "secondDimensionOpenBracket",
+          "type": "Token"
+        },
+        {
+          "name": "secondDimensionArrayLength",
+          "type": "Node"
+        },
+        {
+          "name": "secondDimensionCloseBracket",
+          "type": "Token"
+        }
+      ]
     }
   ]
 }

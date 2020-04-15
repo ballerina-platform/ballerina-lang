@@ -19,12 +19,18 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public class ArrayTypeDescriptor extends NonTerminalNode {
 
     public ArrayTypeDescriptor(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
-    public Node typeDescriptor() {
+
+    public Node typeDescriptorNode() {
         return childInBucket(0);
     }
 
@@ -44,7 +50,9 @@ public class ArrayTypeDescriptor extends NonTerminalNode {
         return childInBucket(4);
     }
 
-    public Node secondDimensionArrayLength() { return childInBucket(5); }
+    public Node secondDimensionArrayLength() {
+        return childInBucket(5);
+    }
 
     public Token secondDimensionCloseBracket() {
         return childInBucket(6);
@@ -60,19 +68,32 @@ public class ArrayTypeDescriptor extends NonTerminalNode {
         return visitor.transform(this);
     }
 
-    public ArrayTypeDescriptor modify(Node typeDescriptor, Token firstDimensionOpenBracket,
-                                      Node firstDimensionArrayLength, Token firstDimensionCloseBracket,
-                                      Token secondDimensionOpenBracket, Node secondDimensionArrayLength,
-                                      Token secondDimensionCloseBracket) {
-
-        if (checkForReferenceEquality(typeDescriptor, firstDimensionOpenBracket, firstDimensionArrayLength,
-                firstDimensionCloseBracket, secondDimensionOpenBracket, secondDimensionArrayLength,
+    public ArrayTypeDescriptor modify(
+            Node typeDescriptorNode,
+            Token firstDimensionOpenBracket,
+            Node firstDimensionArrayLength,
+            Token firstDimensionCloseBracket,
+            Token secondDimensionOpenBracket,
+            Node secondDimensionArrayLength,
+            Token secondDimensionCloseBracket) {
+        if (checkForReferenceEquality(
+                typeDescriptorNode,
+                firstDimensionOpenBracket,
+                firstDimensionArrayLength,
+                firstDimensionCloseBracket,
+                secondDimensionOpenBracket,
+                secondDimensionArrayLength,
                 secondDimensionCloseBracket)) {
             return this;
         }
 
-        return NodeFactory.createArrayTypeDescriptor(typeDescriptor, firstDimensionOpenBracket, firstDimensionArrayLength,
-                firstDimensionCloseBracket, secondDimensionOpenBracket, secondDimensionArrayLength,
+        return NodeFactory.createArrayTypeDescriptor(
+                typeDescriptorNode,
+                firstDimensionOpenBracket,
+                firstDimensionArrayLength,
+                firstDimensionCloseBracket,
+                secondDimensionOpenBracket,
+                secondDimensionArrayLength,
                 secondDimensionCloseBracket);
     }
 }

@@ -22,8 +22,12 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
-
-public class STArrayTypeDescriptor extends STNode{
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class STArrayTypeDescriptor extends STNode {
     public final STNode typeDescriptorNode;
     public final STNode firstDimensionOpenBracket;
     public final STNode firstDimensionArrayLength;
@@ -32,10 +36,14 @@ public class STArrayTypeDescriptor extends STNode{
     public final STNode secondDimensionArrayLength;
     public final STNode secondDimensionCloseBracket;
 
-    public STArrayTypeDescriptor(STNode typeDescriptorNode, STNode firstDimensionOpenBracket,
-                                 STNode firstDimensionArrayLength, STNode firstDimensionCloseBracket,
-                                 STNode secondDimensionOpenBracket, STNode secondDimensionArrayLength,
-                                 STNode secondDimensionCloseBracket) {
+    STArrayTypeDescriptor(
+            STNode typeDescriptorNode,
+            STNode firstDimensionOpenBracket,
+            STNode firstDimensionArrayLength,
+            STNode firstDimensionCloseBracket,
+            STNode secondDimensionOpenBracket,
+            STNode secondDimensionArrayLength,
+            STNode secondDimensionCloseBracket) {
         super(SyntaxKind.ARRAY_TYPE);
         this.typeDescriptorNode = typeDescriptorNode;
         this.firstDimensionOpenBracket = firstDimensionOpenBracket;
@@ -45,8 +53,13 @@ public class STArrayTypeDescriptor extends STNode{
         this.secondDimensionArrayLength = secondDimensionArrayLength;
         this.secondDimensionCloseBracket = secondDimensionCloseBracket;
 
-        addChildren(typeDescriptorNode, firstDimensionOpenBracket, firstDimensionArrayLength,
-                firstDimensionCloseBracket, secondDimensionOpenBracket, secondDimensionArrayLength,
+        addChildren(
+                typeDescriptorNode,
+                firstDimensionOpenBracket,
+                firstDimensionArrayLength,
+                firstDimensionCloseBracket,
+                secondDimensionOpenBracket,
+                secondDimensionArrayLength,
                 secondDimensionCloseBracket);
     }
 

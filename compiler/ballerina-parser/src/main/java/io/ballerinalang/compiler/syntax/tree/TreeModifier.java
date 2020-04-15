@@ -793,6 +793,25 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 semicolonToken);
     }
 
+    @Override
+    public Node transform(ArrayTypeDescriptor arrayTypeDescriptor) {
+        Node typeDescriptorNode = modifyNode(arrayTypeDescriptor.typeDescriptorNode());
+        Token firstDimensionOpenBracket = modifyToken(arrayTypeDescriptor.firstDimensionOpenBracket());
+        Node firstDimensionArrayLength = modifyNode(arrayTypeDescriptor.firstDimensionArrayLength());
+        Token firstDimensionCloseBracket = modifyToken(arrayTypeDescriptor.firstDimensionCloseBracket());
+        Token secondDimensionOpenBracket = modifyToken(arrayTypeDescriptor.secondDimensionOpenBracket());
+        Node secondDimensionArrayLength = modifyNode(arrayTypeDescriptor.secondDimensionArrayLength());
+        Token secondDimensionCloseBracket = modifyToken(arrayTypeDescriptor.secondDimensionCloseBracket());
+        return arrayTypeDescriptor.modify(
+                typeDescriptorNode,
+                firstDimensionOpenBracket,
+                firstDimensionArrayLength,
+                firstDimensionCloseBracket,
+                secondDimensionOpenBracket,
+                secondDimensionArrayLength,
+                secondDimensionCloseBracket);
+    }
+
     // Tokens
 
     @Override

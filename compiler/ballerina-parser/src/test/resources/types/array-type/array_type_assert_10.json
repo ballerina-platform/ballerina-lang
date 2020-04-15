@@ -2,6 +2,16 @@
   "kind": "MODULE_VAR_DECL",
   "children": [
     {
+      "kind": "METADATA",
+      "children": [
+        {
+          "kind": "LIST",
+          "children": [
+          ]
+        }
+      ]
+    },
+    {
       "kind": "ARRAY_TYPE",
       "children": [
         {

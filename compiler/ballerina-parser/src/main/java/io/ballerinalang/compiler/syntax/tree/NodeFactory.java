@@ -1090,14 +1090,15 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stModuleVariableDeclaration.createUnlinkedFacade();
     }
 
-    public static ArrayTypeDescriptor createArrayTypeDescriptor(Node typeDescriptor,
-                                                                      Token firstDimensionOpenBracket,
-                                                                      Node firstDimensionArrayLength,
-                                                                      Token firstDimensionCloseBracket,
-                                                                      Token secondDimensionOpenBracket,
-                                                                      Node secondDimensionArrayLength,
-                                                                      Token secondDimensionCloseBracket) {
-        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+    public static ArrayTypeDescriptor createArrayTypeDescriptor(
+            Node typeDescriptorNode,
+            Token firstDimensionOpenBracket,
+            Node firstDimensionArrayLength,
+            Token firstDimensionCloseBracket,
+            Token secondDimensionOpenBracket,
+            Node secondDimensionArrayLength,
+            Token secondDimensionCloseBracket) {
+        Objects.requireNonNull(typeDescriptorNode, "typeDescriptorNode must not be null");
         Objects.requireNonNull(firstDimensionOpenBracket, "firstDimensionOpenBracket must not be null");
         Objects.requireNonNull(firstDimensionArrayLength, "firstDimensionArrayLength must not be null");
         Objects.requireNonNull(firstDimensionCloseBracket, "firstDimensionCloseBracket must not be null");
@@ -1106,9 +1107,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(secondDimensionCloseBracket, "secondDimensionCloseBracket must not be null");
 
         STNode stArrayTypeDescriptor = STNodeFactory.createArrayTypeDescriptor(
-                typeDescriptor.internalNode(), firstDimensionOpenBracket.internalNode(),
-                firstDimensionArrayLength.internalNode(), firstDimensionCloseBracket.internalNode(),
-                secondDimensionOpenBracket.internalNode(), secondDimensionArrayLength.internalNode(),
+                typeDescriptorNode.internalNode(),
+                firstDimensionOpenBracket.internalNode(),
+                firstDimensionArrayLength.internalNode(),
+                firstDimensionCloseBracket.internalNode(),
+                secondDimensionOpenBracket.internalNode(),
+                secondDimensionArrayLength.internalNode(),
                 secondDimensionCloseBracket.internalNode());
         return stArrayTypeDescriptor.createUnlinkedFacade();
     }
