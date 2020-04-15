@@ -48,7 +48,7 @@ public class TableNegativeTest {
                 "key constraint type '[string]'", 30, 26);
         validateError(compileResult, index++, "field name 'address' used in key specifier is not " +
                 "found in table constraint type 'Customer'", 35, 44);
-        validateError(compileResult, index++, "member access not is not supported for keyless table " +
+        validateError(compileResult, index++, "member access is not supported for keyless table " +
                 "'customerTable'", 45, 21);
     }
 }
