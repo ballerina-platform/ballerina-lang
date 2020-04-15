@@ -4,7 +4,7 @@ This module provides an implementation for sending/receiving messages to/from an
 
 The `socket:Client` is used to connect to a socket server and interact with it. The client can only send the data to the server and the client's call-back service can retrieve the data from the server and do multiple requests/responses between the client and the server.
 
-A Client can be defined by providing the host, port and callbackService as follows:
+A Client can be defined by providing the host, port, and callbackService as follows.
 
 ```ballerina
 socket:Client socketClient = new ({host: "localhost", port: 61598, callbackService: ClientService});
