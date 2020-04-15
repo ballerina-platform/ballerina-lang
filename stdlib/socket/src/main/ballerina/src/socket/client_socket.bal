@@ -62,7 +62,7 @@ public type Client client object {
         return externWrite(self, content);
     }
 
-# Reads data from the client socket. If the data has the specified length, then wait until that number of bytes
+# Reads data from the client socket. If the data has the specified length, then it waits until that number of bytes
 # are received from the client. Else, return the data available in the OS buffer.
 # In the case of the connection being closed by the client, then return either -1 or the data
 # that is currently available in the buffer.
