@@ -49,7 +49,6 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     //caching since at desugar level we need to identify whether this is actually attached function or not
     public BSymbol exprSymbol;
     public boolean functionPointerInvocation;
-    public boolean actionInvocation;
     public boolean langLibInvocation;
     public boolean async;
     public Set<Flag> flagSet;
@@ -122,11 +121,6 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
         return false;
     }
 
-    @Override
-    public boolean isActionInvocation() {
-        return this.actionInvocation;
-    }
-    
     @Override
     public boolean isAsync() {
         return async;
