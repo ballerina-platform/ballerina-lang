@@ -27,11 +27,13 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 
 /**
  * Test class to populate Manifest object by reading the toml.
  */
 public class ManifestProcessorTest {
+    private static final String OS = System.getProperty("os.name").toLowerCase(Locale.getDefault());
     private String validProjectBlock = "[project]\n" +
                                        "org-name = \"foo\"\n" +
                                        "version = \"1.0.0\"\n";
@@ -126,18 +128,27 @@ public class ManifestProcessorTest {
         Assert.assertEquals(manifest.getProject().getLicense().get(1), "Apache-2.0");
     }
 
-    @Test(description = "One dependency added to the dependencies section has an effect")
+    @Test(description = "One dependency added to the dependencies section has an effect except")
     public void testSingleDependencies() throws TomlException, IOException {
         Path tmpDir = Files.createTempDirectory("manifest-test-");
         Path baloPath = tmpDir.resolve("string_utils.balo");
         Files.createFile(baloPath);
-        
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
-                "string-utils = {path = \"" + baloPath + "\", version = \"1.1.5\"} \n");
+        String tomlData = "";
+
+        if (OS.contains("win")) {
+            tomlData = this.validProjectBlock + "[dependencies] \n string-utils = { path = \""
+                    + baloPath.toString().replace("\\", "/") + "\", version = \"1.1.5\" } \n ";
+        } else {
+            tomlData = this.validProjectBlock + "[dependencies] \n string-utils = { path = \""
+                    + baloPath + "\", version = \"1.1.5\" } \n ";
+        }
+
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(tomlData);
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
         Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.1.5");
-        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(), baloPath.toString());
-        
+        Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getPath().toString(),
+                baloPath.toString());
+
         Files.delete(baloPath);
         Files.delete(tmpDir);
     }
@@ -154,15 +165,24 @@ public class ManifestProcessorTest {
         Path tmpDir = Files.createTempDirectory("manifest-test-");
         Path baloPath = tmpDir.resolve("string_utils.balo");
         Files.createFile(baloPath);
-        
-        Manifest manifest = ManifestProcessor.parseTomlContentFromString(this.validProjectBlock + "[dependencies] \n " +
-                "string-utils = { path = \"" + baloPath + "\", version = \"1.0.5\" } \n " +
-                "jquery = { version = \"2.2.3\" } \n");
+        String tomlData = "";
+
+        if (OS.contains("win")) {
+            tomlData = this.validProjectBlock + "[dependencies] \n string-utils = { path = \""
+                    + baloPath.toString().replace("\\", "/") + "\", version = \"1.0.5\" } \n "
+                    + "jquery = { version = \"2.2.3\" } \n";
+        } else {
+            tomlData = this.validProjectBlock + "[dependencies] \n string-utils = { path = \""
+                    + baloPath + "\", version = \"1.0.5\" } \n "
+                    + "jquery = { version = \"2.2.3\" } \n";
+        }
+
+        Manifest manifest = ManifestProcessor.parseTomlContentFromString(tomlData);
         Assert.assertEquals(manifest.getDependencies().get(0).getModuleID(), "string-utils");
         Assert.assertEquals(manifest.getDependencies().get(0).getMetadata().getVersion(), "1.0.5");
         Assert.assertEquals(manifest.getDependencies().get(1).getModuleID(), "jquery");
         Assert.assertEquals(manifest.getDependencies().get(1).getMetadata().getVersion(), "2.2.3");
-    
+
         Files.delete(baloPath);
         Files.delete(tmpDir);
     }
