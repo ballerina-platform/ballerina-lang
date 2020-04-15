@@ -75,7 +75,8 @@ public class SQLDBUtils {
      * @param password Password to connect to the DB
      * @param sqlFile  SQL statements for initialization.
      */
-    private static void initDatabase(String jdbcURL, String username, String password, String sqlFile) throws SQLException {
+    private static void initDatabase(String jdbcURL, String username, String password, String sqlFile)
+            throws SQLException {
         Connection connection = DriverManager.getConnection(jdbcURL, username, password);
         Statement st = connection.createStatement();
         String sql = readFileToString(sqlFile);
