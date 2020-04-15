@@ -26,6 +26,8 @@ verification
 
 5. The hub delivers the identified content to the subscribers of the topic.
 
+### Features
+
 #### Subscriber
 
 This module allows introducing a WebSub Subscriber Service with `onIntentVerification`, which accepts HTTP GET requests for intent verification, and `onNotification`, which accepts HTTP POST requests for notifications. The WebSub Subscriber Service provides the following capabilities:
@@ -33,33 +35,35 @@ This module allows introducing a WebSub Subscriber Service with `onIntentVerific
  - If `onIntentVerification` is not specified, intent verification will be done automatically against the topic specified as an annotation or discovered based on the resource URL specified as an annotation.
  - If a secret is specified for the subscription, signature validation will be done for authenticated content distribution.
  
-**Sends subscription request with on service startup and explicit intent verification**
+**Sends the subscription request**
   
   > When the `subscribeOnStartUp` is set to true in the Subscriber Service, it will result in a subscription request being sent to the specified hub for the specified topic, with the specified lease seconds value and the specified secret for authenticated content distribution. 
+
+    ```ballerina
+    @websub:SubscriberServiceConfig {	
+        path: "/websub",	
+        subscribeOnStartUp: true,	
+        target: ["<HUB_URL>", "<TOPIC_URL>"],	
+        leaseSeconds: 3600,	
+        secret: "<SECRET>"	
+    }	
+    service websubSubscriber on websubEP {	
+        resource function onNotification(websub:Notification notification) {	
+            //...
+        }	
+    }
+    ```
+    
+  > Explicit intent verification can be done by introducing an `onIntentVerification` resource function.
  
- ```ballerina
- listener websub:Listener websubEP = new(8181);
+    ```ballerina
+        resource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest request) {	
+            http:Response response = new;	
+            // Insert logic to build subscription/unsubscription intent verification response.	
+            error? result = caller->respond(response);
+        }
+     ```
  
- @websub:SubscriberServiceConfig {
-     path: "/websub",
-     subscribeOnStartUp: true,
-     target: ["<HUB_URL>", "<TOPIC_URL>"],
-     leaseSeconds: 3600,
-     secret: "<SECRET>"
- }
- service websubSubscriber on websubEP {
- 
-     resource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest request) {
-         http:Response response = new;
-         // Insert logic to build subscription/unsubscription intent verification response.
-         error? result = caller->respond(response);
-     }
- 
-     resource function onNotification(websub:Notification notification) {
-         string|error payload = notification.getTextPayload();
-     }
- }
-```
 Functions are made available on the `websub:IntentVerificationRequest` to build a subscription or unsubscription 
 verification response, specifying the topic to verify intent against:
 ```ballerina
