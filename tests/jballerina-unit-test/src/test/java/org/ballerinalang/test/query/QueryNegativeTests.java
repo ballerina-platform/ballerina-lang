@@ -35,7 +35,7 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 9);
+        Assert.assertEquals(compileResult.getErrorCount(), 18);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
@@ -50,5 +50,16 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'", 78, 19);
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'int'", 79, 20);
         validateError(compileResult, index, "cannot assign a value to final 'person'", 94, 17);
+		validateError(compileResult, index++, "missing non-defaultable required record field 'lastName'", 132, 10);
+        validateError(compileResult, index++, "incompatible types: expected 'float', found 'int'", 153, 13);
+        validateError(compileResult, index++, "undefined function 'calculateScore'", 168, 22);
+        validateError(compileResult, index++, "invalid record binding pattern; unknown field " +
+                "'fname' in record type 'Student'", 205, 12);
+        validateError(compileResult, index++, "undefined symbol 'fname'", 207, 15);
+        validateError(compileResult, index++, "incompatible types: expected 'Student', found " +
+                "'(string|float)'", 222, 10);
+        validateError(compileResult, index++, "incompatible types: expected 'Address', found 'map<string>'", 241, 13);
+        validateError(compileResult, index++, "cannot assign a value to final 'twiceScore'", 259, 10);
+        validateError(compileResult, index, "incompatible types: expected 'FullName[]', found 'error?'", 266, 13);
     }
 }
