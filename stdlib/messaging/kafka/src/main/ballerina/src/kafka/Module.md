@@ -1,5 +1,5 @@
 This module is used to interact with Kafka Brokers via Kafka Consumer and Kafka Producer clients.
-This module supports kafka 1.x.x and 2.0.0 versions.
+This module supports Kafka 1.x.x and 2.0.0 versions.
 
 For information on the operations, which you can perform with this module, see the below **Functions**.
 For examples on the usage of the operations, see the following. 
@@ -26,7 +26,7 @@ kafka:ProducerConfiguration producerConfiguration = {
 
 kafka:Producer kafkaProducer = new (producerConfiguration);
 ```
-2. Use `kafka:Producer` to publish messages. 
+2. Use the `kafka:Producer` to publish messages. 
 ```ballerina
 string message = "Hello World, Ballerina";
 kafka:ProducerError? result = kafkaProducer->send(message, "kafka-topic", key = 1);
@@ -45,11 +45,11 @@ kafka:ConsumerConfiguration consumerConfiguration = {
 
 kafka:Consumer consumer = new (consumerConfiguration);
 ```
-2. Use `kafka:Consumer` as a simple record consumer.
+2. Use the `kafka:Consumer` as a simple record consumer.
 ```ballerina
 kafka:ConsumerRecord[]|kafka:ConsumerError result = consumer->poll(1000);
 ```
-3. Use `kafka:Consumer` as a listener.
+3. Use the `kafka:Consumer` as a listener.
 ```ballerina
 listener kafka:Consumer consumer = new (consumerConfiguration);
 
@@ -65,7 +65,7 @@ service kafkaService on consumer {
 #### Send Data Using Avro
 The Ballerina Kafka module supports Avro serialization and deserialization.
 
-To try this, let's create a new Ballerina project and two modules inside it.
+To try this, create a new Ballerina project and two modules inside it.
 
 Execute the below commands to do this.
 ```shell script
@@ -138,7 +138,7 @@ ballerina add consumer
      groupId = "com.fasterxml.jackson.core"
 ```
 
-Now, the directory structure will look like follows (some of the files are ignored).
+Now, the directory structure will look like below (some of the files are ignored).
 
 ```shell script
 ├── Ballerina.toml
@@ -211,7 +211,7 @@ public function main() {
 
 ##### Avro Consumer
 The Kafka implementation of Ballerina currently supports Avro deserialization only for generic records.
-The Consumer will return `kafka:AvroGenericRecord` with the data received from Avro.
+The Consumer will return a `kafka:AvroGenericRecord` with the data received from Avro.
 
 The following is a sample consumer.
 

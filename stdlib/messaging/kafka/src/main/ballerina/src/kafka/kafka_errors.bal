@@ -26,13 +26,13 @@ public type Detail record {
 # Used as the error reason for the `kafka:ConsumerError` type.
 public const CONSUMER_ERROR = "{ballerina/kafka}ConsumerError";
 
-# Error type specific to `kafka:Consumer` object functions.
+# Error type specific to the `kafka:Consumer` object functions.
 public type ConsumerError error<CONSUMER_ERROR, Detail>;
 
 # Used as the error reason for the `kafka:ProducerError` type.
 public const PRODUCER_ERROR = "{ballerina/kafka}ProducerError";
 
-# Error type specific to `kafka:Producer` object functions.
+# Error type specific to the `kafka:Producer` object functions.
 public type ProducerError error<PRODUCER_ERROR, Detail>;
 
 # Used as the error reason for the `kafka:AvroError` type.

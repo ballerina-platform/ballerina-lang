@@ -20,9 +20,9 @@ public type Deserializer abstract object {
     # Closes the deserialization process. This function runs after the deserialization process is done.
     public function close();
 
-    # Deserializes the provided data. Implement this to deserialize `byte[]` and return any data type.
+    # Deserializes the provided data. Implement this to deserialize a `byte[]` and return any data type.
     #
     # + data - Data, which should be deserialized
-    # + return - Deserialized value
+    # + return - The deserialized value
     public function deserialize(byte[] data) returns any;
 };

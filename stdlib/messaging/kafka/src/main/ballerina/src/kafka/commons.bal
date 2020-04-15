@@ -16,7 +16,7 @@
 
 # Represents the topic partition position in which the consumed record is stored.
 #
-# + partition - `kafka:TopicPartition` to which the record is related
+# + partition - The `kafka:TopicPartition` to which the record is related
 # + offset - Offset in which the record is stored in the partition
 public type PartitionOffset record {|
     TopicPartition partition;
@@ -40,12 +40,12 @@ public type TopicPartition record {|
 # + sslProvider - The name of the security provider used for SSL connections. Default value is the default security
 #                 provider of the JVM
 # + sslKeyPassword - The password of the private key in the key store file. This is optional for the client
-# + sslCipherSuites - A list of cipher suites. This is a named combination of authentication, encryption, MAC, and key
-#                     exchange algorithm used to negotiate the security settings for a network connection using TLS
-#                     or SSL network protocol. By default, all the available cipher suites are supported
+# + sslCipherSuites - A list of Cipher suites. This is a named combination of the authentication, encryption, MAC, and key
+#                     exchange algorithms used to negotiate the security settings for a network connection using the TLS
+#                     or SSL network protocols. By default, all the available Cipher suites are supported
 # + sslEndpointIdentificationAlgorithm - The endpoint identification algorithm to validate the server hostname using
 #                                        the server certificate
-# + sslSecureRandomImplementation - The `SecureRandom` PRNG implementation to use for SSL cryptography operations
+# + sslSecureRandomImplementation - The `SecureRandom` PRNG implementation to use for the SSL cryptography operations
 public type SecureSocket record {|
     KeyStore keyStore; // KEY_STORE_CONFIG
     TrustStore trustStore; // TRUST_STORE_CONFIG
@@ -57,7 +57,7 @@ public type SecureSocket record {|
     string sslSecureRandomImplementation?; // SSL_SECURE_RANDOM_IMPLEMENTATION_CONFIG 5
 |};
 
-# Configurations related to KeyStore.
+# Configurations related to the KeyStore.
 #
 # + keyStoreType - The file format of the KeyStore file. This is optional for the client
 # + location - The location of the KeyStore file. This is optional for the client and can be used for two-way

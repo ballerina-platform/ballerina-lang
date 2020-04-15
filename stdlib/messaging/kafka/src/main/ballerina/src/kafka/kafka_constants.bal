@@ -46,15 +46,15 @@ public const DES_CUSTOM = "CUSTOM";
 public const DES_AVRO = "AVRO";
 
 // Isolation levels.
-# Configures the consumer to read the committed messages only in transactional mode when poll() is called.
+# Configures the consumer to read the committed messages only in the transactional mode when poll() is called.
 public const ISOLATION_COMMITTED = "read_committed";
 
 # Configures the consumer to read all the messages even the aborted ones.
 public const ISOLATION_UNCOMMITTED = "read_uncommitted";
 
-// Producer related constants.
+// Producer-related constants.
 // Produce Ack types.
-# Producer acknowledgement type 'all'. This will gurantee that the record will not be lost as long as at least one
+# Producer acknowledgement type is 'all'. This will guarantee that the record will not be lost as long as at least one
 # in-sync replica is alive.
 public const ACKS_ALL = "all";
 
@@ -63,7 +63,7 @@ public const ACKS_ALL = "all";
 public const ACKS_NONE = "0";
 
 # Producer acknowledgement type '1'. If the acknowledgement type set to this, the leader will write the record to its
-# local log but will respond without awaiting full acknowledgement from all followers.
+# A local log will respond without waiting FOR full acknowledgement from all the followers.
 public const ACKS_SINGLE = "1";
 
 // Serializer types.
@@ -82,7 +82,7 @@ public const SER_FLOAT = "FLOAT";
 # User-defined serializer.
 public const SER_CUSTOM = "CUSTOM";
 
-# Apache avro serializer.
+# Apache Avro serializer.
 public const SER_AVRO = "AVRO";
 
 // Compression types.
