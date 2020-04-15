@@ -1,5 +1,5 @@
 {
-  "kind": "VARIABLE_DECL",
+  "kind": "MODULE_VAR_DECL",
   "children": [
     {
       "kind": "ARRAY_TYPE",
