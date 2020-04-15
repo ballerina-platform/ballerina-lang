@@ -35,9 +35,11 @@ This module allows introducing a WebSub Subscriber Service with `onIntentVerific
  - If `onIntentVerification` is not specified, intent verification will be done automatically against the topic specified as an annotation or discovered based on the resource URL specified as an annotation.
  - If a secret is specified for the subscription, signature validation will be done for authenticated content distribution.
  
-**Sends the subscription request**
+**Sends subscription request on service startup and explicit intent verification**
   
   > When the `subscribeOnStartUp` is set to true in the Subscriber Service, it will result in a subscription request being sent to the specified hub for the specified topic, with the specified lease seconds value and the specified secret for authenticated content distribution. 
+  
+  >Since an `onIntentVerification` resource function is not included, intent verification for subscription and unsubscription requests would happen automatically.
 
     ```ballerina
     @websub:SubscriberServiceConfig {	
