@@ -74,6 +74,8 @@ public enum InstructionKind {
     NEW_TABLE((byte) 51),
     NEW_TYPEDESC((byte) 52),
     NEW_STREAM((byte) 53),
+    TABLE_STORE((byte) 54),
+    TABLE_LOAD((byte) 55),
 
     // Binary expression related instructions.
     ADD((byte) 61),
