@@ -49,13 +49,13 @@ public type InboundBasicAuthProvider object {
         }
     }
 
-# Attempts to authenticate the base64-encoded `username:password` credential.
+# Attempts to authenticate the base64-encoded `username:password` credentials.
 # ```ballerina
 # boolean|auth:Error authenticationResult = inboundBasicAuthProvider.authenticate("<credential>");
 # ```
 #
 # + credential - Base64-encoded `username:password` value
-# + return - `true` if authentication is successful, `false` otherwise, or else an `auth:Error` occurred
+# + return - `true` if the authentication is successful, `false` otherwise, or else an `auth:Error` occurred
 #             while authenticating the credentials
     public function authenticate(string credential) returns boolean|Error {
         if (credential == "") {
@@ -122,9 +122,9 @@ function extractHash(string configValue) returns string {
 # Reads the password hash of a user.
 #
 # + username - Username of the user
-# + return - Password hash read from userstore or else `()` if not found
+# + return - Password hash read from the userstore or else `()` if not found
 function readPassword(string username) returns string {
-    // First, reads the user ID from user->id mapping.
+    // First, reads the user ID from the user->id mapping.
     // Then, reads the hashed password from the user-store file using the user ID.
     return getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "password");
 }
@@ -133,7 +133,7 @@ function getConfigAuthValue(string instanceId, string property) returns string {
     return config:getAsString(instanceId + "." + property, "");
 }
 
-# Constructs an array of groups from the given comma-separed string of groups.
+# Constructs an array of groups from the given comma-separated string of groups.
 #
 # + groupString - Comma-separated string of groups
 # + return - An array of groups or else () if the groups string is empty/`()`

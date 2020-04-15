@@ -110,7 +110,7 @@ public function setPrincipal(public string? userId = (), public string? username
     }
 }
 
-# Checks whether the scopes of the user matches the scopes of the resource.
+# Checks whether the scopes of the user match the scopes of the resource.
 #
 # + resourceScopes - Scopes of the resource
 # + userScopes - Scopes of the user
@@ -139,7 +139,7 @@ public function checkForScopeMatch(string[]|string[][] resourceScopes, string[] 
     return false;
 }
 
-# Tries to retrieve authorization decision from the cached information if any.
+# Tries to retrieve an authorization decision from the cached information if any.
 #
 # + authzCacheKey - Cache key
 # + positiveAuthzCache - Cache for positive authorizations

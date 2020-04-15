@@ -23,6 +23,6 @@ public type InboundAuthProvider abstract object {
     # OAuth2.
     #
     # + credential - `string` credential value
-    # + return - `true` if authentication is successful, otherwise `false`, or else an `auth:Error` in case of an error
+    # + return - `true` if the authentication is successful, `false` otherwise, or else an `auth:Error` in case of an error
     public function authenticate(string credential) returns boolean|Error;
 };
