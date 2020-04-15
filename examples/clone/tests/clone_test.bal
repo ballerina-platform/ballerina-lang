@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 
 any[] outputs = [];
 int counter = 0;
@@ -16,7 +15,7 @@ public function mockPrint(any... s) {
     }
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Define an `Address` record.
     Address address = {

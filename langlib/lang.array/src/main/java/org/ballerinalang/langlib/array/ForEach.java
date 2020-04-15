@@ -50,4 +50,7 @@ public class ForEach {
             func.call(new Object[]{strand, getFn.get(arr, i), true});
         }
     }
+    public static void forEach_bstring(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
+        forEach(strand, arr, func);
+    }
 }

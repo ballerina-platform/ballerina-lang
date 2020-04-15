@@ -43,15 +43,6 @@ dependencies {
     testCompile 'org.testng:testng'
     testCompile 'com.moandjiezana.toml:toml4j'
 
-    testRuntime project(':ballerina-jvm')
-    testRuntime project(':ballerina-bir')
-    testRuntime project(':ballerina-backend-jvm')
-
-    testRuntime project(path: ':ballerina-backend-jvm', configuration: 'birJar')
-    testRuntime project(path: ':ballerina-jvm', configuration: 'birJar')
-    testRuntime project(path: ':ballerina-bir', configuration: 'birJar')
-
-    birJarCompile project(path: ':ballerina-bootstrapper', configuration: 'pack4')
 }
 
 task createBirCache {

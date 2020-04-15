@@ -47,4 +47,7 @@ public class GetFilterFunc {
         functionType.paramTypes[0] = new BUnionType(new BType[]{BTypes.typeAny, BTypes.typeError}, 0);
         return fpValue;
     }
+    public static FPValue getFilterFunc_bstring(Strand strand, Object obj) {
+        return getFilterFunc(strand, obj);
+    }
 }

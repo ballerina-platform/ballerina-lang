@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.map;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -54,7 +55,20 @@ public class RemoveIfHasKey {
             return m.remove(k);
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
             throw BallerinaErrors.createError(e.getMessage(),
-                    "Failed to remove element: " + e.getDetail());
+                                              "Failed to remove element: " + e.getDetail());
+        }
+    }
+
+    public static Object removeIfHasKey_bstring(Strand strand, MapValue<?, ?> m, BString k) {
+        String op = REMOVE_IF_HAS_KEY;
+
+        checkIsMapOnlyOperation(m.getType(), op);
+        validateRequiredFieldForRecord(m, k.getValue());
+        try {
+            return m.remove(k);
+        } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
+            throw BallerinaErrors.createError(e.getMessage(),
+                                              "Failed to remove element: " + e.getDetail());
         }
     }
 }

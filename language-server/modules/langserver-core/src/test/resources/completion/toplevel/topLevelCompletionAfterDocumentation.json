@@ -906,29 +906,6 @@
       ]
     },
     {
-      "label": "ballerina/jvm",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "120",
-      "insertText": "jvm",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jvm;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/encoding",
       "kind": "Module",
       "detail": "Module",
