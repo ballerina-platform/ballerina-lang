@@ -2091,11 +2091,11 @@ public class BLangPackageBuilder {
             tableConstructorExpr.tableKeySpecifier = (BLangTableKeySpecifier) tableKeySpecifierNodeStack.pop();
         }
 
-        if (exprNodeStack.size() > 0) {
-            for (ExpressionNode expression : exprNodeStack) {
-                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
-                tableConstructorExpr.addRecordLiteral(recordLiteral);
-            }
+        Collections.reverse(exprNodeStack);
+        while (exprNodeStack.size() > 0) {
+            ExpressionNode expression = exprNodeStack.pop();
+            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
+            tableConstructorExpr.addRecordLiteral(recordLiteral);
         }
         addExpressionNode(tableConstructorExpr);
     }

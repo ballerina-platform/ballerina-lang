@@ -33,7 +33,7 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 public class TableNegativeTest {
 
     @Test
-    public void testFromClauseWithInvalidType() {
+    public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 6);
         int index = 0;
