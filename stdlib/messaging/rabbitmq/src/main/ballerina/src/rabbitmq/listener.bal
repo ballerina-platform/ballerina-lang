@@ -26,11 +26,11 @@ public type Listener object {
     private Channel amqpChannel;
 
     # Initializes a Listener object with the given `rabbitmq:Connection` object or connection configurations.
-    # Creates a `rabbitmq:Connection` object if only the connection configuration is given. Sets global QoS settings,
+    # Creates a `rabbitmq:Connection` object if only the connection configuration is given. Sets the global QoS settings,
     # which will be applied to the entire `rabbitmq:Channel`.
     #
     # + connectionOrConnectionConfig - A `rabbitmq:Connection` object or the connection configurations.
-    # + prefetchCount - Maximum number of messages that the server will deliver, 0 if unlimited.
+    # + prefetchCount - Maximum number of messages that the server will deliver. Give the value as 0 if unlimited.
     #                   Unless explicitly given, this value is 10 by default.
     # + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver and 0 if unlimited
     public function __init(ConnectionConfiguration|Connection connectionOrConnectionConfig, int? prefetchCount = (),
@@ -47,14 +47,14 @@ public type Listener object {
     #
     # + s - Type descriptor of the service
     # + name - Name of the service
-    # + return - () or else a `rabbitmq:Error` upon failure to register service
+    # + return - `()` or else a `rabbitmq:Error` upon failure to register the service
     public function __attach(service s, string? name = ()) returns error? {
         return registerListener(self, s);
     }
 
-    # Starts the consuming messages on all attached services.
+    # Starts consuming the messages on all the attached services.
     #
-    # + return - () or else a `rabbitmq:Error` upon failure to start
+    # + return - `()` or else a `rabbitmq:Error` upon failure to start
     public function __start() returns error? {
         return start(self);
     }
@@ -62,19 +62,19 @@ public type Listener object {
     # Stops consuming messages and detaches the service from the `rabbitmq:Listener` endpoint.
     #
     # + s - Type descriptor of the service
-    # + return - () or else  a `rabbitmq:Error` upon failure to detach service
+    # + return - `()` or else  a `rabbitmq:Error` upon failure to detach the service
     public function __detach(service s) returns error? {
         return detach(self, s);
     }
 
     # Stops consuming messages through all consumer services by terminating the connection and all its channels.
     #
-    # + return - () or else  a `rabbitmq:Error` upon failure to close the ChannelListener
+    # + return - `()` or else  a `rabbitmq:Error` upon failure to close the `ChannelListener`
     public function __gracefulStop() returns error? {
         return stop(self);
     }
 
-    # Stops consuming messages through all consumer services and terminate the connection
+    # Stops consuming messages through all the consumer services and terminates the connection
     # with the server.
     #
     # + return - () or else  a `rabbitmq:Error` upon failure to close ChannelListener.

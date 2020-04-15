@@ -40,7 +40,7 @@ public type Connection object {
 # + closeMessage - A message indicating the reason for closing the connection
 # + timeoutInMillis - Timeout (in milliseconds) for completing all the close-related operations.
 #                     Use -1 for infinity
-# + return - A `rabbitmq:Error` if an I/O error is encountered or else ()
+# + return - A `rabbitmq:Error` if an I/O error is encountered or else `()`
     public function close(int? closeCode = (), string? closeMessage = (), int? timeoutInMillis = ()) returns Error? {
         return handleCloseConnection(closeCode, closeMessage, timeoutInMillis, self.amqpConnection);
     }

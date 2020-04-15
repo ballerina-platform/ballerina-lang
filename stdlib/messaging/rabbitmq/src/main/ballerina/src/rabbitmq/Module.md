@@ -1,4 +1,4 @@
-[RabbitMQ](https://www.rabbitmq.com/) is one of the most popular open-source enterprise messaging systems modelled on the Advanced Message Queuing Protocol (AMQP) standard. This guide covers the Ballerina RabbitMQ module and its public API. This module contains the functionality to support messaging with RabbitMQ broker (AMQP 0-9-1). It assumes that the most recent version of Ballerina is used and is built on top of the basics.
+[RabbitMQ](https://www.rabbitmq.com/) is one of the most popular open-source enterprise messaging systems modelled on the Advanced Message Queuing Protocol (AMQP) standard. This guide covers the Ballerina RabbitMQ module and its public API. This module contains the functionality to support messaging with the RabbitMQ broker (AMQP 0-9-1). It assumes that the most recent version of Ballerina is used and is built on top of the basics.
  
 Key sections include: 
 - Connecting to RabbitMQ
@@ -28,7 +28,7 @@ The `rabbitmq:Channel` can now be used to send and receive messages as described
 
 #### Enabling TLS
 
-It is possible to encrypt the communication between the Ballerina client and the broker by using TLS-enabled connections. Client and server authentication (peer verification) is also supported. To enable the TLS support in the RabbitMQ broker, the node has to be [configured](https://www.rabbitmq.com/ssl.html#enabling-tls) to know the location of the Certificate Authority bundle, the server's certificate file, and the server's key. A TLS listener should also be configured to know what port to listen to for TLS-enabled client connections.
+It is possible to encrypt the communication between the Ballerina client and the broker by using TLS-enabled connections. Client and server authentication (peer verification) is also supported. To enable the TLS support in the RabbitMQ broker, the node has to be [configured](https://www.rabbitmq.com/ssl.html#enabling-tls) to know the location of the Certificate Authority bundle, the server's certificate file, and the server's key. A TLS listener should also be configured to know which port to listen for TLS-enabled client connections.
 
 Connecting to a TLS-enabled RabbitMQ node using the Ballerina client can be done by passing a `rabbitmq:SecureSocket` record with the appropriate values to the `rabbitmq:ConnectionConfiguration` record when initializing the connection.  
 
@@ -72,7 +72,7 @@ This sample code will declare,
 - a durable auto-delete exchange of the type `rabbitmq:DIRECT_EXCHANGE`
 - a non-durable, exclusive auto-delete queue with an auto-generated name
 
-Next, the above function calls bind the queue to the exchange with the given routing key. 
+Next, the above function is called to bind the queue to the exchange with the given routing key. 
 
 ```ballerina
    rabbitmq:Error? exchangeResult = newChannel->exchangeDeclare({ exchangeName: "MyExchange",
@@ -128,7 +128,7 @@ Setting other properties of the message such as routing headers can be done by u
 
 The most efficient way to receive messages is to set up a subscription using a Ballerina RabbitMQ `rabbitmq:Listener` and any number of consumer services. The messages will then be delivered automatically as they arrive rather than having to be explicitly requested. 
 
-Multiple consumer services can be bound to one Ballerina RabbitMQ `rabbitmq:Listener`. The queue, which the service is listening to is configured in the `rabbitmq:ServiceConfig` annotation of the service. 
+Multiple consumer services can be bound to one Ballerina RabbitMQ `rabbitmq:Listener`. The queue to which the service is listening is configured in the `rabbitmq:ServiceConfig` annotation of the service. 
 
 ```ballerina
 listener rabbitmq:Listener channelListener= new(newConnection);
@@ -156,7 +156,7 @@ The default acknowledgement mode is auto-ack (messages are acknowledged immediat
 The negatively-acknowledged (rejected) messages can be re-queued. 
 
 
->**Note:** The default thread pool size used in Ballerina is number of processors available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.
+>**Note:** The default thread pool size used in Ballerina is the number of processors available * 2. You can configure the thread pool size by using the `BALLERINA_MAX_POOL_SIZE` environment variable.
 
 For information on the operations, which you can perform with this module, see the below **Functions**. 
 
