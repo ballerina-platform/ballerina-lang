@@ -3097,6 +3097,7 @@ public class BallerinaParser {
                 break;
             case IS_KEYWORD:
                 newLhsExpr = parseIsExpression(lhsExpr);
+                break;
             default:
                 STNode operator = parseBinaryOperator();
 

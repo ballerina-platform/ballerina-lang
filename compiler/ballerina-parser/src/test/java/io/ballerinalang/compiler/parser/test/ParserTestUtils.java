@@ -479,6 +479,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPEOF_EXPRESSION;
             case "UNARY_EXPRESSION":
                 return SyntaxKind.UNARY_EXPRESSION;
+            case "IS_EXPRESSION":
+                return SyntaxKind.IS_EXPRESSION;
 
             // Statements
             case "BLOCK_STATEMENT":

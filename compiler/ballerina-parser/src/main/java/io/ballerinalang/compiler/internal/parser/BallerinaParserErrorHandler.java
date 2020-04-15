@@ -1555,7 +1555,6 @@ public class BallerinaParserErrorHandler {
             case RETURN_KEYWORD:
                 return ParserRuleContext.RETURN_STMT_RHS;
             case ACCESS_EXPRESSION:
-            case IS_EXPRESSION:
                 return ParserRuleContext.VARIABLE_REF;
             // case BASIC_LITERAL:
             // case STRING_LITERAL:
@@ -1642,6 +1641,8 @@ public class BallerinaParserErrorHandler {
                 }
             case IS_KEYWORD:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
+            case IS_EXPRESSION:
+                return ParserRuleContext.EXPRESSION_RHS;
 
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
@@ -2377,6 +2378,7 @@ public class BallerinaParserErrorHandler {
             case ANNOT_REFERENCE:
             case DOC_STRING:
             case OBJECT_MEMBER_WITHOUT_METADATA:
+            case IS_EXPRESSION:
             default:
                 break;
         }
@@ -2444,6 +2446,7 @@ public class BallerinaParserErrorHandler {
         STToken nextNextToken = this.tokenReader.peek(lookahead + 1);
         switch (nextNextToken.kind) {
             case IS_KEYWORD:
+                startContext(ParserRuleContext.IS_EXPRESSION);
                 nextContext = ParserRuleContext.IS_KEYWORD;
                 break;
             default:
