@@ -78,7 +78,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
@@ -114,7 +113,6 @@ public class BIRPackageSymbolEnter {
     private final SymbolTable symTable;
     private final Names names;
     private final TypeParamAnalyzer typeParamAnalyzer;
-    private final BLangDiagnosticLogHelper dlog;
 
     private BIRPackageSymbolEnv env;
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
@@ -141,12 +139,10 @@ public class BIRPackageSymbolEnter {
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.typeParamAnalyzer = TypeParamAnalyzer.getInstance(context);
-        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
     }
 
-    public BPackageSymbol definePackage(PackageID packageId,
-                                        RepoHierarchy packageRepositoryHierarchy,
-                                        byte[] packageBinaryContent) {
+    BPackageSymbol definePackage(PackageID packageId, RepoHierarchy packageRepositoryHierarchy,
+                                 byte[] packageBinaryContent) {
         BPackageSymbol pkgSymbol = definePackage(packageId, packageRepositoryHierarchy,
                 new ByteArrayInputStream(packageBinaryContent));
 
@@ -160,9 +156,8 @@ public class BIRPackageSymbolEnter {
         return pkgSymbol;
     }
 
-    private BPackageSymbol definePackage(PackageID packageId,
-                                        RepoHierarchy packageRepositoryHierarchy,
-                                        InputStream programFileInStream) {
+    private BPackageSymbol definePackage(PackageID packageId, RepoHierarchy packageRepositoryHierarchy,
+                                         InputStream programFileInStream) {
         // TODO packageID --> package to be loaded. this is required for error reporting..
         try (DataInputStream dataInStream = new DataInputStream(programFileInStream)) {
             BIRPackageSymbolEnv prevEnv = this.env;
@@ -660,9 +655,9 @@ public class BIRPackageSymbolEnter {
     /**
      * Set taint table to the invokable symbol.
      *
-     * @param invokableSymbol Invokable symbol
-     * @param dataInStream    Input stream
-     * @throws IOException
+     * @param invokableSymbol   Invokable symbol
+     * @param dataInStream      Input stream
+     * @throws IOException      On error while reading the stream
      */
     private void readTaintTable(BInvokableSymbol invokableSymbol, DataInputStream dataInStream)
             throws IOException {
@@ -700,7 +695,7 @@ public class BIRPackageSymbolEnter {
         return stringCPEntry.value;
     }
 
-    private String getStringCPEntryValue(int cpIndex) throws IOException {
+    private String getStringCPEntryValue(int cpIndex) {
         StringCPEntry stringCPEntry = (StringCPEntry) this.env.constantPool[cpIndex];
         return stringCPEntry.value;
     }
@@ -762,10 +757,10 @@ public class BIRPackageSymbolEnter {
     }
 
     private class BIRTypeReader {
-        public static final int SERVICE_TYPE_TAG = 51;
+        static final int SERVICE_TYPE_TAG = 51;
         private DataInputStream inputStream;
 
-        public BIRTypeReader(DataInputStream inputStream) {
+        BIRTypeReader(DataInputStream inputStream) {
             this.inputStream = inputStream;
         }
 
@@ -773,7 +768,7 @@ public class BIRPackageSymbolEnter {
             return readBType(inputStream);
         }
 
-        public BType readType(int cpI) throws IOException {
+        BType readType(int cpI) throws IOException {
             byte tag = inputStream.readByte();
             Name name = names.fromString(getStringCPEntryValue(inputStream));
             int flags = inputStream.readInt();
