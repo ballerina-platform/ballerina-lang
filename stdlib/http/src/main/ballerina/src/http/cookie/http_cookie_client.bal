@@ -179,7 +179,7 @@ public type CookieClient object {
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - An `HttpFuture`, which represents an asynchronous service invocation, or an `http:ClientError` if the submission fails
+    # + return - An `HttpFuture`, which represents an asynchronous service invocation or else an `http:ClientError` if the submission fails
     public function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         Request request = <Request>message;
         return self.httpClient->submit(httpVerb, path, request);
@@ -204,7 +204,7 @@ public type CookieClient object {
     # Retrieves the next available `http:PushPromise` for a previously-submitted request.
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP Push Promise message or an `http:ClientError` if the invocation fails
+    # + return - An HTTP Push Promise message or else an `http:ClientError` if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError{
         return self.httpClient->getNextPromise(httpFuture);
     }
@@ -212,7 +212,7 @@ public type CookieClient object {
     # Retrieves the promised server push `http:Response` message.
     #
     # + promise - The related `http:PushPromise`
-    # + return - A promised HTTP `http:Response` message or an `http:ClientError` if the invocation fails
+    # + return - A promised HTTP `http:Response` message or else an `http:ClientError` if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         return self.httpClient->getPromisedResponse(promise);
     }

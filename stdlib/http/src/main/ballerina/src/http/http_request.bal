@@ -75,7 +75,7 @@ public type Request object {
     #
     # + key - Represents the query param key
     # + return - The query param value associated with the given key as a string. If multiple param values are
-    #            present, then the first value is returned. Nil is returned if no key is found.
+    #            present, then the first value is returned. `()` is returned if no key is found.
     public function getQueryParamValue(@untainted string key) returns @tainted string? {
         map<string[]> params = self.getQueryParams();
         var result = params[key];

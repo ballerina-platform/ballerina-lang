@@ -77,7 +77,7 @@ public type Caller client object {
     # Sends an upgrade request with custom headers.
     #
     # + headers - A `map` of custom headers for handshake
-    # + return - The `http:WebSocketCaller` instance or else an error on failure to upgrade
+    # + return - An `http:WebSocketCaller` instance or else an `http:WebSocketError` on failure to upgrade
     public remote function acceptWebSocketUpgrade(map<string> headers) 
                                                 returns WebSocketCaller | WebSocketError {
         return externAcceptWebSocketUpgrade(self, headers);

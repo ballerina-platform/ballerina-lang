@@ -53,7 +53,7 @@ public type CsvPersistentCookieHandler object {
     # Adds a persistent cookie to the cookie store.
     #
     # + cookie - Cookie to be added
-    # + return - An `http:CookieHandlingError` if there is any error occurred during the storing process of the cookie or else nil
+    # + return - An `http:CookieHandlingError` if there is any error occurred during the storing process of the cookie or else `()`
     public function storeCookie(Cookie cookie) returns @tainted CookieHandlingError? {
         if (file:exists(self.fileName) && !self.cookiesTable.hasNext()) {
             var tblResult = readFile(self.fileName);
@@ -115,7 +115,7 @@ public type CsvPersistentCookieHandler object {
     # + name - Name of the persistent cookie to be removed
     # + domain - Domain of the persistent cookie to be removed
     # + path - Path of the persistent cookie to be removed
-    # + return - An `http:CookieHandlingError` if there is any error occurred during the removal of the cookie or else nil
+    # + return - An `http:CookieHandlingError` if there is any error occurred during the removal of the cookie or else `()`
     public function removeCookie(string name, string domain, string path) returns @tainted CookieHandlingError? {
         cookieNameToRemove = name;
         cookieDomainToRemove = domain;
@@ -148,7 +148,7 @@ public type CsvPersistentCookieHandler object {
 
     # Removes all persistent cookies.
     #
-    # + return - An `http:CookieHandlingError` if there is any error occurred during the removal of all the cookies or else nil
+    # + return - An `http:CookieHandlingError` if there is any error occurred during the removal of all the cookies or else `()`
     public function removeAllCookies() returns CookieHandlingError? {
         error? removeResults = file:remove(self.fileName);
         if (removeResults is error) {
