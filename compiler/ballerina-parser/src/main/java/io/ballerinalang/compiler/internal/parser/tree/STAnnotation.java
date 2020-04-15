@@ -23,24 +23,30 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
+ * This is a generated internal syntax tree node.
+ *
  * @since 1.3.0
  */
-public class STAnnotation extends STParameter {
-
+public class STAnnotation extends STNode {
     public final STNode atToken;
     public final STNode annotReference;
     public final STNode annotValue;
 
-    STAnnotation(STNode atToken, STNode annotReference, STNode annotValue) {
+    STAnnotation(
+            STNode atToken,
+            STNode annotReference,
+            STNode annotValue) {
         super(SyntaxKind.ANNOTATION);
         this.atToken = atToken;
         this.annotReference = annotReference;
         this.annotValue = annotValue;
 
-        addChildren(atToken, annotReference, annotValue);
+        addChildren(
+                atToken,
+                annotReference,
+                annotValue);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new Annotation(this, position, parent);
     }

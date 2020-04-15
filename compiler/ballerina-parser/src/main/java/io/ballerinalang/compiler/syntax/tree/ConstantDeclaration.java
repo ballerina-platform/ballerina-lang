@@ -24,7 +24,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ConstantDeclaration extends Statement {
+public class ConstantDeclaration extends ModuleMemberDeclaration {
 
     public ConstantDeclaration(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

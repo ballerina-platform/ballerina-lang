@@ -499,7 +499,7 @@ public class BallerinaParser {
                 // Scenario: foo =
                 // Even though this is not valid, consider this as a var-decl and continue;
             case QUESTION_MARK_TOKEN:
-                //Scenario foo? (Optional type descriptor with custom type)
+                // Scenario foo? (Optional type descriptor with custom type)
                 return true;
             case IDENTIFIER_TOKEN:
                 switch (peek(lookahead + 2).kind) {
@@ -1608,7 +1608,7 @@ public class BallerinaParser {
         STNode type = parseTypeDescriptor(token.kind);
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            //If next token after a type descriptor is <code>?</code> then it is an Optional type descriptor
+            // If next token after a type descriptor is <code>?</code> then it is an Optional type descriptor
             case QUESTION_MARK_TOKEN:
                 return parseOptionalTypeDescriptor(type);
             default:
@@ -1621,6 +1621,7 @@ public class BallerinaParser {
      * Parse a type descriptor, given the next token kind.
      * </p>
      * If the preceding token is <code>?</code> then it is an optional type descriptor
+     * 
      * @param tokenKind Next token kind
      * @return Parsed node
      */
@@ -5011,8 +5012,8 @@ public class BallerinaParser {
                 STNode equalsToken = parseAssignOp();
                 STNode initializer = parseExpression();
                 STNode semicolonToken = parseSemicolon();
-                return STNodeFactory.createConstDeclaration(metadata, qualifier, constKeyword, typeDesc, variableName,
-                        equalsToken, initializer, semicolonToken);
+                return STNodeFactory.createConstantDeclaration(metadata, qualifier, constKeyword, typeDesc,
+                        variableName, equalsToken, initializer, semicolonToken);
             case IDENTIFIER_TOKEN:
                 return parseConstantDeclWithOptionalType(metadata, qualifier, constKeyword);
             default:
@@ -5083,8 +5084,8 @@ public class BallerinaParser {
         STNode equalsToken = parseAssignOp();
         STNode initializer = parseExpression();
         STNode semicolonToken = parseSemicolon();
-        return STNodeFactory.createConstDeclaration(metadata, qualifier, constKeyword, type, variableName, equalsToken,
-                initializer, semicolonToken);
+        return STNodeFactory.createConstantDeclaration(metadata, qualifier, constKeyword, type, variableName,
+                equalsToken, initializer, semicolonToken);
     }
 
     /**
@@ -5159,7 +5160,8 @@ public class BallerinaParser {
         return STNodeFactory.createOptionalTypeDescriptor(typeDescriptorNode, questionMarkToken);
     }
 
-     /** Parse unary expression.
+    /**
+     * Parse unary expression.
      * <p>
      * <code>
      * unary-expr := + expression | - expression | ~ expression | ! expression

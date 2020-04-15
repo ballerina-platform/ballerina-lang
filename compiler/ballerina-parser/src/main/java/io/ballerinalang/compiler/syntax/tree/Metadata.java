@@ -20,20 +20,22 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
 public class Metadata extends NonTerminalNode {
 
-    public Metadata(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public Metadata(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Token documentationString() {
+    public Node documentationString() {
         return childInBucket(0);
     }
 
-    public Node annotations() {
-        return childInBucket(1);
+    public NodeList<Annotation> annotations() {
+        return new NodeList<>(childInBucket(1));
     }
 
     @Override
@@ -44,5 +46,19 @@ public class Metadata extends NonTerminalNode {
     @Override
     public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public Metadata modify(
+            Node documentationString,
+            NodeList<Annotation> annotations) {
+        if (checkForReferenceEquality(
+                documentationString,
+                annotations.underlyingListNode())) {
+            return this;
+        }
+
+        return NodeFactory.createMetadata(
+                documentationString,
+                annotations);
     }
 }

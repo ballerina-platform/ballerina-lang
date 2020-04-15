@@ -20,23 +20,25 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
 public class Annotation extends NonTerminalNode {
 
-    public Annotation(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public Annotation(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Token atToken() {
         return childInBucket(0);
     }
 
-    public Node annotationReference() {
+    public Node annotReference() {
         return childInBucket(1);
     }
 
-    public Node annotationValue() {
+    public MappingConstructorExpression annotValue() {
         return childInBucket(2);
     }
 
@@ -48,5 +50,22 @@ public class Annotation extends NonTerminalNode {
     @Override
     public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public Annotation modify(
+            Token atToken,
+            Node annotReference,
+            MappingConstructorExpression annotValue) {
+        if (checkForReferenceEquality(
+                atToken,
+                annotReference,
+                annotValue)) {
+            return this;
+        }
+
+        return NodeFactory.createAnnotation(
+                atToken,
+                annotReference,
+                annotValue);
     }
 }

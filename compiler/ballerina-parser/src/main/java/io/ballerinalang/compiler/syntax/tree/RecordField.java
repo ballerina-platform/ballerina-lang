@@ -34,7 +34,7 @@ public class RecordField extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Node fieldType() {
+    public Node type() {
         return childInBucket(1);
     }
 
@@ -43,14 +43,10 @@ public class RecordField extends NonTerminalNode {
     }
 
     public Token questionMarkToken() {
-        return childInBucket(2);
-    }
-
-    public Token semicolonToken() {
         return childInBucket(3);
     }
 
-    public Token semicolon() {
+    public Token semicolonToken() {
         return childInBucket(4);
     }
 

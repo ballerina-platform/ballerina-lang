@@ -23,22 +23,26 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
+ * This is a generated internal syntax tree node.
+ *
  * @since 1.3.0
  */
 public class STMetadata extends STNode {
-
     public final STNode documentationString;
     public final STNode annotations;
 
-    STMetadata(STNode documentationString, STNode annotations) {
+    STMetadata(
+            STNode documentationString,
+            STNode annotations) {
         super(SyntaxKind.METADATA);
         this.documentationString = documentationString;
         this.annotations = annotations;
 
-        addChildren(documentationString, annotations);
+        addChildren(
+                documentationString,
+                annotations);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         return new Metadata(this, position, parent);
     }

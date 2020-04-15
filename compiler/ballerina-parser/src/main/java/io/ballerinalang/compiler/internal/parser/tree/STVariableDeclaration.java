@@ -28,7 +28,7 @@ import io.ballerinalang.compiler.syntax.tree.VariableDeclaration;
  * @since 1.3.0
  */
 public class STVariableDeclaration extends STStatement {
-    public final STNode annots;
+    public final STNode annotations;
     public final STNode finalKeyword;
     public final STNode typeName;
     public final STNode variableName;
@@ -37,7 +37,7 @@ public class STVariableDeclaration extends STStatement {
     public final STNode semicolonToken;
 
     STVariableDeclaration(
-            STNode annots,
+            STNode annotations,
             STNode finalKeyword,
             STNode typeName,
             STNode variableName,
@@ -45,7 +45,7 @@ public class STVariableDeclaration extends STStatement {
             STNode initializer,
             STNode semicolonToken) {
         super(SyntaxKind.LOCAL_VAR_DECL);
-        this.annots = annots;
+        this.annotations = annotations;
         this.finalKeyword = finalKeyword;
         this.typeName = typeName;
         this.variableName = variableName;
@@ -54,7 +54,7 @@ public class STVariableDeclaration extends STStatement {
         this.semicolonToken = semicolonToken;
 
         addChildren(
-                annots,
+                annotations,
                 finalKeyword,
                 typeName,
                 variableName,

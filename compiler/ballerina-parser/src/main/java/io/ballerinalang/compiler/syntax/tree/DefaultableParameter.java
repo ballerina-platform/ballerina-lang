@@ -70,15 +70,15 @@ public class DefaultableParameter extends Parameter {
 
     public DefaultableParameter modify(
             Token leadingComma,
-            NodeList<Annotation> annots,
+            NodeList<Annotation> annotations,
             Token visibilityQualifier,
             Node type,
             Token paramName,
             Token equalsToken,
             Node expression) {
         if (checkForReferenceEquality(
-                annots.underlyingListNode(),
                 leadingComma,
+                annotations.underlyingListNode(),
                 visibilityQualifier,
                 type,
                 paramName,
@@ -89,7 +89,7 @@ public class DefaultableParameter extends Parameter {
 
         return NodeFactory.createDefaultableParameter(
                 leadingComma,
-                annots,
+                annotations,
                 visibilityQualifier,
                 type,
                 paramName,

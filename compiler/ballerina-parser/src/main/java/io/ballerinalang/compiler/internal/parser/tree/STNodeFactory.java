@@ -171,7 +171,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createVariableDeclaration(
-            STNode annots,
+            STNode annotations,
             STNode finalKeyword,
             STNode typeName,
             STNode variableName,
@@ -180,7 +180,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode semicolonToken) {
 
         return new STVariableDeclaration(
-                annots,
+                annotations,
                 finalKeyword,
                 typeName,
                 variableName,
@@ -209,17 +209,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createModuleVariableDeclaration(STNode metadata,
-                                                         STNode finalKeyword,
-                                                         STNode typeName,
-                                                         STNode variableName,
-                                                         STNode equalsToken,
-                                                         STNode initializer,
-                                                         STNode semicolonToken) {
-            return new STModuleVarDeclaration(metadata, finalKeyword, typeName, variableName, equalsToken, initializer,
-                    semicolonToken);
-    }
-
     public static STNode createCallStatement(
             STNode expression,
             STNode semicolonToken) {
@@ -240,13 +229,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createExternalFunctionBody(
             STNode equalsToken,
-            STNode annotation,
+            STNode annotations,
             STNode externalKeyword,
             STNode semicolonToken) {
 
         return new STExternalFunctionBody(
                 equalsToken,
-                annotation,
+                annotations,
                 externalKeyword,
                 semicolonToken);
     }
@@ -464,7 +453,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createDefaultableParameter(
             STNode leadingComma,
-            STNode annots,
+            STNode annotations,
             STNode visibilityQualifier,
             STNode type,
             STNode paramName,
@@ -473,7 +462,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STDefaultableParameter(
                 leadingComma,
-                annots,
+                annotations,
                 visibilityQualifier,
                 type,
                 paramName,
@@ -483,14 +472,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createRequiredParameter(
             STNode leadingComma,
-            STNode annots,
+            STNode annotations,
             STNode visibilityQualifier,
             STNode type,
             STNode paramName) {
 
         return new STRequiredParameter(
                 leadingComma,
-                annots,
+                annotations,
                 visibilityQualifier,
                 type,
                 paramName);
@@ -498,14 +487,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createRestParameter(
             STNode leadingComma,
-            STNode annots,
+            STNode annotations,
             STNode type,
             STNode ellipsisToken,
             STNode paramName) {
 
         return new STRestParameter(
                 leadingComma,
-                annots,
+                annotations,
                 type,
                 ellipsisToken,
                 paramName);
@@ -730,26 +719,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-
-    public static STNode createConstDeclaration(STNode metadata,
-                                                STNode qualifier,
-                                                STNode constKeyword,
-                                                STNode typeDesc,
-                                                STNode variableName,
-                                                STNode equalsToken,
-                                                STNode initializer,
-                                                STNode semicolonToken) {
-        return new STConstantDeclaration(metadata, qualifier, constKeyword, typeDesc, variableName, equalsToken,
-                initializer, semicolonToken);
-    }
-
-    public static STNode createAnnotation(STNode atToken, STNode annotReference, STNode annotValue) {
-        return new STAnnotation(atToken, annotReference, annotValue);
-    }
-
-    public static STNode createMetadata(STNode documentationString, STNode annotations) {
-        return new STMetadata(documentationString, annotations);
-    }
     public static STNode createRecordRestDescriptor(
             STNode type,
             STNode ellipsisToken,
@@ -792,6 +761,45 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openBraceToken,
                 resources,
                 closeBraceToken);
+    }
+
+    public static STNode createAnnotation(
+            STNode atToken,
+            STNode annotReference,
+            STNode annotValue) {
+
+        return new STAnnotation(
+                atToken,
+                annotReference,
+                annotValue);
+    }
+
+    public static STNode createMetadata(
+            STNode documentationString,
+            STNode annotations) {
+
+        return new STMetadata(
+                documentationString,
+                annotations);
+    }
+
+    public static STNode createModuleVariableDeclaration(
+            STNode metadata,
+            STNode finalKeyword,
+            STNode typeName,
+            STNode variableName,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken) {
+
+        return new STModuleVariableDeclaration(
+                metadata,
+                finalKeyword,
+                typeName,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken);
     }
 }
 

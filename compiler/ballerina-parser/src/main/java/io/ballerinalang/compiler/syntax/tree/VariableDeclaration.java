@@ -69,7 +69,7 @@ public class VariableDeclaration extends Statement {
     }
 
     public VariableDeclaration modify(
-            NodeList<Annotation> annots,
+            NodeList<Annotation> annotations,
             Token finalKeyword,
             Node typeName,
             Token variableName,
@@ -77,7 +77,7 @@ public class VariableDeclaration extends Statement {
             Expression initializer,
             Token semicolonToken) {
         if (checkForReferenceEquality(
-                annots.underlyingListNode(),
+                annotations.underlyingListNode(),
                 finalKeyword,
                 typeName,
                 variableName,
@@ -88,7 +88,7 @@ public class VariableDeclaration extends Statement {
         }
 
         return NodeFactory.createVariableDeclaration(
-                annots,
+                annotations,
                 finalKeyword,
                 typeName,
                 variableName,

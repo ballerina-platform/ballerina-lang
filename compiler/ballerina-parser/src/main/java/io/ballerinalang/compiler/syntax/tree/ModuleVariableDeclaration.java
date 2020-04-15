@@ -20,15 +20,17 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
+ * This is a generated syntax tree node.
+ *
  * @since 1.3.0
  */
 public class ModuleVariableDeclaration extends ModuleMemberDeclaration {
 
-    public ModuleVariableDeclaration(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public ModuleVariableDeclaration(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
-    public Token metadata() {
+    public Metadata metadata() {
         return childInBucket(0);
     }
 
@@ -48,7 +50,7 @@ public class ModuleVariableDeclaration extends ModuleMemberDeclaration {
         return childInBucket(4);
     }
 
-    public Node initializer() {
+    public Expression initializer() {
         return childInBucket(5);
     }
 
@@ -64,5 +66,34 @@ public class ModuleVariableDeclaration extends ModuleMemberDeclaration {
     @Override
     public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    public ModuleVariableDeclaration modify(
+            Metadata metadata,
+            Token finalKeyword,
+            Node typeName,
+            Token variableName,
+            Token equalsToken,
+            Expression initializer,
+            Token semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                finalKeyword,
+                typeName,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken)) {
+            return this;
+        }
+
+        return NodeFactory.createModuleVariableDeclaration(
+                metadata,
+                finalKeyword,
+                typeName,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken);
     }
 }

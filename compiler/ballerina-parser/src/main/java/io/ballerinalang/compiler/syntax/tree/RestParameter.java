@@ -60,12 +60,26 @@ public class RestParameter extends Parameter {
         return visitor.transform(this);
     }
 
-    public RestParameter modify(Token leadingComma, NodeList<Annotation> annots, Node type, Token ellipsisToken,
-                                Token paramName) {
-        if (checkForReferenceEquality(leadingComma, annots.underlyingListNode(), type, ellipsisToken, paramName)) {
+    public RestParameter modify(
+            Token leadingComma,
+            NodeList<Annotation> annotations,
+            Node type,
+            Token ellipsisToken,
+            Token paramName) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                annotations.underlyingListNode(),
+                type,
+                ellipsisToken,
+                paramName)) {
             return this;
         }
 
-        return NodeFactory.createRestParameter(leadingComma, annots, type, ellipsisToken, paramName);
+        return NodeFactory.createRestParameter(
+                leadingComma,
+                annotations,
+                type,
+                ellipsisToken,
+                paramName);
     }
 }

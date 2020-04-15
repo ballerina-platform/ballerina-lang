@@ -57,7 +57,7 @@ public class STListenerDeclaration extends STModuleMemberDeclaration {
         this.semicolonToken = semicolonToken;
 
         addChildren(
-                metadata, 
+                metadata,
                 visibilityQualifier,
                 listenerKeyword,
                 typeDescriptor,

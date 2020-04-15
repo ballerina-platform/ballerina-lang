@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclaration;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.RecordField;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,35 +27,43 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STRecordField extends STNode {
+public class STModuleVariableDeclaration extends STModuleMemberDeclaration {
     public final STNode metadata;
-    public final STNode type;
-    public final STNode fieldName;
-    public final STNode questionMarkToken;
+    public final STNode finalKeyword;
+    public final STNode typeName;
+    public final STNode variableName;
+    public final STNode equalsToken;
+    public final STNode initializer;
     public final STNode semicolonToken;
 
-    STRecordField(
+    STModuleVariableDeclaration(
             STNode metadata,
-            STNode type,
-            STNode fieldName,
-            STNode questionMarkToken,
+            STNode finalKeyword,
+            STNode typeName,
+            STNode variableName,
+            STNode equalsToken,
+            STNode initializer,
             STNode semicolonToken) {
-        super(SyntaxKind.RECORD_FIELD);
+        super(SyntaxKind.MODULE_VAR_DECL);
         this.metadata = metadata;
-        this.type = type;
-        this.fieldName = fieldName;
-        this.questionMarkToken = questionMarkToken;
+        this.finalKeyword = finalKeyword;
+        this.typeName = typeName;
+        this.variableName = variableName;
+        this.equalsToken = equalsToken;
+        this.initializer = initializer;
         this.semicolonToken = semicolonToken;
 
         addChildren(
                 metadata,
-                type,
-                fieldName,
-                questionMarkToken,
+                finalKeyword,
+                typeName,
+                variableName,
+                equalsToken,
+                initializer,
                 semicolonToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new RecordField(this, position, parent);
+        return new ModuleVariableDeclaration(this, position, parent);
     }
 }

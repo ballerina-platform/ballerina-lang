@@ -62,13 +62,13 @@ public class RequiredParameter extends Parameter {
 
     public RequiredParameter modify(
             Token leadingComma,
-            NodeList<Annotation> annots,
+            NodeList<Annotation> annotations,
             Token visibilityQualifier,
             Node type,
             Token paramName) {
         if (checkForReferenceEquality(
                 leadingComma,
-                annots.underlyingListNode(),
+                annotations.underlyingListNode(),
                 visibilityQualifier,
                 type,
                 paramName)) {
@@ -77,7 +77,7 @@ public class RequiredParameter extends Parameter {
 
         return NodeFactory.createRequiredParameter(
                 leadingComma,
-                annots,
+                annotations,
                 visibilityQualifier,
                 type,
                 paramName);
