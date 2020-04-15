@@ -26,7 +26,7 @@ string pathListSeparator = isWindows ? ";" : ":";
 
 # Retrieves the absolute path from the provided location.
 # ```ballerina
-#  string absolutePath = checkpanic filepath:absolute(<@untainted> "test.txt");
+#  string|filepath:Error absolutePath = filepath:absolute(<@untainted> "test.txt");
 # ```
 #
 # + path - String value of the file path
