@@ -2838,10 +2838,6 @@ public class Types {
                 if (TypeTags.isIntegerTypeTag(type.tag)) {
                     return true;
                 }
-                // TODO : clarify
-//                if (TypeTags.isXMLTypeTag(type.tag)) {
-//                    return true;
-//                }
                 return false;
         }
     }
@@ -2958,10 +2954,6 @@ public class Types {
         if (TypeTags.isIntegerTypeTag(source.tag) && TypeTags.isIntegerTypeTag(target.tag)) {
             return true;
         }
-        // TODO : clarify
-//        if (TypeTags.isXMLTypeTag(source.tag) && TypeTags.isXMLTypeTag(target.tag)) {
-//            return true;
-//        }
         return false;
     }
 
