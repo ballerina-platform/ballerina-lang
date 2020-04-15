@@ -8,6 +8,24 @@ This implementation supports introducing all WebSub components:
 - Hub - A party that accepts subscription requests from subscribers and delivers content to the subscribers when the topic 
 is updated by the topic's publisher.
 
+### Basic flow with WebSub
+1. The subscriber discovers from the publisher, the topic it needs to subscribe to and the hub(s) that deliver notifications on updates of the topic.
+
+2. The subscriber sends a subscription request to one or more discovered hub(s) specifying the discovered topic along 
+ with other subscription parameters such as:
+    - The callback URL to which content is expected to be delivered.
+    - (Optional) The lease period (in seconds) the subscriber wants the subscription to stay active.
+    - (Optional) A secret to use for [authenticated content distribution](https://www.w3.org/TR/websub/#signing-content).
+  
+3. The hub sends an intent verification request to the specified callback URL. If the response indicates 
+verification
+ (by echoing a challenge specified in the request) by the subscriber, the subscription is added for the topic at the 
+ hub.
+   
+4. The publisher notifies the hub of updates to the topic and the content to deliver is identified.
+
+5. The hub delivers the identified content to the subscribers of the topic.
+
 #### Subscriber
 
 This module allows introducing a WebSub Subscriber Service with `onIntentVerification`, which accepts HTTP GET requests for intent verification, and `onNotification`, which accepts HTTP POST requests for notifications. The WebSub Subscriber Service provides the following capabilities:
@@ -169,24 +187,6 @@ A hub client endpoint is also made available to publishers and subscribers to pe
     };
     ebsub:SubscriptionChangeResponse|error subscriptionChangeResponse = websubHubClientEP->unsubscribe(unsubscriptionRequest);
     ```
-
-### Basic flow with WebSub
-1. The subscriber discovers from the publisher, the topic it needs to subscribe to and the hub(s) that deliver notifications on updates of the topic.
-
-2. The subscriber sends a subscription request to one or more discovered hub(s) specifying the discovered topic along 
- with other subscription parameters such as:
-    - The callback URL to which content is expected to be delivered.
-    - (Optional) The lease period (in seconds) the subscriber wants the subscription to stay active.
-    - (Optional) A secret to use for [authenticated content distribution](https://www.w3.org/TR/websub/#signing-content).
-  
-3. The hub sends an intent verification request to the specified callback URL. If the response indicates 
-verification
- (by echoing a challenge specified in the request) by the subscriber, the subscription is added for the topic at the 
- hub.
-   
-4. The publisher notifies the hub of updates to the topic and the content to deliver is identified.
-
-5. The hub delivers the identified content to the subscribers of the topic.
 
 ### Introducing Specific Subscriber Services (Webhook Callback Services)
 

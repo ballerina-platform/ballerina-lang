@@ -139,18 +139,24 @@ public type IntentVerificationRequest object {
     public int leaseSeconds = 0;
     public http:Request request = new;
 
-    # Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
-    #
-    # + expectedTopic - The topic for which subscription should be accepted
-    # + return - An `http:Response`, which to the hub verifying/denying intent to subscribe
+# Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
+# ```ballerina
+#  http:Response response = request.buildSubscriptionVerificationResponse("<TOPIC_TO_VERIFY_FOR>");
+# ```
+#
+# + expectedTopic - The topic for which subscription should be accepted
+# + return - An `http:Response`, which to the hub verifying/denying intent to subscribe
     public function buildSubscriptionVerificationResponse(string expectedTopic) returns http:Response {
         return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, expectedTopic);
     }
 
-    # Builds the response for the request, verifying intention to unsubscribe, if the topic matches that expected.
-    #
-    # + expectedTopic - The topic for which unsubscription should be accepted
-    # + return - An `http:Response`, which to for the hub verifying/denying intent to unsubscribe
+# Builds the response for the request, verifying intention to unsubscribe, if the topic matches that expected.
+# ```ballerina
+# http:Response response = request.buildUnsubscriptionVerificationResponse("<TOPIC_TO_VERIFY_FOR>");
+# ```
+#
+# + expectedTopic - The topic for which unsubscription should be accepted
+# + return - An `http:Response`, which to for the hub verifying/denying intent to unsubscribe
     public function buildUnsubscriptionVerificationResponse(string expectedTopic) returns http:Response {
         return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, expectedTopic);
     }
