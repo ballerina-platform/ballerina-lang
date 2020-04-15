@@ -315,7 +315,7 @@ public class LengthOperationTest {
         BRunUtil.invoke(result, "accessLengthOfNullTuple", args);
     }
 
-    @Test(description = "Test length of xml when it is null.", groups = "brokenOnXMLLangLibChange")
+    @Test(description = "Test length of xml when it is null.")
     public void testXMLLengthOfNull() {
         BValue[] args = new BValue[0];
         BRunUtil.invoke(result, "accessLengthOfNullXML", args);
@@ -333,7 +333,7 @@ public class LengthOperationTest {
     public void testNegativeTests() {
         Assert.assertEquals(resNegative.getErrorCount(), 2);
         BAssertUtil.validateError(resNegative, 0, "incompatible types: expected 'string', found 'int'", 31, 21);
-        BAssertUtil.validateError(resNegative, 1, "undefined function 'length' in object 'Person'", 36, 21);
+        BAssertUtil.validateError(resNegative, 1, "undefined method 'length' in object 'Person'", 36, 21);
     }
 
 }

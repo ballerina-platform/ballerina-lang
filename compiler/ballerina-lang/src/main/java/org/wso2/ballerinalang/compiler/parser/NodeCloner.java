@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
@@ -1440,6 +1441,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.sealed = source.sealed;
         clone.restFieldType = clone(source.restFieldType);
+        clone.analyzed = source.analyzed;
         cloneBLangStructureTypeNode(source, clone);
         cloneBLangType(source, clone);
     }
@@ -1671,8 +1673,14 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMarkdownDocumentation source) {
+    public void visit(BLangMarkDownDeprecatedParametersDocumentation source) {
+        BLangMarkDownDeprecatedParametersDocumentation clone = new BLangMarkDownDeprecatedParametersDocumentation();
+        source.cloneRef = clone;
+        clone.parameters = source.parameters;
+    }
 
+    @Override
+    public void visit(BLangMarkdownDocumentation source) {
         BLangMarkdownDocumentation clone = new BLangMarkdownDocumentation();
         source.cloneRef = clone;
         clone.documentationLines.addAll(cloneList(source.documentationLines));
@@ -1680,6 +1688,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.references.addAll(cloneList(source.references));
         clone.returnParameter = clone(source.returnParameter);
         clone.deprecationDocumentation = clone(source.deprecationDocumentation);
+        clone.deprecatedParametersDocumentation = clone(source.deprecatedParametersDocumentation);
     }
 
     @Override

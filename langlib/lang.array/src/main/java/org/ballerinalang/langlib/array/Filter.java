@@ -43,7 +43,6 @@ public class Filter {
 
     public static ArrayValue filter(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func) {
         ArrayValue newArr = new ArrayValueImpl((BArrayType) arr.getType());
-        int elemTypeTag = newArr.getElementType().getTag();
         int size = arr.size();
         Object val;
 
@@ -55,5 +54,8 @@ public class Filter {
         }
 
         return newArr;
+    }
+    public static ArrayValue filter_bstring(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func) {
+        return filter(strand, arr, func);
     }
 }

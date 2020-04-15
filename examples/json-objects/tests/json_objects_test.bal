@@ -16,7 +16,7 @@ public function mockPrint(any... s) {
     }
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoke the main function.
     main();
@@ -34,12 +34,12 @@ function testFunc() {
          }
     };
 
-    test:assertEquals(outputs[0], jt0);
+    test:assertEquals(outputs[0], jt0.toJsonString());
     test:assertEquals(outputs[1], "j is map<json>: ");
     test:assertEquals(outputs[2], true);
-    test:assertEquals(outputs[3], jt3);
-    test:assertEquals(outputs[4], jt4);
-    test:assertEquals(outputs[5], jt5);
+    test:assertEquals(outputs[3], jt3.toJsonString());
+    test:assertEquals(outputs[4], jt4.toJsonString());
+    test:assertEquals(outputs[5], jt5.toJsonString());
     test:assertEquals(outputs[6], "Stallone");
 }
 

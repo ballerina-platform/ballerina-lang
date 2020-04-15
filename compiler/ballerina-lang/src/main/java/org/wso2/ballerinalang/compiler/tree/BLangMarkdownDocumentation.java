@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree;
 
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
@@ -42,6 +43,7 @@ public class BLangMarkdownDocumentation extends BLangNode implements MarkdownDoc
     public LinkedList<BLangMarkdownReferenceDocumentation> references;
     public BLangMarkdownReturnParameterDocumentation returnParameter;
     public BLangMarkDownDeprecationDocumentation deprecationDocumentation;
+    public BLangMarkDownDeprecatedParametersDocumentation deprecatedParametersDocumentation;
 
     public BLangMarkdownDocumentation() {
         this.documentationLines = new LinkedList<>();
@@ -87,6 +89,17 @@ public class BLangMarkdownDocumentation extends BLangNode implements MarkdownDoc
     @Override
     public void setDeprecationDocumentation(BLangMarkDownDeprecationDocumentation deprecationDocumentation) {
         this.deprecationDocumentation = deprecationDocumentation;
+    }
+
+    @Override
+    public void setDeprecatedParametersDocumentation(BLangMarkDownDeprecatedParametersDocumentation
+                                                                 deprecatedParametersDocumentation) {
+        this.deprecatedParametersDocumentation = deprecatedParametersDocumentation;
+    }
+
+    @Override
+    public BLangMarkDownDeprecatedParametersDocumentation getDeprecatedParametersDocumentation() {
+        return deprecatedParametersDocumentation;
     }
 
     @Override

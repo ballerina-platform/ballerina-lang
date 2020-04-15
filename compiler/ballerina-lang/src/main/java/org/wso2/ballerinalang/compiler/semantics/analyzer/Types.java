@@ -481,22 +481,29 @@ public class Types {
             return true;
         }
 
-        if (TypeTags.isXMLTypeTag(sourceTag) && targetTag == TypeTags.XML) {
-            return true;
+        if (TypeTags.isXMLTypeTag(sourceTag) && TypeTags.isXMLTypeTag(targetTag)) {
+            return isXMLTypeAssignable(source, target, unresolvedTypes);
         }
 
         if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING) {
             return true;
         }
 
-        if (TypeTags.isXMLTypeTag(sourceTag) && targetTag == TypeTags.XML) {
+        if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.XML_TEXT) {
             return true;
         }
 
-        if (sourceTag == TypeTags.CHAR_STRING && targetTag == TypeTags.STRING) {
+        if (sourceTag == TypeTags.STRING && targetTag == TypeTags.XML_TEXT) {
             return true;
         }
 
+        if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.STRING) {
+            return true;
+        }
+
+        if (sourceTag == TypeTags.XML_TEXT && targetTag == TypeTags.CHAR_STRING) {
+            return true;
+        }
         if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ERROR) {
             return isErrorTypeAssignable((BErrorType) source, (BErrorType) target, unresolvedTypes);
         } else if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ANY) {
@@ -518,7 +525,7 @@ public class Types {
 
         if (targetTag == TypeTags.MAP && sourceTag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) source;
-            return isAssignableRecordType(recordType, (BMapType) target);
+            return isAssignableRecordType(recordType, target);
         }
 
         if (targetTag == TypeTags.RECORD && sourceTag == TypeTags.MAP) {
@@ -569,6 +576,10 @@ public class Types {
             if (sourceTag == TypeTags.MAP) {
                 return isAssignable(((BMapType) source).constraint, target, unresolvedTypes);
             }
+
+            if (sourceTag == TypeTags.RECORD) {
+                return isAssignableRecordType((BRecordType) source, target);
+            }
         }
 
         if (targetTag == TypeTags.FUTURE && sourceTag == TypeTags.FUTURE) {
@@ -614,17 +625,33 @@ public class Types {
                 isArrayTypesAssignable(source, target, unresolvedTypes);
     }
 
-    private boolean isAssignableRecordType(BRecordType recordType, BMapType targetMapType) {
-        if (recordType.sealed) {
-            return recordFieldsAssignableToMap(recordType, targetMapType);
-        } else {
-            return isAssignable(recordType.restFieldType, targetMapType.constraint)
-                    && recordFieldsAssignableToMap(recordType, targetMapType);
+    private boolean isAssignableRecordType(BRecordType recordType, BType type) {
+        BType targetType;
+        switch (type.tag) {
+            case TypeTags.MAP:
+                targetType = ((BMapType) type).constraint;
+                break;
+            case TypeTags.JSON:
+                targetType = type;
+                break;
+            default:
+                throw new IllegalArgumentException("Incompatible target type: " + type.toString());
         }
+        return recordFieldsAssignableToType(recordType, targetType);
     }
 
-    private boolean recordFieldsAssignableToMap(BRecordType recordType, BMapType targetMapType) {
-        return recordType.fields.stream().allMatch(field -> isAssignable(field.type, targetMapType.constraint));
+    private boolean recordFieldsAssignableToType(BRecordType recordType, BType targetType) {
+        for (BField field : recordType.fields) {
+            if (!isAssignable(field.type, targetType)) {
+                return false;
+            }
+        }
+
+        if (!recordType.sealed) {
+            return isAssignable(recordType.restFieldType, targetType);
+        }
+
+        return true;
     }
 
     private boolean isAssignableMapType(BMapType sourceMapType, BRecordType targetRecType) {
@@ -653,6 +680,25 @@ public class Types {
         unresolvedTypes.add(pair);
         return isAssignable(source.reasonType, target.reasonType, unresolvedTypes) && 
                 isAssignable(source.detailType, target.detailType, unresolvedTypes);
+    }
+
+    // TODO: Recheck this to support finite types
+    private boolean isXMLTypeAssignable(BType sourceType, BType targetType, Set<TypePair> unresolvedTypes) {
+        int sourceTag = sourceType.tag;
+        int targetTag = targetType.tag;
+
+        if (targetTag == TypeTags.XML) {
+            BXMLType target = (BXMLType) targetType;
+            if (target.constraint != null) {
+                if (TypeTags.isXMLNonSequenceType(sourceTag)) {
+                    return isAssignable(sourceType, target.constraint, unresolvedTypes);
+                }
+                BXMLType source = (BXMLType) sourceType;
+                return isAssignable(source.constraint, target.constraint, unresolvedTypes);
+            }
+            return true;
+        }
+        return sourceTag == targetTag;
     }
 
     private boolean isTupleTypeAssignable(BType source, BType target, Set<TypePair> unresolvedTypes) {
