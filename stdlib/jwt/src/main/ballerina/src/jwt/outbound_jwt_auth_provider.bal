@@ -60,7 +60,7 @@ public type OutboundJwtAuthProvider object {
         string authToken = "";
         JwtIssuerConfig? jwtIssuerConfig = self.jwtIssuerConfig;
         if (jwtIssuerConfig is JwtIssuerConfig) {
-            string|Error result = getAuthTokenForJWTAuth(jwtIssuerConfig);
+            string|Error result = getJwtAuthToken(jwtIssuerConfig);
             if (result is error) {
                 return prepareAuthError(result.reason(), result);
             }
@@ -90,7 +90,7 @@ public type OutboundJwtAuthProvider object {
 #
 # + jwtIssuerConfig - JWT issuer configurations
 # + return - JWT or else a `jwt:Error` if an error occurred while issuing JWT
-function getAuthTokenForJWTAuth(JwtIssuerConfig jwtIssuerConfig) returns string|Error {
+function getJwtAuthToken(JwtIssuerConfig jwtIssuerConfig) returns string|Error {
     JwtHeader header = { alg: jwtIssuerConfig.signingAlg, typ: "JWT" };
     string username;
     string? configUsername = jwtIssuerConfig?.username;
