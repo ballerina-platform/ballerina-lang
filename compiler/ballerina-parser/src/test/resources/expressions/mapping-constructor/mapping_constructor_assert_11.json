@@ -18,40 +18,45 @@
                             "kind": "COLON_TOKEN"
                         },
                         {
-                            "kind": "QUALIFIED_IDENTIFIER",
+                            "kind": "BINARY_EXPRESSION",
                             "children": [
                                 {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "b"
+                                    "kind": "QUALIFIED_IDENTIFIER",
+                                    "children": [
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "b"
+                                        },
+                                        {
+                                            "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "c"
+                                        }
+                                    ]
                                 },
                                 {
-                                    "kind": "COLON_TOKEN"
+                                    "kind": "PLUS_TOKEN",
+                                    "isMissing": true
                                 },
                                 {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "c"
+                                    "kind": "QUALIFIED_IDENTIFIER",
+                                    "children": [
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "isMissing": true
+                                        },
+                                        {
+                                            "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "d"
+                                        }
+                                    ]
                                 }
                             ]
-                        }
-                    ]
-                },
-                {
-                    "kind": "SPECIFIC_FIELD",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "d"
                         }
                     ]
                 }

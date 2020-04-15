@@ -130,6 +130,12 @@ public class BallerinaLexer {
             case LexerTerminals.DOUBLE_QUOTE:
                 token = processStringLiteral();
                 break;
+            case LexerTerminals.HASH:
+                token = getSyntaxToken(SyntaxKind.HASH_TOKEN);
+                break;
+            case LexerTerminals.AT:
+                token = getSyntaxToken(SyntaxKind.AT_TOKEN);
+                break;
 
             // Arithmetic operators
             case LexerTerminals.EQUAL:

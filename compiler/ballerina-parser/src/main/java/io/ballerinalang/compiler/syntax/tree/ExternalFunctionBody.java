@@ -34,8 +34,8 @@ public class ExternalFunctionBody extends Statement {
         return childInBucket(0);
     }
 
-    public Node annotation() {
-        return childInBucket(1);
+    public NodeList<Annotation> annotations() {
+        return new NodeList<>(childInBucket(1));
     }
 
     public Token externalKeyword() {
@@ -58,12 +58,12 @@ public class ExternalFunctionBody extends Statement {
 
     public ExternalFunctionBody modify(
             Token equalsToken,
-            Node annotation,
+            NodeList<Annotation> annotations,
             Token externalKeyword,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 equalsToken,
-                annotation,
+                annotations.underlyingListNode(),
                 externalKeyword,
                 semicolonToken)) {
             return this;
@@ -71,7 +71,7 @@ public class ExternalFunctionBody extends Statement {
 
         return NodeFactory.createExternalFunctionBody(
                 equalsToken,
-                annotation,
+                annotations,
                 externalKeyword,
                 semicolonToken);
     }

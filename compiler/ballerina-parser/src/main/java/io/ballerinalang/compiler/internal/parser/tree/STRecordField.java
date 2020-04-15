@@ -28,23 +28,27 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  * @since 1.3.0
  */
 public class STRecordField extends STNode {
+    public final STNode metadata;
     public final STNode type;
     public final STNode fieldName;
     public final STNode questionMarkToken;
     public final STNode semicolonToken;
 
     STRecordField(
+            STNode metadata,
             STNode type,
             STNode fieldName,
             STNode questionMarkToken,
             STNode semicolonToken) {
         super(SyntaxKind.RECORD_FIELD);
+        this.metadata = metadata;
         this.type = type;
         this.fieldName = fieldName;
         this.questionMarkToken = questionMarkToken;
         this.semicolonToken = semicolonToken;
 
         addChildren(
+                metadata,
                 type,
                 fieldName,
                 questionMarkToken,

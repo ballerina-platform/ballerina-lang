@@ -13,6 +13,16 @@
                     "kind": "LISTENER_DECLARATION",
                     "children": [
                         {
+                            "kind": "METADATA",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                }
+                            ]
+                        },
+                        {
                             "kind": "LISTENER_KEYWORD"
                         },
                         {
@@ -39,6 +49,16 @@
                 {
                     "kind": "CONST_DECLARATION",
                     "children": [
+                        {
+                            "kind": "METADATA",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                }
+                            ]
+                        },
                         {
                             "kind": "CONST_KEYWORD"
                         },

@@ -2,6 +2,16 @@
     "kind": "SERVICE_DECLARATION",
     "children": [
         {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
+            ]
+        },
+        {
             "kind": "SERVICE_KEYWORD"
         },
         {
@@ -33,6 +43,16 @@
                         {
                             "kind": "FUNCTION_DEFINITION",
                             "children": [
+                                {
+                                    "kind": "METADATA",
+                                    "children": [
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                            ]
+                                        }
+                                    ]
+                                },
                                 {
                                     "kind": "FUNCTION_KEYWORD"
                                 },
@@ -72,6 +92,16 @@
                         {
                             "kind": "FUNCTION_DEFINITION",
                             "children": [
+                                {
+                                    "kind": "METADATA",
+                                    "children": [
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                            ]
+                                        }
+                                    ]
+                                },
                                 {
                                     "kind": "RESOURCE_KEYWORD"
                                 },

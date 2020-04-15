@@ -29,23 +29,27 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STRestParameter extends STParameter {
     public final STNode leadingComma;
+    public final STNode annotations;
     public final STNode type;
     public final STNode ellipsisToken;
     public final STNode paramName;
 
     STRestParameter(
             STNode leadingComma,
+            STNode annotations,
             STNode type,
             STNode ellipsisToken,
             STNode paramName) {
-        super(SyntaxKind.PARAMETER);
+        super(SyntaxKind.REST_PARAM);
         this.leadingComma = leadingComma;
+        this.annotations = annotations;
         this.type = type;
         this.ellipsisToken = ellipsisToken;
         this.paramName = paramName;
 
         addChildren(
                 leadingComma,
+                annotations,
                 type,
                 ellipsisToken,
                 paramName);

@@ -29,6 +29,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STDefaultableParameter extends STParameter {
     public final STNode leadingComma;
+    public final STNode annotations;
     public final STNode visibilityQualifier;
     public final STNode type;
     public final STNode paramName;
@@ -37,13 +38,15 @@ public class STDefaultableParameter extends STParameter {
 
     STDefaultableParameter(
             STNode leadingComma,
+            STNode annotations,
             STNode visibilityQualifier,
             STNode type,
             STNode paramName,
             STNode equalsToken,
             STNode expression) {
-        super(SyntaxKind.PARAMETER);
+        super(SyntaxKind.DEFAULTABLE_PARAM);
         this.leadingComma = leadingComma;
+        this.annotations = annotations;
         this.visibilityQualifier = visibilityQualifier;
         this.type = type;
         this.paramName = paramName;
@@ -52,6 +55,7 @@ public class STDefaultableParameter extends STParameter {
 
         addChildren(
                 leadingComma,
+                annotations,
                 visibilityQualifier,
                 type,
                 paramName,

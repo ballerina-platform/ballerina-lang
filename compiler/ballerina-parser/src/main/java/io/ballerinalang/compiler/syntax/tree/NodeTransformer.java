@@ -236,6 +236,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(nilTypeDescriptor);
     }
 
+    public T transform(OptionalTypeDescriptor optionalTypeDescriptor) {
+        return transformSyntaxNode(optionalTypeDescriptor);
+    }
+
     public T transform(ObjectField objectField) {
         return transformSyntaxNode(objectField);
     }
@@ -264,6 +268,21 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(serviceBody);
     }
 
+    public T transform(Annotation annotation) {
+        return transformSyntaxNode(annotation);
+    }
+
+    public T transform(Metadata metadata) {
+        return transformSyntaxNode(metadata);
+    }
+
+    public T transform(ModuleVariableDeclaration moduleVariableDeclaration) {
+        return transformSyntaxNode(moduleVariableDeclaration);
+    }
+
+    public T transform(ArrayTypeDescriptor arrayTypeDescriptor) {
+        return transformSyntaxNode(arrayTypeDescriptor);
+    }
     // Tokens
 
     public T transform(Token token) {
@@ -287,14 +306,6 @@ public abstract class NodeTransformer<T> {
     // TODO Why Minutiae is in this visitor? Check on this.
     public T transform(Minutiae minutiae) {
         return transformSyntaxNode(minutiae);
-    }
-
-    public T transform(OptionalTypeDescriptor optionalTypeDescriptor) {
-        return transformSyntaxNode(optionalTypeDescriptor);
-    }
-
-    public T transform(ArrayTypeDescriptor arrayTypeDescriptor) {
-        return transformSyntaxNode(arrayTypeDescriptor);
     }
 
     /**

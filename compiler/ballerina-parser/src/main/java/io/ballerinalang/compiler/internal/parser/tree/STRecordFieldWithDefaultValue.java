@@ -28,6 +28,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  * @since 1.3.0
  */
 public class STRecordFieldWithDefaultValue extends STNode {
+    public final STNode metadata;
     public final STNode type;
     public final STNode fieldName;
     public final STNode equalsToken;
@@ -35,12 +36,14 @@ public class STRecordFieldWithDefaultValue extends STNode {
     public final STNode semicolonToken;
 
     STRecordFieldWithDefaultValue(
+            STNode metadata,
             STNode type,
             STNode fieldName,
             STNode equalsToken,
             STNode expression,
             STNode semicolonToken) {
         super(SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE);
+        this.metadata = metadata;
         this.type = type;
         this.fieldName = fieldName;
         this.equalsToken = equalsToken;
@@ -48,6 +51,7 @@ public class STRecordFieldWithDefaultValue extends STNode {
         this.semicolonToken = semicolonToken;
 
         addChildren(
+                metadata,
                 type,
                 fieldName,
                 equalsToken,

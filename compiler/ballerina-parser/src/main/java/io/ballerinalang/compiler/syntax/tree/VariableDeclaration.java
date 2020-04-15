@@ -30,28 +30,32 @@ public class VariableDeclaration extends Statement {
         super(internalNode, position, parent);
     }
 
-    public Token finalKeyword() {
-        return childInBucket(0);
+    public NodeList<Annotation> annotations() {
+        return new NodeList<>(childInBucket(0));
     }
 
-    public Node typeName() {
+    public Token finalKeyword() {
         return childInBucket(1);
     }
 
-    public Token variableName() {
+    public Node typeName() {
         return childInBucket(2);
     }
 
-    public Token equalsToken() {
+    public Token variableName() {
         return childInBucket(3);
     }
 
-    public Expression initializer() {
+    public Token equalsToken() {
         return childInBucket(4);
     }
 
-    public Token semicolonToken() {
+    public Expression initializer() {
         return childInBucket(5);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(6);
     }
 
     @Override
@@ -65,6 +69,7 @@ public class VariableDeclaration extends Statement {
     }
 
     public VariableDeclaration modify(
+            NodeList<Annotation> annotations,
             Token finalKeyword,
             Node typeName,
             Token variableName,
@@ -72,6 +77,7 @@ public class VariableDeclaration extends Statement {
             Expression initializer,
             Token semicolonToken) {
         if (checkForReferenceEquality(
+                annotations.underlyingListNode(),
                 finalKeyword,
                 typeName,
                 variableName,
@@ -82,6 +88,7 @@ public class VariableDeclaration extends Statement {
         }
 
         return NodeFactory.createVariableDeclaration(
+                annotations,
                 finalKeyword,
                 typeName,
                 variableName,

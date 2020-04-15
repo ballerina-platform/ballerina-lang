@@ -2,6 +2,16 @@
     "kind": "FUNCTION_DEFINITION",
     "children": [
         {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
+            ]
+        },
+        {
             "kind": "PUBLIC_KEYWORD"
         },
         {
@@ -67,10 +77,10 @@
                                     ]
                                 },
                                 {
-                                    "kind":"PLUS_TOKEN"
+                                    "kind": "PLUS_TOKEN"
                                 },
                                 {
-                                    "kind":"EQUAL_TOKEN"
+                                    "kind": "EQUAL_TOKEN"
                                 },
                                 {
                                     "kind": "BINARY_EXPRESSION",
@@ -113,10 +123,10 @@
                                     ]
                                 },
                                 {
-                                    "kind":"PLUS_TOKEN"
+                                    "kind": "PLUS_TOKEN"
                                 },
                                 {
-                                    "kind":"EQUAL_TOKEN"
+                                    "kind": "EQUAL_TOKEN"
                                 },
                                 {
                                     "kind": "BINARY_EXPRESSION",
@@ -174,10 +184,10 @@
                                     ]
                                 },
                                 {
-                                    "kind":"PLUS_TOKEN"
+                                    "kind": "PLUS_TOKEN"
                                 },
                                 {
-                                    "kind":"EQUAL_TOKEN"
+                                    "kind": "EQUAL_TOKEN"
                                 },
                                 {
                                     "kind": "BINARY_EXPRESSION",
