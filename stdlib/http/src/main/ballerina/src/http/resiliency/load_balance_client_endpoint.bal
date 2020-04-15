@@ -194,7 +194,7 @@ public type LoadBalanceClient client object {
     # The getPromisedResponse implementation of the LoadBalancer Connector.
     #
     # + promise - The related `http:PushPromise`
-    # + return - A promised `http:Response` message, or an `http:ClientError` if the invocation fails
+    # + return - A promised `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         string errorMessage = "Load balancer client not supported for getPromisedResponse action";
         UnsupportedActionError err = error(UNSUPPORTED_ACTION, message = errorMessage);
