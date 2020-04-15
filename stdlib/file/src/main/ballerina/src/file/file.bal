@@ -55,7 +55,7 @@ function externExists(handle path) returns boolean = @java:Method {
 #
 # + dir - Directory name
 # + parentDirs - Indicates whether the `createDir` should create non-existing parent directories
-# + return - Absolute path value of the created directory or else an `Error` if failed
+# + return - Absolute path value of the created directory or else an `file:Error` if failed
 public function createDir(@untainted string dir, boolean parentDirs = false) returns string|Error {
     var returnVal = externCreateDir(java:fromString(dir), parentDirs);
     if (returnVal is Error) {
@@ -78,7 +78,7 @@ function externCreateDir(handle dir, boolean parentDirs) returns handle|Error = 
 #
 # + path - String value of the file/directory path
 # + recursive - Indicates whether the `remove` should recursively remove all the files inside the given directory
-# + return - An `Error` if failed to remove
+# + return - An `file:Error` if failed to remove
 public function remove(@untainted string path, boolean recursive = false) returns Error? {
     return externRemove(java:fromString(path), recursive);
 }
@@ -96,7 +96,7 @@ function externRemove(handle path, boolean recursive) returns Error? = @java:Met
 #
 # + oldPath - String value of the old file path
 # + newPath - String value of the new file path
-# + return - An `Error` if failed to rename
+# + return - An `file:Error` if failed to rename
 public function rename(@untainted string oldPath, @untainted string newPath) returns Error? {
     return externRename(java:fromString(oldPath), java:fromString(newPath));
 }
@@ -128,7 +128,7 @@ function externTempDir() returns handle = @java:Method {
 # ```
 #
 # + path - String value of the file path
-# + return - Absolute path value of the created file or else an `Error` if failed
+# + return - Absolute path value of the created file or else an `file:Error` if failed
 public function createFile(@untainted string path) returns string|Error {
     var returnVal = externCreateFile(java:fromString(path));
     if (returnVal is Error) {
@@ -149,7 +149,7 @@ function externCreateFile(handle path) returns handle|Error = @java:Method {
 # ```
 #
 # + path - String value of the file path.
-# + return - The `FileInfo` instance with the file metadata or else an `Error`
+# + return - The `FileInfo` instance with the file metadata or else an `file:Error`
 public function getFileInfo(@untainted string path) returns FileInfo|Error {
     return externGetFileInfo(java:fromString(path));
 }
@@ -167,7 +167,7 @@ function externGetFileInfo(handle path) returns FileInfo|Error = @java:Method {
 #
 # + path - String value of the directory path.
 # + maxDepth - The maximum number of directory levels to visit. -1 to indicate that all levels should be visited
-# + return - The `FileInfo` array or else an `Error` if there is an error while changing the mode.
+# + return - The `FileInfo` array or else an `file:Error` if there is an error while changing the mode.
 public function readDir(@untainted string path, int maxDepth = -1) returns FileInfo[]|Error {
     return externReadDir(java:fromString(path), maxDepth);
 }
@@ -186,7 +186,7 @@ function externReadDir(handle path, int maxDepth) returns FileInfo[]|Error = @ja
 # + sourcePath - String value of the old file path
 # + destinationPath - String value of the new file path
 # + replaceExisting - Flag to replace if the file already exists in the destination path
-# + return - An `Error` if failed to rename
+# + return - An `file:Error` if failed to rename
 public function copy(@untainted string sourcePath, @untainted string destinationPath,
             boolean replaceExisting = false) returns Error? {
     return externCopy(java:fromString(sourcePath), java:fromString(destinationPath), replaceExisting);
