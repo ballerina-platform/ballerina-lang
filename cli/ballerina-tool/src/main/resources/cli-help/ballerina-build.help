@@ -62,6 +62,9 @@ OPTIONS
            Generates an HTML report containing test results. Defaults to 'true'
            if code coverage is enabled.
 
+       --debug
+           Run tests in remote debugging mode, only when the '--skip-tests' flag is not used.
+
 CONFIG PROPERTIES
        (--key=value)...
            Set Ballerina environment parameters as key/value pairs.
