@@ -184,7 +184,7 @@ public type LoadBalanceClient client object {
     # The getNextPromise implementation of the LoadBalancer Connector.
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP Push Promise message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:PushPromise` message or else an `http:ClientError` if the invocation fails
     public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         string errorMessage = "Load balancer client not supported for getNextPromise action";
         UnsupportedActionError err = error(UNSUPPORTED_ACTION, message = errorMessage);
