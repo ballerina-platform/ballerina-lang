@@ -150,7 +150,7 @@ public function parent(string path) returns string|Error {
 }
 
 # Returns the shortest path name equivalent to the given path.
-# Replace multiple Separator elements with a single one.
+# Replace the multiple separator elements with a single one.
 # Eliminate each "." path name element (the current directory).
 # Eliminate each inner ".." path name element (the parent directory).
 # ```ballerina
@@ -244,7 +244,7 @@ public function normalize(string path) returns string|Error {
 # ```
 #
 # + path - String value of the file path
-# + return - String array of part components or else a `filepath:Error` if the path is invalid
+# + return - String array of the part components or else a `filepath:Error` if the path is invalid
 public function split(string path) returns string[]|Error {
     string validatedPath = check parse(path);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
@@ -289,7 +289,7 @@ public function build(string... parts) returns string|Error {
 # ```
 #
 # + name - Filename
-# + return - True if the path is a Windows reserved name or else false
+# + return - True if the path is a Windows reserved name or else false otherwise
 public function isReservedName(string name) returns boolean {
     if (isWindows) {
         return isWindowsReservedName(name);
@@ -331,7 +331,7 @@ public function extension(string path) returns string|Error {
     return "";
 }
 
-# Returns a relative path that is logically equivalent to the target path when joined to the base path with an
+# Returns a relative path, which is logically equivalent to the target path when joined to the base path with an
 # intervening separator.
 # An error is returned if the target path cannot be made relative to the base path.
 # ```ballerina
