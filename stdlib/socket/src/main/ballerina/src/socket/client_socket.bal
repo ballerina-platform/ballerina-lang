@@ -115,7 +115,7 @@ public type Client client object {
 # + port - The port number of the remote service
 # + readTimeoutInMillis - The socket reading timeout value to be used in milliseconds. If this is not set,
 #                         the default value of 300000 milliseconds (5 minutes) will be used.
-# + callbackService - The callback service for the client. Resources in this service gets called on receipt
+# + callbackService - The callback service for the client. Resources in this service gets called on the receipt
 #                     of messages from the server.
 public type ClientConfig record {|
     string host;
