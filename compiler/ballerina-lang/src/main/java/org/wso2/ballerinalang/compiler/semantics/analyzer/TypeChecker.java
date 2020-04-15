@@ -1671,10 +1671,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkObjectFunctionInvocationExpr(iExpr, (BObjectType) varRefType);
                 break;
             case TypeTags.RECORD:
-                boolean methodFound = checkFieldFunctionPointer(iExpr);
-                if (!methodFound) {
-                    checkInLangLib(iExpr, varRefType);
-                }
+                checkFieldFunctionPointer(iExpr, this.env);
                 break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
@@ -1701,18 +1698,26 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkInLangLib(BLangInvocation iExpr, BType varRefType) {
         boolean langLibMethodExists = checkLangLibMethodInvocationExpr(iExpr, varRefType);
         if (!langLibMethodExists) {
-            dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name.value);
+            dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_TYPE, iExpr.name.value, iExpr.expr.type);
             resultType = symTable.semanticError;
         }
     }
 
-    private boolean checkFieldFunctionPointer(BLangInvocation iExpr) {
-        BType type = checkExpr(iExpr.expr, this.env);
+    private boolean checkFieldFunctionPointer(BLangInvocation iExpr, SymbolEnv env) {
+        BType type = checkExpr(iExpr.expr, env);
+
+        BLangIdentifier invocationIdentifier = iExpr.name;
+
         if (type == symTable.semanticError) {
             return false;
         }
-        BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name), type.tsymbol);
+        BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(invocationIdentifier),
+                type.tsymbol);
         if (funcSymbol == symTable.notFoundSymbol) {
+            if (!checkLangLibMethodInvocationExpr(iExpr, type)) {
+                dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FIELD_IN_RECORD, invocationIdentifier, type);
+                resultType = symTable.semanticError;
+            }
             return false;
         }
         iExpr.symbol = funcSymbol;
@@ -3528,7 +3533,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 symResolver.resolveObjectMethod(iExpr.pos, env, funcName, (BObjectTypeSymbol) objectType.tsymbol);
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             if (!checkLangLibMethodInvocationExpr(iExpr, objectType)) {
-                dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value,
+                dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_METHOD_IN_OBJECT, iExpr.name.value,
                            objectType);
                 resultType = symTable.semanticError;
                 return;
