@@ -30,9 +30,9 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BValue;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.exception.ApplicationError;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
@@ -152,7 +152,6 @@ class Utils {
         }
     }
 
-    //TODO: Handle null values
     private static void setSqlTypedParam(Connection connection, PreparedStatement preparedStatement, int index,
                                          MapValue<String, Object> typedValue)
             throws SQLException, ApplicationError, IOException {
