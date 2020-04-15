@@ -2015,6 +2015,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        if ((actionInvocation.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
+            dlog.error(actionInvocation.pos, DiagnosticCode.INVALID_FUNCTIONAL_CONSTRUCTOR_INVOCATION,
+                       actionInvocation.symbol.name);
+            return;
+        }
+
         validateActionInvocation(actionInvocation.pos, actionInvocation);
     }
 
