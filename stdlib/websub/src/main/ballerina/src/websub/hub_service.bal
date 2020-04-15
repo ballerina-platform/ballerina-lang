@@ -269,7 +269,7 @@ function getHubService() returns service {
 }
 
 
-# Validates a subscription/unsubscription request, by validating the mode, topic and callback specified.
+# Validates a subscription/unsubscription request by validating the specified mode, topic, and callback.
 #
 # + mode - Mode specified in the subscription change request parameters
 # + topic - Topic specified in the subscription change request parameters
@@ -475,7 +475,7 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
     return fetchResponse;
 }
 
-# Distributes content to a subscriber on the notification from publishers.
+# Distributes content to a subscriber on the notification from the publishers.
 #
 # + callback - The callback URL registered for the subscriber
 # + subscriptionDetails - The subscription details for the particular subscriber
@@ -550,10 +550,10 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
     return;
 }
 
-# Retrieves the cached subscriberCallbackClient for a given callback.
+# Retrieves the cached `subscriberCallbackClient` for a given callback.
 #
 # + callback - The callback URL registered for the subscriber
-# + return - The `http:Client` for the given callback from cache or new `http:Client`
+# + return - The `http:Client` for the given callback from the cache or a new `http:Client`
 function getSubcriberCallbackClient(string callback) returns http:Client {
     http:Client subscriberCallbackClient;
     if (subscriberCallbackClientCache.hasKey(callback)) {
@@ -603,7 +603,7 @@ type PendingSubscriptionChangeRequest object {
 
     # Checks if two pending subscription change requests are equal.
     #
-    # + pendingRequest - The pending subscription change request to check against
+    # + pendingRequest - The pending subscription change request to be checked against pending subscription or unsubscription
     # + return - A `boolean` indicating whether the requests are equal or not
     function equals(PendingSubscriptionChangeRequest pendingRequest) returns boolean {
         return pendingRequest.mode == self.mode && pendingRequest.topic == self.topic && pendingRequest.callback == self.callback;
@@ -624,9 +624,9 @@ function buildWebSubLinkHeader(string hub, string topic) returns (string) {
     return linkHeader;
 }
 
-# Constructs an array of groups from the comma separed group string passed
+# Constructs an array of groups from the passed comma-separated group string
 #
-# + groupString - Comma separated string of groups
+# + groupString - Comma-separated string of groups
 # + return - An array of groups
 function getArray(string groupString) returns string[] {
     string[] groupsArr = [];

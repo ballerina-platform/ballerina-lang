@@ -78,7 +78,7 @@ public type Listener object {
         self.sendSubscriptionRequests();
     }
 
-# Gracefully stops the `websub:Listener`.
+# Stops the `websub:Listener` gracefully.
 # ```ballerina
 # error? result = websubListener.__gracefulStop();
 # ```
@@ -92,7 +92,7 @@ public type Listener object {
         return ();
     }
 
-# Forcefully stops the `websub:Listener`.
+# Stops the `websub:Listener` forcefully.
 # ```ballerina
 # error? result = websubListener.__immediateStop();
 # ```
@@ -101,7 +101,7 @@ public type Listener object {
     public function __immediateStop() returns error? {
     }
 
-    # Gets called when the `websub:Listener` is being initialized during module initialization.
+    # Gets called when the `websub:Listener` is being initialized during the module initialization.
     #
     # + sseEpConfig - The Subscriber Service configurations of the `websub:Listener`
     function init(int port, SubscriberListenerConfiguration? sseEpConfig = ()) {
@@ -279,9 +279,9 @@ public type ExtensionConfig record {|
     map<map<map<[string, typedesc<record {}>]>>>? headerAndPayloadKeyResourceMap = ();
 |};
 
-# Discovers hub and topic URLs defined by a resource URL.
+# Discovers the hub and topic URLs defined by a resource URL.
 #
-# + resourceUrl - The resource URL advertising hub and topic URLs
+# + resourceUrl - The resource URL advertising the hub and topic URLs
 # + publisherClientConfig - The configuration for the publisher client
 # + return - A `(hub, topic)` as a `(string, string)` if successful or else an `error` if not
 function retrieveHubAndTopicUrl(string resourceUrl, http:ClientConfiguration? publisherClientConfig)
@@ -309,7 +309,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientConfiguration? pu
     return websubError;
 }
 
-# Invokes the WebSubSubscriberConnector's remote functions for the subscription.
+# Invokes the `WebSubSubscriberConnector`'s remote functions for the subscription.
 #
 # + hub - The hub to which the subscription request is to be sent
 # + hubClientConfig - The configuration for the hub client

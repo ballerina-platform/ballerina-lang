@@ -36,7 +36,7 @@ public type Caller client object {
         return self.httpCaller->respond(message);
     }
 
-# Sends the response to the caller with the status 200 OK.
+# Sends the response to the caller with the "200 OK" status.
 # ```ballerina
 # error? response = caller->ok();
 # ```
@@ -48,12 +48,12 @@ public type Caller client object {
         return self.httpCaller->ok(message);
     }
 
-# Sends the response to the caller with the status 202 Accepted.
+# Sends the response to the caller with the "202 Accepted" status.
 # ```ballerina
 # error? response = caller->accepted();
 # ```
 #
-# + message - The response or any payload of type `http:ResponseMessage`
+# + message - The response or any payload of the `http:ResponseMessage` type
 # + return - An `error` on failure or else `()`
     public remote function accepted(http:ResponseMessage message = ()) returns error? {
         return self.httpCaller->accepted(message);

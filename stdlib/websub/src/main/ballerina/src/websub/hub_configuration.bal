@@ -51,14 +51,14 @@ function startHubService(http:Listener hubServiceListener) {
 
 # Retrieves if persistence is enabled for the Hub.
 #
-# + return - An `true` if persistence is enabled or else `false` if not
+# + return - `true` if persistence is enabled or else `false` otherwise
 function isHubPersistenceEnabled() returns boolean {
     return hubPersistenceEnabled;
 }
 
 # Retrieves if topics need to be registered at the Hub prior to publishing/subscribing.
 #
-# + return - An `true` if persistence is enabled or else `false` if not
+# + return - `true` if persistence is enabled or else `false` otherwise
 function isHubTopicRegistrationRequired() returns boolean {
     return hubTopicRegistrationRequired;
 }

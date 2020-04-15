@@ -20,35 +20,35 @@ public type HubPersistenceStore abstract object {
     # Adds or updates subscription details.
     #
     # + subscriptionDetails - The details of the subscription to add or update
-    # + return - An `error` if an error occurred while adding the subscription, `()` otherwise
+    # + return - An `error` if an error occurred while adding the subscription or else `()` otherwise
     public function addSubscription(SubscriptionDetails subscriptionDetails) returns error?;
 
     # Removes subscription details.
     #
     # + subscriptionDetails - The details of the subscription to remove
-    # + return - An `error` if an error occurred while removing the subscription, `()` otherwise
+    # + return - An `error` if an error occurred while removing the subscription or else `()` otherwise
     public function removeSubscription(SubscriptionDetails subscriptionDetails) returns error?;
 
     # Function to add a topic.
     #
     # + topic - The topic to add
-    # + return - An `error` if an error occurred while adding the topic, `()` otherwise
+    # + return - An `error` if an error occurred while adding the topic or else `()` otherwise
     public function addTopic(string topic) returns error?;
 
     # Function to remove a topic.
     #
     # + topic - The topic to remove
-    # + return - An `error` if an error occurred while removing the topic, `()` otherwise
+    # + return - An `error` if an error occurred while removing the topic or else `()` otherwise
     public function removeTopic(string topic) returns error?;
 
     # Function to retrieve subscription details of all subscribers.
     #
-    # + return - An `error` if an error occurred while retrieving the subscriptions, an array of subscriber details
-    #               otherwise
+    # + return - An array of subscriber details or else an `error` if an error occurred while retrieving
+    #            the subscriptions
     public function retrieveAllSubscribers() returns SubscriptionDetails[]|error;
 
     # Function to retrieve all registered topics.
     #
-    # + return - An `error` if an error occurred while retrieving the topics, an array of topics otherwise
+    # + return - An array of topics or else `error` if an error occurred while retrieving the topics
     public function retrieveTopics() returns string[]|error;
 };

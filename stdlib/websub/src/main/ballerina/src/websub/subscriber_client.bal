@@ -28,7 +28,7 @@ public type SubscriptionClient client object {
 
     # Initializes the `websub:SubscriptionClient`.
     #
-    # + url    - The URL to change subscription at
+    # + url    - The URL at which the subscription should be changed
     # + config - The `http:ClientConfiguration` for the underlying client or `()`
     public function __init(string url, http:ClientConfiguration? config = ()) {
         self.url = url;
@@ -41,7 +41,7 @@ public type SubscriptionClient client object {
 # websub:SubscriptionChangeResponse|error response = websubHubClientEP->subscribe(subscriptionRequest);
 # ```
 #
-# + subscriptionRequest - The `SubscriptionChangeRequest` containing subscription details
+# + subscriptionRequest - The `SubscriptionChangeRequest` containing the subscription details
 # + return - The `SubscriptionChangeResponse` indicating subscription details if the request was successful
 #           or else an `error` if an error occurred with the subscription request
     public remote function subscribe(SubscriptionChangeRequest subscriptionRequest)
@@ -57,7 +57,7 @@ public type SubscriptionClient client object {
 
 # Sends an unsubscription request to a WebSub Hub.
 # ```ballerina
-# websub:SubscriptionChangeResponse|websub:error response = websubHubClientEP->unsubscribe(subscriptionRequest);
+# websub:SubscriptionChangeResponse|error response = websubHubClientEP->unsubscribe(subscriptionRequest);
 # ```
 # + unsubscriptionRequest - The `SubscriptionChangeRequest` containing unsubscription details
 # + return - An unsubscription details if the request was successful or else an `error` if an error occurred
@@ -77,10 +77,10 @@ public type SubscriptionClient client object {
 
 # Function to build the subscription request to subscribe at the hub.
 #
-# + mode - Whether the request is for subscribe or unsubscribe
-# + subscriptionChangeRequest - The SubscriptionChangeRequest specifying the topic to subscribe to and the
+# + mode - Whether the request is to subscribe or unsubscribe
+# + subscriptionChangeRequest - The SubscriptionChangeRequest specifying the topic to subscribe and the
 #                               parameters to use
-# + return - An `http:Request` The Request to send to the hub to subscribe/unsubscribe
+# + return - An `http:Request` to be sent to the hub to subscribe/unsubscribe
 function buildSubscriptionChangeRequest(@untainted string mode,
                                         SubscriptionChangeRequest subscriptionChangeRequest) returns (http:Request) {
     http:Request request = new;
@@ -111,8 +111,8 @@ function buildSubscriptionChangeRequest(@untainted string mode,
 #
 # + hub - The hub to which the subscription/unsubscription request was sent
 # + mode - Whether the request was sent for subscription or unsubscription
-# + subscriptionChangeRequest - The subscription change request sent
-# + response - The http:Response or error received on request to the hub
+# + subscriptionChangeRequest - The sent subscription change request
+# + response - The `http:Response` or an error received upon sending a request to the hub
 # + httpClient - The underlying HTTP Client Endpoint
 # + return - The subscription/unsubscription details if the request was successful or else an `error`
 #            if an error occurred
@@ -163,14 +163,14 @@ function processHubResponse(@untainted string hub, @untainted string mode,
     }
 }
 
-# Invokes the WebSubSubscriberConnector's remote functions for subscription/unsubscription on redirection from the
+# Invokes the `WebSubSubscriberConnector`'s remote functions for subscription/unsubscription on redirection from the
 # original hub.
 #
 # + hub - The hub to which the subscription/unsubscription request is to be sent
 # + mode - Whether the request is for subscription or unsubscription
-# + subscriptionChangeRequest - The request containing subscription/unsubscription details
-# + auth - The auth config to use at the hub, if specified
-# + return - A subscription/unsubscription details if the request was successful or else an `error`
+# + subscriptionChangeRequest - The request containing the subscription/unsubscription details
+# + auth - The auth config to use at the hub (if specified)
+# + return - The subscription/unsubscription details if the request was successful or else an `error`
 #            if an error occurred
 function invokeClientConnectorOnRedirection(@untainted string hub, @untainted string mode,
                                             SubscriptionChangeRequest subscriptionChangeRequest,

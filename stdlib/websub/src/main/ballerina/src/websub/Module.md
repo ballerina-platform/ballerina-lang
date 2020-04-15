@@ -14,7 +14,43 @@ This module allows introducing a WebSub Subscriber Service with `onIntentVerific
  - When the service is started a subscription request is sent for a hub/topic combination, either specified as annotations or discovered based on the resource URL specified as an annotation.
  - If `onIntentVerification` is not specified, intent verification will be done automatically against the topic specified as an annotation or discovered based on the resource URL specified as an annotation.
  - If a secret is specified for the subscription, signature validation will be done for authenticated content distribution.
+ 
+**Sends subscription request with on service startup and explicit intent verification**
   
+  When the `subscribeOnStartUp` is set to true in the Subscriber Service, it will result in a subscription request being sent to the specified hub for the specified topic, with the specified lease seconds value and the specified secret for authenticated content distribution. 
+ 
+ ```ballerina
+ listener websub:Listener websubEP = new(8181);
+ 
+ @websub:SubscriberServiceConfig {
+     path: "/websub",
+     subscribeOnStartUp: true,
+     target: ["<HUB_URL>", "<TOPIC_URL>"],
+     leaseSeconds: 3600,
+     secret: "<SECRET>"
+ }
+ service websubSubscriber on websubEP {
+ 
+     resource function onIntentVerification(websub:Caller caller, websub:IntentVerificationRequest request) {
+         http:Response response = new;
+         // Insert logic to build subscription/unsubscription intent verification response.
+         error? result = caller->respond(response);
+     }
+ 
+     resource function onNotification(websub:Notification notification) {
+         string|error payload = notification.getTextPayload();
+     }
+ }
+```
+Functions are made available on the `websub:IntentVerificationRequest` to build a subscription or unsubscription 
+verification response, specifying the topic to verify intent against:
+```ballerina
+http:Response response = request.buildSubscriptionVerificationResponse("<TOPIC_TO_VERIFY_FOR>");
+```
+```ballerina
+http:Response response = request.buildUnsubscriptionVerificationResponse("<TOPIC_TO_VERIFY_FOR>");
+```
+
 #### Hub
 
 A WebSub compliant hub based on the Ballerina Message Broker is also available. This can be used as a remote hub or to be used by publishers who want to have their own internal hub. Ballerina's WebSub hub honors specified lease periods and supports authenticated content distribution.
@@ -100,9 +136,39 @@ URLs, which facilitates WebSub discovery.
 A hub client endpoint is also made available to publishers and subscribers to perform the following:
 - Publishers
   - Register a topic at the Hub
+    ```ballerina
+    websub:PublisherClient websubHubClientEP = new ("http://localhost:9191/websub/publish");
+    error? registrationResponse = websubHubClientEP->registerTopic("http://websubpubtopic.com");
+    ```
+    
   - Publish to the hub indicating an update of the topic
+    ```ballerina
+    websub:PublisherClient websubHubClientEP = new ("http://localhost:9191/websub/publish");
+    error? publishResponse = websubHubClientEP.publishUpdate("http://websubpubtopic.com",
+                                {"action": "publish", "mode": "internal-hub"});   
+    ```
+    
 - Subscribers
   - Subscribe/Unsubscribe to/from topics at a hub
+    
+    ```ballerina
+    websub:SubscriptionClient websubHubClientEP = new("<HUB_URL>");
+    
+    // Send subscription request for a subscriber service.
+    websub:SubscriptionChangeRequest subscriptionRequest = {
+        topic: "<TOPIC_URL>", 
+        callback: "<CALLBACK_URL>",
+        secret: "<SECRET>"
+    };
+    websub:SubscriptionChangeResponse|error subscriptionChangeResponse = websubHubClientEP->subscribe(subscriptionRequest);
+    
+    // Send unsubscription request for the subscriber service.
+    websub:SubscriptionChangeRequest unsubscriptionRequest = {
+        topic: "<TOPIC_URL>",
+        callback: "<CALLBACK_URL>"
+    };
+    ebsub:SubscriptionChangeResponse|error subscriptionChangeResponse = websubHubClientEP->unsubscribe(unsubscriptionRequest);
+    ```
 
 ### Basic flow with WebSub
 1. The subscriber discovers from the publisher, the topic it needs to subscribe to and the hub(s) that deliver notifications on updates of the topic.
@@ -122,6 +188,109 @@ verification
 
 5. The hub delivers the identified content to the subscribers of the topic.
 
+### Introducing Specific Subscriber Services (Webhook Callback Services)
+
+Ballerina's WebSub subscriber service listener can be extended to introduce specific Webhooks.
+ 
+Instead of the single `onNotification` resource, you can introduce multiple resources to accept content delivery requests using specific subscriber services. These resources will correspond to the content delivery requests that will 
+ be delivered with respect to a particular topic.
+ 
+For example, assume a scenario in which you receive notifications either when an issue is opened or when an issue is closed by subscribing to a particular topic in an issue tracking system. With a custom subscriber service listener, which extends the 
+generic WebSub subscriber service listener, you can allow two resources to accept content delivery requests (e.g., `onIssueOpened` and `onIssueClosed`) instead of the `onNotification` resource.
+
+These resources will accept two parameters:
+1. The generic `websub:Notification` record as the first parameter
+2. A custom record corresponding to the expected (JSON) payload of the notification (e.g., `IssueCreatedEvent`,
+`IssueClosedEvent`)
+
+You can introduce a specific service as such by extending the generic subscriber service listener, specifying a 
+mapping between the expected notifications and the resources that requests need to be dispatched to.
+
+The mapping can be based on one of the following indicators of a notification request. 
+(Requests will then be dispatched based on the value of the indicator in the request and a pre-defined mapping.)
+
+- A request header 
+
+    Dispatching will be based on the value of the request header specified as `topicHeader`. 
+    
+    ```ballerina
+    websub:ExtensionConfig extensionConfig = {
+        topicIdentifier: websub:TOPIC_ID_HEADER,
+        topicHeader: "<HEADER_TO_CONSIDER>",
+        headerResourceMap: {
+            "issueOpened": ["onIssueOpened", IssueOpenedEvent],
+            "issueClosed": ["onIssueClosed", IssueClosedEvent]
+        }
+    };
+    ```
+    
+    The `"issueOpened": ["onIssueOpened", IssueOpenedEvent]` entry indicates that when the value of the
+    `<HEADER_TO_CONSIDER>` header is `issueOpened`, dispatching should happen to a resource named `onIssueOpened`. 
+    
+    The first parameter of this resource will be the generic `websub:Notification` record, and the second parameter
+    will be a custom `IssueOpenedEvent` record mapping the JSON payload received when an issue is created.
+
+- The payload: the value of a particular key in the JSON payload
+    
+    Dispatching will be based on the value in the request payload of one of the map keys specified in the 
+    `payloadKeyResourceMap` map.
+    
+    ```ballerina
+    websub:ExtensionConfig extensionConfig = {
+        topicIdentifier: websub:TOPIC_ID_PAYLOAD_KEY,
+        payloadKeyResourceMap: {
+            "<PAYLOAD_KEY_TO_CONSIDER>": {
+                "issueOpened": ["onIssueOpened", IssueOpenedEvent],
+                "issueClosed": ["onIssueClosed", IssueClosedEvent]
+            }
+        }
+    };
+    ```
+  
+- A request header and the payload (combination of the above two)
+    
+    Dispatching will be based on both a request header and the payload as specified in the `headerAndPayloadKeyResourceMap`. 
+    Also, you can introduce a `headerResourceMap` and/or a `payloadKeyResourceMap` as additional mappings.
+     
+    ```ballerina
+    websub:ExtensionConfig extensionConfig = {
+        topicIdentifier: websub:TOPIC_ID_HEADER_AND_PAYLOAD,
+        topicHeader: "<HEADER_TO_CONSIDER>",
+        headerAndPayloadKeyResourceMap: {
+            "issue" : {
+                "<PAYLOAD_KEY_TO_CONSIDER>" : {
+                    "opened": ["onIssueOpened", IssueOpenedEvent],
+                    "closed": ["onIssueClosed", IssueClosedEvent]
+                }
+            }
+        }
+    };
+    ```
+    The `"opened": ["onIssueOpened", IssueOpenedEvent]` entry indicates that when the value of the
+    `<HEADER_TO_CONSIDER>` header is `issue` and the value of the `<PAYLOAD_KEY_TO_CONSIDER>` JSON payload key is `opened`, 
+    dispatching should happen to a resource named `onIssueOpened`.
+    
+    The first parameter of this resource will be the generic `websub:Notification` record and the second parameter will 
+    be a custom `IssueOpenedEvent` record, mapping the JSON payload received when an issue is created.  
+    
+    ```ballerina
+    @websub:SubscriberServiceConfig {
+        path: "/subscriber",
+        subscribeOnStartUp: false
+    }
+    service specificSubscriber on new WebhookListener(8080) {
+        resource function onIssueOpened(websub:Notification notification, IssueOpenedEvent issueOpened) {
+            log:printInfo(io:sprintf("Issue opened: ID: %s, Title: %s", issueOpened.id, issueOpened.title));
+        }
+        
+        resource function onIssueAssigned(websub:Notification notification, IssueAssignedEvent issueAssigned) {
+            log:printInfo(io:sprintf("Issue ID %s assigned to %s", issueAssigned.id, issueAssigned.assignedTo));
+        }
+    }
+    ```
+    
+    >Note: For a step-by-step guide on introducing custom subscriber services, see the ["Create Webhook Callback Services"](https://ballerina.io/v1-2/learn/how-to-extend-ballerina/#create-webhook-callback-services) section of "How to Extend Ballerina". 
+ 
 For information on the operations, which you can perform with this module, see the below **Functions**. For examples on the usage of the operations, see the following.
  * [Internal Hub Sample Example](hhttps://ballerina.io/learn/by-example/websub-internal-hub-sample.html)
  * [Remote Hub Sample Example](https://ballerina.io/learn/by-example/websub-remote-hub-sample.html)
