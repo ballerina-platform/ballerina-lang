@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.javainterop;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BTypes;
@@ -360,7 +361,8 @@ public class RefTypeTests {
     }
 
     public static int useFunctionPointer(FPValue fp) {
-        return ((Long) fp.call(new Object[] { Scheduler.getStrand(), 3, true, 4, true })).intValue();
+        return ((Long) BRuntime.getCurrentRuntime()
+                .invokeMethodSync((FPValue) fp, new Object[]{Scheduler.getStrand(), 3, true, 4, true})).intValue();
     }
 
     public static FPValue getFunctionPointer(Object fp) {
