@@ -56,4 +56,8 @@ public class Push {
                 throw createOpNotSupportedError(arrType, "push()");
         }
     }
+
+    public static void push_bstring(Strand strand, ArrayValue arr, ArrayValue vals) {
+        push(strand, arr, vals);
+    }
 }

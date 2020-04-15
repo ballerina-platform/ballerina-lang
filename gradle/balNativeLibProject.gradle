@@ -41,19 +41,6 @@ project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filte
 dependencies {
     interopImports project(':ballerina-runtime')
 }
-// TODO: remove project names
-if (project.name != "ballerina-jvm" && project.name != "ballerina-backend-jvm" && project.name != "ballerina-bir") {
-
-    dependencies {
-        testRuntime project(':ballerina-jvm')
-        testRuntime project(':ballerina-bir')
-        testRuntime project(':ballerina-backend-jvm')
-
-        testRuntime project(path: ':ballerina-backend-jvm', configuration: 'birJar')
-        testRuntime project(path: ':ballerina-jvm', configuration: 'birJar')
-        testRuntime project(path: ':ballerina-bir', configuration: 'birJar')
-    }
-}
 
 class CreateBaloTask extends JavaExec {
     def isBuiltin = 'false'

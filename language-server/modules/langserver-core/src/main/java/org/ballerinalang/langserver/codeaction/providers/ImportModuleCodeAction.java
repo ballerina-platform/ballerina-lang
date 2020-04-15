@@ -38,6 +38,7 @@ import org.eclipse.lsp4j.Diagnostic;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -73,7 +74,12 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
         if (document == null) {
             return actions;
         }
+        // Avoid duplicate import commands
+        HashMap<String, Diagnostic> missingImports = new HashMap<>();
         for (Diagnostic diagnostic : diagnosticsOfRange) {
+            missingImports.put(diagnostic.getMessage(), diagnostic);
+        }
+        for (Diagnostic diagnostic : missingImports.values()) {
             if (diagnostic.getMessage().startsWith(UNDEFINED_MODULE)) {
                 List<CodeAction> codeActions = getModuleImportCommand(diagnostic, lsContext);
                 actions.addAll(codeActions);
@@ -114,8 +120,8 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
                 .forEach(pkgEntry -> {
                     String commandTitle = CommandConstants.IMPORT_MODULE_TITLE + " "
                             + pkgEntry.getFullPackageNameAlias();
-                    CommandArgument pkgArgument = new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME,
-                                                                      pkgEntry.getFullPackageNameAlias());
+                    String importText = CommonUtil.escapeModuleName(context, pkgEntry.getFullPackageNameAlias());
+                    CommandArgument pkgArgument = new CommandArgument(CommandConstants.ARG_KEY_MODULE_NAME, importText);
                     CodeAction action = new CodeAction(commandTitle);
                     action.setKind(CodeActionKind.QuickFix);
                     action.setCommand(new Command(commandTitle, ImportModuleExecutor.COMMAND,

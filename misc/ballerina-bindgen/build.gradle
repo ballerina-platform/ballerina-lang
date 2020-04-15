@@ -24,7 +24,6 @@ dependencies {
     implementation 'com.github.jknack:handlebars'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.apache.maven:maven-plugin-api'
-    implementation project(':ballerina-jvm')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-lang:annotations')

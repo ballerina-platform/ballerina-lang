@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 
 any output = "";
 
@@ -12,7 +11,7 @@ public function mockPrint(any... s) {
     output = s[0];
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
