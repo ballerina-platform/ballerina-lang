@@ -26,7 +26,7 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;;
+import org.testng.annotations.Test;
 
 /**
  * This contains methods to test simple query expression with from and select clauses.
