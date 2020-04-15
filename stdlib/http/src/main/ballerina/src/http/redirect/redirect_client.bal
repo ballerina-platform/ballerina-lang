@@ -50,7 +50,7 @@ public type RedirectClient client object {
     # + path - Resource path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The `http:Response` message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public function get(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_GET);
         if (result is HttpFuture) {
@@ -82,7 +82,7 @@ public type RedirectClient client object {
     # + path - Resource path
     # + message - An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel`, or `mime:Entity[]`
-    # + return - The `http:Response` message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public function head(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_HEAD);
         if (result is HttpFuture) {
@@ -98,7 +98,7 @@ public type RedirectClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The `http:Response` message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public function put(string path, RequestMessage message) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_PUT);
         if (result is HttpFuture) {
@@ -112,7 +112,7 @@ public type RedirectClient client object {
     #
     # + path - Resource path
     # + request - An HTTP inbound request message
-    # + return - The `http:Response` message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function forward(string path, Request request) returns Response|ClientError {
         return self.httpClient->forward(path, request);
     }
@@ -124,7 +124,7 @@ public type RedirectClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The `http:Response` message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|ClientError {
         Request request = <Request>message;
         //Redirection is performed only for HTTP methods
@@ -146,7 +146,7 @@ public type RedirectClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The `http:Response` message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public function patch(string path, RequestMessage message) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_PATCH);
         if (result is HttpFuture) {
@@ -162,7 +162,7 @@ public type RedirectClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The `http:Response` message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_DELETE);
         if (result is HttpFuture) {
@@ -178,7 +178,7 @@ public type RedirectClient client object {
     # + path - Resource path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The `http:Response` message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public function options(string path, public RequestMessage message = ()) returns Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_OPTIONS);
         if (result is HttpFuture) {
@@ -196,7 +196,7 @@ public type RedirectClient client object {
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - An `http:HttpFuture` that represents an asynchronous service invocation, or an `http:ClientError` if the submission fails
+    # + return - An `http:HttpFuture` that represents an asynchronous service invocation or else an `http:ClientError` if the submission fails
     public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         return self.httpClient->submit(httpVerb, path, <Request>message);
     }
@@ -204,7 +204,7 @@ public type RedirectClient client object {
     # Retrieves the `http:Response` for a previously-submitted request.
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP response message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         return self.httpClient->getResponse(httpFuture);
     }
@@ -220,7 +220,7 @@ public type RedirectClient client object {
     # Retrieves the next available `http:PushPromise` for a previously-submitted request.
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP Push Promise message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:PushPromise` message or else an `http:ClientError` if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         return self.httpClient->getNextPromise(httpFuture);
     }
@@ -228,7 +228,7 @@ public type RedirectClient client object {
     # Retrieves the promised server push `http:Response` message.
     #
     # + promise - The related `http:PushPromise`
-    # + return - A promised `http:Response` message, or an `http:ClientError` if the invocation fails
+    # + return - A promised `http:Response` message or else an `http:ClientError` if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         return self.httpClient->getPromisedResponse(promise);
     }

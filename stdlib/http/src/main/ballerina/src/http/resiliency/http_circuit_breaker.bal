@@ -349,7 +349,7 @@ public type CircuitBreakerClient client object {
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - An `http:HttpFuture` that represents an asynchronous service invocation, or an `http:ClientError` if the submission
+    # + return - An `http:HttpFuture` that represents an asynchronous service invocation or else an `http:ClientError` if the submission
     #            fails
     public function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
@@ -373,7 +373,7 @@ public type CircuitBreakerClient client object {
     # Retrieves the `http:Response` for a previously-submitted request.
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP response message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         // No need to check for the response as we already check for the response in the submit method
         return self.httpClient->getResponse(httpFuture);
@@ -391,7 +391,7 @@ public type CircuitBreakerClient client object {
     # Retrieves the next available `http:PushPromise` for a previously-submitted request.
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
-    # + return - An `http:PushPromise` message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:PushPromise` message or else an `http:ClientError` if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         return self.httpClient->getNextPromise(httpFuture);
     }
@@ -399,7 +399,7 @@ public type CircuitBreakerClient client object {
     # Retrieves the promised server push `Response` message.
     #
     # + promise - The related `http:PushPromise`
-    # + return - A promised `http:Response` message, or an `http:ClientError` if the invocation fails
+    # + return - A promised `http:Response` message or else an `http:ClientError` if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         return self.httpClient->getPromisedResponse(promise);
     }

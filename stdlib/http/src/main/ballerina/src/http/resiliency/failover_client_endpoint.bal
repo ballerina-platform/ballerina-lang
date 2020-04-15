@@ -222,7 +222,7 @@ public type FailoverClient client object {
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - An `http:HttpFuture` that represents an asynchronous service invocation, or an `http:ClientError` if the submission
+    # + return - An `http:HttpFuture` that represents an asynchronous service invocation or else an `http:ClientError` if the submission
     #            fails
     public remote function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         Request req = buildRequest(message);
@@ -237,7 +237,7 @@ public type FailoverClient client object {
     # Retrieves the `http:Response` for a previously-submitted request.
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP response message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         Client foClient = getLastSuceededClientEP(self);
         return foClient->getResponse(httpFuture);
@@ -254,7 +254,7 @@ public type FailoverClient client object {
     # Retrieves the next available `http:PushPromise` for a previously-submitted request.
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP Push Promise message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:PushPromise` message or else an `http:ClientError` if the invocation fails
     public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         string message = "Failover client not supported for getNextPromise action";
         UnsupportedActionError err = error(UNSUPPORTED_ACTION, message = message);
@@ -264,7 +264,7 @@ public type FailoverClient client object {
     # Retrieves the promised server push `http:Response` message.
     #
     # + promise - The related `http:PushPromise`
-    # + return - A promised`http:Response` message, or an `http:ClientError` if the invocation fails
+    # + return - A promised `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         string message = "Failover client not supported for getPromisedResponse action";
         UnsupportedActionError err = error(UNSUPPORTED_ACTION, message = message);
