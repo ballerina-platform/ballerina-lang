@@ -1528,7 +1528,6 @@ public class BallerinaParserErrorHandler {
             case UNARY_OPERATOR:
                 return ParserRuleContext.EXPRESSION;
             case IS_KEYWORD:
-                startContext(ParserRuleContext.IS_EXPRESSION);
                 return ParserRuleContext.TYPE_DESCRIPTOR;
 
             case DECIMAL_INTEGER_LITERAL:
@@ -2152,6 +2151,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.PLUS_TOKEN;
             case IS_KEYWORD:
                 return SyntaxKind.IS_KEYWORD;
+            case TYPE_DESCRIPTOR:
+                return SyntaxKind.SIMPLE_TYPE;
 
             // TODO:
             case COMP_UNIT:
@@ -2165,7 +2166,6 @@ public class BallerinaParserErrorHandler {
             case FIELD_DESCRIPTOR_RHS:
             case FIELD_OR_REST_DESCIPTOR_RHS:
             case MODULE_TYPE_DEFINITION:
-            case TYPE_DESCRIPTOR:
             case RECORD_TYPE_DESCRIPTOR:
             case ARG:
             case ARG_LIST:

@@ -1424,11 +1424,7 @@ public class BallerinaParser {
             default:
                 STToken token = peek();
                 Solution solution;
-                if (token.kind == SyntaxKind.EOF_TOKEN) {
-                    solution = recover(token, ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
-                } else {
-                    solution = recover(token, ParserRuleContext.TYPE_DESCRIPTOR);
-                }
+                solution = recover(token, ParserRuleContext.TYPE_DESCRIPTOR);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -2707,8 +2703,6 @@ public class BallerinaParser {
                 // that matches to the current operator precedence level, and continue.
                 SyntaxKind binaryOpKind = getOperatorKindToInsert(currentPrecedenceLevel);
                 return parseExpressionRhs(currentPrecedenceLevel, binaryOpKind, lhsExpr, isAssignmentLhs);
-            } else if (solution.ctx == ParserRuleContext.IS_KEYWORD) {
-                return parseExpressionRhs(currentPrecedenceLevel, SyntaxKind.IS_KEYWORD, lhsExpr, isAssignmentLhs);
             } else {
                 return parseExpressionRhs(currentPrecedenceLevel, solution.tokenKind, lhsExpr, isAssignmentLhs);
             }
@@ -4727,8 +4721,8 @@ public class BallerinaParser {
      * @return Is expression node
      */
     private STNode parseIsExpression(STNode lhsExpr) {
-        STNode isKeyword = parseIsKeyword();
         startContext(ParserRuleContext.IS_EXPRESSION);
+        STNode isKeyword = parseIsKeyword();
         STNode typeDescriptor = parseTypeDescriptor();
         endContext();
         return STNodeFactory.createIsExpression(lhsExpr, isKeyword, typeDescriptor);
