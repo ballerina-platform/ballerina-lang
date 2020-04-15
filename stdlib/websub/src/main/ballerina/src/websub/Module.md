@@ -191,7 +191,7 @@ A hub client endpoint is also made available to publishers and subscribers to pe
         topic: "<TOPIC_URL>",
         callback: "<CALLBACK_URL>"
     };
-    ebsub:SubscriptionChangeResponse|error subscriptionChangeResponse = websubHubClientEP->unsubscribe(unsubscriptionRequest);
+    websub:SubscriptionChangeResponse|error subscriptionChangeResponse = websubHubClientEP->unsubscribe(unsubscriptionRequest);
     ```
 
 ### Introducing Specific Subscriber Services (Webhook Callback Services)
