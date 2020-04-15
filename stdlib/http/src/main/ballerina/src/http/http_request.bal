@@ -375,7 +375,7 @@ public type Request object {
     # Extracts body parts from the request. If the content type is not a composite media type, an error
     # is returned.
 
-    # + return - The body parts as an array of entities or an `http:ClientError` if there were any errors in
+    # + return - The body parts as an array of entities or else an `http:ClientError` if there were any errors
     #            constructing the body parts from the request
     public function getBodyParts() returns mime:Entity[]|ClientError {
         var result = self.getEntity();
