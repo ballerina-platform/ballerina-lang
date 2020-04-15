@@ -60,7 +60,6 @@ public class ParamsQueryTest {
                 "simple-params-query-test.bal"));
     }
 
-
     @Test
     public void testQuerySingleIntParam() {
         BValue[] returns = BRunUtil.invokeFunction(result, "querySingleIntParam");

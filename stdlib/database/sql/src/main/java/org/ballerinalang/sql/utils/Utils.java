@@ -123,8 +123,7 @@ class Utils {
     }
 
     static void setParams(Connection connection, PreparedStatement preparedStatement, MapValue<String,
-            Object> paramString)
-            throws SQLException, ApplicationError, IOException, ParseException {
+            Object> paramString) throws SQLException, ApplicationError, IOException {
         ArrayValue arrayValue = paramString.getArrayValue(Constants.ParameterizedStingFields.INSERTIONS);
         for (int i = 0; i < arrayValue.size(); i++) {
             Object object = arrayValue.get(i);
