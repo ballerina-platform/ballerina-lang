@@ -5214,10 +5214,10 @@ public class BallerinaParser {
      * <p>
      * <i>Note: In the ballerina spec ({@link https://ballerina.io/spec/lang/2020R1/#annots})
      * annotations-list is specified as one-or-more annotations. And the usage is marked as
-     * optional annotations-list. However, for the consistency of the tree But here we make the
+     * optional annotations-list. However, for the consistency of the tree, here we make the
      * annotation-list as zero-or-more annotations, and the usage is not-optional.</i>
      * <p>
-     * <code>annots := annotation+</code>
+     * <code>annots := annotation*</code>
      * 
      * @return Parsed node
      */
@@ -5269,9 +5269,9 @@ public class BallerinaParser {
 
     /**
      * Parse metadata. Meta data consist of optional doc string and
-     * an optional annotations list.
+     * an annotations list.
      * <p>
-     * <code>metadata := [DocumentationString] [annots]</code>
+     * <code>metadata := [DocumentationString] annots</code>
      * 
      * @return Parse node
      */
