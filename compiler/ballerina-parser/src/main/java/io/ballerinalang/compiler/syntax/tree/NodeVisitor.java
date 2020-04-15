@@ -279,6 +279,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(moduleVariableDeclaration);
     }
 
+    public void visit(IsExpression isExpression) {
+        visitSyntaxNode(isExpression);
+    }
+
     // Tokens
 
     public void visit(Token token) {

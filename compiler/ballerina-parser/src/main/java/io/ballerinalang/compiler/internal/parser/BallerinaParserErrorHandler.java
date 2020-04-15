@@ -1091,7 +1091,7 @@ public class BallerinaParserErrorHandler {
 
         ParserRuleContext[] alternatives = { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
                 ParserRuleContext.OPEN_BRACKET, ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.IS_KEYWORD,
-                 nextContext };
+                nextContext };
         return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives);
     }
 
@@ -1358,7 +1358,7 @@ public class BallerinaParserErrorHandler {
                     endContext(); // end parameter
                     endContext(); // end parameter-list
                 }
-                iif (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR) {
+                if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR) {
                 endContext();
                 // After parsing nil type descriptor all the other parsing is same as next rule of simple type
                 return getNextRuleForTypeDescriptor();
@@ -2333,7 +2333,6 @@ public class BallerinaParserErrorHandler {
             case STATEMENT_WITHOUT_ANNOTS:
             case FIELD_OR_REST_DESCIPTOR_RHS:
             case MODULE_TYPE_DEFINITION:
-            case TYPE_DESCRIPTOR:
             case RECORD_TYPE_DESCRIPTOR:
             case ARG:
             case ARG_LIST:

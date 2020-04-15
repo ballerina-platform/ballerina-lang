@@ -801,5 +801,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 initializer,
                 semicolonToken);
     }
+
+    public static STNode createIsExpression(
+            STNode expression,
+            STNode isKeyword,
+            STNode typeDescriptor) {
+
+        return new STIsExpression(
+                expression,
+                isKeyword,
+                typeDescriptor);
+    }
 }
 
