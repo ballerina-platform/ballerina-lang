@@ -36,7 +36,7 @@ public type Listener object {
     #
     # + s - Type descriptor of the service
     # + name - Name of the service
-    # + return - () or else a `nats:Error` upon failure to register the listener
+    # + return - `()` or else a `nats:Error` upon failure to register the listener
     public function __attach(service s, string? name = ()) returns error? {
         return basicRegister(self, s, name);
     }
@@ -44,28 +44,28 @@ public type Listener object {
     # Stops consuming messages and detaches the service from the `nats:Listener`.
     #
     # + s - Type descriptor of the service
-    # + return - () or else a `nats:Error` upon failure to detach the service
+    # + return - `()` or else a `nats:Error` upon failure to detach the service
     public function __detach(service s) returns error? {
         return basicDetach(self, s);
     }
 
     # Starts the `nats:Listener`.
     #
-    # + return - () or else a `nats:Error` upon failure to start the listener
+    # + return - `()` or else a `nats:Error` upon failure to start the listener
     public function __start() returns error? {
         return basicStart(self);
     }
 
-    # Gracefully stops the `nats:Listener`.
+    # Stops the `nats:Listener` gracefully.
     #
-    # + return - () or else a `nats:Error` upon failure to stop the listener
+    # + return - `()` or else a `nats:Error` upon failure to stop the listener
     public function __gracefulStop() returns error? {
         return basicGracefulStop(self);
     }
 
-    # Forcefully stops the `nats:Listener`.
+    # Stops the `nats:Listener` forcefully.
     #
-    # + return - () or else a `nats:Error` upon failure to stop the listener
+    # + return - `()` or else a `nats:Error` upon failure to stop the listener
     public function __immediateStop() returns error? {
         return basicImmediateStop(self);
     }

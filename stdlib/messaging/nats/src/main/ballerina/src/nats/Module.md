@@ -1,5 +1,5 @@
 This module provides the capability to connect with NATS and NATS Streaming servers and performs the 
-following functionality.
+below functionalities.
 
 - Point to point communication (Queues)
 - Pub/Sub (Topics)
@@ -85,7 +85,7 @@ string|error result = producer->publish(subject, "hello world");
 #### Listening to incoming messages
 
 The Ballerina NATS module provides the following mechanisms to listen to messages. Similar to message publishing, listening to messages
-is also handled differently in NATS basic and streaming servers.
+is also handled differently in the NATS basic and streaming servers.
 
 ##### Listening to messages from a NATS server
 

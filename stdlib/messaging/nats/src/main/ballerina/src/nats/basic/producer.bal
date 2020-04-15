@@ -36,10 +36,10 @@ public type Producer client object {
 # nats:Error? result = producer->publish(subject, <@untainted>message);
 # ```
 #
-# + subject - The subject to send the message to
+# + subject - The subject to send the message 
 # + data - Data to publish
-# + replyTo - The subject or the callback service the receiver should send the response to
-# + return -  () or else a `nats:Error` if there is a problem when publishing the message
+# + replyTo - The subject or the callback service to which the receiver should send the response 
+# + return -  `()` or else a `nats:Error` if there is a problem when publishing the message
     public remote function publish(string subject, @untainted Content data, (string | service)? replyTo = ())
                     returns Error? {
         string | byte[] | error converted = convertData(data);
@@ -55,10 +55,10 @@ public type Producer client object {
 # nats:Message|nats:Error reqReply = producer->request(subject, <@untainted>message, 5000);
 # ```
 #
-# + subject - The subject to send the message to
+# + subject - The subject to send the message 
 # + data - Data to publish
-# + duration - The time(in milliseconds) to wait for the response
-# + return -  The response `nats:Message` or else a `nats:Error` if an error is encountered
+# + duration - The time (in milliseconds) to wait for the response
+# + return -  The `nats:Message` response or else a `nats:Error` if an error is encountered
     public remote function request(string subject, @untainted Content data, int? duration = ()) returns Message|Error {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
@@ -70,7 +70,7 @@ public type Producer client object {
 
     # Closes a given connection.
     #
-    # + return - () or else a `nats:Error` if unable to complete the close operation
+    # + return - `()` or else a `nats:Error` if unable to complete the close the operation
     public function close() returns Error? {
         closeConnection(self);
         if (self.conn is Connection) {
