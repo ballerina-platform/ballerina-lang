@@ -17,42 +17,53 @@
 import ballerina/java;
 
 # Logs the specified value at DEBUG level.
+# ```ballerina
+# log:printDebug("debug log");
+# ```
 #
 # + msg - The message to be logged
-public function printDebug(string | (function() returns (string)) msg) =
-@java:Method {
+public function printDebug(string|(function () returns (string)) msg) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
 # Logs the specified message at ERROR level.
-#
+# ```ballerina
+# error e = error("error occurred");
+# log:printError("error log with cause", err = e);
+# ```
+# 
 # + msg - The message to be logged
 # + err - The error struct to be logged
-public function printError(string | (function() returns (string)) msg, public error? err = ()) =
-@java:Method {
+public function printError(string|(function () returns (string)) msg, public error? err = ()) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
 # Logs the specified message at INFO level.
-#
+# ```ballerina
+# log:printInfo("info log");
+# ```
+# 
 # + msg - The message to be logged
-public function printInfo(string | (function() returns (string)) msg) =
-@java:Method {
+public function printInfo(string|(function () returns (string)) msg) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
 # Logs the specified message at TRACE level.
-#
+# ```ballerina
+# log:printTrace("trace log");
+# ```
+# 
 # + msg - The message to be logged
-public function printTrace(string | (function() returns (string)) msg) =
-@java:Method {
+public function printTrace(string|(function () returns (string)) msg) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
 # Logs the specified message at WARN level.
-#
+# ```ballerina
+# log:printWarn("warn log");
+# ```
+# 
 # + msg - The message to be logged
-public function printWarn(string | (function() returns (string)) msg) =
-@java:Method {
+public function printWarn(string|(function () returns (string)) msg) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
