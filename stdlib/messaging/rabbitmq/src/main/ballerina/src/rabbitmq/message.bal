@@ -30,9 +30,9 @@ public type Message client object {
 # rabbitmq:Error? ackResult = message->basicAck(true);
 # ```
 #
-# + multiple - `true` to acknowledge all messages up to and including the message called on and
-#              `false` to acknowledge just the message called on
-# + return - A `rabbitmq:Error` if an I/O error is encountered or else ()
+# + multiple - `true` to acknowledge all messages up to and including the called on message and
+#              `false` to acknowledge just the called on message 
+# + return - A `rabbitmq:Error` if an I/O error is encountered or else `()`
    public remote function basicAck(boolean multiple = false) returns Error? {
         var result = nativeBasicAck(self.amqpChannel, self.deliveryTag, multiple, self.autoAck, self.ackStatus);
         self.ackStatus = true;
@@ -44,10 +44,10 @@ public type Message client object {
 # rabbitmq:Error? nackResult = message->basicNack(true, requeue = false);
 # ```
 #
-# + multiple - `true` to reject all messages up to and including the message called on and
-#              `false` to reject just the message called on
+# + multiple - `true` to reject all messages up to and including the called on message and
+#              `false` to reject just the called on message 
 # + requeue - `true` if the rejected message(s) should be re-queued rather than discarded/dead-lettered
-# + return - A `rabbitmq:Error` if an I/O error is encountered or else ()
+# + return - A `rabbitmq:Error` if an I/O error is encountered or else `()`
    public remote function basicNack(boolean multiple = false, public boolean requeue = true)
                             returns Error? {
         var result = nativeBasicNack(self.amqpChannel, self.deliveryTag, self.autoAck, self.ackStatus,
@@ -142,7 +142,7 @@ public type Message client object {
 # json|rabbitmq:Error msgContent = message.getJSONContent();
 # ```
 #
-# + return - Message data as a JSON value  or else a `rabbitmq:Error` if an error is encountered
+# + return - Message data as a JSON value or else a `rabbitmq:Error` if an error is encountered
    public function getJSONContent() returns @tainted json | Error {
         return nativeGetJSONContent(self.messageContent);
    }

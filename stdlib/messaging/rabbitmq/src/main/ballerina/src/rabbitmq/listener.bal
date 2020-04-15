@@ -77,7 +77,7 @@ public type Listener object {
     # Stops consuming messages through all the consumer services and terminates the connection
     # with the server.
     #
-    # + return - () or else  a `rabbitmq:Error` upon failure to close ChannelListener.
+    # + return - `()` or else  a `rabbitmq:Error` upon failure to close ChannelListener.
     public function __immediateStop() returns error? {
         return abortConnection(self);
     }
@@ -97,7 +97,7 @@ public type Listener object {
 # Configurations required to create a subscription.
 #
 # + queueConfig - Configurations of the queue to be subscribed
-# + ackMode - Type of acknowledgement mode
+# + ackMode - Type of the acknowledgement mode
 # + prefetchCount - Maximum number of messages that the server will deliver and 0 if unlimited.
 #                   Unless explicitly given, this value is 10 by default.
 # + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver and 0 if unlimited

@@ -74,9 +74,9 @@ public type QueueConfiguration record {|
 # Configurations used to declare an exchange.
 #
 # + exchangeName - The name of the exchange
-# + exchangeType - The type of exchange
-# + durable - True if declaring a durable exchange (the exchange will survive a server restart)
-# + autoDelete - True if we are declaring an autodelete exchange (server will delete it when it is no longer in use)
+# + exchangeType - The type of the exchange
+# + durable - True if declaring a durable exchange (the exchange will survive in a server restart)
+# + autoDelete - True if an autodelete exchange is declared (the server will delete it when it is no longer in use)
 # + arguments - Other properties (construction arguments) for the queue
 public type ExchangeConfiguration record {|
     string exchangeName;
@@ -94,7 +94,7 @@ public type ExchangeConfiguration record {|
 # + password - The password used for establishing the connection
 # + connectionTimeoutInMillis - Connection TCP establishment timeout in milliseconds and zero for infinite
 # + handshakeTimeoutMillis -  The AMQP 0-9-1 protocol handshake timeout in milliseconds
-# + shutdownTimeoutInMillis - Shutdown timeout in milliseconds, zero for infinite, and default is 10000. If consumers exceed
+# + shutdownTimeoutInMillis - Shutdown timeout in milliseconds, zero for infinite, and the default value is 10000. If the consumers exceed
 #                     this timeout, then any remaining queued deliveries (and other Consumer callbacks) will be lost
 # + heartbeatInSeconds - The initially-requested heartbeat timeout in seconds and zero for none
 # + secureSocket - Configurations for facilitating secure connections
