@@ -638,6 +638,10 @@
             {
                 "name": "JWT Issue/Validate",
                 "url": "jwt-issue-validate"
+            },
+            {
+                "name": "URL Encode/Decode Operations",
+                "url": "url-encode-decode"
             }
         ]
     },
