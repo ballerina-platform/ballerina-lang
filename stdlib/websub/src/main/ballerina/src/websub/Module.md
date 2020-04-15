@@ -39,7 +39,7 @@ This module allows introducing a WebSub Subscriber Service with `onIntentVerific
   
   > When the `subscribeOnStartUp` is set to true in the Subscriber Service, it will result in a subscription request being sent to the specified hub for the specified topic, with the specified lease seconds value and the specified secret for authenticated content distribution. 
   
-  >Since an `onIntentVerification` resource function is not included, intent verification for subscription and unsubscription requests would happen automatically.
+  > Since an `onIntentVerification` resource function is not included, intent verification for subscription and unsubscription requests would happen automatically.
 
     ```ballerina
     @websub:SubscriberServiceConfig {	
