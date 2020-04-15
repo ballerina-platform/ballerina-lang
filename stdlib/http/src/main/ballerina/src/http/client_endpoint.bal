@@ -160,7 +160,7 @@ public type Client client object {
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
-    # The `Client.submit()` function does not give out a `Response` as the result.
+    # The `Client->submit()` function does not give out a `http:Response` as the result.
     # Rather it returns an `http:HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value
