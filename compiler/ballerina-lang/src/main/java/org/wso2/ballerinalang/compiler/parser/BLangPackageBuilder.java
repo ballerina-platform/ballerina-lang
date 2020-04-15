@@ -2077,6 +2077,7 @@ public class BLangPackageBuilder {
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
                 tableConstructorExpr.addRecordLiteral(recordLiteral);
             }
+            exprNodeStack.clear();
         }
         addExpressionNode(tableConstructorExpr);
     }
