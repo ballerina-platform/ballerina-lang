@@ -58,7 +58,7 @@ public type Listener object {
 # socket:error? result = socketListener.__immediateStop();
 # ```
 #
-# + return - () or else a `socket:Error` upon failure to stop the listener
+# + return - `()` or else a `socket:Error` upon failure to stop the listener
     public function __immediateStop() returns error? {
         return externStop(self, false);
     }
