@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.parser.test.syntax.types;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing nil type.
+ * Test parsing optional type.
  */
 
 public class OptionalTypeTest extends AbstractTypesTest {

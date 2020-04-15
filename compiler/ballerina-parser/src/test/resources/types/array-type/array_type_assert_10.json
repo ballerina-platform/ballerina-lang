@@ -1,0 +1,28 @@
+{
+  "kind": "VARIABLE_DECL",
+  "children": [
+    {
+      "kind": "ARRAY_TYPE",
+      "children": [
+        {
+          "kind": "SIMPLE_TYPE",
+          "value": "int"
+        },
+        {
+          "kind": "OPEN_BRACKET_TOKEN"
+        },
+        {
+          "kind": "CLOSE_BRACKET_TOKEN",
+          "isMissing": true
+        }
+      ]
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a"
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
+}

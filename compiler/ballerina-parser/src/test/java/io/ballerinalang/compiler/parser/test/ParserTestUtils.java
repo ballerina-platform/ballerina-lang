@@ -547,6 +547,8 @@ public class ParserTestUtils {
                 return SyntaxKind.NIL_TYPE;
             case "OPTIONAL_TYPE":
                 return SyntaxKind.OPTIONAL_TYPE;
+            case "ARRAY_TYPE":
+                return SyntaxKind.ARRAY_TYPE;
 
             // Trivia
             case "EOF_TOKEN":

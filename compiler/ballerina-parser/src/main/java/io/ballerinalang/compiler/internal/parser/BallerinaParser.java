@@ -228,6 +228,10 @@ public class BallerinaParser {
                 return parseCompoundAssignmentStmt();
             case TYPEOF_KEYWORD:
                 return parseTypeofKeyword();
+            case ARRAY_TYPE_DESCRIPTOR:
+                return parseArrayTypeDescriptor(parsedNodes[0]);
+            case ARRAY_LENGTH:
+                return parseArrayLength();
             case FUNC_DEFINITION:
             case REQUIRED_PARAM:
             default:
@@ -422,6 +426,8 @@ public class BallerinaParser {
             case EQUAL_TOKEN:
                 // Scenario: foo =
                 // Even though this is not valid, consider this as a var-decl and continue;
+            case OPEN_BRACKET_TOKEN:
+                //Scenario foo[] (Array type descriptor with custom type)
             case QUESTION_MARK_TOKEN:
                 //Scenario foo? (Optional type descriptor with custom type)
                 return true;
@@ -1385,12 +1391,23 @@ public class BallerinaParser {
         switch (nextToken.kind) {
             //If next token after a type descriptor is <code>?</code> then it is an optional type descriptor
             case QUESTION_MARK_TOKEN:
-                return parseOptionalTypeDescriptor(type);
+                type =  parseOptionalTypeDescriptor(type);
+                break;
             //If next token after a type descriptor is <code>[</code> then it is an array type descriptor
             case OPEN_BRACKET_TOKEN:
-                return parseArrayTypeDescriptor(type);
+                type =  parseArrayTypeDescriptor(type);
+                break;
             default:
                 return type;
+        }
+        //This part is to handle int?[] and int[]? type declarations
+        nextToken = peek();
+        if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN && type.kind == SyntaxKind.ARRAY_TYPE) {
+            return parseOptionalTypeDescriptor(type);
+        } else if (nextToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN && type.kind == SyntaxKind.OPTIONAL_TYPE) {
+            return parseArrayTypeDescriptor(type);
+        } else {
+            return type;
         }
     }
 
@@ -4739,7 +4756,7 @@ public class BallerinaParser {
 
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            case OPEN_BRACE_TOKEN:
+            case OPEN_BRACKET_TOKEN:
                 secondDimensionOpenBracket = parseOpenBracket();
                 secondDimensionArrayLength = parseArrayLength();
                 secondDimensionCloseBracket = parseCloseBracket();
@@ -4749,6 +4766,7 @@ public class BallerinaParser {
                 secondDimensionArrayLength = STNodeFactory.createEmptyNode();
                 secondDimensionCloseBracket = STNodeFactory.createEmptyNode();
         }
+        endContext();
         return STNodeFactory.createArrayTypeDescriptor(typeDescriptorNode, firstDimensionOpenBracket,
                 firstDimensionArrayLength, firstDimensionCloseBracket, secondDimensionOpenBracket,
                 secondDimensionArrayLength, secondDimensionCloseBracket);
@@ -4769,14 +4787,22 @@ public class BallerinaParser {
      */
     private STNode parseArrayLength() {
         STToken token = peek();
+        STToken nextToken;
         switch(token.kind) {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
             case ASTERISK_TOKEN:
                 return consume();
+            case CLOSE_BRACKET_TOKEN:
+                return STNodeFactory.createEmptyNode();
             //Parsing variable-reference-expr is same as parsing qualified identifier
             case IDENTIFIER_TOKEN:
-                return parseQualifiedIdentifier(ParserRuleContext.ARRAY_LENGTH);
+                // If <code>int[ a; </code> then take <code>a</code> as the identifier not a the array length var
+                nextToken = peek(2);
+                if (nextToken.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
+                    return parseQualifiedIdentifier(ParserRuleContext.ARRAY_LENGTH);
+                }
+                return STNodeFactory.createEmptyNode();
             default:
                 Solution sol = recover(token, ParserRuleContext.ARRAY_LENGTH);
                 return sol.recoveredNode;
