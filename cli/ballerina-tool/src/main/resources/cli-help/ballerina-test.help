@@ -74,7 +74,7 @@ OPTIONS
            Build/Compile offline without downloading dependencies.
 
        --debug
-           Start Ballerina in remote debugging mode.
+           Run tests in remote debugging mode.
 
 CONFIG PROPERTIES
        (--key=value)...

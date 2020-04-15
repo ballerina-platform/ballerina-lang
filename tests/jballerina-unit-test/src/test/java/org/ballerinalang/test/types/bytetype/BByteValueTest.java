@@ -792,4 +792,11 @@ public class BByteValueTest {
         BInteger bInteger = (BInteger) returns[0];
         Assert.assertEquals(bInteger.intValue(), expected, "Invalid byte value returned.");
     }
+
+    @Test(description = "Test byte value return as int in lambda")
+    public void testByteReturnAsIntInLambda() {
+        BRunUtil.invoke(result, "testByteReturnAsIntInLambda1");
+        BRunUtil.invoke(result, "testByteReturnAsIntInLambda2");
+        BRunUtil.invoke(result, "testByteReturnAsIntInLambda3");
+    }
 }

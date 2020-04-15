@@ -109,7 +109,8 @@ public class TestReport {
                 }
                 coveredLines += modCov.getCoveredLines();
                 missedLines += modCov.getMissedLines();
-                coveragePercentage = (float) coveredLines / (coveredLines + missedLines) * 100;
+                float coverageVal = (float) coveredLines / (coveredLines + missedLines) * 100;
+                coveragePercentage = (float) (Math.round(coverageVal * 100.0) / 100.0);
 
             }
         }

@@ -79,12 +79,9 @@ public function getHandleFromArray(anydata[] arg, string className) returns hand
         } else if (arg is float[]) {
             jarrays:set(returnHandle, count, wrapFloat(arg[count]));
             count+=1;
-        } else {
-            any jObject = arg[count];
-            if (jObject is JObject) {
-                jarrays:set(returnHandle, count, jObject.jObj);
-                count+=1;
-            }
+        } else if (arg is string[]) {
+            jarrays:set(returnHandle, count, java:fromString(arg[count]));
+            count+=1;
         }
     }
     return returnHandle;
