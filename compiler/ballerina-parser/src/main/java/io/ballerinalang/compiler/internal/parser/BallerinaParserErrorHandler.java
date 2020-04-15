@@ -1235,11 +1235,8 @@ public class BallerinaParserErrorHandler {
             case CONSTANT_DECL:
             case NIL_TYPE_DESCRIPTOR:
             case COMPOUND_ASSIGNMENT_STMT:
-<<<<<<< HEAD
-            case LOCAL_TYPE_DEFINITION_STMT:
-=======
             case OPTIONAL_TYPE_DESCRIPTOR:
->>>>>>> eed9b6faffe93d6e3de8e216cb2903925be42b88
+            case LOCAL_TYPE_DEFINITION_STMT:
                 startContext(currentCtx);
                 break;
             default:
