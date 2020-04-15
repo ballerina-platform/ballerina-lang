@@ -30,6 +30,7 @@ import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertSame;
@@ -253,5 +254,12 @@ public class LocksInMainTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/parallel-run-lock.bal");
 
         BValue[] returns = BRunUtil.invoke(compileResult, "runParallelUsingLocks");
+    }
+
+    @Test
+    public void testParallelRunWithInvocationDependencies() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/lock/parallel-run-lock.bal");
+
+        BValue[] returns = BRunUtil.invoke(compileResult, "testLockWithInvokableAccessingGlobal");
     }
 }

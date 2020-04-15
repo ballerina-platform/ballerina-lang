@@ -70,11 +70,32 @@ function runParallelUsingLocks() {
 }
 
 int x = 0;
-int y = 0;
+string y = "";
 
 function add() {
-    x = x + 1;
-    y = y + 1;
+    x += 10;
+    y += "lockValueInFunction";
 }
 
-function
+function testLockWithInvokableAccessingGlobal() {
+    @strand{thread : "any"}
+    worker w1 {
+        lock {
+            runtime:sleep(20);
+            add();
+        }
+    }
+
+    @strand{thread : "any"}
+    worker w2 {
+        lock {
+            runtime:sleep(20);
+            add();
+        }
+    }
+
+    runtime:sleep(20);
+    if (y == "lockValueInFunctionlockValueInFunction" || x == 20) {
+        panic error("Invalid Value");
+    }
+}
