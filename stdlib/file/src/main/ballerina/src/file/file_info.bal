@@ -55,9 +55,9 @@ public type FileInfo object {
         return self.size;
     }
 
-    # Returns the last modified time of the file.
+    # Returns the last-modified time of the file.
     #
-    # + return - Last modified time of the file
+    # + return - Last-modified time of the file
     public function getLastModifiedTime() returns time:Time {
         return self.modifiedTime;
     }
