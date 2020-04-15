@@ -68,7 +68,8 @@ public class ModuleCoverage {
     }
 
     private void setCoveragePercentage() {
-        this.coveragePercentage = (float) this.coveredLines / (this.coveredLines + this.missedLines) * 100;
+        float coverageVal = (float) this.coveredLines / (this.coveredLines + this.missedLines) * 100;
+        this.coveragePercentage = (float) (Math.round(coverageVal * 100.0) / 100.0);
     }
 
     public float getCoveragePercentage() {
@@ -110,7 +111,8 @@ public class ModuleCoverage {
         }
 
         private void setCoveragePercentage(List<Integer> coveredLines, List<Integer> missedLines) {
-            this.coveragePercentage = (float) coveredLines.size() / (coveredLines.size() + missedLines.size()) * 100;
+            float coverageVal = (float) coveredLines.size() / (coveredLines.size() + missedLines.size()) * 100;
+            this.coveragePercentage = (float) (Math.round(coverageVal * 100.0) / 100.0);
         }
 
         private void setSourceCode(String moduleName, String fileName) {
