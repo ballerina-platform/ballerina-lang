@@ -298,7 +298,7 @@ public type HttpCachingClient client object {
     # Retrieves the promised server push `http:Response` message.
     #
     # + promise - The related `http:PushPromise`
-    # + return - A promised HTTP `http:Response` message or an `http:ClientError` if the invocation fails
+    # + return - A promised HTTP `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         return self.httpClient->getPromisedResponse(promise);
     }
