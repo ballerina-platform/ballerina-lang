@@ -84,7 +84,7 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
+    # + return - The response for the request or else an `http:ClientError` if failed to establish communication with the upstream server
     public remote function patch(@untainted string path, RequestMessage message) returns Response|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_PATCH));
     }
