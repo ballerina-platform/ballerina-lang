@@ -39,7 +39,7 @@ public type ImapClient client object {
 #
 # + folder - Folder to read emails. The default value is `INBOX`
 # + return - An`email:Email` if reading the message is successful, `()` if there are no emails in the specified folder,
-#            or else an `email:Error` if failed to receive the message to the recipient
+#            or else an `email:Error` if the recipient failed to receive the message
     public remote function read(string folder = DEFAULT_FOLDER) returns Email|Error? {
         return imapRead(self, java:fromString(folder));
     }
@@ -61,7 +61,7 @@ function imapRead(ImapClient clientEndpoint, handle folder) returns Email|Error?
 #
 # + port - Port number of the IMAP server
 # + enableSsl - If set to true, use SSL to connect and use the SSL port by default.
-#               The defaults value is true for the "imaps" protocol and false for the "imap" protocol.
+#               The default value is true for the "imaps" protocol and false for the "imap" protocol.
 public type ImapConfig record {|
     int port = 993;
     boolean enableSsl = true;
