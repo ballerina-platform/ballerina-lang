@@ -29,11 +29,23 @@ public class StartActionTest {
 
     @Test (description = "Test negative start action usage")
     public void testStartActionNegative() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/action/start/start-action-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
-        BAssertUtil.validateError(negativeResult, 0, "action invocation as an expression not allowed here", 37, 23);
-        BAssertUtil.validateError(negativeResult, 1, "action invocation as an expression not allowed here", 56, 37);
-        BAssertUtil.validateError(negativeResult, 2, "action invocation as an expression not allowed here", 71, 17);
-        BAssertUtil.validateError(negativeResult, 3, "action invocation as an expression not allowed here", 76, 25);
+        CompileResult result = BCompileUtil.compile("test-src/action/start/start-action-negative.bal");
+        int indx = 0;
+
+        BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 37, 23);
+        BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 38, 38);
+        BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 39, 43);
+        BAssertUtil.validateError(result, indx++, "expected an expression, but found an action", 53, 9);
+        BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 53, 20);
+        BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 56, 37);
+        BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 58, 32);
+        BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 58, 49);
+        BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 71, 17);
+        BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 72, 24);
+        BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 72, 28);
+        BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 76, 25);
+        BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 90, 33);
+
+        Assert.assertEquals(result.getErrorCount(), indx);
     }
 }
