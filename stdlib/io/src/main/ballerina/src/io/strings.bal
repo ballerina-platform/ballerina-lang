@@ -34,7 +34,7 @@ public type StringReader object {
 # json|io:Error? person = reader.readJson();
 # ```
 #
-# + return - JSON, or else `Error` if any error occurred
+# + return - JSON or else `io:Error` if any error occurred
     public function readJson() returns @tainted json|Error {
         if(self.charChannel is ReadableCharacterChannel){
             var result = <ReadableCharacterChannel> self.charChannel;
@@ -49,7 +49,7 @@ public type StringReader object {
 # xml|io:Error? person = reader.readXml();
 # ```
 # 
-# + return - XML, or else `Error` if any error occurred
+# + return - XML or else `io:Error` if any error occurred
     public function readXml() returns @tainted xml|Error? {
         if(self.charChannel is ReadableCharacterChannel){
             var result = <ReadableCharacterChannel> self.charChannel;
@@ -65,7 +65,7 @@ public type StringReader object {
 # ```
 #
 # + nCharacters - Number of characters to be read
-# + return - String, or else `Error` if any error occurred
+# + return - String or else `io:Error` if any error occurred
     public function readChar(int nCharacters) returns @tainted string|Error? {
         if(self.charChannel is ReadableCharacterChannel){
             var result = <ReadableCharacterChannel> self.charChannel;
@@ -79,7 +79,7 @@ public type StringReader object {
 # io:Error? err = reader.close();
 # ```
 #
-# + return - An `Error` if could not close the channel, or else '()'.
+# + return - An `io:Error` if could not close the channel or else `()`.
     public function close() returns Error? {
         if(self.charChannel is ReadableCharacterChannel){
             var result = <ReadableCharacterChannel> self.charChannel;

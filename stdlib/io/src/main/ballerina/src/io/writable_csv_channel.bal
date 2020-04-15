@@ -53,7 +53,7 @@ public type WritableCSVChannel object {
 # ```
 # 
 # + csvRecord - A record to be written to the channel
-# + return - An `Error` if the record could not be written properly
+# + return - An `io:Error` if the record could not be written properly
     public function write(string[] csvRecord) returns Error? {
         if(self.dc is WritableTextRecordChannel){
             var result = <WritableTextRecordChannel> self.dc;
@@ -66,7 +66,8 @@ public type WritableCSVChannel object {
 # ```ballerina
 # io:Error? err = csvChannel.close();
 # ```
-# + return - Nil, or else `Error` if any error occurred
+# 
+# + return - `()` or else `io:Error` if any error occurred
     public function close() returns Error? {
         if(self.dc is WritableTextRecordChannel){
             var result = <WritableTextRecordChannel> self.dc;

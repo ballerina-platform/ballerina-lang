@@ -39,7 +39,7 @@ public type WritableCharacterChannel object {
 #
 # + content - Content, which should be written
 # + startOffset - Number of characters, which should be offset when writing the content
-# + return - Content length that written, or else `Error`
+# + return - Content length that written or else `io:Error`
     public function write(string content, int startOffset) returns int|Error {
         return writeExtern(self, java:fromString(content), startOffset);
     }
@@ -50,7 +50,7 @@ public type WritableCharacterChannel object {
 # ```
 #
 # + content - The JSON, which should be written
-# + return - If an `Error` occurred while writing
+# + return - If an `io:Error` occurred while writing
     public function writeJson(json content) returns Error? {
         return writeJsonExtern(self, content);
     }
@@ -61,7 +61,7 @@ public type WritableCharacterChannel object {
 # ```
 # 
 # + content - The XML, which should be written
-# + return - `()` or else `Error` if any error occurred
+# + return - `()` or else `io:Error` if any error occurred
     public function writeXml(xml content) returns Error? {
         return writeXmlExtern(self, content);
     }
@@ -71,7 +71,7 @@ public type WritableCharacterChannel object {
 # io:Error err = writableCharChannel.close();
 # ```
 #
-# + return - `()` or else an `Error` if any error occurred
+# + return - `()` or else an `io:Error` if any error occurred
     public function close() returns Error? {
         return closeWritableCharacterChannel(self);
     }

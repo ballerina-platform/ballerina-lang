@@ -29,7 +29,7 @@ public type WritableTextRecordChannel object {
     # + rs - Record separator (this could be a regex)
     # + fmt - The format, which will be used to represent the CSV (this could be 
     #         "DEFAULT" (the format specified by the CSVChannel), 
-    #         "CSV" (Field separator would be "," and record separator would be a new line), or else
+    #         "CSV" (Field separator would be "," and record separator would be a new line) or else
     #         "TDF" (Field separator will be a tab and record separator will be a new line). 
     public function __init(WritableCharacterChannel characterChannel, public string fs = "", public string rs = "",
                            public string fmt = "default") {
@@ -45,7 +45,7 @@ public type WritableTextRecordChannel object {
 # ```
 # 
 # + textRecord - List of fields to be written
-# + return - An `Error` if the records could not be written properly, or else ()
+# + return - An `io:Error` if the records could not be written properly or else `()`
     public function write(string[] textRecord) returns Error? {
         handle[] records = [];
             foreach string v in textRecord {
@@ -59,7 +59,7 @@ public type WritableTextRecordChannel object {
 # io:Error? err = writableChannel.close();
 # ```
 # 
-# + return - An `Error` if the record channel could not be closed properly, or else ()
+# + return - An `io:Error` if the record channel could not be closed properly or else `()`
     public function close() returns Error? {
         return closeWritableTextRecordChannelExtern(self);
     }

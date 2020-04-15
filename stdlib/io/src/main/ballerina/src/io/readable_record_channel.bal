@@ -51,7 +51,7 @@ public type ReadableTextRecordChannel object {
 # string[]|io:Error record = readableRecChannel.getNext();
 # ```
 #
-# + return - Set of fields included in the record, or else `Error`
+# + return - Set of fields included in the record or else `io:Error`
     public function getNext() returns @tainted string[]|Error {
         handle[]|Error result = getNextExtern(self);
         if (result is Error) {
@@ -70,7 +70,7 @@ public type ReadableTextRecordChannel object {
 # io:Error err = readableRecChannel.close();
 # ```
 #
-# + return - An `Error` if the record channel could not be closed properly
+# + return - An `io:Error` if the record channel could not be closed properly
     public function close() returns Error? {
         return closeReadableTextRecordChannelExtern(self);
     }

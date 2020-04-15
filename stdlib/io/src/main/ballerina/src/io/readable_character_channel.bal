@@ -39,7 +39,7 @@ public type ReadableCharacterChannel object {
 # ```
 #
 # + numberOfChars - Number of characters, which should be read
-# + return - Content, which is read, an `EofError` once the channel reaches the end, or else an `Error`
+# + return - Content, which is read, an `EofError` once the channel reaches the end or else an `io:Error`
     public function read(@untainted int numberOfChars) returns @tainted string|Error {
         handle|Error result = readExtern(self, numberOfChars);
         if (result is handle) {
@@ -54,7 +54,7 @@ public type ReadableCharacterChannel object {
 # json|io:Error result = readableCharChannel.readJson();
 # ```
 #
-# + return - The read JSON string or else an `Error`
+# + return - The read JSON string or else an `io:Error`
     public function readJson() returns @tainted json|Error {
         return readJsonExtern(self);
     }
@@ -64,7 +64,7 @@ public type ReadableCharacterChannel object {
 # json|io:Error result = readableCharChannel.readXml();
 # ```
 #
-# + return - The read XML or else an `Error`
+# + return - The read XML or else an `io:Error`
     public function readXml() returns @tainted xml|Error {
         return readXmlExtern(self);
     }

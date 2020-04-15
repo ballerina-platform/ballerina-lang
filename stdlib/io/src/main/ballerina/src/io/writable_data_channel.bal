@@ -48,7 +48,7 @@ public type WritableDataChannel object {
 # ```
 #
 # + value - The integer, which will be written
-# + return - `()` if the content is written successfully or else an `Error` if any error occurred
+# + return - `()` if the content is written successfully or else an `io:Error` if any error occurred
     public function writeInt16(int value) returns Error? {
         return writeInt16Extern(self, value);
     }
@@ -59,7 +59,7 @@ public type WritableDataChannel object {
 # ```
 # 
 # + value - The integer, which will be written
-# + return - nill if the content is written successfully, or else `Error` if any error occurred
+# + return - `()` if the content is written successfully or else `io:Error` if any error occurred
     public function writeInt32(int value) returns Error? {
         return writeInt32Extern(self, value);
     }
@@ -70,7 +70,7 @@ public type WritableDataChannel object {
 # ```
 #
 # + value - The integer, which will be written
-# + return - nill if the content is written successfully, or else `Error` if any error occurred
+# + return - `()` if the content is written successfully or else `io:Error` if any error occurred
     public function writeInt64(int value) returns Error? {
         return writeInt64Extern(self, value);
     }
@@ -81,7 +81,7 @@ public type WritableDataChannel object {
 # ```
 #
 # + value - The float, which will be written
-# + return - nill if the float is written successfully, or else `Error` if any error occurred
+# + return - `()` if the float is written successfully or else `io:Error` if any error occurred
     public function writeFloat32(float value) returns Error? {
         return writeFloat32Extern(self, value);
     }
@@ -92,7 +92,7 @@ public type WritableDataChannel object {
 # ```
 #
 # + value - The float, which will be written
-# + return - nill if the float is written successfully, or else `Error` if any error occurred
+# + return - `()` if the float is written successfully or else `io:Error` if any error occurred
     public function writeFloat64(float value) returns Error? {
         return writeFloat64Extern(self, value);
     }
@@ -103,7 +103,7 @@ public type WritableDataChannel object {
 # ```
 #
 # + value - The boolean, which will be written
-# + return - nill if the content is written successfully, or else `Error` if any error occurred
+# + return - `()` if the content is written successfully or else `io:Error` if any error occurred
     public function writeBool(boolean value) returns Error? {
         return writeBoolExtern(self, value);
     }
@@ -115,7 +115,7 @@ public type WritableDataChannel object {
 #
 # + value - The value, which should be written
 # + encoding - The encoding, which will represent the value string
-# + return - nill if the content is written successfully, or else `Error` if any error occurred
+# + return - `()` if the content is written successfully or else `io:Error` if any error occurred
     public function writeString(string value, string encoding) returns Error? {
         return writeStringExtern(self, java:fromString(value), java:fromString(encoding));
     }
@@ -126,7 +126,7 @@ public type WritableDataChannel object {
 # ```
 #
 # + value - The int, which will be written
-# + return - Value of the integer, which is written or else `Error` if any error occurred
+# + return - The value of the integer, which is written or else `io:Error` if any error occurred
     public function writeVarInt(int value) returns Error? {
         return writeVarIntExtern(self, value);
     }
@@ -136,7 +136,7 @@ public type WritableDataChannel object {
 # io:Error? err = dataChannel.close();
 # ```
 #
-# + return - `()` if the channel is closed successfully, or else `Error` if any error occurred
+# + return - `()` if the channel is closed successfully or else `io:Error` if any error occurred
     public function close() returns Error? {
         return closeWritableDataChannelExtern(self);
     }

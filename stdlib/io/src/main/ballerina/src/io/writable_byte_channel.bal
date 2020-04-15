@@ -31,7 +31,7 @@ public type WritableByteChannel object {
 #
 # + content - Block of bytes, which should be written
 # + offset - Offset, which should be kept when writing bytes.
-# + return - Number of bytes written, or else `Error`
+# + return - Number of bytes written or else `io:Error`
     public function write(byte[] content, int offset) returns int|Error {
         return byteWriteExtern(self, content, offset);
     }
@@ -41,7 +41,7 @@ public type WritableByteChannel object {
 # io:Error err = writableByteChannel.close();
 # ```
 #
-# + return - `Error`, or else ()
+# + return - `io:Error` or else `()`
     public function close() returns Error? {
         return closeWritableByteChannelExtern(self);
     }

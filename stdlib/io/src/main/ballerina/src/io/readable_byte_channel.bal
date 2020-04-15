@@ -30,7 +30,7 @@ public type ReadableByteChannel object {
 # ```
 # 
 # + nBytes - A positive integer. Represents the number of bytes, which should be read
-# + return - Content (the number of bytes) read, an `EofError` once the channel reaches the end, or else an `Error`
+# + return - Content (the number of bytes) read, an `EofError` once the channel reaches the end or else an `io:Error`
     public function read(@untainted int nBytes) returns @tainted byte[]|Error {
         return byteReadExtern(self, nBytes);
     }
@@ -40,7 +40,7 @@ public type ReadableByteChannel object {
 # ReadableByteChannel|Error encodedChannel = readableByteChannel.base64Encode();
 # ```
 # 
-# + return - An encoded `ReadableByteChannel` or else an `Error`
+# + return - An encoded `ReadableByteChannel` or else an `io:Error`
     public function base64Encode() returns ReadableByteChannel|Error {
         return base64EncodeExtern(self);
     }
@@ -50,7 +50,7 @@ public type ReadableByteChannel object {
 # ReadableByteChannel|Error encodedChannel = readableByteChannel.base64Decode();
 # ```
 # 
-# + return - A decoded `ReadableByteChannel` or else an `Error`
+# + return - A decoded `ReadableByteChannel` or else an `io:Error`
     public function base64Decode() returns ReadableByteChannel|Error {
         return base64DecodeExtern(self);
     }
