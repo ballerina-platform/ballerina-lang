@@ -167,7 +167,7 @@ public type Client client object {
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - An `http:HttpFuture` that represents an asynchronous service invocation, or an `http:ClientError` if the submission fails
+    # + return - An `http:HttpFuture` that represents an asynchronous service invocation or else an `http:ClientError` if the submission fails
     public remote function submit(@untainted string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         Request req = buildRequest(message);
         return self.httpClient->submit(httpVerb, path, req);
