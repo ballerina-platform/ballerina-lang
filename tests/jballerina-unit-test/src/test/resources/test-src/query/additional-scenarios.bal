@@ -32,7 +32,7 @@ type Section record {
    string name;
    Grades grades;
 };
-//open record
+
 type Grades record{|
     int physics;
     int chemistry;

@@ -1,6 +1,9 @@
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.model.values.*;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -8,6 +11,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Additional test cases for query expressions
+ *
+ * @since 1.2.0
+ */
 public class AdditionalScenariosTest {
     private CompileResult result;
 
@@ -40,7 +48,6 @@ public class AdditionalScenariosTest {
         BMap<String, BValue> person6Address = (BMap<String, BValue>) person6.get("address");
         BMap<String, BValue> person7Address = (BMap<String, BValue>) person7.get("address");
         BMap<String, BValue> person8Address = (BMap<String, BValue>) person8.get("address");
-
 
         Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
         Assert.assertEquals(person1.get("lastName").stringValue(), "George");
@@ -89,8 +96,6 @@ public class AdditionalScenariosTest {
         Assert.assertEquals(person8.get("deptAccess").stringValue(), "Operations");
         Assert.assertEquals(person8Address.get("city").stringValue(), "Springfield");
         Assert.assertEquals(person8Address.get("country").stringValue(), "USA");
-
-
     }
 
     @Test(description = "Test logical operands with where")
@@ -120,24 +125,28 @@ public class AdditionalScenariosTest {
         BMap section4 = (BMap) returnValues[3];
 
         Assert.assertTrue(section1.get("grades") instanceof BMap);
-        Assert.assertEquals(section1.get("grades").stringValue(),"{physics:30, chemistry:50, maths:60}");
-        Assert.assertEquals(section1.stringValue(),"{name:\"Maths\", grades:{physics:30, chemistry:50, maths:60}, noOfStudents:100}");
+        Assert.assertEquals(section1.get("grades").stringValue(), "{physics:30, chemistry:50, maths:60}");
+        Assert.assertEquals(section1.stringValue(), "{name:\"Maths\", grades:{physics:30, chemistry:50, maths:60}," +
+                " noOfStudents:100}");
 
         Assert.assertTrue(section2.get("grades") instanceof BMap);
-        Assert.assertEquals(section2.get("grades").stringValue(),"{physics:50, chemistry:60, bio:70}");
-        Assert.assertEquals(section2.stringValue(),"{name:\"Maths\", grades:{physics:50, chemistry:60, bio:70}, noOfStudents:100}");
+        Assert.assertEquals(section2.get("grades").stringValue(), "{physics:50, chemistry:60, bio:70}");
+        Assert.assertEquals(section2.stringValue(), "{name:\"Maths\", grades:{physics:50, chemistry:60, bio:70}, " +
+                "noOfStudents:100}");
 
         Assert.assertTrue(section3.get("grades") instanceof BMap);
-        Assert.assertEquals(section3.get("grades").stringValue(),"{physics:30, chemistry:50, maths:60}");
-        Assert.assertEquals(section3.stringValue(),"{name:\"Bio\", grades:{physics:30, chemistry:50, maths:60}, noOfStudents:100}");
+        Assert.assertEquals(section3.get("grades").stringValue(), "{physics:30, chemistry:50, maths:60}");
+        Assert.assertEquals(section3.stringValue(), "{name:\"Bio\", grades:{physics:30, chemistry:50, maths:60}, " +
+                "noOfStudents:100}");
 
         Assert.assertTrue(section4.get("grades") instanceof BMap);
-        Assert.assertEquals(section4.get("grades").stringValue(),"{physics:50, chemistry:60, bio:70}");
-        Assert.assertEquals(section4.stringValue(),"{name:\"Bio\", grades:{physics:50, chemistry:60, bio:70}, noOfStudents:100}");
-
+        Assert.assertEquals(section4.get("grades").stringValue(), "{physics:50, chemistry:60, bio:70}");
+        Assert.assertEquals(section4.stringValue(), "{name:\"Bio\", grades:{physics:50, chemistry:60, bio:70}, " +
+                "noOfStudents:100}");
     }
 
-    @Test(description = "Test anonymous record type, record type referencing, optional field, changed order of the fields")
+    @Test(description = "Test anonymous record type, record type referencing, optional field, " +
+            "changed order of the fields")
     public void testOthersAssociatedWithRecordTypes() {
         BValue[] returnValues = BRunUtil.invoke(result, "testOthersAssociatedWithRecordTypes");
         Assert.assertNotNull(returnValues);
@@ -149,18 +158,21 @@ public class AdditionalScenariosTest {
 
         Assert.assertTrue(teacher1.get("classStudents") instanceof BValueArray);
         Assert.assertTrue(teacher1.get("experience") instanceof BMap);
-        Assert.assertEquals(teacher1.get("classStudents").stringValue(),"[{firstName:\"Alex\", lastName:\"George\", score:82.5}, {firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6}]");
-        Assert.assertEquals(teacher1.get("experience").stringValue(),"{duration:10, qualitifications:\"B.Sc.\"}");
-        Assert.assertEquals(teacher1.stringValue(),"{classStudents:[{firstName:\"Alex\", lastName:\"George\", score:82.5}, {firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6}], experience:{duration:10, qualitifications:\"B.Sc.\"}, firstName:\"Alex\", lastName:\"George\", deptAccess:\"XYZ\", address:{city:\"NY\", country:\"America\"}}");
-
+        Assert.assertEquals(teacher1.get("classStudents").stringValue(), "[{firstName:\"Alex\", lastName:\"George\", score:82.5}, " +
+                "{firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6}]");
+        Assert.assertEquals(teacher1.get("experience").stringValue(), "{duration:10, qualitifications:\"B.Sc.\"}");
+        Assert.assertEquals(teacher1.stringValue(), "{classStudents:[{firstName:\"Alex\", lastName:\"George\", score:82.5}, " +
+                "{firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6}], experience:{duration:10, qualitifications:\"B.Sc.\"}, " +
+                "firstName:\"Alex\", lastName:\"George\", deptAccess:\"XYZ\", address:{city:\"NY\", country:\"America\"}}");
 
         Assert.assertTrue(teacher2.get("classStudents") instanceof BValueArray);
         Assert.assertTrue(teacher2.get("experience") instanceof BMap);
-        Assert.assertEquals(teacher2.get("classStudents").stringValue(),"[{firstName:\"Alex\", lastName:\"George\", score:82.5}, {firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6}]");
-        Assert.assertEquals(teacher2.get("experience").stringValue(),"{duration:10, qualitifications:\"B.Sc.\"}");
-        Assert.assertEquals(teacher2.stringValue(),"{classStudents:[{firstName:\"Alex\", lastName:\"George\", score:82.5}, {firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6}], experience:{duration:10, qualitifications:\"B.Sc.\"}, firstName:\"Ranjan\", lastName:\"Fonseka\", deptAccess:\"XYZ\", address:{city:\"NY\", country:\"America\"}}");
-
-    }
+        Assert.assertEquals(teacher2.get("classStudents").stringValue(), "[{firstName:\"Alex\", lastName:\"George\", score:82.5}, " +
+                "{firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6}]");
+        Assert.assertEquals(teacher2.get("experience").stringValue(), "{duration:10, qualitifications:\"B.Sc.\"}");
+        Assert.assertEquals(teacher2.stringValue(), "{classStudents:[{firstName:\"Alex\", lastName:\"George\", score:82.5}, " +
+                "{firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6}], experience:{duration:10, qualitifications:\"B.Sc.\"}, " +
+                "firstName:\"Ranjan\", lastName:\"Fonseka\", deptAccess:\"XYZ\", address:{city:\"NY\", country:\"America\"}}");    }
 
     @Test(description = "Test query expressions with tuple typed binding")
     public void testQueryExprTupleTypedBinding1() {
@@ -172,7 +184,6 @@ public class AdditionalScenariosTest {
         Assert.assertEquals(((BValueArray) returnValues[0]).getString(0), "A");
         Assert.assertEquals(((BValueArray) returnValues[0]).getString(1), "B");
         Assert.assertEquals(((BValueArray) returnValues[0]).getString(2), "C");
-
     }
 
     @Test(description = "Test query expressions with tuple typed binding in let")
@@ -181,9 +192,7 @@ public class AdditionalScenariosTest {
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-
-        Assert.assertEquals(((BValueArray)returnValues[0]).getInt(0), 3);
-
+        Assert.assertEquals(((BValueArray) returnValues[0]).getInt(0), 3);
     }
 
     @Test(description = "Test query expression with record typed binding")
@@ -199,10 +208,14 @@ public class AdditionalScenariosTest {
         BMap person4 = (BMap) returnValues[3];
 
         Assert.assertTrue(person1.get("address") instanceof BMap);
-        Assert.assertEquals(person1.stringValue(),"{firstName:\"Alex\", lastName:\"George\", deptAccess:\"HR\", address:{city:\"NY\", country:\"America\"}}");
-        Assert.assertEquals(person2.stringValue(),"{firstName:\"Alex\", lastName:\"George\", deptAccess:\"Operations\", address:{city:\"NY\", country:\"America\"}}");
-        Assert.assertEquals(person3.stringValue(),"{firstName:\"Ranjan\", lastName:\"Fonseka\", deptAccess:\"HR\", address:{city:\"NY\", country:\"America\"}}");
-        Assert.assertEquals(person4.stringValue(),"{firstName:\"Ranjan\", lastName:\"Fonseka\", deptAccess:\"Operations\", address:{city:\"NY\", country:\"America\"}}");
+        Assert.assertEquals(person1.stringValue(), "{firstName:\"Alex\", lastName:\"George\", " +
+                "deptAccess:\"HR\", address:{city:\"NY\", country:\"America\"}}");
+        Assert.assertEquals(person2.stringValue(), "{firstName:\"Alex\", lastName:\"George\", " +
+                "deptAccess:\"Operations\", address:{city:\"NY\", country:\"America\"}}");
+        Assert.assertEquals(person3.stringValue(), "{firstName:\"Ranjan\", lastName:\"Fonseka\", " +
+                "deptAccess:\"HR\", address:{city:\"NY\", country:\"America\"}}");
+        Assert.assertEquals(person4.stringValue(), "{firstName:\"Ranjan\", lastName:\"Fonseka\", " +
+                "deptAccess:\"Operations\", address:{city:\"NY\", country:\"America\"}}");
     }
 
     @Test(description = "Test query expression with type conversion in select clause")
@@ -215,9 +228,10 @@ public class AdditionalScenariosTest {
         BMap person1 = (BMap) returnValues[0];
         BMap person2 = (BMap) returnValues[1];
 
-        Assert.assertEquals(person1.stringValue(),"{firstName:\"Alex\", lastName:\"George\", deptAccess:\"XYZ\", address:{city:\"New York\", country:\"America\"}}");
-        Assert.assertEquals(person2.stringValue(),"{firstName:\"Ranjan\", lastName:\"Fonseka\", deptAccess:\"XYZ\", address:{city:\"New York\", country:\"America\"}}");
-
+        Assert.assertEquals(person1.stringValue(), "{firstName:\"Alex\", lastName:\"George\", deptAccess:\"XYZ\", " +
+                "address:{city:\"New York\", country:\"America\"}}");
+        Assert.assertEquals(person2.stringValue(), "{firstName:\"Ranjan\", lastName:\"Fonseka\", deptAccess:\"XYZ\", " +
+                "address:{city:\"New York\", country:\"America\"}}");
     }
 
     @Test(description = "Test streams with map and filter")
@@ -229,10 +243,7 @@ public class AdditionalScenariosTest {
 
         BMap subscription = (BMap) returnValues[0];
 
-        Assert.assertEquals(subscription.stringValue(),"{firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6, degree:\"Bachelor of Medicine\"}");
-
+        Assert.assertEquals(subscription.stringValue(), "{firstName:\"Ranjan\", lastName:\"Fonseka\", score:90.6, " +
+                "degree:\"Bachelor of Medicine\"}");
     }
-
 }
-
-
