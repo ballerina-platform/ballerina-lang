@@ -1690,6 +1690,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (type == symTable.semanticError) {
             // Error of this is already printed as undef-var
             was.hasErrors = true;
+        } else if (workerSendNode.expr instanceof ActionNode) {
+            this.dlog.error(workerSendNode.expr.pos, DiagnosticCode.INVALID_SEND_EXPR);
         } else if (!type.isAnydata()) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, type);
         }
@@ -2057,11 +2059,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (parent instanceof StatementNode) {
                 return;
             } else if (parent instanceof ActionNode || parent instanceof BLangVariable || kind == NodeKind.CHECK_EXPR ||
-                    kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.TRAP_EXPR || kind == NodeKind.GROUP_EXPR) {
-                parent = parent.parent;
-                if (parent.getKind() == NodeKind.BLOCK || parent.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
-                    return;
+                    kind == NodeKind.CHECK_PANIC_EXPR || kind == NodeKind.TRAP_EXPR || kind == NodeKind.GROUP_EXPR ||
+                    kind == NodeKind.TYPE_CONVERSION_EXPR) {
+                if (parent instanceof BLangInvocation.BLangActionInvocation) {
+                    // Prevent use of actions as arguments in a call
+                    break;
                 }
+
+                parent = parent.parent;
                 continue;
             }
             break;
@@ -2088,15 +2093,31 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangWaitExpr awaitExpr) {
-        analyzeExpr(awaitExpr.getExpression());
+        BLangExpression expr = awaitExpr.getExpression();
+        validateWaitFutureExpr(expr);
+        analyzeExpr(expr);
         validateActionParentNode(awaitExpr.pos, awaitExpr);
     }
 
     public void visit(BLangWaitForAllExpr waitForAllExpr) {
-        waitForAllExpr.keyValuePairs.forEach(keyValue -> {
+        for (BLangWaitForAllExpr.BLangWaitKeyValue keyValue : waitForAllExpr.keyValuePairs) {
             BLangExpression expr = keyValue.valueExpr != null ? keyValue.valueExpr : keyValue.keyExpr;
+            validateWaitFutureExpr(expr);
             analyzeExpr(expr);
-        });
+        }
+
+        validateActionParentNode(waitForAllExpr.pos, waitForAllExpr);
+    }
+
+    // wait-future-expr := expression but not mapping-constructor-expr
+    private void validateWaitFutureExpr(BLangExpression expr) {
+        if (expr.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            dlog.error(expr.pos, DiagnosticCode.INVALID_WAIT_MAPPING_CONSTRUCTORS);
+        }
+
+        if (expr instanceof ActionNode) {
+            dlog.error(expr.pos, DiagnosticCode.INVALID_WAIT_ACTIONS);
+        }
     }
 
     @Override
