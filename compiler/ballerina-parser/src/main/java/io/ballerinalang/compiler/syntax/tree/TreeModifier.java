@@ -64,7 +64,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(ImportDeclaration importDeclaration) {
         Token importKeyword = modifyToken(importDeclaration.importKeyword());
-        Node orgName = modifyNode(importDeclaration.orgName());
+        Token orgName = modifyToken(importDeclaration.orgName());
         Node moduleName = modifyNode(importDeclaration.moduleName());
         Node version = modifyNode(importDeclaration.version());
         Node prefix = modifyNode(importDeclaration.prefix());
@@ -567,7 +567,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(PositionalArgument positionalArgument) {
         Token leadingComma = modifyToken(positionalArgument.leadingComma());
-        Token expression = modifyNode(positionalArgument.expression());
+        Expression expression = modifyNode(positionalArgument.expression());
         return positionalArgument.modify(
                 leadingComma,
                 expression);
@@ -728,6 +728,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 openBraceToken,
                 resources,
                 closeBraceToken);
+    }
+
+    @Override
+    public Node transform(IsExpression isExpression) {
+        Node expression = modifyNode(isExpression.expression());
+        Token isKeyword = modifyToken(isExpression.isKeyword());
+        Node typeDescriptor = modifyNode(isExpression.typeDescriptor());
+        return isExpression.modify(
+                expression,
+                isKeyword,
+                typeDescriptor);
     }
 
     // Tokens

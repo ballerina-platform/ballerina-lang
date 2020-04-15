@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+
 /**
  * The {@code NodeVisitor} visits each node in the syntax tree allowing
  * us to do something at each node.
@@ -154,10 +155,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(unaryExpression);
     }
 
-    public void visit(IsExpression isExpression) {
-        visitSyntaxNode(isExpression);
-    }
-
     public void visit(ComputedNameField computedNameField) {
         visitSyntaxNode(computedNameField);
     }
@@ -270,6 +267,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(serviceBody);
     }
 
+    public void visit(IsExpression isExpression) {
+        visitSyntaxNode(isExpression);
+    }
+
     // Tokens
 
     public void visit(Token token) {
@@ -299,3 +300,4 @@ public abstract class NodeVisitor {
         }
     }
 }
+

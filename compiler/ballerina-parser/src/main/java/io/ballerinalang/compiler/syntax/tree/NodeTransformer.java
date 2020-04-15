@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+
 /**
  * The {@code NodeTransformer} transform each node in the syntax tree to
  * another object of type T.
@@ -155,10 +156,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(unaryExpression);
     }
 
-    public T transform(IsExpression isExpression) {
-        return transformSyntaxNode(isExpression);
-    }
-
     public T transform(ComputedNameField computedNameField) {
         return transformSyntaxNode(computedNameField);
     }
@@ -271,6 +268,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(serviceBody);
     }
 
+    public T transform(IsExpression isExpression) {
+        return transformSyntaxNode(isExpression);
+    }
+
     // Tokens
 
     public T transform(Token token) {
@@ -307,3 +308,4 @@ public abstract class NodeTransformer<T> {
      */
     protected abstract T transformSyntaxNode(Node node);
 }
+

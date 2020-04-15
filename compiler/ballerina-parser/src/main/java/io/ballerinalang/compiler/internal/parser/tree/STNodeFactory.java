@@ -403,17 +403,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
-    public static STNode createIsExpression(
-            STNode expression,
-            STNode isKeyword,
-            STNode typeDescriptor) {
-
-        return new STIsExpression(
-                expression,
-                isKeyword,
-                typeDescriptor);
-    }
-
     public static STNode createComputedNameField(
             STNode leadingComma,
             STNode openBracket,
@@ -749,4 +738,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 resources,
                 closeBraceToken);
     }
+
+    public static STNode createIsExpression(
+            STNode expression,
+            STNode isKeyword,
+            STNode typeDescriptor) {
+
+        return new STIsExpression(
+                expression,
+                isKeyword,
+                typeDescriptor);
+    }
 }
+

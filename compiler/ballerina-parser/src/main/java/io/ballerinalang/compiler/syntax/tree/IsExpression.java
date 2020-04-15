@@ -24,10 +24,10 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class IsExpression extends Expression{
+public class IsExpression extends Expression {
 
-    public IsExpression(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+    public IsExpression(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 
     public Node expression() {
@@ -35,16 +35,22 @@ public class IsExpression extends Expression{
     }
 
     public Token isKeyword() {
-        return (Token) childInBucket(1);
+        return childInBucket(1);
     }
 
-    public Node typeDescriptor() { return childInBucket(2); }
+    public Node typeDescriptor() {
+        return childInBucket(2);
+    }
 
     @Override
-    public void accept(NodeVisitor visitor) { visitor.visit(this); }
+    public void accept(NodeVisitor visitor) {
+        visitor.visit(this);
+    }
 
     @Override
-    public <T> T apply(NodeTransformer<T> visitor) { return visitor.transform(this); }
+    public <T> T apply(NodeTransformer<T> visitor) {
+        return visitor.transform(this);
+    }
 
     public IsExpression modify(
             Node expression,

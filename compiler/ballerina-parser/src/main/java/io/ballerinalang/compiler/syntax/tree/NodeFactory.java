@@ -80,7 +80,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ImportDeclaration createImportDeclaration(
             Token importKeyword,
-            Node orgName,
+            Token orgName,
             Node moduleName,
             Node version,
             Node prefix,
@@ -538,21 +538,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stUnaryExpression.createUnlinkedFacade();
     }
 
-    public static IsExpression createIsExpression(
-            Node expression,
-            Token isKeyword,
-            Node typeDescriptor) {
-        Objects.requireNonNull(expression, "expression must not be null");
-        Objects.requireNonNull(isKeyword, "isKeyword must not be null");
-        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
-
-        STNode stIsExpression = STNodeFactory.createIsExpression(
-                expression.internalNode(),
-                isKeyword.internalNode(),
-                typeDescriptor.internalNode());
-        return stIsExpression.createUnlinkedFacade();
-    }
-
     public static ComputedNameField createComputedNameField(
             Token leadingComma,
             Token openBracket,
@@ -789,7 +774,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static PositionalArgument createPositionalArgument(
             Token leadingComma,
-            Token expression) {
+            Expression expression) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
@@ -1013,6 +998,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 resources.underlyingListNode().internalNode(),
                 closeBraceToken.internalNode());
         return stServiceBody.createUnlinkedFacade();
+    }
+
+    public static IsExpression createIsExpression(
+            Node expression,
+            Token isKeyword,
+            Node typeDescriptor) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(isKeyword, "isKeyword must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+
+        STNode stIsExpression = STNodeFactory.createIsExpression(
+                expression.internalNode(),
+                isKeyword.internalNode(),
+                typeDescriptor.internalNode());
+        return stIsExpression.createUnlinkedFacade();
     }
 }
 
