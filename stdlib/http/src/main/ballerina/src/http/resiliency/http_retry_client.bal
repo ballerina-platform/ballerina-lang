@@ -150,7 +150,7 @@ public type RetryClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel`, or `mime:Entity[]`
-    # + return - The `http:Response` message, or an `http:ClientError` if the invocation fails
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function patch(string path, RequestMessage message) returns @tainted Response|ClientError {
         var result = performRetryAction(path, <Request>message, HTTP_PATCH, self);
         if (result is HttpFuture) {
