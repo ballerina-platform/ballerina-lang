@@ -236,7 +236,6 @@ public class MultipleFromClauseTest {
         Assert.assertEquals(person6.get("lastName").stringValue(), "David");
         Assert.assertEquals(person6.get("deptAccess").stringValue(), "WSO2");
     }
-	
     @Test(description = "Test more than two from clauses")
     public void testMultipleFromAndSelectClausesWithRecordVariable() {
         BValue[] returnValues = BRunUtil.invoke(result, "testMultipleFromAndSelectClausesWithRecordVariable");
