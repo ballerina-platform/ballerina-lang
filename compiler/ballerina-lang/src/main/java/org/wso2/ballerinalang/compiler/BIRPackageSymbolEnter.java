@@ -242,9 +242,6 @@ public class BIRPackageSymbolEnter {
         for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
             this.currentStructure = structureTypeSymbol;
             defineSymbols(dataInStream, rethrow(this::defineFunction));
-
-            // read and ignore the type references
-            defineSymbols(dataInStream, rethrow(this::readBType));
         }
         this.currentStructure = null;
     }

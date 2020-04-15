@@ -130,13 +130,7 @@ public class BIRBinaryWriter {
                 || t.type.tag == TypeTags.RECORD).collect(Collectors.toList());
         filtered.forEach(typeDef -> {
             writeFunctions(buf, typeDef.attachedFuncs);
-            writeReferencedTypes(buf, typeDef.referencedTypes);
         });
-    }
-
-    private void writeReferencedTypes(ByteBuf buf, List<BType> referencedTypes) {
-        buf.writeInt(referencedTypes.size());
-        referencedTypes.forEach(type -> writeType(buf, type));
     }
 
     private void writeGlobalVars(ByteBuf buf, List<BIRGlobalVariableDcl> birGlobalVars) {
