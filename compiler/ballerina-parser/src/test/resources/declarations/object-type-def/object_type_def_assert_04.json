@@ -2,6 +2,16 @@
     "kind": "TYPE_DEFINITION",
     "children": [
         {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
+            ]
+        },
+        {
             "kind": "TYPE_KEYWORD"
         },
         {
@@ -28,6 +38,16 @@
                         {
                             "kind": "FUNCTION_DEFINITION",
                             "children": [
+                                {
+                                    "kind": "METADATA",
+                                    "children": [
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                            ]
+                                        }
+                                    ]
+                                },
                                 {
                                     "kind": "PUBLIC_KEYWORD"
                                 },
@@ -71,6 +91,16 @@
                             "kind": "FUNCTION_DEFINITION",
                             "children": [
                                 {
+                                    "kind": "METADATA",
+                                    "children": [
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
                                     "kind": "FUNCTION_KEYWORD"
                                 },
                                 {
@@ -109,6 +139,16 @@
                         {
                             "kind": "FUNCTION_DEFINITION",
                             "children": [
+                                {
+                                    "kind": "METADATA",
+                                    "children": [
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                            ]
+                                        }
+                                    ]
+                                },
                                 {
                                     "kind": "LIST",
                                     "children": [

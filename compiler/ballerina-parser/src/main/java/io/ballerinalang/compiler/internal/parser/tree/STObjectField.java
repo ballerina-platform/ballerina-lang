@@ -28,6 +28,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  * @since 1.3.0
  */
 public class STObjectField extends STNode {
+    public final STNode metadata;
     public final STNode visibilityQualifier;
     public final STNode type;
     public final STNode fieldName;
@@ -36,6 +37,7 @@ public class STObjectField extends STNode {
     public final STNode semicolonToken;
 
     STObjectField(
+            STNode metadata,
             STNode visibilityQualifier,
             STNode type,
             STNode fieldName,
@@ -43,6 +45,7 @@ public class STObjectField extends STNode {
             STNode expression,
             STNode semicolonToken) {
         super(SyntaxKind.OBJECT_FIELD);
+        this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.type = type;
         this.fieldName = fieldName;
@@ -51,6 +54,7 @@ public class STObjectField extends STNode {
         this.semicolonToken = semicolonToken;
 
         addChildren(
+                metadata,
                 visibilityQualifier,
                 type,
                 fieldName,

@@ -28,6 +28,7 @@ import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
  * @since 1.3.0
  */
 public class STTypeDefinitionNode extends STModuleMemberDeclaration {
+    public final STNode metadata;
     public final STNode visibilityQualifier;
     public final STNode typeKeyword;
     public final STNode typeName;
@@ -35,12 +36,14 @@ public class STTypeDefinitionNode extends STModuleMemberDeclaration {
     public final STNode semicolonToken;
 
     STTypeDefinitionNode(
+            STNode metadata,
             STNode visibilityQualifier,
             STNode typeKeyword,
             STNode typeName,
             STNode typeDescriptor,
             STNode semicolonToken) {
         super(SyntaxKind.TYPE_DEFINITION);
+        this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.typeKeyword = typeKeyword;
         this.typeName = typeName;
@@ -48,6 +51,7 @@ public class STTypeDefinitionNode extends STModuleMemberDeclaration {
         this.semicolonToken = semicolonToken;
 
         addChildren(
+                metadata,
                 visibilityQualifier,
                 typeKeyword,
                 typeName,

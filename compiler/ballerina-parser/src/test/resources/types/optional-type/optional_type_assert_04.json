@@ -1,24 +1,34 @@
 {
-  "kind": "VARIABLE_DECL",
-  "children": [
-    {
-      "kind": "OPTIONAL_TYPE",
-      "children": [
+    "kind": "MODULE_VAR_DECL",
+    "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "T"
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
+            ]
         },
         {
-          "kind": "QUESTION_MARK_TOKEN"
+            "kind": "OPTIONAL_TYPE",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "T"
+                },
+                {
+                    "kind": "QUESTION_MARK_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
         }
-      ]
-    },
-    {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
-    },
-    {
-      "kind": "SEMICOLON_TOKEN"
-    }
-  ]
+    ]
 }

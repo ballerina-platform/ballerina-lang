@@ -30,24 +30,28 @@ public class ServiceDeclaration extends ModuleMemberDeclaration {
         super(internalNode, position, parent);
     }
 
-    public Token serviceKeyword() {
+    public Metadata metadata() {
         return childInBucket(0);
     }
 
-    public Identifier serviceName() {
+    public Token serviceKeyword() {
         return childInBucket(1);
     }
 
-    public Token onKeyword() {
+    public Identifier serviceName() {
         return childInBucket(2);
     }
 
+    public Token onKeyword() {
+        return childInBucket(3);
+    }
+
     public NodeList<Expression> expressions() {
-        return new NodeList<>(childInBucket(3));
+        return new NodeList<>(childInBucket(4));
     }
 
     public Node serviceBody() {
-        return childInBucket(4);
+        return childInBucket(5);
     }
 
     @Override
@@ -61,12 +65,14 @@ public class ServiceDeclaration extends ModuleMemberDeclaration {
     }
 
     public ServiceDeclaration modify(
+            Metadata metadata,
             Token serviceKeyword,
             Identifier serviceName,
             Token onKeyword,
             NodeList<Expression> expressions,
             Node serviceBody) {
         if (checkForReferenceEquality(
+                metadata,
                 serviceKeyword,
                 serviceName,
                 onKeyword,
@@ -76,6 +82,7 @@ public class ServiceDeclaration extends ModuleMemberDeclaration {
         }
 
         return NodeFactory.createServiceDeclaration(
+                metadata,
                 serviceKeyword,
                 serviceName,
                 onKeyword,

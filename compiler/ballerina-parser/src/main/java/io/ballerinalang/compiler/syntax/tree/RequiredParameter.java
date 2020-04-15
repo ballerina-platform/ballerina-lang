@@ -34,16 +34,20 @@ public class RequiredParameter extends Parameter {
         return childInBucket(0);
     }
 
-    public Token visibilityQualifier() {
-        return childInBucket(1);
+    public NodeList<Annotation> annotations() {
+        return new NodeList<>(childInBucket(1));
     }
 
-    public Node type() {
+    public Token visibilityQualifier() {
         return childInBucket(2);
     }
 
-    public Token paramName() {
+    public Node type() {
         return childInBucket(3);
+    }
+
+    public Token paramName() {
+        return childInBucket(4);
     }
 
     @Override
@@ -58,11 +62,13 @@ public class RequiredParameter extends Parameter {
 
     public RequiredParameter modify(
             Token leadingComma,
+            NodeList<Annotation> annotations,
             Token visibilityQualifier,
             Node type,
             Token paramName) {
         if (checkForReferenceEquality(
                 leadingComma,
+                annotations.underlyingListNode(),
                 visibilityQualifier,
                 type,
                 paramName)) {
@@ -71,6 +77,7 @@ public class RequiredParameter extends Parameter {
 
         return NodeFactory.createRequiredParameter(
                 leadingComma,
+                annotations,
                 visibilityQualifier,
                 type,
                 paramName);

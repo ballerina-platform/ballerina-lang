@@ -5,42 +5,17 @@
             "kind": "IMPORT_KEYWORD"
         },
         {
-            "kind": "IMPORT_ORG_NAME",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
-                },
-                {
-                    "kind": "SLASH_TOKEN",
-                    "isMissing": true
-                }
-            ]
-        },
-        {
             "kind": "LIST",
             "children": [
                 {
                     "kind": "IDENTIFIER_TOKEN",
-                    "value": "b"
-                },
-                {
-                    "kind": "SUB_MODULE_NAME",
-                    "children": [
-                        {
-                            "kind": "DOT_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "c"
-                        }
-                    ]
+                    "value": "a"
                 }
             ]
         },
         {
-            "kind": "SEMICOLON_TOKEN"
+            "kind": "SEMICOLON_TOKEN",
+            "isMissing": true
         }
     ]
 }

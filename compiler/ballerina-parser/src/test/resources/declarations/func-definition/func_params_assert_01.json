@@ -2,6 +2,16 @@
     "kind": "FUNCTION_DEFINITION",
     "children": [
         {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
+            ]
+        },
+        {
             "kind": "PUBLIC_KEYWORD"
         },
         {
@@ -18,8 +28,13 @@
             "kind": "LIST",
             "children": [
                 {
-                    "kind": "PARAMETER",
+                    "kind": "REQUIRED_PARAM",
                     "children": [
+                        {
+                            "kind": "LIST",
+                            "children": [
+                            ]
+                        },
                         {
                             "kind": "SIMPLE_TYPE",
                             "value": "int"
@@ -31,10 +46,15 @@
                     ]
                 },
                 {
-                    "kind": "PARAMETER",
+                    "kind": "REQUIRED_PARAM",
                     "children": [
                         {
                             "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                            ]
                         },
                         {
                             "kind": "SIMPLE_TYPE",
@@ -47,10 +67,15 @@
                     ]
                 },
                 {
-                    "kind": "PARAMETER",
+                    "kind": "DEFAULTABLE_PARAM",
                     "children": [
                         {
                             "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                            ]
                         },
                         {
                             "kind": "SIMPLE_TYPE",
@@ -70,10 +95,15 @@
                     ]
                 },
                 {
-                    "kind": "PARAMETER",
+                    "kind": "REST_PARAM",
                     "children": [
                         {
                             "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "LIST",
+                            "children": [
+                            ]
                         },
                         {
                             "kind": "SIMPLE_TYPE",
