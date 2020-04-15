@@ -92,7 +92,7 @@ public type PublisherClient client object {
 # Publishes an update to a remote Ballerina WebSub Hub.
 # ```ballerina
 # error? publishUpdate = websubHubClientEP->publishUpdate("http://websubpubtopic.com",{"action": "publish",
-#                                                          "mode": "remote-hub"});
+# "mode": "remote-hub"});
 #  ```
 #
 # + topic - The topic for which the update occurred

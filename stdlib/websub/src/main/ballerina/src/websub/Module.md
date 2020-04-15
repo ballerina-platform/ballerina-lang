@@ -210,6 +210,7 @@ The mapping can be based on one of the following indicators of a notification re
 (Requests will then be dispatched based on the value of the indicator in the request and a pre-defined mapping.)
 
 - A request header 
+
     Dispatching will be based on the value of the request header specified as `topicHeader`. 
     
     ```ballerina

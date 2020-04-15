@@ -254,102 +254,141 @@ public type Notification object {
 
     private http:Request request = new;
 
-    # Retrieves the query parameters of the content delivery request as a map.
-    #
-    # + return - String-constrained array map of the query params
+# Retrieves the query parameters of the content delivery request as a map.
+# ```ballerina
+# map<string[]> payload = notification.getTextPayload();
+# ```
+#
+# + return - String-constrained array map of the query params
     public function getQueryParams() returns map<string[]> {
         return self.request.getQueryParams();
     }
 
-    # Retrieves the `mime:Entity` associated with the content delivery request.
-    #
-    # + return - The `mime:Entity` of the request or else an `error` if entity construction fails
+# Retrieves the `mime:Entity` associated with the content delivery request.
+# ```ballerina
+# mime:Entity|error payload = notification.getEntity();
+# ```
+#
+# + return - The `mime:Entity` of the request or else an `error` if entity construction fails
     public function getEntity() returns mime:Entity|error {
         return self.request.getEntity();
     }
 
-    # Returns whether the requested header key exists in the header map of the content delivery request.
-    #
-    # + headerName - The header name
-    # + return - `true` if the specified header key exists or else `false`
+# Returns whether the requested header key exists in the header map of the content delivery request.
+# ```ballerina
+# boolean payload = notification.hasHeader("name");
+# ```
+#
+# + headerName - The header name
+# + return - `true` if the specified header key exists or else `false`
     public function hasHeader(string headerName) returns boolean {
         return self.request.hasHeader(headerName);
     }
 
-    # Returns the value of the specified header. If the specified header key maps to multiple values, the first of
-    # these values is returned.
-    #
-    # + headerName - The header name
-    # + return - The first header value for the specified header name or else panic if no header is found. Ideally, the
-    #            `Notification.hasHeader()` needs to be used to check the existence of a header initially.
+# Returns the value of the specified header. If the specified header key maps to multiple values, the first of
+# these values is returned.
+# ```ballerina
+# string payload = notification.getHeader("name");
+# ```
+#
+# + headerName - The header name
+# + return - The first header value for the specified header name or else panic if no header is found. Ideally, the
+#            `Notification.hasHeader()` needs to be used to check the existence of a header initially.
     public function getHeader(string headerName) returns @tainted string {
         return self.request.getHeader(headerName);
     }
 
-    # Retrieves all the header values to which the specified header key maps to.
-    #
-    # + headerName - The header name
-    # + return - The header values the specified header key maps to or else panic if no header is found. Ideally, the
-    #            `Notification.hasHeader()` needs to be used to check the existence of a header initially.
+# Retrieves all the header values to which the specified header key maps to.
+# ```ballerina
+# string[] headersNames = notification.getHeaders("name");
+# ```
+#
+# + headerName - The header name
+# + return - The header values the specified header key maps to or else panic if no header is found. Ideally, the
+#            `Notification.hasHeader()` needs to be used to check the existence of a header initially.
     public function getHeaders(string headerName) returns @tainted string[] {
         return self.request.getHeaders(headerName);
     }
 
-    # Retrieves all the names of the headers present in the content delivery request.
-    #
-    # + return - An array of all the header names
+# Retrieves all the names of the headers present in the content delivery request.
+# ```ballerina
+# string[] headersNames = notification.getHeaderNames();
+# ```
+#
+# + return - An array of all the header names
     public function getHeaderNames() returns @tainted string[] {
         return self.request.getHeaderNames();
     }
 
-    # Retrieves the type of the payload of the content delivery request (i.e: the `content-type` header value).
-    #
-    # + return - The `content-type` header value as a `string`
+# Retrieves the type of the payload of the content delivery request (i.e: the `content-type` header value).
+# ```ballerina
+# string contentType = notification.getContentType();
+# ```
+#
+# + return - The `content-type` header value as a `string`
     public function getContentType() returns @tainted string {
         return self.request.getContentType();
     }
 
-    # Extracts `json` payload from the content delivery request.
-    #
-    # + return - The `json` payload or else an `error` in case of errors.
-    #            If the content; type is not JSON, an `error` is returned.
+# Extracts `json` payload from the content delivery request.
+# ```ballerina
+# json|error payload = notification.getJsonPayload();
+# ```
+#
+# + return - The `json` payload or else an `error` in case of errors.
+#            If the content; type is not JSON, an `error` is returned.
     public function getJsonPayload() returns @tainted json|error {
         return self.request.getJsonPayload();
     }
 
-    # Extracts `xml` payload from the content delivery request.
-    #
-    # + return - The `xml` payload or else an `error` in case of errors.
-    #            If the content; type is not XML, an `error` is returned.
+# Extracts `xml` payload from the content delivery request.
+# ```ballerina
+# xml|error result = notification.getXmlPayload();
+# ```
+#
+# + return - The `xml` payload or else an `error` in case of errors.
+#            If the content; type is not XML, an `error` is returned.
     public function getXmlPayload() returns @tainted xml|error {
         return self.request.getXmlPayload();
     }
 
-    # Extracts `text` payload from the content delivery request.
-    #
-    # + return - The payload as a `text` or else  an `error` in case of errors.
-    #            If the content type is not of type text, an `error` is returned.
+# Extracts `text` payload from the content delivery request.
+# ```ballerina
+# string|error result = notification.getTextPayload();
+# ```
+#
+# + return - The payload as a `text` or else  an `error` in case of errors.
+#            If the content type is not of type text, an `error` is returned.
     public function getTextPayload() returns @tainted string|error {
         return self.request.getTextPayload();
     }
 
-    # Retrieves the request payload as a `ByteChannel` except in the case of multiparts.
-    #
-    # + return - A byte channel from which the message payload can be read or esle an `error` in case of errors
+# Retrieves the request payload as a `ByteChannel` except in the case of multiparts.
+# ```ballerina
+# io:ReadableByteChannel|error result = notification.getByteChannel();
+# ```
+#
+# + return - A byte channel from which the message payload can be read or esle an `error` in case of errors
     public function getByteChannel() returns @tainted io:ReadableByteChannel|error {
         return self.request.getByteChannel();
     }
 
-    # Retrieves the request payload as a `byte[]`.
-    #
-    # + return - The message payload as a `byte[]` or else an `error` in case of errors
+# Retrieves the request payload as a `byte[]`.
+# ```ballerina
+# byte[]|error payload = notification.getBinaryPayload();
+# ```
+#
+# + return - The message payload as a `byte[]` or else an `error` in case of errors
     public function getBinaryPayload() returns @tainted byte[]|error {
         return self.request.getBinaryPayload();
     }
 
-    # Retrieves the form parameters from the content delivery request as a `map`.
-    #
-    # + return - The form params as a `map` or else an `error` in case of errors
+# Retrieves the form parameters from the content delivery request as a `map`.
+# ```ballerina
+# map<string>|error result = notification.getFormParams();
+# ```
+#
+# + return - The form params as a `map` or else an `error` in case of errors
     public function getFormParams() returns @tainted map<string>|error {
         return self.request.getFormParams();
     }
@@ -467,7 +506,7 @@ public type RemotePublishConfig record {|
 # Starts up the Ballerina Hub.
 # ```ballerina
 #  websub:Hub|websub:HubStartedUpError|websub:HubStartupError webSubHub = websub:startHub(new http:Listener(9191),
-#                                                                               "/websub", "/hub");
+# "/websub", "/hub");
 # ```
 # + hubServiceListener - The `http:Listener` to which the hub service is attached
 # + basePath - The base path of the hub service
@@ -578,7 +617,7 @@ public type Hub object {
 # Publishes an update against the topic in the initialized Ballerina Hub.
 # ```ballerina
 # error? publishResponse = webSubHub.publishUpdate("http://websubpubtopic.com",{"action": "publish",
-#                                       "mode": "internal-hub"});
+# "mode": "internal-hub"});
 # ```
 #
 # + topic - The topic for which the update should happen
@@ -650,8 +689,7 @@ public type Hub object {
 
 # Removes a subscription from the Ballerina Hub, without verifying intent.
 # ```ballerina
-# error? registrationResponse = webSubHub.removeSubscription("http://websubpubtopic.com",
-#                                                       "removeSubscriptioCallback");
+# error? registrationResponse = webSubHub.removeSubscription("http://websubpubtopic.com", "removeSubscriptioCallback");
 # ```
 # + topic - The topic for which the subscription should be removed
 # + callback - The callback for which the subscription should be removed
