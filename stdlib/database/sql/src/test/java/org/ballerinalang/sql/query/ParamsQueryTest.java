@@ -40,7 +40,7 @@ import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 
 /**
- * This test class verifies the behaviour of the ParamterizedString passed into the testQuery operation.
+ * This test class verifies the behaviour of the ParameterizedString passed into the testQuery operation.
  *
  * @since 1.3.0
  */
