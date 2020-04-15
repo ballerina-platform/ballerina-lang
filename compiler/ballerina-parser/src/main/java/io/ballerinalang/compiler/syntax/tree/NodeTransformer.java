@@ -240,6 +240,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(nilTypeDescriptor);
     }
 
+    public T transform(OptionalTypeDescriptor optionalTypeDescriptor) {
+        return transformSyntaxNode(optionalTypeDescriptor);
+    }
+
     public T transform(ObjectField objectField) {
         return transformSyntaxNode(objectField);
     }

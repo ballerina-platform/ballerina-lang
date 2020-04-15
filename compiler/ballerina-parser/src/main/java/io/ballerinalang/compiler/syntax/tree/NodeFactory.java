@@ -33,7 +33,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     private NodeFactory() {
     }
 
-
     public static ModulePart createModulePart(
             NodeList<ImportDeclaration> imports,
             NodeList<ModuleMemberDeclaration> members,
@@ -81,7 +80,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ImportDeclaration createImportDeclaration(
             Token importKeyword,
-            Token orgName,
+            Node orgName,
             Node moduleName,
             Node version,
             Node prefix,
@@ -793,7 +792,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static PositionalArgument createPositionalArgument(
             Token leadingComma,
-            Expression expression) {
+            Token expression) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
@@ -882,6 +881,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 openParenToken.internalNode(),
                 closeParenToken.internalNode());
         return stNilTypeDescriptor.createUnlinkedFacade();
+    }
+
+    public static OptionalTypeDescriptor createOptionalTypeDescriptor(
+            Node typeDescriptor,
+            Token questionMarkToken) {
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(questionMarkToken, "questionMarkToken must not be null");
+
+        STNode stOptionalTypeDescriptor = STNodeFactory.createOptionalTypeDescriptor(
+                typeDescriptor.internalNode(),
+                questionMarkToken.internalNode());
+        return stOptionalTypeDescriptor.createUnlinkedFacade();
     }
 
     public static ObjectField createObjectField(
