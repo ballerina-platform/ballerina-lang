@@ -38,7 +38,7 @@ public type Listener object {
 # socket:error? result = socketListener.__start();
 # ```
 #
-# + return - () or else a `socket:Error` upon failure to start the listener
+# + return - `()` or else a `socket:Error` upon failure to start the listener
     public function __start() returns error? {
         return startService(self);
     }
