@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# The details of an gRPC error.
+# The details of a gRPC error.
 #
 # + message - Specific error message for the error
-# + cause - Cause of the error; If this error occurred due to another error (Probably from another module)
+# + cause - Cause of the error if this error occurred due to another error (probably from another module)
 public type Detail record {
     string message;
     error cause?;
@@ -131,7 +131,7 @@ public type Error CancelledError | UnKnownError | InvalidArgumentError | Deadlin
 # + errorType - The error type
 # + message - The error message
 # + cause - The `error` instance
-# + return - Prepared `grpc:Error` instance
+# + return - The prepared `grpc:Error` instance
 public function prepareError(ErrorType errorType, string message, error? cause) returns Error {
     if (cause is error) {
         error err = error(errorType, message = message, cause = cause);

@@ -16,10 +16,10 @@
 
 import ballerina/java;
 
-# Provides actions to read/write header values in gRPC request/response message.
+# Provides the actions to read/write header values in a gRPC request/response message.
 public type Headers object {
 
-# Check whether the requested header exists.
+# Checks whether the requested header exists.
 # ```ballerina
 # boolean result = headers.exists("content-type");
 # ```
@@ -30,14 +30,14 @@ public type Headers object {
         return externExists(self, java:fromString(headerName));
     }
 
-# Returns the header value with the specified header name. If there are more than one header value for the
+# Returns the header value with the specified header name. If there are more than one header values for the
 # specified header name, the first value is returned.
 # ```ballerina
 # string? result = headers.get("content-type");
 # ```
 #
 # + headerName - The header name
-# + return - First header value if exists or else ()
+# + return - First header value if exists or else `()`
     public function get(string headerName) returns string? {
         handle? result = externGet(self, java:fromString(headerName));
         if (result is ()) {
@@ -47,7 +47,7 @@ public type Headers object {
         }
     }
 
-# Gets all transport headers with the specified header name.
+# Gets all the transport headers with the specified header name.
 # ```ballerina
 # string[] result = headers.getAll("content-type");
 # ```
@@ -90,7 +90,7 @@ public type Headers object {
         return externRemove(self, java:fromString(headerName));
     }
 
-# Removes all transport headers from the message.
+# Removes all the transport headers from the message.
 # ```ballerina
 # headers.removeAll()
 # ```

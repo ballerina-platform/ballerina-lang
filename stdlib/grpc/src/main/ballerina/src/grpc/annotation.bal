@@ -17,14 +17,14 @@
 # Service configuration.
 #
 # + name - Service name. This applies only for dynamic service registration.
-# + requestType - Request message type of the resource. This is an optional field. If it is not specified, request
-#                   type is derived from input argument of the resource
-# + responseType - Response message type of the resource. This is an optional field. If it is not specified, response
-#                   type is derived from the he value passed to the send() expression
+# + requestType - Request message type of the resource. This is an optional field. If it is not specified, the request
+#                   type is derived from the input argument of the resource
+# + responseType - Response message type of the resource. This is an optional field. If it is not specified, the response
+#                   type is derived from the value passed to the send() expression
 # + clientStreaming - Client streaming flag. This applies only for client streaming and
-#                     bidirectional streaming. Flag sets to true, if the service defines as client/bidirectional streaming
-# + serverStreaming - Server streaming flag. This applies only for bidirectional streaming. Flag
-#                     sets to true, if the service defines as bidirectional streaming
+#                     bidirectional streaming. The flag should be set to true if the service is defined as client/bidirectional streaming
+# + serverStreaming - Server streaming flag. This applies only for bidirectional streaming. The flag
+#                     should be set to true if the service is defined as bidirectional streaming
 public type GrpcServiceConfig record {|
     string name = "";
     typedesc<anydata> requestType?;
@@ -36,7 +36,7 @@ public type GrpcServiceConfig record {|
 # Service configuration annotation.
 public annotation GrpcServiceConfig ServiceConfig on service;
 
-# Service resource configuration. Sets only for server streaming service.
+# Service resource configuration. This should be set only for server streaming services.
 #
 # + streaming - Server streaming flag. This flag sets to true to specify that the resource is capable of sending
 #               multiple responses per request.
@@ -50,13 +50,13 @@ public type GrpcResourceConfig record {|
     typedesc<anydata> responseType?;
 |};
 
-# Service resource configuration annotation. Sets only for server streaming service.
+# Service resource configuration annotation. This should be set only for server streaming services.
 public annotation GrpcResourceConfig ResourceConfig on resource function;
 
-# Service descriptor data generated at compile time. This is for internal use.
+# Service descriptor data generated at the compile time. This is for internal use.
 #
-# + descriptor - Service descriptor sets at compile time
-# + descMap - Service dependent descriptor map sets at compile time
+# + descriptor - Service descriptor, which should be set at the compile time
+# + descMap - Service dependent descriptor map, which should be set at the compile time
 public type ServiceDescriptorData record {|
     string descriptor = "";
     map<any> descMap = {};
