@@ -67,7 +67,6 @@ public class GlobalVariableRefAnalyzer {
     private final Deque<NodeInfo> nodeInfoStack;
     private final List<List<NodeInfo>> cycles;
     private final List<NodeInfo> dependencyOrder;
-    private final List<BSymbol> functionToGlobalVariable;
     private int curNodeId;
 
     public static GlobalVariableRefAnalyzer getInstance(CompilerContext context) {
@@ -86,7 +85,6 @@ public class GlobalVariableRefAnalyzer {
         this.cycles = new ArrayList<>();
         this.nodeInfoStack = new ArrayDeque<>();
         this.dependencyOrder = new ArrayList<>();
-        this.functionToGlobalVariable = new ArrayList<>();
     }
 
     /**
