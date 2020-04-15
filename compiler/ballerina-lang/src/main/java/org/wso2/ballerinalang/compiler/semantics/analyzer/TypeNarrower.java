@@ -82,8 +82,9 @@ public class TypeNarrower extends BLangNodeVisitor {
      * will return the same environment.
      *
      * @param expr         Expression to evaluate
-     * @param targetNode   node to which the type narrowing applies
+     * @param targetNode   Node to which the type narrowing applies
      * @param env          Current environment
+     * @param isBinaryExpr Indicates whether the current context is a binary expression
      * @return target environment
      */
     public SymbolEnv evaluateTruth(BLangExpression expr, BLangNode targetNode, SymbolEnv env, boolean isBinaryExpr) {
@@ -93,11 +94,15 @@ public class TypeNarrower extends BLangNodeVisitor {
         }
 
         SymbolEnv targetEnv = getTargetEnv(targetNode, env);
-        narrowedTypes.forEach((symbol, typeInfo) -> {
+        Set<Map.Entry<BVarSymbol, NarrowedTypes>> entrySet = narrowedTypes.entrySet();
+
+        for (Map.Entry<BVarSymbol, NarrowedTypes> entry : entrySet) {
+            BVarSymbol symbol = entry.getKey();
+            NarrowedTypes typeInfo = entry.getValue();
             BType narrowedType = isBinaryExpr && typeInfo.trueType == symTable.semanticError ? typeInfo.falseType :
                     typeInfo.trueType;
             symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, getOriginalVarSymbol(symbol), narrowedType);
-        });
+        }
 
         return targetEnv;
     }
@@ -291,14 +296,14 @@ public class TypeNarrower extends BLangNodeVisitor {
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
-            } else if (type.tag == TypeTags.EMPTY_TYPE_SET) {
+            } else if (type.tag == TypeTags.NULL_SET) {
                 return type;
             }
             return null;
         }).filter(type -> type != null).collect(Collectors.toCollection(LinkedHashSet::new));
 
         if (intersection.isEmpty()) {
-            if (currentType.tag == TypeTags.EMPTY_TYPE_SET) {
+            if (currentType.tag == TypeTags.NULL_SET) {
                 return currentType;
             }
             return symTable.semanticError;
@@ -317,9 +322,13 @@ public class TypeNarrower extends BLangNodeVisitor {
         LinkedHashSet<BType> union = new LinkedHashSet<>(types.getAllTypes(currentType));
         List<BType> targetComponentTypes = types.getAllTypes(targetType);
         for (BType newType : targetComponentTypes) {
-            if (newType.tag != TypeTags.EMPTY_TYPE_SET &&
-                    union.stream().anyMatch(existingType -> !types.isAssignable(newType, existingType))) {
-                union.add(newType);
+            if (newType.tag != TypeTags.NULL_SET) {
+                for (BType existingType : union) {
+                    if (!types.isAssignable(newType, existingType)) {
+                        union.add(newType);
+                        break;
+                    }
+                }
             }
         }
 
