@@ -18,10 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -43,14 +42,14 @@ public class ForEach {
 
     public static void forEach(Strand strand, XMLValue x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
-            func.call(new Object[]{strand, x, true});
+            Object[] args = new Object[]{strand, x, true};
+            BRuntime.getCurrentRuntime().invokeFunctionPointerAsync(func, strand, args);
             return;
         }
-
-        IteratorValue iterator = ((XMLSequence) x).getIterator();
-        while (iterator.hasNext()) {
-            Object xmlOrStringVal = iterator.next();
-            func.call(new Object[]{strand, xmlOrStringVal, true});
-        }
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncForCollection(func, strand, x.size(),
+                                                     index -> new Object[]{strand, x.getItem(index), true},
+                                                         (index, future) -> {
+                                     }, () -> null);
     }
 }

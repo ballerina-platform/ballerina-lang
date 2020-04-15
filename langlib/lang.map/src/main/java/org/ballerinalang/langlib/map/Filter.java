@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -61,14 +62,18 @@ public class Filter {
             default:
                 throw createOpNotSupportedError(mapType, "filter()");
         }
-        MapValue newMap = new MapValueImpl(newMapType);
-
-        m.entrySet().forEach(entry -> {
-            if (func.apply(new Object[]{strand, entry.getValue(), true})) {
-                newMap.put(entry.getKey(), entry.getValue());
-            }
-        });
-
+        MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
+        int size = m.size();
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncForCollection(func, strand, size,
+                                                     index -> new Object[]{strand, m.get(m.getKeys()[index]), true},
+                                                         (index, future) -> {
+                                         if ((Boolean) future.result) {
+                                             Object key = m.getKeys()[index];
+                                             Object value = m.get(key);
+                                             newMap.put(key, value);
+                                         }
+                                     }, () -> newMap);
         return newMap;
     }
 }

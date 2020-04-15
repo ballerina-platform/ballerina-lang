@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -25,6 +26,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Native implementation of lang.map:reduce(map&lt;Type&gt;, function, Type1).
@@ -41,10 +44,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Reduce {
 
     public static Object reduce(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func, Object initial) {
-        Object accum = initial;
-        for (Object value : m.values()) {
-            accum = func.apply(new Object[]{strand, accum, true, value, true});
-        }
-        return accum;
+        int size = m.values().size();
+        AtomicReference<Object> accum = new AtomicReference<>(initial);
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncForCollection(func, strand, size,
+                                                     i -> new Object[]{strand, accum.get(), true, m.get(m.getKeys()[i])
+                                             , true}, (index, future) -> accum.set(future.result), accum::get);
+        return accum.get();
     }
 }

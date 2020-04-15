@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BXML;
@@ -31,6 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Native implementation of lang.xml:map(map&lt;Type&gt;, function).
@@ -49,16 +50,18 @@ public class Map {
 
     public static XMLValue map(Strand strand, XMLValue x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
-            return (XMLValue) func.apply(new Object[]{strand, x, true});
+            Object[] args = new Object[]{strand, x, true};
+            AtomicReference<Object> returnVal = new AtomicReference<>();
+            BRuntime.getCurrentRuntime().invokeFunctionPointerAsync(func, strand, args);
+            return null;
         }
 
-        IteratorValue iterator = ((XMLSequence) x).getIterator();
         List<BXML> elements = new ArrayList<>();
-        while (iterator.hasNext()) {
-            XMLValue next = (XMLValue) iterator.next();
-            elements.add((XMLValue) func.apply(new Object[]{strand, next, true}));
-        }
-
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncForCollection(func, strand, x.size(),
+                                                     index -> new Object[]{strand, x.getItem(index), true},
+                                                         (index, future) -> elements.add((XMLValue) future.result),
+                                                         () -> new XMLSequence(elements));
         return new XMLSequence(elements);
     }
 }

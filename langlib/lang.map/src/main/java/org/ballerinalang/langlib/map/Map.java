@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BMapType;
@@ -45,12 +46,11 @@ public class Map {
     public static MapValue map(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
         BMapType newMapType = new BMapType(((BFunctionType) func.getType()).retType);
         MapValue newMap = new MapValueImpl(newMapType);
-
-        m.entrySet().forEach(entry -> {
-            Object newVal = func.apply(new Object[]{strand, entry.getValue(), true});
-            newMap.put(entry.getKey(), newVal);
-        });
-
+        int size = m.size();
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncForCollection(func, strand, size,
+                                                     i -> new Object[]{strand, m.get(m.getKeys()[i]), true},
+                                                         (i, future) -> newMap.put(m.getKeys()[i], future.result), () -> newMap);
         return newMap;
     }
 }

@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -45,9 +46,10 @@ public class ForEach {
         int size = arr.size();
         BType arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
-
-        for (int i = 0; i < size; i++) {
-            func.call(new Object[]{strand, getFn.get(arr, i), true});
-        }
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncForCollection(func, strand, size,
+                                                     i -> new Object[]{strand, getFn.get(arr, i), true},
+                                                         (index, future) -> {
+                                     }, () -> null);
     }
 }

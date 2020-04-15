@@ -18,9 +18,9 @@
 
 package org.ballerinalang.langlib.xml;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BXML;
@@ -31,6 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Native implementation of lang.xml:filter(map&lt;Type&gt;, function).
@@ -49,21 +50,26 @@ public class Filter {
 
     public static XMLValue filter(Strand strand, XMLValue x, FPValue<Object, Boolean> func) {
         if (x.isSingleton()) {
-            if (func.apply(new Object[]{strand, x, true})) {
-                return x;
-            }
+            AtomicReference<XMLValue> xmlValue = new AtomicReference<>(new XMLSequence());
+            Object[] args = new Object[]{strand, x, true};
+            BRuntime.getCurrentRuntime().invokeFunctionPointerAsync(func, strand, args, future -> {
+                if((Boolean)future.result){
+                    xmlValue.set(x);
+                }
+            }, () -> true, () -> xmlValue);
             return new XMLSequence();
         }
 
-        IteratorValue iterator = ((XMLSequence) x).getIterator();
         List<BXML> elements = new ArrayList<>();
-        while (iterator.hasNext()) {
-            XMLValue next = (XMLValue) iterator.next();
-            if (func.apply(new Object[]{strand, next, true})) {
-                elements.add(next);
-            }
-        }
-
+        int size = x.size();
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncForCollection(func, strand, size,
+                                                     index -> new Object[]{strand, x.getItem(index), true},
+                                                         (index, future) -> {
+                                         if ((Boolean) future.result) {
+                                             elements.add(x.getItem(index));
+                                         }
+                                     }, () -> new XMLSequence(elements));
         return new XMLSequence(elements);
     }
 }

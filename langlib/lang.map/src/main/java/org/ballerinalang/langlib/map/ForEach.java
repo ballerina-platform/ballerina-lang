@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -38,6 +39,10 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 public class ForEach {
 
     public static void forEach(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
-        m.entrySet().forEach(entry -> func.call(new Object[]{strand, entry.getValue(), true}));
+        int size = m.size();
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncForCollection(func, strand, size,
+                                                     index -> new Object[]{strand, m.get(m.getKeys()[index]), true},
+                                                         (index, future) -> {}, () -> null);
     }
 }

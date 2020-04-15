@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFunctionType;
@@ -65,11 +66,10 @@ public class Map {
             default:
                 throw createOpNotSupportedError(arrType, "map()");
         }
-
-        for (int i = 0; i < size; i++) {
-            Object newVal = func.getFunction().apply(new Object[]{strand, getFn.get(arr, i), true});
-            retArr.add(i, newVal);
-        }
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncForCollection(func, strand, size,
+                                                     i -> new Object[]{strand, getFn.get(arr, i), true},
+                                                         (index, future) -> retArr.add(index, future.result), () -> retArr);
 
         return retArr;
     }
