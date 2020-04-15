@@ -269,8 +269,8 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
         Assert.assertTrue(returnValues[0] instanceof BError, "Expected BErrorType type value");
     }
-	
-	@Test(description = "Test anonymous record type, record type referencing, optional field, " +
+
+    @Test(description = "Test anonymous record type, record type referencing, optional field, " +
             "changed order of the fields")
     public void testOthersAssociatedWithRecordTypes() {
         BValue[] returnValues = BRunUtil.invoke(result, "testOthersAssociatedWithRecordTypes");
