@@ -51,7 +51,7 @@ public class InstanceMethods {
     }
 
     public Integer setAndGetCounterValueWhichThrowsCheckedException(Integer newValue)
-            throws JavaInteropTestCheckedException {
+    throws JavaInteropTestCheckedException {
         this.counter = newValue;
         return this.counter;
     }

@@ -101,18 +101,12 @@ dependencies {
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')
     dist project(':ballerina-cli-module')
-    dist project(':ballerina-jvm')
-    birJar project(path: ':ballerina-jvm', configuration: 'birJar')
     dist project(':ballerina-encoding')
-    dist project(':ballerina-bir')
-    birJar project(path: ':ballerina-bir', configuration: 'birJar')
     dist project(':ballerina-rt')
 
     dist project(':testerina:testerina-core')
     dist project(':ballerina-formatter')
     dist project(':ballerina-bindgen')
-    dist project(':ballerina-backend-jvm')
-    birJar project(path: ':ballerina-backend-jvm', configuration: 'birJar')
     dist project(':language-server:language-server-compiler')
     dist project(':language-server:language-server-commons')
     dist project(':ballerina-packerina')
@@ -148,9 +142,6 @@ dependencies {
 
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
-
-    balSource project(path: ':ballerina-bir', configuration: 'balSource')
-    balSource project(path: ':ballerina-jvm', configuration: 'balSource')
 
     birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 
