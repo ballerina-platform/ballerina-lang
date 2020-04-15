@@ -46,7 +46,7 @@ public type Listener object {
     #
     # + s - Service to attach to the listener
     # + name - Name of the service
-    # + return - () if attaching the service is successful
+    # + return - () or else a `task:ListenerError` upon failure to attach the service
     public function __attach(service s, string? name = ()) returns error? {
         // ignore param 'name'
         var result = attachExternal(self, s);
@@ -58,7 +58,7 @@ public type Listener object {
     # Detaches the given `service` from the `task:Listener`.
     #
     # + s - Service to be detached from the listener
-    # + return - () or else an `error` upon failure to detach the service
+    # + return - () or else a `task:ListenerError` upon failure to detach the service
     public function __detach(service s) returns error? {
         return detachExternal(self, s);
     }
@@ -66,7 +66,7 @@ public type Listener object {
     # Starts dispatching the services attached to the `task:Listener`. This may panic if the service dispatching causes
     # any error.
     #
-    # + return - () or else an `error` upon failure to start the listener
+    # + return - () or else a `task:ListenerError` upon failure to start the listener
     public function __start() returns error? {
         var result = startExternal(self);
         if (result is error) {
@@ -80,7 +80,7 @@ public type Listener object {
     # Gracefully stops the `task:Listener` and the attached services. It will wait if there are any tasks still to be
     # completed. This may panic if the stopping causes any error.
     #
-    # + return - () or else an `error` upon failure to stop the listener
+    # + return - () or else a `task:ListenerError` upon failure to stop the listener
     public function __gracefulStop() returns error? {
         var result = stopExternal(self);
         if (result is error) {
@@ -94,7 +94,7 @@ public type Listener object {
     # Stops the `task:Listener` and the attached services immediately. This will cancel any ongoing tasks. This may
     # panic if the stopping causes any error.
     #
-    # + return - () or else an `error` upon failure to stop the listener
+    # + return - () or else a `task:ListenerError` upon failure to stop the listener
     public function __immediateStop() returns error? {
         var result = stopExternal(self);
         if (result is error) {
