@@ -113,15 +113,15 @@ public class BIRLockOptimizer extends BIRVisitor {
     }
 
     private boolean isNotInSameSet(BIRTerminator.Lock currentLock, BIRTerminator.Lock comparedLock) {
-        Integer currentLockId = lockToSetMap.get(currentLock);
-        Integer comparedLockId = lockToSetMap.get(comparedLock);
+        Integer currentLockSetId = lockToSetMap.get(currentLock);
+        Integer comparedLockSetId = lockToSetMap.get(comparedLock);
 
-        if (currentLockId == null ||
-                comparedLockId == null) {
+        if (currentLockSetId == null ||
+                comparedLockSetId == null) {
             return true;
         }
 
-        return currentLockId.compareTo(comparedLockId) != 0;
+        return currentLockSetId.compareTo(comparedLockSetId) != 0;
     }
 
     private void populateLockSet(List<BIRTerminator.Lock> currentSet, BIRTerminator.Lock comparedLock) {
