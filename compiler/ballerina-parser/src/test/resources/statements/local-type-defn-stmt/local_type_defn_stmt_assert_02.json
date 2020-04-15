@@ -1,0 +1,82 @@
+{
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "PUBLIC_KEYWORD"
+        },
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "BLOCK_STATEMENT",
+            "children": [
+                {
+                    "kind": "OPEN_BRACE_TOKEN"
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                        {
+                            "kind": "LOCAL_TYPE_DEFINITION_STATEMENT",
+                            "children": [
+                                {
+                                    "kind": "TYPE_KEYWORD"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "Foo"
+                                },
+                                {
+                                    "kind": "OBJECT_TYPE_DESCRIPTOR",
+                                    "children": [
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                            ]
+                                        },
+                                        {
+                                            "kind": "OBJECT_KEYWORD"
+                                        },
+                                        {
+                                            "kind": "OPEN_BRACE_TOKEN"
+                                        },
+                                        {
+                                            "kind": "LIST",
+                                            "children": [
+                                            ]
+                                        },
+                                        {
+                                            "kind": "CLOSE_BRACE_TOKEN"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SEMICOLON_TOKEN"
+                                }
+                            ]
+                        }                        
+                    ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
+                }
+            ]
+        }
+    ]
+}
+
