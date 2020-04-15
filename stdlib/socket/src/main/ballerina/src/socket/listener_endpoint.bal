@@ -48,7 +48,7 @@ public type Listener object {
 # socket:error? result = socketListener.__gracefulStop();
 # ```
 #
-# + return - () or else a `socket:Error` upon failure to stop the listener
+# + return - `()` or else a `socket:Error` upon failure to stop the listener
     public function __gracefulStop() returns error? {
         return externStop(self, true);
     }
