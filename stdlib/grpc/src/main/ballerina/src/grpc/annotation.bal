@@ -16,7 +16,7 @@
 
 # Service configuration.
 #
-# + name - Service name. This applies only for dynamic service registration.
+# + name - Service name. This applies only for the dynamic service registration.
 # + requestType - Request message type of the resource. This is an optional field. If it is not specified, the request
 #                   type is derived from the input argument of the resource
 # + responseType - Response message type of the resource. This is an optional field. If it is not specified, the response
@@ -38,7 +38,7 @@ public annotation GrpcServiceConfig ServiceConfig on service;
 
 # Service resource configuration. This should be set only for server streaming services.
 #
-# + streaming - Server streaming flag. This flag sets to true to specify that the resource is capable of sending
+# + streaming - Server streaming flag. This flag should be set to true to specify that the resource is capable of sending
 #               multiple responses per request.
 # + requestType - Request message type of the resource. This is an optional field. If it is not specified, request
 #                   type is derived from input argument of the resource.

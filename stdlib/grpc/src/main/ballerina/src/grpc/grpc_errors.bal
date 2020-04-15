@@ -58,7 +58,7 @@ public const PERMISSION_DENIED_ERROR = "{ballerina/grpc}PermissionDeniedError";
 # Represents error occur when the caller does not have permission to execute the specified operation.
 public type PermissionDeniedError error<PERMISSION_DENIED_ERROR, Detail>;
 
-# Represents the reason of the unauthenticated error
+# Represents the reason of the unauthenticated error.
 public const UNAUTHENTICATED_ERROR = "{ballerina/grpc}UnauthenticatedError";
 # Represents error occur when the request does not have valid authentication credentials for the operation.
 public type UnauthenticatedError error<UNAUTHENTICATED_ERROR, Detail>;
@@ -126,7 +126,7 @@ public type Error CancelledError | UnKnownError | InvalidArgumentError | Deadlin
 | ResiliencyError;
 
 
-# Prepare the `error` as gRPC specific `Error`.
+# Prepare the `error` as a gRPC-specific `Error`.
 #
 # + errorType - The error type
 # + message - The error message
