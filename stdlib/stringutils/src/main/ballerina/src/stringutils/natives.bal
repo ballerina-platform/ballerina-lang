@@ -29,7 +29,7 @@ public function contains(string originalString, string substring) returns boolea
     return containsExternal(java:fromString(originalString), java:fromString(substring));
 }
 
-# Checks if two strings are equal, ignoring the case of the strings.
+# Checks if two strings are equal ignoring the case of the strings.
 # ```ballerina
 # boolean isEqual = stringutils:equalsIgnoreCase("BaLLerinA", "ballERina");
 # ```
@@ -65,14 +65,14 @@ public function lastIndexOf(string originalString, string substring) returns int
     return lastIndexOfExternal(java:fromString(originalString), java:fromString(substring));
 }
 
-# Checks whether the given string matches with the provided regex.
+# Checks whether the given string matches the provided regex.
 # ```ballerina
 # boolean isMatched = stringutils:matches("Ballerina is great", "Ba[a-z ]+");
 # ```
 #
 # + stringToMatch - The string to match the regex
 # + regex - The regex to match the string
-# + return - `true` if the provided string is matched with the regex or else
+# + return - `true` if the provided string matches the regex or else
 #            `false`
 public function matches(string stringToMatch, string regex) returns boolean {
     return matchesExternal(java:fromString(stringToMatch), java:fromString(regex));
@@ -87,7 +87,7 @@ public function matches(string stringToMatch, string regex) returns boolean {
 # + originalString - The original string to replace the substrings
 # + stringToReplace - The string to replace within the `originalString`
 # + replacement - The `replacement` string to replace the occurrences of
-#                 `stringToReplace`
+#                 the `stringToReplace`
 # + return - The string with the replaced substrings
 public function replace(string originalString, string stringToReplace, string replacement) returns string {
     handle value = replaceExternal(java:fromString(originalString), java:fromString(stringToReplace),
@@ -102,7 +102,7 @@ public function replace(string originalString, string stringToReplace, string re
     }
 }
 
-# Replaces each occurrence of substrings, which match the provided
+# Replaces each occurrence of the substrings, which matches the provided
 # regular expression from the given original string value with the
 # provided replacement string.
 # ```ballerina
@@ -111,7 +111,7 @@ public function replace(string originalString, string stringToReplace, string re
 #
 # + originalString - The original string to replace the occurrences of the
 #                    substrings that match the provided `regex`
-# + regex - The regex to match substrings in the `originalString` to replace
+# + regex - The regex to match the substrings in the `originalString` to be replaced
 # + replacement - The `replacement` string to replace the subsgrings, which
 #                 match the `regex`
 # + return - The resultant string with the replaced substrings
