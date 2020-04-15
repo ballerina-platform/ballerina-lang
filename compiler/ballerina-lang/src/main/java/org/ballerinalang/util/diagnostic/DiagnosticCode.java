@@ -500,6 +500,10 @@ public enum DiagnosticCode {
 
     ILLEGAL_FUNCTION_CHANGE_LIST_SIZE("illegal.function.change.list.size"),
     ILLEGAL_FUNCTION_CHANGE_TUPLE_SHAPE("illegal.function.change.tuple.shape"),
+
+    INVALID_WAIT_MAPPING_CONSTRUCTORS("invalid.wait.future.expr.mapping.constructors"),
+    INVALID_WAIT_ACTIONS("invalid.wait.future.expr.actions"),
+    INVALID_SEND_EXPR("invalid.send.expr"),
     ;
     private String value;
 
