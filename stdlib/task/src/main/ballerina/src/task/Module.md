@@ -25,6 +25,13 @@ task:TimerConfiguration timerConfiguration = {
 };
 
 listener task:Listener timer = new(timerConfiguration);
+
+// Creating a service on the `timer` task Listener.
+service timerService on timer {
+    // This resource triggers when the timer goes off.
+    resource function onTrigger() {
+    }
+}
 ```
 
 For an example on the usage of the `task:Listener` as a timer, see the [Task Service Timer Example](https://ballerina.io/learn/by-example/task-service-timer.html).
@@ -44,6 +51,13 @@ task:AppointmentConfiguration appointmentConfiguration = {
 };
 
 listener task:Listener appointment = new(appointmentConfiguration);
+
+// Creating a service on the `appointment` task Listener.
+service appointmentService on appointment {
+    // This resource triggers when the appointment is due.
+    resource function onTrigger() {
+    }
+}
 ```
 
 For an example on the usage of the `task:Listener` as an appointment, see the [Task Service Appointment Example](https://ballerina.io/learn/by-example/task-service-appointment.html).

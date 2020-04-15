@@ -58,7 +58,7 @@ public type Listener object {
     # Detaches the given `service` from the `task:Listener`.
     #
     # + s - Service to be detached from the listener
-    # + return - () if detaching the service is successful
+    # + return - () or else an `error` upon failure to detach the service
     public function __detach(service s) returns error? {
         return detachExternal(self, s);
     }
@@ -66,7 +66,7 @@ public type Listener object {
     # Starts dispatching the services attached to the `task:Listener`. This may panic if the service dispatching causes
     # any error.
     #
-    # + return - () if starting the services is successful
+    # + return - () or else an `error` upon failure to start the listener
     public function __start() returns error? {
         var result = startExternal(self);
         if (result is error) {
@@ -80,7 +80,7 @@ public type Listener object {
     # Gracefully stops the `task:Listener` and the attached services. It will wait if there are any tasks still to be
     # completed. This may panic if the stopping causes any error.
     #
-    # + return - () if stopping the listener is successful
+    # + return - () or else an `error` upon failure to stop the listener
     public function __gracefulStop() returns error? {
         var result = stopExternal(self);
         if (result is error) {
@@ -94,7 +94,7 @@ public type Listener object {
     # Stops the `task:Listener` and the attached services immediately. This will cancel any ongoing tasks. This may
     # panic if the stopping causes any error.
     #
-    # + return - () if the stopping the listener is successful
+    # + return - () or else an `error` upon failure to stop the listener
     public function __immediateStop() returns error? {
         var result = stopExternal(self);
         if (result is error) {
