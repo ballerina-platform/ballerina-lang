@@ -283,6 +283,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(isExpression);
     }
 
+    public void visit(NilLiteral nilLiteral) {
+        visitSyntaxNode(nilLiteral);
+    }
+
     // Tokens
 
     public void visit(Token token) {

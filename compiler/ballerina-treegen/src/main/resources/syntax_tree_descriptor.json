@@ -1425,6 +1425,21 @@
           "type": "Node"
         }
       ]
+    },
+    {
+      "name": "NilLiteral",
+      "base": "Node",
+      "kind": "NIL_LITERAL",
+      "attributes": [
+        {
+          "name": "firstToken",
+          "type": "Token"
+        },
+        {
+          "name": "secondToken",
+          "type": "Token"
+        }
+      ]
     }
   ]
 }

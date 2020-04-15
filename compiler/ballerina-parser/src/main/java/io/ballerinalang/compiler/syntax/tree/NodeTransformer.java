@@ -284,6 +284,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(isExpression);
     }
 
+    public T transform(NilLiteral nilLiteral) {
+        return transformSyntaxNode(nilLiteral);
+    }
+
     // Tokens
 
     public T transform(Token token) {

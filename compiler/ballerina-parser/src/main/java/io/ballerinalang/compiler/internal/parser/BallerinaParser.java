@@ -239,6 +239,8 @@ public class BallerinaParser {
                 return parseIdentifier(context);
             case IS_KEYWORD:
                 return parseIsKeyword();
+            case NIL_LITERAL:
+                return parseNilLiteral();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -2980,6 +2982,11 @@ public class BallerinaParser {
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_NAME);
             case OPEN_PAREN_TOKEN:
+                STToken nextNextToken = peek(2);
+                // parse nil literal '()'
+                if (nextNextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
+                    return parseNilLiteral();
+                }
                 return parseBracedExpression();
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
@@ -2996,6 +3003,8 @@ public class BallerinaParser {
             case NEGATION_TOKEN:
             case EXCLAMATION_MARK_TOKEN:
                 return parseUnaryExpression();
+            case NULL_KEYWORD:
+                return parseNilLiteral();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.EXPRESSION);
 
@@ -3389,6 +3398,7 @@ public class BallerinaParser {
             case OPEN_PAREN_TOKEN:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
+            case NULL_KEYWORD:
             default:
                 expr = parseExpression();
                 arg = STNodeFactory.createPositionalArgument(leadingComma, expr);
@@ -3427,6 +3437,7 @@ public class BallerinaParser {
             case OPEN_PAREN_TOKEN:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
+            case NULL_KEYWORD:
             default:
                 expr = parseExpression();
                 return STNodeFactory.createPositionalArgument(leadingComma, expr);
@@ -5378,6 +5389,28 @@ public class BallerinaParser {
         } else {
             Solution sol = recover(token, ParserRuleContext.IS_KEYWORD);
             return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse nil literal.
+     *
+     * @return Parsed node
+     */
+    private STNode parseNilLiteral() {
+        STToken token = peek();
+        switch (token.kind) {
+            case NULL_KEYWORD:
+                STNode nullKeyword = consume();
+                STNode emptyNode = STNodeFactory.createEmptyNode();
+                return STNodeFactory.createNilLiteral(nullKeyword, emptyNode);
+            case OPEN_PAREN_TOKEN:
+                STNode openParenthesisToken = parseOpenParenthesis();
+                STNode closeParenthesisToken = parseCloseParenthesis();
+                return STNodeFactory.createNilLiteral(openParenthesisToken, closeParenthesisToken);
+            default:
+                Solution sol = recover(token, ParserRuleContext.NIL_LITERAL);
+                return sol.recoveredNode;
         }
     }
 }

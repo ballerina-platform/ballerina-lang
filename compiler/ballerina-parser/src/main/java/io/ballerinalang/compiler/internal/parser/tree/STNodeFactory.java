@@ -812,5 +812,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 isKeyword,
                 typeDescriptor);
     }
+
+    public static STNode createNilLiteral(
+            STNode firstToken,
+            STNode secondToken) {
+
+        return new STNilLiteral(
+                firstToken,
+                secondToken);
+    }
 }
 

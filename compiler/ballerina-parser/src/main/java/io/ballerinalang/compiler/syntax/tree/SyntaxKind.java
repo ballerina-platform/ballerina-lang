@@ -57,6 +57,7 @@ public enum SyntaxKind {
     BREAK_KEYWORD(212,"break"),
     TYPEOF_KEYWORD(213,"typeof"),
     IS_KEYWORD(214, "is"),
+    NULL_KEYWORD(215, "null"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -107,6 +108,7 @@ public enum SyntaxKind {
     DECIMAL_FLOATING_POINT_LITERAL(1004),
     HEX_FLOATING_POINT_LITERAL(1005),
     SIMPLE_TYPE(1006),
+    NIL_LITERAL(1007),
 
     // Trivia
     WHITESPACE_TRIVIA(1500),

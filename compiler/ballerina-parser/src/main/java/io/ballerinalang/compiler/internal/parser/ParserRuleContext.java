@@ -201,6 +201,7 @@ public enum ParserRuleContext {
     TYPEOF_EXPRESSION("typeof-expr"),
     UNARY_EXPRESSION("unary-expr"),
     IS_EXPRESSION("is-expr"),
+    NIL_LITERAL("nil-literal"),
     ;
 
     private String value;
