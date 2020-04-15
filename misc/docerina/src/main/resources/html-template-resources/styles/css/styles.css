@@ -346,19 +346,17 @@ body .content-wrapper .constants .method-list .param-sum .param-name {
   text-overflow: ellipsis;
   overflow: hidden;
 }
-body .content-wrapper .constants .method-list .param-sum .param-name:hover {
-  overflow: visible;
-  white-space: normal;
-  word-break: break-all;
-}
 body .content-wrapper .constants .method-list .param-sum .param-details {
   align-items: flex-start;
   font-weight: 300;
   line-height: 1.5em;
 }
 body .content-wrapper .constants .method-list a {
-  color: #464646;
+  color: #EC407A;
   font-weight: 500;
+}
+body .content-wrapper .constants .method-list a:hover {
+  font-weight: bold;
 }
 body .content-wrapper .constants .method-wrapper .method-span {
   width: auto;
