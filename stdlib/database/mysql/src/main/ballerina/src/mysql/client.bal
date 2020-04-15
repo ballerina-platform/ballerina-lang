@@ -90,7 +90,6 @@ public type Client client object {
         }
     }
 
-
     # Close the SQL client.
     #
     # + return - Possible error during closing the client

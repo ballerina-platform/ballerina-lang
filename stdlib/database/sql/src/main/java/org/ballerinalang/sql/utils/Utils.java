@@ -45,6 +45,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
@@ -210,9 +211,18 @@ class Utils {
                 break;
             case Constants.SqlTypes.FLOAT:
             case Constants.SqlTypes.REAL:
+                if (value instanceof Double || value instanceof Long ||
+                        value instanceof Float || value instanceof Integer) {
+                    preparedStatement.setFloat(index, ((Number) value).floatValue());
+                } else if (value instanceof DecimalValue) {
+                    preparedStatement.setFloat(index, ((DecimalValue) value).decimalValue().floatValue());
+                } else {
+                    throw throwInvalidParameterError(value, sqlType);
+                }
+                break;
             case Constants.SqlTypes.DOUBLE:
-                if (value instanceof Double || value instanceof Float
-                        || value instanceof Integer || value instanceof Long) {
+                if (value instanceof Double || value instanceof Long ||
+                        value instanceof Float || value instanceof Integer) {
                     preparedStatement.setDouble(index, ((Number) value).doubleValue());
                 } else if (value instanceof DecimalValue) {
                     preparedStatement.setDouble(index, ((DecimalValue) value).decimalValue().doubleValue());
@@ -222,9 +232,12 @@ class Utils {
                 break;
             case Constants.SqlTypes.NUMERIC:
             case Constants.SqlTypes.DECIMAL:
-                if (value instanceof Double || value instanceof Float
-                        || value instanceof Integer || value instanceof Long) {
-                    preparedStatement.setBigDecimal(index, new BigDecimal(((Number) value).doubleValue()));
+                if (value instanceof Double || value instanceof Long) {
+                    preparedStatement.setBigDecimal(index, new BigDecimal(((Number) value).doubleValue(),
+                            MathContext.DECIMAL64));
+                } else if (value instanceof Integer || value instanceof Float) {
+                    preparedStatement.setBigDecimal(index, new BigDecimal(((Number) value).doubleValue(),
+                            MathContext.DECIMAL32));
                 } else if (value instanceof DecimalValue) {
                     preparedStatement.setBigDecimal(index, ((DecimalValue) value).decimalValue());
                 } else {

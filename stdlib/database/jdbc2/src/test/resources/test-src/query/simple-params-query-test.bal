@@ -13,9 +13,9 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import mockclient;
 import ballerina/io;
 import ballerina/sql;
+import ballerina/java.jdbc;
 import ballerina/time;
 
 function querySingleIntParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -23,7 +23,7 @@ function querySingleIntParam(string url, string user, string password) returns @
         parts: ["SELECT * from DataTable WHERE row_id = ", ""],
         insertions: [1]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryDoubleIntParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -31,7 +31,7 @@ function queryDoubleIntParam(string url, string user, string password) returns @
         parts: ["SELECT * from DataTable WHERE row_id = ", " AND int_type = ", ""],
         insertions: [1, 1]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryIntAndLongParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -39,7 +39,7 @@ function queryIntAndLongParam(string url, string user, string password) returns 
         parts: ["SELECT * from DataTable WHERE row_id = ", " AND long_type = ", ""],
         insertions: [1, 9223372036854774807]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryStringParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -47,7 +47,7 @@ function queryStringParam(string url, string user, string password) returns @tai
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
         insertions: ["Hello"]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryIntAndStringParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -55,7 +55,7 @@ function queryIntAndStringParam(string url, string user, string password) return
         parts: ["SELECT * from DataTable WHERE string_type = ", "AND row_id = ", ""],
         insertions: ["Hello", 1]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -63,7 +63,7 @@ function queryDoubleParam(string url, string user, string password) returns @tai
         parts: ["SELECT * from DataTable WHERE double_type = ", ""],
         insertions: [2139095039.0]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryFloatParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -71,7 +71,7 @@ function queryFloatParam(string url, string user, string password) returns @tain
         parts: ["SELECT * from DataTable WHERE float_type = ", ""],
         insertions: [123.34]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryDoubleAndFloatParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -79,7 +79,7 @@ function queryDoubleAndFloatParam(string url, string user, string password) retu
         parts: ["SELECT * from DataTable WHERE float_type = ", "and double_type = ", ""],
         insertions: [123.34, 2139095039.0]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 
@@ -89,7 +89,7 @@ function queryDecimalParam(string url, string user, string password) returns @ta
         parts: ["SELECT * from DataTable WHERE decimal_type = ", ""],
         insertions: [decimalValue]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryDecimalAnFloatParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -98,18 +98,18 @@ function queryDecimalAnFloatParam(string url, string user, string password) retu
         parts: ["SELECT * from DataTable WHERE decimal_type = ", "and double_type = ", ""],
         insertions: [decimalValue, 2139095039.0]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryByteArrayParam(string url, string user, string password) returns @tainted record {}|error? {
-    record {}|error? value = queryMockClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
+    record {}|error? value = queryJdbcClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
     byte[] binaryData = <byte[]>getUntaintedData(value, "BINARY_TYPE");
 
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from ComplexTypes WHERE binary_type = ", ""],
         insertions: [binaryData]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function getUntaintedData(record {}|error? value, string fieldName) returns @untainted anydata {
@@ -128,7 +128,7 @@ function queryTypeVarcharStringParam(string url, string user, string password) r
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeCharStringParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -140,7 +140,7 @@ function queryTypeCharStringParam(string url, string user, string password) retu
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeLongNVarcharStringParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -152,7 +152,7 @@ function queryTypeLongNVarcharStringParam(string url, string user, string passwo
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeLongVarcharStringParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -164,7 +164,7 @@ function queryTypeLongVarcharStringParam(string url, string user, string passwor
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeNCharStringParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -176,7 +176,7 @@ function queryTypeNCharStringParam(string url, string user, string password) ret
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeNVarCharStringParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -188,7 +188,7 @@ function queryTypeNVarCharStringParam(string url, string user, string password) 
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeVarCharIntegerParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -200,7 +200,7 @@ function queryTypeVarCharIntegerParam(string url, string user, string password) 
         parts: ["SELECT * from DataTable WHERE string_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypBooleanBooleanParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -212,7 +212,7 @@ function queryTypBooleanBooleanParam(string url, string user, string password) r
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypBooleanIntParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -224,7 +224,7 @@ function queryTypBooleanIntParam(string url, string user, string password) retur
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypBitIntParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -236,7 +236,7 @@ function queryTypBitIntParam(string url, string user, string password) returns @
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypBitStringParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -248,7 +248,7 @@ function queryTypBitStringParam(string url, string user, string password) return
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypBitInvalidIntParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -260,7 +260,7 @@ function queryTypBitInvalidIntParam(string url, string user, string password) re
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypBitDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -272,7 +272,7 @@ function queryTypBitDoubleParam(string url, string user, string password) return
         parts: ["SELECT * from DataTable WHERE boolean_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -284,7 +284,7 @@ function queryTypeIntIntParam(string url, string user, string password) returns 
         parts: ["SELECT * from NumericTypes WHERE int_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeTinyIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -296,7 +296,7 @@ function queryTypeTinyIntIntParam(string url, string user, string password) retu
         parts: ["SELECT * from NumericTypes WHERE tinyint_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeSmallIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -308,7 +308,7 @@ function queryTypeSmallIntIntParam(string url, string user, string password) ret
         parts: ["SELECT * from NumericTypes WHERE smallint_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeBigIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -320,7 +320,7 @@ function queryTypeBigIntIntParam(string url, string user, string password) retur
         parts: ["SELECT * from NumericTypes WHERE bigint_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeDoubleDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -332,7 +332,7 @@ function queryTypeDoubleDoubleParam(string url, string user, string password) re
         parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeDoubleIntParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -344,7 +344,7 @@ function queryTypeDoubleIntParam(string url, string user, string password) retur
         parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeDoubleDecimalParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -357,7 +357,7 @@ function queryTypeDoubleDecimalParam(string url, string user, string password) r
         parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeFloatDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -369,19 +369,19 @@ function queryTypeFloatDoubleParam(string url, string user, string password) ret
         parts: ["SELECT * from NumericTypes WHERE float_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeRealDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_DOUBLE,
+        sqlType: sql:TYPE_REAL,
         value: 1234.567
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE real_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeNumericDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -393,7 +393,7 @@ function queryTypeNumericDoubleParam(string url, string user, string password) r
         parts: ["SELECT * from NumericTypes WHERE numeric_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeNumericIntParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -405,7 +405,7 @@ function queryTypeNumericIntParam(string url, string user, string password) retu
         parts: ["SELECT * from NumericTypes WHERE numeric_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeNumericDecimalParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -418,7 +418,7 @@ function queryTypeNumericDecimalParam(string url, string user, string password) 
         parts: ["SELECT * from NumericTypes WHERE numeric_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeDecimalDoubleParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -430,7 +430,7 @@ function queryTypeDecimalDoubleParam(string url, string user, string password) r
         parts: ["SELECT * from NumericTypes WHERE decimal_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeDecimalDecimalParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -443,11 +443,11 @@ function queryTypeDecimalDecimalParam(string url, string user, string password) 
         parts: ["SELECT * from NumericTypes WHERE decimal_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeBinaryByteParam(string url, string user, string password) returns @tainted record {}|error? {
-    record {}|error? value = queryMockClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
+    record {}|error? value = queryJdbcClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
     byte[] binaryData = <byte[]>getUntaintedData(value, "BINARY_TYPE");
     sql:TypedValue typeVal = {
         sqlType: sql:TYPE_BINARY,
@@ -457,7 +457,7 @@ function queryTypeBinaryByteParam(string url, string user, string password) retu
         parts: ["SELECT * from ComplexTypes WHERE binary_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeBinaryReadableByteChannelParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -470,7 +470,7 @@ function queryTypeBinaryReadableByteChannelParam(string url, string user, string
         parts: ["SELECT * from ComplexTypes WHERE binary_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeVarBinaryReadableByteChannelParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -483,7 +483,7 @@ function queryTypeVarBinaryReadableByteChannelParam(string url, string user, str
         parts: ["SELECT * from ComplexTypes WHERE var_binary_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeLongVarBinaryReadableByteChannelParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -496,11 +496,11 @@ function queryTypeLongVarBinaryReadableByteChannelParam(string url, string user,
         parts: ["SELECT * from ComplexTypes WHERE var_binary_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeBlobByteParam(string url, string user, string password) returns @tainted record {}|error? {
-    record {}|error? value = queryMockClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
+    record {}|error? value = queryJdbcClient(url, user, password, "Select * from ComplexTypes where row_id = 1");
     byte[] binaryData = <byte[]>getUntaintedData(value, "BLOB_TYPE");
     sql:TypedValue typeVal = {
         sqlType: sql:TYPE_BLOB,
@@ -510,7 +510,7 @@ function queryTypeBlobByteParam(string url, string user, string password) return
         parts: ["SELECT * from ComplexTypes WHERE blob_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeBlobReadableByteChannelParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -523,7 +523,7 @@ function queryTypeBlobReadableByteChannelParam(string url, string user, string p
         parts: ["SELECT * from ComplexTypes WHERE blob_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeClobStringParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -535,7 +535,7 @@ function queryTypeClobStringParam(string url, string user, string password) retu
         parts: ["SELECT * from ComplexTypes WHERE clob_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeClobReadableCharChannelParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -548,7 +548,7 @@ function queryTypeClobReadableCharChannelParam(string url, string user, string p
         parts: ["SELECT * from ComplexTypes WHERE clob_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTypeNClobReadableCharChannelParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -561,7 +561,7 @@ function queryTypeNClobReadableCharChannelParam(string url, string user, string 
         parts: ["SELECT * from ComplexTypes WHERE clob_type = ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryDateStringParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -573,7 +573,7 @@ function queryDateStringParam(string url, string user, string password) returns 
         parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryDateString2Param(string url, string user, string password) returns @tainted record {}|error? {
@@ -585,7 +585,7 @@ function queryDateString2Param(string url, string user, string password) returns
         parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryDateStringInvalidParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -597,7 +597,7 @@ function queryDateStringInvalidParam(string url, string user, string password) r
         parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryDateLongParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -610,7 +610,7 @@ function queryDateLongParam(string url, string user, string password) returns @t
         parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryDateTimeRecordParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -623,7 +623,7 @@ function queryDateTimeRecordParam(string url, string user, string password) retu
         parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryDateTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -636,7 +636,7 @@ function queryDateTimeRecordWithTimeZoneParam(string url, string user, string pa
         parts: ["SELECT * from DateTimeTypes WHERE date_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTimeStringParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -648,7 +648,7 @@ function queryTimeStringParam(string url, string user, string password) returns 
         parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTimeStringInvalidParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -660,7 +660,7 @@ function queryTimeStringInvalidParam(string url, string user, string password) r
         parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTimeLongParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -673,7 +673,7 @@ function queryTimeLongParam(string url, string user, string password) returns @t
         parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTimeTimeRecordParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -686,7 +686,7 @@ function queryTimeTimeRecordParam(string url, string user, string password) retu
         parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTimeTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -699,7 +699,7 @@ function queryTimeTimeRecordWithTimeZoneParam(string url, string user, string pa
         parts: ["SELECT * from DateTimeTypes WHERE time_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTimestampStringParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -711,7 +711,7 @@ function queryTimestampStringParam(string url, string user, string password) ret
         parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTimestampStringInvalidParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -723,7 +723,7 @@ function queryTimestampStringInvalidParam(string url, string user, string passwo
         parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTimestampLongParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -736,7 +736,7 @@ function queryTimestampLongParam(string url, string user, string password) retur
         parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTimestampTimeRecordParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -749,7 +749,7 @@ function queryTimestampTimeRecordParam(string url, string user, string password)
         parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTimestampTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -762,7 +762,7 @@ function queryTimestampTimeRecordWithTimeZoneParam(string url, string user, stri
         parts: ["SELECT * from DateTimeTypes WHERE timestamp_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryDateTimeTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -775,7 +775,7 @@ function queryDateTimeTimeRecordWithTimeZoneParam(string url, string user, strin
         parts: ["SELECT * from DateTimeTypes WHERE datetime_type= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryTimestampTimeRecordWithTimeZone2Param(string url, string user, string password) returns @tainted record {}|error? {
@@ -788,20 +788,7 @@ function queryTimestampTimeRecordWithTimeZone2Param(string url, string user, str
         parts: ["SELECT * from DateTimeTypes WHERE timestamp_type2= ", ""],
         insertions: [typeVal]
     };
-    return queryMockClient(url, user, password, sqlQuery);
-}
-
-function queryTimeTimeRecordWithTimeZone2Param(string url, string user, string password) returns @tainted record {}|error? {
-    time:Time date = check time:parse("20:08:08-0800", "HH:mm:ssZ");
-    sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_TIME,
-        value: date
-    };
-    sql:ParameterizedString sqlQuery = {
-        parts: ["SELECT * from DateTimeTypes WHERE time_type2 = ", ""],
-        insertions: [typeVal]
-    };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryArrayBasicParams(string url, string user, string password) returns @tainted record {}|error? {
@@ -825,7 +812,7 @@ function queryArrayBasicParams(string url, string user, string password) returns
         insertions: [paraInt, paraLong, paraFloat, paraDouble, paraDecimal, paraString, paraBool]
     };
 
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryArrayBasicNullParams(string url, string user, string password) returns @tainted record {}|error? {
@@ -833,7 +820,7 @@ function queryArrayBasicNullParams(string url, string user, string password) ret
             parts: ["SELECT * from ArrayTypes WHERE int_array is null AND long_array is null AND float_array is null AND double_array is null AND decimal_array is null AND string_array is null AND boolean_array is null"],
             insertions: []
      };
-    return queryMockClient(url, user, password, sqlQuery);
+    return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function getByteColumnChannel() returns @untainted io:ReadableByteChannel|error {
@@ -852,9 +839,9 @@ function getClobColumnChannel() returns @untainted io:ReadableCharacterChannel|e
     return sourceChannel;
 }
 
-function queryMockClient(string url, string user, string password,@untainted string|sql:ParameterizedString sqlQuery)
+function queryJdbcClient(string url, string user, string password,@untainted string|sql:ParameterizedString sqlQuery)
 returns @tainted record {}|error? {
-    mockclient:Client dbClient = check new (url = url, user = user, password = password);
+    jdbc:Client dbClient = check new (url = url, user = user, password = password);
     stream<record{}, error> streamData = dbClient->query(sqlQuery);
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
