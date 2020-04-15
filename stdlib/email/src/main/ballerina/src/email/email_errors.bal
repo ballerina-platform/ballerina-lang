@@ -28,7 +28,7 @@ public const SEND_ERROR = "{ballerina/email}SendError";
 # Represents an error that occurs when sending an email fails.
 public type SendError error<SEND_ERROR, Detail>;
 
-# Represents the reason for the server access failure error.
+# Represents the reason for the server access failure errors.
 public const READ_CLIENT_INIT_ERROR = "{ballerina/email}ReadClientInitError";
 # Represents an error that occurs when the email store access fails.
 public type ReadClientInitError error<READ_CLIENT_INIT_ERROR, Detail>;

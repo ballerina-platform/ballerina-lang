@@ -25,7 +25,7 @@ public type PopClient client object {
     # + username - Username of the POP Client
     # + password - Password of the POP Client
     # + clientConfig - Configurations for the POP Client
-    # + return - An `email:Error` if failed while creating the client or else ()
+    # + return - An `email:Error` if failed while creating the client or else `()`
     public function __init(@untainted string host, @untainted string username, @untainted string password,
             PopConfig clientConfig = {}) returns Error? {
         return initPopClientEndpoint(self, java:fromString(host), java:fromString(username),
@@ -37,8 +37,8 @@ public type PopClient client object {
 # email:Email|email:Error? emailResponse = popClient->read();
 # ```
 #
-# + folder - Folder to read emails. Default value is `INBOX`
-# + return - An`email:Email` if read message is successful, () if there is no emails in the specified folder,
+# + folder - Folder to read emails. The default value is `INBOX`
+# + return - An`email:Email` if reading the message is successful, `()` if there are no emails in the specified folder,
 #            or else an `email:Error` if failed to receive the message to the recipient
     public remote function read(string folder = DEFAULT_FOLDER) returns Email|Error? {
         return popRead(self, java:fromString(folder));
@@ -61,7 +61,7 @@ function popRead(PopClient clientEndpoint, handle folder) returns Email|Error? =
 #
 # + port - Port number of the POP server
 # + enableSsl - If set to true, use SSL to connect and use the SSL port by default.
-#               Defaults to true for the "pop3s" protocol and false for the "pop3" protocol.
+#               The default value is true for the "pop3s" protocol and false for the "pop3" protocol.
 public type PopConfig record {|
     int port = 995;
     boolean enableSsl = true;

@@ -1,4 +1,4 @@
-This module contains functions to perform email operations such as sending and reading emails using SMTP, POP3, and IMAP4 protocols.
+This module contains functions to perform email operations such as sending and reading emails using the SMTP, POP3, and IMAP4 protocols.
 
 ### Client
 
@@ -21,7 +21,7 @@ email:SmtpClient smtpClient = new ("smtp.email.com",
                                    "sender@email.com",
                                    "pass123");
 ```
-The port number of the server and/or the SSL support can be also configured by passing the following configurations.
+The port number of the server and/or the SSL support can also be configured by passing the following configurations.
 
 ```ballerina
 email:SmtpConfig smtpConfig = {

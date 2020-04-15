@@ -37,7 +37,7 @@ public type SmtpClient client object {
 # ```
 #
 # + email - An `email:Email` message, which needs to be sent to the recipient
-# + return - An `email:SendError` if failed to send the message to the recipient or else ()
+# + return - An `email:SendError` if failed to send the message to the recipient or else `()`
     public remote function send(Email email) returns Error? {
         return send(self, email);
     }
@@ -59,7 +59,7 @@ function send(SmtpClient clientEndpoint, Email email) returns Error? = @java:Met
 #
 # + port - Port number of the SMTP server
 # + enableSsl - If set to true, use SSL to connect and use the SSL port by default.
-#               Defaults to true for the "smtps" protocol and false for the "smtp" protocol.
+#               The defaults value is true for the "smtps" protocol and false for the "smtp" protocol.
 public type SmtpConfig record {|
     int port = 465;
     boolean enableSsl = true;
