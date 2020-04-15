@@ -74,8 +74,7 @@ public class MultipleWhereClauseTest {
         Assert.assertEquals(person1.get("lastName").stringValue(), "George");
         Assert.assertEquals(person1.get("deptAccess").stringValue(), "Operations");
     }
-	
-	@Test(description = "Test logical operands with where")
+    @Test(description = "Test logical operands with where")
     public void testLogicalOperandsWithWhere() {
         BValue[] returnValues = BRunUtil.invoke(result, "testLogicalOperandsWithWhere");
         Assert.assertNotNull(returnValues);
