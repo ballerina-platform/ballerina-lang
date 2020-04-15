@@ -289,7 +289,7 @@ public function build(string... parts) returns string|Error {
 # ```
 #
 # + name - Filename
-# + return - True if path is a Windows reserved name or else false
+# + return - True if the path is a Windows reserved name or else false
 public function isReservedName(string name) returns boolean {
     if (isWindows) {
         return isWindowsReservedName(name);
@@ -306,8 +306,8 @@ public function isReservedName(string name) returns boolean {
 # ```
 #
 # + path - String value of the file path
-# + return - The extension of the file or an empty string if there is no extension,
-#            or else `crypto:Error` if the path is invalid
+# + return - The extension of the file, an empty string if there is no extension,
+#            or else a `crypto:Error` if the path is invalid
 public function extension(string path) returns string|Error {
     if (path.endsWith(pathSeparator) || (isWindows && path.endsWith("/"))) {
       return  "";
@@ -404,14 +404,14 @@ public function relative(string base, string target) returns string|Error {
 }
 
 # Returns the filepath after the evaluation of any symbolic links.
-# If path is relative, the result will be relative to the current directory
+# If the path is relative, the result will be relative to the current directory
 # unless one of the components is an absolute symbolic link.
-# Resolves normalising calls on the result.
+# Resolves normalising the calls on the result.
 # ```ballerina
 #  string|filepath:Error resolvedPath = filepath:resolve("a/b/c");
 # ```
 #
-# + path - Security validated string value of the file path
+# + path - Security-validated string value of the file path
 # + return - Resolved file path or else a `crypto:Error` if the path is invalid
 public function resolve(@untainted string path) returns string|Error {
     var result = externResolve(java:fromString(path));
@@ -434,7 +434,7 @@ function externResolve(handle path) returns handle|Error =
     class: "org.ballerinalang.stdlib.filepath.nativeimpl.FilePathUtils"
 } external;
 
-# Reports whether all (not just a substring) of the filename matches the provided Glob pattern.
+# Reports whether the complete filename (not just a substring of it) matches the provided Glob pattern.
 # An error is returned if the pattern is malformed.
 # ```ballerina
 #  boolean|filepath:Error matches = filepath:matches("a/b/c.java", "glob:*.{java,class}");

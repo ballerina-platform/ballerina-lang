@@ -17,7 +17,7 @@
 # A record type defined to be used as the "error detail" in the errors defined in this module.
 #
 # + message - A message describing the error in detail
-# + cause - The error which caused this error (if any)
+# + cause - The error, which caused this error (if any)
 public type Detail record {
     string message;
     error cause?;
