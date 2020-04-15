@@ -17,7 +17,7 @@
 import ballerina/lang.'object as lang;
 import ballerina/java;
 
-# Represents the socket server on which the socket server service is registered and started.
+# Represents the socket listener on which the socket listener service is registered and started.
 public type Listener object {
 
     *lang:Listener;

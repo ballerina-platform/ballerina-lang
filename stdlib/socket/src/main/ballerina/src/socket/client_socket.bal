@@ -109,7 +109,7 @@ public type Client client object {
     }
 };
 
-# Configurations for the socket client endpoint.
+# Configurations for the socket client.
 #
 # + host - The target service URL
 # + port - The port number of the remote service
