@@ -35,10 +35,10 @@ public type JsonOptions record {
 # xml|error xmlValue = xmlutils:fromJSON(data);
 # ```
 #
-# + jsonValue - The json source
-# + options - JsonOptions struct for JSON to XML conversion properties
-# + return - XML representation of the given JSON if successfully converted
-#            the JSON or else an `error`
+# + jsonValue - The JSON source
+# + options - The `xmlutils:JsonOptions` record for JSON to XML conversion properties
+# + return - XML representation of the given JSON if the JSON is 
+#            successfully converted or else an `error`
 public function fromJSON(json? jsonValue, JsonOptions options = {}) returns xml|error {
     return externFromJson(jsonValue, options);
 }
@@ -49,7 +49,7 @@ function externFromJson(json? jsonValue, JsonOptions options = {}) returns xml|e
     class: "org.ballerinalang.stdlib.xmlutils.ConvertUtils"
 } external;
 
-# Converts a table to its xml representation.
+# Converts a table to its XML representation.
 # ```ballerina
 # table<Person> personTable = table{
 #     { key id, age, salary, name, married },
