@@ -27,8 +27,8 @@ import java.util.Locale;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.getAllJavaClasses;
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setClassListForLooping;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.METHOD_INTEROP_TYPE;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
@@ -120,18 +120,17 @@ public class JMethod {
             isArrayReturn = true;
             if (returnTypeClass.getComponentType().isPrimitive()) {
                 objectReturn = false;
+            } else if (returnTypeClass.getSimpleName().equals(JAVA_STRING_ARRAY)) {
+                objectReturn = true;
+                isStringArrayReturn = true;
             } else {
                 returnComponentType = returnTypeClass.getComponentType().getSimpleName();
                 objectReturn = true;
             }
         } else if (returnTypeClass.isPrimitive()) {
             objectReturn = false;
-        } else if (returnType.equals(BALLERINA_STRING)) {
+        } else if (returnTypeClass.getSimpleName().equals(JAVA_STRING)) {
             isStringReturn = true;
-        } else if (returnType.equals(BALLERINA_STRING_ARRAY)) {
-            objectReturn = true;
-            isArrayReturn = true;
-            isStringArrayReturn = true;
         } else {
             objectReturn = true;
         }

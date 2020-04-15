@@ -31,7 +31,7 @@ public type {{shortClassName}} object {
     public function {{#if reservedWord}}{{#controlChars methodName ""}}{{/controlChars}}{{else}}{{methodName}}{{/if}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) {{#getReturn this ""}}{{/getReturn}}{
     {{#if objectReturn}}{{#if isArrayReturn}}
         {{returnType}} obj = [];
-        any[] anyObj = getArrayFromHandle({{#if handleException}}check {{/if}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}}){{#if isStringArrayReturn}}, string{{/if}});
+        any[] anyObj = getArrayFromHandle({{#if handleException}}check {{/if}}{{prefix}}_{{methodName}}(self.jObj{{#hasParams}}, {{/hasParams}}{{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}}){{#if isStringArrayReturn}}, string{{/if}});
         int count = anyObj.length();
         foreach int i in 0 ... count-1 {
             {{#if isStringArrayReturn}}obj[i] = <string>anyObj[i];{{else}}{{returnComponentType}} element = new(<handle>anyObj[i]);

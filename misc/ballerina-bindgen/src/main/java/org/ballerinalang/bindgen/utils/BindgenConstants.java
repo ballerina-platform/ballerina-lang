@@ -62,8 +62,8 @@ public class BindgenConstants {
     static final String CHAR = "char";
     static final String DOUBLE = "double";
     static final String LONG = "long";
-    static final String JAVA_STRING = "String";
-    static final String JAVA_STRING_ARRAY = "String[]";
+    public static final String JAVA_STRING = "String";
+    public static final String JAVA_STRING_ARRAY = "String[]";
     static final String HANDLE = "handle";
     public static final String BALLERINA_STRING = "string";
     public static final String BALLERINA_STRING_ARRAY = "string[]";
