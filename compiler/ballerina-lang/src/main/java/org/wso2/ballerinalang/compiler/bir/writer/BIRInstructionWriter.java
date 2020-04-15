@@ -53,7 +53,7 @@ import java.util.List;
  * Responsible for serializing BIR instructions and operands.
  *
  * @since 0.980.0
- * @deprecated this class is no longer used as we do not write any instruction to the  BIR binary
+ * @deprecated this class is no longer used as we do not write any instruction to the BIR binary
  */
 @Deprecated
 public class BIRInstructionWriter extends BIRVisitor {
