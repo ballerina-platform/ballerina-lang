@@ -59,6 +59,7 @@ public class JMethod {
     private String externalType;
     private String shortClassName;
     private String javaMethodName;
+    private String returnComponentType;
     private String interopType = METHOD_INTEROP_TYPE;
 
     private List<JParameter> parameters = new ArrayList<>();
@@ -119,6 +120,9 @@ public class JMethod {
             isArrayReturn = true;
             if (returnTypeClass.getComponentType().isPrimitive()) {
                 objectReturn = false;
+            } else {
+                returnComponentType = returnTypeClass.getComponentType().getSimpleName();
+                objectReturn = true;
             }
         } else if (returnTypeClass.isPrimitive()) {
             objectReturn = false;
