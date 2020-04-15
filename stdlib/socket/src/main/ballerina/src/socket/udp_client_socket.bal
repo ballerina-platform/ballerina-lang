@@ -20,7 +20,7 @@ import ballerina/java;
 #
 # + localPort - The local port number to which this socket is bound
 # + localAddress - The local IP address string in textual presentation to which the socket is bound
-# + interface - The network interface to bind to
+# + interface - The network interface to bind
 # + id - A unique identifier to identify each client
 public type UdpClient client object {
 
