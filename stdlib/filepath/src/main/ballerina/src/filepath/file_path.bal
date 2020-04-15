@@ -29,8 +29,8 @@ string pathListSeparator = isWindows ? ";" : ":";
 #  string|filepath:Error absolutePath = filepath:absolute(<@untainted> "test.txt");
 # ```
 #
-# + path - String value of the file path
-# + return - The absolute path reference or else a `crypto:Error` if the path cannot be derived
+# + path - String value of the file path free from potential malicious codes
+# + return - The absolute path reference or else a `filepath:Error` if the path cannot be derived
 public function absolute(@untainted string path) returns string|Error {
     var result = externAbsolute(java:fromString(path));
     if (result is Error) {
@@ -81,8 +81,8 @@ public function getPathListSeparator() returns string {
 # ```
 #
 # + path - String value of the file path
-# + return - True if path is absolute or else false.
-#            If an error occurred while processing `crypto:Error`
+# + return - `true` if path is absolute, `false` otherwise, or else an `filepath:Error`
+#            occurred if the path is invalid
 public function isAbsolute(string path) returns boolean|Error {
     if (path.length() <= 0) {
         return false;
@@ -102,7 +102,7 @@ public function isAbsolute(string path) returns boolean|Error {
 # ```
 #
 # + path - String value of file path
-# + return - The name of the file or else a `crypto:Error` if the path is invalid
+# + return - The name of the file or else a `filepath:Error` if the path is invalid
 public function filename(string path) returns string|Error {
     string validatedPath = check parse(path);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
@@ -127,7 +127,7 @@ public function filename(string path) returns string|Error {
 # ```
 #
 # + path - String value of the file/directory path
-# + return - Path of the parent directory or else a `crypto:Error`
+# + return - Path of the parent directory or else a `filepath:Error`
 #            if an error occurred while getting the parent directory
 public function parent(string path) returns string|Error {
     string validatedPath = check parse(path);
@@ -158,7 +158,7 @@ public function parent(string path) returns string|Error {
 # ```
 #
 # + path - String value of the file path
-# + return - Normalized file path or else a `crypto:Error` if the path is invalid
+# + return - Normalized file path or else a `filepath:Error` if the path is invalid
 public function normalize(string path) returns string|Error {
     string validatedPath = check parse(path);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
@@ -244,7 +244,7 @@ public function normalize(string path) returns string|Error {
 # ```
 #
 # + path - String value of the file path
-# + return - String array of part components or else a `crypto:Error` if the path is invalid
+# + return - String array of part components or else a `filepath:Error` if the path is invalid
 public function split(string path) returns string[]|Error {
     string validatedPath = check parse(path);
     int[] offsetIndexes = check getOffsetIndexes(validatedPath);
@@ -273,7 +273,7 @@ public function split(string path) returns string[]|Error {
 # ```
 #
 # + parts - String values of the file path parts
-# + return - String value of the file path or else a `crypto:Error` if the parts are invalid
+# + return - String value of the file path or else a `filepath:Error` if the parts are invalid
 public function build(string... parts) returns string|Error {
     if (isWindows) {
         return check buildWindowsPath(...parts);
@@ -307,7 +307,7 @@ public function isReservedName(string name) returns boolean {
 #
 # + path - String value of the file path
 # + return - The extension of the file, an empty string if there is no extension,
-#            or else a `crypto:Error` if the path is invalid
+#            or else a `filepath:Error` if the path is invalid
 public function extension(string path) returns string|Error {
     if (path.endsWith(pathSeparator) || (isWindows && path.endsWith("/"))) {
       return  "";
@@ -340,8 +340,8 @@ public function extension(string path) returns string|Error {
 #
 # + base - String value of the base file path
 # + target - String value of the target file path
-# + return - The extension of the file or an empty string if there is no extension.
-#            A `crypto:Error` if the base or target paths are invalid
+# + return - The extension of the file, empty string otherwise, or else an
+#            `filepath:Error` occurred if at least one path is invalid
 public function relative(string base, string target) returns string|Error {
     string cleanBase = check normalize(base);
     string cleanTarget = check normalize(target);
@@ -412,7 +412,7 @@ public function relative(string base, string target) returns string|Error {
 # ```
 #
 # + path - Security-validated string value of the file path
-# + return - Resolved file path or else a `crypto:Error` if the path is invalid
+# + return - Resolved file path or else a `filepath:Error` if the path is invalid
 public function resolve(@untainted string path) returns string|Error {
     var result = externResolve(java:fromString(path));
     if (result is Error) {
@@ -442,8 +442,8 @@ function externResolve(handle path) returns handle|Error =
 #
 # + path - String value of the file path
 # + pattern - String value of the target file path
-# + return - True if the filename of the path matches with the pattern or else false.
-#            A `crypto:Error` if the path or pattern is invalid
+# + return - `true` if the filename of the path matches with the pattern, `false` otherwise,
+#            or else an `filepath:Error` if the path or pattern is invalid
 public function matches(string path, string pattern) returns boolean|Error {
     return externMatches(java:fromString(path), java:fromString(pattern));
 }
@@ -457,7 +457,7 @@ function externMatches(handle path, handle pattern) returns boolean|Error =
 # Parses the give path and remove redundent slashes.
 #
 # + input - String path value
-# + return - Parsed path or else a `crypto:Error` if the given path is invalid
+# + return - Parsed path or else a `filepath:Error` if the given path is invalid
 function parse(string input) returns string|Error {
     if (input.length() <= 0) {
         return input;
