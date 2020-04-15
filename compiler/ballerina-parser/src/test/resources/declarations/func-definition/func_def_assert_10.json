@@ -2,6 +2,16 @@
     "kind": "FUNCTION_DEFINITION",
     "children": [
         {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
+            ]
+        },
+        {
             "kind": "FUNCTION_KEYWORD"
         },
         {
@@ -25,6 +35,11 @@
                 {
                     "kind": "EQUAL_TOKEN",
                     "isMissing": true
+                },
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
                 },
                 {
                     "kind": "EXTERNAL_KEYWORD"

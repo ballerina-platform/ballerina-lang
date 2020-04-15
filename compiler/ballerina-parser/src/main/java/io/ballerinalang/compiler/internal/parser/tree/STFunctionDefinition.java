@@ -28,6 +28,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  * @since 1.3.0
  */
 public class STFunctionDefinition extends STModuleMemberDeclaration {
+    public final STNode metadata;
     public final STNode visibilityQualifier;
     public final STNode functionKeyword;
     public final STNode functionName;
@@ -38,6 +39,7 @@ public class STFunctionDefinition extends STModuleMemberDeclaration {
     public final STNode functionBody;
 
     STFunctionDefinition(
+            STNode metadata,
             STNode visibilityQualifier,
             STNode functionKeyword,
             STNode functionName,
@@ -47,6 +49,7 @@ public class STFunctionDefinition extends STModuleMemberDeclaration {
             STNode returnTypeDesc,
             STNode functionBody) {
         super(SyntaxKind.FUNCTION_DEFINITION);
+        this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.functionKeyword = functionKeyword;
         this.functionName = functionName;
@@ -57,6 +60,7 @@ public class STFunctionDefinition extends STModuleMemberDeclaration {
         this.functionBody = functionBody;
 
         addChildren(
+                metadata,
                 visibilityQualifier,
                 functionKeyword,
                 functionName,

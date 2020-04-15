@@ -28,6 +28,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  * @since 1.3.0
  */
 public class STServiceDeclaration extends STModuleMemberDeclaration {
+    public final STNode metadata;
     public final STNode serviceKeyword;
     public final STNode serviceName;
     public final STNode onKeyword;
@@ -35,12 +36,14 @@ public class STServiceDeclaration extends STModuleMemberDeclaration {
     public final STNode serviceBody;
 
     STServiceDeclaration(
+            STNode metadata,
             STNode serviceKeyword,
             STNode serviceName,
             STNode onKeyword,
             STNode expressions,
             STNode serviceBody) {
         super(SyntaxKind.SERVICE_DECLARATION);
+        this.metadata = metadata;
         this.serviceKeyword = serviceKeyword;
         this.serviceName = serviceName;
         this.onKeyword = onKeyword;
@@ -48,6 +51,7 @@ public class STServiceDeclaration extends STModuleMemberDeclaration {
         this.serviceBody = serviceBody;
 
         addChildren(
+                metadata,
                 serviceKeyword,
                 serviceName,
                 onKeyword,

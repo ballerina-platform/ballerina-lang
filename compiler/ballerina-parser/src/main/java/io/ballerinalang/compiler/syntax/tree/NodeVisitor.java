@@ -267,8 +267,16 @@ public abstract class NodeVisitor {
         visitSyntaxNode(serviceBody);
     }
 
-    public void visit(IsExpression isExpression) {
-        visitSyntaxNode(isExpression);
+    public void visit(Annotation annotation) {
+        visitSyntaxNode(annotation);
+    }
+
+    public void visit(Metadata metadata) {
+        visitSyntaxNode(metadata);
+    }
+
+    public void visit(ModuleVariableDeclaration moduleVariableDeclaration) {
+        visitSyntaxNode(moduleVariableDeclaration);
     }
 
     // Tokens

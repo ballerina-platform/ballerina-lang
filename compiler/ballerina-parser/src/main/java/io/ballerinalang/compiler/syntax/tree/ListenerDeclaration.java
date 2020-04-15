@@ -30,32 +30,36 @@ public class ListenerDeclaration extends ModuleMemberDeclaration {
         super(internalNode, position, parent);
     }
 
-    public Token visibilityQualifier() {
+    public Metadata metadata() {
         return childInBucket(0);
     }
 
-    public Token listenerKeyword() {
+    public Token visibilityQualifier() {
         return childInBucket(1);
     }
 
-    public Node typeDescriptor() {
+    public Token listenerKeyword() {
         return childInBucket(2);
     }
 
-    public Token variableName() {
+    public Node typeDescriptor() {
         return childInBucket(3);
     }
 
-    public Token equalsToken() {
+    public Token variableName() {
         return childInBucket(4);
     }
 
-    public Node initializer() {
+    public Token equalsToken() {
         return childInBucket(5);
     }
 
-    public Token semicolonToken() {
+    public Node initializer() {
         return childInBucket(6);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(7);
     }
 
     @Override
@@ -69,6 +73,7 @@ public class ListenerDeclaration extends ModuleMemberDeclaration {
     }
 
     public ListenerDeclaration modify(
+            Metadata metadata,
             Token visibilityQualifier,
             Token listenerKeyword,
             Node typeDescriptor,
@@ -77,6 +82,7 @@ public class ListenerDeclaration extends ModuleMemberDeclaration {
             Node initializer,
             Token semicolonToken) {
         if (checkForReferenceEquality(
+                metadata,
                 visibilityQualifier,
                 listenerKeyword,
                 typeDescriptor,
@@ -88,6 +94,7 @@ public class ListenerDeclaration extends ModuleMemberDeclaration {
         }
 
         return NodeFactory.createListenerDeclaration(
+                metadata,
                 visibilityQualifier,
                 listenerKeyword,
                 typeDescriptor,

@@ -29,24 +29,24 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STExternalFunctionBody extends STStatement {
     public final STNode equalsToken;
-    public final STNode annotation;
+    public final STNode annotations;
     public final STNode externalKeyword;
     public final STNode semicolonToken;
 
     STExternalFunctionBody(
             STNode equalsToken,
-            STNode annotation,
+            STNode annotations,
             STNode externalKeyword,
             STNode semicolonToken) {
         super(SyntaxKind.EXTERNAL_FUNCTION_BODY);
         this.equalsToken = equalsToken;
-        this.annotation = annotation;
+        this.annotations = annotations;
         this.externalKeyword = externalKeyword;
         this.semicolonToken = semicolonToken;
 
         addChildren(
                 equalsToken,
-                annotation,
+                annotations,
                 externalKeyword,
                 semicolonToken);
     }

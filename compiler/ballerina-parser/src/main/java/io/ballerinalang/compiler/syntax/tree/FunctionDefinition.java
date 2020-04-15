@@ -30,36 +30,40 @@ public class FunctionDefinition extends ModuleMemberDeclaration {
         super(internalNode, position, parent);
     }
 
-    public Token visibilityQualifier() {
+    public Metadata metadata() {
         return childInBucket(0);
     }
 
-    public Token functionKeyword() {
+    public Token visibilityQualifier() {
         return childInBucket(1);
     }
 
-    public Identifier functionName() {
+    public Token functionKeyword() {
         return childInBucket(2);
     }
 
-    public Token openParenToken() {
+    public Identifier functionName() {
         return childInBucket(3);
     }
 
+    public Token openParenToken() {
+        return childInBucket(4);
+    }
+
     public NodeList<Parameter> parameters() {
-        return new NodeList<>(childInBucket(4));
+        return new NodeList<>(childInBucket(5));
     }
 
     public Token closeParenToken() {
-        return childInBucket(5);
-    }
-
-    public Node returnTypeDesc() {
         return childInBucket(6);
     }
 
-    public BlockStatement functionBody() {
+    public Node returnTypeDesc() {
         return childInBucket(7);
+    }
+
+    public BlockStatement functionBody() {
+        return childInBucket(8);
     }
 
     @Override
@@ -73,6 +77,7 @@ public class FunctionDefinition extends ModuleMemberDeclaration {
     }
 
     public FunctionDefinition modify(
+            Metadata metadata,
             Token visibilityQualifier,
             Token functionKeyword,
             Identifier functionName,
@@ -82,6 +87,7 @@ public class FunctionDefinition extends ModuleMemberDeclaration {
             Node returnTypeDesc,
             BlockStatement functionBody) {
         if (checkForReferenceEquality(
+                metadata,
                 visibilityQualifier,
                 functionKeyword,
                 functionName,
@@ -94,6 +100,7 @@ public class FunctionDefinition extends ModuleMemberDeclaration {
         }
 
         return NodeFactory.createFunctionDefinition(
+                metadata,
                 visibilityQualifier,
                 functionKeyword,
                 functionName,

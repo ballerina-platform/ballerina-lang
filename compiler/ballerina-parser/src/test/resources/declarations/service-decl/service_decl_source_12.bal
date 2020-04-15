@@ -6,5 +6,5 @@ service serviceName1 serviceName2 on someListner1 {
 
     
 
-service someListner2 {
+service someListner2 on l1 {
 }

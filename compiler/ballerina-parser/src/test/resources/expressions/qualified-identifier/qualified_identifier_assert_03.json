@@ -22,8 +22,20 @@
             "isMissing": true
         },
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "bar"
+            "kind": "QUALIFIED_IDENTIFIER",
+            "children": [
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "isMissing": true
+                },
+                {
+                    "kind": "COLON_TOKEN"
+                },
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "bar"
+                }
+            ]
         }
     ]
 }

@@ -34,24 +34,28 @@ public class DefaultableParameter extends Parameter {
         return childInBucket(0);
     }
 
-    public Token visibilityQualifier() {
-        return childInBucket(1);
+    public NodeList<Annotation> annotations() {
+        return new NodeList<>(childInBucket(1));
     }
 
-    public Node type() {
+    public Token visibilityQualifier() {
         return childInBucket(2);
     }
 
-    public Token paramName() {
+    public Node type() {
         return childInBucket(3);
     }
 
-    public Token equalsToken() {
+    public Token paramName() {
         return childInBucket(4);
     }
 
-    public Node expression() {
+    public Token equalsToken() {
         return childInBucket(5);
+    }
+
+    public Node expression() {
+        return childInBucket(6);
     }
 
     @Override
@@ -66,6 +70,7 @@ public class DefaultableParameter extends Parameter {
 
     public DefaultableParameter modify(
             Token leadingComma,
+            NodeList<Annotation> annotations,
             Token visibilityQualifier,
             Node type,
             Token paramName,
@@ -73,6 +78,7 @@ public class DefaultableParameter extends Parameter {
             Node expression) {
         if (checkForReferenceEquality(
                 leadingComma,
+                annotations.underlyingListNode(),
                 visibilityQualifier,
                 type,
                 paramName,
@@ -83,6 +89,7 @@ public class DefaultableParameter extends Parameter {
 
         return NodeFactory.createDefaultableParameter(
                 leadingComma,
+                annotations,
                 visibilityQualifier,
                 type,
                 paramName,

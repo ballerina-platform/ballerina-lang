@@ -27,6 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.AssignmentStatement;
 import io.ballerinalang.compiler.syntax.tree.BlockStatement;
 import io.ballerinalang.compiler.syntax.tree.CallStatement;
 import io.ballerinalang.compiler.syntax.tree.EmptyToken;
+import io.ballerinalang.compiler.syntax.tree.Expression;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpression;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinition;
 import io.ballerinalang.compiler.syntax.tree.Identifier;
@@ -290,7 +291,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangExpression transform(PositionalArgument argumentNode) {
-        Token expression = argumentNode.expression();
+        Expression expression = argumentNode.expression();
         if (isSimpleLiteral(expression)) {
             return createSimpleLiteral(expression);
         }

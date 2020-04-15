@@ -30,28 +30,32 @@ public class ObjectField extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Token visibilityQualifier() {
+    public Metadata metadata() {
         return childInBucket(0);
     }
 
-    public Node type() {
+    public Token visibilityQualifier() {
         return childInBucket(1);
     }
 
-    public Token fieldName() {
+    public Node type() {
         return childInBucket(2);
     }
 
-    public Token equalsToken() {
+    public Token fieldName() {
         return childInBucket(3);
     }
 
-    public Expression expression() {
+    public Token equalsToken() {
         return childInBucket(4);
     }
 
-    public Token semicolonToken() {
+    public Expression expression() {
         return childInBucket(5);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(6);
     }
 
     @Override
@@ -65,6 +69,7 @@ public class ObjectField extends NonTerminalNode {
     }
 
     public ObjectField modify(
+            Metadata metadata,
             Token visibilityQualifier,
             Node type,
             Token fieldName,
@@ -72,6 +77,7 @@ public class ObjectField extends NonTerminalNode {
             Expression expression,
             Token semicolonToken) {
         if (checkForReferenceEquality(
+                metadata,
                 visibilityQualifier,
                 type,
                 fieldName,
@@ -82,6 +88,7 @@ public class ObjectField extends NonTerminalNode {
         }
 
         return NodeFactory.createObjectField(
+                metadata,
                 visibilityQualifier,
                 type,
                 fieldName,

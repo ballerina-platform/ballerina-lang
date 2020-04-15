@@ -63,7 +63,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(parent.kind(), SyntaxKind.BINARY_EXPRESSION);
 
         parent = token.parent().parent().parent().parent().parent().parent().parent();
-        Assert.assertEquals(parent.kind(), SyntaxKind.VARIABLE_DECL);
+        Assert.assertEquals(parent.kind(), SyntaxKind.LOCAL_VAR_DECL);
     }
 
     @Test
@@ -86,6 +86,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
 
         List<SyntaxKind> actualChildNodeKindList = new ArrayList<>();
         List<SyntaxKind> expectedChildNodeKindList = Arrays.asList(
+                SyntaxKind.METADATA,
                 SyntaxKind.PUBLIC_KEYWORD,
                 SyntaxKind.FUNCTION_KEYWORD,
                 SyntaxKind.IDENTIFIER_TOKEN,
