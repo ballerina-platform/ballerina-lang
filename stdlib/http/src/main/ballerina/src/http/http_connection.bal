@@ -35,7 +35,7 @@ public type Caller client object {
     #
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel`, or `mime:Entity[]`
-    # + return - An `http:ListenerError` if failed to respond
+    # + return - An `http:ListenerError` if failed to respond or else `()`
     public remote function respond(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         FilterContext? filterContext = self.filterContext;
@@ -95,7 +95,7 @@ public type Caller client object {
 
     # Sends a `100-continue` response to the caller.
     #
-    # + return - An `http:ListenerError` if failed to send the `100-continue` response
+    # + return - An `http:ListenerError` if failed to send the `100-continue` response or else `()`
     public remote function continue() returns ListenerError? {
         Response res = new;
         res.statusCode = STATUS_CONTINUE;
@@ -107,7 +107,7 @@ public type Caller client object {
     # + response - Response to be sent to the caller
     # + code - The redirect status code to be sent
     # + locations - An array of URLs to which the caller can redirect to
-    # + return - An `http:ListenerError` if failed to send the redirect response
+    # + return - An `http:ListenerError` if failed to send the redirect response or else `()`
     public remote function redirect(Response response, RedirectCode code, string[] locations) returns ListenerError? {
         if (code == REDIRECT_MULTIPLE_CHOICES_300) {
             response.statusCode = STATUS_MULTIPLE_CHOICES;
@@ -140,7 +140,7 @@ public type Caller client object {
     #
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`
-    # + return - An `http:ListenerError` if failed to respond
+    # + return - An `http:ListenerError` if failed to respond or else `()`
     public remote function ok(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = STATUS_OK;
@@ -152,7 +152,7 @@ public type Caller client object {
     # + uri - Represents the most specific URI for the newly created resource
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`. This message is optional.
-    # + return - An `http:ListenerError` if failed to respond
+    # + return - An `http:ListenerError` if failed to respond or else `()`
     public remote function created(string uri, ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = STATUS_CREATED;
@@ -166,7 +166,7 @@ public type Caller client object {
     #
     # + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`
     #             or `mime:Entity[]`. This message is optional.
-    # + return - An `http:ListenerError` if failed to respond
+    # + return - An `http:ListenerError` if failed to respond or else `()`
     public remote function accepted(ResponseMessage message = ()) returns ListenerError? {
         Response response = buildResponse(message);
         response.statusCode = STATUS_ACCEPTED;

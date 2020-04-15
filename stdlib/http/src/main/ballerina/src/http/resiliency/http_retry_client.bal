@@ -229,7 +229,7 @@ public type RetryClient client object {
         }
     }
 
-    # Retrieves the `http:Response` for a previously -ubmitted request.
+    # Retrieves the `http:Response` for a previously submitted request.
     #
     # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
     # + return - An HTTP response message, or an `http:ClientError` if the invocation fails

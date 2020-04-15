@@ -49,7 +49,7 @@ public type BearerAuthHandler object {
     #
     # + req - The `http:Request` instance
     # + return - `true` if authenticated successfully, `false` otherwise,
-    # or else an `http:AuthenticationError` in case of an error
+    #                 or else an `http:AuthenticationError` in case of an error
     public function process(Request req) returns boolean|AuthenticationError {
         string headerValue = extractAuthorizationHeaderValue(req);
         string credential = headerValue.substring(6, headerValue.length()).trim();
@@ -90,7 +90,7 @@ public type BearerAuthHandler object {
     # + req - The `http:Request` instance
     # + resp - The `http:Response` instance
     # + return - The updated `http:Request` instance, an `http:AuthenticationError` in case of an error,
-    # or else `()` if nothing is to be returned
+    #                 or else `()` if nothing is to be returned
     public function inspect(Request req, Response resp) returns Request|AuthenticationError? {
         auth:InboundAuthProvider|auth:OutboundAuthProvider authProvider = self.authProvider;
         if (authProvider is auth:OutboundAuthProvider) {

@@ -66,7 +66,7 @@ public type Listener object {
     }
 
     # Detaches a Http or WebSocket service from the listener. Note that detaching a WebSocket service would not affect
-    # the functionality of the existing connections.
+    # The functionality of the existing connections.
     #
     # + s - The service to be detached
     # + return - An `error` if one occurred during detaching of a service or `()`
