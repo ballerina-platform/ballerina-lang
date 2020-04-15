@@ -53,3 +53,30 @@ public function getAttribute(xml x, string attributeName, boolean isOptionalAcce
 # + x - The xml value
 # + return - Element name
 public function getElementNameNilLifting(xml x) returns string|error? = external;
+
+# Functional constructor for xml:Element subtype.
+#
+# + name - name of element
+# + attributeMap - optional attribute map
+# + children - optional children
+# + return - constructed Element value
+public function elementCtor(string name, map<string> attributeMap = {}, xml children = textCtor()) returns xml = external;
+
+# Functional constructor for xml:ProcessingInstruction subtype.
+#
+# + target - target potion
+# + content - content potion
+# + return - constructed ProcessingInstruction value
+public function processingInstructionCtor(string target, string content = "") returns xml = external;
+
+# Functional constructor for xml:Comment subtype.
+#
+# + content - comment content
+# + return - constructed Comment value
+public function commentCtor(string content = "") returns xml = external;
+
+# Functional constructor for xml:Text subtype.
+#
+# + charactors - text content
+# + return - constructed Text value
+public function textCtor(string charactors = "") returns xml = external;

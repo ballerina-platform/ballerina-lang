@@ -64,7 +64,9 @@ public final class XMLSequence extends XMLValue {
 
     public XMLSequence(BXML child) {
         this.children = new ArrayList<>();
-        this.children.add(child);
+        if (!child.isEmpty()) {
+            this.children.add(child);
+        }
     }
 
     public List<BXML> getChildrenList() {

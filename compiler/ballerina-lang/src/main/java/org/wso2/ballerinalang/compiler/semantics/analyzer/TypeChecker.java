@@ -3464,7 +3464,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean isNotFunction(BSymbol funcSymbol) {
-        if ((funcSymbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION) {
+        if ((funcSymbol.tag & SymTag.FUNCTION) == SymTag.FUNCTION
+                || (funcSymbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
             return false;
         }
 
