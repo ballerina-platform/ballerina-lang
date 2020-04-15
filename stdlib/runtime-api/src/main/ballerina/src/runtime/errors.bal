@@ -30,6 +30,9 @@ public type CallStackElement record {|
 |};
 
 # Retrieves the array of `runtime:CallStackElement` instances.
+# ```ballerina
+# runtime:CallStackElement[] callStackElements = runtime:getCallStack();
+# ```
 #
 # + return - Array of `runtime:CallStackElement` records
 public function getCallStack() returns CallStackElement[] = @java:Method {
