@@ -283,6 +283,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(arrayTypeDescriptor);
     }
 
+    public void visit(ArrayDimension arrayDimension) {
+        visitSyntaxNode(arrayDimension);
+    }
+
     // Tokens
 
     public void visit(Token token) {

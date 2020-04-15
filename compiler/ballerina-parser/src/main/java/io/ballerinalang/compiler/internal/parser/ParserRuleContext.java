@@ -201,10 +201,7 @@ public enum ParserRuleContext {
     COMPUTED_FIELD_NAME("computed-field-name"),
     TYPEOF_EXPRESSION("typeof-expr"),
     UNARY_EXPRESSION("unary-expr"),
-    HEX_INTEGER_LITERAL("hex-integer-literal"),
-
-    //Other
-    ARRAY_SECOND_DIMENSION("array-second-dimension")
+    HEX_INTEGER_LITERAL("hex-integer-literal")
     ;
 
     private String value;

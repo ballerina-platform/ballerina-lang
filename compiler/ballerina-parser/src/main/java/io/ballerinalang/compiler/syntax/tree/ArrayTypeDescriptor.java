@@ -34,28 +34,8 @@ public class ArrayTypeDescriptor extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Token firstDimensionOpenBracket() {
+    public Node dimensions() {
         return childInBucket(1);
-    }
-
-    public Node firstDimensionArrayLength() {
-        return childInBucket(2);
-    }
-
-    public Token firstDimensionCloseBracket() {
-        return childInBucket(3);
-    }
-
-    public Token secondDimensionOpenBracket() {
-        return childInBucket(4);
-    }
-
-    public Node secondDimensionArrayLength() {
-        return childInBucket(5);
-    }
-
-    public Token secondDimensionCloseBracket() {
-        return childInBucket(6);
     }
 
     @Override
@@ -70,30 +50,15 @@ public class ArrayTypeDescriptor extends NonTerminalNode {
 
     public ArrayTypeDescriptor modify(
             Node typeDescriptorNode,
-            Token firstDimensionOpenBracket,
-            Node firstDimensionArrayLength,
-            Token firstDimensionCloseBracket,
-            Token secondDimensionOpenBracket,
-            Node secondDimensionArrayLength,
-            Token secondDimensionCloseBracket) {
+            Node dimensions) {
         if (checkForReferenceEquality(
                 typeDescriptorNode,
-                firstDimensionOpenBracket,
-                firstDimensionArrayLength,
-                firstDimensionCloseBracket,
-                secondDimensionOpenBracket,
-                secondDimensionArrayLength,
-                secondDimensionCloseBracket)) {
+                dimensions)) {
             return this;
         }
 
         return NodeFactory.createArrayTypeDescriptor(
                 typeDescriptorNode,
-                firstDimensionOpenBracket,
-                firstDimensionArrayLength,
-                firstDimensionCloseBracket,
-                secondDimensionOpenBracket,
-                secondDimensionArrayLength,
-                secondDimensionCloseBracket);
+                dimensions);
     }
 }

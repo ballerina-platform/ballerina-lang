@@ -29,38 +29,18 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STArrayTypeDescriptor extends STNode {
     public final STNode typeDescriptorNode;
-    public final STNode firstDimensionOpenBracket;
-    public final STNode firstDimensionArrayLength;
-    public final STNode firstDimensionCloseBracket;
-    public final STNode secondDimensionOpenBracket;
-    public final STNode secondDimensionArrayLength;
-    public final STNode secondDimensionCloseBracket;
+    public final STNode dimensions;
 
     STArrayTypeDescriptor(
             STNode typeDescriptorNode,
-            STNode firstDimensionOpenBracket,
-            STNode firstDimensionArrayLength,
-            STNode firstDimensionCloseBracket,
-            STNode secondDimensionOpenBracket,
-            STNode secondDimensionArrayLength,
-            STNode secondDimensionCloseBracket) {
+            STNode dimensions) {
         super(SyntaxKind.ARRAY_TYPE);
         this.typeDescriptorNode = typeDescriptorNode;
-        this.firstDimensionOpenBracket = firstDimensionOpenBracket;
-        this.firstDimensionArrayLength = firstDimensionArrayLength;
-        this.firstDimensionCloseBracket = firstDimensionCloseBracket;
-        this.secondDimensionOpenBracket = secondDimensionOpenBracket;
-        this.secondDimensionArrayLength = secondDimensionArrayLength;
-        this.secondDimensionCloseBracket = secondDimensionCloseBracket;
+        this.dimensions = dimensions;
 
         addChildren(
                 typeDescriptorNode,
-                firstDimensionOpenBracket,
-                firstDimensionArrayLength,
-                firstDimensionCloseBracket,
-                secondDimensionOpenBracket,
-                secondDimensionArrayLength,
-                secondDimensionCloseBracket);
+                dimensions);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {

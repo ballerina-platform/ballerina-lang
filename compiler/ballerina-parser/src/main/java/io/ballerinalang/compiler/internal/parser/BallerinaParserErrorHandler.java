@@ -913,7 +913,6 @@ public class BallerinaParserErrorHandler {
                 case NIL_TYPE_DESCRIPTOR:
                 case OPTIONAL_TYPE_DESCRIPTOR:
                 case ARRAY_TYPE_DESCRIPTOR:
-                case ARRAY_SECOND_DIMENSION:
                 case ANNOTATIONS:
                 case DOC_STRING:
 
@@ -1310,7 +1309,6 @@ public class BallerinaParserErrorHandler {
             case COMPOUND_ASSIGNMENT_STMT:
             case OPTIONAL_TYPE_DESCRIPTOR:
             case ARRAY_TYPE_DESCRIPTOR:
-            case ARRAY_SECOND_DIMENSION:
             case ANNOTATIONS:
             case VARIABLE_REF:
             case TYPE_REFERENCE:
@@ -1477,8 +1475,7 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.RECORD_KEYWORD;
             case ASTERISK:
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR ||
-                        parentCtx == ParserRuleContext.ARRAY_SECOND_DIMENSION) {
+                if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
                     return ParserRuleContext.CLOSE_BRACKET;
                 }
                 return ParserRuleContext.TYPE_REFERENCE;
@@ -1618,8 +1615,6 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case ARRAY_LENGTH:
                 return ParserRuleContext.CLOSE_BRACKET;
-            case ARRAY_SECOND_DIMENSION:
-                return ParserRuleContext.OPEN_BRACKET;
             case AT:
                 return ParserRuleContext.ANNOT_REFERENCE;
             case DOC_STRING:
@@ -2060,7 +2055,6 @@ public class BallerinaParserErrorHandler {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
             case ARRAY_TYPE_DESCRIPTOR:
-            case ARRAY_SECOND_DIMENSION:
                 return ParserRuleContext.ARRAY_LENGTH;
             default:
                 return ParserRuleContext.EXPRESSION;
@@ -2078,15 +2072,11 @@ public class BallerinaParserErrorHandler {
         switch (parentCtx) {
             case ARRAY_TYPE_DESCRIPTOR:
                 if (nextToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
-                    return ParserRuleContext.ARRAY_SECOND_DIMENSION;
+                    return ParserRuleContext.OPEN_BRACKET;
                 } else {
-                    endContext();
+                    endContext(); //End array type descriptor context
                     return getNextRuleForTypeDescriptor();
                 }
-            case ARRAY_SECOND_DIMENSION:
-                endContext(); //End ARRAY_SECOND_DIMENSION
-                endContext(); // End ARRAY_TYPE_DESCRIPTOR
-                return getNextRuleForTypeDescriptor();
             case COMPUTED_FIELD_NAME:
             default:
                 endContext(); // end computed-field-name
@@ -2103,7 +2093,6 @@ public class BallerinaParserErrorHandler {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
             case ARRAY_TYPE_DESCRIPTOR:
-            case ARRAY_SECOND_DIMENSION:
             default:
                 return ParserRuleContext.CLOSE_BRACKET;
         }

@@ -182,6 +182,7 @@ public enum SyntaxKind {
     SERVICE_BODY(3023),
     ANNOTATION(3024),
     METADATA(3025),
+    ARRAY_DIMENSION(3026),
 
     INVALID(4),
     MODULE_PART(3),

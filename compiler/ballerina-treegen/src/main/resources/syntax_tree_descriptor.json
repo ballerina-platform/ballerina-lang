@@ -1417,28 +1417,27 @@
           "type": "Node"
         },
         {
-          "name": "firstDimensionOpenBracket",
-          "type": "Token"
-        },
+          "name": "dimensions",
+          "type": "Node"
+        }
+      ]
+    },
+    {
+      "name": "ArrayDimension",
+      "base": "Node",
+      "kind": "ARRAY_DIMENSION",
+      "attributes": [
         {
-          "name": "firstDimensionArrayLength",
+          "name": "openBracket",
           "type": "Node"
         },
         {
-          "name": "firstDimensionCloseBracket",
-          "type": "Token"
-        },
-        {
-          "name": "secondDimensionOpenBracket",
-          "type": "Token"
-        },
-        {
-          "name": "secondDimensionArrayLength",
+          "name": "arrayLength",
           "type": "Node"
         },
         {
-          "name": "secondDimensionCloseBracket",
-          "type": "Token"
+          "name": "closeBracket",
+          "type": "Node"
         }
       ]
     }

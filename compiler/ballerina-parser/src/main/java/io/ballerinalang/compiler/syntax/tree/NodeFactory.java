@@ -1092,29 +1092,29 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ArrayTypeDescriptor createArrayTypeDescriptor(
             Node typeDescriptorNode,
-            Token firstDimensionOpenBracket,
-            Node firstDimensionArrayLength,
-            Token firstDimensionCloseBracket,
-            Token secondDimensionOpenBracket,
-            Node secondDimensionArrayLength,
-            Token secondDimensionCloseBracket) {
+            Node dimensions) {
         Objects.requireNonNull(typeDescriptorNode, "typeDescriptorNode must not be null");
-        Objects.requireNonNull(firstDimensionOpenBracket, "firstDimensionOpenBracket must not be null");
-        Objects.requireNonNull(firstDimensionArrayLength, "firstDimensionArrayLength must not be null");
-        Objects.requireNonNull(firstDimensionCloseBracket, "firstDimensionCloseBracket must not be null");
-        Objects.requireNonNull(secondDimensionOpenBracket, "secondDimensionOpenBracket must not be null");
-        Objects.requireNonNull(secondDimensionArrayLength, "secondDimensionArrayLength must not be null");
-        Objects.requireNonNull(secondDimensionCloseBracket, "secondDimensionCloseBracket must not be null");
+        Objects.requireNonNull(dimensions, "dimensions must not be null");
 
         STNode stArrayTypeDescriptor = STNodeFactory.createArrayTypeDescriptor(
                 typeDescriptorNode.internalNode(),
-                firstDimensionOpenBracket.internalNode(),
-                firstDimensionArrayLength.internalNode(),
-                firstDimensionCloseBracket.internalNode(),
-                secondDimensionOpenBracket.internalNode(),
-                secondDimensionArrayLength.internalNode(),
-                secondDimensionCloseBracket.internalNode());
+                dimensions.internalNode());
         return stArrayTypeDescriptor.createUnlinkedFacade();
+    }
+
+    public static ArrayDimension createArrayDimension(
+            Node openBracket,
+            Node arrayLength,
+            Node closeBracket) {
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(arrayLength, "arrayLength must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stArrayDimension = STNodeFactory.createArrayDimension(
+                openBracket.internalNode(),
+                arrayLength.internalNode(),
+                closeBracket.internalNode());
+        return stArrayDimension.createUnlinkedFacade();
     }
 }
 

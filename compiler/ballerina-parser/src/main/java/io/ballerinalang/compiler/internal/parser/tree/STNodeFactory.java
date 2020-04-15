@@ -804,21 +804,22 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createArrayTypeDescriptor(
             STNode typeDescriptorNode,
-            STNode firstDimensionOpenBracket,
-            STNode firstDimensionArrayLength,
-            STNode firstDimensionCloseBracket,
-            STNode secondDimensionOpenBracket,
-            STNode secondDimensionArrayLength,
-            STNode secondDimensionCloseBracket) {
+            STNode dimensions) {
 
         return new STArrayTypeDescriptor(
                 typeDescriptorNode,
-                firstDimensionOpenBracket,
-                firstDimensionArrayLength,
-                firstDimensionCloseBracket,
-                secondDimensionOpenBracket,
-                secondDimensionArrayLength,
-                secondDimensionCloseBracket);
+                dimensions);
+    }
+
+    public static STNode createArrayDimension(
+            STNode openBracket,
+            STNode arrayLength,
+            STNode closeBracket) {
+
+        return new STArrayDimension(
+                openBracket,
+                arrayLength,
+                closeBracket);
     }
 }
 

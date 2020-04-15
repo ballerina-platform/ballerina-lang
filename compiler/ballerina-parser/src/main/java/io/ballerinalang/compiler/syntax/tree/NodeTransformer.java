@@ -284,6 +284,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(arrayTypeDescriptor);
     }
 
+    public T transform(ArrayDimension arrayDimension) {
+        return transformSyntaxNode(arrayDimension);
+    }
+
     // Tokens
 
     public T transform(Token token) {

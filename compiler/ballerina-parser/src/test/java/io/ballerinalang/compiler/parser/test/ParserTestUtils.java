@@ -561,6 +561,8 @@ public class ParserTestUtils {
                 return SyntaxKind.OPTIONAL_TYPE;
             case "ARRAY_TYPE":
                 return SyntaxKind.ARRAY_TYPE;
+            case "ARRAY_DIMENSION":
+                return SyntaxKind.ARRAY_DIMENSION;
             case "METADATA":
                 return SyntaxKind.METADATA;
             case "ANNOTATION":

@@ -72,6 +72,11 @@ public class ArrayTypeTest extends AbstractTypesTest {
         test("int[5][8] a;", "array-type/array_type_assert_09.json");
     }
 
+    @Test
+    public void testValidThreeDimensionalArrayTypeWithSimpleType() {
+        test("int[][][] a;", "array-type/array_type_assert_13.json");
+    }
+
 
     //Recovery test
 
@@ -99,5 +104,6 @@ public class ArrayTypeTest extends AbstractTypesTest {
     public void testInvalidTwoDimensionalArrayTypeMissingCloseBracket() {
         test("int[][ a;", "array-type/array_type_assert_12.json");
     }
+
 
 }

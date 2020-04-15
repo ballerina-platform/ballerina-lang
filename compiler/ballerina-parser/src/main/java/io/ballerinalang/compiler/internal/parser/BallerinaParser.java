@@ -5254,30 +5254,30 @@ public class BallerinaParser {
 
     private STNode parseArrayTypeDescriptor(STNode typeDescriptorNode) {
         startContext(ParserRuleContext.ARRAY_TYPE_DESCRIPTOR);
+        STNode dimensions = parseDimensions();
 
-        STNode firstDimensionOpenBracket = parseOpenBracket();
-        STNode firstDimensionArrayLength = parseArrayLength();
-        STNode firstDimensionCloseBracket = parseCloseBracket();
-        STNode secondDimensionOpenBracket;
-        STNode secondDimensionArrayLength;
-        STNode secondDimensionCloseBracket;
-
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case OPEN_BRACKET_TOKEN:
-                secondDimensionOpenBracket = parseOpenBracket();
-                secondDimensionArrayLength = parseArrayLength();
-                secondDimensionCloseBracket = parseCloseBracket();
-                break;
-            default:
-                secondDimensionOpenBracket = STNodeFactory.createEmptyNode();
-                secondDimensionArrayLength = STNodeFactory.createEmptyNode();
-                secondDimensionCloseBracket = STNodeFactory.createEmptyNode();
-        }
         endContext();
-        return STNodeFactory.createArrayTypeDescriptor(typeDescriptorNode, firstDimensionOpenBracket,
-                firstDimensionArrayLength, firstDimensionCloseBracket, secondDimensionOpenBracket,
-                secondDimensionArrayLength, secondDimensionCloseBracket);
+        return STNodeFactory.createArrayTypeDescriptor(typeDescriptorNode, dimensions);
+    }
+
+    /**
+     * Parse all the dimensions.
+     * @return Parsed dimensions list node
+     */
+    private STNode parseDimensions() {
+        STToken token = peek();
+
+        ArrayList<STNode> dimensions = new ArrayList<>();
+        while (token.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
+            STNode openBracket = parseOpenBracket();
+            STNode arrayLength = parseArrayLength();
+            STNode closeBracket = parseCloseBracket();
+            STNode dimension = STNodeFactory.createArrayDimension(openBracket, arrayLength, closeBracket);
+            dimensions.add(dimension);
+            token = peek();
+        }
+
+        return STNodeFactory.createNodeList(dimensions);
     }
 
     /**
