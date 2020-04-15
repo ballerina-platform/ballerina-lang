@@ -77,7 +77,7 @@ public type Listener object {
         }
     }
 
-    # Gracefully stops the `task:Listener` and the attached services. It will wait if there are any tasks still to be
+    # Stops the `task:Listener` and the attached services gracefully. It will wait if there are any tasks still to be
     # completed. This may panic if the stopping causes any error.
     #
     # + return - () or else a `task:ListenerError` upon failure to stop the listener
@@ -111,14 +111,14 @@ public type Listener object {
 
     # Pauses the `task:Listener` and the attached services.
     #
-    # + return - A `task:ListenerError` if an error is occurred while pausing or else ()
+    # + return - A `task:ListenerError` if an error occurred while pausing or else ()
     public function pause() returns ListenerError? {
         return pauseExternal(self);
     }
 
     # Resumes a paused `task:Listener`. Calling this on an already-running `task:Listener` will not cause any error.
     #
-    # + return -  A `task:ListenerError` when an error occurred while resuming or else ()
+    # + return -  A `task:ListenerError` if an error occurred while resuming or else ()
     public function resume() returns ListenerError? {
         return resumeExternal(self);
     }

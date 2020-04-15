@@ -63,7 +63,7 @@ public type Scheduler object {
         }
     }
 
-    # Stops the task. This will stop, after finish running the existing jobs.
+    # Stops the task. This will stop after running the existing jobs.
     #
     # + return - A `task:SchedulerError` if the process failed due to any reason or else ()
     public function stop() returns SchedulerError? {
@@ -98,8 +98,8 @@ public type Scheduler object {
 
     # Checks whether the task listener is started or not.
     #
-    # + return - `true` if the `Scheduler` is already started, `false` if the `Scheduler` is
-    #            not started yet, or stopped calling the `Scheduler.stop()` function
+    # + return - `true` if the `Scheduler` is already started or else `false` if the `Scheduler` is
+    #            not started yet or stopped calling the `Scheduler.stop()` function
     public function isStarted() returns boolean {
         return self.taskListener.isStarted();
     }

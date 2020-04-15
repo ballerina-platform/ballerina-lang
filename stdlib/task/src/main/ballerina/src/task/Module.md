@@ -66,7 +66,7 @@ For an example on the usage of the `task:Listener` as an appointment, see the [T
 
 A Task `Scheduler` can be used to create timers/appointments dynamically. Service(s) can be attached to the `Scheduler` so that they can be invoked when the Scheduler is triggered. 
 
-Similar to Task Listeners, below are the two types of configurations that an be used to configure a Task Scheduler, either as a timer or as an appointment.
+Similar to Task Listeners, below are the two types of configurations that can be used to configure a Task Scheduler either as a timer or as an appointment.
 
 - `TimerConfiguration`
 - `AppointmentConfiguration`
