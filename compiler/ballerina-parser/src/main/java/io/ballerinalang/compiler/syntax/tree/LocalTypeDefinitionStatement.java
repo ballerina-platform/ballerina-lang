@@ -30,20 +30,24 @@ public class LocalTypeDefinitionStatement extends Statement {
         super(internalNode, position, parent);
     }
 
-    public Token typeKeyword() {
+    public Node annots() {
         return childInBucket(0);
     }
 
-    public Node typeName() {
+    public Token typeKeyword() {
         return childInBucket(1);
     }
 
-    public Node typeDescriptor() {
+    public Node typeName() {
         return childInBucket(2);
     }
 
-    public Token semicolonToken() {
+    public Node typeDescriptor() {
         return childInBucket(3);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(4);
     }
 
     @Override
@@ -57,11 +61,13 @@ public class LocalTypeDefinitionStatement extends Statement {
     }
 
     public LocalTypeDefinitionStatement modify(
+            Node annots,
             Token typeKeyword,
             Node typeName,
             Node typeDescriptors,
             Token semicolonToken) {
         if (checkForReferenceEquality(
+                annots,
                 typeKeyword,
                 typeName,
                 typeDescriptors,
@@ -70,6 +76,7 @@ public class LocalTypeDefinitionStatement extends Statement {
         }
 
         return NodeFactory.createLocalTypeDefinitionStatement(
+                annots,
                 typeKeyword,
                 typeName,
                 typeDescriptors,

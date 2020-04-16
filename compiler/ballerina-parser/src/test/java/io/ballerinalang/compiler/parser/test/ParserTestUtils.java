@@ -285,6 +285,8 @@ public class ParserTestUtils {
                 return SyntaxKind.LISTENER_DECLARATION;
             case "CONST_DECLARATION":
                 return SyntaxKind.CONST_DECLARATION;
+            case "MODULE_VAR_DECL":
+                return SyntaxKind.MODULE_VAR_DECL;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -351,6 +353,8 @@ public class ParserTestUtils {
                 return SyntaxKind.FINAL_KEYWORD;
             case "TYPEOF_KEYWORD":
                 return SyntaxKind.TYPEOF_KEYWORD;
+            case "ANNOTATION_KEYWORD":
+                return SyntaxKind.ANNOTATION_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -427,6 +431,10 @@ public class ParserTestUtils {
                 return SyntaxKind.CLOSE_BRACE_PIPE_TOKEN;
             case "PIPE_TOKEN":
                 return SyntaxKind.PIPE_TOKEN;
+            case "AT_TOKEN":
+                return SyntaxKind.AT_TOKEN;
+            case "HASH_TOKEN":
+                return SyntaxKind.HASH_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -473,8 +481,8 @@ public class ParserTestUtils {
             // Statements
             case "BLOCK_STATEMENT":
                 return SyntaxKind.BLOCK_STATEMENT;
-            case "VARIABLE_DECL":
-                return SyntaxKind.VARIABLE_DECL;
+            case "LOCAL_VAR_DECL":
+                return SyntaxKind.LOCAL_VAR_DECL;
             case "ASSIGNMENT_STATEMENT":
                 return SyntaxKind.ASSIGNMENT_STATEMENT;
             case "IF_ELSE_STATEMENT":
@@ -507,8 +515,12 @@ public class ParserTestUtils {
                 return SyntaxKind.RETURN_TYPE_DESCRIPTOR;
             case "EXTERNAL_FUNCTION_BODY":
                 return SyntaxKind.EXTERNAL_FUNCTION_BODY;
-            case "PARAMETER":
-                return SyntaxKind.PARAMETER;
+            case "REQUIRED_PARAM":
+                return SyntaxKind.REQUIRED_PARAM;
+            case "DEFAULTABLE_PARAM":
+                return SyntaxKind.DEFAULTABLE_PARAM;
+            case "REST_PARAM":
+                return SyntaxKind.REST_PARAM;
             case "RECORD_TYPE_DESCRIPTOR":
                 return SyntaxKind.RECORD_TYPE_DESCRIPTOR;
             case "RECORD_FIELD":
@@ -549,6 +561,10 @@ public class ParserTestUtils {
                 return SyntaxKind.NIL_TYPE;
             case "OPTIONAL_TYPE":
                 return SyntaxKind.OPTIONAL_TYPE;
+            case "METADATA":
+                return SyntaxKind.METADATA;
+            case "ANNOTATION":
+                return SyntaxKind.ANNOTATION;
 
             // Trivia
             case "EOF_TOKEN":

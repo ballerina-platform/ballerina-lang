@@ -272,6 +272,18 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(serviceBody);
     }
 
+    public T transform(Annotation annotation) {
+        return transformSyntaxNode(annotation);
+    }
+
+    public T transform(Metadata metadata) {
+        return transformSyntaxNode(metadata);
+    }
+
+    public T transform(ModuleVariableDeclaration moduleVariableDeclaration) {
+        return transformSyntaxNode(moduleVariableDeclaration);
+    }
+
     // Tokens
 
     public T transform(Token token) {

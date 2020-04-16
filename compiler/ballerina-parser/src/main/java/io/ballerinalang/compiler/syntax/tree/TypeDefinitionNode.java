@@ -30,24 +30,28 @@ public class TypeDefinitionNode extends ModuleMemberDeclaration {
         super(internalNode, position, parent);
     }
 
-    public Token visibilityQualifier() {
+    public Metadata metadata() {
         return childInBucket(0);
     }
 
-    public Token typeKeyword() {
+    public Token visibilityQualifier() {
         return childInBucket(1);
     }
 
-    public Token typeName() {
+    public Token typeKeyword() {
         return childInBucket(2);
     }
 
-    public Node typeDescriptor() {
+    public Token typeName() {
         return childInBucket(3);
     }
 
-    public Token semicolonToken() {
+    public Node typeDescriptor() {
         return childInBucket(4);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(5);
     }
 
     @Override
@@ -61,12 +65,14 @@ public class TypeDefinitionNode extends ModuleMemberDeclaration {
     }
 
     public TypeDefinitionNode modify(
+            Metadata metadata,
             Token visibilityQualifier,
             Token typeKeyword,
             Token typeName,
             Node typeDescriptor,
             Token semicolonToken) {
         if (checkForReferenceEquality(
+                metadata,
                 visibilityQualifier,
                 typeKeyword,
                 typeName,
@@ -76,6 +82,7 @@ public class TypeDefinitionNode extends ModuleMemberDeclaration {
         }
 
         return NodeFactory.createTypeDefinitionNode(
+                metadata,
                 visibilityQualifier,
                 typeKeyword,
                 typeName,

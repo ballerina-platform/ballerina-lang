@@ -48,6 +48,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createFunctionDefinition(
+            STNode metadata,
             STNode visibilityQualifier,
             STNode functionKeyword,
             STNode functionName,
@@ -58,6 +59,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode functionBody) {
 
         return new STFunctionDefinition(
+                metadata,
                 visibilityQualifier,
                 functionKeyword,
                 functionName,
@@ -86,6 +88,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createListenerDeclaration(
+            STNode metadata,
             STNode visibilityQualifier,
             STNode listenerKeyword,
             STNode typeDescriptor,
@@ -95,6 +98,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode semicolonToken) {
 
         return new STListenerDeclaration(
+                metadata,
                 visibilityQualifier,
                 listenerKeyword,
                 typeDescriptor,
@@ -105,6 +109,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createTypeDefinitionNode(
+            STNode metadata,
             STNode visibilityQualifier,
             STNode typeKeyword,
             STNode typeName,
@@ -112,6 +117,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode semicolonToken) {
 
         return new STTypeDefinitionNode(
+                metadata,
                 visibilityQualifier,
                 typeKeyword,
                 typeName,
@@ -120,6 +126,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createServiceDeclaration(
+            STNode metadata,
             STNode serviceKeyword,
             STNode serviceName,
             STNode onKeyword,
@@ -127,6 +134,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode serviceBody) {
 
         return new STServiceDeclaration(
+                metadata,
                 serviceKeyword,
                 serviceName,
                 onKeyword,
@@ -163,12 +171,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createLocalTypeDefinitionStatement(
+            STNode annots,
             STNode typeKeyword,
             STNode identifier,
             STNode typeDescriptor,
             STNode semicolonToken) {
 
         return new STLocalTypeDefinitionStatement(
+                annots,
                 typeKeyword,
                 identifier,
                 typeDescriptor,
@@ -176,6 +186,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createVariableDeclaration(
+            STNode annotations,
             STNode finalKeyword,
             STNode typeName,
             STNode variableName,
@@ -184,6 +195,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode semicolonToken) {
 
         return new STVariableDeclaration(
+                annotations,
                 finalKeyword,
                 typeName,
                 variableName,
@@ -232,13 +244,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createExternalFunctionBody(
             STNode equalsToken,
-            STNode annotation,
+            STNode annotations,
             STNode externalKeyword,
             STNode semicolonToken) {
 
         return new STExternalFunctionBody(
                 equalsToken,
-                annotation,
+                annotations,
                 externalKeyword,
                 semicolonToken);
     }
@@ -434,6 +446,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createConstantDeclaration(
+            STNode metadata,
             STNode visibilityQualifier,
             STNode constKeyword,
             STNode typeDescriptor,
@@ -443,6 +456,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode semicolonToken) {
 
         return new STConstantDeclaration(
+                metadata,
                 visibilityQualifier,
                 constKeyword,
                 typeDescriptor,
@@ -454,6 +468,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createDefaultableParameter(
             STNode leadingComma,
+            STNode annotations,
             STNode visibilityQualifier,
             STNode type,
             STNode paramName,
@@ -462,6 +477,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STDefaultableParameter(
                 leadingComma,
+                annotations,
                 visibilityQualifier,
                 type,
                 paramName,
@@ -471,12 +487,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createRequiredParameter(
             STNode leadingComma,
+            STNode annotations,
             STNode visibilityQualifier,
             STNode type,
             STNode paramName) {
 
         return new STRequiredParameter(
                 leadingComma,
+                annotations,
                 visibilityQualifier,
                 type,
                 paramName);
@@ -484,12 +502,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createRestParameter(
             STNode leadingComma,
+            STNode annotations,
             STNode type,
             STNode ellipsisToken,
             STNode paramName) {
 
         return new STRestParameter(
                 leadingComma,
+                annotations,
                 type,
                 ellipsisToken,
                 paramName);
@@ -664,6 +684,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createObjectField(
+            STNode metadata,
             STNode visibilityQualifier,
             STNode type,
             STNode fieldName,
@@ -672,6 +693,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode semicolonToken) {
 
         return new STObjectField(
+                metadata,
                 visibilityQualifier,
                 type,
                 fieldName,
@@ -681,12 +703,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createRecordField(
+            STNode metadata,
             STNode type,
             STNode fieldName,
             STNode questionMarkToken,
             STNode semicolonToken) {
 
         return new STRecordField(
+                metadata,
                 type,
                 fieldName,
                 questionMarkToken,
@@ -694,6 +718,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createRecordFieldWithDefaultValue(
+            STNode metadata,
             STNode type,
             STNode fieldName,
             STNode equalsToken,
@@ -701,6 +726,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode semicolonToken) {
 
         return new STRecordFieldWithDefaultValue(
+                metadata,
                 type,
                 fieldName,
                 equalsToken,
@@ -750,6 +776,45 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openBraceToken,
                 resources,
                 closeBraceToken);
+    }
+
+    public static STNode createAnnotation(
+            STNode atToken,
+            STNode annotReference,
+            STNode annotValue) {
+
+        return new STAnnotation(
+                atToken,
+                annotReference,
+                annotValue);
+    }
+
+    public static STNode createMetadata(
+            STNode documentationString,
+            STNode annotations) {
+
+        return new STMetadata(
+                documentationString,
+                annotations);
+    }
+
+    public static STNode createModuleVariableDeclaration(
+            STNode metadata,
+            STNode finalKeyword,
+            STNode typeName,
+            STNode variableName,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken) {
+
+        return new STModuleVariableDeclaration(
+                metadata,
+                finalKeyword,
+                typeName,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken);
     }
 }
 

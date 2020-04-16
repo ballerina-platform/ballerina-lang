@@ -2,6 +2,16 @@
     "kind": "FUNCTION_DEFINITION",
     "children": [
         {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
+            ]
+        },
+        {
             "kind": "FUNCTION_KEYWORD"
         },
         {
@@ -36,10 +46,10 @@
                                     "value": "a"
                                 },
                                 {
-                                    "kind":"PLUS_TOKEN"
+                                    "kind": "PLUS_TOKEN"
                                 },
                                 {
-                                    "kind":"EQUAL_TOKEN"
+                                    "kind": "EQUAL_TOKEN"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",

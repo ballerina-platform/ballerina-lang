@@ -34,16 +34,20 @@ public class RestParameter extends Parameter {
         return childInBucket(0);
     }
 
-    public Node type() {
-        return childInBucket(1);
+    public NodeList<Annotation> annotations() {
+        return new NodeList<>(childInBucket(1));
     }
 
-    public Token ellipsisToken() {
+    public Node type() {
         return childInBucket(2);
     }
 
-    public Token paramName() {
+    public Token ellipsisToken() {
         return childInBucket(3);
+    }
+
+    public Token paramName() {
+        return childInBucket(4);
     }
 
     @Override
@@ -58,11 +62,13 @@ public class RestParameter extends Parameter {
 
     public RestParameter modify(
             Token leadingComma,
+            NodeList<Annotation> annotations,
             Node type,
             Token ellipsisToken,
             Token paramName) {
         if (checkForReferenceEquality(
                 leadingComma,
+                annotations.underlyingListNode(),
                 type,
                 ellipsisToken,
                 paramName)) {
@@ -71,6 +77,7 @@ public class RestParameter extends Parameter {
 
         return NodeFactory.createRestParameter(
                 leadingComma,
+                annotations,
                 type,
                 ellipsisToken,
                 paramName);

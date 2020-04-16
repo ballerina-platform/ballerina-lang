@@ -27,7 +27,8 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STConstantDeclaration extends STStatement {
+public class STConstantDeclaration extends STModuleMemberDeclaration {
+    public final STNode metadata;
     public final STNode visibilityQualifier;
     public final STNode constKeyword;
     public final STNode typeDescriptor;
@@ -37,6 +38,7 @@ public class STConstantDeclaration extends STStatement {
     public final STNode semicolonToken;
 
     STConstantDeclaration(
+            STNode metadata,
             STNode visibilityQualifier,
             STNode constKeyword,
             STNode typeDescriptor,
@@ -45,6 +47,7 @@ public class STConstantDeclaration extends STStatement {
             STNode initializer,
             STNode semicolonToken) {
         super(SyntaxKind.CONST_DECLARATION);
+        this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.constKeyword = constKeyword;
         this.typeDescriptor = typeDescriptor;
@@ -54,6 +57,7 @@ public class STConstantDeclaration extends STStatement {
         this.semicolonToken = semicolonToken;
 
         addChildren(
+                metadata,
                 visibilityQualifier,
                 constKeyword,
                 typeDescriptor,

@@ -44,6 +44,10 @@
       "kind": "FUNCTION_DEFINITION",
       "attributes": [
         {
+          "name": "metadata",
+          "type": "Metadata"
+        },
+        {
           "name": "visibilityQualifier",
           "type": "Token"
         },
@@ -115,6 +119,10 @@
       "kind": "LISTENER_DECLARATION",
       "attributes": [
         {
+          "name": "metadata",
+          "type": "Metadata"
+        },
+        {
           "name": "visibilityQualifier",
           "type": "Token"
         },
@@ -150,6 +158,10 @@
       "kind": "TYPE_DEFINITION",
       "attributes": [
         {
+          "name": "metadata",
+          "type": "Metadata"
+        },
+        {
           "name": "visibilityQualifier",
           "type": "Token"
         },
@@ -176,6 +188,10 @@
       "base": "ModuleMemberDeclaration",
       "kind": "SERVICE_DECLARATION",
       "attributes": [
+        {
+          "name": "metadata",
+          "type": "Metadata"
+        },
         {
           "name": "serviceKeyword",
           "type": "Token"
@@ -258,8 +274,13 @@
     {
       "name": "VariableDeclaration",
       "base": "Statement",
-      "kind": "VARIABLE_DECL",
+      "kind": "LOCAL_VAR_DECL",
       "attributes": [
+        {
+          "name": "annotations",
+          "type": "Annotation",
+          "occurrences": "MULTIPLE"
+        },
         {
           "name": "finalKeyword",
           "type": "Token"
@@ -361,8 +382,9 @@
           "type": "Token"
         },
         {
-          "name": "annotation",
-          "type": "Node"
+          "name": "annotations",
+          "type": "Annotation",
+          "occurrences": "MULTIPLE"
         },
         {
           "name": "externalKeyword",
@@ -708,9 +730,13 @@
     },
     {
       "name": "ConstantDeclaration",
-      "base": "Statement",
+      "base": "ModuleMemberDeclaration",
       "kind": "CONST_DECLARATION",
       "attributes": [
+        {
+          "name": "metadata",
+          "type": "Metadata"
+        },
         {
           "name": "visibilityQualifier",
           "type": "Token"
@@ -744,11 +770,16 @@
     {
       "name": "DefaultableParameter",
       "base": "Parameter",
-      "kind": "PARAMETER",
+      "kind": "DEFAULTABLE_PARAM",
       "attributes": [
         {
           "name": "leadingComma",
           "type": "Token"
+        },
+        {
+          "name": "annotations",
+          "type": "Annotation",
+          "occurrences": "MULTIPLE"
         },
         {
           "name": "visibilityQualifier",
@@ -775,11 +806,16 @@
     {
       "name": "RequiredParameter",
       "base": "Parameter",
-      "kind": "PARAMETER",
+      "kind": "REQUIRED_PARAM",
       "attributes": [
         {
           "name": "leadingComma",
           "type": "Token"
+        },
+        {
+          "name": "annotations",
+          "type": "Annotation",
+          "occurrences": "MULTIPLE"
         },
         {
           "name": "visibilityQualifier",
@@ -798,11 +834,16 @@
     {
       "name": "RestParameter",
       "base": "Parameter",
-      "kind": "PARAMETER",
+      "kind": "REST_PARAM",
       "attributes": [
         {
           "name": "leadingComma",
           "type": "Token"
+        },
+        {
+          "name": "annotations",
+          "type": "Annotation",
+          "occurrences": "MULTIPLE"
         },
         {
           "name": "type",
@@ -1085,7 +1126,7 @@
         },
         {
           "name": "annotations",
-          "type": "Node",
+          "type": "Annotation",
           "occurrences": "MULTIPLE"
         },
         {
@@ -1131,6 +1172,10 @@
       "kind": "OBJECT_FIELD",
       "attributes": [
         {
+          "name": "metadata",
+          "type": "Metadata"
+        },
+        {
           "name": "visibilityQualifier",
           "type": "Token"
         },
@@ -1162,6 +1207,10 @@
       "kind": "RECORD_FIELD",
       "attributes": [
         {
+          "name": "metadata",
+          "type": "Metadata"
+        },
+        {
           "name": "type",
           "type": "Node"
         },
@@ -1184,6 +1233,10 @@
       "base": "Node",
       "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
       "attributes": [
+        {
+          "name": "metadata",
+          "type": "Metadata"
+        },
         {
           "name": "type",
           "type": "Node"
@@ -1279,6 +1332,77 @@
         },
         {
           "name": "closeBraceToken",
+          "type": "Token"
+        }
+      ]
+    },
+
+    {
+      "name": "Annotation",
+      "base": "Node",
+      "kind": "ANNOTATION",
+      "attributes": [
+        {
+          "name": "atToken",
+          "type": "Token"
+        },
+        {
+          "name": "annotReference",
+          "type": "Node"
+        },
+        {
+          "name": "annotValue",
+          "type": "MappingConstructorExpression"
+        }
+      ]
+    },
+    {
+      "name": "Metadata",
+      "base": "Node",
+      "kind": "METADATA",
+      "attributes": [
+        {
+          "name": "documentationString",
+          "type": "Node"
+        },
+        {
+          "name": "annotations",
+          "type": "Annotation",
+          "occurrences": "MULTIPLE"
+        }
+      ]
+    },
+    {
+      "name": "ModuleVariableDeclaration",
+      "base": "ModuleMemberDeclaration",
+      "kind": "MODULE_VAR_DECL",
+      "attributes": [
+         {
+          "name": "metadata",
+          "type": "Metadata"
+        },
+        {
+          "name": "finalKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "typeName",
+          "type": "Node"
+        },
+        {
+          "name": "variableName",
+          "type": "Token"
+        },
+        {
+          "name": "equalsToken",
+          "type": "Token"
+        },
+        {
+          "name": "initializer",
+          "type": "Expression"
+        },
+        {
+          "name": "semicolonToken",
           "type": "Token"
         }
       ]

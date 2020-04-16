@@ -24,38 +24,42 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ConstantDeclaration extends Statement {
+public class ConstantDeclaration extends ModuleMemberDeclaration {
 
     public ConstantDeclaration(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token visibilityQualifier() {
+    public Metadata metadata() {
         return childInBucket(0);
     }
 
-    public Token constKeyword() {
+    public Token visibilityQualifier() {
         return childInBucket(1);
     }
 
-    public Node typeDescriptor() {
+    public Token constKeyword() {
         return childInBucket(2);
     }
 
-    public Token variableName() {
+    public Node typeDescriptor() {
         return childInBucket(3);
     }
 
-    public Token equalsToken() {
+    public Token variableName() {
         return childInBucket(4);
     }
 
-    public Node initializer() {
+    public Token equalsToken() {
         return childInBucket(5);
     }
 
-    public Token semicolonToken() {
+    public Node initializer() {
         return childInBucket(6);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(7);
     }
 
     @Override
@@ -69,6 +73,7 @@ public class ConstantDeclaration extends Statement {
     }
 
     public ConstantDeclaration modify(
+            Metadata metadata,
             Token visibilityQualifier,
             Token constKeyword,
             Node typeDescriptor,
@@ -77,6 +82,7 @@ public class ConstantDeclaration extends Statement {
             Node initializer,
             Token semicolonToken) {
         if (checkForReferenceEquality(
+                metadata,
                 visibilityQualifier,
                 constKeyword,
                 typeDescriptor,
@@ -88,6 +94,7 @@ public class ConstantDeclaration extends Statement {
         }
 
         return NodeFactory.createConstantDeclaration(
+                metadata,
                 visibilityQualifier,
                 constKeyword,
                 typeDescriptor,

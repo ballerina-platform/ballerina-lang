@@ -30,20 +30,24 @@ public class RecordField extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Node type() {
+    public Metadata metadata() {
         return childInBucket(0);
     }
 
-    public Token fieldName() {
+    public Node type() {
         return childInBucket(1);
     }
 
-    public Token questionMarkToken() {
+    public Token fieldName() {
         return childInBucket(2);
     }
 
-    public Token semicolonToken() {
+    public Token questionMarkToken() {
         return childInBucket(3);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(4);
     }
 
     @Override
@@ -57,11 +61,13 @@ public class RecordField extends NonTerminalNode {
     }
 
     public RecordField modify(
+            Metadata metadata,
             Node type,
             Token fieldName,
             Token questionMarkToken,
             Token semicolonToken) {
         if (checkForReferenceEquality(
+                metadata,
                 type,
                 fieldName,
                 questionMarkToken,
@@ -70,6 +76,7 @@ public class RecordField extends NonTerminalNode {
         }
 
         return NodeFactory.createRecordField(
+                metadata,
                 type,
                 fieldName,
                 questionMarkToken,

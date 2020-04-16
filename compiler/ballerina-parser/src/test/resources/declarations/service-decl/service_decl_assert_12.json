@@ -13,6 +13,16 @@
                     "kind": "FUNCTION_DEFINITION",
                     "children": [
                         {
+                            "kind": "METADATA",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                }
+                            ]
+                        },
+                        {
                             "kind": "FUNCTION_KEYWORD"
                         },
                         {
@@ -40,8 +50,13 @@
                                     "kind": "LIST",
                                     "children": [
                                         {
-                                            "kind": "VARIABLE_DECL",
+                                            "kind": "LOCAL_VAR_DECL",
                                             "children": [
+                                                {
+                                                    "kind": "LIST",
+                                                    "children": [
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "SERVICE_KEYWORD"
                                                 },
@@ -67,6 +82,16 @@
                 {
                     "kind": "SERVICE_DECLARATION",
                     "children": [
+                        {
+                            "kind": "METADATA",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                }
+                            ]
+                        },
                         {
                             "kind": "SERVICE_KEYWORD"
                         },
@@ -103,6 +128,16 @@
                                         {
                                             "kind": "FUNCTION_DEFINITION",
                                             "children": [
+                                                {
+                                                    "kind": "METADATA",
+                                                    "children": [
+                                                        {
+                                                            "kind": "LIST",
+                                                            "children": [
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
                                                 {
                                                     "kind": "FUNCTION_KEYWORD"
                                                 },
@@ -154,6 +189,16 @@
                     "kind": "SERVICE_DECLARATION",
                     "children": [
                         {
+                            "kind": "METADATA",
+                            "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                }
+                            ]
+                        },
+                        {
                             "kind": "SERVICE_KEYWORD"
                         },
                         {
@@ -161,12 +206,21 @@
                             "value": "someListner2"
                         },
                         {
-                            "kind": "ON_KEYWORD",
-                            "isMissing": true
+                            "kind": "ON_KEYWORD"
                         },
                         {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "isMissing": true
+                            "kind": "LIST",
+                            "children": [
+                                {
+                                    "kind": "EXPRESSION_LIST_ITEM",
+                                    "children": [
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "l1"
+                                        }
+                                    ]
+                                }
+                            ]
                         },
                         {
                             "kind": "SERVICE_BODY",

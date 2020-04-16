@@ -30,24 +30,28 @@ public class RecordFieldWithDefaultValue extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Node type() {
+    public Metadata metadata() {
         return childInBucket(0);
     }
 
-    public Token fieldName() {
+    public Node type() {
         return childInBucket(1);
     }
 
-    public Token equalsToken() {
+    public Token fieldName() {
         return childInBucket(2);
     }
 
-    public Expression expression() {
+    public Token equalsToken() {
         return childInBucket(3);
     }
 
-    public Token semicolonToken() {
+    public Expression expression() {
         return childInBucket(4);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(5);
     }
 
     @Override
@@ -61,12 +65,14 @@ public class RecordFieldWithDefaultValue extends NonTerminalNode {
     }
 
     public RecordFieldWithDefaultValue modify(
+            Metadata metadata,
             Node type,
             Token fieldName,
             Token equalsToken,
             Expression expression,
             Token semicolonToken) {
         if (checkForReferenceEquality(
+                metadata,
                 type,
                 fieldName,
                 equalsToken,
@@ -76,6 +82,7 @@ public class RecordFieldWithDefaultValue extends NonTerminalNode {
         }
 
         return NodeFactory.createRecordFieldWithDefaultValue(
+                metadata,
                 type,
                 fieldName,
                 equalsToken,
