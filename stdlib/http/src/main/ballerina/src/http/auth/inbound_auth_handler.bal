@@ -19,13 +19,13 @@ public type InboundAuthHandler abstract object {
 
     # Checks if the request can be authenticated with the relevant `InboundAuthHandler` implementation.
     #
-    # + req - The `Request` instance
-    # + return - Returns `true` if can be authenticated. Else, returns `false`
+    # + req - The `http:Request` instance
+    # + return - `true` if it can be authenticated or else `false`
     public function canProcess(Request req) returns boolean;
 
     # Tries to authenticate the request with the relevant `InboundAuthHandler` implementation.
     #
-    # + req - `Request` instance
-    # + return - `true` if authenticated successfully, else `false` or, `AuthenticationError` in case of errors
+    # + req - The `http:Request` instance
+    # + return - `true` if it authenticated successfully, `false` otherwise, or else an `http:AuthenticationError` in case of errors
     public function process(Request req) returns boolean|AuthenticationError;
 };

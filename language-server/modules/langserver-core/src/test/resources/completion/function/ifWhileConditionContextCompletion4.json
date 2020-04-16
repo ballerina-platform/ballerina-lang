@@ -194,7 +194,7 @@
             "kind": "Interface",
             "detail": "Object",
             "documentation": {
-                "left": "Configures cache control directives for a `Request`.\n"
+                "left": "Configures the cache control directives for an `http:Request`.\n"
             },
             "sortText": "190",
             "insertText": "RequestCacheControl",
@@ -205,7 +205,7 @@
             "kind": "Interface",
             "detail": "Object",
             "documentation": {
-                "left": "Configures cache control directives for a `Response`.\n"
+                "left": "Configures cache control directives for an `http:Response`.\n"
             },
             "sortText": "190",
             "insertText": "ResponseCacheControl",

@@ -9,6 +9,7 @@
       "label": "ep2",
       "kind": "Variable",
       "detail": "http:Listener",
+      "sortText": "130",
       "insertText": "ep2",
       "insertTextFormat": "Snippet"
     },
@@ -16,6 +17,7 @@
       "label": "ep1",
       "kind": "Variable",
       "detail": "http:Listener",
+      "sortText": "130",
       "insertText": "ep1",
       "insertTextFormat": "Snippet"
     },
@@ -23,6 +25,7 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "120",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
     }

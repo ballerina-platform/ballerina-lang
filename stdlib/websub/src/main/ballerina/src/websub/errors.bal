@@ -29,7 +29,6 @@ public const LISTENER_STARTUP_ERROR = "{ballerina/websub}ListenerStartupError";
 # Represents a listener startup error.
 public type ListenerStartupError error<LISTENER_STARTUP_ERROR, Detail>;
 
-
 # Represents the reason string for the `websub:HubStartupError`.
 public const HUB_STARTUP_ERROR_REASON = "{ballerina/websub}HubStartupError";
 

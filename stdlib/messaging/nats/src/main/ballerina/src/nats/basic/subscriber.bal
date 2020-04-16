@@ -17,54 +17,55 @@
 import ballerina/lang.'object as lang;
 import ballerina/java;
 
-# Represents a connection which will be used for subscription.
+# Represents the NATS server connection to which a subscription service should be bound in order to
+# receive messages of the corresponding subscription.
 public type Listener object {
 
     *lang:Listener;
     private Connection conn;
 
-    # Creates a new consumer. A new connection will be created if a reference to a connection is not provided.
+    # Creates a new NATS Listener.
     #
-    # + connection - An already-established connection or configuration to create a new connection.
+    # + connection - An established NATS connection.
     public function __init(Connection connection) {
         self.conn = connection;
         consumerInit(self, connection);
     }
 
-    # Binds the NATS consumer to a service.
+    # Binds a service to the `nats:Listener`.
     #
-    # + s - Type descriptor of the service.
-    # + name - Name of the service.
-    # + return - Returns nil or the error upon failure to register the listener.
+    # + s - Type descriptor of the service
+    # + name - Name of the service
+    # + return - `()` or else a `nats:Error` upon failure to register the listener
     public function __attach(service s, string? name = ()) returns error? {
         return basicRegister(self, s, name);
     }
 
-    # Stops consuming messages and detaches the service from the `Listener` endpoint.
+    # Stops consuming messages and detaches the service from the `nats:Listener`.
     #
     # + s - Type descriptor of the service
-    # + return - Nil or error upon failure to detach the service
+    # + return - `()` or else a `nats:Error` upon failure to detach the service
     public function __detach(service s) returns error? {
         return basicDetach(self, s);
     }
 
-    # Starts the listener in the lifecycle.
+    # Starts the `nats:Listener`.
     #
-    # + return - Error or ().
+    # + return - `()` or else a `nats:Error` upon failure to start the listener
     public function __start() returns error? {
         return basicStart(self);
     }
 
-    # Gracefully stops the listener in the lifecycle.
+    # Stops the `nats:Listener` gracefully.
     #
-    # + return - Error or ().
+    # + return - `()` or else a `nats:Error` upon failure to stop the listener
     public function __gracefulStop() returns error? {
         return basicGracefulStop(self);
     }
 
-    # Forcefully stops the listener in the lifecycle.
+    # Stops the `nats:Listener` forcefully.
     #
-    # + return - Error or ().
+    # + return - `()` or else a `nats:Error` upon failure to stop the listener
     public function __immediateStop() returns error? {
         return basicImmediateStop(self);
     }

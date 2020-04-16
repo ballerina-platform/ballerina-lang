@@ -341,8 +341,10 @@ body .content-wrapper .constants .method-list .param-sum .param-name {
   padding-right: 5px;
   line-height: 1.5em;
   font-weight: 500;
-  min-width: 128px;
-  word-break: break-all;
+  min-width: 160px;
+  width: 160px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 body .content-wrapper .constants .method-list .param-sum .param-details {
   align-items: flex-start;
@@ -350,8 +352,11 @@ body .content-wrapper .constants .method-list .param-sum .param-details {
   line-height: 1.5em;
 }
 body .content-wrapper .constants .method-list a {
-  color: #464646;
+  color: #EC407A;
   font-weight: 500;
+}
+body .content-wrapper .constants .method-list a:hover {
+  font-weight: bold;
 }
 body .content-wrapper .constants .method-wrapper .method-span {
   width: auto;
@@ -531,8 +536,8 @@ body .content-wrapper .module-title a:hover {
   font-weight: bold;
 }
 body .content-wrapper .truncate {
-  max-width: 220px;
-  width: 220px;
+  max-width: 240px;
+  width: 240px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -546,6 +551,28 @@ body .content-wrapper .module-desc {
   height: auto;
   padding-bottom: 12px;
   color: #555;
+}
+body .content-wrapper .function-desc p {
+  display: block;
+  color: #333;
+}
+body .content-wrapper .stab {
+  background: #FFF5D6;
+  border-color: #FFC600;
+  color: #2f2f2f;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 3px;
+  display: inline-block;
+  font-size: 80%;
+  line-height: 1.2;
+  margin-bottom: 0;
+  margin-right: .3em;
+  padding: 2px;
+  vertical-align: text-bottom;
+}
+body .content-wrapper .strike {
+  text-decoration: line-through;
 }
 .navi-wrapper,
 .navi-wrapper-sidebar {

@@ -29,10 +29,13 @@ const MAP = "MAP";
 const ARRAY = "ARRAY";
 
 # Retrieves the specified configuration value as a string.
+# ```ballerina
+# string host = config:getAsString("http.host");
+# ```
 #
-# + key - The configuration to be retrieved
-# + defaultValue - The default value to be use in case there is no mapping for the provided key
-# + return - Configuration value mapped by the key
+# + key - The key of the configuration to be retrieved
+# + defaultValue - The default value to be used in case there is no mapping for the provided key
+# + return - Configuration value mapped with the given key
 public function getAsString(@untainted string key, string defaultValue = "") returns string {
     if (contains(key)) {
         var value = get(key, STRING);
@@ -50,10 +53,13 @@ public function getAsString(@untainted string key, string defaultValue = "") ret
 }
 
 # Retrieves the specified configuration value as an int.
+# ```ballerina
+# int port = config:getAsInt("http.port");
+# ```
 #
-# + key - The configuration to be retrieved
-# + defaultValue - The default value to be use in case there is no mapping for the provided key
-# + return - Configuration value mapped by the key
+# + key - The key of the configuration to be retrieved
+# + defaultValue - The default value to be used in case there is no mapping for the provided key
+# + return - Configuration value mapped with the given key
 public function getAsInt(@untainted string key, int defaultValue = 0) returns int {
     if (contains(key)) {
         var value = get(key, INT);
@@ -80,10 +86,13 @@ public function getAsInt(@untainted string key, int defaultValue = 0) returns in
 }
 
 # Retrieves the specified configuration value as a float.
+# ```ballerina
+# float evictionFactor = config:getAsFloat("http.eviction_factor");
+# ```
 #
-# + key - The configuration to be retrieved
-# + defaultVal - The default value to be use in case there is no mapping for the provided key
-# + return - Configuration value mapped by the key
+# + key - The key of the configuration to be retrieved
+# + defaultVal - The default value to be used in case there is no mapping for the provided key
+# + return - Configuration value mapped with the given key
 public function getAsFloat(@untainted string key, float defaultVal = 0.0) returns float {
     if (contains(key)) {
         var value = get(key, FLOAT);
@@ -110,10 +119,13 @@ public function getAsFloat(@untainted string key, float defaultVal = 0.0) return
 }
 
 # Retrieves the specified configuration value as a boolean.
+# ```ballerina
+# boolean cachingEnabled = config:getAsBoolean("http.caching_enabled");
+# ```
 #
-# + key - The configuration to be retrieved
-# + defaultValue - The default value to be use in case there is no mapping for the provided key
-# + return - Configuration value mapped by the key
+# + key - The key of the configuration to be retrieved
+# + defaultValue - The default value to be used in case there is no mapping for the provided key
+# + return - Configuration value mapped with the given key
 public function getAsBoolean(@untainted string key, boolean defaultValue = false) returns boolean {
     if (contains(key)) {
         var value = get(key, BOOLEAN);
@@ -134,10 +146,13 @@ public function getAsBoolean(@untainted string key, boolean defaultValue = false
     return (strVal.toLowerAscii() == "true");
 }
 
-# Retrieves the specified configuration value as a map. If there is no mapping, an empty map will be returned.
+# Retrieves the specified configuration value as a map.
+# ```ballerina
+# map<anydata> configValue = config:getAsMap("http.listenerConfig");
+# ```
 #
-# + key - The configuration to be retrieved
-# + return - Configuration value mapped by the key
+# + key - The key of the configuration to be retrieved
+# + return - Configuration value mapped with the given key. If there is no mapping, an empty map will be returned
 public function getAsMap(@untainted string key) returns map<anydata> {
     var value = get(key, MAP);
 
@@ -149,10 +164,13 @@ public function getAsMap(@untainted string key) returns map<anydata> {
     }
 }
 
-# Retrieves the specified configuration value as an array. If there is no mapping, an empty array will be returned.
+# Retrieves the specified configuration value as an array.
+# ```ballerina
+# int[]|error ports = int[].constructFrom(config:getAsArray("ports"));
+# ```
 #
-# + key - The configuration to be retrieved
-# + return - Configuration value mapped by the key
+# + key - The key of the configuration to be retrieved
+# + return - Configuration value mapped with the given key. If there is no mapping, an empty array will be returned
 public function getAsArray(@untainted string key) returns anydata[] {
     return <anydata[]>get(key, ARRAY);
 }

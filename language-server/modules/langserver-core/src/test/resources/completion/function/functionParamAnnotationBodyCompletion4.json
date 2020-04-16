@@ -9,7 +9,7 @@
       "label": "val4",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
+      "sortText": "210",
       "insertText": "val4: \"${1}\"",
       "insertTextFormat": "Snippet"
     },

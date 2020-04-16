@@ -1453,12 +1453,16 @@ public class FormattingNodeTree {
             // Iterate and update whitespaces for error variable node.
             boolean reasonWSUpdated = false;
             boolean isEllipsisAvailable = false;
+            boolean isUnderscoreAvailable = false;
             boolean isVarAvailable = node.has(FormattingConstants.IS_VAR_EXISTS)
                     && node.get(FormattingConstants.IS_VAR_EXISTS).getAsBoolean();
             boolean isOpenParanOrErrorOnNewLine = false;
             for (JsonElement wsItem : ws) {
                 JsonObject currentWS = wsItem.getAsJsonObject();
                 String text = currentWS.get(FormattingConstants.TEXT).getAsString();
+                if (text.equals(Tokens.UNDERSCORE)) {
+                    isUnderscoreAvailable = true;
+                }
                 if (this.noHeightAvailable(currentWS.get(FormattingConstants.WS).getAsString())) {
                     if (text.equals(Tokens.VAR)) {
                         if (!isEllipsisAvailable) {
@@ -1598,7 +1602,7 @@ public class FormattingNodeTree {
                 JsonArray details = node.getAsJsonArray("detail");
                 for (int i = 0; i < details.size(); i++) {
                     JsonObject detail = details.get(i).getAsJsonObject();
-                    if (i == 0 && noReason) {
+                    if (i == 0 && noReason && !isUnderscoreAvailable) {
                         detail.add(FormattingConstants.FORMATTING_CONFIG,
                                 this.getFormattingConfig(0, 0, 0, false,
                                         this.getWhiteSpaceCount((formatConfig
@@ -5921,16 +5925,15 @@ public class FormattingNodeTree {
                                     this.getNewLines(formatConfig.get(FormattingConstants.NEW_LINE_COUNT)
                                             .getAsInt()) + indentation);
                         }
-                    } else {
-                        typeFormatConfig = this.getFormattingConfig(
-                                formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt(),
-                                formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt(),
-                                formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(),
-                                formatConfig.get(FormattingConstants.DO_INDENT).getAsBoolean(),
-                                this.getWhiteSpaceCount(indentation), false);
-                        typeNode.add(FormattingConstants.FORMATTING_CONFIG, typeFormatConfig);
-
                     }
+                    typeFormatConfig = this.getFormattingConfig(
+                            formatConfig.get(FormattingConstants.NEW_LINE_COUNT).getAsInt(),
+                            formatConfig.get(FormattingConstants.SPACE_COUNT).getAsInt(),
+                            formatConfig.get(FormattingConstants.START_COLUMN).getAsInt(),
+                            formatConfig.get(FormattingConstants.DO_INDENT).getAsBoolean(),
+                            this.getWhiteSpaceCount(indentation), false);
+                    typeNode.add(FormattingConstants.FORMATTING_CONFIG, typeFormatConfig);
+
                 } else {
                     if ((node.has(Tokens.FINAL) &&
                             node.get(Tokens.FINAL).getAsBoolean())
