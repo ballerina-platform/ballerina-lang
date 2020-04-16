@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 6);
+        Assert.assertEquals(compileResult.getErrorCount(), 7);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -50,5 +50,7 @@ public class TableNegativeTest {
                 "found in table constraint type 'Customer'", 35, 44);
         validateError(compileResult, index++, "member access is not supported for keyless table " +
                 "'customerTable'", 45, 21);
+        validateError(compileResult, index++, "invalid constraint type. expected subtype of " +
+                "map<anydata|error> but 'int'", 47, 41);
     }
 }

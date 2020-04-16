@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 
 any[] outputs = [];
 int counter = 0;
@@ -16,14 +15,14 @@ public function mockPrint(any... s) {
     }
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoke the main function.
     main();
     test:assertEquals(outputs[0], "Error: ");
     test:assertEquals(outputs[1], "SimpleErrorType");
-    test:assertEquals(outouts[2], ", Message: ");
-    test:assertEquals(outputs[3], "Simple error occured");
+    test:assertEquals(outputs[2], ", Message: ");
+    test:assertEquals(outputs[3], "Simple error occurred");
     test:assertEquals(outputs[4], "Error: ");
     test:assertEquals(outputs[5], "InvalidAccountID");
     test:assertEquals(outputs[6], ", Account ID: ");

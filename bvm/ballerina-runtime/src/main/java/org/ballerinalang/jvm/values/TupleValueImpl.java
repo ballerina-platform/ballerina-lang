@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.BStringType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -53,7 +54,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * <p>
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
- * 
+ *
  * @since 0.995.0
  */
 public class TupleValueImpl extends AbstractArrayValue {
@@ -63,6 +64,8 @@ public class TupleValueImpl extends AbstractArrayValue {
     private int minSize = 0;
     private boolean hasRestElement; // cached value for ease of access
 
+    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
+    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
     // ------------------------ Constructors -------------------------------------------------------------------
 
     @Override
@@ -130,7 +133,10 @@ public class TupleValueImpl extends AbstractArrayValue {
             if (!TypeChecker.hasFillerValue(memType)) {
                 continue;
             }
-
+            if (memType instanceof BStringType && USE_BSTRING) {
+                this.refValues[i] = org.ballerinalang.jvm.StringUtils.fromString(memType.getZeroValue());
+                continue;
+            }
             this.refValues[i] = memType.getZeroValue();
         }
     }
@@ -163,6 +169,10 @@ public class TupleValueImpl extends AbstractArrayValue {
                 continue;
             }
 
+            if (memType instanceof BStringType && USE_BSTRING) {
+                this.refValues[i] = org.ballerinalang.jvm.StringUtils.fromString(memType.getZeroValue());
+                continue;
+            }
             this.refValues[i] = memType.getZeroValue();
         }
     }

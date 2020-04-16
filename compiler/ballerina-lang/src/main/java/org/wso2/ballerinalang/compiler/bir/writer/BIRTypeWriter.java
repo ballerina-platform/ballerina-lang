@@ -364,7 +364,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BXMLType bxmlType) {
-        // Nothing to do
+        writeTypeCpIndex(bxmlType.constraint);
     }
 
     @Override

@@ -43,3 +43,6 @@ var customerTable = table [
 ];
 
 Customer customer = customerTable[222];
+
+table<int> tableWithInvalidConstarint = table [];
+

@@ -3399,6 +3399,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitDeprecatedParametersDocumentation(BallerinaParser.DeprecatedParametersDocumentationContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+        this.pkgBuilder.endDeprecatedParametersDocumentation(getCurrentPos(ctx.getParent()), getWS(ctx));
+    }
+
+    @Override
     public void exitTrapExpression(BallerinaParser.TrapExpressionContext ctx) {
         if (isInErrorState) {
             return;

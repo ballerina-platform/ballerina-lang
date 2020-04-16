@@ -54,4 +54,7 @@ public class GetElementType {
 
         return (TypedescValue) BValueCreator.createTypedescValue(BTypes.typeNull);
     }
+    public static TypedescValue getElementType_bstring(Strand strand, Object td) {
+        return getElementType(strand, td);
+    }
 }

@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 
 any[] outputs = [];
 int counter = 0;
@@ -10,11 +9,14 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = s[0];
+    foreach var str in s {
+    outputs[counter] = str;
     counter += 1;
+    }
+    
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     Person p = {
         name: "John",
@@ -30,9 +32,13 @@ function testFunc() {
 
     // Invoke the main function.
     main();
-    test:assertEquals(outputs.length(), 4);
-    test:assertEquals(outputs[0], p);
-    test:assertEquals(outputs[1], "Santa Clara");
-    test:assertEquals(outputs[2], ());
-    test:assertEquals(outputs[3], "San Jose");
+    test:assertEquals(outputs[0], "Age: ");
+    test:assertEquals(outputs[1], ());
+    test:assertEquals(outputs[2], "Age: ");
+    test:assertEquals(outputs[3], 24);
+    test:assertEquals(outputs[4], p);
+    test:assertEquals(outputs[5], "Santa Clara");
+    test:assertEquals(outputs[6], ());
+    test:assertEquals(outputs[7], ());
+    test:assertEquals(outputs[8], "San Jose");
 }

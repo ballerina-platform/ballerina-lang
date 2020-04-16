@@ -50,6 +50,8 @@ public class TestSuite {
     private List<String> afterEachFunctionNames = new ArrayList<>();
     private List<Test> tests = new ArrayList<>();
 
+    private boolean isReportRequired;
+
     /**
      * Key - unique identifier for the function to be mocked.
      * Value - name of the mock function
@@ -209,5 +211,13 @@ public class TestSuite {
 
     public void addTests(Test tests) {
         this.tests.add(tests);
+    }
+
+    public boolean isReportRequired() {
+        return isReportRequired;
+    }
+
+    public void setReportRequired(boolean reportRequired) {
+        isReportRequired = reportRequired;
     }
 }

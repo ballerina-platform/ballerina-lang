@@ -22,7 +22,6 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpResourceArguments;
 import org.ballerinalang.net.uri.URITemplateException;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -36,19 +35,19 @@ import java.util.Map;
 public abstract class Node<DataType, InboundMsgType> {
 
     protected String token;
-    protected DataElement<DataType, InboundMsgType> dataElement;
-    protected List<Node<DataType, InboundMsgType>> childNodesList = new LinkedList<>();
+    DataElement<DataType, InboundMsgType> dataElement;
+    List<Node<DataType, InboundMsgType>> childNodesList = new LinkedList<>();
 
     protected Node(DataElement<DataType, InboundMsgType> dataElement, String token) {
         this.dataElement = dataElement;
         this.token = token;
     }
 
-    public DataElement<DataType, InboundMsgType> getDataElement() {
+    DataElement<DataType, InboundMsgType> getDataElement() {
         return dataElement;
     }
 
-    public Node<DataType, InboundMsgType> addChild(Node<DataType, InboundMsgType> childNode)
+    Node<DataType, InboundMsgType> addChild(Node<DataType, InboundMsgType> childNode)
             throws URITemplateException {
         Node<DataType, InboundMsgType> node = childNode;
         Node<DataType, InboundMsgType> matchingChildNode = getMatchingChildNode(childNode, childNodesList);
@@ -58,7 +57,7 @@ public abstract class Node<DataType, InboundMsgType> {
             this.childNodesList.add(node);
         }
 
-        Collections.sort(childNodesList, (o1, o2) -> getIntValue(o2) - getIntValue(o1));
+        childNodesList.sort((o1, o2) -> getIntValue(o2) - getIntValue(o1));
 
         return node;
     }

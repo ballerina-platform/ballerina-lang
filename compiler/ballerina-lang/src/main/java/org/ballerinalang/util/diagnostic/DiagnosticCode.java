@@ -36,7 +36,9 @@ public enum DiagnosticCode {
     REDECLARED_BUILTIN_SYMBOL("redeclared.builtin.symbol"),
     UNDEFINED_SYMBOL("undefined.symbol"),
     UNDEFINED_FUNCTION("undefined.function"),
-    UNDEFINED_FUNCTION_IN_OBJECT("undefined.function.in.object"),
+    UNDEFINED_FUNCTION_IN_TYPE("undefined.function.in.type"),
+    UNDEFINED_METHOD_IN_OBJECT("undefined.method.in.object"),
+    UNDEFINED_FIELD_IN_RECORD("undefined.field.in.record"),
     UNDEFINED_CONNECTOR("undefined.connector"),
     INVALID_ERROR_REASON_TYPE("invalid.error.reason.type"),
     UNSUPPORTED_ERROR_REASON_CONST_MATCH("error.match.over.const.reason.ref.not.supported"),
@@ -500,6 +502,7 @@ public enum DiagnosticCode {
     METHOD_SIGNATURE_DOES_NOT_MATCH("method.signature.not.match"),
     INVALID_DEPRECATION_DOCUMENTATION("invalid.deprecation.documentation"),
     DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE("deprecation.documentation.should.available"),
+    DEPRECATED_PARAMETERS_DOCUMENTATION_NOT_ALLOWED("deprecated.parameters.documentation.not.allowed"),
     INVALID_ATTRIBUTE_REFERENCE("invalid.attribute.reference"),
     ;
     private String value;

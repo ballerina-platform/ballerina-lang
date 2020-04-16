@@ -164,6 +164,7 @@ public class Compiler {
         for (BLangPackage pkgNode : packages) {
             if (pkgNode.symbol != null) {
                 this.compilerDriver.compilePackage(pkgNode);
+                dlog.resetErrorCount();
             }
         }
         return packages;

@@ -612,29 +612,6 @@
       ]
     },
     {
-      "label": "ballerina/bir",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "bir",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/bir;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/io",
       "kind": "Module",
       "detail": "Module",
@@ -677,29 +654,6 @@
             }
           },
           "newText": "import ballerina/lang.'array;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/jvm",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "jvm",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jvm;\n"
         }
       ]
     },
