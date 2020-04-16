@@ -38,7 +38,13 @@ public class Http2BaseTest extends BaseTest {
 
     @BeforeGroups(value = "http2-test", alwaysRun = true)
     public void start() throws BallerinaTestException {
-        int[] requiredPorts = new int[]{7090, 9090, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9107, 9108, 9109};
+        int[] requiredPorts = new int[]{7090, 9090, 9092, 9093, 9094, 9095, 9096, 9097, 9098, 9099, 9107, 9108, 9109,
+                                        9110};
+
+        String privateKey = StringEscapeUtils.escapeJava(Paths.get("src", "test", "resources", "certsAndKeys",
+                "private.key").toAbsolutePath().toString());
+        String publicCert = StringEscapeUtils.escapeJava(
+                Paths.get("src", "test", "resources", "certsAndKeys", "public.crt").toAbsolutePath().toString());
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "http2").getAbsolutePath();
@@ -48,7 +54,8 @@ public class Http2BaseTest extends BaseTest {
         String trustStore = StringEscapeUtils.escapeJava(
                 Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
                         .toString());
-        String[] args = new String[] { "--keystore=" + keyStore, "--truststore=" + trustStore };
+        String[] args = new String[] { "--certificate.key=" + privateKey, "--public.cert=" + publicCert,
+                "--keystore=" + keyStore, "--truststore=" + trustStore };
         serverInstance = new BServerInstance(balServer);
         serverInstance.startServer(balFile, "http2services", null, args, requiredPorts);
     }

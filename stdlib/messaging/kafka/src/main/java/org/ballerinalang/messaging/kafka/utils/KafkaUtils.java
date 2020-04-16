@@ -18,9 +18,6 @@
 
 package org.ballerinalang.messaging.kafka.utils;
 
-import org.apache.avro.Schema;
-import org.apache.avro.generic.GenericRecord;
-import org.apache.avro.util.Utf8;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -35,7 +32,6 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
@@ -53,6 +49,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 import static org.ballerinalang.jvm.BallerinaValues.createRecord;
+import static org.ballerinalang.messaging.kafka.utils.AvroUtils.handleAvroConsumer;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_CONCURRENT_CONSUMERS;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_DECOUPLE_PROCESSING;
 import static org.ballerinalang.messaging.kafka.utils.KafkaConstants.ALIAS_OFFSET;
@@ -521,10 +518,6 @@ public class KafkaUtils {
 
     public static MapValue<String, Object> populateConsumerRecord(ConsumerRecord record, String keyType,
                                                                   String valueType) {
-        if (Objects.isNull(record)) {
-            return null;
-        }
-
         Object key = null;
         if (Objects.nonNull(record.key())) {
             key = getBValues(record.key(), keyType);
@@ -540,7 +533,7 @@ public class KafkaUtils {
             if (value instanceof byte[]) {
                 return BValueCreator.createArrayValue((byte[]) value);
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: byte[]");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: byte[]");
             }
         } else if (KafkaConstants.SERDES_STRING.equals(type)) {
             if (value instanceof String) {
@@ -548,43 +541,26 @@ public class KafkaUtils {
                 return value;
                 // return StringUtils.fromString((String) value);
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: string");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: string");
             }
         } else if (KafkaConstants.SERDES_INT.equals(type)) {
             if (value instanceof Long) {
                 return value;
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: int");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: int");
             }
         } else if (KafkaConstants.SERDES_FLOAT.equals(type)) {
             if (value instanceof Double) {
                 return value;
             } else {
-                throw new BLangRuntimeException("Invalid type - expected: float");
+                throw createKafkaError(CONSUMER_ERROR, "Invalid type - expected: float");
             }
         } else if (SERDES_AVRO.equals(type)) {
-            if (value instanceof GenericRecord) {
-                MapValue<String, Object> genericAvroRecord = getAvroGenericRecord();
-                populateBallerinaGenericAvroRecord(genericAvroRecord, (GenericRecord) value);
-                return genericAvroRecord;
-            }
+            return handleAvroConsumer(value);
         } else if (SERDES_CUSTOM.equals(type)) {
             return value;
         }
         throw createKafkaError("Unexpected type found for consumer record", CONSUMER_ERROR);
-    }
-
-    private static void populateBallerinaGenericAvroRecord(MapValue genericAvroRecord, GenericRecord record) {
-        List<Schema.Field> fields = record.getSchema().getFields();
-        for (Schema.Field field : fields) {
-            if (record.get(field.name()) instanceof Utf8) {
-                genericAvroRecord.put(field.name(), record.get(field.name()).toString());
-            } else if (record.get(field.name()) instanceof GenericRecord) {
-                populateBallerinaGenericAvroRecord(genericAvroRecord, (GenericRecord) record.get(field.name()));
-            } else {
-                genericAvroRecord.put(field.name(), record.get(field.name()));
-            }
-        }
     }
 
     public static MapValue<String, Object> getConsumerRecord() {

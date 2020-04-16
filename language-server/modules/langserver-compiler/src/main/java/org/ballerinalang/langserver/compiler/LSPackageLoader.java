@@ -23,7 +23,6 @@ import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -32,7 +31,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Loads the Ballerina builtin core and builtin packages.
@@ -75,9 +73,6 @@ public class LSPackageLoader {
      * @return {@link BLangPackage} Resolved BLang Package
      */
     public static Optional<BPackageSymbol> getPackageSymbolById(CompilerContext context, PackageID packageID) {
-        if (isLangLib(packageID)) {
-            return Optional.empty();
-        }
         BPackageSymbol packageSymbol;
         synchronized (LSPackageLoader.class) {
             PackageLoader pkgLoader = PackageLoader.getInstance(context);
@@ -106,7 +101,7 @@ public class LSPackageLoader {
                     if (packageNames != null) {
                         for (String name : packageNames) {
                             if (name == null || ("ballerina".equals(repo) && name.contains("__internal"))
-                                    || name.contains(".balx") || name.equals("lang.annotations")) {
+                                    || name.contains(".balx")) {
                                 continue;
                             }
                             BallerinaPackage ballerinaPackage = new BallerinaPackage(repo, name, null);
@@ -199,18 +194,5 @@ public class LSPackageLoader {
             packageList.add(new BallerinaPackage(pkg.packageID.orgName.value, moduleName, pkg.packageID.version.value));
         }
         return packageList;
-    }
-
-    /**
-     * Whether the given package is a lang lib.
-     *
-     * @param packageID Package ID to evaluate
-     * @return {@link Boolean} whether package is a lang lib
-     */
-    private static boolean isLangLib(PackageID packageID) {
-        String orgName = packageID.orgName.value;
-        List<String> nameComps = packageID.nameComps.stream().map(Name::getValue).collect(Collectors.toList());
-
-        return orgName.equals("ballerina") && nameComps.get(0).equals("lang");
     }
 }

@@ -208,8 +208,8 @@ function testLetExpressionTupleBindingComplex() {
 
 function testLetExpressionTupleBindingRef() {
     [[string, [int, [boolean, byte]]], [float, int]] v1 = [["Ballerina", [3, [true, 34]]], [5.6, 45]];
-    int b = let [[string, [int, [boolean, byte]]], [float, int]] [[d1, [d2, [d3, d4]]], [d5, d6]] = v1, int x = 2
-            in  d2 + d4 + x;
+    int b = let    [   [   string  ,   [  int  , [  boolean , byte ]  ]  ],   [  float  , int  ]  ] [ [ d1 , [ d2 ,[ d3, d4] ] ],  [ d5, d6]] = v1, int x = 2
+        in d2 + d4 + x;
     assertTrue(b == 39, "b == 39");
 }
 
@@ -236,7 +236,7 @@ function testLetExpressionErrorBindingVar() {
 }
 
 function testLetExpressionRecordConstrainedErrorBinding() {
-     string msg = let var error(_, detailMsg = detailMsg, isFatal = isFatal) = getRecordConstrainedError() in detailMsg;
+     string msg = let var error(    _   ,  detailMsg  =  detailMsg ,  isFatal  =  isFatal ) = getRecordConstrainedError() in detailMsg;
      assertTrue(msg == "Failed Message", "msg == \"Failed Message\"");
 }
 

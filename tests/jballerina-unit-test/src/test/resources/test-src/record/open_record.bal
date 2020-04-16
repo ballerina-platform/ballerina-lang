@@ -574,3 +574,37 @@ function removeIfHasKeyRest() {
          panic error("Returned value should be nil.");
     }
 }
+
+int a = 10;
+
+type Foo2 record {
+    int a;
+    int b = a;
+};
+
+function testScopingRules() {
+    Foo2 f = {a: 20};
+    assert(<Foo2>{a: 20, b: 10}, f);
+
+    record {
+        int a;
+        int b = a;
+        record {
+            int p = a;
+        } c = {};
+    } f2 = {a: 20};
+
+    assert(<record {int a; int b; record {int p;} c;}>{a: 20, b: 10, c: {p: 10}}, f2);
+}
+
+// Util functions
+
+function assert(anydata expected, anydata actual) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        panic error(reason);
+    }
+}

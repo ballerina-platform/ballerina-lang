@@ -80,7 +80,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -718,14 +717,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableLiteral tableLiteral) {
-        tableLiteral.tableDataRows = rewriteExprs(tableLiteral.tableDataRows);
-        tableLiteral.indexColumnsArrayLiteral = rewriteExpr(tableLiteral.indexColumnsArrayLiteral);
-        tableLiteral.keyColumnsArrayLiteral = rewriteExpr(tableLiteral.keyColumnsArrayLiteral);
-        result = tableLiteral;
-    }
-
-    @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
         result = varRefExpr;
     }
@@ -1307,7 +1298,15 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangStatementExpression bLangStatementExpression) {
         bLangStatementExpression.expr = rewriteExpr(bLangStatementExpression.expr);
-        bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt, env);
+        if (bLangStatementExpression.stmt.getKind() == NodeKind.BLOCK) {
+            BLangBlockStmt bLangBlockStmt = (BLangBlockStmt) bLangStatementExpression.stmt;
+            for (int i = 0; i < bLangBlockStmt.stmts.size(); i++) {
+                BLangStatement stmt = bLangBlockStmt.stmts.remove(i);
+                bLangBlockStmt.stmts.add(i, rewrite(stmt, env));
+            }
+        } else {
+            bLangStatementExpression.stmt = rewrite(bLangStatementExpression.stmt, env);
+        }
         result = bLangStatementExpression;
     }
 

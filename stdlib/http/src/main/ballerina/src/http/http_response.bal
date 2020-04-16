@@ -87,9 +87,10 @@ public type Response object {
     # these values is returned.
     #
     # + headerName - The header name
-    # + position - Represents the position of the header as an optional parameter
-    # + return - The first header value for the specified header name. An exception is thrown if no header is found. Use
-    #            `Response.hasHeader()` beforehand to check the existence of header.
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the entity-body of the `Response` must be accessed initially.
+    # + return - The first header value for the specified header name. Panic if the header is not found. Use the
+    #            `Response.hasHeader()` beforehand to check the existence of a header.
     public function getHeader(string headerName, public mime:HeaderPosition position = mime:LEADING)
                                                                                             returns @tainted string {
         mime:Entity entity = self.getEntityWithoutBody();
@@ -100,7 +101,8 @@ public type Response object {
     #
     # + headerName - The header name
     # + headerValue - The header value
-    # + position - Represents the position of the header as an optional parameter
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the entity-body of the `Response` must be accessed initially.
     public function addHeader(string headerName, string headerValue, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
         entity.addHeader(headerName, headerValue, position);
@@ -109,9 +111,10 @@ public type Response object {
     # Gets all the header values to which the specified header key maps to.
     #
     # + headerName - The header name
-    # + position - Represents the position of the header as an optional parameter
-    # + return - The header values the specified header key maps to. An exception is thrown if no header is found. Use
-    #            `Response.hasHeader()` beforehand to check the existence of header.
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the entity-body of the `Response` must be accessed initially.
+    # + return - The header values the specified header key maps to. Panic if the header is not found. Use the
+    #            `Response.hasHeader()` beforehand to check the existence of a header.
     public function getHeaders(string headerName, public mime:HeaderPosition position = mime:LEADING)
                                                                                             returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();
@@ -123,7 +126,8 @@ public type Response object {
     #
     # + headerName - The header name
     # + headerValue - The header value
-    # + position - Represents the position of the header as an optional parameter
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the entity-body of the `Response` must be accessed initially.
     public function setHeader(string headerName, string headerValue, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
         entity.setHeader(headerName, headerValue, position);
@@ -137,7 +141,8 @@ public type Response object {
     # Removes the specified header from the response.
     #
     # + key - The header name
-    # + position - Represents the position of the header as an optional parameter
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the entity-body of the `Response` must be accessed initially.
     public function removeHeader(string key, public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
         entity.removeHeader(key, position);
@@ -145,7 +150,8 @@ public type Response object {
 
     # Removes all the headers from the response.
     #
-    # + position - Represents the position of the header as an optional parameter
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the entity-body of the `Response` must be accessed initially.
     public function removeAllHeaders(public mime:HeaderPosition position = mime:LEADING) {
         mime:Entity entity = self.getEntityWithoutBody();
         entity.removeAllHeaders(position);
@@ -153,7 +159,8 @@ public type Response object {
 
     # Gets all the names of the headers of the response.
     #
-    # + position - Represents the position of the header as an optional parameter
+    # + position - Represents the position of the header as an optional parameter. If the position is `mime:TRAILING`,
+    #              the entity-body of the `Response` must be accessed initially.
     # + return - An array of all the header names
     public function getHeaderNames(public mime:HeaderPosition position = mime:LEADING) returns @tainted string[] {
         mime:Entity entity = self.getEntityWithoutBody();

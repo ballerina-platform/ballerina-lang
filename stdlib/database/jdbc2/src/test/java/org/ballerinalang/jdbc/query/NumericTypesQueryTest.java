@@ -62,6 +62,7 @@ public class NumericTypesQueryTest {
     @Test
     public void testQuery() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testQuery", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertTrue(returnVal[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(result.size(), 10);
@@ -81,6 +82,7 @@ public class NumericTypesQueryTest {
     @Test
     public void testQueryNumericTypeRecord() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testQueryNumericTypeRecord", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertEquals(returnVal[0].getType().getName(), "NumericType");
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(result.size(), 10);
@@ -108,6 +110,7 @@ public class NumericTypesQueryTest {
     @Test
     public void testQueryNumericOptionalTypeRecord() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testQueryNumericOptionalTypeRecord", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertEquals(returnVal[0].getType().getName(), "NumericOptionalType");
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(result.size(), 10);
@@ -127,6 +130,7 @@ public class NumericTypesQueryTest {
     @Test
     public void testQueryNumericUnionTypeRecord() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testQueryNumericUnionTypeRecord", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertEquals(returnVal[0].getType().getName(), "NumericUnionType");
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(result.size(), 10);
@@ -146,6 +150,7 @@ public class NumericTypesQueryTest {
     @Test
     public void testQueryNumericStringTypeRecord() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testQueryNumericStringTypeRecord", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertEquals(returnVal[0].getType().getName(), "NumericStringType");
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(result.size(), 10);
@@ -165,6 +170,7 @@ public class NumericTypesQueryTest {
     @Test
     public void testQueryNumericCustomTypeRecord() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testQueryNumericCustomTypeRecord", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertEquals(returnVal[0].getType().getName(), "NumericCustomType");
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(result.size(), 10);
@@ -184,6 +190,7 @@ public class NumericTypesQueryTest {
     @Test
     public void testQueryFromNullTable() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testQueryFromNullTable", args);
+        SQLDBUtils.assertNotError(returnVal[0]);
         Assert.assertEquals(returnVal[0].getType().getTag(), TypeTags.ARRAY);
         Assert.assertEquals(returnVal[0].size(), 2);
         Assert.assertTrue(((BValueArray) returnVal[0]).getRefValue(1) instanceof BMap);

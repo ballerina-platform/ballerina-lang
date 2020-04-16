@@ -708,7 +708,7 @@ class JvmValueGen {
                 i += 1;
             }
 
-            this.createRecordGetDefaultCase(mv, defaultCaseLabel, strKeyVarIndex);
+            this.createRecordGetDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
             mv.visitMaxs(0, 0);
             mv.visitEnd();
         }
@@ -912,7 +912,7 @@ class JvmValueGen {
             // default case
             mv.visitLabel(defaultCaseLabel);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitVarInsn(ALOAD, strKeyVarIndex);
+            mv.visitVarInsn(ALOAD, fieldNameRegIndex);
             mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "containsKey", String.format("(L%s;)Z", OBJECT), false);
             mv.visitInsn(IRETURN);
 

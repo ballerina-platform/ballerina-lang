@@ -23,6 +23,7 @@ import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
@@ -81,6 +82,7 @@ import org.wso2.transport.http.netty.contract.exceptions.ClientConnectorExceptio
 import org.wso2.transport.http.netty.contract.exceptions.ConnectionTimedOutException;
 import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contract.exceptions.PromiseRejectedException;
+import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.exceptions.SslException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
@@ -151,6 +153,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_MODULE_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.LISTENER_CONFIGURATION;
 import static org.ballerinalang.net.http.HttpConstants.MODULE;
+import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_CERTIFICATE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE;
@@ -208,7 +211,7 @@ public class HttpUtil {
     private static final Logger log = LoggerFactory.getLogger(HttpUtil.class);
 
     private static final String METHOD_ACCESSED = "isMethodAccessed";
-    private static final String IO_EXCEPTION_OCCURED = "I/O exception occurred";
+    private static final String IO_EXCEPTION_OCCURRED = "I/O exception occurred";
     private static final String CHUNKING_CONFIG = "chunking_config";
 
     /**
@@ -300,6 +303,11 @@ public class HttpUtil {
                 } else {
                     entityObj.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
                 }
+            } else {
+                if (HttpHeaderValues.CHUNKED.toString().equals(
+                        httpCarbonMessage.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()))) {
+                    entityObj.addNativeData(TRANSPORT_MESSAGE, httpCarbonMessage);
+                }
             }
         }
         messageObj.set(request ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD, entityObj);
@@ -354,7 +362,7 @@ public class HttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.respond(responseMsg);
-        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
+        } catch (ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }
         return responseFuture;
@@ -373,7 +381,7 @@ public class HttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.pushResponse(pushResponse, pushPromise);
-        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
+        } catch (ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred while sending a server push message", e);
         }
         return responseFuture;
@@ -390,7 +398,7 @@ public class HttpUtil {
         HttpResponseFuture responseFuture;
         try {
             responseFuture = requestMsg.pushPromise(pushPromise);
-        } catch (org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException e) {
+        } catch (ServerConnectorException e) {
             throw new BallerinaConnectorException("Error occurred during response", e);
         }
         return responseFuture;
@@ -480,7 +488,7 @@ public class HttpUtil {
             return createHttpError(throwable);
         }
         if (throwable.getMessage() == null) {
-            return createHttpError(IO_EXCEPTION_OCCURED);
+            return createHttpError(IO_EXCEPTION_OCCURRED);
         } else {
             return createHttpError(throwable.getMessage());
         }
@@ -501,15 +509,13 @@ public class HttpUtil {
             return createHttpError(throwable.getMessage(), HttpErrorType.HTTP2_CLIENT_ERROR);
         } else if (throwable instanceof ConnectionTimedOutException) {
             cause = createErrorCause(throwable.getMessage(),
-                    IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
-                    IO_PACKAGE_ID,
-                    DETAIL_RECORD_TYPE_NAME);
+                                     IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
+                                     IO_PACKAGE_ID, DETAIL_RECORD_TYPE_NAME);
             return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
         } else if (throwable instanceof ClientConnectorException) {
             cause = createErrorCause(throwable.getMessage(),
-                    IOConstants.ErrorCode.GenericError.errorCode(),
-                    IO_PACKAGE_ID,
-                    DETAIL_RECORD_TYPE_NAME);
+                                     IOConstants.ErrorCode.GenericError.errorCode(),
+                                     IO_PACKAGE_ID, DETAIL_RECORD_TYPE_NAME);
             return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
         } else {
             return createHttpError(throwable.getMessage());
@@ -655,6 +661,7 @@ public class HttpUtil {
         MapValue mutualSslRecord = ValueCreatorUtils.createHTTPRecordValue(MUTUAL_SSL_HANDSHAKE_RECORD);
         mutualSslRecord.put(REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS,
                 inboundRequestMsg.getProperty(HttpConstants.MUTUAL_SSL_RESULT));
+        mutualSslRecord.put(MUTUAL_SSL_CERTIFICATE, inboundRequestMsg.getProperty(HttpConstants.BASE_64_ENCODED_CERT));
         inboundRequest.set(REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD, mutualSslRecord);
 
         enrichWithInboundRequestInfo(inboundRequest, inboundRequestMsg);

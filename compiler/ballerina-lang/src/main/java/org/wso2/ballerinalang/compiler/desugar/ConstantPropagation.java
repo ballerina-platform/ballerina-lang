@@ -75,7 +75,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -480,12 +479,6 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangNumericLiteral literalExpr) {
         result = literalExpr;
-    }
-
-    @Override
-    public void visit(BLangTableLiteral tableLiteral) {
-        rewrite(tableLiteral.tableDataRows);
-        result = tableLiteral;
     }
 
     @Override

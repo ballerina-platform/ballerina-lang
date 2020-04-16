@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -35,6 +34,7 @@ import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -49,7 +49,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -121,6 +120,7 @@ public class LSStandardLibCache {
         if (cacheUpdating || importPackages == null || importPackages.isEmpty()) {
             return;
         }
+        cacheUpdating = true;
         Set<String> cachedModules = topLevelNodeCache.asMap().keySet();
         List<BLangImportPackage> evalModules = importPackages.parallelStream()
                 .filter(importModule -> !cachedModules.contains(LSStdLibCacheUtil.getCacheableKey(importModule)))
@@ -128,7 +128,6 @@ public class LSStandardLibCache {
         // Populate cache entries in a separate thread
         new Thread(() -> {
             try {
-                cacheUpdating = true;
                 evalModules.forEach(module -> {
                     String orgName = module.getOrgName().getValue();
                     String moduleName = LSStdLibCacheUtil.getCacheableKey(module);
@@ -179,6 +178,7 @@ public class LSStandardLibCache {
         if (cacheUpdating) {
             return;
         }
+        cacheUpdating = true;
         new Thread(() -> {
             try {
                 for (String langLib : langLibs) {
@@ -197,30 +197,35 @@ public class LSStandardLibCache {
     private List<TopLevelNode> getNodesForModule(String moduleName) throws UnsupportedEncodingException {
         Compiler compiler = getCompiler(CommonUtil.LS_STDLIB_CACHE_DIR.resolve(moduleName).toString());
         BLangPackage bLangPackage = compiler.compile(moduleName);
-        return bLangPackage.topLevelNodes.stream()
-                .filter(topLevelNode -> {
-                    Set<Flag> flagSet;
-                    switch (topLevelNode.getKind()) {
-                        case FUNCTION:
-                            flagSet = ((BLangFunction) topLevelNode).flagSet;
-                            break;
-                        case TYPE_DEFINITION:
-                            flagSet = ((BLangTypeDefinition) topLevelNode).flagSet;
-                            break;
-                        case CONSTANT:
-                            flagSet = ((BLangConstant) topLevelNode).flagSet;
-                            break;
-                        // TODO: Handle XML Namespace Declarations
-                        case ANNOTATION:
-                            flagSet = ((BLangAnnotation) topLevelNode).flagSet;
-                            break;
-                        default:
-                            flagSet = new HashSet<>();
-                            break;
-                    }
-                    return flagSet.contains(Flag.PUBLIC);
-                })
-                .collect(Collectors.toList());
+        List<TopLevelNode> nodes = new ArrayList<>();
+        bLangPackage.getCompilationUnits().forEach(compilationUnit -> {
+            List<TopLevelNode> cNodes = compilationUnit.topLevelNodes.stream()
+                    .filter(topLevelNode -> {
+                        BLangIdentifier nodeName;
+                        switch (topLevelNode.getKind()) {
+                            case FUNCTION:
+                                nodeName = ((BLangFunction) topLevelNode).name;
+                                break;
+                            case TYPE_DEFINITION:
+                                nodeName = ((BLangTypeDefinition) topLevelNode).name;
+                                break;
+                            case CONSTANT:
+                                nodeName = ((BLangConstant) topLevelNode).name;
+                                break;
+                            // TODO: Handle XML Namespace Declarations
+                            case ANNOTATION:
+                                nodeName = ((BLangAnnotation) topLevelNode).name;
+                                break;
+                            default:
+                                nodeName = null;
+                                break;
+                        }
+                        return nodeName != null && !nodeName.getValue().contains("$");
+                    })
+                    .collect(Collectors.toList());
+            nodes.addAll(cNodes);
+        });
+        return nodes;
     }
 
     private CompilerContext createNewCompilerContext(String projectDir) {

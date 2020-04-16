@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -108,8 +107,6 @@ class TypeEmitter {
                 return emitBTypeDesc((BTypedescType) bType, tabs);
             case TypeTags.FINITE:
                 return emitBFiniteType((BFiniteType) bType, tabs);
-            case TypeTags.TABLE:
-                return emitBTableType((BTableType) bType, tabs);
             case TypeTags.HANDLE:
                 return emitBTypeHandle((BHandleType) bType, tabs);
             default:
@@ -337,15 +334,6 @@ class TypeEmitter {
         }
         str.append("]");
         return str.toString();
-    }
-
-    private static String emitBTableType(BTableType bType, int tabs) {
-
-        String str = "table";
-        str += "<";
-        str += emitTypeRef(bType.constraint, 0);
-        str += ">";
-        return str;
     }
 
     private static String emitBTypeHandle(BHandleType bType, int tabs) {

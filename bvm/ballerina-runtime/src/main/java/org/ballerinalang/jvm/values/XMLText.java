@@ -19,13 +19,12 @@ package org.ballerinalang.jvm.values;
 
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.impl.llom.CharacterDataImpl;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
@@ -55,6 +54,21 @@ public class XMLText extends XMLNonElementItem {
     @Override
     public String getItemType() {
         return getNodeType().value();
+    }
+
+    @Override
+    public Object copy(Map<Object, Object> refs) {
+        return this;
+    }
+
+    @Override
+    public Object frozenCopy(Map<Object, Object> refs) {
+        return this;
+    }
+
+    @Override
+    public synchronized boolean isFrozen() {
+        return true;
     }
 
     @Override
@@ -93,22 +107,12 @@ public class XMLText extends XMLNonElementItem {
     }
 
     @Override
-    public BString bStringValue() {
-        return StringUtils.fromString(stringValue());
-    }
-
-    @Override
     public IteratorValue getIterator() {
         return new IteratorValue() {
             boolean read = false;
             @Override
             public boolean hasNext() {
                 return !read;
-            }
-
-            @Override
-            public BString bStringValue() {
-                return null;
             }
 
             @Override

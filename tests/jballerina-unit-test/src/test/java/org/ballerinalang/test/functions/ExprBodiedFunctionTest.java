@@ -101,7 +101,7 @@ public class ExprBodiedFunctionTest {
                 {"testObjectInitBodyAsAnExpr"},
                 {"testObjectsAsExprBody"},
                 {"testAnonFuncsAsExprBody"},
-//                {"testReturningXML"}, @Test (groups = "brokenOnXMLLangLibChange")
+                {"testReturningXML"},
                 {"testReturningStringTemplate"},
                 {"testReturningServiceConstructors"},
                 {"testLetExprAsExprBody"},

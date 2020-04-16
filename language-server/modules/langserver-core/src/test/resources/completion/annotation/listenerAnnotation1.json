@@ -9,7 +9,7 @@
       "label": "openapi:ClientEndpoint",
       "kind": "Property",
       "detail": "Annotation",
-      "sortText": "120",
+      "sortText": "130",
       "insertText": "openapi:ClientEndpoint",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
@@ -27,6 +27,22 @@
           "newText": "import ballerina/openapi;\n"
         }
       ]
+    },
+    {
+      "label": "tainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "130",
+      "insertText": "tainted",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "untainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "130",
+      "insertText": "untainted",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

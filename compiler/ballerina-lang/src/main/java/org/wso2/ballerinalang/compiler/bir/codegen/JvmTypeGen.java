@@ -43,11 +43,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.TypeFlags;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -128,13 +128,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
@@ -754,8 +753,9 @@ class JvmTypeGen {
             mv.visitInsn(AASTORE);
             i += 1;
         }
-        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE, "setAttachedFuncsAndProcessAnnots",
-                String.format("(L%s;L%s;L%s;[L%s;)V", MAP_VALUE, STRAND, SERVICE_TYPE, ATTACHED_FUNCTION), false);
+        String funcName = isBString ? "setAttachedFuncsAndProcessAnnots_bstring" : "setAttachedFuncsAndProcessAnnots";
+        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE, funcName, String.format(
+                "(L%s;L%s;L%s;[L%s;)V", MAP_VALUE, STRAND, SERVICE_TYPE, ATTACHED_FUNCTION), false);
     }
 
     /**
@@ -1017,7 +1017,8 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.JSON) {
             typeFieldName = "typeJSON";
         } else if (bType.tag == TypeTags.XML) {
-            typeFieldName = "typeXML";
+            loadXmlType(mv, (BXMLType) bType);
+            return;
         } else if (bType.tag == TypeTags.XML_ELEMENT) {
             typeFieldName = "typeElement";
         } else if (bType.tag == TypeTags.XML_PI) {
@@ -1048,9 +1049,6 @@ class JvmTypeGen {
             return;
         } else if (bType.tag == TypeTags.MAP) {
             loadMapType(mv, (BMapType) bType);
-            return;
-        } else if (bType.tag == TypeTags.TABLE) {
-            loadTableType(mv, (BTableType) bType);
             return;
         } else if (bType.tag == TypeTags.STREAM) {
             loadStreamType(mv, (BStreamType) bType);
@@ -1149,22 +1147,22 @@ class JvmTypeGen {
     }
 
     /**
-     * Generate code to load an instance of the given table type
+     * Generate code to load an instance of the given xml sequence type
      * to the top of the stack.
      *
      * @param mv    method visitor
-     * @param bType table type to load
+     * @param bType xml type to load
      */
-    private static void loadTableType(MethodVisitor mv, BTableType bType) {
-        // Create an new table type
-        mv.visitTypeInsn(NEW, TABLE_TYPE);
+    private static void loadXmlType(MethodVisitor mv, BXMLType bType) {
+        // Create an new xml type
+        mv.visitTypeInsn(NEW, XML_TYPE);
         mv.visitInsn(DUP);
 
         // Load the constraint type
         loadType(mv, bType.constraint);
 
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
     }
 
     private static void loadStreamType(MethodVisitor mv, BStreamType bType) {
@@ -1379,8 +1377,6 @@ class JvmTypeGen {
             return String.format("L%s;", MAP_VALUE);
         } else if (bType.tag == TypeTags.TYPEDESC) {
             return String.format("L%s;", TYPEDESC_VALUE);
-        } else if (bType.tag == TypeTags.TABLE) {
-            return String.format("L%s;", TABLE_VALUE);
         } else if (bType.tag == TypeTags.STREAM) {
             return String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {

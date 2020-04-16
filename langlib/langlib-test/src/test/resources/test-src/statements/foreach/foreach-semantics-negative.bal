@@ -23,14 +23,14 @@ type Employee record {
     float salary;
 };
 
-table<Employee> data = table {
-    { key id, name, salary },
-    [
-        { 1, "Mary",  300.5 },
-        { 2, "John",  200.5 },
-        { 3, "Jim", 330.5 }
-    ]
-};
+//table<Employee> data = table {
+//    { key id, name, salary },
+//    [
+//        { 1, "Mary",  300.5 },
+//        { 2, "John",  200.5 },
+//        { 3, "Jim", 330.5 }
+//    ]
+//};
 
 function test1(){
     string[] data = ["mon", "tue", "wed", "thu", "fri"];
@@ -149,15 +149,15 @@ function test12() {
     }
 }
 
-function test13() {
-    output = "";
-    int i = 0;
-    foreach var {id, name, salary} in data {
-        id = 2;
-        name = "John";
-        salary = 250.5;
-    }
-}
+//function test13() {
+//    output = "";
+//    int i = 0;
+//    foreach var {id, name, salary} in data {
+//        id = 2;
+//        name = "John";
+//        salary = 250.5;
+//    }
+//}
 
 function test14() returns string {
     output = "";

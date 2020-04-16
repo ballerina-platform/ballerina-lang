@@ -280,8 +280,8 @@ public type Notification object {
     # these values is returned.
     #
     # + headerName - The header name
-    # + return - The first header value for the specified header name. An exception is thrown if no header is found.
-    #            Ideally `Notification.hasHeader()` needs to be used to check the existence of header initially.
+    # + return - The first header value for the specified header name. Panic if no header is found. Ideally, the
+    #            `Notification.hasHeader()` needs to be used to check the existence of a header initially.
     public function getHeader(string headerName) returns @tainted string {
         return self.request.getHeader(headerName);
     }
@@ -289,8 +289,8 @@ public type Notification object {
     # Retrieves all the header values to which the specified header key maps to.
     #
     # + headerName - The header name
-    # + return - The header values the specified header key maps to. An exception is thrown if no header is found.
-    #            Ideally `Notification.hasHeader()` needs to be used to check the existence of header initially.
+    # + return - The header values the specified header key maps to. Panic if no header is found. Ideally, the
+    #            `Notification.hasHeader()` needs to be used to check the existence of a header initially.
     public function getHeaders(string headerName) returns @tainted string[] {
         return self.request.getHeaders(headerName);
     }
@@ -540,6 +540,17 @@ public type Hub object {
     public string publishUrl;
     private http:Listener hubHttpListener;
 
+    # The initialization method for the Hub. Users of the `ballerina/websub` module must use the
+    # function `startHub()` to initialize a `websub:Hub` object.
+    #
+    # + subscriptionUrl - The URL for subscription changes
+    # + publishUrl - The URL for publishing and topic registration
+    # + hubHttpListener - The `http:Listener` to which the hub service should be attached
+    #
+    # # Deprecated
+    # Users of the `ballerina/websub` module must use the function `startHub()` to initialize a `websub:Hub`
+    # object instead of directly calling the initializer method.
+    @deprecated
     public function __init(string subscriptionUrl, string publishUrl, http:Listener hubHttpListener) {
          self.subscriptionUrl = subscriptionUrl;
          self.publishUrl = publishUrl;

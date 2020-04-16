@@ -24,7 +24,6 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -41,6 +40,8 @@ public class XMLAccessTest {
     CompileResult navigation;
     CompileResult negativeResult;
     CompileResult navigationNegative;
+    CompileResult navigationFilterNegative;
+
 
     @BeforeClass
     public void setup() {
@@ -49,6 +50,7 @@ public class XMLAccessTest {
         navigation = BCompileUtil.compile("test-src/types/xml/xml-navigation-access.bal");
         negativeResult = BCompileUtil.compile("test-src/types/xml/xml-indexed-access-negative.bal");
         navigationNegative = BCompileUtil.compile("test-src/types/xml/xml-nav-access-negative.bal");
+        navigationFilterNegative = BCompileUtil.compile("test-src/types/xml/xml-nav-access-negative-filter.bal");
     }
 
     @Test
@@ -157,35 +159,34 @@ public class XMLAccessTest {
     public void testXMLNavigationOnSequenceWithNamespaces() {
         BValue[] returns = BRunUtil.invoke(navigation, "testXMLNavigationOnSequenceWithNamespaces");
         Assert.assertEquals(returns[0].stringValue(),
-                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\">B</ns:child>");
+                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\" xmlns=\"foo\">B</ns:child>");
         Assert.assertEquals(returns[1].stringValue(),
-                "<child xmlns=\"foo\">A</child>" +
-                        "<ns:child xmlns:ns=\"foo\">B</ns:child>" +
-                        "<k:child xmlns:k=\"bar\">C</k:child><it-child xmlns=\"foo\">D</it-child>TEXT");
+                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\" xmlns=\"foo\">B</ns:child>" +
+                        "<k:child xmlns:k=\"bar\" xmlns=\"foo\">C</k:child><it-child xmlns=\"foo\">D</it-child>TEXT");
         Assert.assertEquals(returns[2].stringValue(),
                 "<child xmlns=\"foo\">A</child>" +
-                        "<ns:child xmlns:ns=\"foo\">B</ns:child>" +
+                        "<ns:child xmlns:ns=\"foo\" xmlns=\"foo\">B</ns:child>" +
                         "<it-child xmlns=\"foo\">D</it-child>");
         Assert.assertEquals(returns[3].stringValue(),
-                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\">B</ns:child>");
+                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\" xmlns=\"foo\">B</ns:child>");
         Assert.assertEquals(returns[4].stringValue(),
-                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\">B</ns:child>");
+                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\" xmlns=\"foo\">B</ns:child>");
     }
 
     @Test
     public void testXMLNavigationOnSequenceWithNamespacesAndMultipleFilters() {
         BValue[] returns = BRunUtil.invoke(navigation, "testXMLNavigationOnSequenceWithNamespacesAndMultipleFilters");
         Assert.assertEquals(returns[0].stringValue(),
-                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\">B</ns:child>" +
+                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\" xmlns=\"foo\">B</ns:child>" +
                         "<child2 xmlns=\"foo\">D</child2>");
         Assert.assertEquals(returns[2].stringValue(),
-                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\">B</ns:child>" +
+                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\" xmlns=\"foo\">B</ns:child>" +
                         "<child2 xmlns=\"foo\">D</child2>");
         Assert.assertEquals(returns[3].stringValue(),
-                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\">B</ns:child>" +
-                        "<k:child xmlns:k=\"bar\">C</k:child><child2 xmlns=\"foo\">D</child2>");
+                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\" xmlns=\"foo\">B</ns:child>" +
+                        "<k:child xmlns:k=\"bar\" xmlns=\"foo\">C</k:child><child2 xmlns=\"foo\">D</child2>");
         Assert.assertEquals(returns[4].stringValue(),
-                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\">B</ns:child>" +
+                "<child xmlns=\"foo\">A</child><ns:child xmlns:ns=\"foo\" xmlns=\"foo\">B</ns:child>" +
                         "<child2 xmlns=\"foo\">D</child2>");
     }
 
@@ -213,9 +214,15 @@ public class XMLAccessTest {
 
     @Test
     public void testInvalidXMLAccessWithIndex() {
-        BAssertUtil.validateError(negativeResult, 0, "cannot update an xml sequence", 5, 5);
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "cannot update an xml sequence", 5, 5);
+        BAssertUtil.validateError(negativeResult, i++, "cannot update an xml sequence", 13, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid assignment in variable 'x1/*'", 13, 5);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 18, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 19, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 20, 15);
 
-        BAssertUtil.validateError(negativeResult, 1, "cannot update an xml sequence", 13, 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test
@@ -230,19 +237,6 @@ public class XMLAccessTest {
 
         Assert.assertTrue(returns[2] instanceof BXML);
         Assert.assertEquals(returns[2].stringValue(), "<name>supun</name>");
-    }
-    
-    @Test (groups = "brokenOnXMLLangLibChange", expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = ".*index out of range: index: 1, size: 1.*")
-    public void testXMLAccessWithOutOfIndex() {
-        BRunUtil.invoke(result, "testXMLAccessWithOutOfIndex");
-    }
-
-    @Test (groups = "brokenOnXMLLangLibChange", expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.xml\\}XMLOperationError " +
-                    "message=IndexOutOfRange Index: 5, Size: 3.*")
-    public void testXMLSequenceAccessWithOutOfIndex() {
-        BRunUtil.invoke(result, "testXMLSequenceAccessWithOutOfIndex");
     }
 
     @Test
@@ -263,13 +257,22 @@ public class XMLAccessTest {
         String navIndexingMessage = "index operations are not yet supported within XML navigation expressions, " +
                 "use a grouping expression (parenthesis) " +
                 "if you intend to index the result of the navigation expression.";
-        Assert.assertEquals(navigationNegative.getErrorCount(), 7);
-        BAssertUtil.validateError(navigationNegative, 0, methodInvocMessage, 3, 14);
-        BAssertUtil.validateError(navigationNegative, 1, methodInvocMessage, 4, 14);
-        BAssertUtil.validateError(navigationNegative, 2, methodInvocMessage, 5, 14);
-        BAssertUtil.validateError(navigationNegative, 3, methodInvocMessage, 6, 14);
-        BAssertUtil.validateError(navigationNegative, 4, methodInvocMessage, 7, 14);
-        BAssertUtil.validateError(navigationNegative, 5, navIndexingMessage, 8, 14);
-        BAssertUtil.validateError(navigationNegative, 6, navIndexingMessage, 9, 14);
+        int i = 0;
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 3, 14);
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 4, 14);
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 5, 14);
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 6, 14);
+        BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 7, 14);
+        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 8, 14);
+        BAssertUtil.validateError(navigationNegative, i++, navIndexingMessage, 9, 14);
+        Assert.assertEquals(navigationNegative.getErrorCount(), i);
+    }
+
+    @Test void testXMLFilterExpressionsNegative() {
+        BAssertUtil.validateError(navigationFilterNegative, 0,
+                "incompatible types: expected 'xml', found 'any'", 4, 14);
+        BAssertUtil.validateError(navigationFilterNegative, 1,
+                "incompatible types: expected 'xml', found 'int'", 6, 14);
+        Assert.assertEquals(navigationFilterNegative.getErrorCount(), 2);
     }
 }

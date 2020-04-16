@@ -11,7 +11,7 @@
                     "documentation": {
                         "right": {
                             "kind": "markdown",
-                            "value": "**Description**  \nDefault error type.\nThe first type parameter discribe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
+                            "value": "**Description**  \nDefault error type.\nThe first type parameter describe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
                         }
                     },
                     "parameters": [

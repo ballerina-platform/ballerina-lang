@@ -31,7 +31,6 @@ import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 
-import static java.lang.String.format;
 import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
@@ -52,10 +51,12 @@ public class MapUtils {
                 if (!TypeChecker.checkIsType(value, ((BMapType) mapType).getConstrainedType())) {
                     BType expType = ((BMapType) mapType).getConstrainedType();
                     BType valuesType = TypeChecker.getType(value);
-                    throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                            INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType,
-                                    valuesType));
+                    throw BallerinaErrors.createError(
+                            StringUtils.fromString(getModulePrefixedReason(MAP_LANG_LIB,
+                                                                           INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER)),
+                            StringUtils.fromString(
+                                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION, expType,
+                                                                         valuesType)));
                 }
                 mapValue.put(fieldName, value);
                 break;
@@ -74,19 +75,22 @@ public class MapUtils {
                 } else {
                     // If both of the above conditions fail, the implication is that this is an attempt to insert a
                     // value to a non-existent field in a closed record.
-                    throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR,
-                            //TODO: bstring - remove getValue after migrating error value
-                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RECORD_FIELD_ACCESS,
-                                    fieldName.getValue(), recType));
+                    throw BallerinaErrors.createError(
+                            StringUtils.fromString(MAP_KEY_NOT_FOUND_ERROR),
+                            StringUtils.fromString(
+                                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RECORD_FIELD_ACCESS,
+                                                                         fieldName.getValue(), recType)));
                 }
 
                 if (!TypeChecker.checkIsType(value, recFieldType)) {
                     BType valuesType = TypeChecker.getType(value);
-                    throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                            INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                            //TODO: bstring - remove getValue after migrating error value
-                            BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_RECORD_FIELD_ADDITION,
-                                    fieldName.getValue(), recFieldType, valuesType));
+                    throw BallerinaErrors.createError(
+                            StringUtils.fromString(getModulePrefixedReason(MAP_LANG_LIB,
+                                                                           INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER)),
+                            StringUtils.fromString(
+                                    BLangExceptionHelper.getErrorMessage(
+                                            RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName.getValue(),
+                                            recFieldType, valuesType)));
                 }
 
                 mapValue.put(fieldName, value);
@@ -144,7 +148,7 @@ public class MapUtils {
     public static ErrorValue createOpNotSupportedError(BType type, String op) {
         return BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
                                                                    OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                                           format("%s not supported on type '%s'", op, type.getQualifiedName()));
+                                           String.format("%s not supported on type '%s'", op, type.getQualifiedName()));
     }
 
     public static void checkIsMapOnlyOperation(BType mapType, String op) {
@@ -186,8 +190,8 @@ public class MapUtils {
     }
 
     private static ErrorValue createOpNotSupportedErrorForRecord(BType type, String field) {
-        return BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                OPERATION_NOT_SUPPORTED_IDENTIFIER),
-                format("failed to remove field: '%s' is a required field in '%s'", field, type.getQualifiedName()));
+        return BallerinaErrors.createError(getModulePrefixedReason(
+                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), String.format(
+                "failed to remove field: '%s' is a required field in '%s'", field, type.getQualifiedName()));
     }
 }

@@ -22,7 +22,6 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
-import org.ballerinalang.packerina.model.ExecutableJar;
 import org.ballerinalang.tool.util.BFileUtil;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -30,11 +29,6 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -46,7 +40,6 @@ import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.JAVA_MAIN;
 
 /**
  * Task for running the executable.
@@ -122,10 +115,6 @@ public class RunExecutableTask implements Task {
 
         // set the source root path relative to the source path i.e. set the parent directory of the source path
         System.setProperty(ProjectDirConstants.BALLERINA_SOURCE_ROOT, sourceRootPath.toString());
-        if (buildContext.getSourceType() == SINGLE_BAL_FILE) {
-            this.runGeneratedExecutableWithSameClassLoader(executableModule, buildContext);
-            return;
-        }
         this.runGeneratedExecutable(executableModule, buildContext);
     }
 
@@ -158,51 +147,18 @@ public class RunExecutableTask implements Task {
         }
     }
 
-    /**
-     * Run an executable that is generated from 'run bal' command.
-     *
-     * @param executableModule The module to run.
-     */
-    private void runGeneratedExecutableWithSameClassLoader(BLangPackage executableModule, BuildContext buildContext) {
-
-        ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(executableModule.packageID);
-        String initClassName = BFileUtil.getQualifiedClassName(executableModule.packageID.orgName.value,
-                executableModule.packageID.name.value,
-                MODULE_INIT_CLASS_NAME);
-        try {
-            URL[] urls = new URL[executableJar.moduleLibs.size() + 1];
-            urls[0] = buildContext.getJarPathFromTargetCache(executableModule.packageID).toUri().toURL();
-            int i = 1;
-            for (Path platformLib : executableJar.moduleLibs) {
-                urls[i++] = platformLib.toUri().toURL();
-            }
-            URLClassLoader classLoader = new URLClassLoader(urls);
-            Class<?> initClazz = classLoader.loadClass(initClassName);
-            Method mainMethod = initClazz.getDeclaredMethod(JAVA_MAIN, String[].class);
-            mainMethod.invoke(null, (Object) this.args);
-            if (!initClazz.getField("serviceEPAvailable").getBoolean(initClazz)) {
-                Runtime.getRuntime().exit(0);
-            }
-        } catch (MalformedURLException e) {
-            throw createLauncherException("loading jar file failed with given source path " + this.executableJarPath);
-        } catch (ClassNotFoundException e) {
-            throw createLauncherException("module init class with name " + initClassName + " cannot be found ");
-        } catch (NoSuchMethodException e) {
-            throw createLauncherException("main method cannot be found for init class " + initClassName);
-        } catch (IllegalAccessException | IllegalArgumentException e) {
-            throw createLauncherException("invoking main method failed due to " + e.getMessage());
-        } catch (InvocationTargetException | NoSuchFieldException e) {
-            throw createLauncherException("invoking main method failed due to ", e.getCause());
-        }
-    }
-
     private String getAllClassPaths(BLangPackage executableModule, BuildContext buildContext) {
         StringJoiner cp = new StringJoiner(File.pathSeparator);
         // Adds executable thin jar path.
         cp.add(this.executableJarPath.toString());
-        // Adds all the dependency paths.
+        // Adds all the dependency paths for modules.
         buildContext.moduleDependencyPathMap.get(executableModule.packageID).moduleLibs.forEach(path ->
                 cp.add(path.toString()));
+        // Adds bre/lib/* to the class-path since we need to have ballerina runtime related dependencies
+        // when running single bal files
+        if (buildContext.getSourceType().equals(SINGLE_BAL_FILE)) {
+            cp.add(buildContext.get(BuildContextField.HOME_REPO).toString() + "/bre/lib/*");
+        }
         return cp.toString();
     }
 }

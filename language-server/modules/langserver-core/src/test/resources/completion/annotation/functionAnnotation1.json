@@ -188,6 +188,14 @@
           "newText": "import ballerina/observe;\n"
         }
       ]
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
