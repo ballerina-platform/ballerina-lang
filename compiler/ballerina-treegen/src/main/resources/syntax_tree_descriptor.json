@@ -1377,7 +1377,7 @@
       "base": "ModuleMemberDeclaration",
       "kind": "MODULE_VAR_DECL",
       "attributes": [
-         {
+        {
           "name": "metadata",
           "type": "Metadata"
         },
@@ -1404,6 +1404,25 @@
         {
           "name": "semicolonToken",
           "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "IsExpression",
+      "base": "Expression",
+      "kind": "IS_EXPRESSION",
+      "attributes": [
+        {
+          "name": "expression",
+          "type": "Node"
+        },
+        {
+          "name": "isKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "typeDescriptor",
+          "type": "Node"
         }
       ]
     }
