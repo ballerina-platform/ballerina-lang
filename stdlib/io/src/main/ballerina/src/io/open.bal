@@ -89,3 +89,28 @@ public function openWritableCsvFile(@untainted string path,
     WritableCharacterChannel charChannel = new(byteChannel, charset);
     return new WritableCSVChannel(charChannel, fieldSeparator);
 }
+
+# Retrieves a ReadableByteChannel of the resource file from a given file path.
+#
+# + path - Relative/absolute path string to locate the resource file
+# + return - ByteChannel representation of the resource file or `Error` if any error occurred
+public function getResource(@untainted string path) returns @tainted ReadableByteChannel|Error {
+    return getResourceExtern(java:fromString(path));
+}
+
+function getResourceExtern(@untainted handle path) returns @tainted ReadableByteChannel|Error = @java:Method {
+    name: "getResource",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+} external;
+
+# Reads the resources directory and returns a list of files and directories # inside the resources directory.
+#
+# + return - Returns string array of resources.
+public function getResources() returns string[] {
+    return getResourcesExtern();
+}
+
+function getResourcesExtern() returns string[] = @java:Method {
+    name: "getResources",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+} external;
