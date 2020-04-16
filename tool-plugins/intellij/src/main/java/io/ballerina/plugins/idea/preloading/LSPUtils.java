@@ -63,7 +63,7 @@ import static io.ballerina.plugins.idea.BallerinaConstants.SYS_PROP_LS_TRACE;
  */
 public class LSPUtils {
 
-    private static BallerinaAutoDetectNotifier autoDetectNotifier = new BallerinaAutoDetectNotifier();
+    private static final BallerinaAutoDetectNotifier autoDetectNotifier = new BallerinaAutoDetectNotifier();
     private static final Logger LOG = Logger.getInstance(LSPUtils.class);
 
     /**
