@@ -21,22 +21,48 @@ package org.ballerinalang.stdlib.email.util;
 import com.sun.mail.imap.IMAPMessage;
 import com.sun.mail.pop3.POP3Message;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BValueCreator;
+import org.ballerinalang.mime.util.EntityBodyChannel;
+import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.EntityWrapper;
+import org.ballerinalang.mime.util.HeaderUtil;
+import org.ballerinalang.mime.util.MimeConstants;
+import org.ballerinalang.mime.util.MimeUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import javax.mail.Address;
 import javax.mail.BodyPart;
+import javax.mail.Header;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMultipart;
+
+import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
+import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
+import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
+import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 
 /**
  * Contains utility functions related to the POP and IMAP protocols.
@@ -45,6 +71,7 @@ import javax.mail.internet.MimeMultipart;
  */
 public class EmailAccessUtil {
 
+    private static final Logger log = LoggerFactory.getLogger(EmailAccessUtil.class);
     private static final BArrayType stringArrayType = new BArrayType(BTypes.typeString);
 
     /**
@@ -105,6 +132,7 @@ public class EmailAccessUtil {
         String messageBody = extractBodyFromMessage(message);
         String fromAddress = extractFromAddressFromMessage(message);
         String senderAddress = getSenderAddress(message);
+        BArray attachments = extractAttachmentsFromMessage(message);
         valueMap.put(EmailConstants.MESSAGE_TO, toAddressArrayValue);
         valueMap.put(EmailConstants.MESSAGE_CC, ccAddressArrayValue);
         valueMap.put(EmailConstants.MESSAGE_BCC, bccAddressArrayValue);
@@ -113,20 +141,154 @@ public class EmailAccessUtil {
         valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY, messageBody);
         valueMap.put(EmailConstants.MESSAGE_FROM, fromAddress);
         valueMap.put(EmailConstants.MESSAGE_SENDER, senderAddress);
+        if (attachments != null && attachments.size() > 0) {
+            valueMap.put(EmailConstants.MESSAGE_ATTACHMENTS, attachments);
+        }
         return BallerinaValues.createRecordValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.EMAIL, valueMap);
     }
 
     private static String extractBodyFromMessage(Message message) throws MessagingException, IOException {
         String messageBody = "";
-        if (message.isMimeType("text/plain")) {
+        if (message.getContentType() != null && CommonUtil.isTextBased(message.getContentType())) {
             if (message.getContent() != null) {
                 messageBody = message.getContent().toString();
             }
-        } else if (message.isMimeType("multipart/*")) {
+        } else if (message.isMimeType(EmailConstants.MIME_CONTENT_TYPE_PATTERN)) {
             MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
-            messageBody = getTextFromMimeMultipart(mimeMultipart);
+            if (mimeMultipart != null && mimeMultipart.getCount() > 0 && mimeMultipart.getBodyPart(0) != null
+                    && mimeMultipart.getBodyPart(0).getContent() != null) {
+                messageBody = (String) mimeMultipart.getBodyPart(0).getContent();
+            }
         }
         return messageBody;
+    }
+
+    private static BArray extractAttachmentsFromMessage(Message message) throws MessagingException, IOException {
+        ArrayList<ObjectValue> attachmentArray = new ArrayList<>();
+        if (!message.isMimeType(EmailConstants.MIME_CONTENT_TYPE_PATTERN)) {
+            return null;
+        } else {
+            MimeMultipart mimeMultipart = (MimeMultipart) message.getContent();
+            int numberOfAttachments = mimeMultipart.getCount();
+            if (numberOfAttachments > 1) {
+                for (int i = 1; i < numberOfAttachments; i++) {
+                    attachMultipart(mimeMultipart.getBodyPart(i), attachmentArray);
+                }
+                return getArrayOfEntities(attachmentArray);
+            } else {
+                log.debug("Received a Multipart email message without any attachments.");
+                return null;
+            }
+        }
+    }
+
+    private static void attachMultipart(BodyPart bodyPart, ArrayList<ObjectValue> entityArray)
+            throws MessagingException, IOException {
+        if (bodyPart.isMimeType(EmailConstants.MIME_CONTENT_TYPE_PATTERN)) {
+            entityArray.add(getMultipartEntity(bodyPart));
+        } else {
+            String contentType = bodyPart.getContentType();
+            if (contentType != null && bodyPart.getContent() instanceof String) {
+                if (CommonUtil.isJsonBased(contentType)) {
+                    entityArray.add(getJsonEntity(bodyPart));
+                } else if (CommonUtil.isXmlBased(contentType)) {
+                    entityArray.add(getXmlEntity(bodyPart));
+                } else {
+                    entityArray.add(getTextEntity(bodyPart));
+                }
+            } else {
+                entityArray.add(getBinaryEntity(bodyPart));
+            }
+        }
+    }
+
+    private static ObjectValue getMultipartEntity(BodyPart bodyPart) throws MessagingException, IOException {
+        ObjectValue multipartEntity = createEntityObject();
+        ArrayList<ObjectValue> entities = getMultipleEntities(bodyPart);
+        if (entities != null && bodyPart.getContentType() != null) {
+            multipartEntity.addNativeData(BODY_PARTS, getArrayOfEntities(entities));
+            MimeUtil.setContentType(createMediaTypeObject(), multipartEntity, bodyPart.getContentType());
+            setEntityHeaders(multipartEntity, bodyPart);
+        }
+        return multipartEntity;
+    }
+
+    private static ArrayList<ObjectValue> getMultipleEntities(BodyPart bodyPart)
+            throws IOException, MessagingException {
+        ArrayList<ObjectValue> entityArray = new ArrayList<>();
+        MimeMultipart mimeMultipart = (MimeMultipart) bodyPart.getContent();
+        int numberOfBodyParts = mimeMultipart.getCount();
+        if (numberOfBodyParts > 0) {
+            for (int i = 0; i < numberOfBodyParts; i++) {
+                attachMultipart(bodyPart, entityArray);
+            }
+            return entityArray;
+        } else {
+            return null;
+        }
+    }
+
+    private static ObjectValue getJsonEntity(BodyPart bodyPart) throws IOException, MessagingException {
+        String jsonContent = (String) bodyPart.getContent();
+        ObjectValue entity = createEntityObject();
+        EntityWrapper byteChannel = EntityBodyHandler.getEntityWrapper(jsonContent);
+        entity.addNativeData(MimeConstants.ENTITY_BYTE_CHANNEL, byteChannel);
+        MimeUtil.setContentType(createMediaTypeObject(), entity, MimeConstants.APPLICATION_JSON);
+        setEntityHeaders(entity, bodyPart);
+        return entity;
+    }
+
+    private static ObjectValue getXmlEntity(BodyPart bodyPart) throws IOException, MessagingException {
+        String xmlContent = (String) bodyPart.getContent();
+        XMLValue xmlNode = XMLFactory.parse(xmlContent);
+        ObjectValue entity = createEntityObject();
+        EntityBodyChannel byteChannel = new EntityBodyChannel(new ByteArrayInputStream(
+                xmlNode.stringValue().getBytes(StandardCharsets.UTF_8)));
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(byteChannel));
+        MimeUtil.setContentType(createMediaTypeObject(), entity, MimeConstants.APPLICATION_XML);
+        setEntityHeaders(entity, bodyPart);
+        return entity;
+    }
+
+    private static ObjectValue getTextEntity(BodyPart bodyPart) throws IOException, MessagingException {
+        String textPayload = (String) bodyPart.getContent();
+        ObjectValue entity = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, EntityBodyHandler.getEntityWrapper(textPayload));
+        MimeUtil.setContentType(createMediaTypeObject(), entity, MimeConstants.TEXT_PLAIN);
+        setEntityHeaders(entity, bodyPart);
+        return entity;
+    }
+
+    private static ObjectValue getBinaryEntity(BodyPart bodyPart) throws IOException, MessagingException {
+        byte[] binaryContent = CommonUtil.convertInputStreamToByteArray(bodyPart.getInputStream());
+        EntityWrapper byteChannel = new EntityWrapper(new EntityBodyChannel(new ByteArrayInputStream(binaryContent)));
+        ObjectValue entity = createEntityObject();
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel);
+        MimeUtil.setContentType(createMediaTypeObject(), entity, OCTET_STREAM);
+        setEntityHeaders(entity, bodyPart);
+        return entity;
+    }
+
+    private static void setEntityHeaders(ObjectValue entity, BodyPart bodyPart) throws MessagingException {
+        Enumeration<Header> headers = bodyPart.getAllHeaders();
+        while (headers.hasMoreElements()) {
+            Header header = headers.nextElement();
+            HeaderUtil.setHeaderToEntity(entity, header.getName(), header.getValue());
+        }
+    }
+
+    private static ArrayValue getArrayOfEntities(ArrayList<ObjectValue> entities) {
+        BType typeOfEntity = entities.get(0).getType();
+        ObjectValue[] result = entities.toArray(new ObjectValue[entities.size()]);
+        return new ArrayValueImpl(result, new org.ballerinalang.jvm.types.BArrayType(typeOfEntity));
+    }
+
+    private static ObjectValue createMediaTypeObject() {
+        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
+    }
+
+    private static ObjectValue createEntityObject() {
+        return BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, ENTITY);
     }
 
     private static String extractFromAddressFromMessage(Message message) throws MessagingException {
@@ -159,25 +321,6 @@ public class EmailAccessUtil {
             }
         }
         return addressArrayValue;
-    }
-
-    private static String getTextFromMimeMultipart(MimeMultipart mimeMultipart)
-            throws MessagingException, IOException {
-        StringBuilder result = new StringBuilder();
-        int count = mimeMultipart.getCount();
-        for (int i = 0; i < count; i++) {
-            BodyPart bodyPart = mimeMultipart.getBodyPart(i);
-            if (bodyPart.isMimeType("text/plain")) {
-                result.append("\n").append(bodyPart.getContent());
-                break;
-            } else if (bodyPart.isMimeType("text/html")) {
-                String html = (String) bodyPart.getContent();
-                result.append("\n").append(html);
-            } else if (bodyPart.getContent() instanceof MimeMultipart) {
-                result.append(getTextFromMimeMultipart((MimeMultipart) bodyPart.getContent()));
-            }
-        }
-        return result.toString();
     }
 
     private static String getStringNullChecked(String string) {
