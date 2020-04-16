@@ -804,6 +804,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
+    public static STNode createIsExpression(
+            STNode expression,
+            STNode isKeyword,
+            STNode typeDescriptor) {
+
+        return new STIsExpression(
+                expression,
+                isKeyword,
+                typeDescriptor);
+    }
+
     public static STNode createRemoteMethodCallAction(
             STNode expression,
             STNode rightArrowToken,

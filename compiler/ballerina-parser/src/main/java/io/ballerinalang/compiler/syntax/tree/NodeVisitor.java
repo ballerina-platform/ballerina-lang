@@ -279,6 +279,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(moduleVariableDeclaration);
     }
 
+    public void visit(IsExpression isExpression) {
+        visitSyntaxNode(isExpression);
+    }
+
     public void visit(RemoteMethodCallAction remoteMethodCallAction) {
         visitSyntaxNode(remoteMethodCallAction);
     }

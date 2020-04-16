@@ -795,6 +795,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(IsExpression isExpression) {
+        Node expression = modifyNode(isExpression.expression());
+        Token isKeyword = modifyToken(isExpression.isKeyword());
+        Node typeDescriptor = modifyNode(isExpression.typeDescriptor());
+        return isExpression.modify(
+                expression,
+                isKeyword,
+                typeDescriptor);
+    }
+
+    @Override
     public Node transform(RemoteMethodCallAction remoteMethodCallAction) {
         Expression expression = modifyNode(remoteMethodCallAction.expression());
         Token rightArrowToken = modifyToken(remoteMethodCallAction.rightArrowToken());
