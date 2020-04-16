@@ -436,7 +436,6 @@ public class BallerinaParserErrorHandler {
                     case CLOSE_BRACE_TOKEN:
                     case EOF_TOKEN:
                     case CLOSE_BRACE_PIPE_TOKEN:
-                    case TYPE_KEYWORD:
                     case PUBLIC_KEYWORD:
                     case FUNCTION_KEYWORD:
                     case ELSE_KEYWORD:
