@@ -117,6 +117,13 @@ public class Type {
         this.description = description;
     }
 
+    public static Type fromTypeNode(BLangType type, BType bType, String currentModule) {
+        if (type == null) {
+            return new Type(bType);
+        }
+        return fromTypeNode(type, currentModule);
+    }
+
     public static Type fromTypeNode(BLangType type, String currentModule) {
         Type typeModel = null;
         if (type instanceof BLangFunctionTypeNode) {

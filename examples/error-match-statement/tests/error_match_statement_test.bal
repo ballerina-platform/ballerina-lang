@@ -18,18 +18,20 @@ public function mockPrint(any... s) {
     counter += 1;
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
 
     string out1 = "Matched a value with a tuple shape";
     string out2 = "Matched a value with a record shape";
-    string out3 = "Matched an error value : reason: Sample Error, detail: {message:\"Fatal\", fatal:true}";
-    string out4 = "Matched an error value : reason: Generic Error, detail: {\"message\":\"Failed\"}";
+    string out3 = "Matched an error value : reason: Generic Error, message: Failed";
+    string out4 = "Matched an error value : reason: Sample Error, rest detail: fatal=true";
+    string out5 = "Matched `InvalidError` id=33456";
 
     test:assertEquals(outputs[0], out1);
     test:assertEquals(outputs[1], out2);
     test:assertEquals(outputs[2], out3);
     test:assertEquals(outputs[3], out4);
+    test:assertEquals(outputs[4], out5);
 }

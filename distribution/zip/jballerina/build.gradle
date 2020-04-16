@@ -36,10 +36,12 @@ configurations {
     bin
     balSource
     balxSource
+    balDoc
     staticArtifacts
     staticFiles
     source
     sourceBalx
+    doc
     zip
     resourceFiles
     balx
@@ -230,6 +232,7 @@ artifacts {
     balo configurations.distBal.files
     source configurations.balSource.files
     sourceBalx configurations.balxSource.files
+    doc configurations.balDoc.files
     bin file('bin')
     staticFiles configurations.staticArtifacts.files
     resourceFiles file('resources')

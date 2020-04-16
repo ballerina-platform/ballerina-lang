@@ -62,7 +62,7 @@ public class Variable {
         return value;
     }
 
-    public boolean checkModifier(String value) {
+    boolean checkModifier(String value) {
         if (prefix > 0) {
             return value.length() == prefix;
         }

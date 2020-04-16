@@ -1,4 +1,3 @@
-import ballerina/io;
 import ballerina/runtime;
 import ballerina/test;
 
@@ -13,7 +12,7 @@ int counter = 0;
 public function mockPrint(any... s) {
     string outStr = "";
     foreach var str in s {
-        outStr = outStr + string.convert(str);
+        outStr = outStr + str.toString();
     }
     lock {
         outputs[counter] = outStr;
@@ -21,7 +20,7 @@ public function mockPrint(any... s) {
     }
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
@@ -44,12 +43,12 @@ function testFunc() {
     } else {
         // The output is in random order
         foreach var x in outputs {
-            string value = string.convert(x);
-            if (value.equalsIgnoreCase("Hello, World! #m")) {
+            string value = x.toString();
+            if (value == "Hello, World! #m") {
                 // continue;
-            } else if (value.equalsIgnoreCase("Hello, World! #n")) {
+            } else if (value == "Hello, World! #n") {
                 // continue;
-            } else if (value.equalsIgnoreCase("Hello, World! #k")) {
+            } else if (value == "Hello, World! #k") {
                 // continue;
             } else {
                 test:assertFail(msg = "The output doesn't contain the expected.");
