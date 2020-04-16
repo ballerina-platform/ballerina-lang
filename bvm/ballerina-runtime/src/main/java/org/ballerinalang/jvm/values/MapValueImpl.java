@@ -296,7 +296,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     public int hashCode() {
         int result = type.hashCode();
         for (Map.Entry entry : this.entrySet()) {
-            result = 31 * result + entry.getKey().hashCode() + entry.getValue().hashCode();
+            result = 31 * result + entry.getKey().hashCode() +
+                    (entry.getValue() == null ? 0 : entry.getValue().hashCode());
         }
         return result;
     }
