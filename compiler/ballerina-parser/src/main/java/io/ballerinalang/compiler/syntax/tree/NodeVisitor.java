@@ -83,8 +83,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(breakStatement);
     }
 
-    public void visit(CallStatement callStatement) {
-        visitSyntaxNode(callStatement);
+    public void visit(ExpressionStatement expressionStatement) {
+        visitSyntaxNode(expressionStatement);
     }
 
     public void visit(ContinueStatement continueStatement) {
@@ -277,6 +277,10 @@ public abstract class NodeVisitor {
 
     public void visit(ModuleVariableDeclaration moduleVariableDeclaration) {
         visitSyntaxNode(moduleVariableDeclaration);
+    }
+
+    public void visit(RemoteMethodCallAction remoteMethodCallAction) {
+        visitSyntaxNode(remoteMethodCallAction);
     }
 
     // Tokens

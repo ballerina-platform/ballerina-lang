@@ -28,22 +28,22 @@ public class VarDeclarationTest extends AbstractStatementTest {
 
     @Test
     public void testLocalVarDeclWithBuiltinType() {
-        test("int a;", "var-decl-stmt/local_var_decl_assert_1.json");
+        test("int a;", "var-decl-stmt/local_var_decl_assert_01.json");
     }
 
     @Test
     public void testLocalVarDeclWithUserdefinedType() {
-        test("Foo a;", "var-decl-stmt/local_var_decl_assert_2.json");
+        test("Foo a;", "var-decl-stmt/local_var_decl_assert_02.json");
     }
 
     @Test
     public void testLocalVarDeclWithBuiltinTypeAndRhs() {
-        test("int a = 5;", "var-decl-stmt/local_var_decl_assert_3.json");
+        test("int a = 5;", "var-decl-stmt/local_var_decl_assert_03.json");
     }
 
     @Test
     public void testLocalVarDeclWithUserdefinedTypeAndRhs() {
-        test("Foo a = 5;", "var-decl-stmt/local_var_decl_assert_4.json");
+        test("Foo a = 5;", "var-decl-stmt/local_var_decl_assert_04.json");
     }
 
     @Test
@@ -55,32 +55,32 @@ public class VarDeclarationTest extends AbstractStatementTest {
     public void testLocalVarDeclWithFinalKeyword() {
         test("final Person p;", "var-decl-stmt/local_var_decl_assert_12.json");
     }
-    
+
     // Recovery tests
 
     @Test
     public void testLocalVarDeclWithMissingSemicolon() {
-        test("Foo a", "var-decl-stmt/local_var_decl_assert_5.json");
+        test("Foo a", "var-decl-stmt/local_var_decl_assert_05.json");
     }
 
     @Test
     public void testLocalVarDeclWithRhsAndMissingSemicolon() {
-        test("Foo a = 5", "var-decl-stmt/local_var_decl_assert_6.json");
+        test("Foo a = 5", "var-decl-stmt/local_var_decl_assert_06.json");
     }
 
     @Test
     public void testLocalVarDeclWithRhsAndMissingEqual() {
-        test("Foo a 5;", "var-decl-stmt/local_var_decl_assert_7.json");
+        test("Foo a 5;", "var-decl-stmt/local_var_decl_assert_07.json");
     }
 
     @Test
     public void testLocalVarDeclWithBuiltinTypeAndMissingIdentifier() {
-        test("int ;", "var-decl-stmt/local_var_decl_assert_8.json");
+        test("int ;", "var-decl-stmt/local_var_decl_assert_08.json");
     }
 
     @Test
     public void testLocalVarDeclWithUserdefinedTypeAndMissingIdentifier() {
-        test("Foo ;", "var-decl-stmt/local_var_decl_assert_9.json");
+        testFile("var-decl-stmt/local_var_decl_source_09.bal", "var-decl-stmt/local_var_decl_assert_09.json");
     }
 
     @Test

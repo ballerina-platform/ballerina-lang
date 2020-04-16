@@ -343,9 +343,8 @@
       ]
     },
     {
-      "name": "CallStatement",
+      "name": "ExpressionStatement",
       "base": "Statement",
-      "kind": "CALL_STATEMENT",
       "attributes": [
         {
           "name": "expression",
@@ -1403,6 +1402,43 @@
         },
         {
           "name": "semicolonToken",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "Action",
+      "base": "Expression",
+      "isAbstract": true
+    },
+    {
+      "name": "RemoteMethodCallAction",
+      "base": "Action",
+      "kind": "REMOTE_METHOD_CALL_ACTION",
+      "attributes": [
+        {
+          "name": "expression",
+          "type": "Expression"
+        },
+        {
+          "name": "rightArrowToken",
+          "type": "Token"
+        },
+        {
+          "name": "methodName",
+          "type": "Identifier"
+        },
+        {
+          "name": "openParenToken",
+          "type": "Token"
+        },
+        {
+          "name": "arguments",
+          "type": "FunctionArgument",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "closeParenToken",
           "type": "Token"
         }
       ]

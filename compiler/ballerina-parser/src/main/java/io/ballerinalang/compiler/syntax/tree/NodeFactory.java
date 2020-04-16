@@ -276,16 +276,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stBreakStatement.createUnlinkedFacade();
     }
 
-    public static CallStatement createCallStatement(
+    public static ExpressionStatement createExpressionStatement(
+            SyntaxKind kind,
             Node expression,
             Token semicolonToken) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
 
-        STNode stCallStatement = STNodeFactory.createCallStatement(
+        STNode stExpressionStatement = STNodeFactory.createExpressionStatement(
+                kind,
                 expression.internalNode(),
                 semicolonToken.internalNode());
-        return stCallStatement.createUnlinkedFacade();
+        return stExpressionStatement.createUnlinkedFacade();
     }
 
     public static ContinueStatement createContinueStatement(
@@ -1088,6 +1090,30 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 initializer.internalNode(),
                 semicolonToken.internalNode());
         return stModuleVariableDeclaration.createUnlinkedFacade();
+    }
+
+    public static RemoteMethodCallAction createRemoteMethodCallAction(
+            Expression expression,
+            Token rightArrowToken,
+            Identifier methodName,
+            Token openParenToken,
+            NodeList<FunctionArgument> arguments,
+            Token closeParenToken) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
+        Objects.requireNonNull(methodName, "methodName must not be null");
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(arguments, "arguments must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stRemoteMethodCallAction = STNodeFactory.createRemoteMethodCallAction(
+                expression.internalNode(),
+                rightArrowToken.internalNode(),
+                methodName.internalNode(),
+                openParenToken.internalNode(),
+                arguments.underlyingListNode().internalNode(),
+                closeParenToken.internalNode());
+        return stRemoteMethodCallAction.createUnlinkedFacade();
     }
 }
 

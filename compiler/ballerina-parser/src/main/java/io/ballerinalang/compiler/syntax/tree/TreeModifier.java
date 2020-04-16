@@ -203,10 +203,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(CallStatement callStatement) {
-        Node expression = modifyNode(callStatement.expression());
-        Token semicolonToken = modifyToken(callStatement.semicolonToken());
-        return callStatement.modify(
+    public Node transform(ExpressionStatement expressionStatement) {
+        Node expression = modifyNode(expressionStatement.expression());
+        Token semicolonToken = modifyToken(expressionStatement.semicolonToken());
+        return expressionStatement.modify(
+                expressionStatement.kind(),
                 expression,
                 semicolonToken);
     }
@@ -791,6 +792,23 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 equalsToken,
                 initializer,
                 semicolonToken);
+    }
+
+    @Override
+    public Node transform(RemoteMethodCallAction remoteMethodCallAction) {
+        Expression expression = modifyNode(remoteMethodCallAction.expression());
+        Token rightArrowToken = modifyToken(remoteMethodCallAction.rightArrowToken());
+        Identifier methodName = modifyNode(remoteMethodCallAction.methodName());
+        Token openParenToken = modifyToken(remoteMethodCallAction.openParenToken());
+        NodeList<FunctionArgument> arguments = modifyNodeList(remoteMethodCallAction.arguments());
+        Token closeParenToken = modifyToken(remoteMethodCallAction.closeParenToken());
+        return remoteMethodCallAction.modify(
+                expression,
+                rightArrowToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken);
     }
 
     // Tokens

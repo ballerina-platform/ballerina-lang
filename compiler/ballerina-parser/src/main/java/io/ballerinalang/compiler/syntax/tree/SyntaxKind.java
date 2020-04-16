@@ -98,6 +98,7 @@ public enum SyntaxKind {
     LOGICAL_AND_TOKEN(570, "&&"),
     LOGICAL_OR_TOKEN(571, "||"),
     NEGATION_TOKEN(572, "~"),
+    RIGHT_ARROW_TOKEN(572, "->"),
 
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
@@ -134,6 +135,7 @@ public enum SyntaxKind {
     CONTINUE_STATEMENT(1209),
     BREAK_STATEMENT(1210),
     COMPOUND_ASSIGNMENT_STATEMENT(1211),
+    ACTION_STATEMENT(1212),
 
     // Expressions
     BINARY_EXPRESSION(1300),
@@ -153,6 +155,9 @@ public enum SyntaxKind {
     OBJECT_TYPE_DESCRIPTOR(2001),
     NIL_TYPE(2002),
     OPTIONAL_TYPE(2003),
+
+    // Actions
+    REMOTE_METHOD_CALL_ACTION(2500),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),

@@ -435,6 +435,8 @@ public class ParserTestUtils {
                 return SyntaxKind.AT_TOKEN;
             case "HASH_TOKEN":
                 return SyntaxKind.HASH_TOKEN;
+            case "RIGHT_ARROW_TOKEN":
+                return SyntaxKind.RIGHT_ARROW_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -478,6 +480,10 @@ public class ParserTestUtils {
             case "UNARY_EXPRESSION":
                 return SyntaxKind.UNARY_EXPRESSION;
 
+            // Actions
+            case "REMOTE_METHOD_CALL_ACTION":
+                return SyntaxKind.REMOTE_METHOD_CALL_ACTION;
+
             // Statements
             case "BLOCK_STATEMENT":
                 return SyntaxKind.BLOCK_STATEMENT;
@@ -503,6 +509,8 @@ public class ParserTestUtils {
                 return SyntaxKind.RETURN_STATEMENT;
             case "COMPOUND_ASSIGNMENT_STATEMENT":
                 return SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT;
+            case "ACTION_STATEMENT":
+                return SyntaxKind.ACTION_STATEMENT;
 
             // Others
             case "SIMPLE_TYPE":

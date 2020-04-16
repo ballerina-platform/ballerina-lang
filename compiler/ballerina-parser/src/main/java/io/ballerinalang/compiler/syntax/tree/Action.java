@@ -24,41 +24,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class CallStatement extends Statement {
+public abstract class Action extends Expression {
 
-    public CallStatement(STNode internalNode, int position, NonTerminalNode parent) {
+    public Action(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
-    }
-
-    public Node expression() {
-        return childInBucket(0);
-    }
-
-    public Token semicolonToken() {
-        return childInBucket(1);
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(NodeTransformer<T> visitor) {
-        return visitor.transform(this);
-    }
-
-    public CallStatement modify(
-            Node expression,
-            Token semicolonToken) {
-        if (checkForReferenceEquality(
-                expression,
-                semicolonToken)) {
-            return this;
-        }
-
-        return NodeFactory.createCallStatement(
-                expression,
-                semicolonToken);
     }
 }
