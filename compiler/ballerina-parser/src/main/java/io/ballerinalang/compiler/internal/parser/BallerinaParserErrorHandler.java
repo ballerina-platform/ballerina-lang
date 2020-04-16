@@ -204,6 +204,9 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] PARAMETER_WITHOUT_ANNOTS =
             { ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TYPE_DESCRIPTOR };
 
+    private static final ParserRuleContext[] NIL_LITERALS =
+            { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.NULL_KEYWORD };
+
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
@@ -815,7 +818,8 @@ public class BallerinaParserErrorHandler {
                 case ACCESS_EXPRESSION:
                     return seekInAccessExpression(currentCtx, lookahead, currentDepth, matchingRulesCount);
                 case BASIC_LITERAL:
-                    hasMatch = isBasicLiteral(nextToken.kind);
+                    STToken nextNextToken = this.tokenReader.peek(lookahead+1);
+                    hasMatch = isBasicLiteral(nextToken.kind, nextNextToken.kind);
                     break;
                 case COLON:
                     hasMatch = nextToken.kind == SyntaxKind.COLON_TOKEN;
@@ -870,6 +874,11 @@ public class BallerinaParserErrorHandler {
                     break;
                 case IS_EXPRESSION:
                     return seekInIsExpression(currentCtx, lookahead, currentDepth, matchingRulesCount);
+                case NULL_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.NULL_KEYWORD;
+                    break;
+                case NIL_LITERAL:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, NIL_LITERALS);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1359,10 +1368,14 @@ public class BallerinaParserErrorHandler {
                     endContext(); // end parameter-list
                 }
                 if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR) {
-                endContext();
-                // After parsing nil type descriptor all the other parsing is same as next rule of simple type
-                return getNextRuleForTypeDescriptor();
-            }
+                    endContext();
+                    // After parsing nil type descriptor all the other parsing is same as next rule of simple type
+                    return getNextRuleForTypeDescriptor();
+                }
+                if (parentCtx == ParserRuleContext.NIL_LITERAL) {
+                    endContext();
+                    return ParserRuleContext.EXPRESSION_RHS;
+                }
                 // endContext(); // end func signature
                 return ParserRuleContext.FUNC_BODY;
             case EXPRESSION:
@@ -1400,7 +1413,7 @@ public class BallerinaParserErrorHandler {
                 if (parentCtx == ParserRuleContext.FUNC_DEFINITION) {
                     return ParserRuleContext.PARAM_LIST;
                 }
-                if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR) {
+                if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR || parentCtx == ParserRuleContext.NIL_LITERAL ) {
                     return ParserRuleContext.CLOSE_PARENTHESIS;
                 }
                 return ParserRuleContext.ARG;
@@ -1643,6 +1656,9 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case IS_EXPRESSION:
                 return ParserRuleContext.EXPRESSION_RHS;
+            case NULL_KEYWORD:
+                endContext(); // end nil-literal
+                return ParserRuleContext.EXPRESSION_RHS;
 
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
@@ -1683,6 +1699,7 @@ public class BallerinaParserErrorHandler {
             case CONST_DECL_RHS:
             case OBJECT_MEMBER_WITHOUT_METADATA:
             case TOP_LEVEL_NODE:
+            case NIL_LITERAL:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -2321,6 +2338,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.IS_KEYWORD;
             case TYPE_DESCRIPTOR:
                 return SyntaxKind.SIMPLE_TYPE;
+            case NULL_KEYWORD:
+                return SyntaxKind.NULL_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
@@ -2392,14 +2411,20 @@ public class BallerinaParserErrorHandler {
      * @param kind Token kind to check
      * @return <code>true</code> if the given token kind belongs to a basic literal.<code>false</code> otherwise
      */
-    private boolean isBasicLiteral(SyntaxKind kind) {
+    private boolean isBasicLiteral(SyntaxKind kind, SyntaxKind nextKind) {
         switch (kind) {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
             case STRING_LITERAL:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
+            case NULL_KEYWORD:
                 return true;
+            case OPEN_PAREN_TOKEN:
+                // check for a `()` match
+                if (nextKind == SyntaxKind.CLOSE_PAREN_TOKEN) {
+                    return true;
+                }
             default:
                 return false;
         }

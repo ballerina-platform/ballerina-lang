@@ -150,6 +150,7 @@ public enum ParserRuleContext {
     CONST_KEYWORD("const"),
     TYPEOF_KEYWORD("typeof"),
     IS_KEYWORD("is"),
+    NULL_KEYWORD("null"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

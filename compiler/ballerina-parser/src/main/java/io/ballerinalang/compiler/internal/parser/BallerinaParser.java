@@ -5405,8 +5405,10 @@ public class BallerinaParser {
                 STNode emptyNode = STNodeFactory.createEmptyNode();
                 return STNodeFactory.createNilLiteral(nullKeyword, emptyNode);
             case OPEN_PAREN_TOKEN:
+                startContext(ParserRuleContext.NIL_LITERAL);
                 STNode openParenthesisToken = parseOpenParenthesis();
                 STNode closeParenthesisToken = parseCloseParenthesis();
+                endContext();
                 return STNodeFactory.createNilLiteral(openParenthesisToken, closeParenthesisToken);
             default:
                 Solution sol = recover(token, ParserRuleContext.NIL_LITERAL);
