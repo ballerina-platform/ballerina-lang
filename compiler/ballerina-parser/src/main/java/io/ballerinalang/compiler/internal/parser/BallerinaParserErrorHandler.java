@@ -71,7 +71,7 @@ public class BallerinaParserErrorHandler {
             ParserRuleContext.ASSIGNMENT_STMT, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK,
             ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CALL_STMT, ParserRuleContext.PANIC_STMT,
             ParserRuleContext.CONTINUE_STATEMENT, ParserRuleContext.BREAK_STATEMENT, ParserRuleContext.RETURN_STMT,
-            ParserRuleContext.COMPOUND_ASSIGNMENT_STMT };
+            ParserRuleContext.COMPOUND_ASSIGNMENT_STMT, ParserRuleContext.LOCAL_TYPE_DEFINITION_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -436,7 +436,6 @@ public class BallerinaParserErrorHandler {
                     case CLOSE_BRACE_TOKEN:
                     case EOF_TOKEN:
                     case CLOSE_BRACE_PIPE_TOKEN:
-                    case TYPE_KEYWORD:
                     case PUBLIC_KEYWORD:
                     case FUNCTION_KEYWORD:
                     case ELSE_KEYWORD:
@@ -909,15 +908,14 @@ public class BallerinaParserErrorHandler {
                 case CONSTANT_DECL:
                 case NIL_TYPE_DESCRIPTOR:
                 case OPTIONAL_TYPE_DESCRIPTOR:
+                case LOCAL_TYPE_DEFINITION_STMT:
                 case ANNOTATIONS:
                 case DOC_STRING:
-
                     // start a context, so that we know where to fall back, and continue
                     // having the qualified-identifier as the next rule.
                 case VARIABLE_REF:
                 case TYPE_REFERENCE:
                 case ANNOT_REFERENCE:
-
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1310,6 +1308,7 @@ public class BallerinaParserErrorHandler {
             case TYPE_REFERENCE:
             case ANNOT_REFERENCE:
             case MAPPING_CONSTRUCTOR:
+            case LOCAL_TYPE_DEFINITION_STMT:
                 startContext(currentCtx);
                 break;
             default:
@@ -1643,7 +1642,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case IS_EXPRESSION:
                 return ParserRuleContext.EXPRESSION_RHS;
-
+            case LOCAL_TYPE_DEFINITION_STMT:
+                return ParserRuleContext.TYPE_KEYWORD;
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
@@ -2062,6 +2062,7 @@ public class BallerinaParserErrorHandler {
             case BREAK_STATEMENT:
             case RETURN_STMT:
             case COMPOUND_ASSIGNMENT_STMT:
+            case LOCAL_TYPE_DEFINITION_STMT:
                 return true;
             default:
                 return false;
@@ -2379,6 +2380,7 @@ public class BallerinaParserErrorHandler {
             case DOC_STRING:
             case OBJECT_MEMBER_WITHOUT_METADATA:
             case IS_EXPRESSION:
+            case LOCAL_TYPE_DEFINITION_STMT:
             default:
                 break;
         }

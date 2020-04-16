@@ -507,6 +507,8 @@ public class ParserTestUtils {
                 return SyntaxKind.RETURN_STATEMENT;
             case "COMPOUND_ASSIGNMENT_STATEMENT":
                 return SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT;
+            case "LOCAL_TYPE_DEFINITION_STATEMENT":
+                return SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT;
 
             // Others
             case "SIMPLE_TYPE":
