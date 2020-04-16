@@ -22,6 +22,8 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketService;
+import org.ballerinalang.net.http.websocket.WebSocketUtil;
+import org.ballerinalang.net.http.websocket.client.FailoverContext;
 import org.ballerinalang.net.http.websocket.server.WebSocketConnectionInfo;
 import org.ballerinalang.net.http.websocket.server.WebSocketServerService;
 import org.slf4j.Logger;
@@ -46,8 +48,7 @@ public class WebSocketObservabilityUtil {
         WebSocketMetricsUtil.reportConnectionMetrics(observerContext);
 
         LOGGER.debug("WebSocket new connection established. connectionID: {}, service/url: {}",
-                     observerContext.getConnectionId(),
-                     observerContext.getServicePathOrClientUrl());
+                     observerContext.getConnectionId(), observerContext.getServicePathOrClientUrl());
     }
 
     /**
@@ -61,9 +62,7 @@ public class WebSocketObservabilityUtil {
         WebSocketMetricsUtil.reportSendMetrics(observerContext, type);
 
         LOGGER.debug("WebSocket message sent. connectionID: {}, service/url: {}, type: {}",
-                     observerContext.getConnectionId(),
-                     observerContext.getServicePathOrClientUrl(),
-                     type);
+                     observerContext.getConnectionId(), observerContext.getServicePathOrClientUrl(), type);
     }
 
     /**
@@ -77,9 +76,7 @@ public class WebSocketObservabilityUtil {
         WebSocketMetricsUtil.reportReceivedMetrics(observerContext, type);
 
         LOGGER.debug("WebSocket message received. connectionID: {}, service/url: {}, type:{}",
-                     observerContext.getConnectionId(),
-                     observerContext.getServicePathOrClientUrl(),
-                     type);
+                     observerContext.getConnectionId(), observerContext.getServicePathOrClientUrl(), type);
     }
 
     /**
@@ -92,8 +89,7 @@ public class WebSocketObservabilityUtil {
         WebSocketMetricsUtil.reportCloseMetrics(observerContext);
 
         LOGGER.debug("WebSocket connection closed. connectionID: {}, service/url: {}",
-                     observerContext.getConnectionId(),
-                     observerContext.getServicePathOrClientUrl());
+                     observerContext.getConnectionId(), observerContext.getServicePathOrClientUrl());
     }
 
     /**
@@ -209,7 +205,13 @@ public class WebSocketObservabilityUtil {
         if (service instanceof WebSocketServerService) {
             return ((WebSocketServerService) service).getBasePath();
         } else {
-            return connectionInfo.getWebSocketEndpoint().getStringValue("url");
+            if (WebSocketUtil.isFailoverClient(connectionInfo.getWebSocketEndpoint())) {
+                FailoverContext failoverConfig = (FailoverContext) connectionInfo.getWebSocketEndpoint().
+                        getNativeData(WebSocketConstants.FAILOVER_CONTEXT);
+                return failoverConfig.getTargetUrls().get(failoverConfig.getCurrentIndex());
+            } else {
+                return connectionInfo.getWebSocketEndpoint().getStringValue(WebSocketConstants.CLIENT_URL_CONFIG);
+            }
         }
     }
 

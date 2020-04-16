@@ -58,6 +58,10 @@ createBalo {
     jvmTarget = 'true'
 }
 
+createBStringBalo {
+    jvmTarget = 'true'
+}
+
 description = 'Ballerina - System'
 
 configurations.all {

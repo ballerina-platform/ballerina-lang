@@ -17,9 +17,38 @@
  
 apply from: "$rootDir/gradle/javaProject.gradle"
 
+configurations {
+    dist {
+        transitive true
+        exclude group: 'org.apache.servicemix.bundles', module: 'org.apache.servicemix.bundles.commons-beanutils'
+        exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
+        exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-log4j2'
+        exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    }
+}
+
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tool')
+    implementation project(':ballerina-packerina')
+    implementation project(':docerina')
+
+    dist project(':ballerina-lang')
+    dist project(':ballerina-tool')
+    dist project(':ballerina-packerina')
+    dist project(':docerina')
+
 }
 
 description = 'Ballerina - Library creation utility'
+
+// Creating uber jar of lib-creator to avoid windows gradle build issue with long class path with java commands.
+jar {
+    from {
+        configurations.dist.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+}

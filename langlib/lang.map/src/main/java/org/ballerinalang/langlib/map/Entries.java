@@ -66,4 +66,8 @@ public class Entries {
 
         return entries;
     }
+
+    public static MapValue<?, ?> entries_bstring(Strand strand, MapValue<?, ?> m) {
+        return entries(strand, m);
+    }
 }

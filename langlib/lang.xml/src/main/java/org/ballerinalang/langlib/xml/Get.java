@@ -73,4 +73,8 @@ public class Get {
 
         return (XMLValue) childrenList.get((int) i);
     }
+
+    public static XMLValue get_bstring(Strand strand, XMLValue xmlVal, long i) {
+        return get(strand, xmlVal, i);
+    }
 }

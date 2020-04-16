@@ -64,7 +64,7 @@ public class StringValueXmlTest extends BStringTestCommons {
 
     @Test
     public void testXmlNamespace() {
-        testAndAssert("testXmlNamespace", 364);
+        testAndAssert("testXmlNamespace", 334);
     }
 
     @Test

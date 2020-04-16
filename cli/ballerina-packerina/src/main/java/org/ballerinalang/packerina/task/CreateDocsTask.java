@@ -33,7 +33,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_API_DOC_DIRECTORY;
 
@@ -42,20 +41,14 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_AP
  */
 public class CreateDocsTask implements Task {
 
-    private Path output;
 
-    public CreateDocsTask(Path output) {
-        this.output = output;
-    }
+    public CreateDocsTask() { }
 
     @Override
     public void execute(BuildContext buildContext) {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         Path targetDir = buildContext.get(BuildContextField.TARGET_DIR);
-        boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
-        Path outputPath = isSingleFileBuild
-                ? this.output
-                : targetDir.resolve(TARGET_API_DOC_DIRECTORY);
+        Path outputPath = targetDir.resolve(TARGET_API_DOC_DIRECTORY);
         List<BLangPackage> modules = buildContext.getModules();
         buildContext.out().println();
         buildContext.out().println("Generating API Documentation");
@@ -63,7 +56,7 @@ public class CreateDocsTask implements Task {
             // disable deprecated verbose logs from docerina
             BallerinaDocGenerator.setPrintStream(new EmptyPrintStream());
             Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator
-                    .generateModuleDocsFromBLangPackages(sourceRootPath.toString(), modules);
+                    .generateModuleDocs(sourceRootPath.toString(), modules);
             Files.createDirectories(outputPath);
             BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap,
                     outputPath.toString());
