@@ -167,7 +167,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -182,10 +181,10 @@ public class TypeChecker extends BLangNodeVisitor {
     private static Set<String> modifierFunctions = new HashSet<>();
 
     private static final String TABLE_TNAME = "table";
-    private static final String FUNCTION_PUSH_NAME = "push";
-    private static final String FUNCTION_POP_NAME = "pop";
-    private static final String FUNCTION_SHIFT_NAME = "shift";
-    private static final String FUNCTION_UNSHIFT_NAME = "unshift";
+    private static final String FUNCTION_NAME_PUSH = "push";
+    private static final String FUNCTION_NAME_POP = "pop";
+    private static final String FUNCTION_NAME_SHIFT = "shift";
+    private static final String FUNCTION_NAME_UNSHIFT = "unshift";
 
     private Names names;
     private SymbolTable symTable;
@@ -212,10 +211,10 @@ public class TypeChecker extends BLangNodeVisitor {
     private DiagnosticCode diagCode;
 
     static {
-        modifierFunctions.add(FUNCTION_PUSH_NAME);
-        modifierFunctions.add(FUNCTION_POP_NAME);
-        modifierFunctions.add(FUNCTION_SHIFT_NAME);
-        modifierFunctions.add(FUNCTION_UNSHIFT_NAME);
+        modifierFunctions.add(FUNCTION_NAME_PUSH);
+        modifierFunctions.add(FUNCTION_NAME_POP);
+        modifierFunctions.add(FUNCTION_NAME_SHIFT);
+        modifierFunctions.add(FUNCTION_NAME_UNSHIFT);
     }
 
     public static TypeChecker getInstance(CompilerContext context) {
@@ -1870,7 +1869,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if ((varRefType.tag == TypeTags.TUPLE) && hasDifferentTypeThanRest((BTupleType) varRefType) &&
-                (invocationName.compareTo(FUNCTION_SHIFT_NAME) == 0)) {
+                (invocationName.compareTo(FUNCTION_NAME_SHIFT) == 0)) {
             dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_TUPLE_SHAPE, invocationName, varRefType);
             resultType = symTable.semanticError;
         }
