@@ -40,7 +40,6 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NA
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEPENDENCIES_DIR;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.EMPTY_OBJECT_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_FILE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
@@ -139,12 +138,9 @@ public class BindingsGenerator {
         errStream.print("\n");
         for (Map.Entry<String, String> entry : failedClassGens.entrySet()) {
             if (classNames.contains(entry.getKey())) {
-                errStream.println("Bindings for '" + entry.getKey() + "' class could not be generated. "
-                        + entry.getValue());
+                errStream.println("Bindings for '" + entry.getKey() + "' class could not be generated.\n\t" +
+                        entry.getValue() + "\n");
             }
-            String simpleClassName = entry.getKey().substring(entry.getKey().lastIndexOf('.') + 1);
-            writeOutputFile(entry.getKey(), DEFAULT_TEMPLATE_DIR, EMPTY_OBJECT_TEMPLATE_NAME,
-                    Paths.get(modulePath.toString(), simpleClassName + BAL_EXTENSION).toString(), false);
         }
     }
 
