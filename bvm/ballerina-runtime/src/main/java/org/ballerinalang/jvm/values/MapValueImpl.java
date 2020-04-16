@@ -269,16 +269,39 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return super.containsKey(key);
     }
 
-    /**
-     * Returns the hash code value for map value object.
-     *
-     * @return returns hashcode value.
-     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+           return false;
+        }
+
+        MapValueImpl<?, ?> mapValue = (MapValueImpl<?, ?>) o;
+
+        if (mapValue.type.getTag() != this.type.getTag()) {
+            return false;
+        }
+
+        if (this.entrySet().size() != mapValue.entrySet().size()) {
+            return false;
+        }
+
+        return entrySet().equals(mapValue.entrySet());
+    }
+
     @Override
     public int hashCode() {
-        return System.identityHashCode(this);
+        int result = type.hashCode();
+        for (Map.Entry entry : this.entrySet()) {
+            result = 31 * result + entry.getKey().hashCode() +
+                    (entry.getValue() == null ? 0 : entry.getValue().hashCode());
+        }
+        return result;
     }
-    
+
     /**
      * Remove an item from the map.
      *
