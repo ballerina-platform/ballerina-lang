@@ -262,18 +262,26 @@ public class LocksInMainTest {
         BValue[] returns = BRunUtil.invoke(parallelCompileResult, "runParallelUsingLocks");
     }
 
-    @Test
+    @Test(description = "Test for parallel run when invocations have global variable dependencies")
     public void testParallelRunWithInvocationDependencies() {
         BValue[] returns = BRunUtil.invoke(parallelCompileResult, "testLockWithInvokableAccessingGlobal");
     }
 
-    @Test
+    @Test(description = "Test for parallel run when invocations have loops and global var dependencies")
     public void testParallelRunWithChainedInvocationDependencies() {
         BValue[] returns = BRunUtil.invoke(parallelCompileResult, "testLockWIthInvokableChainsAccessingGlobal");
     }
 
-    @Test
+    @Test(description = "Test for parallel run when invocation are recursive and have global var dependencies")
     public void testParallelRunWithRecursiveInvocationDependencies() {
         BValue[] returns = BRunUtil.invoke(parallelCompileResult, "testLockWIthInvokableRecursiveAccessGlobal");
+    }
+
+    @Test(description = "Test for parallel run when invocations are imported and contains global var dependencies")
+    public void testParallelRunWithImportInvocationDependencies() {
+        CompileResult importInvocationDependencies = BCompileUtil.compile("test-src/lock/locks-in-imports-test",
+                "mod1", true);
+
+        BRunUtil.invoke(importInvocationDependencies, "testLockWIthInvokableChainsAccessingGlobal");
     }
 }
