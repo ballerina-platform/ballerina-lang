@@ -5293,7 +5293,7 @@ public class BallerinaParser {
      * </code>
      * </p>
      *
-     * @return Parsed array lenght
+     * @return Parsed array length
      */
     private STNode parseArrayLength() {
         STToken token = peek();
