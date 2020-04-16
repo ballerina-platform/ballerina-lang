@@ -34,7 +34,7 @@ public class ExternalFunctionBody extends Statement {
         return childInBucket(0);
     }
 
-    public NodeList<Annotation> annotations() {
+    public NodeList<AnnotationNode> annotations() {
         return new NodeList<>(childInBucket(1));
     }
 
@@ -58,7 +58,7 @@ public class ExternalFunctionBody extends Statement {
 
     public ExternalFunctionBody modify(
             Token equalsToken,
-            NodeList<Annotation> annotations,
+            NodeList<AnnotationNode> annotations,
             Token externalKeyword,
             Token semicolonToken) {
         if (checkForReferenceEquality(

@@ -34,7 +34,7 @@ public class RestParameter extends Parameter {
         return childInBucket(0);
     }
 
-    public NodeList<Annotation> annotations() {
+    public NodeList<AnnotationNode> annotations() {
         return new NodeList<>(childInBucket(1));
     }
 
@@ -62,7 +62,7 @@ public class RestParameter extends Parameter {
 
     public RestParameter modify(
             Token leadingComma,
-            NodeList<Annotation> annotations,
+            NodeList<AnnotationNode> annotations,
             Node type,
             Token ellipsisToken,
             Token paramName) {

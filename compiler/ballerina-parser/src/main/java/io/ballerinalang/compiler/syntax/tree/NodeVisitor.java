@@ -271,8 +271,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(serviceBody);
     }
 
-    public void visit(Annotation annotation) {
-        visitSyntaxNode(annotation);
+    public void visit(AnnotationNode annotationNode) {
+        visitSyntaxNode(annotationNode);
     }
 
     public void visit(Metadata metadata) {

@@ -34,7 +34,7 @@ public class Metadata extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public NodeList<Annotation> annotations() {
+    public NodeList<AnnotationNode> annotations() {
         return new NodeList<>(childInBucket(1));
     }
 
@@ -50,7 +50,7 @@ public class Metadata extends NonTerminalNode {
 
     public Metadata modify(
             Node documentationString,
-            NodeList<Annotation> annotations) {
+            NodeList<AnnotationNode> annotations) {
         if (checkForReferenceEquality(
                 documentationString,
                 annotations.underlyingListNode())) {

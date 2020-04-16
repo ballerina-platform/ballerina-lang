@@ -30,7 +30,7 @@ public class VariableDeclaration extends Statement {
         super(internalNode, position, parent);
     }
 
-    public NodeList<Annotation> annotations() {
+    public NodeList<AnnotationNode> annotations() {
         return new NodeList<>(childInBucket(0));
     }
 
@@ -69,7 +69,7 @@ public class VariableDeclaration extends Statement {
     }
 
     public VariableDeclaration modify(
-            NodeList<Annotation> annotations,
+            NodeList<AnnotationNode> annotations,
             Token finalKeyword,
             Node typeName,
             Token variableName,

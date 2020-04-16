@@ -272,8 +272,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(serviceBody);
     }
 
-    public T transform(Annotation annotation) {
-        return transformSyntaxNode(annotation);
+    public T transform(AnnotationNode annotationNode) {
+        return transformSyntaxNode(annotationNode);
     }
 
     public T transform(Metadata metadata) {

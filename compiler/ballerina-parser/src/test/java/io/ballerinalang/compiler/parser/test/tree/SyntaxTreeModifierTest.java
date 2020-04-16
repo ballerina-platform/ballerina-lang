@@ -80,7 +80,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         @Override
         public Node transform(VariableDeclaration varDeclStmt) {
             String oldVarName = varDeclStmt.variableName().text();
-            IdentifierToken newVarName = NodeFactory.createIdentifier(oldVarName + "new");
+            IdentifierToken newVarName = NodeFactory.createIdentifierToken(oldVarName + "new");
             return NodeFactory.createVariableDeclaration(varDeclStmt.annotations(), varDeclStmt.finalKeyword(),
                     varDeclStmt.typeName(), newVarName, varDeclStmt.equalsToken(), varDeclStmt.initializer(),
                     varDeclStmt.semicolonToken());
@@ -94,7 +94,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
 
         @Override
         public Node transform(IdentifierToken identifier) {
-            return NodeFactory.createIdentifier(identifier.text() + "_new");
+            return NodeFactory.createIdentifierToken(identifier.text() + "_new");
         }
     }
 }

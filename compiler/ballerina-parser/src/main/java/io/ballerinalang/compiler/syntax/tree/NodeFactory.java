@@ -244,7 +244,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static VariableDeclaration createVariableDeclaration(
-            NodeList<Annotation> annotations,
+            NodeList<AnnotationNode> annotations,
             Token finalKeyword,
             Node typeName,
             Token variableName,
@@ -323,7 +323,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ExternalFunctionBody createExternalFunctionBody(
             Token equalsToken,
-            NodeList<Annotation> annotations,
+            NodeList<AnnotationNode> annotations,
             Token externalKeyword,
             Token semicolonToken) {
         Objects.requireNonNull(equalsToken, "equalsToken must not be null");
@@ -630,7 +630,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static DefaultableParameter createDefaultableParameter(
             Token leadingComma,
-            NodeList<Annotation> annotations,
+            NodeList<AnnotationNode> annotations,
             Token visibilityQualifier,
             Node type,
             Token paramName,
@@ -657,7 +657,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static RequiredParameter createRequiredParameter(
             Token leadingComma,
-            NodeList<Annotation> annotations,
+            NodeList<AnnotationNode> annotations,
             Token visibilityQualifier,
             Node type,
             Token paramName) {
@@ -678,7 +678,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static RestParameter createRestParameter(
             Token leadingComma,
-            NodeList<Annotation> annotations,
+            NodeList<AnnotationNode> annotations,
             Node type,
             Token ellipsisToken,
             Token paramName) {
@@ -888,7 +888,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ReturnTypeDescriptor createReturnTypeDescriptor(
             Token returnsKeyword,
-            NodeList<Annotation> annotations,
+            NodeList<AnnotationNode> annotations,
             Node type) {
         Objects.requireNonNull(returnsKeyword, "returnsKeyword must not be null");
         Objects.requireNonNull(annotations, "annotations must not be null");
@@ -1057,7 +1057,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stServiceBody.createUnlinkedFacade();
     }
 
-    public static Annotation createAnnotation(
+    public static AnnotationNode createAnnotation(
             Token atToken,
             Node annotReference,
             MappingConstructorExpression annotValue) {
@@ -1074,7 +1074,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static Metadata createMetadata(
             Node documentationString,
-            NodeList<Annotation> annotations) {
+            NodeList<AnnotationNode> annotations) {
         Objects.requireNonNull(documentationString, "documentationString must not be null");
         Objects.requireNonNull(annotations, "annotations must not be null");
 

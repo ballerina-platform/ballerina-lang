@@ -34,7 +34,7 @@ public class ReturnTypeDescriptor extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public NodeList<Annotation> annotations() {
+    public NodeList<AnnotationNode> annotations() {
         return new NodeList<>(childInBucket(1));
     }
 
@@ -54,7 +54,7 @@ public class ReturnTypeDescriptor extends NonTerminalNode {
 
     public ReturnTypeDescriptor modify(
             Token returnsKeyword,
-            NodeList<Annotation> annotations,
+            NodeList<AnnotationNode> annotations,
             Node type) {
         if (checkForReferenceEquality(
                 returnsKeyword,

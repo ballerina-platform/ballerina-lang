@@ -165,7 +165,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
 
     @Override
     public Node transform(VariableDeclaration variableDeclaration) {
-        NodeList<Annotation> annotations = modifyNodeList(variableDeclaration.annotations());
+        NodeList<AnnotationNode> annotations = modifyNodeList(variableDeclaration.annotations());
         Token finalKeyword = modifyToken(variableDeclaration.finalKeyword());
         Node typeName = modifyNode(variableDeclaration.typeName());
         Token variableName = modifyToken(variableDeclaration.variableName());
@@ -223,7 +223,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(ExternalFunctionBody externalFunctionBody) {
         Token equalsToken = modifyToken(externalFunctionBody.equalsToken());
-        NodeList<Annotation> annotations = modifyNodeList(externalFunctionBody.annotations());
+        NodeList<AnnotationNode> annotations = modifyNodeList(externalFunctionBody.annotations());
         Token externalKeyword = modifyToken(externalFunctionBody.externalKeyword());
         Token semicolonToken = modifyToken(externalFunctionBody.semicolonToken());
         return externalFunctionBody.modify(
@@ -445,7 +445,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(DefaultableParameter defaultableParameter) {
         Token leadingComma = modifyToken(defaultableParameter.leadingComma());
-        NodeList<Annotation> annotations = modifyNodeList(defaultableParameter.annotations());
+        NodeList<AnnotationNode> annotations = modifyNodeList(defaultableParameter.annotations());
         Token visibilityQualifier = modifyToken(defaultableParameter.visibilityQualifier());
         Node type = modifyNode(defaultableParameter.type());
         Token paramName = modifyToken(defaultableParameter.paramName());
@@ -464,7 +464,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(RequiredParameter requiredParameter) {
         Token leadingComma = modifyToken(requiredParameter.leadingComma());
-        NodeList<Annotation> annotations = modifyNodeList(requiredParameter.annotations());
+        NodeList<AnnotationNode> annotations = modifyNodeList(requiredParameter.annotations());
         Token visibilityQualifier = modifyToken(requiredParameter.visibilityQualifier());
         Node type = modifyNode(requiredParameter.type());
         Token paramName = modifyToken(requiredParameter.paramName());
@@ -479,7 +479,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(RestParameter restParameter) {
         Token leadingComma = modifyToken(restParameter.leadingComma());
-        NodeList<Annotation> annotations = modifyNodeList(restParameter.annotations());
+        NodeList<AnnotationNode> annotations = modifyNodeList(restParameter.annotations());
         Node type = modifyNode(restParameter.type());
         Token ellipsisToken = modifyToken(restParameter.ellipsisToken());
         Token paramName = modifyToken(restParameter.paramName());
@@ -633,7 +633,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(ReturnTypeDescriptor returnTypeDescriptor) {
         Token returnsKeyword = modifyToken(returnTypeDescriptor.returnsKeyword());
-        NodeList<Annotation> annotations = modifyNodeList(returnTypeDescriptor.annotations());
+        NodeList<AnnotationNode> annotations = modifyNodeList(returnTypeDescriptor.annotations());
         Node type = modifyNode(returnTypeDescriptor.type());
         return returnTypeDescriptor.modify(
                 returnsKeyword,
@@ -755,11 +755,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(Annotation annotation) {
-        Token atToken = modifyToken(annotation.atToken());
-        Node annotReference = modifyNode(annotation.annotReference());
-        MappingConstructorExpression annotValue = modifyNode(annotation.annotValue());
-        return annotation.modify(
+    public Node transform(AnnotationNode annotationNode) {
+        Token atToken = modifyToken(annotationNode.atToken());
+        Node annotReference = modifyNode(annotationNode.annotReference());
+        MappingConstructorExpression annotValue = modifyNode(annotationNode.annotValue());
+        return annotationNode.modify(
                 atToken,
                 annotReference,
                 annotValue);
@@ -768,7 +768,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(Metadata metadata) {
         Node documentationString = modifyNode(metadata.documentationString());
-        NodeList<Annotation> annotations = modifyNodeList(metadata.annotations());
+        NodeList<AnnotationNode> annotations = modifyNodeList(metadata.annotations());
         return metadata.modify(
                 documentationString,
                 annotations);

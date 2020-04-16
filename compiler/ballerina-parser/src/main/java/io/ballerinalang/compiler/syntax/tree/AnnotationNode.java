@@ -24,9 +24,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class Annotation extends NonTerminalNode {
+public class AnnotationNode extends NonTerminalNode {
 
-    public Annotation(STNode internalNode, int position, NonTerminalNode parent) {
+    public AnnotationNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -52,7 +52,7 @@ public class Annotation extends NonTerminalNode {
         return visitor.transform(this);
     }
 
-    public Annotation modify(
+    public AnnotationNode modify(
             Token atToken,
             Node annotReference,
             MappingConstructorExpression annotValue) {

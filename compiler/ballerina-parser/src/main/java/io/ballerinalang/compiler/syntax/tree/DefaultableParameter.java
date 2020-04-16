@@ -34,7 +34,7 @@ public class DefaultableParameter extends Parameter {
         return childInBucket(0);
     }
 
-    public NodeList<Annotation> annotations() {
+    public NodeList<AnnotationNode> annotations() {
         return new NodeList<>(childInBucket(1));
     }
 
@@ -70,7 +70,7 @@ public class DefaultableParameter extends Parameter {
 
     public DefaultableParameter modify(
             Token leadingComma,
-            NodeList<Annotation> annotations,
+            NodeList<AnnotationNode> annotations,
             Token visibilityQualifier,
             Node type,
             Token paramName,
