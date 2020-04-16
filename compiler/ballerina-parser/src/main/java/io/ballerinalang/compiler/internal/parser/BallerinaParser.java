@@ -4103,8 +4103,8 @@ public class BallerinaParser {
                 }
 
                 // TODO:
-                this.errorHandler.reportInvalidNode(null,
-                        "expression followed by the checking keyword must be a func-call, a method-call or a check-expr");
+                this.errorHandler.reportInvalidNode(null, "expression followed by the checking keyword must be a " +
+                        "func-call, a method-call or a check-expr");
                 break;
         }
 

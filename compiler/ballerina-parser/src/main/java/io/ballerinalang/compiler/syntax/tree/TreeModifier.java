@@ -822,6 +822,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 closeParenToken);
     }
 
+    @Override
+    public Node transform(LocalTypeDefinitionStatement localTypeDefinitionStatement) {
+        NodeList<Annotation> annotations = modifyNodeList(localTypeDefinitionStatement.annotations());
+        Token typeKeyword = modifyToken(localTypeDefinitionStatement.typeKeyword());
+        Token typeName = modifyToken(localTypeDefinitionStatement.typeName());
+        Node typeDescriptor = modifyNode(localTypeDefinitionStatement.typeDescriptor());
+        Token semicolonToken = modifyToken(localTypeDefinitionStatement.semicolonToken());
+        return localTypeDefinitionStatement.modify(
+                annotations,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken);
+    }
+
     // Tokens
 
     @Override

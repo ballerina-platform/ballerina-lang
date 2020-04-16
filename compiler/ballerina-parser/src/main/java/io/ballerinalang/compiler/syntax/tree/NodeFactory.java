@@ -1130,5 +1130,26 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeParenToken.internalNode());
         return stRemoteMethodCallAction.createUnlinkedFacade();
     }
+
+    public static LocalTypeDefinitionStatement createLocalTypeDefinitionStatement(
+            NodeList<Annotation> annotations,
+            Token typeKeyword,
+            Token typeName,
+            Node typeDescriptor,
+            Token semicolonToken) {
+        Objects.requireNonNull(annotations, "annotations must not be null");
+        Objects.requireNonNull(typeKeyword, "typeKeyword must not be null");
+        Objects.requireNonNull(typeName, "typeName must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+
+        STNode stLocalTypeDefinitionStatement = STNodeFactory.createLocalTypeDefinitionStatement(
+                annotations.underlyingListNode().internalNode(),
+                typeKeyword.internalNode(),
+                typeName.internalNode(),
+                typeDescriptor.internalNode(),
+                semicolonToken.internalNode());
+        return stLocalTypeDefinitionStatement.createUnlinkedFacade();
+    }
 }
 

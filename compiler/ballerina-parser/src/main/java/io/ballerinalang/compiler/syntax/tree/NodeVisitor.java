@@ -287,6 +287,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(remoteMethodCallAction);
     }
 
+    public void visit(LocalTypeDefinitionStatement localTypeDefinitionStatement) {
+        visitSyntaxNode(localTypeDefinitionStatement);
+    }
+
     // Tokens
 
     public void visit(Token token) {

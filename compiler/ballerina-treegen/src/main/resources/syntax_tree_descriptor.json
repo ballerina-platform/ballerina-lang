@@ -1461,6 +1461,34 @@
           "type": "Token"
         }
       ]
+    },
+    {
+      "name": "LocalTypeDefinitionStatement",
+      "base": "Statement",
+      "kind": "LOCAL_TYPE_DEFINITION_STATEMENT",
+      "attributes": [
+        {
+          "name": "annotations",
+          "type": "Annotation",
+          "occurrences": "MULTIPLE"
+        },
+        {
+          "name": "typeKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "typeName",
+          "type": "Token"
+        },
+        {
+          "name": "typeDescriptor",
+          "type": "Node"
+        },
+        {
+          "name": "semicolonToken",
+          "type": "Token"
+        }
+      ]
     }
   ]
 }

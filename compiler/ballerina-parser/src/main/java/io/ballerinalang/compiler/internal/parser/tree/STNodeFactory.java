@@ -831,5 +831,20 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 arguments,
                 closeParenToken);
     }
+
+    public static STNode createLocalTypeDefinitionStatement(
+            STNode annotations,
+            STNode typeKeyword,
+            STNode typeName,
+            STNode typeDescriptor,
+            STNode semicolonToken) {
+
+        return new STLocalTypeDefinitionStatement(
+                annotations,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken);
+    }
 }
 

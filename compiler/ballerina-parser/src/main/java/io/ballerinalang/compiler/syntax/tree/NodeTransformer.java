@@ -288,6 +288,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(remoteMethodCallAction);
     }
 
+    public T transform(LocalTypeDefinitionStatement localTypeDefinitionStatement) {
+        return transformSyntaxNode(localTypeDefinitionStatement);
+    }
+
     // Tokens
 
     public T transform(Token token) {
