@@ -28,7 +28,7 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
-import org.ballerinalang.docgen.generator.model.DefaultableVarible;
+import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.PageContext;
 import org.ballerinalang.docgen.generator.model.Type;
 import org.ballerinalang.docgen.generator.model.Variable;
@@ -64,7 +64,7 @@ public class Writer {
             Handlebars handlebars = new Handlebars().with(new ClassPathTemplateLoader(templatesClassPath), new
                     FileTemplateLoader(templatesFolderPath));
             handlebars.registerHelpers(StringHelpers.class);
-            handlebars.registerHelper("paramSummary", (Helper<List<DefaultableVarible>>)
+            handlebars.registerHelper("paramSummary", (Helper<List<DefaultableVariable>>)
                     (varList, options) -> varList.stream()
                             .map(variable -> getTypeLabel(variable.type, options.context) + " " + variable.name)
                             .collect(Collectors.joining(", "))
