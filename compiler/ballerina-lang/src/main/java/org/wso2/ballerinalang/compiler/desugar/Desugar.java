@@ -5869,10 +5869,19 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangMatch matchStmt = ASTBuilderUtil.createMatchStatement(accessExpr.pos, accessExpr.expr, new ArrayList<>());
 
+        boolean allRecords = false;
+        BUnionType errorLiftedType = BUnionType.create(null, new LinkedHashSet<>());
+        if (accessExpr.expr.type.tag == TypeTags.UNION) {
+            LinkedHashSet<BType> memTypes = new LinkedHashSet<>(((BUnionType) accessExpr.expr.type).getMemberTypes());
+            errorLiftedType = BUnionType.create(null, memTypes);
+            allRecords = checkForRecords(memTypes);
+        }
+
         // Add pattern to lift nil
         if (accessExpr.nilSafeNavigation) {
             matchStmt.patternClauses.add(getMatchNullPattern(accessExpr, tempResultVar));
             matchStmt.type = type;
+            errorLiftedType.remove(symTable.nilType);
         }
 
         // Add pattern to lift error, only if the safe navigation is used
@@ -5880,18 +5889,70 @@ public class Desugar extends BLangNodeVisitor {
             matchStmt.patternClauses.add(getMatchErrorPattern(accessExpr, tempResultVar));
             matchStmt.type = type;
             matchStmt.pos = accessExpr.pos;
+            errorLiftedType.remove(symTable.errorType);
+        }
 
+        BLangMatchTypedBindingPatternClause successPattern = null;
+        Name field = getFieldName(accessExpr);
+        if (field == Names.EMPTY) {
+            successPattern = getSuccessPattern(accessExpr, tempResultVar,
+                    accessExpr.errorSafeNavigation);
+            matchStmt.patternClauses.add(successPattern);
+            pushToMatchStatementStack(matchStmt, accessExpr, successPattern);
+            return;
+        }
+
+        if (allRecords) {
+            for (BType memberType : errorLiftedType.getMemberTypes()) {
+                BSymbol fieldSymbol = symResolver.resolveStructField(accessExpr.pos, this.env, field,
+                        memberType.tsymbol);
+                if (fieldSymbol != symTable.notFoundSymbol) {
+                    successPattern = getSuccessPatternRecordMatch(memberType, accessExpr, tempResultVar);
+                    matchStmt.patternClauses.add(successPattern);
+                }
+            }
+            matchStmt.patternClauses.add(getMatchAllPattern(accessExpr, tempResultVar));
+            pushToMatchStatementStack(matchStmt, accessExpr, successPattern);
+            return;
         }
 
         // Create the pattern for success scenario. i.e: not null and not error (if applicable).
-        BLangMatchTypedBindingPatternClause successPattern =
+        successPattern =
                 getSuccessPattern(accessExpr, tempResultVar, accessExpr.errorSafeNavigation);
         matchStmt.patternClauses.add(successPattern);
+        pushToMatchStatementStack(matchStmt, accessExpr, successPattern);
+    }
+
+    private void pushToMatchStatementStack(BLangMatch matchStmt, BLangAccessExpression accessExpr,
+                                           BLangMatchTypedBindingPatternClause successPattern) {
         this.matchStmtStack.push(matchStmt);
         if (this.successPattern != null) {
             this.successPattern.body = ASTBuilderUtil.createBlockStmt(accessExpr.pos, Lists.of(matchStmt));
         }
         this.successPattern = successPattern;
+    }
+
+    private Name getFieldName(BLangAccessExpression accessExpr) {
+        Name field = Names.EMPTY;
+        if (accessExpr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            field = new Name(((BLangFieldBasedAccess) accessExpr).field.value);
+        } else if (accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            BLangExpression indexBasedExpression = ((BLangIndexBasedAccess) accessExpr).indexExpr;
+            if (indexBasedExpression.getKind() == NodeKind.LITERAL) {
+                field = new Name(((BLangLiteral) indexBasedExpression).value.toString());
+            }
+        }
+        return field;
+    }
+
+    private boolean checkForRecords(LinkedHashSet<BType> memTypes) {
+        for (BType memType : memTypes) {
+            int typeTag = memType.tag;
+            if (typeTag != TypeTags.RECORD && typeTag != TypeTags.ERROR && typeTag != TypeTags.NIL) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private BLangMatchTypedBindingPatternClause getMatchErrorPattern(BLangExpression expr,
@@ -5952,6 +6013,25 @@ public class Desugar extends BLangNodeVisitor {
         return nullPattern;
     }
 
+    private BLangMatchStaticBindingPatternClause getMatchAllPattern(BLangExpression expr,
+                                                                    BLangSimpleVariable tempResultVar) {
+
+        BLangVariableReference tempResultVarRef = ASTBuilderUtil.createVariableRef(expr.pos, tempResultVar.symbol);
+        BLangAssignment assignmentStmt =
+                ASTBuilderUtil.createAssignmentStmt(expr.pos, tempResultVarRef, createLiteral(expr.pos,
+                        symTable.nilType, Names.NIL_VALUE), false);
+        BLangBlockStmt patternBody = ASTBuilderUtil.createBlockStmt(expr.pos, Lists.of(assignmentStmt));
+
+        BLangMatchStaticBindingPatternClause c =
+                (BLangMatchStaticBindingPatternClause) TreeBuilder.createMatchStatementStaticBindingPattern();
+        String matchAllVarName = "_";
+        c.literal = ASTBuilderUtil.createVariableRef(expr.pos, new BVarSymbol(0, names.fromString(matchAllVarName),
+                this.env.scope.owner.pkgID, symTable.anyType, this.env.scope.owner));
+        c.body = patternBody;
+
+        return c;
+    }
+
     private BLangMatchTypedBindingPatternClause getSuccessPattern(BLangAccessExpression accessExpr,
             BLangSimpleVariable tempResultVar, boolean liftError) {
         BType type = types.getSafeType(accessExpr.expr.type, true, liftError);
@@ -5996,6 +6076,62 @@ public class Desugar extends BLangNodeVisitor {
         // R b => a = x.foo;
         BLangMatchTypedBindingPatternClause successPattern =
                 ASTBuilderUtil.createMatchStatementPattern(accessExpr.pos, successPatternVar, patternBody);
+        this.safeNavigationAssignment = assignmentStmt;
+        return successPattern;
+    }
+
+    private BLangMatchTypedBindingPatternClause getSuccessPatternRecordMatch(BType type,
+                                                                             BLangAccessExpression accessExpr,
+                                                                             BLangSimpleVariable tempResultVar) {
+        String successPatternVarName = GEN_VAR_PREFIX.value + "t_match_success" + type.toString();
+
+        BVarSymbol  successPatternSymbol;
+        if (type.tag == TypeTags.INVOKABLE) {
+            successPatternSymbol = new BInvokableSymbol(SymTag.VARIABLE, 0, names.fromString(successPatternVarName),
+                    this.env.scope.owner.pkgID, type, this.env.scope.owner);
+        } else {
+            successPatternSymbol = new BVarSymbol(0, names.fromString(successPatternVarName),
+                    this.env.scope.owner.pkgID, type, this.env.scope.owner);
+        }
+
+        BLangSimpleVariable successPatternVar = ASTBuilderUtil.createVariable(accessExpr.pos, successPatternVarName,
+                type, null, successPatternSymbol);
+
+        BLangAccessExpression tempAccessExpr = null;
+        if (accessExpr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
+            tempAccessExpr =
+                    ASTBuilderUtil.createFieldAccessExpr(ASTBuilderUtil.createVariableRef(accessExpr.pos,
+                            successPatternVar.symbol), ((BLangFieldBasedAccess) accessExpr).field);
+        } else if (accessExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            tempAccessExpr =
+                    ASTBuilderUtil.createIndexAccessExpr(ASTBuilderUtil.createVariableRef(accessExpr.pos,
+                            successPatternVar.symbol), ((BLangIndexBasedAccess) accessExpr).indexExpr);
+        }
+        tempAccessExpr.errorSafeNavigation = false;
+        tempAccessExpr.nilSafeNavigation = false;
+
+        // Type of the field access expression should be always taken from the child type.
+        // Because the type assigned to expression contains the inherited error/nil types,
+        // and may not reflect the actual type of the child/field expr.
+        if (TypeTags.isXMLTypeTag(tempAccessExpr.expr.type.tag)) {
+            tempAccessExpr.type = BUnionType.create(null, accessExpr.originalType, symTable.errorType,
+                    symTable.nilType);
+        } else {
+            tempAccessExpr.type = accessExpr.originalType;
+        }
+
+        BLangVariableReference tempResultVarRef =
+                ASTBuilderUtil.createVariableRef(tempAccessExpr.pos, tempResultVar.symbol);
+
+        BLangExpression assignmentRhsExpr = addConversionExprIfRequired(tempAccessExpr, tempResultVarRef.type);
+        BLangAssignment assignmentStmt =
+                ASTBuilderUtil.createAssignmentStmt(accessExpr.pos, tempResultVarRef, assignmentRhsExpr, false);
+        BLangBlockStmt patternBody = ASTBuilderUtil.createBlockStmt(tempAccessExpr.pos, Lists.of(assignmentStmt));
+
+        // Create the pattern
+        // R b => a = x.foo;
+        BLangMatchTypedBindingPatternClause successPattern =
+                ASTBuilderUtil.createMatchStatementPattern(tempAccessExpr.pos, successPatternVar, patternBody);
         this.safeNavigationAssignment = assignmentStmt;
         return successPattern;
     }

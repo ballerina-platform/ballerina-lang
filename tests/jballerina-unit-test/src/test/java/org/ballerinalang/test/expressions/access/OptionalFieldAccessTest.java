@@ -132,4 +132,14 @@ public class OptionalFieldAccessTest {
                 { "testJsonOptionalFieldAccessOnInvocation" }
         };
     }
+
+    @Test
+    public void testOptionalFieldAccessInUnionType1() {
+        BRunUtil.invoke(result, "testOptionalFieldAccessInUnionType1");
+    }
+
+    @Test
+    public void testOptionalFieldAccessInUnionType2() {
+        BRunUtil.invoke(result, "testOptionalFieldAccessInUnionType2");
+    }
 }

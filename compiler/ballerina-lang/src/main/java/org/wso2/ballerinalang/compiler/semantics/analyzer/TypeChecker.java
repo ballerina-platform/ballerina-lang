@@ -4614,14 +4614,21 @@ public class TypeChecker extends BLangNodeVisitor {
 
         LinkedHashSet<BType> fieldTypeMembers = new LinkedHashSet<>();
 
+        boolean nonMatchedRecordExists = false;
+
         for (BType memType : memberTypes) {
             BType individualFieldType = checkOptionalRecordFieldAccessExpr(fieldAccessExpr, memType, fieldName);
 
             if (individualFieldType == symTable.semanticError) {
+                nonMatchedRecordExists = true;
                 continue;
             }
 
             fieldTypeMembers.add(individualFieldType);
+        }
+
+        if (nonMatchedRecordExists) {
+            fieldTypeMembers.add(symTable.nilType);
         }
 
         if (fieldTypeMembers.isEmpty()) {
