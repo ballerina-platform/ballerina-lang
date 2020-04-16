@@ -2595,6 +2595,7 @@ public class BallerinaParser {
             case CONTINUE_KEYWORD:
             case BREAK_KEYWORD:
             case RETURN_KEYWORD:
+            case TYPE_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
                 break;
             default:
@@ -5407,11 +5408,11 @@ public class BallerinaParser {
         STNode semicolon = parseSemicolon();
         endContext();
         return STNodeFactory.createLocalTypeDefinitionStatement(
-                annots,
-                typeKeyword,
-                typeName,
-                typeDescriptor,
-                semicolon);
+            annots,
+            typeKeyword,
+            typeName,
+            typeDescriptor,
+            semicolon);
     }
 
     /**
