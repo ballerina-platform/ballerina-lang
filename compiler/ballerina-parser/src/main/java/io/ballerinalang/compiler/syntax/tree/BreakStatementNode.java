@@ -24,13 +24,13 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ContinueStatement extends Statement {
+public class BreakStatementNode extends StatementNode {
 
-    public ContinueStatement(STNode internalNode, int position, NonTerminalNode parent) {
+    public BreakStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token continueToken() {
+    public Token breakToken() {
         return childInBucket(0);
     }
 
@@ -48,17 +48,17 @@ public class ContinueStatement extends Statement {
         return visitor.transform(this);
     }
 
-    public ContinueStatement modify(
-            Token continueToken,
+    public BreakStatementNode modify(
+            Token breakToken,
             Token semicolonToken) {
         if (checkForReferenceEquality(
-                continueToken,
+                breakToken,
                 semicolonToken)) {
             return this;
         }
 
-        return NodeFactory.createContinueStatement(
-                continueToken,
+        return NodeFactory.createBreakStatement(
+                breakToken,
                 semicolonToken);
     }
 }

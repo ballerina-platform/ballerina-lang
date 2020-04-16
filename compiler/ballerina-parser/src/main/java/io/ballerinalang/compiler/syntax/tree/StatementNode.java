@@ -24,9 +24,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public abstract class Statement extends NonTerminalNode {
+public abstract class StatementNode extends NonTerminalNode {
 
-    public Statement(STNode internalNode, int position, NonTerminalNode parent) {
+    public StatementNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 }

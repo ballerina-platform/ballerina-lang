@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.AssignmentStatement;
+import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -52,6 +52,6 @@ public class STAssignmentStatementNodeNode extends STStatementNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new AssignmentStatement(this, position, parent);
+        return new AssignmentStatementNode(this, position, parent);
     }
 }

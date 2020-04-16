@@ -24,25 +24,25 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class AssignmentStatement extends Statement {
+public class IfElseStatementNode extends StatementNode {
 
-    public AssignmentStatement(STNode internalNode, int position, NonTerminalNode parent) {
+    public IfElseStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Node varRef() {
+    public Token ifKeyword() {
         return childInBucket(0);
     }
 
-    public Token equalsToken() {
+    public Node condition() {
         return childInBucket(1);
     }
 
-    public ExpressionNode expression() {
+    public Node ifBody() {
         return childInBucket(2);
     }
 
-    public Token semicolonToken() {
+    public Node elseBody() {
         return childInBucket(3);
     }
 
@@ -56,23 +56,23 @@ public class AssignmentStatement extends Statement {
         return visitor.transform(this);
     }
 
-    public AssignmentStatement modify(
-            Node varRef,
-            Token equalsToken,
-            ExpressionNode expression,
-            Token semicolonToken) {
+    public IfElseStatementNode modify(
+            Token ifKeyword,
+            Node condition,
+            Node ifBody,
+            Node elseBody) {
         if (checkForReferenceEquality(
-                varRef,
-                equalsToken,
-                expression,
-                semicolonToken)) {
+                ifKeyword,
+                condition,
+                ifBody,
+                elseBody)) {
             return this;
         }
 
-        return NodeFactory.createAssignmentStatement(
-                varRef,
-                equalsToken,
-                expression,
-                semicolonToken);
+        return NodeFactory.createIfElseStatement(
+                ifKeyword,
+                condition,
+                ifBody,
+                elseBody);
     }
 }

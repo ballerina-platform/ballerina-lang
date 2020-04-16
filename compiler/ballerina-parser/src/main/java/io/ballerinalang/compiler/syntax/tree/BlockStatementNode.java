@@ -24,18 +24,22 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class CallStatement extends Statement {
+public class BlockStatementNode extends StatementNode {
 
-    public CallStatement(STNode internalNode, int position, NonTerminalNode parent) {
+    public BlockStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Node expression() {
+    public Token openBraceToken() {
         return childInBucket(0);
     }
 
-    public Token semicolonToken() {
-        return childInBucket(1);
+    public NodeList<StatementNode> statements() {
+        return new NodeList<>(childInBucket(1));
+    }
+
+    public Token closeBraceToken() {
+        return childInBucket(2);
     }
 
     @Override
@@ -48,17 +52,20 @@ public class CallStatement extends Statement {
         return visitor.transform(this);
     }
 
-    public CallStatement modify(
-            Node expression,
-            Token semicolonToken) {
+    public BlockStatementNode modify(
+            Token openBraceToken,
+            NodeList<StatementNode> statements,
+            Token closeBraceToken) {
         if (checkForReferenceEquality(
-                expression,
-                semicolonToken)) {
+                openBraceToken,
+                statements.underlyingListNode(),
+                closeBraceToken)) {
             return this;
         }
 
-        return NodeFactory.createCallStatement(
-                expression,
-                semicolonToken);
+        return NodeFactory.createBlockStatement(
+                openBraceToken,
+                statements,
+                closeBraceToken);
     }
 }

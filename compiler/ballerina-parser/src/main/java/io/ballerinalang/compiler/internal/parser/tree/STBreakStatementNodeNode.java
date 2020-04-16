@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.BreakStatement;
+import io.ballerinalang.compiler.syntax.tree.BreakStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -44,6 +44,6 @@ public class STBreakStatementNodeNode extends STStatementNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new BreakStatement(this, position, parent);
+        return new BreakStatementNode(this, position, parent);
     }
 }

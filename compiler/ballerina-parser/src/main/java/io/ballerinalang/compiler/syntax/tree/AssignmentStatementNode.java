@@ -24,22 +24,26 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class WhileStatement extends Statement {
+public class AssignmentStatementNode extends StatementNode {
 
-    public WhileStatement(STNode internalNode, int position, NonTerminalNode parent) {
+    public AssignmentStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token whileKeyword() {
+    public Node varRef() {
         return childInBucket(0);
     }
 
-    public ExpressionNode condition() {
+    public Token equalsToken() {
         return childInBucket(1);
     }
 
-    public Node whileBody() {
+    public ExpressionNode expression() {
         return childInBucket(2);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(3);
     }
 
     @Override
@@ -52,20 +56,23 @@ public class WhileStatement extends Statement {
         return visitor.transform(this);
     }
 
-    public WhileStatement modify(
-            Token whileKeyword,
-            ExpressionNode condition,
-            Node whileBody) {
+    public AssignmentStatementNode modify(
+            Node varRef,
+            Token equalsToken,
+            ExpressionNode expression,
+            Token semicolonToken) {
         if (checkForReferenceEquality(
-                whileKeyword,
-                condition,
-                whileBody)) {
+                varRef,
+                equalsToken,
+                expression,
+                semicolonToken)) {
             return this;
         }
 
-        return NodeFactory.createWhileStatement(
-                whileKeyword,
-                condition,
-                whileBody);
+        return NodeFactory.createAssignmentStatement(
+                varRef,
+                equalsToken,
+                expression,
+                semicolonToken);
     }
 }

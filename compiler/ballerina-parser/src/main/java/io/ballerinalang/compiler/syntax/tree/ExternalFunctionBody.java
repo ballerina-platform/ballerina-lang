@@ -24,7 +24,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ExternalFunctionBody extends Statement {
+public class ExternalFunctionBody extends StatementNode {
 
     public ExternalFunctionBody(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

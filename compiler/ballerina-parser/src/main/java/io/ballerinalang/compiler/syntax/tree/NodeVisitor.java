@@ -63,15 +63,15 @@ public abstract class NodeVisitor {
         visitSyntaxNode(serviceDeclaration);
     }
 
-    public void visit(AssignmentStatement assignmentStatement) {
+    public void visit(AssignmentStatementNode assignmentStatement) {
         visitSyntaxNode(assignmentStatement);
     }
 
-    public void visit(CompoundAssignmentStatement compoundAssignmentStatement) {
+    public void visit(CompoundAssignmentStatementNode compoundAssignmentStatement) {
         visitSyntaxNode(compoundAssignmentStatement);
     }
 
-    public void visit(LocalTypeDefinitionStatement localTypeDefinitionStatement) {
+    public void visit(LocalTypeDefinitionStatementNode localTypeDefinitionStatement) {
         visitSyntaxNode(localTypeDefinitionStatement);
     }
 
@@ -79,19 +79,19 @@ public abstract class NodeVisitor {
         visitSyntaxNode(variableDeclaration);
     }
 
-    public void visit(BlockStatement blockStatement) {
+    public void visit(BlockStatementNode blockStatement) {
         visitSyntaxNode(blockStatement);
     }
 
-    public void visit(BreakStatement breakStatement) {
+    public void visit(BreakStatementNode breakStatement) {
         visitSyntaxNode(breakStatement);
     }
 
-    public void visit(CallStatement callStatement) {
+    public void visit(CallStatementNode callStatement) {
         visitSyntaxNode(callStatement);
     }
 
-    public void visit(ContinueStatement continueStatement) {
+    public void visit(ContinueStatementNode continueStatement) {
         visitSyntaxNode(continueStatement);
     }
 
@@ -99,7 +99,7 @@ public abstract class NodeVisitor {
         visitSyntaxNode(externalFunctionBody);
     }
 
-    public void visit(IfElseStatement ifElseStatement) {
+    public void visit(IfElseStatementNode ifElseStatement) {
         visitSyntaxNode(ifElseStatement);
     }
 
@@ -107,15 +107,15 @@ public abstract class NodeVisitor {
         visitSyntaxNode(elseBlock);
     }
 
-    public void visit(WhileStatement whileStatement) {
+    public void visit(WhileStatementNode whileStatement) {
         visitSyntaxNode(whileStatement);
     }
 
-    public void visit(PanicStatement panicStatement) {
+    public void visit(PanicStatementNode panicStatement) {
         visitSyntaxNode(panicStatement);
     }
 
-    public void visit(ReturnStatement returnStatement) {
+    public void visit(ReturnStatementNode returnStatement) {
         visitSyntaxNode(returnStatement);
     }
 

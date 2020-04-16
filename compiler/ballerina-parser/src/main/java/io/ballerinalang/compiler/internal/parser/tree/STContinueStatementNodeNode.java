@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ContinueStatement;
+import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -44,6 +44,6 @@ public class STContinueStatementNodeNode extends STStatementNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ContinueStatement(this, position, parent);
+        return new ContinueStatementNode(this, position, parent);
     }
 }

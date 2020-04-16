@@ -23,9 +23,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.STTypeToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
-import io.ballerinalang.compiler.syntax.tree.AssignmentStatement;
-import io.ballerinalang.compiler.syntax.tree.BlockStatement;
-import io.ballerinalang.compiler.syntax.tree.CallStatement;
+import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
+import io.ballerinalang.compiler.syntax.tree.CallStatementNode;
 import io.ballerinalang.compiler.syntax.tree.EmptyToken;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
@@ -244,7 +244,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
     // -----------------------------------------------Statements--------------------------------------------------------
 
     @Override
-    public BLangBlockStmt transform(BlockStatement blockStatement) {
+    public BLangBlockStmt transform(BlockStatementNode blockStatement) {
         BLangBlockStmt blockNode = (BLangBlockStmt) TreeBuilder.createBlockNode();
         List<BLangStatement> statements = new ArrayList<>();
         blockStatement.statements().iterator().forEachRemaining(statement -> {
@@ -258,12 +258,12 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(AssignmentStatement assignmentStatement) {
+    public BLangNode transform(AssignmentStatementNode assignmentStatement) {
         return super.transform(assignmentStatement);
     }
 
     @Override
-    public BLangExpressionStmt transform(CallStatement callStatement) {
+    public BLangExpressionStmt transform(CallStatementNode callStatement) {
         BLangExpressionStmt expressionStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
         expressionStmt.expr = (BLangExpression) callStatement.expression().apply(this);
         expressionStmt.pos = emptyPos;

@@ -24,18 +24,22 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class BreakStatement extends Statement {
+public class PanicStatementNode extends StatementNode {
 
-    public BreakStatement(STNode internalNode, int position, NonTerminalNode parent) {
+    public PanicStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token breakToken() {
+    public Token panicKeyword() {
         return childInBucket(0);
     }
 
-    public Token semicolonToken() {
+    public ExpressionNode expression() {
         return childInBucket(1);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(2);
     }
 
     @Override
@@ -48,17 +52,20 @@ public class BreakStatement extends Statement {
         return visitor.transform(this);
     }
 
-    public BreakStatement modify(
-            Token breakToken,
+    public PanicStatementNode modify(
+            Token panicKeyword,
+            ExpressionNode expression,
             Token semicolonToken) {
         if (checkForReferenceEquality(
-                breakToken,
+                panicKeyword,
+                expression,
                 semicolonToken)) {
             return this;
         }
 
-        return NodeFactory.createBreakStatement(
-                breakToken,
+        return NodeFactory.createPanicStatement(
+                panicKeyword,
+                expression,
                 semicolonToken);
     }
 }

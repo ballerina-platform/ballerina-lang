@@ -24,30 +24,18 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class LocalTypeDefinitionStatement extends Statement {
+public class ContinueStatementNode extends StatementNode {
 
-    public LocalTypeDefinitionStatement(STNode internalNode, int position, NonTerminalNode parent) {
+    public ContinueStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Node annots() {
+    public Token continueToken() {
         return childInBucket(0);
     }
 
-    public Token typeKeyword() {
-        return childInBucket(1);
-    }
-
-    public Node typeName() {
-        return childInBucket(2);
-    }
-
-    public Node typeDescriptor() {
-        return childInBucket(3);
-    }
-
     public Token semicolonToken() {
-        return childInBucket(4);
+        return childInBucket(1);
     }
 
     @Override
@@ -60,26 +48,17 @@ public class LocalTypeDefinitionStatement extends Statement {
         return visitor.transform(this);
     }
 
-    public LocalTypeDefinitionStatement modify(
-            Node annots,
-            Token typeKeyword,
-            Node typeName,
-            Node typeDescriptors,
+    public ContinueStatementNode modify(
+            Token continueToken,
             Token semicolonToken) {
         if (checkForReferenceEquality(
-                annots,
-                typeKeyword,
-                typeName,
-                typeDescriptors,
+                continueToken,
                 semicolonToken)) {
             return this;
         }
 
-        return NodeFactory.createLocalTypeDefinitionStatement(
-                annots,
-                typeKeyword,
-                typeName,
-                typeDescriptors,
+        return NodeFactory.createContinueStatement(
+                continueToken,
                 semicolonToken);
     }
 }

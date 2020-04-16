@@ -50,7 +50,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         NodeList<Parameter> parameters = modifyNodeList(functionDefinition.parameters());
         Token closeParenToken = modifyToken(functionDefinition.closeParenToken());
         Node returnTypeDesc = modifyNode(functionDefinition.returnTypeDesc());
-        BlockStatement functionBody = modifyNode(functionDefinition.functionBody());
+        BlockStatementNode functionBody = modifyNode(functionDefinition.functionBody());
         return functionDefinition.modify(
                 metadata,
                 visibilityQualifier,
@@ -136,7 +136,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(AssignmentStatement assignmentStatement) {
+    public Node transform(AssignmentStatementNode assignmentStatement) {
         Node varRef = modifyNode(assignmentStatement.varRef());
         Token equalsToken = modifyToken(assignmentStatement.equalsToken());
         ExpressionNode expression = modifyNode(assignmentStatement.expression());
@@ -149,7 +149,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(CompoundAssignmentStatement compoundAssignmentStatement) {
+    public Node transform(CompoundAssignmentStatementNode compoundAssignmentStatement) {
         ExpressionNode lhsExpression = modifyNode(compoundAssignmentStatement.lhsExpression());
         Token binaryOperator = modifyToken(compoundAssignmentStatement.binaryOperator());
         Token equalsToken = modifyToken(compoundAssignmentStatement.equalsToken());
@@ -183,9 +183,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(BlockStatement blockStatement) {
+    public Node transform(BlockStatementNode blockStatement) {
         Token openBraceToken = modifyToken(blockStatement.openBraceToken());
-        NodeList<Statement> statements = modifyNodeList(blockStatement.statements());
+        NodeList<StatementNode> statements = modifyNodeList(blockStatement.statements());
         Token closeBraceToken = modifyToken(blockStatement.closeBraceToken());
         return blockStatement.modify(
                 openBraceToken,
@@ -194,7 +194,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(BreakStatement breakStatement) {
+    public Node transform(BreakStatementNode breakStatement) {
         Token breakToken = modifyToken(breakStatement.breakToken());
         Token semicolonToken = modifyToken(breakStatement.semicolonToken());
         return breakStatement.modify(
@@ -203,7 +203,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(CallStatement callStatement) {
+    public Node transform(CallStatementNode callStatement) {
         Node expression = modifyNode(callStatement.expression());
         Token semicolonToken = modifyToken(callStatement.semicolonToken());
         return callStatement.modify(
@@ -212,7 +212,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(ContinueStatement continueStatement) {
+    public Node transform(ContinueStatementNode continueStatement) {
         Token continueToken = modifyToken(continueStatement.continueToken());
         Token semicolonToken = modifyToken(continueStatement.semicolonToken());
         return continueStatement.modify(
@@ -234,7 +234,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(IfElseStatement ifElseStatement) {
+    public Node transform(IfElseStatementNode ifElseStatement) {
         Token ifKeyword = modifyToken(ifElseStatement.ifKeyword());
         Node condition = modifyNode(ifElseStatement.condition());
         Node ifBody = modifyNode(ifElseStatement.ifBody());
@@ -256,7 +256,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(WhileStatement whileStatement) {
+    public Node transform(WhileStatementNode whileStatement) {
         Token whileKeyword = modifyToken(whileStatement.whileKeyword());
         ExpressionNode condition = modifyNode(whileStatement.condition());
         Node whileBody = modifyNode(whileStatement.whileBody());
@@ -267,7 +267,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(PanicStatement panicStatement) {
+    public Node transform(PanicStatementNode panicStatement) {
         Token panicKeyword = modifyToken(panicStatement.panicKeyword());
         ExpressionNode expression = modifyNode(panicStatement.expression());
         Token semicolonToken = modifyToken(panicStatement.semicolonToken());
@@ -278,7 +278,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(ReturnStatement returnStatement) {
+    public Node transform(ReturnStatementNode returnStatement) {
         Token returnKeyword = modifyToken(returnStatement.returnKeyword());
         ExpressionNode expression = modifyNode(returnStatement.expression());
         Token semicolonToken = modifyToken(returnStatement.semicolonToken());

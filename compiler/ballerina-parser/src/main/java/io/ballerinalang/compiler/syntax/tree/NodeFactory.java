@@ -57,7 +57,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             NodeList<Parameter> parameters,
             Token closeParenToken,
             Node returnTypeDesc,
-            BlockStatement functionBody) {
+            BlockStatementNode functionBody) {
         Objects.requireNonNull(metadata, "metadata must not be null");
         Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
@@ -183,7 +183,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stServiceDeclaration.createUnlinkedFacade();
     }
 
-    public static AssignmentStatement createAssignmentStatement(
+    public static AssignmentStatementNode createAssignmentStatement(
             Node varRef,
             Token equalsToken,
             ExpressionNode expression,
@@ -201,7 +201,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stAssignmentStatement.createUnlinkedFacade();
     }
 
-    public static CompoundAssignmentStatement createCompoundAssignmentStatement(
+    public static CompoundAssignmentStatementNode createCompoundAssignmentStatement(
             ExpressionNode lhsExpression,
             Token binaryOperator,
             Token equalsToken,
@@ -222,7 +222,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stCompoundAssignmentStatement.createUnlinkedFacade();
     }
 
-    public static LocalTypeDefinitionStatement createLocalTypeDefinitionStatement(
+    public static LocalTypeDefinitionStatementNode createLocalTypeDefinitionStatement(
             Node annots,            
             Token typeKeyword,
             Node typeName,
@@ -270,9 +270,9 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stVariableDeclaration.createUnlinkedFacade();
     }
 
-    public static BlockStatement createBlockStatement(
+    public static BlockStatementNode createBlockStatement(
             Token openBraceToken,
-            NodeList<Statement> statements,
+            NodeList<StatementNode> statements,
             Token closeBraceToken) {
         Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
         Objects.requireNonNull(statements, "statements must not be null");
@@ -285,7 +285,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stBlockStatement.createUnlinkedFacade();
     }
 
-    public static BreakStatement createBreakStatement(
+    public static BreakStatementNode createBreakStatement(
             Token breakToken,
             Token semicolonToken) {
         Objects.requireNonNull(breakToken, "breakToken must not be null");
@@ -297,7 +297,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stBreakStatement.createUnlinkedFacade();
     }
 
-    public static CallStatement createCallStatement(
+    public static CallStatementNode createCallStatement(
             Node expression,
             Token semicolonToken) {
         Objects.requireNonNull(expression, "expression must not be null");
@@ -309,7 +309,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stCallStatement.createUnlinkedFacade();
     }
 
-    public static ContinueStatement createContinueStatement(
+    public static ContinueStatementNode createContinueStatement(
             Token continueToken,
             Token semicolonToken) {
         Objects.requireNonNull(continueToken, "continueToken must not be null");
@@ -339,7 +339,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stExternalFunctionBody.createUnlinkedFacade();
     }
 
-    public static IfElseStatement createIfElseStatement(
+    public static IfElseStatementNode createIfElseStatement(
             Token ifKeyword,
             Node condition,
             Node ifBody,
@@ -369,7 +369,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stElseBlock.createUnlinkedFacade();
     }
 
-    public static WhileStatement createWhileStatement(
+    public static WhileStatementNode createWhileStatement(
             Token whileKeyword,
             ExpressionNode condition,
             Node whileBody) {
@@ -384,7 +384,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stWhileStatement.createUnlinkedFacade();
     }
 
-    public static PanicStatement createPanicStatement(
+    public static PanicStatementNode createPanicStatement(
             Token panicKeyword,
             ExpressionNode expression,
             Token semicolonToken) {
@@ -399,7 +399,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stPanicStatement.createUnlinkedFacade();
     }
 
-    public static ReturnStatement createReturnStatement(
+    public static ReturnStatementNode createReturnStatement(
             Token returnKeyword,
             ExpressionNode expression,
             Token semicolonToken) {

@@ -24,30 +24,22 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class CompoundAssignmentStatement extends Statement {
+public class WhileStatementNode extends StatementNode {
 
-    public CompoundAssignmentStatement(STNode internalNode, int position, NonTerminalNode parent) {
+    public WhileStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public ExpressionNode lhsExpression() {
+    public Token whileKeyword() {
         return childInBucket(0);
     }
 
-    public Token binaryOperator() {
+    public ExpressionNode condition() {
         return childInBucket(1);
     }
 
-    public Token equalsToken() {
+    public Node whileBody() {
         return childInBucket(2);
-    }
-
-    public ExpressionNode rhsExpression() {
-        return childInBucket(3);
-    }
-
-    public Token semicolonToken() {
-        return childInBucket(4);
     }
 
     @Override
@@ -60,26 +52,20 @@ public class CompoundAssignmentStatement extends Statement {
         return visitor.transform(this);
     }
 
-    public CompoundAssignmentStatement modify(
-            ExpressionNode lhsExpression,
-            Token binaryOperator,
-            Token equalsToken,
-            ExpressionNode rhsExpression,
-            Token semicolonToken) {
+    public WhileStatementNode modify(
+            Token whileKeyword,
+            ExpressionNode condition,
+            Node whileBody) {
         if (checkForReferenceEquality(
-                lhsExpression,
-                binaryOperator,
-                equalsToken,
-                rhsExpression,
-                semicolonToken)) {
+                whileKeyword,
+                condition,
+                whileBody)) {
             return this;
         }
 
-        return NodeFactory.createCompoundAssignmentStatement(
-                lhsExpression,
-                binaryOperator,
-                equalsToken,
-                rhsExpression,
-                semicolonToken);
+        return NodeFactory.createWhileStatement(
+                whileKeyword,
+                condition,
+                whileBody);
     }
 }

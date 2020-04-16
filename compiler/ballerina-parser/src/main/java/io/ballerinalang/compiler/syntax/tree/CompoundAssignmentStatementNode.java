@@ -24,22 +24,30 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ReturnStatement extends Statement {
+public class CompoundAssignmentStatementNode extends StatementNode {
 
-    public ReturnStatement(STNode internalNode, int position, NonTerminalNode parent) {
+    public CompoundAssignmentStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token returnKeyword() {
+    public ExpressionNode lhsExpression() {
         return childInBucket(0);
     }
 
-    public ExpressionNode expression() {
+    public Token binaryOperator() {
         return childInBucket(1);
     }
 
-    public Token semicolonToken() {
+    public Token equalsToken() {
         return childInBucket(2);
+    }
+
+    public ExpressionNode rhsExpression() {
+        return childInBucket(3);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(4);
     }
 
     @Override
@@ -52,20 +60,26 @@ public class ReturnStatement extends Statement {
         return visitor.transform(this);
     }
 
-    public ReturnStatement modify(
-            Token returnKeyword,
-            ExpressionNode expression,
+    public CompoundAssignmentStatementNode modify(
+            ExpressionNode lhsExpression,
+            Token binaryOperator,
+            Token equalsToken,
+            ExpressionNode rhsExpression,
             Token semicolonToken) {
         if (checkForReferenceEquality(
-                returnKeyword,
-                expression,
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
                 semicolonToken)) {
             return this;
         }
 
-        return NodeFactory.createReturnStatement(
-                returnKeyword,
-                expression,
+        return NodeFactory.createCompoundAssignmentStatement(
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
                 semicolonToken);
     }
 }

@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.IfElseStatement;
+import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -52,6 +52,6 @@ public class STIfElseStatementNode extends STStatementNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new IfElseStatement(this, position, parent);
+        return new IfElseStatementNode(this, position, parent);
     }
 }

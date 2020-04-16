@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.WhileStatement;
+import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
 
 /**
  * This is a generated internal syntax tree node.
@@ -48,6 +48,6 @@ public class STWhileStatementNode extends STStatementNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new WhileStatement(this, position, parent);
+        return new WhileStatementNode(this, position, parent);
     }
 }

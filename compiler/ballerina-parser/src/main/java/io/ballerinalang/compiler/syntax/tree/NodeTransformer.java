@@ -64,15 +64,15 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(serviceDeclaration);
     }
 
-    public T transform(AssignmentStatement assignmentStatement) {
+    public T transform(AssignmentStatementNode assignmentStatement) {
         return transformSyntaxNode(assignmentStatement);
     }
 
-    public T transform(CompoundAssignmentStatement compoundAssignmentStatement) {
+    public T transform(CompoundAssignmentStatementNode compoundAssignmentStatement) {
         return transformSyntaxNode(compoundAssignmentStatement);
     }
 
-    public T transform(LocalTypeDefinitionStatement localTypeDefinitionStatement) {
+    public T transform(LocalTypeDefinitionStatementNode localTypeDefinitionStatement) {
         return transformSyntaxNode(localTypeDefinitionStatement);
     }
 
@@ -80,19 +80,19 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(variableDeclaration);
     }
 
-    public T transform(BlockStatement blockStatement) {
+    public T transform(BlockStatementNode blockStatement) {
         return transformSyntaxNode(blockStatement);
     }
 
-    public T transform(BreakStatement breakStatement) {
+    public T transform(BreakStatementNode breakStatement) {
         return transformSyntaxNode(breakStatement);
     }
 
-    public T transform(CallStatement callStatement) {
+    public T transform(CallStatementNode callStatement) {
         return transformSyntaxNode(callStatement);
     }
 
-    public T transform(ContinueStatement continueStatement) {
+    public T transform(ContinueStatementNode continueStatement) {
         return transformSyntaxNode(continueStatement);
     }
 
@@ -100,7 +100,7 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(externalFunctionBody);
     }
 
-    public T transform(IfElseStatement ifElseStatement) {
+    public T transform(IfElseStatementNode ifElseStatement) {
         return transformSyntaxNode(ifElseStatement);
     }
 
@@ -108,15 +108,15 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(elseBlock);
     }
 
-    public T transform(WhileStatement whileStatement) {
+    public T transform(WhileStatementNode whileStatement) {
         return transformSyntaxNode(whileStatement);
     }
 
-    public T transform(PanicStatement panicStatement) {
+    public T transform(PanicStatementNode panicStatement) {
         return transformSyntaxNode(panicStatement);
     }
 
-    public T transform(ReturnStatement returnStatement) {
+    public T transform(ReturnStatementNode returnStatement) {
         return transformSyntaxNode(returnStatement);
     }
 

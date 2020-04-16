@@ -24,7 +24,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ElseBlock extends Statement {
+public class ElseBlock extends StatementNode {
 
     public ElseBlock(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

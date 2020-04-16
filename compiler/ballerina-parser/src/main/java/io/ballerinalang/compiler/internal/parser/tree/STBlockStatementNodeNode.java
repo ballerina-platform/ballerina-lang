@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.BlockStatement;
+import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -48,6 +48,6 @@ public class STBlockStatementNodeNode extends STStatementNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new BlockStatement(this, position, parent);
+        return new BlockStatementNode(this, position, parent);
     }
 }

@@ -24,26 +24,30 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class IfElseStatement extends Statement {
+public class LocalTypeDefinitionStatementNode extends StatementNode {
 
-    public IfElseStatement(STNode internalNode, int position, NonTerminalNode parent) {
+    public LocalTypeDefinitionStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token ifKeyword() {
+    public Node annots() {
         return childInBucket(0);
     }
 
-    public Node condition() {
+    public Token typeKeyword() {
         return childInBucket(1);
     }
 
-    public Node ifBody() {
+    public Node typeName() {
         return childInBucket(2);
     }
 
-    public Node elseBody() {
+    public Node typeDescriptor() {
         return childInBucket(3);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(4);
     }
 
     @Override
@@ -56,23 +60,26 @@ public class IfElseStatement extends Statement {
         return visitor.transform(this);
     }
 
-    public IfElseStatement modify(
-            Token ifKeyword,
-            Node condition,
-            Node ifBody,
-            Node elseBody) {
+    public LocalTypeDefinitionStatementNode modify(
+            Node annots,
+            Token typeKeyword,
+            Node typeName,
+            Node typeDescriptors,
+            Token semicolonToken) {
         if (checkForReferenceEquality(
-                ifKeyword,
-                condition,
-                ifBody,
-                elseBody)) {
+                annots,
+                typeKeyword,
+                typeName,
+                typeDescriptors,
+                semicolonToken)) {
             return this;
         }
 
-        return NodeFactory.createIfElseStatement(
-                ifKeyword,
-                condition,
-                ifBody,
-                elseBody);
+        return NodeFactory.createLocalTypeDefinitionStatement(
+                annots,
+                typeKeyword,
+                typeName,
+                typeDescriptors,
+                semicolonToken);
     }
 }
