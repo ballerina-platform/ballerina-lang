@@ -56,6 +56,7 @@ public enum SyntaxKind {
     CONTINUE_KEYWORD(211,"continue"),
     BREAK_KEYWORD(212,"break"),
     TYPEOF_KEYWORD(213,"typeof"),
+    IS_KEYWORD(214, "is"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -148,6 +149,7 @@ public enum SyntaxKind {
     MAPPING_CONSTRUCTOR(1308),
     TYPEOF_EXPRESSION(1309),
     UNARY_EXPRESSION(1310),
+    IS_EXPRESSION(1311),
 
     // Type descriptors
     RECORD_TYPE_DESCRIPTOR(2000),

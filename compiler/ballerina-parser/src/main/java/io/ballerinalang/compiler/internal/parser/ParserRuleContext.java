@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.internal.parser;
 /**
  * Parser rule contexts that represent each point in the grammar.
  * These represents the current scope during the parsing.
- * 
+ *
  * @since 1.2.0
  */
 public enum ParserRuleContext {
@@ -128,7 +128,7 @@ public enum ParserRuleContext {
     PRIVATE_KEYWORD("private"),
     REMOTE_KEYWORD("remote"),
     FUNCTION_KEYWORD("function"),
-    EXTERNAL_KEYWORD("external"), 
+    EXTERNAL_KEYWORD("external"),
     RECORD_KEYWORD("record"),
     OBJECT_KEYWORD("object"),
     ABSTRACT_KEYWORD("abstract"),
@@ -150,6 +150,7 @@ public enum ParserRuleContext {
     LISTENER_KEYWORD("listener"),
     CONST_KEYWORD("const"),
     TYPEOF_KEYWORD("typeof"),
+    IS_KEYWORD("is"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -200,6 +201,7 @@ public enum ParserRuleContext {
     COMPUTED_FIELD_NAME("computed-field-name"),
     TYPEOF_EXPRESSION("typeof-expr"),
     UNARY_EXPRESSION("unary-expr"),
+    IS_EXPRESSION("is-expr"),
     ;
 
     private String value;

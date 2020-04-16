@@ -284,6 +284,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(moduleVariableDeclaration);
     }
 
+    public T transform(IsExpression isExpression) {
+        return transformSyntaxNode(isExpression);
+    }
+
     // Tokens
 
     public T transform(Token token) {
