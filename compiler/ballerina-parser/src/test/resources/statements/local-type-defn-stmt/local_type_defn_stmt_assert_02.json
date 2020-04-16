@@ -2,6 +2,16 @@
     "kind": "FUNCTION_DEFINITION",
     "children": [
         {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
+            ]
+        },
+        {
             "kind": "PUBLIC_KEYWORD"
         },
         {
@@ -34,6 +44,11 @@
                         {
                             "kind": "LOCAL_TYPE_DEFINITION_STATEMENT",
                             "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                },
                                 {
                                     "kind": "TYPE_KEYWORD"
                                 },

@@ -2,6 +2,15 @@
     "kind": "FUNCTION_DEFINITION",
     "children": [
         {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": []
+                }
+            ]
+        },
+        {
             "kind": "PUBLIC_KEYWORD"
         },
         {
@@ -16,8 +25,7 @@
         },
         {
             "kind": "LIST",
-            "children": [
-            ]
+            "children": []
         },
         {
             "kind": "CLOSE_PAREN_TOKEN"
@@ -35,6 +43,10 @@
                             "kind": "LOCAL_TYPE_DEFINITION_STATEMENT",
                             "children": [
                                 {
+                                    "kind": "LIST",
+                                    "children": []
+                                },
+                                {
                                     "kind": "TYPE_KEYWORD"
                                 },
                                 {
@@ -46,8 +58,7 @@
                                     "children": [
                                         {
                                             "kind": "LIST",
-                                            "children": [
-                                            ]
+                                            "children": []
                                         },
                                         {
                                             "kind": "OBJECT_KEYWORD"
@@ -77,6 +88,15 @@
                                                     "kind": "OBJECT_FIELD",
                                                     "children": [
                                                         {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "LIST",
+                                                                    "children": []
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
                                                             "kind": "SIMPLE_TYPE",
                                                             "value": "int"
                                                         },
@@ -92,6 +112,15 @@
                                                 {
                                                     "kind": "FUNCTION_DEFINITION",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "LIST",
+                                                                    "children": []
+                                                                }
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "PUBLIC_KEYWORD"
                                                         },
@@ -109,8 +138,12 @@
                                                             "kind": "LIST",
                                                             "children": [
                                                                 {
-                                                                    "kind": "PARAMETER",
+                                                                    "kind": "REQUIRED_PARAM",
                                                                     "children": [
+                                                                        {
+                                                                            "kind": "LIST",
+                                                                            "children": []
+                                                                        },
                                                                         {
                                                                             "kind": "SIMPLE_TYPE",
                                                                             "value": "int"
@@ -122,10 +155,14 @@
                                                                     ]
                                                                 },
                                                                 {
-                                                                    "kind": "PARAMETER",
+                                                                    "kind": "REQUIRED_PARAM",
                                                                     "children": [
                                                                         {
                                                                             "kind": "COMMA_TOKEN"
+                                                                        },
+                                                                        {
+                                                                            "kind": "LIST",
+                                                                            "children": []
                                                                         },
                                                                         {
                                                                             "kind": "SIMPLE_TYPE",
@@ -150,8 +187,7 @@
                                                                 },
                                                                 {
                                                                     "kind": "LIST",
-                                                                    "children": [
-                                                                    ]
+                                                                    "children": []
                                                                 },
                                                                 {
                                                                     "kind": "CLOSE_BRACE_TOKEN"
@@ -163,6 +199,15 @@
                                                 {
                                                     "kind": "OBJECT_FIELD",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "LIST",
+                                                                    "children": []
+                                                                }
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "SIMPLE_TYPE",
                                                             "value": "int"
@@ -197,5 +242,3 @@
         }
     ]
 }
-
-

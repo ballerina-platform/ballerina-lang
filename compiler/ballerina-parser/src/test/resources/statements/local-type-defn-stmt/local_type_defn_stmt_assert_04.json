@@ -2,6 +2,15 @@
     "kind": "FUNCTION_DEFINITION",
     "children": [
         {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": []
+                }
+            ]
+        },
+        {
             "kind": "PUBLIC_KEYWORD"
         },
         {
@@ -16,8 +25,7 @@
         },
         {
             "kind": "LIST",
-            "children": [
-            ]
+            "children": []
         },
         {
             "kind": "CLOSE_PAREN_TOKEN"
@@ -35,6 +43,10 @@
                             "kind": "LOCAL_TYPE_DEFINITION_STATEMENT",
                             "children": [
                                 {
+                                    "kind": "LIST",
+                                    "children": []
+                                },
+                                {
                                     "kind": "TYPE_KEYWORD"
                                 },
                                 {
@@ -46,8 +58,7 @@
                                     "children": [
                                         {
                                             "kind": "LIST",
-                                            "children": [
-                                            ]
+                                            "children": []
                                         },
                                         {
                                             "kind": "OBJECT_KEYWORD"
@@ -61,6 +72,15 @@
                                                 {
                                                     "kind": "FUNCTION_DEFINITION",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "LIST",
+                                                                    "children": []
+                                                                }
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "PUBLIC_KEYWORD"
                                                         },
@@ -76,8 +96,7 @@
                                                         },
                                                         {
                                                             "kind": "LIST",
-                                                            "children": [
-                                                            ]
+                                                            "children": []
                                                         },
                                                         {
                                                             "kind": "CLOSE_PAREN_TOKEN"
@@ -90,8 +109,7 @@
                                                                 },
                                                                 {
                                                                     "kind": "LIST",
-                                                                    "children": [
-                                                                    ]
+                                                                    "children": []
                                                                 },
                                                                 {
                                                                     "kind": "CLOSE_BRACE_TOKEN"
@@ -103,6 +121,15 @@
                                                 {
                                                     "kind": "FUNCTION_DEFINITION",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "LIST",
+                                                                    "children": []
+                                                                }
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "FUNCTION_KEYWORD"
                                                         },
@@ -115,8 +142,7 @@
                                                         },
                                                         {
                                                             "kind": "LIST",
-                                                            "children": [
-                                                            ]
+                                                            "children": []
                                                         },
                                                         {
                                                             "kind": "CLOSE_PAREN_TOKEN"
@@ -129,8 +155,7 @@
                                                                 },
                                                                 {
                                                                     "kind": "LIST",
-                                                                    "children": [
-                                                                    ]
+                                                                    "children": []
                                                                 },
                                                                 {
                                                                     "kind": "CLOSE_BRACE_TOKEN"
@@ -142,6 +167,15 @@
                                                 {
                                                     "kind": "FUNCTION_DEFINITION",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "LIST",
+                                                                    "children": []
+                                                                }
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "LIST",
                                                             "children": [
@@ -165,8 +199,7 @@
                                                         },
                                                         {
                                                             "kind": "LIST",
-                                                            "children": [
-                                                            ]
+                                                            "children": []
                                                         },
                                                         {
                                                             "kind": "CLOSE_PAREN_TOKEN"
@@ -179,8 +212,7 @@
                                                                 },
                                                                 {
                                                                     "kind": "LIST",
-                                                                    "children": [
-                                                                    ]
+                                                                    "children": []
                                                                 },
                                                                 {
                                                                     "kind": "CLOSE_BRACE_TOKEN"
@@ -200,7 +232,7 @@
                                     "kind": "SEMICOLON_TOKEN"
                                 }
                             ]
-                        }                        
+                        }
                     ]
                 },
                 {
@@ -210,4 +242,3 @@
         }
     ]
 }
-

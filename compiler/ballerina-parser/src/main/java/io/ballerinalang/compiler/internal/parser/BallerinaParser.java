@@ -1770,7 +1770,6 @@ public class BallerinaParser {
             case CLOSE_BRACE_PIPE_TOKEN:
             case PUBLIC_KEYWORD:
             case LISTENER_KEYWORD:
-            case TYPE_KEYWORD:
             case FUNCTION_KEYWORD:
             case IMPORT_KEYWORD:
                 // TODO: statements can also start from function-keyword. handle

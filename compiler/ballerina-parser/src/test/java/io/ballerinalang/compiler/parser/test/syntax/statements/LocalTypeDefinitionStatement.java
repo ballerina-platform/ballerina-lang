@@ -26,8 +26,6 @@ public class LocalTypeDefinitionStatement extends AbstractStatementTest {
 
     // Valid syntax tests
 
-    // TODO: abstract object | client object test
-
     @Test
     public void testComplexLocalTypeDefStmt() {
         testFile("local-type-defn-stmt/local_type_defn_stmt_source_01.bal",
@@ -68,7 +66,8 @@ public class LocalTypeDefinitionStatement extends AbstractStatementTest {
 
     @Test
     public void testNestedObjectRecovery() {
-        testFile("local-type-defn-stmt/local_type_defn_stmt_source_7.bal",
-        "local-type-defn-stmt/local_type_defn_stmt_assert_7.json");
+        testFile("local-type-defn-stmt/local_type_defn_stmt_source_07.bal",
+        "local-type-defn-stmt/local_type_defn_stmt_assert_07.json");
     }
+
 }

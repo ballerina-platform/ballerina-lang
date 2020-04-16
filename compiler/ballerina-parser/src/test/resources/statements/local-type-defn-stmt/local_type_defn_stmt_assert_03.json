@@ -2,6 +2,15 @@
     "kind": "FUNCTION_DEFINITION",
     "children": [
         {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": []
+                }
+            ]
+        },
+        {
             "kind": "PUBLIC_KEYWORD"
         },
         {
@@ -16,8 +25,7 @@
         },
         {
             "kind": "LIST",
-            "children": [
-            ]
+            "children": []
         },
         {
             "kind": "CLOSE_PAREN_TOKEN"
@@ -35,6 +43,10 @@
                             "kind": "LOCAL_TYPE_DEFINITION_STATEMENT",
                             "children": [
                                 {
+                                    "kind": "LIST",
+                                    "children": []
+                                },
+                                {
                                     "kind": "TYPE_KEYWORD"
                                 },
                                 {
@@ -46,8 +58,7 @@
                                     "children": [
                                         {
                                             "kind": "LIST",
-                                            "children": [
-                                            ]
+                                            "children": []
                                         },
                                         {
                                             "kind": "OBJECT_KEYWORD"
@@ -61,6 +72,15 @@
                                                 {
                                                     "kind": "OBJECT_FIELD",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "LIST",
+                                                                    "children": []
+                                                                }
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "SIMPLE_TYPE",
                                                             "value": "int"
@@ -97,6 +117,15 @@
                                                     "kind": "OBJECT_FIELD",
                                                     "children": [
                                                         {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "LIST",
+                                                                    "children": []
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
                                                             "kind": "SIMPLE_TYPE",
                                                             "value": "string"
                                                         },
@@ -112,6 +141,15 @@
                                                 {
                                                     "kind": "OBJECT_FIELD",
                                                     "children": [
+                                                        {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "LIST",
+                                                                    "children": []
+                                                                }
+                                                            ]
+                                                        },
                                                         {
                                                             "kind": "PUBLIC_KEYWORD"
                                                         },
@@ -139,6 +177,15 @@
                                                     "kind": "OBJECT_FIELD",
                                                     "children": [
                                                         {
+                                                            "kind": "METADATA",
+                                                            "children": [
+                                                                {
+                                                                    "kind": "LIST",
+                                                                    "children": []
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
                                                             "kind": "PRIVATE_KEYWORD"
                                                         },
                                                         {
@@ -165,7 +212,7 @@
                                     "kind": "SEMICOLON_TOKEN"
                                 }
                             ]
-                        }                        
+                        }
                     ]
                 },
                 {
