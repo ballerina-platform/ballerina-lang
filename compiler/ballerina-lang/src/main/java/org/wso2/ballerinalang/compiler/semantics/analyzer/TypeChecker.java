@@ -28,6 +28,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -66,6 +67,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -296,8 +298,8 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangXMLElementAccess xmlElementAccess) {
         // check for undeclared namespaces.
         checkXMLNamespacePrefixes(xmlElementAccess.filters);
-        resultType = checkExpr(xmlElementAccess.expr, env, symTable.xmlType);
-        // todo: we may need to add some logic to constrain result type to xml @namedSubType type.
+        checkExpr(xmlElementAccess.expr, env, symTable.xmlType);
+        resultType = new BXMLType(symTable.xmlElementType, null);
     }
 
     @Override
@@ -309,8 +311,14 @@ public class TypeChecker extends BLangNodeVisitor {
         if (xmlNavigation.childIndex != null) {
             checkExpr(xmlNavigation.childIndex, env, symTable.intType);
         }
-        resultType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
-        // todo: we may need to add some logic to constrain result type to  @namedSubType type.
+        BType actualType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
+        types.checkType(xmlNavigation, actualType, expType);
+
+        if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
+            resultType = symTable.xmlType;
+        } else {
+            resultType = new BXMLType(symTable.xmlElementType, null);
+        }
     }
 
     private void checkXMLNamespacePrefixes(List<BLangXMLElementFilter> filters) {
@@ -1279,9 +1287,6 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = symTable.semanticError;
                     dlog.error(varRefExpr.pos, DiagnosticCode.CANNOT_UPDATE_CONSTANT_VALUE);
                 }
-                if (Symbols.isFlagOn(symbol.flags, Flags.DEPRECATED)) {
-                    dlog.warning(varRefExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, varName.getValue());
-                }
             } else {
                 dlog.error(varRefExpr.pos, DiagnosticCode.UNDEFINED_SYMBOL, varName.toString());
             }
@@ -1666,10 +1671,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkObjectFunctionInvocationExpr(iExpr, (BObjectType) varRefType);
                 break;
             case TypeTags.RECORD:
-                boolean methodFound = checkFieldFunctionPointer(iExpr);
-                if (!methodFound) {
-                    checkInLangLib(iExpr, varRefType);
-                }
+                checkFieldFunctionPointer(iExpr, this.env);
                 break;
             case TypeTags.NONE:
                 dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name);
@@ -1696,18 +1698,26 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkInLangLib(BLangInvocation iExpr, BType varRefType) {
         boolean langLibMethodExists = checkLangLibMethodInvocationExpr(iExpr, varRefType);
         if (!langLibMethodExists) {
-            dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION, iExpr.name.value);
+            dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_TYPE, iExpr.name.value, iExpr.expr.type);
             resultType = symTable.semanticError;
         }
     }
 
-    private boolean checkFieldFunctionPointer(BLangInvocation iExpr) {
-        BType type = checkExpr(iExpr.expr, this.env);
+    private boolean checkFieldFunctionPointer(BLangInvocation iExpr, SymbolEnv env) {
+        BType type = checkExpr(iExpr.expr, env);
+
+        BLangIdentifier invocationIdentifier = iExpr.name;
+
         if (type == symTable.semanticError) {
             return false;
         }
-        BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(iExpr.name), type.tsymbol);
+        BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(invocationIdentifier),
+                type.tsymbol);
         if (funcSymbol == symTable.notFoundSymbol) {
+            if (!checkLangLibMethodInvocationExpr(iExpr, type)) {
+                dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FIELD_IN_RECORD, invocationIdentifier, type);
+                resultType = symTable.semanticError;
+            }
             return false;
         }
         iExpr.symbol = funcSymbol;
@@ -2295,30 +2305,55 @@ public class TypeChecker extends BLangNodeVisitor {
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
 
-        // Look up operator symbol if both rhs and lhs types are error types
-        if (lhsType != symTable.semanticError && rhsType != symTable.semanticError) {
-            BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
+        //noinspection SwitchStatementWithTooFewBranches
+        switch (binaryExpr.opKind) {
+            // Do not lookup operator symbol for xml sequence additions
+            case ADD:
+                BType leftConstituent = getXMLConstituents(lhsType);
+                BType rightConstituent = getXMLConstituents(rhsType);
 
-            if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType, binaryExpr);
-            }
-
-            if (opSymbol == symTable.notFoundSymbol) {
-                dlog.error(binaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES, binaryExpr.opKind,
-                           lhsType, rhsType);
-            } else {
-                if ((binaryExpr.opKind == OperatorKind.EQUAL || binaryExpr.opKind == OperatorKind.NOT_EQUAL) &&
-                        (couldHoldTableValues(lhsType, new ArrayList<>()) &&
-                                 couldHoldTableValues(rhsType, new ArrayList<>()))) {
-                    dlog.error(binaryExpr.pos, DiagnosticCode.EQUALITY_NOT_YET_SUPPORTED, TABLE_TNAME);
+                if (leftConstituent != null && rightConstituent != null) {
+                    actualType = new BXMLType(BUnionType.create(null, leftConstituent, rightConstituent), null);
+                    break;
                 }
+                // Fall through
+            default:
+                if (lhsType != symTable.semanticError && rhsType != symTable.semanticError) {
+                    // Look up operator symbol if both rhs and lhs types aren't error or xml types
+                    BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
 
-                binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
-                actualType = opSymbol.type.getReturnType();
-            }
+                    if (opSymbol == symTable.notFoundSymbol) {
+                        opSymbol = symResolver.getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType,
+                                binaryExpr);
+                    }
+
+                    if (opSymbol == symTable.notFoundSymbol) {
+                        dlog.error(binaryExpr.pos, DiagnosticCode.BINARY_OP_INCOMPATIBLE_TYPES, binaryExpr.opKind,
+                                lhsType, rhsType);
+                    } else {
+                        if ((binaryExpr.opKind == OperatorKind.EQUAL || binaryExpr.opKind == OperatorKind.NOT_EQUAL) &&
+                                (couldHoldTableValues(lhsType, new ArrayList<>()) &&
+                                        couldHoldTableValues(rhsType, new ArrayList<>()))) {
+                            dlog.error(binaryExpr.pos, DiagnosticCode.EQUALITY_NOT_YET_SUPPORTED, TABLE_TNAME);
+                        }
+
+                        binaryExpr.opSymbol = (BOperatorSymbol) opSymbol;
+                        actualType = opSymbol.type.getReturnType();
+                    }
+                }
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
+    }
+
+    private BType getXMLConstituents(BType type) {
+        BType constituent = null;
+        if (type.tag == TypeTags.XML) {
+            constituent = ((BXMLType) type).constraint;
+        } else if (TypeTags.isXMLNonSequenceType(type.tag)) {
+            constituent = type;
+        }
+        return constituent;
     }
 
     private void checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(BLangBinaryExpr binaryExpr) {
@@ -2587,7 +2622,13 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv xmlAttributeEnv = SymbolEnv.getXMLAttributeEnv(bLangXMLAttribute, env);
 
         // check attribute name
-        checkExpr(bLangXMLAttribute.name, xmlAttributeEnv, symTable.stringType);
+        BLangXMLQName name = (BLangXMLQName) bLangXMLAttribute.name;
+        checkExpr(name, xmlAttributeEnv, symTable.stringType);
+        // XML attributes without a prefix does not belong to enclosing elements default namespace.
+        // https://www.w3.org/TR/xml-names/#uniqAttrs
+        if (name.prefix.value.isEmpty()) {
+            name.namespaceURI = null;
+        }
 
         // check attribute value
         checkExpr(bLangXMLAttribute.value, xmlAttributeEnv, symTable.stringType);
@@ -2644,7 +2685,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // Visit the children
         bLangXMLElementLiteral.modifiedChildren =
                 concatSimilarKindXMLNodes(bLangXMLElementLiteral.children, xmlElementEnv);
-        resultType = types.checkType(bLangXMLElementLiteral, symTable.xmlType, expType);
+        resultType = types.checkType(bLangXMLElementLiteral, symTable.xmlElementType, expType);
     }
 
     private boolean isXmlNamespaceAttribute(BLangXMLAttribute attribute) {
@@ -2656,18 +2697,18 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
         checkStringTemplateExprs(bLangXMLTextLiteral.textFragments, false);
-        resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlType, expType);
+        resultType = types.checkType(bLangXMLTextLiteral, symTable.xmlTextType, expType);
     }
 
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
         checkStringTemplateExprs(bLangXMLCommentLiteral.textFragments, false);
-        resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlType, expType);
+        resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlCommentType, expType);
     }
 
     public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
         checkExpr(bLangXMLProcInsLiteral.target, env, symTable.stringType);
         checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments, false);
-        resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlType, expType);
+        resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlPIType, expType);
     }
 
     public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
@@ -3150,9 +3191,6 @@ public class TypeChecker extends BLangNodeVisitor {
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
         }
-        if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(iExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, funcName.value);
-        }
 
         if (PackageID.isLangLibPackageID(pkgSymbol.pkgID)) {
             // This will enable, type param support, if the function is called directly.
@@ -3501,17 +3539,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 symResolver.resolveObjectMethod(iExpr.pos, env, funcName, (BObjectTypeSymbol) objectType.tsymbol);
         if (funcSymbol == symTable.notFoundSymbol || funcSymbol.type.tag != TypeTags.INVOKABLE) {
             if (!checkLangLibMethodInvocationExpr(iExpr, objectType)) {
-                dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_OBJECT, iExpr.name.value,
+                dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_METHOD_IN_OBJECT, iExpr.name.value,
                            objectType);
                 resultType = symTable.semanticError;
                 return;
             }
         } else {
             iExpr.symbol = funcSymbol;
-        }
-
-        if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
-            dlog.warning(iExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, funcName.value);
         }
 
         // __init method can be called in a method-call-expr only when the expression
@@ -4139,7 +4173,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         for (BLangExpression expr : exprs) {
             BType exprType = checkExpr(expr, xmlElementEnv);
-            if (exprType == symTable.xmlType) {
+            if (TypeTags.isXMLTypeTag(exprType.tag)) {
                 if (!tempConcatExpressions.isEmpty()) {
                     newChildren.add(getXMLTextLiteral(tempConcatExpressions));
                     tempConcatExpressions = new ArrayList<>();
@@ -4677,7 +4711,9 @@ public class TypeChecker extends BLangNodeVisitor {
             if (type == symTable.semanticError) {
                 return type;
             }
-            actualType = symTable.xmlType;
+            // Note: out of range member access returns empty xml value unlike lists
+            // hence, this needs to be set to xml type
+            actualType = varRefType;
             indexBasedAccessExpr.originalType = actualType;
         } else if (varRefType == symTable.semanticError) {
             indexBasedAccessExpr.indexExpr.type = symTable.semanticError;

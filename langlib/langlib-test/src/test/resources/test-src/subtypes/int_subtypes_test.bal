@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'int as ints;
+import ballerina/lang.test as test;
 
 function testValueAssignment() {
     ints:Signed32 a1 = 2147483647;
@@ -32,34 +33,34 @@ function testValueAssignment() {
     byte g1 = 255;
     byte g2 = 0;
 
-    assertValueEqual(2147483647, a1);
-    assertValueEqual(-2147483648, a2);
-    assertValueEqual(32767, b1);
-    assertValueEqual(-32768, b2);
-    assertValueEqual(127, c1);
-    assertValueEqual(-128, c2);
-    assertValueEqual(4294967295, d1);
-    assertValueEqual(0, d2);
-    assertValueEqual(65535, e1);
-    assertValueEqual(0, e2);
-    assertValueEqual(255, f1);
-    assertValueEqual(0, f2);
-    assertValueEqual(255, g1);
-    assertValueEqual(0, g2);
+    test:assertValueEqual(2147483647, a1);
+    test:assertValueEqual(-2147483648, a2);
+    test:assertValueEqual(32767, b1);
+    test:assertValueEqual(-32768, b2);
+    test:assertValueEqual(127, c1);
+    test:assertValueEqual(-128, c2);
+    test:assertValueEqual(4294967295, d1);
+    test:assertValueEqual(0, d2);
+    test:assertValueEqual(65535, e1);
+    test:assertValueEqual(0, e2);
+    test:assertValueEqual(255, f1);
+    test:assertValueEqual(0, f2);
+    test:assertValueEqual(255, g1);
+    test:assertValueEqual(0, g2);
 }
 
 function testSigned32Assignment() {
     ints:Signed32 value = 2147483647;
     int a = value;
-    assertValueEqual(2147483647, a);
+    test:assertValueEqual(2147483647, a);
 }
 
 function testSigned16Assignment() {
     ints:Signed16 value = 32767;
     int a = value;
     ints:Signed32 b = value;
-    assertValueEqual(32767, a);
-    assertValueEqual(32767, b);
+    test:assertValueEqual(32767, a);
+    test:assertValueEqual(32767, b);
 }
 
 function testSigned8Assignment() {
@@ -67,14 +68,14 @@ function testSigned8Assignment() {
     int a = value;
     ints:Signed32 b = value;
     ints:Signed16 c = value;
-    assertValueEqual(127, a);
-    assertValueEqual(127, b);
+    test:assertValueEqual(127, a);
+    test:assertValueEqual(127, b);
 }
 
 function testUnsigned32Assignment() {
     ints:Unsigned32 value = 4294967295;
     int a = value;
-    assertValueEqual(4294967295, a);
+    test:assertValueEqual(4294967295, a);
 }
 
 function testUnsigned16Assignment() {
@@ -82,9 +83,9 @@ function testUnsigned16Assignment() {
     int a = value;
     ints:Signed32 b = value;
     ints:Unsigned32 c = value;
-    assertValueEqual(32767, a);
-    assertValueEqual(32767, b);
-    assertValueEqual(32767, c);
+    test:assertValueEqual(32767, a);
+    test:assertValueEqual(32767, b);
+    test:assertValueEqual(32767, c);
 }
 
 function testUnsigned8Assignment() {
@@ -95,12 +96,12 @@ function testUnsigned8Assignment() {
     ints:Unsigned32 d = value;
     ints:Unsigned16 e = value;
     byte f = value;
-    assertValueEqual(255, a);
-    assertValueEqual(255, b);
-    assertValueEqual(255, c);
-    assertValueEqual(255, d);
-    assertValueEqual(255, e);
-    assertValueEqual(255, f);
+    test:assertValueEqual(255, a);
+    test:assertValueEqual(255, b);
+    test:assertValueEqual(255, c);
+    test:assertValueEqual(255, d);
+    test:assertValueEqual(255, e);
+    test:assertValueEqual(255, f);
 }
 
 type NewInt ints:Signed32;
@@ -109,8 +110,8 @@ function testTypeAlias() {
     NewInt value = 2147483647;
     int a = value;
     ints:Signed32 b = value;
-    assertValueEqual(2147483647, a);
-    assertValueEqual(2147483647, b);
+    test:assertValueEqual(2147483647, a);
+    test:assertValueEqual(2147483647, b);
 }
 
 function testMathsOperators(){
@@ -121,14 +122,14 @@ function testMathsOperators(){
     int c = x * y;
     int d = x / y;
     int e = x % y;
-    assertValueEqual(50, a);
-    assertValueEqual(150, b);
-    assertValueEqual(-5000, c);
-    assertValueEqual(-2, d);
-    assertValueEqual(0, e);
+    test:assertValueEqual(50, a);
+    test:assertValueEqual(150, b);
+    test:assertValueEqual(-5000, c);
+    test:assertValueEqual(-2, d);
+    test:assertValueEqual(0, e);
 
     int val = x.sum(y);
-    assertValueEqual(50, val);
+    test:assertValueEqual(50, val);
 }
 
 function testTypeCastingWithInt() {
@@ -138,32 +139,32 @@ function testTypeCastingWithInt() {
     int i2 = -2147483649;
     int i3 = 100;
 
-    assertError(trap <ints:Signed32> i1);
-    assertError(trap <ints:Signed32> i2);
-    assertNotError(trap <ints:Signed32> i3);
+    test:assertError(trap <ints:Signed32> i1);
+    test:assertError(trap <ints:Signed32> i2);
+    test:assertNotError(trap <ints:Signed32> i3);
 
-    assertError(trap <ints:Signed16> i1);
-    assertError(trap <ints:Signed16> i2);
-    assertNotError(trap <ints:Signed16> i3);
+    test:assertError(trap <ints:Signed16> i1);
+    test:assertError(trap <ints:Signed16> i2);
+    test:assertNotError(trap <ints:Signed16> i3);
 
-    assertError(trap <ints:Signed8> i1);
-    assertError(trap <ints:Signed8> i2);
-    assertNotError(trap <ints:Signed8> i3);
+    test:assertError(trap <ints:Signed8> i1);
+    test:assertError(trap <ints:Signed8> i2);
+    test:assertNotError(trap <ints:Signed8> i3);
 
     int i4 = 4294967500;
 
-    assertNotError(trap <ints:Unsigned32> i1);
-    assertError(trap <ints:Unsigned32> i2);
-    assertNotError(trap <ints:Unsigned32> i3);
-    assertError(trap <ints:Unsigned32> i4);
+    test:assertNotError(trap <ints:Unsigned32> i1);
+    test:assertError(trap <ints:Unsigned32> i2);
+    test:assertNotError(trap <ints:Unsigned32> i3);
+    test:assertError(trap <ints:Unsigned32> i4);
 
-    assertError(trap <ints:Unsigned16> i1);
-    assertError(trap <ints:Unsigned16> i2);
-    assertNotError(trap <ints:Signed16> i3);
+    test:assertError(trap <ints:Unsigned16> i1);
+    test:assertError(trap <ints:Unsigned16> i2);
+    test:assertNotError(trap <ints:Signed16> i3);
 
-    assertError(trap <ints:Unsigned8> i1);
-    assertError(trap <ints:Unsigned8> i2);
-    assertNotError(trap <ints:Signed8> i3);
+    test:assertError(trap <ints:Unsigned8> i1);
+    test:assertError(trap <ints:Unsigned8> i2);
+    test:assertNotError(trap <ints:Signed8> i3);
 
 }
 
@@ -183,33 +184,33 @@ function testTypeCastingWith32() {
     anydata ada3 = a3;
     any aa3 = a3;
 
-    assertNotError(trap <ints:Signed32> ia1);
-    assertNotError(trap <ints:Signed32> ja1);
-    assertNotError(trap <ints:Signed32> ada1);
-    assertNotError(trap <ints:Signed32> aa1);
-    assertNotError(trap <ints:Unsigned32> ia3);
-    assertNotError(trap <ints:Unsigned32> ja3);
-    assertNotError(trap <ints:Unsigned32> ada3);
-    assertNotError(trap <ints:Unsigned32> aa3);
+    test:assertNotError(trap <ints:Signed32> ia1);
+    test:assertNotError(trap <ints:Signed32> ja1);
+    test:assertNotError(trap <ints:Signed32> ada1);
+    test:assertNotError(trap <ints:Signed32> aa1);
+    test:assertNotError(trap <ints:Unsigned32> ia3);
+    test:assertNotError(trap <ints:Unsigned32> ja3);
+    test:assertNotError(trap <ints:Unsigned32> ada3);
+    test:assertNotError(trap <ints:Unsigned32> aa3);
 
-    assertNotError(trap <ints:Unsigned32> a1);
-    assertError(trap <ints:Unsigned32> a2);
-    assertError(trap <ints:Signed32> a3);
-    assertNotError(trap <ints:Signed32> a4);
+    test:assertNotError(trap <ints:Unsigned32> a1);
+    test:assertError(trap <ints:Unsigned32> a2);
+    test:assertError(trap <ints:Signed32> a3);
+    test:assertNotError(trap <ints:Signed32> a4);
 
-    assertError(trap <ints:Signed16> a1);
-    assertError(trap <ints:Signed16> a2);
-    assertNotError(trap <ints:Signed16> a4);
-    assertError(trap <ints:Unsigned16> a1);
-    assertError(trap <ints:Unsigned16> a2);
-    assertNotError(trap <ints:Signed16> a4);
+    test:assertError(trap <ints:Signed16> a1);
+    test:assertError(trap <ints:Signed16> a2);
+    test:assertNotError(trap <ints:Signed16> a4);
+    test:assertError(trap <ints:Unsigned16> a1);
+    test:assertError(trap <ints:Unsigned16> a2);
+    test:assertNotError(trap <ints:Signed16> a4);
 
-    assertError(trap <ints:Signed8> a1);
-    assertError(trap <ints:Signed8> a2);
-    assertNotError(trap <ints:Signed8> a4);
-    assertError(trap <ints:Unsigned8> a1);
-    assertError(trap <ints:Unsigned8> a2);
-    assertNotError(trap <ints:Signed8> a4);
+    test:assertError(trap <ints:Signed8> a1);
+    test:assertError(trap <ints:Signed8> a2);
+    test:assertNotError(trap <ints:Signed8> a4);
+    test:assertError(trap <ints:Unsigned8> a1);
+    test:assertError(trap <ints:Unsigned8> a2);
+    test:assertNotError(trap <ints:Signed8> a4);
 
 
 }
@@ -230,26 +231,26 @@ function testTypeCastingWith16() {
     anydata adb3 = b3;
     any ab3 = b3;
 
-    assertNotError(trap <ints:Signed16> ib1);
-    assertNotError(trap <ints:Signed16> jb1);
-    assertNotError(trap <ints:Signed16> adb1);
-    assertNotError(trap <ints:Signed16> ab1);
-    assertNotError(trap <ints:Unsigned16> ib3);
-    assertNotError(trap <ints:Unsigned16> jb3);
-    assertNotError(trap <ints:Unsigned16> adb3);
-    assertNotError(trap <ints:Unsigned16> ab3);
+    test:assertNotError(trap <ints:Signed16> ib1);
+    test:assertNotError(trap <ints:Signed16> jb1);
+    test:assertNotError(trap <ints:Signed16> adb1);
+    test:assertNotError(trap <ints:Signed16> ab1);
+    test:assertNotError(trap <ints:Unsigned16> ib3);
+    test:assertNotError(trap <ints:Unsigned16> jb3);
+    test:assertNotError(trap <ints:Unsigned16> adb3);
+    test:assertNotError(trap <ints:Unsigned16> ab3);
 
-    assertNotError(trap <ints:Unsigned16> b1);
-    assertError(trap <ints:Unsigned16> b2);
-    assertError(trap <ints:Signed16> b3);
-    assertNotError(trap <ints:Signed16> b4);
+    test:assertNotError(trap <ints:Unsigned16> b1);
+    test:assertError(trap <ints:Unsigned16> b2);
+    test:assertError(trap <ints:Signed16> b3);
+    test:assertNotError(trap <ints:Signed16> b4);
 
-    assertError(trap <ints:Signed8> b1);
-    assertError(trap <ints:Signed8> b2);
-    assertNotError(trap <ints:Signed8> b4);
-    assertError(trap <ints:Unsigned8> b1);
-    assertError(trap <ints:Unsigned8> b2);
-    assertNotError(trap <ints:Unsigned8> b4);
+    test:assertError(trap <ints:Signed8> b1);
+    test:assertError(trap <ints:Signed8> b2);
+    test:assertNotError(trap <ints:Signed8> b4);
+    test:assertError(trap <ints:Unsigned8> b1);
+    test:assertError(trap <ints:Unsigned8> b2);
+    test:assertNotError(trap <ints:Unsigned8> b4);
 
 }
 
@@ -269,24 +270,24 @@ function testTypeCastingWith8() {
     anydata adc3 = c3;
     any ac3 = c3;
 
-    assertNotError(trap <ints:Signed8> ic1);
-    assertNotError(trap <ints:Signed8> jc1);
-    assertNotError(trap <ints:Signed8> adc1);
-    assertNotError(trap <ints:Signed8> ac1);
-    assertNotError(trap <ints:Unsigned8> ic3);
-    assertNotError(trap <ints:Unsigned8> jc3);
-    assertNotError(trap <ints:Unsigned8> adc3);
-    assertNotError(trap <ints:Unsigned8> ac3);
+    test:assertNotError(trap <ints:Signed8> ic1);
+    test:assertNotError(trap <ints:Signed8> jc1);
+    test:assertNotError(trap <ints:Signed8> adc1);
+    test:assertNotError(trap <ints:Signed8> ac1);
+    test:assertNotError(trap <ints:Unsigned8> ic3);
+    test:assertNotError(trap <ints:Unsigned8> jc3);
+    test:assertNotError(trap <ints:Unsigned8> adc3);
+    test:assertNotError(trap <ints:Unsigned8> ac3);
 
-    assertNotError(trap <ints:Unsigned8> c1);
-    assertError(trap <ints:Unsigned8> c2);
-    assertError(trap <ints:Signed8> c3);
-    assertNotError(trap <ints:Signed8> c4);
+    test:assertNotError(trap <ints:Unsigned8> c1);
+    test:assertError(trap <ints:Unsigned8> c2);
+    test:assertError(trap <ints:Signed8> c3);
+    test:assertNotError(trap <ints:Signed8> c4);
 
     byte d1 = 255;
     byte d2 = 0;
-    assertNotError(trap <ints:Unsigned8> d1);
-    assertNotError(trap <ints:Unsigned8> d2);
+    test:assertNotError(trap <ints:Unsigned8> d1);
+    test:assertNotError(trap <ints:Unsigned8> d2);
 }
 
 function testTypeCastingWithFloat() {
@@ -295,32 +296,32 @@ function testTypeCastingWithFloat() {
     float f2 = -2147483649.1234;
     float f3 = 100.1;
 
-    assertError(trap <ints:Signed32> f1);
-    assertError(trap <ints:Signed32> f2);
-    assertNotError(trap <ints:Signed32> f3);
+    test:assertError(trap <ints:Signed32> f1);
+    test:assertError(trap <ints:Signed32> f2);
+    test:assertNotError(trap <ints:Signed32> f3);
 
-    assertError(trap <ints:Signed16> f1);
-    assertError(trap <ints:Signed16> f2);
-    assertNotError(trap <ints:Signed16> f3);
+    test:assertError(trap <ints:Signed16> f1);
+    test:assertError(trap <ints:Signed16> f2);
+    test:assertNotError(trap <ints:Signed16> f3);
 
-    assertError(trap <ints:Signed8> f1);
-    assertError(trap <ints:Signed8> f2);
-    assertNotError(trap <ints:Signed8> f3);
+    test:assertError(trap <ints:Signed8> f1);
+    test:assertError(trap <ints:Signed8> f2);
+    test:assertNotError(trap <ints:Signed8> f3);
 
     float f4 = 4294967500.2345;
 
-    assertNotError(trap <ints:Unsigned32> f1);
-    assertError(trap <ints:Unsigned32> f2);
-    assertNotError(trap <ints:Unsigned32> f3);
-    assertError(trap <ints:Unsigned32> f4);
+    test:assertNotError(trap <ints:Unsigned32> f1);
+    test:assertError(trap <ints:Unsigned32> f2);
+    test:assertNotError(trap <ints:Unsigned32> f3);
+    test:assertError(trap <ints:Unsigned32> f4);
 
-    assertError(trap <ints:Unsigned16> f1);
-    assertError(trap <ints:Unsigned16> f2);
-    assertNotError(trap <ints:Signed16> f3);
+    test:assertError(trap <ints:Unsigned16> f1);
+    test:assertError(trap <ints:Unsigned16> f2);
+    test:assertNotError(trap <ints:Signed16> f3);
 
-    assertError(trap <ints:Unsigned8> f1);
-    assertError(trap <ints:Unsigned8> f2);
-    assertNotError(trap <ints:Signed8> f3);
+    test:assertError(trap <ints:Unsigned8> f1);
+    test:assertError(trap <ints:Unsigned8> f2);
+    test:assertNotError(trap <ints:Signed8> f3);
 }
 
 function testTypeCastingWithDecimal() {
@@ -329,32 +330,32 @@ function testTypeCastingWithDecimal() {
     decimal d2 = -2147483649.1234;
     decimal d3 = 100.1;
 
-    assertError(trap <ints:Signed32> d1);
-    assertError(trap <ints:Signed32> d2);
-    assertNotError(trap <ints:Signed32> d3);
+    test:assertError(trap <ints:Signed32> d1);
+    test:assertError(trap <ints:Signed32> d2);
+    test:assertNotError(trap <ints:Signed32> d3);
 
-    assertError(trap <ints:Signed16> d1);
-    assertError(trap <ints:Signed16> d2);
-    assertNotError(trap <ints:Signed16> d3);
+    test:assertError(trap <ints:Signed16> d1);
+    test:assertError(trap <ints:Signed16> d2);
+    test:assertNotError(trap <ints:Signed16> d3);
 
-    assertError(trap <ints:Signed8> d1);
-    assertError(trap <ints:Signed8> d2);
-    assertNotError(trap <ints:Signed8> d3);
+    test:assertError(trap <ints:Signed8> d1);
+    test:assertError(trap <ints:Signed8> d2);
+    test:assertNotError(trap <ints:Signed8> d3);
 
     decimal d4 = 4294967500.2345;
 
-    assertNotError(trap <ints:Unsigned32> d1);
-    assertError(trap <ints:Unsigned32> d2);
-    assertNotError(trap <ints:Unsigned32> d3);
-    assertError(trap <ints:Unsigned32> d4);
+    test:assertNotError(trap <ints:Unsigned32> d1);
+    test:assertError(trap <ints:Unsigned32> d2);
+    test:assertNotError(trap <ints:Unsigned32> d3);
+    test:assertError(trap <ints:Unsigned32> d4);
 
-    assertError(trap <ints:Unsigned16> d1);
-    assertError(trap <ints:Unsigned16> d2);
-    assertNotError(trap <ints:Signed16> d3);
+    test:assertError(trap <ints:Unsigned16> d1);
+    test:assertError(trap <ints:Unsigned16> d2);
+    test:assertNotError(trap <ints:Signed16> d3);
 
-    assertError(trap <ints:Unsigned8> d1);
-    assertError(trap <ints:Unsigned8> d2);
-    assertNotError(trap <ints:Signed8> d3);
+    test:assertError(trap <ints:Unsigned8> d1);
+    test:assertError(trap <ints:Unsigned8> d2);
+    test:assertNotError(trap <ints:Signed8> d3);
 }
 
 function testTypeTest() {
@@ -364,32 +365,32 @@ function testTypeTest() {
     int i2 = -2147483649;
     int i3 = 100;
 
-    assertFalse(i1 is ints:Signed32);
-    assertFalse(i2 is ints:Signed32);
-    assertTrue(i3 is ints:Signed32);
+    test:assertFalse(i1 is ints:Signed32);
+    test:assertFalse(i2 is ints:Signed32);
+    test:assertTrue(i3 is ints:Signed32);
 
-    assertFalse(i1 is ints:Signed16);
-    assertFalse(i2 is ints:Signed16);
-    assertTrue(i3 is ints:Signed16);
+    test:assertFalse(i1 is ints:Signed16);
+    test:assertFalse(i2 is ints:Signed16);
+    test:assertTrue(i3 is ints:Signed16);
 
-    assertFalse(i1 is ints:Signed8);
-    assertFalse(i2 is ints:Signed8);
-    assertTrue(i3 is ints:Signed8);
+    test:assertFalse(i1 is ints:Signed8);
+    test:assertFalse(i2 is ints:Signed8);
+    test:assertTrue(i3 is ints:Signed8);
 
     int i4 = 4294967500;
 
-    assertTrue(i1 is ints:Unsigned32);
-    assertFalse(i2 is ints:Unsigned32);
-    assertTrue(i3 is ints:Unsigned32);
-    assertFalse(i4 is ints:Unsigned32);
+    test:assertTrue(i1 is ints:Unsigned32);
+    test:assertFalse(i2 is ints:Unsigned32);
+    test:assertTrue(i3 is ints:Unsigned32);
+    test:assertFalse(i4 is ints:Unsigned32);
 
-    assertFalse(i1 is ints:Unsigned16);
-    assertFalse(i2 is ints:Unsigned16);
-    assertTrue(i3 is ints:Signed16);
+    test:assertFalse(i1 is ints:Unsigned16);
+    test:assertFalse(i2 is ints:Unsigned16);
+    test:assertTrue(i3 is ints:Signed16);
 
-    assertFalse(i1 is ints:Unsigned8);
-    assertFalse(i2 is ints:Unsigned8);
-    assertTrue(i3 is ints:Signed8);
+    test:assertFalse(i1 is ints:Unsigned8);
+    test:assertFalse(i2 is ints:Unsigned8);
+    test:assertTrue(i3 is ints:Signed8);
 
 }
 
@@ -397,23 +398,23 @@ function testList() {
 
     ints:Signed32[] a1 = [1, 2, 3, 4, 5];
     ints:Signed32 t1 = a1[0];
-    assertValueEqual(1, t1);
+    test:assertValueEqual(1, t1);
     a1[6] = 7;
-    assertValueEqual([1,2,3,4,5,0,7], a1);
+    test:assertValueEqual([1,2,3,4,5,0,7], a1);
 
     any t2 = a1;
-    assertTrue(t2 is ints:Signed32[]);
+    test:assertTrue(t2 is ints:Signed32[]);
 
     int[] t3 = a1;
-    assertError(trap insertListValue(t3, 0, 4294967295));
+    test:assertError(trap insertListValue(t3, 0, 4294967295));
 
     int[] a2 = [1, 2, 0, -1, -2];
     ints:Signed32[] b2 = <ints:Signed32[]> a1;
-    assertError(trap <ints:Unsigned32[]> a2);
+    test:assertError(trap <ints:Unsigned32[]> a2);
 
     [ints:Signed32, ints:Unsigned8, int] a3 = [-100, 10,  4294967295];
     int[] t4 = a3;
-    assertError(trap insertListValue(t4, 1, -1));
+    test:assertError(trap insertListValue(t4, 1, -1));
 }
 
 function insertListValue(int[] list, int pos, int value) {
@@ -425,23 +426,23 @@ function testMapping() {
     map<ints:Signed8> m1 = {};
     m1["k1"] = 10;
     int? t0 = m1["k1"];
-    assertValueEqual(10, t0);
+    test:assertValueEqual(10, t0);
     map<ints:Signed16> t1 = m1;
     map<int> t2 = m1;
 
-    assertError(trap <map<ints:Unsigned32>> t2);
-    assertError(trap insertMapValue(t1, "k2", 200));
-    assertError(trap insertMapValue(t2, "k2", 200));
+    test:assertError(trap <map<ints:Unsigned32>> t2);
+    test:assertError(trap insertMapValue(t1, "k2", 200));
+    test:assertError(trap insertMapValue(t2, "k2", 200));
 
     record {
         ints:Signed8 i;
         ints:Unsigned8 k;
     } rec = { i : -10, k : 10};
     rec.i = 11;
-    assertValueEqual(11, rec.i);
+    test:assertValueEqual(11, rec.i);
 
     record { int i; int k;} t3 = rec;
-    assertError(trap updateRecord(t3, 200));
+    test:assertError(trap updateRecord(t3, 200));
 }
 // TODO : Fix this, Issue : #21542
 //const ints:Signed32 ca1 = 10;
@@ -486,136 +487,136 @@ function 'testSigned8LeftShift() {
     ints:Signed8 i1 = 127;
     int j = 2;
     int k = i1 << j;
-    assertValueEqual(508, k);
+    test:assertValueEqual(508, k);
 
     ints:Signed8 i2 = -128;
     k = i2 << j;
-    assertValueEqual(-512, k);
+    test:assertValueEqual(-512, k);
 
     ints:Signed8 i3 = 0;
     k = i3 << j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Signed8 i4 = 1;
     k = i4 << j;
-    assertValueEqual(4, k);
+    test:assertValueEqual(4, k);
 }
 
 function 'testSigned16LeftShift() {
     ints:Signed16 i1 = 32767;
     int j = 2;
     int k = i1 << j;
-    assertValueEqual(131068, k);
+    test:assertValueEqual(131068, k);
 
     ints:Signed16 i2 = -32768;
     k = i2 << j;
-    assertValueEqual(-131072, k);
+    test:assertValueEqual(-131072, k);
 
     ints:Signed16 i3 = 0;
     k = i3 << j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Signed16 i4 = 1;
     k = i4 << j;
-    assertValueEqual(4, k);
+    test:assertValueEqual(4, k);
 }
 
 function 'testSigned32LeftShift() {
     ints:Signed32 i1 = 2147483647;
     int j = 2;
     int k = i1 << j;
-    assertValueEqual(8589934588, k);
+    test:assertValueEqual(8589934588, k);
 
     ints:Signed32 i2 = -2147483648;
     k = i2 << j;
-    assertValueEqual(-8589934592, k);
+    test:assertValueEqual(-8589934592, k);
 
     ints:Signed32 i3 = 0;
     k = i3 << j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Signed32 i4 = 1;
     k = i4 << j;
-    assertValueEqual(4, k);
+    test:assertValueEqual(4, k);
 }
 
 function testIntLeftShift() {
     int i1 = 9223372036854775807;
     int j = 2;
     int k = i1 << j;
-    assertValueEqual(-4, k);
+    test:assertValueEqual(-4, k);
 
     int i2 = -9223372036854775808;
     k = i2 << j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     int i3 = 0;
     k = i3 << j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     int i4 = 1;
     k = i4 << j;
-    assertValueEqual(4, k);
+    test:assertValueEqual(4, k);
 }
 
 function testByteLeftShift() {
     byte i1 = 255;
     int j = 2;
     int k = i1 << j;
-    assertValueEqual(1020, k);
+    test:assertValueEqual(1020, k);
 
     byte i2 = 0;
     k = i2 << j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     byte i3 = 1;
     k = i3 << j;
-    assertValueEqual(4, k);
+    test:assertValueEqual(4, k);
 }
 
 function 'testUnsigned8LeftShift() {
     ints:Unsigned8 i1 = 255;
     int j = 2;
     int k = i1 << j;
-    assertValueEqual(1020, k);
+    test:assertValueEqual(1020, k);
 
     ints:Unsigned8 i2 = 0;
     k = i2 << j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Unsigned8 i3 = 1;
     k = i3 << j;
-    assertValueEqual(4, k);
+    test:assertValueEqual(4, k);
 }
 
 function 'testUnsigned16LeftShift() {
     ints:Unsigned16 i1 = 65535;
     int j = 2;
     int k = i1 << j;
-    assertValueEqual(262140, k);
+    test:assertValueEqual(262140, k);
 
     ints:Unsigned16 i2 = 0;
     k = i2 << j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Unsigned16 i3 = 1;
     k = i3 << j;
-    assertValueEqual(4, k);
+    test:assertValueEqual(4, k);
 }
 
 function 'testUnsigned32LeftShift() {
     ints:Unsigned32 i1 = 4294967295;
     int j = 2;
     int k = i1 << j;
-    assertValueEqual(17179869180, k);
+    test:assertValueEqual(17179869180, k);
 
     ints:Unsigned32 i2 = 0;
     k = i2 << j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Unsigned32 i3 = 1;
     k = i3 << j;
-    assertValueEqual(4, k);
+    test:assertValueEqual(4, k);
 }
 
 function testRightShift() {
@@ -633,136 +634,136 @@ function 'testSigned8RightShift() {
     ints:Signed8 i1 = 127;
     int j = 3;
     int k = i1 >> j;
-    assertValueEqual(15, k);
+    test:assertValueEqual(15, k);
 
     ints:Signed8 i2 = -128;
     k = i2 >> j;
-    assertValueEqual(-16, k);
+    test:assertValueEqual(-16, k);
 
     ints:Signed8 i3 = 0;
     k = i3 >> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Signed8 i4 = 8;
     k = i4 >> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function 'testSigned16RightShift() {
     ints:Signed16 i1 = 32767;
     int j = 3;
     int k = i1 >> j;
-    assertValueEqual(4095, k);
+    test:assertValueEqual(4095, k);
 
     ints:Signed16 i2 = -32768;
     k = i2 >> j;
-    assertValueEqual(-4096, k);
+    test:assertValueEqual(-4096, k);
 
     ints:Signed16 i3 = 0;
     k = i3 >> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Signed16 i4 = 8;
     k = i4 >> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function 'testSigned32RightShift() {
     ints:Signed32 i1 = 2147483647;
     int j = 3;
     int k = i1 >> j;
-    assertValueEqual(268435455, k);
+    test:assertValueEqual(268435455, k);
 
     ints:Signed32 i2 = -2147483648;
     k = i2 >> j;
-    assertValueEqual(-268435456, k);
+    test:assertValueEqual(-268435456, k);
 
     ints:Signed32 i3 = 0;
     k = i3 >> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Signed32 i4 = 8;
     k = i4 >> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function testIntRightShift() {
     int i1 = 9223372036854775807;
     int j = 3;
     int k = i1 >> j;
-    assertValueEqual(1152921504606846975, k);
+    test:assertValueEqual(1152921504606846975, k);
 
     int i2 = -9223372036854775808;
     k = i2 >> j;
-    assertValueEqual(-1152921504606846976, k);
+    test:assertValueEqual(-1152921504606846976, k);
 
     int i3 = 0;
     k = i3 >> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     int i4 = 8;
     k = i4 >> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function testByteRightShift() {
     byte i1 = 255;
     int j = 3;
     byte k = i1 >> j;
-    assertValueEqual(31, k);
+    test:assertValueEqual(31, k);
 
     byte i2 = 0;
     k = i2 >> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     byte i3 = 8;
     k = i3 >> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function 'testUnsigned8RightShift() {
     ints:Unsigned8 i1 = 255;
     int j = 3;
     ints:Unsigned8 k = i1 >> j;
-    assertValueEqual(31, k);
+    test:assertValueEqual(31, k);
 
     ints:Unsigned8 i2 = 0;
     k = i2 >> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Unsigned8 i3 = 8;
     k = i3 >> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function 'testUnsigned16RightShift() {
     ints:Unsigned16 i1 = 65535;
     int j = 3;
     ints:Unsigned16 k = i1 >> j;
-    assertValueEqual(8191, k);
+    test:assertValueEqual(8191, k);
 
     ints:Unsigned16 i2 = 0;
     k = i2 >> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Unsigned16 i3 = 8;
     k = i3 >> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function 'testUnsigned32RightShift() {
     ints:Unsigned32 i1 = 4294967295;
     int j = 3;
     ints:Unsigned32 k = i1 >> j;
-    assertValueEqual(536870911, k);
+    test:assertValueEqual(536870911, k);
 
     ints:Unsigned32 i2 = 0;
     k = i2 >> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Unsigned32 i3 = 8;
     k = i3 >> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function testUnsignedRightShift() {
@@ -780,136 +781,136 @@ function 'testSigned8UnsignedRightShift() {
     ints:Signed8 i1 = 127;
     int j = 3;
     int k = i1 >>> j;
-    assertValueEqual(15, k);
+    test:assertValueEqual(15, k);
 
     ints:Signed8 i2 = -128;
     k = i2 >>> j;
-    assertValueEqual(2305843009213693936, k);
+    test:assertValueEqual(2305843009213693936, k);
 
     ints:Signed8 i3 = 0;
     k = i3 >>> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Signed8 i4 = 8;
     k = i4 >>> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function 'testSigned16UnsignedRightShift() {
     ints:Signed16 i1 = 32767;
     int j = 3;
     int k = i1 >>> j;
-    assertValueEqual(4095, k);
+    test:assertValueEqual(4095, k);
 
     ints:Signed16 i2 = -32768;
     k = i2 >>> j;
-    assertValueEqual(2305843009213689856, k);
+    test:assertValueEqual(2305843009213689856, k);
 
     ints:Signed16 i3 = 0;
     k = i3 >>> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Signed16 i4 = 8;
     k = i4 >>> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function 'testSigned32UnsignedRightShift() {
     ints:Signed32 i1 = 2147483647;
     int j = 3;
     int k = i1 >>> j;
-    assertValueEqual(268435455, k);
+    test:assertValueEqual(268435455, k);
 
     ints:Signed32 i2 = -2147483648;
     k = i2 >>> j;
-    assertValueEqual(2305843008945258496, k);
+    test:assertValueEqual(2305843008945258496, k);
 
     ints:Signed32 i3 = 0;
     k = i3 >>> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Signed32 i4 = 8;
     k = i4 >>> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function testIntUnsignedRightShift() {
     int i1 = 9223372036854775807;
     int j = 3;
     int k = i1 >>> j;
-    assertValueEqual(1152921504606846975, k);
+    test:assertValueEqual(1152921504606846975, k);
 
     int i2 = -9223372036854775808;
     k = i2 >>> j;
-    assertValueEqual(1152921504606846976, k);
+    test:assertValueEqual(1152921504606846976, k);
 
     int i3 = 0;
     k = i3 >>> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     int i4 = 8;
     k = i4 >>> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function testByteUnsignedRightShift() {
     byte i1 = 255;
     int j = 3;
     byte k = i1 >>> j;
-    assertValueEqual(31, k);
+    test:assertValueEqual(31, k);
 
     byte i2 = 0;
     k = i2 >>> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     byte i3 = 8;
     k = i3 >>> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function 'testUnsigned8UnsignedRightShift() {
     ints:Unsigned8 i1 = 255;
     int j = 3;
     ints:Unsigned8 k = i1 >>> j;
-    assertValueEqual(31, k);
+    test:assertValueEqual(31, k);
 
     ints:Unsigned8 i2 = 0;
     k = i2 >>> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Unsigned8 i3 = 8;
     k = i3 >>> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function 'testUnsigned16UnsignedRightShift() {
     ints:Unsigned16 i1 = 65535;
     int j = 3;
     ints:Unsigned16 k = i1 >>> j;
-    assertValueEqual(8191, k);
+    test:assertValueEqual(8191, k);
 
     ints:Unsigned16 i2 = 0;
     k = i2 >>> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Unsigned16 i3 = 8;
     k = i3 >>> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function 'testUnsigned32UnsignedRightShift() {
     ints:Unsigned32 i1 = 4294967295;
     int j = 3;
     ints:Unsigned32 k = i1 >>> j;
-    assertValueEqual(536870911, k);
+    test:assertValueEqual(536870911, k);
 
     ints:Unsigned32 i2 = 0;
     k = i2 >>> j;
-    assertValueEqual(0, k);
+    test:assertValueEqual(0, k);
 
     ints:Unsigned32 i3 = 8;
     k = i3 >>> j;
-    assertValueEqual(1, k);
+    test:assertValueEqual(1, k);
 }
 
 function testBitwiseAnd() {
@@ -930,51 +931,51 @@ function testBitwiseAnd() {
 
     ints:Signed8 s81 = -1;
     int res = s81 & s81;
-    assertValueEqual(-1, res);
+    test:assertValueEqual(-1, res);
 
     byte v1 = 128;
     ints:Signed16 v2 = 384;
     byte res2 = v1 & v2;
-    assertValueEqual(128, res2);
+    test:assertValueEqual(128, res2);
 
     int n = c & i;
-    assertValueEqual(139024, n);
+    test:assertValueEqual(139024, n);
 
     int o = j & b;
-    assertValueEqual(30753, o);
+    test:assertValueEqual(30753, o);
 
     int p = k & a;
-    assertValueEqual(1, p);
+    test:assertValueEqual(1, p);
 
     int q = b & l;
-    assertValueEqual(-9223372036854775808, q);
+    test:assertValueEqual(-9223372036854775808, q);
 
     int r = a & 1;
-    assertValueEqual(1, r);
+    test:assertValueEqual(1, r);
 
     int s = b & c;
-    assertValueEqual(137504, s);
+    test:assertValueEqual(137504, s);
 
     int t = d & 2;
-    assertValueEqual(0, t);
+    test:assertValueEqual(0, t);
 
     byte u = e & e;
-    assertValueEqual(23, u);
+    test:assertValueEqual(23, u);
 
     ints:Unsigned8 v = f & d;
-    assertValueEqual(12, v);
+    test:assertValueEqual(12, v);
 
     ints:Unsigned16 w = g & h;
-    assertValueEqual(256, w);
+    test:assertValueEqual(256, w);
 
     ints:Unsigned8 x = h & f;
-    assertValueEqual(4, x);
+    test:assertValueEqual(4, x);
 
     ints:Unsigned32 y = a & h;
-    assertValueEqual(0, y);
+    test:assertValueEqual(0, y);
 
     ints:Unsigned8 z = f & b;
-    assertValueEqual(0, z);
+    test:assertValueEqual(0, z);
 }
 
 function testBitwiseOr() {
@@ -995,54 +996,54 @@ function testBitwiseOr() {
 
     ints:Signed8 s81 = -1;
     int res = s81 | s81;
-    assertValueEqual(-1, res);
+    test:assertValueEqual(-1, res);
 
     byte v1 = 128;
     ints:Signed16 v2 = 384;
     int res2 = v1 | v2;
-    assertValueEqual(384, res2);
+    test:assertValueEqual(384, res2);
 
     res2 = v2 | v1;
-    assertValueEqual(384, res2);
+    test:assertValueEqual(384, res2);
 
     int n = c | i;
-    assertValueEqual(-66, n);
+    test:assertValueEqual(-66, n);
 
     int o = j | b;
-    assertValueEqual(-1053, o);
+    test:assertValueEqual(-1053, o);
 
     int p = k | a;
-    assertValueEqual(-2137483647, p);
+    test:assertValueEqual(-2137483647, p);
 
     int q = b | l;
-    assertValueEqual(-1567, q);
+    test:assertValueEqual(-1567, q);
 
     int r = a | 1;
-    assertValueEqual(1, r);
+    test:assertValueEqual(1, r);
 
     int s = b | c;
-    assertValueEqual(-13, s);
+    test:assertValueEqual(-13, s);
 
     int t = d | 2;
-    assertValueEqual(6429487, t);
+    test:assertValueEqual(6429487, t);
 
     byte u = e | e;
-    assertValueEqual(23, u);
+    test:assertValueEqual(23, u);
 
     int v = f | d;
-    assertValueEqual(6429485, v);
+    test:assertValueEqual(6429485, v);
 
     ints:Unsigned16 w = g | h;
-    assertValueEqual(39869, w);
+    test:assertValueEqual(39869, w);
 
     ints:Unsigned8 x = h | f;
-    assertValueEqual(156, x);
+    test:assertValueEqual(156, x);
 
     int y = a | h;
-    assertValueEqual(5739413, y);
+    test:assertValueEqual(5739413, y);
 
     int z = f | b;
-    assertValueEqual(-1555, z);
+    test:assertValueEqual(-1555, z);
 }
 
 function testBitwiseXor() {
@@ -1063,89 +1064,53 @@ function testBitwiseXor() {
 
     ints:Signed8 s81 = -1;
     int res = s81 ^ s81;
-    assertValueEqual(0, res);
+    test:assertValueEqual(0, res);
 
     byte v1 = 128;
     ints:Signed16 v2 = 384;
     int res2 = v1 ^ v2;
-    assertValueEqual(256, res2);
+    test:assertValueEqual(256, res2);
 
     res2 = v2 ^ v1;
-    assertValueEqual(256, res2);
+    test:assertValueEqual(256, res2);
 
     int n = c ^ i;
-    assertValueEqual(-139090, n);
+    test:assertValueEqual(-139090, n);
 
     int o = j ^ b;
-    assertValueEqual(-31806, o);
+    test:assertValueEqual(-31806, o);
 
     int p = k ^ a;
-    assertValueEqual(-2137483648, p);
+    test:assertValueEqual(-2137483648, p);
 
     int q = b ^ l;
-    assertValueEqual(9223372036854774241, q);
+    test:assertValueEqual(9223372036854774241, q);
 
     int r = a ^ 1;
-    assertValueEqual(0, r);
+    test:assertValueEqual(0, r);
 
     int s = b ^ c;
-    assertValueEqual(-137517, s);
+    test:assertValueEqual(-137517, s);
 
     int t = d ^ 2;
-    assertValueEqual(6429487, t);
+    test:assertValueEqual(6429487, t);
 
     byte u = e ^ e;
-    assertValueEqual(0, u);
+    test:assertValueEqual(0, u);
 
     int v = f ^ d;
-    assertValueEqual(6429473, v);
+    test:assertValueEqual(6429473, v);
 
     ints:Unsigned16 w = g ^ h;
-    assertValueEqual(39613, w);
+    test:assertValueEqual(39613, w);
 
     ints:Unsigned8 x = h ^ f;
-    assertValueEqual(152, x);
+    test:assertValueEqual(152, x);
 
     int y = a ^ h;
-    assertValueEqual(5739413, y);
+    test:assertValueEqual(5739413, y);
 
     int z = f ^ b;
-    assertValueEqual(-1555, z);
+    test:assertValueEqual(-1555, z);
 }
 
-// Test Functions
-
-function assertValueEqual(anydata expected, anydata actual) {
-    if(expected != actual) {
-        error e = error("Not Equal", message = "expected: " + expected.toString() + ", found: " + actual.toString());
-        panic e;
-    }
-}
-
-function assertError(anydata|error value) {
-    if !(value is error) {
-        error e = error("Not Error", message = "expected: Error, found: " + value.toString());
-        panic e;
-    }
-}
-
-function assertNotError(anydata|error value) {
-    if (value is error) {
-        error e = error("Not Error", message = "expected: Error, found: " + value.toString());
-        panic e;
-    }
-}
-
-function assertTrue(boolean value) {
-    if !(value) {
-        error e = error("Not True", message = "expected: true, found: " + value.toString());
-        panic e;
-    }
-}
-
-function assertFalse(boolean value) {
-    if (value) {
-        error e = error("Not False", message = "expected: false, found: " + value.toString());
-        panic e;
-    }
-}

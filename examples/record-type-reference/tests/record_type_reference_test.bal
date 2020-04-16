@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 
 string[] outputs = [];
 int counter = 0;
@@ -11,18 +10,16 @@ int counter = 0;
 public function mockPrint(any... s) {
     outputs[counter] = "";
     foreach var v in s {
-        outputs[counter] += string.convert(v);
+        outputs[counter] += v.toString();
     }
     counter += 1;
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
-    test:assertEquals(outputs[0], "{age:25, name:\"John Doe\", designation:\"Software Engineer\"}");
-    test:assertEquals(outputs[1], "{age:25, name:\"Jane Doe\", designation:\"UX Engineer\"}");
-    test:assertEquals(outputs[2], "{age:35, name:\"Mark\", designation:\"Engineering Manager\", " +
-        "team:[{age:25, name:\"John Doe\", designation:\"Software Engineer\"}, " +
-        "{age:25, name:\"Jane Doe\", designation:\"UX Engineer\"}], company:\"XYZ Inc.\"}");
+    test:assertEquals(outputs[0], "designation=Software Engineer name=John Doe age=25");
+    test:assertEquals(outputs[1], "designation=UX Engineer name=Jane Doe age=25");
+    test:assertEquals(outputs[2], "team=designation=Software Engineer name=John Doe age=25 designation=UX Engineer name=Jane Doe age=25 company=XYZ Inc. designation=Engineering Manager name=Mark age=35");
 }

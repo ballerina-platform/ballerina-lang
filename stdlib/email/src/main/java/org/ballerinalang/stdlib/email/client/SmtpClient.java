@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.email.client;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.stdlib.email.util.EmailConstants;
@@ -27,6 +26,7 @@ import org.ballerinalang.stdlib.email.util.SmtpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import javax.mail.MessagingException;
@@ -80,10 +80,9 @@ public class SmtpClient {
                     (Session) clientConnector.getNativeData(EmailConstants.PROPS_SESSION),
                     (String) clientConnector.getNativeData(EmailConstants.PROPS_USERNAME), message));
             return null;
-        } catch (MessagingException e) {
+        } catch (MessagingException | IOException e) {
             log.error("Failed to send message to SMTP server : ", e);
-            return BallerinaErrors.createError(StringUtils.fromString(EmailConstants.SEND_ERROR),
-                    e.getMessage());
+            return BallerinaErrors.createError(EmailConstants.SEND_ERROR, e.getMessage());
         }
     }
 

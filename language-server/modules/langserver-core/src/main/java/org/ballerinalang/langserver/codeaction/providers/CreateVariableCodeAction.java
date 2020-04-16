@@ -20,6 +20,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.CommandUtil;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
@@ -57,7 +58,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -69,7 +69,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.IOException;
@@ -81,7 +80,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -224,11 +222,11 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
 
 
-        List<TextEdit> edits = new ArrayList<>();
+        List<TextEdit> importTextEdit = new ArrayList<>();
         Pair<List<String>, List<String>> typesAndNames = getPossibleTypesAndNames(context, referenceAtCursor,
                                                                                   hasDefaultInitFunction,
                                                                                   hasCustomInitFunction, bLangNode,
-                                                                                  edits, compilerContext);
+                                                                                  importTextEdit, compilerContext);
 
         List<String> types = typesAndNames.getLeft();
         List<String> names = typesAndNames.getRight();
@@ -244,7 +242,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             }
             CodeAction action = new CodeAction(title);
             Position insertPos = new Position(position.getLine(), position.getCharacter());
-            edits = Collections.singletonList(new TextEdit(new Range(insertPos, insertPos), type + " " + name + " = "));
+            List<TextEdit> edits = new ArrayList<>(importTextEdit);
+            edits.add(new TextEdit(new Range(insertPos, insertPos), type + " " + name + " = "));
             action.setKind(CodeActionKind.QuickFix);
             action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
                     new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
@@ -262,27 +261,21 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                                                                              CompilerContext compilerContext) {
         Set<String> nameEntries = CommonUtil.getAllNameEntries(compilerContext);
         PackageID currentPkgId = bLangNode.pos.src.pkgID;
-        BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
-            boolean notFound = CommonUtil.getCurrentModuleImports(context).stream().noneMatch(
-                    pkg -> (pkg.orgName.value.equals(orgName) && pkg.alias.value.equals(alias))
-            );
-            if (notFound) {
-                String pkgName = orgName + "/" + alias;
-                edits.add(createImportTextEdit(pkgName, context));
-            }
-        };
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
 
         List<String> types = new ArrayList<>();
         List<String> names = new ArrayList<>();
         if (hasDefaultInitFunction) {
             BType bType = referenceAtCursor.getSymbol().type;
-            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
+            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType,
+                                                                           context);
             String variableName = CommonUtil.generateVariableName(bType, nameEntries);
             types.add(variableType);
             names.add(variableName);
         } else if (hasCustomInitFunction) {
             BType bType = referenceAtCursor.getSymbol().owner.type;
-            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
+            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType,
+                                                                           context);
             String variableName = CommonUtil.generateVariableName(bType, nameEntries);
             types.add(variableType);
             names.add(variableName);
@@ -291,12 +284,14 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             while (bLangNode.parent instanceof IndexBasedAccessNode) {
                 bLangNode = bLangNode.parent;
             }
-            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode);
+            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode,
+                                                                           context);
             if (bLangNode instanceof BLangInvocation) {
                 BSymbol symbol = ((BLangInvocation) bLangNode).symbol;
                 if (symbol instanceof BInvokableSymbol) {
                     variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                                            ((BInvokableSymbol) symbol).retType);
+                                                                            ((BInvokableSymbol) symbol).retType,
+                                                                            context);
                 }
                 String variableName = CommonUtil.generateVariableName(bLangNode, nameEntries);
                 types.add(variableType);
@@ -330,13 +325,14 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                 // Matching Record
                 if (matchingRecordType != null) {
                     String recType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                                              matchingRecordType);
+                                                                              matchingRecordType, context);
                     types.add(recType);
                     names.add(variableName);
                 }
 
                 // Anon Record
-                String rType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type);
+                String rType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type,
+                                                                        context);
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) bLangNode;
                 types.add((recordLiteral.fields.size() > 0) ? rType : "record {}");
                 names.add(variableName);
@@ -361,7 +357,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                     }
                 }
                 if (isConstrainedMap && prevType != null) {
-                    String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, prevType);
+                    String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, prevType,
+                                                                           context);
                     types.add("map<" + type + ">");
                     names.add(variableName);
                 } else {
@@ -379,7 +376,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                     boolean isArrayCandidate = !tupleType.tupleTypes.isEmpty();
                     StringJoiner tupleJoiner = new StringJoiner(", ");
                     for (BType type : tupleType.tupleTypes) {
-                        String newType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, type);
+                        String newType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, type,
+                                                                                  context);
                         if (prevType != null && !prevType.equals(newType)) {
                             isArrayCandidate = false;
                         }
@@ -389,7 +387,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                             boolean isSameInnerType = true;
                             for (BType innerType : nType.tupleTypes) {
                                 String newInnerType = FunctionGenerator.generateTypeDefinition(importsAcceptor,
-                                                                                               currentPkgId, innerType);
+                                                                                               currentPkgId, innerType,
+                                                                                               context);
                                 if (prevInnerType != null && !prevInnerType.equals(newInnerType)) {
                                     isSameInnerType = false;
                                 }
@@ -428,7 +427,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                 }
             } else if (bLangNode instanceof BLangBinaryExpr) {
                 BLangBinaryExpr binaryExpr = (BLangBinaryExpr) bLangNode;
-                variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, binaryExpr.type);
+                variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, binaryExpr.type,
+                                                                        context);
                 String variableName = CommonUtil.generateName(1, nameEntries);
                 types.add(variableType);
                 names.add(variableName);
@@ -441,6 +441,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
 
         // Remove brackets of the unions
         types = types.stream().map(v -> v.replaceAll("^\\((.*)\\)$", "$1")).collect(Collectors.toList());
+        edits.addAll(importsAcceptor.getNewImportTextEdits());
         return new ImmutablePair<>(types, names);
     }
 
@@ -530,24 +531,5 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         List<TextEdit> edits = new ArrayList<>();
         edits.add(new TextEdit(new Range(position, position), editText));
         return edits;
-    }
-
-    private static TextEdit createImportTextEdit(String pkgName, LSContext context) {
-        DiagnosticPos pos = null;
-
-        // Filter the imports except the runtime import
-        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(context);
-
-        if (!imports.isEmpty()) {
-            BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
-            pos = lastImport.getPosition();
-        }
-
-        int endCol = 0;
-        int endLine = pos == null ? 0 : pos.getEndLine();
-
-        String editText = "import " + pkgName + ";\n";
-        Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
-        return new TextEdit(range, editText);
     }
 }

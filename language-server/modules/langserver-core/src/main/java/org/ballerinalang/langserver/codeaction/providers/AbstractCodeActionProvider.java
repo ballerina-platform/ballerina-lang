@@ -160,6 +160,33 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
 //            Type Casts: <int>1.1;
 //            Streaming From Clauses: from var person in personList;
         String content = diagnosedContent.trim();
+        int pointer = content.length();
+        int count = 0;
+
+        // Remove in-line comments
+        int counter = 0;
+        boolean insideString = false;
+        boolean insideStrTemplate = false;
+        while (counter < content.length()) {
+            char c = content.charAt(counter);
+            Optional<Character> nextC = counter + 1 < content.length() ?
+                    Optional.of(content.charAt(counter + 1)) : Optional.empty();
+            if (c == '"' && (!nextC.isPresent() || nextC.get() != '\\')) {
+                insideString = !insideString;
+            } else if (c == '`') {
+                insideStrTemplate = !insideStrTemplate;
+            }
+            if (!insideString && !insideStrTemplate && c == '/' && nextC.isPresent() && nextC.get() == '/') {
+                // Found a comment, break
+                String substring = content.substring(0, counter);
+                content = substring.trim();
+                pointer = content.length();
+                count = diagnosedContent.length() - content.length();
+                break;
+            }
+            counter++;
+        }
+
         int len = content.length();
         len--;
         // In-line record literal
@@ -176,9 +203,8 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
         }
         int pendingLParenthesis = 0;
         boolean loop = true;
-        boolean insideString = false;
-        int count = 0;
-        int pointer = content.length();
+        insideString = false;
+        insideStrTemplate = false;
         while (loop) {
             pointer--;
             if (content.length() == 1) {
@@ -192,8 +218,10 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
                     ? Optional.of(content.charAt(pointer - 2)) : Optional.empty();
             if (tailChar == '"' && tailPrevChar != '\\') {
                 insideString = !insideString;
+            } else if (tailChar == '`') {
+                insideStrTemplate = !insideStrTemplate;
             }
-            if (!insideString) {
+            if (!insideString && !insideStrTemplate) {
                 if (pendingLParenthesis <= 0) {
                     boolean isRangeExpr = tail2ndPrevChar.isPresent()
                             && ((tailChar == '.' || tailChar == '<') && tailPrevChar == '.' &&

@@ -52,4 +52,8 @@ public class ForEach {
                                                        (index, future) -> {
                                                        }, () -> null);
     }
+
+    public static void forEach_bstring(Strand strand, XMLValue x, FPValue<Object, Object> func) {
+        forEach(strand, x, func);
+    }
 }

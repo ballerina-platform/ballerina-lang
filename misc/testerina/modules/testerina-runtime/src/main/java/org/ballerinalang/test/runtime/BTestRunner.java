@@ -267,6 +267,7 @@ public class BTestRunner {
         }
         shouldSkip.set(false);
         tReport.addPackageReport(packageName);
+        tReport.setReportRequired(suite.isReportRequired());
         // Initialize the test suite.
         // This will init and start the test module.
         startSuite(suite, initScheduler, initClazz, testInitClazz, hasTestablePackage);
