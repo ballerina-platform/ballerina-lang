@@ -19,8 +19,6 @@ package org.ballerinalang.model.tree;
 
 import org.ballerinalang.model.tree.types.TypeNode;
 
-import java.util.List;
-
 /**
  * {@code TableKeyTypeConstraintNode} is the base interface for BLangTableKeyTypeConstraint node.
  *

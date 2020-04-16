@@ -413,6 +413,10 @@ public enum DiagnosticCode {
     TABLE_KEY_SPECIFIER_MISMATCH("table.key.specifier.mismatch"),
     KEY_SPECIFIER_SIZE_MISMATCH_WITH_KEY_CONSTRAINT("key.specifier.size.mismatch.with.key.constraint"),
     KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT("key.specifier.mismatch.with.key.constraint"),
+    INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS("invalid.key.constraint.provided.for.access"),
+    MEMBER_ACCESS_NOT_SUPPORT_FOR_KEYLESS_TABLE("member.access.not.supported.keyless.table"),
+    INVALID_FIELD_NAMES_IN_KEY_SPECIFIER("invalid.field.name.in.key.specifier"),
+    MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED("multi.key.member.access.not.supported"),
 
 
     // Taint checking related codes

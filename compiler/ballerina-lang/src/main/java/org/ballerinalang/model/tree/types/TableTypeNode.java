@@ -21,7 +21,7 @@ import org.ballerinalang.model.tree.TableKeySpecifierNode;
 import org.ballerinalang.model.tree.TableKeyTypeConstraintNode;
 
 /**
- * table&lt;Person&gt key(...);.
+ * table&lt;Person&gt; key(...);.
  *
  * @since 1.2.0
  */

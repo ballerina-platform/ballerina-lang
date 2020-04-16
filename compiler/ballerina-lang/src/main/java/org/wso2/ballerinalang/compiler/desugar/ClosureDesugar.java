@@ -690,7 +690,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
-        tableConstructorExpr.recordLiteralList = rewriteExprs(tableConstructorExpr.recordLiteralList);
+        rewriteExprs(tableConstructorExpr.recordLiteralList);
         result = tableConstructorExpr;
     }
 
@@ -1158,6 +1158,13 @@ public class ClosureDesugar extends BLangNodeVisitor {
         mapKeyAccessExpr.indexExpr = rewriteExpr(mapKeyAccessExpr.indexExpr);
         mapKeyAccessExpr.expr = rewriteExpr(mapKeyAccessExpr.expr);
         result = mapKeyAccessExpr;
+    }
+
+    @Override
+    public void visit(BLangIndexBasedAccess.BLangTableAccessExpr tableKeyAccessExpr) {
+        tableKeyAccessExpr.indexExpr = rewriteExpr(tableKeyAccessExpr.indexExpr);
+        tableKeyAccessExpr.expr = rewriteExpr(tableKeyAccessExpr.expr);
+        result = tableKeyAccessExpr;
     }
 
     @Override

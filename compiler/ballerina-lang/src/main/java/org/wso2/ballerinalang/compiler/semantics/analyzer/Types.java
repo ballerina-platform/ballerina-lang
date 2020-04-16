@@ -535,6 +535,11 @@ public class Types {
                     unresolvedTypes);
         }
 
+        //TODO Need to check the key specifier
+        if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
+            return isAssignable(((BTableType) source).constraint, ((BTableType) target).constraint, unresolvedTypes);
+        }
+
         if (targetTag == TypeTags.STREAM && sourceTag == TypeTags.STREAM) {
             return isAssignable(((BStreamType) source).constraint, ((BStreamType) target).constraint, unresolvedTypes);
         }

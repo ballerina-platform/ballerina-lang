@@ -108,6 +108,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -1960,6 +1961,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
+        analyzeExpr(indexAccessExpr.multiKeyExpr);
+    }
+
+    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
+        analyzeExprs(tableMultiKeyExpr.multiKeyIndexExprs);
     }
 
     public void visit(BLangInvocation invocationExpr) {

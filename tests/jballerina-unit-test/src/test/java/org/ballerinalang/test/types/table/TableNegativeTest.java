@@ -33,18 +33,22 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 public class TableNegativeTest {
 
     @Test
-    public void testFromClauseWithInvalidType() {
+    public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 4);
+        Assert.assertEquals(compileResult.getErrorCount(), 6);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
-                                  15, 1);
+                15, 1);
         validateError(compileResult, index++, "table key specifier mismatch. expected: '[id]' " +
                 "but found '[id, firstName]'", 20, 28);
         validateError(compileResult, index++, "table key specifier mismatch with key constraint. " +
                 "expected: '1' fields but found '0'", 25, 20);
         validateError(compileResult, index++, "table key specifier '[age]' does not match with " +
                 "key constraint type '[string]'", 30, 26);
+        validateError(compileResult, index++, "field name 'address' used in key specifier is not " +
+                "found in table constraint type 'Customer'", 35, 44);
+        validateError(compileResult, index++, "member access is not supported for keyless table " +
+                "'customerTable'", 45, 21);
     }
 }

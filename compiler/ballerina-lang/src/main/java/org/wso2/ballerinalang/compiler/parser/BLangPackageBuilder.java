@@ -47,6 +47,7 @@ import org.ballerinalang.model.tree.TableKeyTypeConstraintNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.TableMultiKeyExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLElementFilter;
 import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
@@ -125,6 +126,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -321,8 +323,10 @@ public class BLangPackageBuilder {
     private Stack<Set<Whitespace>> invocationRuleWS = new Stack<>();
     private Stack<Set<Whitespace>> errorRestBindingPatternWS = new Stack<>();
     private Stack<Set<Whitespace>> restMatchPatternWS = new Stack<>();
+
     private Stack<TableKeySpecifierNode> tableKeySpecifierNodeStack = new Stack<>();
     private Stack<TableKeyTypeConstraintNode>  tableKeyTypeConstraintNodeStack = new Stack<>();
+    private Stack<TableMultiKeyExpressionNode> tableMultiKeyExpressionNodeStack = new Stack<>();
 
     private long isInErrorType = 0;
 
@@ -1773,11 +1777,26 @@ public class BLangPackageBuilder {
         addExpressionNode(fieldBasedAccess);
     }
 
+    void createMultiKeyExpressionNode(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTableMultiKeyExpr tableMultiKeyExpr = (BLangTableMultiKeyExpr) TreeBuilder.
+                createTableMultiKeyExpressionNode();
+        tableMultiKeyExpr.pos = pos;
+        tableMultiKeyExpr.addWS(ws);
+        this.exprNodeListStack.pop().forEach(expr -> tableMultiKeyExpr.multiKeyIndexExprs.
+                add((BLangExpression) expr));
+        tableMultiKeyExpressionNodeStack.push(tableMultiKeyExpr);
+    }
+
     void createIndexBasedAccessNode(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangIndexBasedAccess indexBasedAccess = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
         indexBasedAccess.pos = pos;
         indexBasedAccess.addWS(ws);
-        indexBasedAccess.indexExpr = (BLangExpression) exprNodeStack.pop();
+        if (tableMultiKeyExpressionNodeStack.size() == 1) {
+            indexBasedAccess.multiKeyExpr = (BLangTableMultiKeyExpr) tableMultiKeyExpressionNodeStack.pop();
+        } else {
+            indexBasedAccess.indexExpr = (BLangExpression) exprNodeStack.pop();
+        }
+
         indexBasedAccess.expr = (BLangVariableReference) exprNodeStack.pop();
         addExpressionNode(indexBasedAccess);
     }
@@ -2072,12 +2091,11 @@ public class BLangPackageBuilder {
             tableConstructorExpr.tableKeySpecifier = (BLangTableKeySpecifier) tableKeySpecifierNodeStack.pop();
         }
 
-        if (exprNodeStack.size() > 0) {
-            for (ExpressionNode expression : exprNodeStack) {
-                BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
-                tableConstructorExpr.addRecordLiteral(recordLiteral);
-            }
-            exprNodeStack.clear();
+        Collections.reverse(exprNodeStack);
+        while (exprNodeStack.size() > 0) {
+            ExpressionNode expression = exprNodeStack.pop();
+            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
+            tableConstructorExpr.addRecordLiteral(recordLiteral);
         }
         addExpressionNode(tableConstructorExpr);
     }

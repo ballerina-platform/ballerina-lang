@@ -115,6 +115,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStringAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTableAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTupleAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
@@ -250,6 +251,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;
@@ -3203,7 +3205,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
-        tableConstructorExpr.recordLiteralList = rewriteExprs(tableConstructorExpr.recordLiteralList);
+        rewriteExprs(tableConstructorExpr.recordLiteralList);
         result = tableConstructorExpr;
     }
 
@@ -3520,7 +3522,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        BLangVariableReference targetVarRef = indexAccessExpr;
+        BLangIndexBasedAccess targetVarRef = indexAccessExpr;
         indexAccessExpr.indexExpr = rewriteExpr(indexAccessExpr.indexExpr);
 
         // First get the type and then visit the expr. Order matters, since the desugar
@@ -3545,6 +3547,18 @@ public class Desugar extends BLangNodeVisitor {
                                                      indexAccessExpr.indexExpr);
         } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
             targetVarRef = new BLangXMLAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
+                    indexAccessExpr.indexExpr);
+        } else if (varRefType.tag == TypeTags.TABLE) {
+            if (targetVarRef.multiKeyExpr != null) {
+                BLangTupleLiteral listConstructorExpr =
+                        new BLangTupleLiteral();
+                listConstructorExpr.exprs = indexAccessExpr.multiKeyExpr.multiKeyIndexExprs;
+                List<BType> memberTypes = new ArrayList<>();
+                indexAccessExpr.multiKeyExpr.multiKeyIndexExprs.forEach(expression -> memberTypes.add(expression.type));
+                listConstructorExpr.type = new BTupleType(memberTypes);
+                indexAccessExpr.indexExpr = listConstructorExpr;
+            }
+            targetVarRef = new BLangTableAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
         }
 
@@ -4362,6 +4376,11 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleAccessExpr arrayIndexAccessExpr) {
         result = arrayIndexAccessExpr;
+    }
+
+    @Override
+    public void visit(BLangTableAccessExpr tableKeyAccessExpr) {
+        result = tableKeyAccessExpr;
     }
 
     @Override

@@ -1728,6 +1728,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitIndex(BallerinaParser.IndexContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#multiKeyIndex}.
+	 * @param ctx the parse tree
+	 */
+	void enterMultiKeyIndex(BallerinaParser.MultiKeyIndexContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#multiKeyIndex}.
+	 * @param ctx the parse tree
+	 */
+	void exitMultiKeyIndex(BallerinaParser.MultiKeyIndexContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#xmlAttrib}.
 	 * @param ctx the parse tree
 	 */

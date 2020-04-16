@@ -593,6 +593,9 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         }
     }
 
+    /**
+     * The new table instruction.
+     */
     public static class NewTable extends BIRNonTerminator {
         public BIROperand keyColOp;
         public BIROperand dataOp;

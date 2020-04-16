@@ -27,4 +27,6 @@ public interface IndexBasedAccessNode extends VariableReferenceNode {
     ExpressionNode getExpression();
 
     ExpressionNode getIndex();
+
+    TableMultiKeyExpressionNode getMultiKeyExpr();
 }

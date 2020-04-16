@@ -99,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -614,6 +615,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         analyzeNode(indexAccessExpr.expr, env);
         analyzeNode(indexAccessExpr.indexExpr, env);
+        analyzeNode(indexAccessExpr.multiKeyExpr, env);
+    }
+
+    @Override
+    public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
+        tableMultiKeyExpr.multiKeyIndexExprs.forEach(value -> analyzeNode(value, env));
     }
 
     @Override

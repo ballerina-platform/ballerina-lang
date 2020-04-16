@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
@@ -169,6 +170,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -696,11 +698,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             BTableType tableType = new BTableType(TypeTags.TABLE, memTypes.get(0), null);
             if (tableConstructorExpr.tableKeySpecifier != null) {
-                List<String> fieldNameList = new ArrayList<>();
-                for (BLangIdentifier identifier : tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList) {
-                    fieldNameList.add(identifier.value);
-                }
-                tableType.fieldNameList = fieldNameList;
+                tableType.fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
             }
             resultType = tableType;
         } else if (expType.tag == TypeTags.TABLE) {
@@ -715,6 +713,10 @@ public class TypeChecker extends BLangNodeVisitor {
             if (!validateTableType(tableConstructorExpr)) {
                 resultType = symTable.semanticError;
                 return;
+            }
+
+            if (tableConstructorExpr.tableKeySpecifier != null) {
+                ((BTableType) expType).fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
             }
             resultType = expType;
         } else {
@@ -731,17 +733,26 @@ public class TypeChecker extends BLangNodeVisitor {
             return false;
         }
 
-        if (tableType.fieldNameList != null && tableConstructorExpr.tableKeySpecifier != null) {
-            List<String> fieldNamesFromConstructor = new ArrayList<>();
-            for (BLangIdentifier identifier : tableConstructorExpr.tableKeySpecifier.fieldNameIdentifierList) {
-                fieldNamesFromConstructor.add(identifier.value);
+        if (tableConstructorExpr.tableKeySpecifier != null) {
+            List<String> fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
+            for (String fieldName : fieldNameList) {
+                BType type = getFieldType(constraintType, fieldName);
+                if (type == null) {
+                    dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
+                            DiagnosticCode.INVALID_FIELD_NAMES_IN_KEY_SPECIFIER,
+                            fieldName, constraintType);
+                    resultType = symTable.semanticError;
+                    return false;
+                }
             }
 
-            if (!tableType.fieldNameList.equals(fieldNamesFromConstructor)) {
-                dlog.error(tableConstructorExpr.tableKeySpecifier.pos, DiagnosticCode.TABLE_KEY_SPECIFIER_MISMATCH,
-                        tableType.fieldNameList.toString(), fieldNamesFromConstructor.toString());
-                resultType = symTable.semanticError;
-                return false;
+            if (tableType.fieldNameList != null) {
+                if (!tableType.fieldNameList.equals(fieldNameList)) {
+                    dlog.error(tableConstructorExpr.tableKeySpecifier.pos, DiagnosticCode.TABLE_KEY_SPECIFIER_MISMATCH,
+                            tableType.fieldNameList.toString(), fieldNameList.toString());
+                    resultType = symTable.semanticError;
+                    return false;
+                }
             }
         }
 
@@ -801,6 +812,29 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return null;
+    }
+
+    private List<String> getTableKeyNameList(BLangTableKeySpecifier tableKeySpecifier) {
+        List<String> fieldNamesList = new ArrayList<>();
+        for (BLangIdentifier identifier : tableKeySpecifier.fieldNameIdentifierList) {
+            fieldNamesList.add(identifier.value);
+        }
+
+        return fieldNamesList;
+    }
+
+    private BType createTableKeyConstraint(List<String> fieldNames, BType constraintType) {
+        if (fieldNames == null) {
+            return null;
+        }
+
+        List<BType> memTypes = new ArrayList<>();
+        for (String fieldName : fieldNames) {
+            BType fieldType = getFieldType(constraintType, fieldName);
+            memTypes.add(fieldType);
+        }
+
+        return new BTupleType(memTypes);
     }
 
     private BType checkListConstructorCompatibility(BType bType, BLangListConstructorExpr listConstructor) {
@@ -996,7 +1030,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.env = env;
         this.expType = symTable.noType;
         for (BLangExpression e : exprs) {
-            checkExpr(e, this.env);
+            e.accept(this);
             types.add(resultType);
         }
         this.env = prevEnv;
@@ -1740,6 +1774,14 @@ public class TypeChecker extends BLangNodeVisitor {
         ((BLangVariableReference) indexBasedAccessExpr.expr).compoundAssignmentLhsVar =
                 indexBasedAccessExpr.compoundAssignmentLhsVar;
         checkExpr(indexBasedAccessExpr.expr, this.env, symTable.noType);
+
+        if (indexBasedAccessExpr.multiKeyExpr != null && !types.isAssignable(indexBasedAccessExpr.expr.type,
+                symTable.tableType)) {
+            dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED,
+                    indexBasedAccessExpr.expr.type);
+            resultType = symTable.semanticError;
+            return;
+        }
 
         BType actualType = checkIndexAccessExpr(indexBasedAccessExpr);
 
@@ -4801,13 +4843,63 @@ public class TypeChecker extends BLangNodeVisitor {
             }
             actualType = symTable.xmlType;
             indexBasedAccessExpr.originalType = actualType;
+        } else if (types.isAssignable(varRefType, symTable.tableType)) {
+            BTableType tableType = (BTableType) indexBasedAccessExpr.expr.type;
+            BType keyTypeConstraint = tableType.keyTypeConstraint;
+            if (tableType.keyTypeConstraint == null) {
+                keyTypeConstraint = createTableKeyConstraint(((BTableType) indexBasedAccessExpr.expr.type).
+                        fieldNameList, ((BTableType) indexBasedAccessExpr.expr.type).constraint);
+
+                if (keyTypeConstraint == null) {
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MEMBER_ACCESS_NOT_SUPPORT_FOR_KEYLESS_TABLE,
+                            indexBasedAccessExpr.expr);
+                    return symTable.semanticError;
+                }
+            }
+
+            if (indexExpr != null) {
+                checkExpr(indexExpr, this.env, keyTypeConstraint);
+                if (indexExpr.type == symTable.semanticError) {
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS,
+                            keyTypeConstraint);
+                    return symTable.semanticError;
+                }
+            } else {
+                List<BLangExpression> multiKeyExpressionList = indexBasedAccessExpr.multiKeyExpr.multiKeyIndexExprs;
+                List<BType> keyConstraintTypes = ((BTupleType) keyTypeConstraint).tupleTypes;
+                if (keyConstraintTypes.size() != multiKeyExpressionList.size()) {
+                    dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS,
+                            keyTypeConstraint);
+                    return symTable.semanticError;
+                }
+
+                for (int i = 0; i < multiKeyExpressionList.size(); i++) {
+                    BLangExpression keyExpr = multiKeyExpressionList.get(0);
+                    checkExpr(keyExpr, this.env, keyConstraintTypes.get(0));
+                    if (keyExpr.type == symTable.semanticError) {
+                        dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.INVALID_KEY_CONSTRAINT_PROVIDED_FOR_ACCESS,
+                                keyTypeConstraint);
+                        return symTable.semanticError;
+                    }
+                }
+            }
+
+            if (expType.tag != TypeTags.NONE) {
+                BType resultType = checkExpr(indexBasedAccessExpr.expr, env, expType);
+                if (resultType == symTable.semanticError) {
+                    return symTable.semanticError;
+                }
+            }
+
+            indexBasedAccessExpr.originalType = tableType.constraint;
+            actualType = tableType.constraint;
         } else if (varRefType == symTable.semanticError) {
             indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
             return symTable.semanticError;
         } else {
             indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
             dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
-                       indexBasedAccessExpr.expr.type);
+                    indexBasedAccessExpr.expr.type);
             return symTable.semanticError;
         }
 
