@@ -27,6 +27,8 @@ import org.ballerinalang.jvm.values.api.BMap;
  * <i>Note: This is an internal API and may change in future versions.</i>
  * </p>
  *
+ * @param <K> the type of keys maintained by this map
+ * @param <V> the type of mapped values
  * @since 1.3.0
  */
 public interface BTable<K, V> extends RefValue, CollectionValue, BMap<K, V> {

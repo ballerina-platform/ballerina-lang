@@ -170,6 +170,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -4849,7 +4850,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 keyTypeConstraint = createTableKeyConstraint(((BTableType) indexBasedAccessExpr.expr.type).
                         fieldNameList, ((BTableType) indexBasedAccessExpr.expr.type).constraint);
 
-                if(keyTypeConstraint == null) {
+                if (keyTypeConstraint == null) {
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MEMBER_ACCESS_NOT_SUPPORT_FOR_KEYLESS_TABLE,
                             indexBasedAccessExpr.expr);
                     return symTable.semanticError;
