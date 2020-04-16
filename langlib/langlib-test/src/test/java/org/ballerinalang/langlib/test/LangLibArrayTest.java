@@ -400,44 +400,61 @@ public class LangLibArrayTest {
     @Test
     public void callingLengthModificationFunctionsOnFixedLengthLists() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/arraylib_test_negative.bal");
-        BAssertUtil.validateError(negativeResult, 0, "cannot call 'push' on fixed length list(s) of type 'int[1]'",
+        int errorIndex = 0;
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'push' on fixed length list(s) of type " +
+                                          "'int[1]'",
                                   19, 22);
-        BAssertUtil.validateError(negativeResult, 1, "cannot call 'push' on fixed length list(s) of type '[int,int]'",
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'push' on fixed length list(s) of type " +
+                                          "'[int,int]'",
                                   24, 22);
-        BAssertUtil.validateError(negativeResult, 2, "cannot call 'pop' on fixed length list(s) of type 'int[1]'",
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'pop' on fixed length list(s) of type " +
+                                          "'int[1]'",
                                   29, 35);
-        BAssertUtil.validateError(negativeResult, 3, "cannot call 'pop' on fixed length list(s) of type '[int,int]'",
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'pop' on fixed length list(s) of type " +
+                                          "'[int,int]'",
                                   34, 35);
-        BAssertUtil.validateError(negativeResult, 4, "cannot call 'shift' on fixed length list(s) of type 'int[1]'",
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'shift' on fixed length list(s) of type " +
+                                          "'int[1]'",
                                   45, 30);
-        BAssertUtil.validateError(negativeResult, 5, "cannot call 'unshift' on fixed length list(s) of type 'int[1]'",
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'unshift' on fixed length list(s) of " +
+                                          "type 'int[1]'",
                                   50, 22);
-        BAssertUtil.validateError(negativeResult, 6, "cannot call 'shift' on fixed length list(s) of type '[int,int]'",
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'shift' on fixed length list(s) of type " +
+                                          "'[int,int]'",
                                   55, 35);
-        BAssertUtil.validateError(negativeResult, 7,
+        BAssertUtil.validateError(negativeResult, errorIndex++,
                                   "cannot call 'unshift' on fixed length list(s) of type '[int,int]'",
                                   60, 22);
-        BAssertUtil.validateError(negativeResult, 8, "cannot call 'push' on fixed length list(s) of type 'int[2]'",
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'push' on fixed length list(s) of type " +
+                                          "'int[2]'",
                                   66, 22);
-        BAssertUtil.validateError(negativeResult, 9, "cannot call 'pop' on fixed length list(s) of type 'int[2]'",
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'pop' on fixed length list(s) of type " +
+                                          "'int[2]'",
                                   67, 30);
-        BAssertUtil.validateError(negativeResult, 10, "cannot call 'shift' on fixed length list(s) of type 'int[2]'",
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'shift' on fixed length list(s) of type " +
+                                          "'int[2]'",
                                   68, 26);
-        BAssertUtil.validateError(negativeResult, 11, "cannot call 'unshift' on fixed length list(s) of type 'int[2]'",
+        BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'unshift' on fixed length list(s) of " +
+                                          "type 'int[2]'",
                                   69, 22);
-        BAssertUtil.validateError(negativeResult, 12,
+        BAssertUtil.validateError(negativeResult, errorIndex++,
                                   "cannot call 'push' on fixed length list(s) of type '(int[1]|float[1])'",
                                   74, 22);
-        BAssertUtil.validateError(negativeResult, 13,
+        BAssertUtil.validateError(negativeResult, errorIndex++,
                                   "cannot call 'push' on fixed length list(s) of type '([int,int][1]|[float," +
                                           "float][1])'",
                                   79, 22);
-        BAssertUtil.validateError(negativeResult, 14,
-                                  "cannot call 'shift' on tuple of type '[int,string...]': change inherent shape",
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                                  "cannot call 'shift' on tuple(s) of type '[int,string...]'; cannot violate inherent" +
+                                          " type",
                                   84, 24);
-        BAssertUtil.validateError(negativeResult, 15,
-                                  "cannot call 'shift' on tuple of type '[int,string,int...]': change inherent shape",
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                                  "cannot call 'shift' on tuple(s) of type '[int,string,int...]'; cannot violate " +
+                                          "inherent type",
                                   89, 24);
-        Assert.assertEquals(negativeResult.getErrorCount(), 16);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                                  "cannot call 'push' on fixed length list(s) of type '([int,int]|[float,float])'",
+                                  100, 22);
+        Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 }

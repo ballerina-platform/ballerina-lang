@@ -95,6 +95,11 @@ function testPushOnFixedLengthAndDynamicTupleUnion() {
     fixedLengthArray.push(<[float, float]>[1, 2]);
 }
 
+function testPushOnFixedLengthTupleUnions() {
+    [int, int] | [float, float] fixedLengthArray = <[float, float]> [1, 2];
+    fixedLengthArray.push(<float>1);
+}
+
 // run time panic no compile time error
 function testShiftOnTupleWithIntRestParamFixedInherantShapeWithInt() {
     [int, int...] a = [1];

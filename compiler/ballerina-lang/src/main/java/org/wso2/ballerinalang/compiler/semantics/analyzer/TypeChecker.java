@@ -167,6 +167,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
@@ -1870,8 +1871,28 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if ((varRefType.tag == TypeTags.TUPLE) && hasDifferentTypeThanRest((BTupleType) varRefType) &&
                 (invocationName.compareTo(FUNCTION_NAME_SHIFT) == 0)) {
-            dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_TUPLE_SHAPE, invocationName, varRefType);
+            dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_TUPLE_SHAPE, invocationName,
+                       varRefType);
             resultType = symTable.semanticError;
+        }
+
+        if ((varRefType.tag == TypeTags.UNION) && (invocationName.compareTo(FUNCTION_NAME_SHIFT) == 0)) {
+            BUnionType unionVarRef = (BUnionType) varRefType;
+            boolean allTuplesHasFixedShape = true;
+            for (BType member : unionVarRef.getMemberTypes()) {
+                if (member.tag != TypeTags.TUPLE) {
+                    break;
+                }
+                if (!hasDifferentTypeThanRest((BTupleType) varRefType)) {
+                    allTuplesHasFixedShape = false;
+                    break;
+                }
+            }
+            if (allTuplesHasFixedShape) {
+                dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_TUPLE_SHAPE, invocationName,
+                           varRefType);
+                resultType = symTable.semanticError;
+            }
         }
     }
 
