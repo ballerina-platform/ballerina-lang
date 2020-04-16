@@ -36,7 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ClosedChannelException;
@@ -44,7 +46,11 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import static org.ballerinalang.stdlib.io.utils.IOConstants.BYTE_CHANNEL_NAME;
 
@@ -59,6 +65,10 @@ public class ByteChannelUtils extends AbstractNativeChannel {
     private static final String READ_ACCESS_MODE = "r";
     private static final String WRITE_ACCESS_MODE = "w";
     private static final String APPEND_ACCESS_MODE = "a";
+    private static final String RESOURCES = "resources";
+    private static final String TARGET = "target";
+    private static final String BIN = "bin";
+    private static final String JAR = ".jar";
 
     private ByteChannelUtils() {
     }
@@ -134,6 +144,55 @@ public class ByteChannelUtils extends AbstractNativeChannel {
             return e;
         }
         return channel;
+    }
+
+    public static Object getResource(String pathUrl) {
+        String[] className = Thread.currentThread().getStackTrace()[4].getClassName().split("\\.");
+        String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1]
+                + File.separator + pathUrl;
+        String executablePath = TARGET + File.separator + BIN + File.separator + className[1] + JAR;
+
+        InputStream resourceAsStream = ByteChannelUtils.class.getClassLoader().getResourceAsStream(resourcePath);
+        if (resourceAsStream == null) {
+            return IOUtils.createError("No such file : " + pathUrl);
+        }
+
+        try (ZipFile zipFile = new ZipFile(executablePath)) {
+            ZipEntry entry = zipFile.getEntry(resourcePath);
+            if (entry.isDirectory()) {
+                return IOUtils.createError("Found Directory : " + pathUrl + " , Required file.");
+            }
+            ReadableByteChannel readableByteChannel = Channels.newChannel(resourceAsStream);
+            Channel channel = new BlobIOChannel(new BlobChannel(readableByteChannel));
+            return createChannel(channel);
+        } catch (IOException e) {
+            return IOUtils.createError("Error unzipping file: " + executablePath);
+        }
+    }
+
+    public static ArrayValue getResources() {
+        ArrayList<String> list = new ArrayList<>();
+        String[] className = Thread.currentThread().getStackTrace()[5].getClassName().split("\\.");
+        String executablePath = TARGET + File.separator + BIN + File.separator + className[1] + JAR;
+        String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1]
+                + File.separator;
+
+        try (ZipFile zipFile = new ZipFile(executablePath)) {
+            Enumeration<? extends ZipEntry> entries = zipFile.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement();
+                if (entry.getName().contains(resourcePath) && !entry.isDirectory()) {
+                    list.add(entry.getName().replace(resourcePath, ""));
+                }
+            }
+            String[] results = new String[list.size()];
+            for (int i = 0; i < list.size(); i++) {
+                results[i] = list.get(i);
+            }
+            return (ArrayValue) BValueCreator.createArrayValue(results);
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     public static Object openWritableFile(String pathUrl, boolean accessMode) {

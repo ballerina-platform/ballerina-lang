@@ -153,6 +153,12 @@
         </classes>
     </test>
 
+    <test name="ballerina-resources-tests" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.resources.ResourcesTestCase"/>
+        </classes>
+    </test>
+
     <test name="ballerina-websocket-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
         <groups>
