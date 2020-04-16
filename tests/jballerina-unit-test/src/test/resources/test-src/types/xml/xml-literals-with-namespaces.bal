@@ -119,16 +119,16 @@ function testInnerScopeNamespaceDclr() returns [string, string, string] {
     string s1 = "";
     string s2 = "";
     string s3 = "";
-    
+
     if (true) {
         s1 = ns1:foo;
-        
+
         xmlns "http://sample.com/wso2/a3" as ns1;
         s2 = ns1:foo;
     }
-    
+
     s3 = ns1:foo;
-    
+
     return [s1, s2, s3];
 }
 
@@ -144,4 +144,16 @@ function testObjectLevelXML() returns xml {
 function getXML() returns xml {
     xml x = xml `<foo xmlns="http://wso2.com/">hello</foo>`;
     return x;
+}
+
+function XMLWithDefaultNamespaceToString() returns string {
+    xml x = xml `<Order xmlns="http://acme.company" xmlns:acme="http://acme.company">
+        <OrderLines>
+            <OrderLine acme:lineNo="334" itemCode="334-2"></OrderLine>
+        </OrderLines>
+        <ShippingAddress>
+        </ShippingAddress>
+    </Order>`;
+
+    return x.toString();
 }
