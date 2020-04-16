@@ -29,6 +29,7 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
@@ -41,6 +42,14 @@ import static org.testng.Assert.assertTrue;
  * @since 0.961.0
  */
 public class LocksInMainTest {
+
+    private  CompileResult parallelCompileResult;
+
+    @BeforeClass
+    public void setup() {
+        parallelCompileResult = BCompileUtil.compile("test-src/lock/parallel-run-lock.bal");
+        Assert.assertEquals(parallelCompileResult.getErrorCount(), 0);
+    }
 
     @Test(description = "Tests lock within a lock")
     public void testLockWithinLock() {
@@ -250,15 +259,21 @@ public class LocksInMainTest {
 
     @Test(description = "Test for parallel run using locks")
     public void testParallelRunUsingLocks() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/parallel-run-lock.bal");
-
-        BValue[] returns = BRunUtil.invoke(compileResult, "runParallelUsingLocks");
+        BValue[] returns = BRunUtil.invoke(parallelCompileResult, "runParallelUsingLocks");
     }
 
     @Test
     public void testParallelRunWithInvocationDependencies() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/lock/parallel-run-lock.bal");
+        BValue[] returns = BRunUtil.invoke(parallelCompileResult, "testLockWithInvokableAccessingGlobal");
+    }
 
-        BValue[] returns = BRunUtil.invoke(compileResult, "testLockWithInvokableAccessingGlobal");
+    @Test
+    public void testParallelRunWithChainedInvocationDependencies() {
+        BValue[] returns = BRunUtil.invoke(parallelCompileResult, "testLockWIthInvokableChainsAccessingGlobal");
+    }
+
+    @Test
+    public void testParallelRunWithRecursiveInvocationDependencies() {
+        BValue[] returns = BRunUtil.invoke(parallelCompileResult, "testLockWIthInvokableRecursiveAccessGlobal");
     }
 }
