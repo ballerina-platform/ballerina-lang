@@ -52,10 +52,11 @@ public class Reduce {
         int size = arr.size();
         GetFunction getFn = getElementAccessFunction(arrType, "reduce()");
         AtomicReference<Object> accum = new AtomicReference<>(initial);
-        BRuntime.getCurrentRuntime().invokeFunctionPointerAsyncForCollection(func, strand, size,
-                                                                         i -> new Object[]{strand, accum.get(), true,
-                                                                 getFn.get(arr, i), true},
-                                                                             (index, future) -> accum.set(future.result), accum::get);
+        BRuntime.getCurrentRuntime().invokeFunctionPointerAsyncIteratively(func, strand, size,
+                                                                           i -> new Object[]{strand, accum.get(), true,
+                                                                                   getFn.get(arr, i), true},
+                                                                           (index, future) -> accum.set(future.result),
+                                                                           accum::get);
         return accum.get();
     }
 }

@@ -67,9 +67,10 @@ public class Map {
                 throw createOpNotSupportedError(arrType, "map()");
         }
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncForCollection(func, strand, size,
-                                                     i -> new Object[]{strand, getFn.get(arr, i), true},
-                                                         (index, future) -> retArr.add(index, future.result), () -> retArr);
+                .invokeFunctionPointerAsyncIteratively(func, strand, size,
+                                                       i -> new Object[]{strand, getFn.get(arr, i), true},
+                                                       (index, future) -> retArr.add(index, future.result),
+                                                       () -> retArr);
 
         return retArr;
     }

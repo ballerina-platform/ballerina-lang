@@ -48,9 +48,10 @@ public class Map {
         MapValue newMap = new MapValueImpl(newMapType);
         int size = m.size();
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncForCollection(func, strand, size,
-                                                     i -> new Object[]{strand, m.get(m.getKeys()[i]), true},
-                                                         (i, future) -> newMap.put(m.getKeys()[i], future.result), () -> newMap);
+                .invokeFunctionPointerAsyncIteratively(func, strand, size,
+                                                       i -> new Object[]{strand, m.get(m.getKeys()[i]), true},
+                                                       (i, future) -> newMap.put(m.getKeys()[i], future.result),
+                                                       () -> newMap);
         return newMap;
     }
 }

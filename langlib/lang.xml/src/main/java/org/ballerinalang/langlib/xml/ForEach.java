@@ -47,9 +47,9 @@ public class ForEach {
             return;
         }
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncForCollection(func, strand, x.size(),
-                                                     index -> new Object[]{strand, x.getItem(index), true},
-                                                         (index, future) -> {
-                                     }, () -> null);
+                .invokeFunctionPointerAsyncIteratively(func, strand, x.size(),
+                                                       index -> new Object[]{strand, x.getItem(index), true},
+                                                       (index, future) -> {
+                                                       }, () -> null);
     }
 }

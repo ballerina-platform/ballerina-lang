@@ -475,7 +475,7 @@ public class RefTypeWithBValueAPITests {
 
     public static int useFunctionPointer(org.ballerinalang.jvm.values.api.BFunctionPointer fp) {
         return ((Long) BRuntime.getCurrentRuntime()
-                .invokeMethodSync( (FPValue) fp, new Object[] { Scheduler.getStrand(), 3, true, 4, true })).intValue();
+                .invokeMethodSync((FPValue) fp, new Object[]{Scheduler.getStrand(), 3, true, 4, true})).intValue();
 
     }
 

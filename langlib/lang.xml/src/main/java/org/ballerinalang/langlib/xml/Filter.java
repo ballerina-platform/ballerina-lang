@@ -53,7 +53,7 @@ public class Filter {
             AtomicReference<XMLValue> xmlValue = new AtomicReference<>(new XMLSequence());
             Object[] args = new Object[]{strand, x, true};
             BRuntime.getCurrentRuntime().invokeFunctionPointerAsync(func, strand, args, future -> {
-                if((Boolean)future.result){
+                if ((Boolean) future.result) {
                     xmlValue.set(x);
                 }
             }, () -> true, () -> xmlValue);
@@ -63,13 +63,13 @@ public class Filter {
         List<BXML> elements = new ArrayList<>();
         int size = x.size();
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncForCollection(func, strand, size,
-                                                     index -> new Object[]{strand, x.getItem(index), true},
-                                                         (index, future) -> {
-                                         if ((Boolean) future.result) {
-                                             elements.add(x.getItem(index));
-                                         }
-                                     }, () -> new XMLSequence(elements));
+                .invokeFunctionPointerAsyncIteratively(func, strand, size,
+                                                       index -> new Object[]{strand, x.getItem(index), true},
+                                                       (index, future) -> {
+                                                           if ((Boolean) future.result) {
+                                                               elements.add(x.getItem(index));
+                                                           }
+                                                       }, () -> new XMLSequence(elements));
         return new XMLSequence(elements);
     }
 }

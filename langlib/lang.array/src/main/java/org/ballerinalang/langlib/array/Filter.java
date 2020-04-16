@@ -49,12 +49,14 @@ public class Filter {
         int size = arr.size();
         AtomicInteger newArraySize = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncForCollection(func, strand, size, i -> new Object[]{strand, arr.get(i), true},
-                                                         (index, future) -> {
-                                         if ((Boolean) future.result) {
-                                             newArr.add(newArraySize.incrementAndGet(), arr.get(index));
-                                         }
-                                     }, () -> newArr);
+                .invokeFunctionPointerAsyncIteratively(func, strand, size,
+                                                       i -> new Object[]{strand, arr.get(i), true},
+                                                       (index, future) -> {
+                                                           if ((Boolean) future.result) {
+                                                               newArr.add(newArraySize.incrementAndGet(),
+                                                                          arr.get(index));
+                                                           }
+                                                       }, () -> newArr);
         return newArr;
     }
 }

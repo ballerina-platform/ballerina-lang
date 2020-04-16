@@ -47,9 +47,9 @@ public class ForEach {
         BType arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncForCollection(func, strand, size,
-                                                     i -> new Object[]{strand, getFn.get(arr, i), true},
-                                                         (index, future) -> {
-                                     }, () -> null);
+                .invokeFunctionPointerAsyncIteratively(func, strand, size,
+                                                       i -> new Object[]{strand, getFn.get(arr, i), true},
+                                                       (index, future) -> {
+                                                       }, () -> null);
     }
 }

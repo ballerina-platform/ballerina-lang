@@ -133,10 +133,10 @@ public class BRuntime {
      *                             Future value result will have the return object of the function pointer.
      * @param returnValueSupplier  Suppiler used to set the final return value for the parent function invocation.
      */
-    public void invokeFunctionPointerAsyncForCollection(FPValue<?, ?> func, Strand strand, int collectionSize,
-                                                        Function<Integer, Object[]> argsFunction,
-                                                        BiConsumer<Integer, FutureValue> futureResultConsumer,
-                                                        Supplier<Object> returnValueSupplier) {
+    public void invokeFunctionPointerAsyncIteratively(FPValue<?, ?> func, Strand strand, int collectionSize,
+                                                      Function<Integer, Object[]> argsFunction,
+                                                      BiConsumer<Integer, FutureValue> futureResultConsumer,
+                                                      Supplier<Object> returnValueSupplier) {
         if (collectionSize <= 0) {
             return;
         }

@@ -65,15 +65,15 @@ public class Filter {
         MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
         int size = m.size();
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncForCollection(func, strand, size,
-                                                     index -> new Object[]{strand, m.get(m.getKeys()[index]), true},
-                                                         (index, future) -> {
-                                         if ((Boolean) future.result) {
-                                             Object key = m.getKeys()[index];
-                                             Object value = m.get(key);
-                                             newMap.put(key, value);
-                                         }
-                                     }, () -> newMap);
+                .invokeFunctionPointerAsyncIteratively(func, strand, size,
+                                                       index -> new Object[]{strand, m.get(m.getKeys()[index]), true},
+                                                       (index, future) -> {
+                                                           if ((Boolean) future.result) {
+                                                               Object key = m.getKeys()[index];
+                                                               Object value = m.get(key);
+                                                               newMap.put(key, value);
+                                                           }
+                                                       }, () -> newMap);
         return newMap;
     }
 }

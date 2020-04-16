@@ -58,10 +58,10 @@ public class Map {
 
         List<BXML> elements = new ArrayList<>();
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncForCollection(func, strand, x.size(),
-                                                     index -> new Object[]{strand, x.getItem(index), true},
-                                                         (index, future) -> elements.add((XMLValue) future.result),
-                                                         () -> new XMLSequence(elements));
+                .invokeFunctionPointerAsyncIteratively(func, strand, x.size(),
+                                                       index -> new Object[]{strand, x.getItem(index), true},
+                                                       (index, future) -> elements.add((XMLValue) future.result),
+                                                       () -> new XMLSequence(elements));
         return new XMLSequence(elements);
     }
 }

@@ -41,8 +41,9 @@ public class ForEach {
     public static void forEach(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
         int size = m.size();
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncForCollection(func, strand, size,
-                                                     index -> new Object[]{strand, m.get(m.getKeys()[index]), true},
-                                                         (index, future) -> {}, () -> null);
+                .invokeFunctionPointerAsyncIteratively(func, strand, size,
+                                                       index -> new Object[]{strand, m.get(m.getKeys()[index]), true},
+                                                       (index, future) -> {
+                                                       }, () -> null);
     }
 }
