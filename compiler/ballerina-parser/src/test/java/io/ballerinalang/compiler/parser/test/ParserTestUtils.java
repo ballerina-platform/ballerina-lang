@@ -357,6 +357,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ANNOTATION_KEYWORD;
             case "IS_KEYWORD":
                 return SyntaxKind.IS_KEYWORD;
+            case "NULL_KEYWORD":
+                return SyntaxKind.NULL_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -481,6 +483,8 @@ public class ParserTestUtils {
                 return SyntaxKind.UNARY_EXPRESSION;
             case "IS_EXPRESSION":
                 return SyntaxKind.IS_EXPRESSION;
+            case "NIL_LITERAL":
+                return SyntaxKind.NIL_LITERAL;
 
             // Statements
             case "BLOCK_STATEMENT":
