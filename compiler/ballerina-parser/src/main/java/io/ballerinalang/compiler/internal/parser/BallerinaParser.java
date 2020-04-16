@@ -1774,7 +1774,6 @@ public class BallerinaParser {
             case CLOSE_BRACE_PIPE_TOKEN:
             case PUBLIC_KEYWORD:
             case LISTENER_KEYWORD:
-            case TYPE_KEYWORD:
             case FUNCTION_KEYWORD:
             case IMPORT_KEYWORD:
                 // TODO: statements can also start from function-keyword. handle
@@ -2661,6 +2660,8 @@ public class BallerinaParser {
                 // If the statement starts with an identifier, it could be either an assignment
                 // statement or a var-decl-stmt with a user defined type.
                 return parseAssignmentOrVarDecl();
+            case TYPE_KEYWORD:
+                return parseLocalTypeDefinitionStatement(getAnnotations(annots));
             default:
                 break;
         }
@@ -5390,6 +5391,27 @@ public class BallerinaParser {
             Solution sol = recover(token, ParserRuleContext.IS_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse local type definition statement statement.
+     * <code>ocal-type-defn-stmt := [annots] type identifier type-descriptor ;</code>
+     *
+     * @return local type definition statement statement
+     */
+    private STNode parseLocalTypeDefinitionStatement(STNode annots) {
+        startContext(ParserRuleContext.LOCAL_TYPE_DEFINITION_STMT);
+        STNode typeKeyword = parseTypeKeyword();
+        STNode typeName = parseTypeName();
+        STNode typeDescriptor = parseTypeDescriptor();
+        STNode semicolon = parseSemicolon();
+        endContext();
+        return STNodeFactory.createLocalTypeDefinitionStatement(
+                annots,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolon);
     }
 
     /**

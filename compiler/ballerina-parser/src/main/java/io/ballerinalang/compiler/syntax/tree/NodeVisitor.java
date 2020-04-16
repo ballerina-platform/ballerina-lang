@@ -71,6 +71,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(compoundAssignmentStatement);
     }
 
+    public void visit(LocalTypeDefinitionStatement localTypeDefinitionStatement) {
+        visitSyntaxNode(localTypeDefinitionStatement);
+    }
+
     public void visit(VariableDeclaration variableDeclaration) {
         visitSyntaxNode(variableDeclaration);
     }
