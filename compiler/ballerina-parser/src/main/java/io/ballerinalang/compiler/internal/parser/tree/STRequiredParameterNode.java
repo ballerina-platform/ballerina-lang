@@ -26,7 +26,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STRequiredParameterNode extends Node {
+public class STRequiredParameterNode extends STNode {
     public final STNode leadingComma;
     public final STNode annotations;
     public final STNode visibilityQualifier;
