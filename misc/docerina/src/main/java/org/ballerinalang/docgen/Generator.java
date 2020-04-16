@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -286,7 +287,16 @@ public class Generator {
 
                 String defaultValue = EMPTY_STRING;
                 if (null != param.getInitialExpression()) {
-                    defaultValue = param.getInitialExpression().toString();
+                    if (param.getInitialExpression() instanceof BLangTypeInit) {
+                        if (null == ((BLangTypeInit) param.getInitialExpression()).getType()) {
+                            defaultValue =
+                                    ((BLangTypeInit) param.getInitialExpression()).expectedType.tsymbol.name.toString();
+                        } else {
+                            defaultValue = ((BLangTypeInit) param.getInitialExpression()).getType().toString();
+                        }
+                    } else {
+                        defaultValue = param.getInitialExpression().toString();
+                    }
                 }
                 DefaultableVariable field = new DefaultableVariable(name, desc,
                         isDeprecated(param.getAnnotationAttachments()), Type.fromTypeNode(param.typeNode, module.id),
