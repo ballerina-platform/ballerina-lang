@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.Metadata;
+import io.ballerinalang.compiler.syntax.tree.MetadataNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -44,6 +44,6 @@ public class STMetadataNode extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new Metadata(this, position, parent);
+        return new MetadataNode(this, position, parent);
     }
 }

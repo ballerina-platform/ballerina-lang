@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptor;
+import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -52,6 +52,6 @@ public class STRecordTypeDescriptorNode extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new RecordTypeDescriptor(this, position, parent);
+        return new RecordTypeDescriptorNode(this, position, parent);
     }
 }

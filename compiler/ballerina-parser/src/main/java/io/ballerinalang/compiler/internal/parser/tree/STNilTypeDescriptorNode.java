@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.NilTypeDescriptor;
+import io.ballerinalang.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -44,6 +44,6 @@ public class STNilTypeDescriptorNode extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new NilTypeDescriptor(this, position, parent);
+        return new NilTypeDescriptorNode(this, position, parent);
     }
 }

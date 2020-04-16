@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.TypeReference;
+import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
 
 /**
  * This is a generated internal syntax tree node.
@@ -48,6 +48,6 @@ public class STTypeReferenceNode extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new TypeReference(this, position, parent);
+        return new TypeReferenceNode(this, position, parent);
     }
 }

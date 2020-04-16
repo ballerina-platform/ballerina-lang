@@ -33,9 +33,9 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     private NodeFactory() {
     }
 
-    public static ModulePart createModulePart(
-            NodeList<ImportDeclaration> imports,
-            NodeList<ModuleMemberDeclaration> members,
+    public static ModulePartNode createModulePart(
+            NodeList<ImportDeclarationNode> imports,
+            NodeList<ModuleMemberDeclarationNode> members,
             Token eofToken) {
         Objects.requireNonNull(imports, "imports must not be null");
         Objects.requireNonNull(members, "members must not be null");
@@ -48,13 +48,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stModulePart.createUnlinkedFacade();
     }
 
-    public static FunctionDefinition createFunctionDefinition(
-            Metadata metadata,
+    public static FunctionDefinitionNode createFunctionDefinition(
+            MetadataNode metadata,
             Token visibilityQualifier,
             Token functionKeyword,
             IdentifierToken functionName,
             Token openParenToken,
-            NodeList<Parameter> parameters,
+            NodeList<ParameterNode> parameters,
             Token closeParenToken,
             Node returnTypeDesc,
             BlockStatementNode functionBody) {
@@ -81,7 +81,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stFunctionDefinition.createUnlinkedFacade();
     }
 
-    public static ImportDeclaration createImportDeclaration(
+    public static ImportDeclarationNode createImportDeclaration(
             Token importKeyword,
             Token orgName,
             Node moduleName,
@@ -105,8 +105,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stImportDeclaration.createUnlinkedFacade();
     }
 
-    public static ListenerDeclaration createListenerDeclaration(
-            Metadata metadata,
+    public static ListenerDeclarationNode createListenerDeclaration(
+            MetadataNode metadata,
             Token visibilityQualifier,
             Token listenerKeyword,
             Node typeDescriptor,
@@ -136,7 +136,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static TypeDefinitionNode createTypeDefinitionNode(
-            Metadata metadata,
+            MetadataNode metadata,
             Token visibilityQualifier,
             Token typeKeyword,
             Token typeName,
@@ -159,8 +159,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stTypeDefinitionNode.createUnlinkedFacade();
     }
 
-    public static ServiceDeclaration createServiceDeclaration(
-            Metadata metadata,
+    public static ServiceDeclarationNode createServiceDeclaration(
+            MetadataNode metadata,
             Token serviceKeyword,
             IdentifierToken serviceName,
             Token onKeyword,
@@ -243,7 +243,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stLocalTypeDefinitionStatement.createUnlinkedFacade();
     }
 
-    public static VariableDeclaration createVariableDeclaration(
+    public static VariableDeclarationNode createVariableDeclaration(
             NodeList<AnnotationNode> annotations,
             Token finalKeyword,
             Node typeName,
@@ -321,7 +321,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stContinueStatement.createUnlinkedFacade();
     }
 
-    public static ExternalFunctionBody createExternalFunctionBody(
+    public static ExternalFunctionBodyNode createExternalFunctionBody(
             Token equalsToken,
             NodeList<AnnotationNode> annotations,
             Token externalKeyword,
@@ -357,7 +357,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stIfElseStatement.createUnlinkedFacade();
     }
 
-    public static ElseBlock createElseBlock(
+    public static ElseBlockNode createElseBlock(
             Token elseKeyword,
             Node elseBody) {
         Objects.requireNonNull(elseKeyword, "elseKeyword must not be null");
@@ -478,7 +478,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static FunctionCallExpressionNode createFunctionCallExpression(
             Node functionName,
             Token openParenToken,
-            NodeList<FunctionArgument> arguments,
+            NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         Objects.requireNonNull(functionName, "functionName must not be null");
         Objects.requireNonNull(openParenToken, "openParenToken must not be null");
@@ -498,7 +498,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token dotToken,
             Token methodName,
             Token openParenToken,
-            NodeList<FunctionArgument> arguments,
+            NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(dotToken, "dotToken must not be null");
@@ -519,7 +519,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static MappingConstructorExpressionNode createMappingConstructorExpression(
             Token openBrace,
-            NodeList<MappingField> fields,
+            NodeList<MappingFieldNode> fields,
             Token closeBrace) {
         Objects.requireNonNull(openBrace, "openBrace must not be null");
         Objects.requireNonNull(fields, "fields must not be null");
@@ -574,7 +574,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stUnaryExpression.createUnlinkedFacade();
     }
 
-    public static ComputedNameField createComputedNameField(
+    public static ComputedNameFieldNode createComputedNameField(
             Token leadingComma,
             Token openBracket,
             Node fieldNameExpr,
@@ -598,8 +598,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stComputedNameField.createUnlinkedFacade();
     }
 
-    public static ConstantDeclaration createConstantDeclaration(
-            Metadata metadata,
+    public static ConstantDeclarationNode createConstantDeclaration(
+            MetadataNode metadata,
             Token visibilityQualifier,
             Token constKeyword,
             Node typeDescriptor,
@@ -628,7 +628,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stConstantDeclaration.createUnlinkedFacade();
     }
 
-    public static DefaultableParameter createDefaultableParameter(
+    public static DefaultableParameterNode createDefaultableParameter(
             Token leadingComma,
             NodeList<AnnotationNode> annotations,
             Token visibilityQualifier,
@@ -655,7 +655,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stDefaultableParameter.createUnlinkedFacade();
     }
 
-    public static RequiredParameter createRequiredParameter(
+    public static RequiredParameterNode createRequiredParameter(
             Token leadingComma,
             NodeList<AnnotationNode> annotations,
             Token visibilityQualifier,
@@ -676,7 +676,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRequiredParameter.createUnlinkedFacade();
     }
 
-    public static RestParameter createRestParameter(
+    public static RestParameterNode createRestParameter(
             Token leadingComma,
             NodeList<AnnotationNode> annotations,
             Node type,
@@ -697,7 +697,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRestParameter.createUnlinkedFacade();
     }
 
-    public static ExpressionListItem createExpressionListItem(
+    public static ExpressionListItemNode createExpressionListItem(
             Token leadingComma,
             Node expression) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
@@ -709,7 +709,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stExpressionListItem.createUnlinkedFacade();
     }
 
-    public static ImportOrgName createImportOrgName(
+    public static ImportOrgNameNode createImportOrgName(
             Token orgName,
             Token slashToken) {
         Objects.requireNonNull(orgName, "orgName must not be null");
@@ -721,7 +721,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stImportOrgName.createUnlinkedFacade();
     }
 
-    public static ImportPrefix createImportPrefix(
+    public static ImportPrefixNode createImportPrefix(
             Token asKeyword,
             Token prefix) {
         Objects.requireNonNull(asKeyword, "asKeyword must not be null");
@@ -733,7 +733,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stImportPrefix.createUnlinkedFacade();
     }
 
-    public static ImportSubVersion createImportSubVersion(
+    public static ImportSubVersionNode createImportSubVersion(
             Token leadingDot,
             Token versionNumber) {
         Objects.requireNonNull(leadingDot, "leadingDot must not be null");
@@ -745,7 +745,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stImportSubVersion.createUnlinkedFacade();
     }
 
-    public static ImportVersion createImportVersion(
+    public static ImportVersionNode createImportVersion(
             Token versionKeyword,
             Node versionNumber) {
         Objects.requireNonNull(versionKeyword, "versionKeyword must not be null");
@@ -757,7 +757,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stImportVersion.createUnlinkedFacade();
     }
 
-    public static SubModuleName createSubModuleName(
+    public static SubModuleNameNode createSubModuleName(
             Token leadingDot,
             IdentifierToken moduleName) {
         Objects.requireNonNull(leadingDot, "leadingDot must not be null");
@@ -769,7 +769,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stSubModuleName.createUnlinkedFacade();
     }
 
-    public static SpecificField createSpecificField(
+    public static SpecificFieldNode createSpecificField(
             Token leadingComma,
             IdentifierToken fieldName,
             Token colon,
@@ -787,7 +787,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stSpecificField.createUnlinkedFacade();
     }
 
-    public static SpreadField createSpreadField(
+    public static SpreadFieldNode createSpreadField(
             Token leadingComma,
             Token ellipsis,
             ExpressionNode valueExpr) {
@@ -802,7 +802,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stSpreadField.createUnlinkedFacade();
     }
 
-    public static NamedArgument createNamedArgument(
+    public static NamedArgumentNode createNamedArgument(
             Token leadingComma,
             Token argumentName,
             Token equalsToken,
@@ -820,7 +820,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stNamedArgument.createUnlinkedFacade();
     }
 
-    public static PositionalArgument createPositionalArgument(
+    public static PositionalArgumentNode createPositionalArgument(
             Token leadingComma,
             ExpressionNode expression) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
@@ -832,7 +832,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stPositionalArgument.createUnlinkedFacade();
     }
 
-    public static RestArgument createRestArgument(
+    public static RestArgumentNode createRestArgument(
             Token leadingComma,
             Token ellipsis,
             ExpressionNode expression) {
@@ -847,7 +847,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRestArgument.createUnlinkedFacade();
     }
 
-    public static ObjectTypeDescriptor createObjectTypeDescriptor(
+    public static ObjectTypeDescriptorNode createObjectTypeDescriptor(
             NodeList<Token> objectTypeQualifiers,
             Token objectKeyword,
             Token openBrace,
@@ -868,7 +868,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stObjectTypeDescriptor.createUnlinkedFacade();
     }
 
-    public static RecordTypeDescriptor createRecordTypeDescriptor(
+    public static RecordTypeDescriptorNode createRecordTypeDescriptor(
             Token objectKeyword,
             Token bodyStartDelimiter,
             NodeList<Node> fields,
@@ -886,7 +886,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRecordTypeDescriptor.createUnlinkedFacade();
     }
 
-    public static ReturnTypeDescriptor createReturnTypeDescriptor(
+    public static ReturnTypeDescriptorNode createReturnTypeDescriptor(
             Token returnsKeyword,
             NodeList<AnnotationNode> annotations,
             Node type) {
@@ -901,7 +901,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stReturnTypeDescriptor.createUnlinkedFacade();
     }
 
-    public static NilTypeDescriptor createNilTypeDescriptor(
+    public static NilTypeDescriptorNode createNilTypeDescriptor(
             Token openParenToken,
             Token closeParenToken) {
         Objects.requireNonNull(openParenToken, "openParenToken must not be null");
@@ -913,7 +913,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stNilTypeDescriptor.createUnlinkedFacade();
     }
 
-    public static OptionalTypeDescriptor createOptionalTypeDescriptor(
+    public static OptionalTypeDescriptorNode createOptionalTypeDescriptor(
             Node typeDescriptor,
             Token questionMarkToken) {
         Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
@@ -925,8 +925,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stOptionalTypeDescriptor.createUnlinkedFacade();
     }
 
-    public static ObjectField createObjectField(
-            Metadata metadata,
+    public static ObjectFieldNode createObjectField(
+            MetadataNode metadata,
             Token visibilityQualifier,
             Node type,
             Token fieldName,
@@ -952,8 +952,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stObjectField.createUnlinkedFacade();
     }
 
-    public static RecordField createRecordField(
-            Metadata metadata,
+    public static RecordFieldNode createRecordField(
+            MetadataNode metadata,
             Node type,
             Token fieldName,
             Token questionMarkToken,
@@ -973,8 +973,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRecordField.createUnlinkedFacade();
     }
 
-    public static RecordFieldWithDefaultValue createRecordFieldWithDefaultValue(
-            Metadata metadata,
+    public static RecordFieldWithDefaultValueNode createRecordFieldWithDefaultValue(
+            MetadataNode metadata,
             Node type,
             Token fieldName,
             Token equalsToken,
@@ -997,7 +997,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRecordFieldWithDefaultValue.createUnlinkedFacade();
     }
 
-    public static RecordRestDescriptor createRecordRestDescriptor(
+    public static RecordRestDescriptorNode createRecordRestDescriptor(
             Node type,
             Token ellipsisToken,
             Token semicolonToken) {
@@ -1012,7 +1012,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRecordRestDescriptor.createUnlinkedFacade();
     }
 
-    public static TypeReference createTypeReference(
+    public static TypeReferenceNode createTypeReference(
             Token asteriskToken,
             Node type,
             Token semicolonToken) {
@@ -1027,7 +1027,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stTypeReference.createUnlinkedFacade();
     }
 
-    public static QualifiedIdentifier createQualifiedIdentifier(
+    public static QualifiedIdentifierNode createQualifiedIdentifier(
             Token modulePrefix,
             Node colon,
             IdentifierToken identifier) {
@@ -1042,7 +1042,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stQualifiedIdentifier.createUnlinkedFacade();
     }
 
-    public static ServiceBody createServiceBody(
+    public static ServiceBodyNode createServiceBody(
             Token openBraceToken,
             NodeList<Node> resources,
             Token closeBraceToken) {
@@ -1072,7 +1072,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stAnnotation.createUnlinkedFacade();
     }
 
-    public static Metadata createMetadata(
+    public static MetadataNode createMetadata(
             Node documentationString,
             NodeList<AnnotationNode> annotations) {
         Objects.requireNonNull(documentationString, "documentationString must not be null");
@@ -1084,8 +1084,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stMetadata.createUnlinkedFacade();
     }
 
-    public static ModuleVariableDeclaration createModuleVariableDeclaration(
-            Metadata metadata,
+    public static ModuleVariableDeclarationNode createModuleVariableDeclaration(
+            MetadataNode metadata,
             Token finalKeyword,
             Node typeName,
             Token variableName,

@@ -34,7 +34,7 @@ public class MappingConstructorExpressionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public NodeList<MappingField> fields() {
+    public NodeList<MappingFieldNode> fields() {
         return new NodeList<>(childInBucket(1));
     }
 
@@ -54,7 +54,7 @@ public class MappingConstructorExpressionNode extends ExpressionNode {
 
     public MappingConstructorExpressionNode modify(
             Token openBrace,
-            NodeList<MappingField> fields,
+            NodeList<MappingFieldNode> fields,
             Token closeBrace) {
         if (checkForReferenceEquality(
                 openBrace,

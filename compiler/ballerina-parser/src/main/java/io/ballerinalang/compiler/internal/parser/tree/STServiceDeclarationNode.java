@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ServiceDeclaration;
+import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -60,6 +60,6 @@ public class STServiceDeclarationNode extends STModuleMemberDeclarationNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ServiceDeclaration(this, position, parent);
+        return new ServiceDeclarationNode(this, position, parent);
     }
 }

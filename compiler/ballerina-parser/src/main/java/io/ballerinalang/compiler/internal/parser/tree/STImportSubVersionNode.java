@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ImportSubVersion;
+import io.ballerinalang.compiler.syntax.tree.ImportSubVersionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -44,6 +44,6 @@ public class STImportSubVersionNode extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ImportSubVersion(this, position, parent);
+        return new ImportSubVersionNode(this, position, parent);
     }
 }

@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptor;
+import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -48,6 +48,6 @@ public class STReturnTypeDescriptorNode extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ReturnTypeDescriptor(this, position, parent);
+        return new ReturnTypeDescriptorNode(this, position, parent);
     }
 }

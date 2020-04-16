@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinition;
+import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -72,6 +72,6 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new FunctionDefinition(this, position, parent);
+        return new FunctionDefinitionNode(this, position, parent);
     }
 }

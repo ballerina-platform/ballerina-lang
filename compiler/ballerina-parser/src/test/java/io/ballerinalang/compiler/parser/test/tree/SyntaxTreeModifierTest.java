@@ -17,14 +17,14 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinition;
+import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
-import io.ballerinalang.compiler.syntax.tree.ModulePart;
+import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.TreeModifier;
-import io.ballerinalang.compiler.syntax.tree.VariableDeclaration;
+import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -38,16 +38,16 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testVarDeclStmtModification() {
         SyntaxTree syntaxTree = parseFile("variable_decl_stmt_modify.bal");
-        ModulePart oldRoot = syntaxTree.getModulePart();
+        ModulePartNode oldRoot = syntaxTree.getModulePart();
 
         VariableDeclModifier variableDeclModifier = new VariableDeclModifier();
-        ModulePart newRoot = (ModulePart) oldRoot.apply(variableDeclModifier);
+        ModulePartNode newRoot = (ModulePartNode) oldRoot.apply(variableDeclModifier);
 
-        FunctionDefinition oldFuncNode = (FunctionDefinition) oldRoot.members().get(0);
-        VariableDeclaration oldStmt = (VariableDeclaration) oldFuncNode.functionBody().statements().get(0);
+        FunctionDefinitionNode oldFuncNode = (FunctionDefinitionNode) oldRoot.members().get(0);
+        VariableDeclarationNode oldStmt = (VariableDeclarationNode) oldFuncNode.functionBody().statements().get(0);
 
-        FunctionDefinition newFuncNode = (FunctionDefinition) newRoot.members().get(0);
-        VariableDeclaration newStmt = (VariableDeclaration) newFuncNode.functionBody().statements().get(0);
+        FunctionDefinitionNode newFuncNode = (FunctionDefinitionNode) newRoot.members().get(0);
+        VariableDeclarationNode newStmt = (VariableDeclarationNode) newFuncNode.functionBody().statements().get(0);
 
         Assert.assertNotEquals(newFuncNode, oldFuncNode);
         Assert.assertNotEquals(newStmt, oldStmt);
@@ -58,15 +58,15 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testRenameIdentifierWithoutTrivia() {
         SyntaxTree syntaxTree = parseFile("variable_decl_stmt_modify.bal");
-        ModulePart oldRoot = syntaxTree.getModulePart();
+        ModulePartNode oldRoot = syntaxTree.getModulePart();
 
         IdentifierModifier identifierModifier = new IdentifierModifier();
-        ModulePart newRoot = (ModulePart) oldRoot.apply(identifierModifier);
+        ModulePartNode newRoot = (ModulePartNode) oldRoot.apply(identifierModifier);
 
-        FunctionDefinition oldFuncNode = (FunctionDefinition) oldRoot.members().get(0);
+        FunctionDefinitionNode oldFuncNode = (FunctionDefinitionNode) oldRoot.members().get(0);
         String oldFuncName = oldFuncNode.functionName().text();
 
-        FunctionDefinition newFuncNode = (FunctionDefinition) newRoot.members().get(0);
+        FunctionDefinitionNode newFuncNode = (FunctionDefinitionNode) newRoot.members().get(0);
         String newFuncName = newFuncNode.functionName().text();
 
         Assert.assertEquals(newFuncName, oldFuncName + "_new");
@@ -78,7 +78,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
     private static class VariableDeclModifier extends TreeModifier {
 
         @Override
-        public Node transform(VariableDeclaration varDeclStmt) {
+        public Node transform(VariableDeclarationNode varDeclStmt) {
             String oldVarName = varDeclStmt.variableName().text();
             IdentifierToken newVarName = NodeFactory.createIdentifierToken(oldVarName + "new");
             return NodeFactory.createVariableDeclaration(varDeclStmt.annotations(), varDeclStmt.finalKeyword(),

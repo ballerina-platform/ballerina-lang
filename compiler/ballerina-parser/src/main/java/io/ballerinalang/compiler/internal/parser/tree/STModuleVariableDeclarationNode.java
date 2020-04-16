@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclaration;
+import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -64,6 +64,6 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ModuleVariableDeclaration(this, position, parent);
+        return new ModuleVariableDeclarationNode(this, position, parent);
     }
 }

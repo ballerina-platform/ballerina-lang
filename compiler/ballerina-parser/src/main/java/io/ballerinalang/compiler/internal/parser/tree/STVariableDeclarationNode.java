@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.VariableDeclaration;
+import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 
 /**
  * This is a generated internal syntax tree node.
@@ -64,6 +64,6 @@ public class STVariableDeclarationNode extends STStatementNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new VariableDeclaration(this, position, parent);
+        return new VariableDeclarationNode(this, position, parent);
     }
 }

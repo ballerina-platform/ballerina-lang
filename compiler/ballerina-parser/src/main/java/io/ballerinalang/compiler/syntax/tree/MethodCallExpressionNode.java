@@ -46,7 +46,7 @@ public class MethodCallExpressionNode extends ExpressionNode {
         return childInBucket(3);
     }
 
-    public NodeList<FunctionArgument> arguments() {
+    public NodeList<FunctionArgumentNode> arguments() {
         return new NodeList<>(childInBucket(4));
     }
 
@@ -69,7 +69,7 @@ public class MethodCallExpressionNode extends ExpressionNode {
             Token dotToken,
             Token methodName,
             Token openParenToken,
-            NodeList<FunctionArgument> arguments,
+            NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         if (checkForReferenceEquality(
                 expression,

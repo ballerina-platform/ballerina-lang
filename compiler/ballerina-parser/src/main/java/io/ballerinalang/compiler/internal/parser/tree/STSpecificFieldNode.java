@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SpecificField;
+import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -52,6 +52,6 @@ public class STSpecificFieldNode extends STMappingFieldNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new SpecificField(this, position, parent);
+        return new SpecificFieldNode(this, position, parent);
     }
 }

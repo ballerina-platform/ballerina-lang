@@ -28,7 +28,7 @@ public class NodeParser {
         return null;
     }
 
-    public ExpressionTree parseExpression(String text) {
+    public ExpressionNode parseExpression(String text) {
         return null;
     }
 }

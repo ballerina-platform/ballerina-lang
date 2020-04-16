@@ -18,7 +18,7 @@
 package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.RequiredParameter;
+import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -55,6 +55,6 @@ public class STRequiredParameterNode extends STNode {
     }
 
     public io.ballerinalang.compiler.syntax.tree.Node createFacade(int position, NonTerminalNode parent) {
-        return new RequiredParameter(this, position, parent);
+        return new RequiredParameterNode(this, position, parent);
     }
 }

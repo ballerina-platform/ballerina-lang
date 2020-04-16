@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SpreadField;
+import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -48,6 +48,6 @@ public class STSpreadFieldNode extends STMappingFieldNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new SpreadField(this, position, parent);
+        return new SpreadFieldNode(this, position, parent);
     }
 }

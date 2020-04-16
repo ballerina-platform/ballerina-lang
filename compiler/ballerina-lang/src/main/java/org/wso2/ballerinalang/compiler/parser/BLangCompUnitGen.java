@@ -29,25 +29,25 @@ import io.ballerinalang.compiler.syntax.tree.CallStatementNode;
 import io.ballerinalang.compiler.syntax.tree.EmptyToken;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinition;
+import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
-import io.ballerinalang.compiler.syntax.tree.ImportDeclaration;
-import io.ballerinalang.compiler.syntax.tree.ImportOrgName;
-import io.ballerinalang.compiler.syntax.tree.ImportPrefix;
-import io.ballerinalang.compiler.syntax.tree.ImportVersion;
-import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclaration;
-import io.ballerinalang.compiler.syntax.tree.ModulePart;
-import io.ballerinalang.compiler.syntax.tree.NamedArgument;
+import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
+import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
+import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
+import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
+import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
-import io.ballerinalang.compiler.syntax.tree.PositionalArgument;
-import io.ballerinalang.compiler.syntax.tree.QualifiedIdentifier;
-import io.ballerinalang.compiler.syntax.tree.RequiredParameter;
-import io.ballerinalang.compiler.syntax.tree.RestArgument;
-import io.ballerinalang.compiler.syntax.tree.RestParameter;
+import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerinalang.compiler.syntax.tree.QualifiedIdentifierNode;
+import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
+import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.syntax.tree.VariableDeclaration;
+import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
@@ -107,7 +107,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
 
     private static final Pattern UNICODE_PATTERN = Pattern.compile(Constants.UNICODE_REGEX);
 
-    public BLangCompilationUnit getCompilationUnit(ModulePart modulePart,
+    public BLangCompilationUnit getCompilationUnit(ModulePartNode modulePart,
                                                    CompilerContext context,
                                                    BDiagnosticSource diagnosticSource) {
         this.emptyPos = new DiagnosticPos(diagnosticSource, 1, 1, 1, 1);
@@ -118,19 +118,19 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangNode transform(ModulePart modulePart) {
+    public BLangNode transform(ModulePartNode modulePart) {
         BLangCompilationUnit compilationUnit = (BLangCompilationUnit) TreeBuilder.createCompilationUnit();
         compilationUnit.name = diagnosticSource.cUnitName;
 
         // Generate import declarations
-        for (ImportDeclaration importDecl : modulePart.imports()) {
+        for (ImportDeclarationNode importDecl : modulePart.imports()) {
             BLangImportPackage bLangImport = (BLangImportPackage) importDecl.apply(this);
             bLangImport.compUnit = this.createIdentifier(emptyPos, compilationUnit.getName());
             compilationUnit.addTopLevelNode(bLangImport);
         }
 
         // Generate other module-level declarations
-        for (ModuleMemberDeclaration member : modulePart.members()) {
+        for (ModuleMemberDeclarationNode member : modulePart.members()) {
             compilationUnit.addTopLevelNode((TopLevelNode) member.apply(this));
         }
 
@@ -139,25 +139,25 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangImportPackage transform(ImportDeclaration importDeclaration) {
+    public BLangImportPackage transform(ImportDeclarationNode importDeclaration) {
         Node orgNameNode = importDeclaration.orgName();
         Node versionNode = importDeclaration.version();
         Node prefixNode = importDeclaration.prefix();
 
         String orgName = null;
         if (orgNameNode.kind() == SyntaxKind.IMPORT_ORG_NAME) {
-            ImportOrgName importOrgName = (ImportOrgName) orgNameNode;
+            ImportOrgNameNode importOrgName = (ImportOrgNameNode) orgNameNode;
             orgName = importOrgName.orgName().text();
         }
 
         String version = null;
         if (versionNode.kind() == SyntaxKind.IMPORT_VERSION) {
-            version = ((ImportVersion) versionNode).versionNumber().toString();
+            version = ((ImportVersionNode) versionNode).versionNumber().toString();
         }
 
         String prefix = null;
         if (prefixNode.kind() == SyntaxKind.IMPORT_PREFIX) {
-            prefix = ((ImportPrefix) prefixNode).prefix().toString();
+            prefix = ((ImportPrefixNode) prefixNode).prefix().toString();
         }
 
         List<BLangIdentifier> pkgNameComps = new ArrayList<>();
@@ -183,7 +183,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangFunction transform(FunctionDefinition funcDefNode) {
+    public BLangFunction transform(FunctionDefinitionNode funcDefNode) {
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
         bLFunction.pos = emptyPos;
 
@@ -213,11 +213,11 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
         return bLFunction;
     }
 
-    private void getFuncSignature(BLangFunction bLFunction, FunctionDefinition funcDefNode) {
+    private void getFuncSignature(BLangFunction bLFunction, FunctionDefinitionNode funcDefNode) {
         // Set Parameters
         funcDefNode.parameters().iterator().forEachRemaining(child -> {
             SimpleVariableNode param = (SimpleVariableNode) child.apply(this);
-            if (child instanceof RestParameter) {
+            if (child instanceof RestParameterNode) {
                 bLFunction.setRestParameter(param);
             } else {
                 bLFunction.addParameter(param);
@@ -227,7 +227,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
         // Set Return Type
         Node retNode = funcDefNode.returnTypeDesc();
         if (retNode.kind() == SyntaxKind.RETURN_TYPE_DESCRIPTOR) {
-            VariableDeclaration returnType = (VariableDeclaration) retNode;
+            VariableDeclarationNode returnType = (VariableDeclarationNode) retNode;
             String typeText = getTokenText(returnType.typeName().internalNode());
             BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
             typeNode.pos = emptyPos;
@@ -274,7 +274,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         Node nameNode = functionCallNode.functionName();
         if (nameNode.kind() == SyntaxKind.QUALIFIED_IDENTIFIER) {
-            QualifiedIdentifier name = (QualifiedIdentifier) nameNode;
+            QualifiedIdentifierNode name = (QualifiedIdentifierNode) nameNode;
             invocationNode.name = createIdentifier(emptyPos, name.identifier().text());
             //TODO: Find a proper way to get package alias
             invocationNode.pkgAlias = createIdentifier(emptyPos, name.modulePrefix().text());
@@ -290,7 +290,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
     // -------------------------------------------------Misc------------------------------------------------------------
 
     @Override
-    public BLangExpression transform(PositionalArgument argumentNode) {
+    public BLangExpression transform(PositionalArgumentNode argumentNode) {
         ExpressionNode expression = argumentNode.expression();
         if (isSimpleLiteral(expression)) {
             return createSimpleLiteral(expression);
@@ -299,17 +299,17 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangExpression transform(NamedArgument namedArgumentNode) {
+    public BLangExpression transform(NamedArgumentNode namedArgumentNode) {
         return (BLangExpression) namedArgumentNode.expression().apply(this);
     }
 
     @Override
-    public BLangExpression transform(RestArgument restArgumentNode) {
+    public BLangExpression transform(RestArgumentNode restArgumentNode) {
         return (BLangExpression) restArgumentNode.expression().apply(this);
     }
 
     @Override
-    public BLangSimpleVariable transform(RequiredParameter requiredParameter) {
+    public BLangSimpleVariable transform(RequiredParameterNode requiredParameter) {
         BLangSimpleVariable simpleVar = createSimpleVar(requiredParameter.paramName(), requiredParameter.type());
 
         Node visibilityQual = requiredParameter.visibilityQualifier();
@@ -323,7 +323,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
     }
 
     @Override
-    public BLangSimpleVariable transform(RestParameter restParameter) {
+    public BLangSimpleVariable transform(RestParameterNode restParameter) {
         BLangSimpleVariable simpleVar = createSimpleVar(restParameter.paramName(), restParameter.type());
 
         BLangArrayType typeNode = (BLangArrayType) TreeBuilder.createArrayTypeNode();

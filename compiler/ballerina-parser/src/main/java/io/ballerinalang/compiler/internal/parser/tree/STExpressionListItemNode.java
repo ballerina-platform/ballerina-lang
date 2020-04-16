@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ExpressionListItem;
+import io.ballerinalang.compiler.syntax.tree.ExpressionListItemNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -44,6 +44,6 @@ public class STExpressionListItemNode extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ExpressionListItem(this, position, parent);
+        return new ExpressionListItemNode(this, position, parent);
     }
 }

@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.PositionalArgument;
+import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -44,6 +44,6 @@ public class STPositionalArgumentNode extends STFunctionArgumentNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new PositionalArgument(this, position, parent);
+        return new PositionalArgumentNode(this, position, parent);
     }
 }

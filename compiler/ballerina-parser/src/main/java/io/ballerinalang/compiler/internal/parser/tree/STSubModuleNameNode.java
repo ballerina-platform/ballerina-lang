@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SubModuleName;
+import io.ballerinalang.compiler.syntax.tree.SubModuleNameNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -44,6 +44,6 @@ public class STSubModuleNameNode extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new SubModuleName(this, position, parent);
+        return new SubModuleNameNode(this, position, parent);
     }
 }

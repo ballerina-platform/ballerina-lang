@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptor;
+import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -44,6 +44,6 @@ public class STOptionalTypeDescriptorNode extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new OptionalTypeDescriptor(this, position, parent);
+        return new OptionalTypeDescriptorNode(this, position, parent);
     }
 }

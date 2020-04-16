@@ -39,19 +39,19 @@ package io.ballerinalang.compiler.syntax.tree;
  */
 public abstract class NodeVisitor {
 
-    public void visit(ModulePart modulePart) {
+    public void visit(ModulePartNode modulePart) {
         visitSyntaxNode(modulePart);
     }
 
-    public void visit(FunctionDefinition functionDefinition) {
+    public void visit(FunctionDefinitionNode functionDefinition) {
         visitSyntaxNode(functionDefinition);
     }
 
-    public void visit(ImportDeclaration importDeclaration) {
+    public void visit(ImportDeclarationNode importDeclaration) {
         visitSyntaxNode(importDeclaration);
     }
 
-    public void visit(ListenerDeclaration listenerDeclaration) {
+    public void visit(ListenerDeclarationNode listenerDeclaration) {
         visitSyntaxNode(listenerDeclaration);
     }
 
@@ -59,7 +59,7 @@ public abstract class NodeVisitor {
         visitSyntaxNode(typeDefinitionNode);
     }
 
-    public void visit(ServiceDeclaration serviceDeclaration) {
+    public void visit(ServiceDeclarationNode serviceDeclaration) {
         visitSyntaxNode(serviceDeclaration);
     }
 
@@ -75,7 +75,7 @@ public abstract class NodeVisitor {
         visitSyntaxNode(localTypeDefinitionStatement);
     }
 
-    public void visit(VariableDeclaration variableDeclaration) {
+    public void visit(VariableDeclarationNode variableDeclaration) {
         visitSyntaxNode(variableDeclaration);
     }
 
@@ -95,7 +95,7 @@ public abstract class NodeVisitor {
         visitSyntaxNode(continueStatement);
     }
 
-    public void visit(ExternalFunctionBody externalFunctionBody) {
+    public void visit(ExternalFunctionBodyNode externalFunctionBody) {
         visitSyntaxNode(externalFunctionBody);
     }
 
@@ -103,7 +103,7 @@ public abstract class NodeVisitor {
         visitSyntaxNode(ifElseStatement);
     }
 
-    public void visit(ElseBlock elseBlock) {
+    public void visit(ElseBlockNode elseBlock) {
         visitSyntaxNode(elseBlock);
     }
 
@@ -159,115 +159,115 @@ public abstract class NodeVisitor {
         visitSyntaxNode(unaryExpression);
     }
 
-    public void visit(ComputedNameField computedNameField) {
+    public void visit(ComputedNameFieldNode computedNameField) {
         visitSyntaxNode(computedNameField);
     }
 
-    public void visit(ConstantDeclaration constantDeclaration) {
+    public void visit(ConstantDeclarationNode constantDeclaration) {
         visitSyntaxNode(constantDeclaration);
     }
 
-    public void visit(DefaultableParameter defaultableParameter) {
+    public void visit(DefaultableParameterNode defaultableParameter) {
         visitSyntaxNode(defaultableParameter);
     }
 
-    public void visit(RequiredParameter requiredParameter) {
+    public void visit(RequiredParameterNode requiredParameter) {
         visitSyntaxNode(requiredParameter);
     }
 
-    public void visit(RestParameter restParameter) {
+    public void visit(RestParameterNode restParameter) {
         visitSyntaxNode(restParameter);
     }
 
-    public void visit(ExpressionListItem expressionListItem) {
+    public void visit(ExpressionListItemNode expressionListItem) {
         visitSyntaxNode(expressionListItem);
     }
 
-    public void visit(ImportOrgName importOrgName) {
+    public void visit(ImportOrgNameNode importOrgName) {
         visitSyntaxNode(importOrgName);
     }
 
-    public void visit(ImportPrefix importPrefix) {
+    public void visit(ImportPrefixNode importPrefix) {
         visitSyntaxNode(importPrefix);
     }
 
-    public void visit(ImportSubVersion importSubVersion) {
+    public void visit(ImportSubVersionNode importSubVersion) {
         visitSyntaxNode(importSubVersion);
     }
 
-    public void visit(ImportVersion importVersion) {
+    public void visit(ImportVersionNode importVersion) {
         visitSyntaxNode(importVersion);
     }
 
-    public void visit(SubModuleName subModuleName) {
+    public void visit(SubModuleNameNode subModuleName) {
         visitSyntaxNode(subModuleName);
     }
 
-    public void visit(SpecificField specificField) {
+    public void visit(SpecificFieldNode specificField) {
         visitSyntaxNode(specificField);
     }
 
-    public void visit(SpreadField spreadField) {
+    public void visit(SpreadFieldNode spreadField) {
         visitSyntaxNode(spreadField);
     }
 
-    public void visit(NamedArgument namedArgument) {
+    public void visit(NamedArgumentNode namedArgument) {
         visitSyntaxNode(namedArgument);
     }
 
-    public void visit(PositionalArgument positionalArgument) {
+    public void visit(PositionalArgumentNode positionalArgument) {
         visitSyntaxNode(positionalArgument);
     }
 
-    public void visit(RestArgument restArgument) {
+    public void visit(RestArgumentNode restArgument) {
         visitSyntaxNode(restArgument);
     }
 
-    public void visit(ObjectTypeDescriptor objectTypeDescriptor) {
+    public void visit(ObjectTypeDescriptorNode objectTypeDescriptor) {
         visitSyntaxNode(objectTypeDescriptor);
     }
 
-    public void visit(RecordTypeDescriptor recordTypeDescriptor) {
+    public void visit(RecordTypeDescriptorNode recordTypeDescriptor) {
         visitSyntaxNode(recordTypeDescriptor);
     }
 
-    public void visit(ReturnTypeDescriptor returnTypeDescriptor) {
+    public void visit(ReturnTypeDescriptorNode returnTypeDescriptor) {
         visitSyntaxNode(returnTypeDescriptor);
     }
 
-    public void visit(NilTypeDescriptor nilTypeDescriptor) {
+    public void visit(NilTypeDescriptorNode nilTypeDescriptor) {
         visitSyntaxNode(nilTypeDescriptor);
     }
 
-    public void visit(OptionalTypeDescriptor optionalTypeDescriptor) {
+    public void visit(OptionalTypeDescriptorNode optionalTypeDescriptor) {
         visitSyntaxNode(optionalTypeDescriptor);
     }
 
-    public void visit(ObjectField objectField) {
+    public void visit(ObjectFieldNode objectField) {
         visitSyntaxNode(objectField);
     }
 
-    public void visit(RecordField recordField) {
+    public void visit(RecordFieldNode recordField) {
         visitSyntaxNode(recordField);
     }
 
-    public void visit(RecordFieldWithDefaultValue recordFieldWithDefaultValue) {
+    public void visit(RecordFieldWithDefaultValueNode recordFieldWithDefaultValue) {
         visitSyntaxNode(recordFieldWithDefaultValue);
     }
 
-    public void visit(RecordRestDescriptor recordRestDescriptor) {
+    public void visit(RecordRestDescriptorNode recordRestDescriptor) {
         visitSyntaxNode(recordRestDescriptor);
     }
 
-    public void visit(TypeReference typeReference) {
+    public void visit(TypeReferenceNode typeReference) {
         visitSyntaxNode(typeReference);
     }
 
-    public void visit(QualifiedIdentifier qualifiedIdentifier) {
+    public void visit(QualifiedIdentifierNode qualifiedIdentifier) {
         visitSyntaxNode(qualifiedIdentifier);
     }
 
-    public void visit(ServiceBody serviceBody) {
+    public void visit(ServiceBodyNode serviceBody) {
         visitSyntaxNode(serviceBody);
     }
 
@@ -275,11 +275,11 @@ public abstract class NodeVisitor {
         visitSyntaxNode(annotationNode);
     }
 
-    public void visit(Metadata metadata) {
+    public void visit(MetadataNode metadata) {
         visitSyntaxNode(metadata);
     }
 
-    public void visit(ModuleVariableDeclaration moduleVariableDeclaration) {
+    public void visit(ModuleVariableDeclarationNode moduleVariableDeclaration) {
         visitSyntaxNode(moduleVariableDeclaration);
     }
 

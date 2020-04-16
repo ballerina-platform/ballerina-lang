@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectField;
+import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -64,6 +64,6 @@ public class STObjectFieldNode extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ObjectField(this, position, parent);
+        return new ObjectFieldNode(this, position, parent);
     }
 }

@@ -19,8 +19,14 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
 public abstract class FunctionArgumentNode extends NonTerminalNode {
-    public FunctionArgumentNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
+
+    public FunctionArgumentNode(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 }

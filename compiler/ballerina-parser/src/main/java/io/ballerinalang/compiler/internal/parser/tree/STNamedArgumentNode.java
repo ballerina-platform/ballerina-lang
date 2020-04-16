@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.NamedArgument;
+import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -52,6 +52,6 @@ public class STNamedArgumentNode extends STFunctionArgumentNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new NamedArgument(this, position, parent);
+        return new NamedArgumentNode(this, position, parent);
     }
 }

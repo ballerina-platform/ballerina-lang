@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.internal.parser.incremental;
 import io.ballerinalang.compiler.internal.parser.BallerinaLexer;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.utils.PersistentStack;
-import io.ballerinalang.compiler.syntax.tree.ModulePart;
+import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.text.TextDocumentChange;
@@ -135,7 +135,7 @@ public class HybridNodeStorage {
         this.hybridNodeList.add(peekedNodeIndex++, hybridNode);
     }
 
-    private HybridNode createInitialNode(ModulePart oldTree,
+    private HybridNode createInitialNode(ModulePartNode oldTree,
                                          BallerinaLexer lexer,
                                          TextDocumentChange textDocumentChange) {
         NodePointer oldTreePtr = new NodePointer(oldTree);
@@ -144,7 +144,7 @@ public class HybridNodeStorage {
         return new HybridNode(null, state);
     }
 
-    private PersistentStack<TextEditRange> markAffectedRanges(ModulePart oldTree,
+    private PersistentStack<TextEditRange> markAffectedRanges(ModulePartNode oldTree,
                                                               TextDocumentChange textDocumentChange) {
         int textEditCount = textDocumentChange.getTextEditCount();
         PersistentStack<TextEditRange> markedTextEdits = PersistentStack.getEmpty();
@@ -155,7 +155,7 @@ public class HybridNodeStorage {
         return markedTextEdits;
     }
 
-    private TextEditRange markAffectedRange(ModulePart oldTree, TextEdit textEdit) {
+    private TextEditRange markAffectedRange(ModulePartNode oldTree, TextEdit textEdit) {
         TextRange textRange = textEdit.range();
         // Find the affected token in the oldTree
         Token affectedToken = oldTree.findToken(textRange.startOffset());
