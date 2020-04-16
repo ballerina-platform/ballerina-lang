@@ -66,7 +66,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the query param value associated with the given key.\n  \n**Params**  \n- `string` key: Represents the query param key  \n  \n**Returns** `(string|())`   \n- Returns the query param value associated with the given key as a string. If multiple param values are  \n           present, then the first value is returned. Nil is returned if no key is found.  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets the query param value associated with the given key.\n  \n**Params**  \n- `string` key: Represents the query param key  \n  \n**Returns** `(string|())`   \n- The query param value associated with the given key as a string. If multiple param values are  \n           present, then the first value is returned. `()` is returned if no key is found.  \n  \n"
         }
       },
       "sortText": "120",
@@ -304,7 +304,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets all the query param values associated with the given key.\n  \n**Params**  \n- `string` key: Represents the query param key  \n  \n**Returns** `(string[]|())`   \n- Returns all the query param values associated with the given key as a `string[]`. Nil is returned if no key  \n           is found.  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets all the query param values associated with the given key.\n  \n**Params**  \n- `string` key: Represents the query param key  \n  \n**Returns** `(string[]|())`   \n- All the query param values associated with the given key as a `string[]`. `()` is returned if no key  \n           is found.  \n  \n"
         }
       },
       "sortText": "120",
@@ -546,7 +546,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the type of the payload of the request (i.e: the `content-type` header value).\n  \n  \n  \n**Returns** `string`   \n- Returns the `content-type` header value as a string  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets the type of the payload of the request (i.e: the `content-type` header value).\n  \n  \n  \n**Returns** `string`   \n- The `content-type` header value as a string  \n  \n"
         }
       },
       "sortText": "120",
@@ -560,7 +560,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts body parts from the request. If the content type is not a composite media type, an error\nis returned.  \n  \n  \n**Returns** `(mime:Entity[]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- Returns the body parts as an array of entities or an `http:ClientError` if there were any errors in  \n           constructing the body parts from the request  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nExtracts body parts from the request. If the content type is not a composite media type, an error\nis returned.  \n  \n  \n**Returns** `(mime:Entity[]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The body parts as an array of entities or else an `http:ClientError` if there were any errors  \n           constructing the body parts from the request  \n  \n"
         }
       },
       "sortText": "120",

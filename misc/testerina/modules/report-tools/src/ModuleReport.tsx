@@ -18,7 +18,7 @@ export function ModuleSummaryView ({data, index} : ModuleSummaryViewProps) {
         coverage = <div className="col-sm-3 card summary-card progress-card">
             <h6>Code Coverage: {data.moduleCoverage[index].coveragePercentage}%</h6>
             <div className="progress">
-                <div className="progress-bar" style={{width: data.moduleCoverage[index].coveragePercentage+"%"}}>{data.moduleCoverage[index].coveragePercentage}70%</div>
+                <div className="progress-bar" style={{width: data.moduleCoverage[index].coveragePercentage+"%"}}>{data.moduleCoverage[index].coveragePercentage}%</div>
             </div>
         </div>
       }

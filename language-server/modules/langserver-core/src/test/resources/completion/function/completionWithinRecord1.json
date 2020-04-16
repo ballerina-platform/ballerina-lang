@@ -9,7 +9,7 @@
       "label": "inner2Int",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
+      "sortText": "210",
       "insertText": "inner2Int: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "inner2Str",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
+      "sortText": "210",
       "insertText": "inner2Str: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
