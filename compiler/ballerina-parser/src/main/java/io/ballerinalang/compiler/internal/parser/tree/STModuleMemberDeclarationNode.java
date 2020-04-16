@@ -15,22 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.syntax.tree;
+package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
-import io.ballerinalang.compiler.internal.parser.tree.STToken;
-
-import java.util.ArrayList;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
- * A factory for creating nodes in the syntax tree.
+ * This is a generated internal syntax tree node.
  *
  * @since 1.3.0
  */
-public abstract class AbstractNodeFactory {
-    public static IdentifierToken createIdentifier(String text) {
-        STToken token = STNodeFactory.createIdentifierToken(text, STNodeFactory.createNodeList(new ArrayList<>()),
-                STNodeFactory.createNodeList(new ArrayList<>()));
-        return token.createUnlinkedFacade();
+public abstract class STModuleMemberDeclarationNode extends STNode {
+
+    STModuleMemberDeclarationNode(SyntaxKind kind) {
+        super(kind);
     }
 }

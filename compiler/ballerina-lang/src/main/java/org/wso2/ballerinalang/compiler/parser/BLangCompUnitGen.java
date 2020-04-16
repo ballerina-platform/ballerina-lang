@@ -17,7 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
-import io.ballerinalang.compiler.internal.parser.tree.STIdentifier;
+import io.ballerinalang.compiler.internal.parser.tree.STIdentifierToken;
 import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
@@ -550,7 +550,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
     private static String getTokenText(STNode stNode) {
         switch (stNode.kind) {
             case IDENTIFIER_TOKEN:
-                return ((STIdentifier) stNode).text;
+                return ((STIdentifierToken) stNode).text;
             case STRING_LITERAL:
                 String val = ((STLiteralValueToken) stNode).text;
                 int stringLen = val.length();

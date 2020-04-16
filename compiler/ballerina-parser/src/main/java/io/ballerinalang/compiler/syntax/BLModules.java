@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.syntax;
 
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
-import io.ballerinalang.compiler.internal.parser.tree.STModulePart;
+import io.ballerinalang.compiler.internal.parser.tree.STModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePart;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -35,14 +35,14 @@ public class BLModules {
     public static SyntaxTree parse(TextDocument textDocument) {
         BallerinaParser parser = ParserFactory.getParser(textDocument);
         // IMO, the parse methods should return the tree..
-        STModulePart modulePart = (STModulePart) parser.parse();
+        STModulePartNode modulePart = (STModulePartNode) parser.parse();
         return new SyntaxTree((ModulePart) modulePart.createFacade(0, null), textDocument);
     }
 
     public static SyntaxTree parse(SyntaxTree oldTree, TextDocumentChange textDocumentChange) {
         TextDocument newTextDocument = oldTree.getTextDocument().apply(textDocumentChange);
         BallerinaParser parser = ParserFactory.getParser(oldTree, newTextDocument, textDocumentChange);
-        STModulePart modulePart = (STModulePart) parser.parse();
+        STModulePartNode modulePart = (STModulePartNode) parser.parse();
         return new SyntaxTree((ModulePart) modulePart.createFacade(0, null), newTextDocument);
     }
 }
