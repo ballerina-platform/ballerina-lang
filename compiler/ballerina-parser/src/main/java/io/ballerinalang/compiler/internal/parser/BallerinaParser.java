@@ -2993,15 +2993,6 @@ public class BallerinaParser {
         return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, lhsExpr, true, true);
     }
 
-    // /**
-    // * Parse the right-hand-side of an expression.
-    // *
-    // * @return Parsed node
-    // */
-    // private STNode parseExpressionRhs(STNode lhsExpr, boolean isAssignmentLhs) {
-    // return parseExpressionRhs(OperatorPrecedence.LOGICAL_OR, lhsExpr, isAssignmentLhs);
-    // }
-
     /**
      * <p>
      * Parse the right-hand-side of an expression.

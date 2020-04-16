@@ -210,9 +210,6 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] STMT_START_WITH_IDENTIFIER = { ParserRuleContext.ASSIGN_OP,
             ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS, ParserRuleContext.RIGHT_ARROW };
 
-    private static final ParserRuleContext[] EQUAL_OR_RIGHT_ARROW =
-            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.RIGHT_ARROW };
-
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
@@ -889,8 +886,6 @@ public class BallerinaParserErrorHandler {
                 case STMT_START_WITH_IDENTIFIER:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             STMT_START_WITH_IDENTIFIER);
-                case EQUAL_OR_RIGHT_ARROW:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, EQUAL_OR_RIGHT_ARROW);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1099,8 +1094,6 @@ public class BallerinaParserErrorHandler {
         ParserRuleContext nextContext;
         if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK) {
             nextContext = ParserRuleContext.BLOCK_STMT;
-        } else if (parentCtx == ParserRuleContext.STMT_START_WITH_IDENTIFIER) {
-            nextContext = ParserRuleContext.EQUAL_OR_RIGHT_ARROW;
         } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.RECORD_FIELD ||
                 parentCtx == ParserRuleContext.OBJECT_MEMBER || parentCtx == ParserRuleContext.LISTENER_DECL ||
                 parentCtx == ParserRuleContext.CONSTANT_DECL) {
