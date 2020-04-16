@@ -22,6 +22,7 @@ import com.google.gson.Gson;
 import org.ballerinalang.packerina.OsUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.model.ExecutableJar;
 import org.ballerinalang.test.runtime.entity.ModuleCoverage;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
@@ -41,8 +42,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
@@ -57,7 +56,9 @@ import java.util.List;
 
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.HTML_RESOURCE_FILE;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DIR_NAME;
+import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_ZIP_NAME;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_HTML_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.RESULTS_JSON_FILE;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.TEST_RUNTIME_JAR_PREFIX;
@@ -72,18 +73,24 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
  */
 public class RunTestsTask implements Task {
     private final String[] args;
+    private boolean report;
     private boolean coverage;
     private Path testJarPath;
     TestReport testReport;
 
-    public RunTestsTask(boolean coverage, String[] args) {
+    public RunTestsTask(boolean report, boolean coverage, String[] args) {
         this.coverage = coverage;
         this.args = args;
-        testReport = new TestReport();
+        this.report = report;
+        if (report || coverage) {
+            testReport = new TestReport();
+        }
     }
 
-    public RunTestsTask(boolean coverage, String[] args, List<String> groupList, List<String> disableGroupList) {
+    public RunTestsTask(boolean report, boolean coverage, String[] args, List<String> groupList,
+                        List<String> disableGroupList) {
         this.args = args;
+        this.report = report;
         this.coverage = coverage;
         TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
         if (disableGroupList != null) {
@@ -93,7 +100,10 @@ public class RunTestsTask implements Task {
             testerinaRegistry.setGroups(groupList);
             testerinaRegistry.setShouldIncludeGroups(true);
         }
-        testReport = new TestReport();
+
+        if (report || coverage) {
+            testReport = new TestReport();
+        }
     }
 
     @Override
@@ -113,7 +123,7 @@ public class RunTestsTask implements Task {
 
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         List<BLangPackage> moduleBirMap = buildContext.getModules();
-        testReport.setProjectName(sourceRootPath.toFile().getName());
+
         int result = 0;
 
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
@@ -130,6 +140,7 @@ public class RunTestsTask implements Task {
                 buildContext.out().println();
                 continue;
             }
+            suite.setReportRequired(report || coverage);
             HashSet<Path> testDependencies = getTestDependencies(buildContext, bLangPackage);
             Path jsonPath = buildContext.getTestJsonPathTargetCache(bLangPackage.packageID);
             createTestJson(bLangPackage, suite, sourceRootPath, jsonPath);
@@ -138,12 +149,23 @@ public class RunTestsTask implements Task {
                 result = testResult;
             }
 
-            Path statusJsonPath = jsonPath.resolve(TesterinaConstants.STATUS_FILE);
-            try {
-                ModuleStatus moduleStatus = loadModuleStatusFromFile(statusJsonPath);
-                testReport.addModuleStatus(String.valueOf(bLangPackage.packageID.name), moduleStatus);
-            } catch (IOException e) {
-                throw createLauncherException("error while generating test report", e);
+            if (report || coverage) {
+                // Set projectName in test report
+                String projectName;
+                if (buildContext.get(BuildContextField.SOURCE_CONTEXT) instanceof SingleFileContext) {
+                    SingleFileContext singleFileContext = buildContext.get(BuildContextField.SOURCE_CONTEXT);
+                    projectName = singleFileContext.getBalFile().toFile().getName();
+                } else {
+                    projectName = sourceRootPath.toFile().getName();
+                }
+                testReport.setProjectName(projectName);
+                Path statusJsonPath = jsonPath.resolve(TesterinaConstants.STATUS_FILE);
+                try {
+                    ModuleStatus moduleStatus = loadModuleStatusFromFile(statusJsonPath);
+                    testReport.addModuleStatus(String.valueOf(bLangPackage.packageID.name), moduleStatus);
+                } catch (IOException e) {
+                    throw createLauncherException("error while generating test report", e);
+                }
             }
 
             if (coverage) {
@@ -160,8 +182,10 @@ public class RunTestsTask implements Task {
                 }
             }
         }
-        testReport.finalizeTestResults(coverage);
-        generateHtmlReport(buildContext.out(), testReport, targetDir);
+        if ((report || coverage) && (testReport.getModuleStatus().size() > 0)) {
+            testReport.finalizeTestResults(coverage);
+            generateHtmlReport(buildContext.out(), testReport, targetDir);
+        }
         if (result != 0) {
             throw createLauncherException("there are test failures");
         }
@@ -254,35 +278,24 @@ public class RunTestsTask implements Task {
             throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
         }
 
-        File htmlFile = new File(jsonPath.resolve(RESULTS_HTML_FILE).toString());
         String content;
+        try {
+            CodeCoverageUtils.unzipReportResources(getClass().getClassLoader().getResourceAsStream(REPORT_ZIP_NAME),
+                    jsonPath.resolve(REPORT_DIR_NAME).toFile());
 
-        try (InputStream in = getClass().getClassLoader().getResourceAsStream(HTML_RESOURCE_FILE)) {
-                content = readFromInputStream(in);
-                content = content.replaceAll("__data__", "'" + json + "'");
-                content = content.replace("\"'", "'").replace("'\"", "'");
+            content = new String(Files.readAllBytes(jsonPath.resolve(REPORT_DIR_NAME).resolve(RESULTS_HTML_FILE)),
+                    StandardCharsets.UTF_8);
+            content = content.replace(REPORT_DATA_PLACEHOLDER, json);
         } catch (IOException e) {
-            throw LauncherUtils.createLauncherException("couldn't read content from the html file : " + e.toString());
+            throw LauncherUtils.createLauncherException("error occurred while preparing test report: " + e.toString());
         }
+        File htmlFile = new File(jsonPath.resolve(REPORT_DIR_NAME).resolve(RESULTS_HTML_FILE).toString());
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8)) {
             writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
             out.println("\tView the test report at: " + FILE_PROTOCOL + htmlFile.getAbsolutePath());
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't read data from the Json file : " + e.toString());
         }
-    }
-
-    private String readFromInputStream(InputStream inputStream)
-            throws IOException {
-        StringBuilder resultStringBuilder = new StringBuilder();
-        try (BufferedReader br
-                     = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                resultStringBuilder.append(line).append("\n");
-            }
-        }
-        return resultStringBuilder.toString();
     }
 
     private int runTestSuit(Path jsonPath, BuildContext buildContext, HashSet<Path> testDependencies,
@@ -302,8 +315,10 @@ public class RunTestsTask implements Task {
                         + jacocoAgentJarPath
                         + "=destfile="
                         + targetDir.resolve(TesterinaConstants.COVERAGE_DIR)
-                        .resolve(TesterinaConstants.EXEC_FILE_NAME).toString()
-                        + ",includes=" + orgName + "." + packageName + ".*";
+                        .resolve(TesterinaConstants.EXEC_FILE_NAME).toString();
+                if (!TesterinaConstants.DOT.equals(packageName)) {
+                    agentCommand += ",includes=" + orgName + "." + packageName + ".*";
+                }
                 cmdArgs.add(agentCommand);
             }
 
@@ -334,7 +349,6 @@ public class RunTestsTask implements Task {
         try {
             String classPath = getClassPath(getTestRuntimeJar(buildContext), testDependencies);
             cmdArgs.addAll(Lists.of("-cp", classPath, mainClassName, jsonPath.toString()));
-            cmdArgs.addAll(Arrays.asList(args));
             cmdArgs.add(targetDir.toString());
             cmdArgs.add(testJarPath.toString());
             cmdArgs.add(orgName);

@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
+import org.ballerinalang.test.runtime.util.TesterinaConstants;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,6 +94,9 @@ public class TestReport {
      */
     public void finalizeTestResults(boolean coverage) {
         for (ModuleStatus modStatus : moduleStatus) {
+            if (TesterinaConstants.DOT.equals(modStatus.getName())) {
+                modStatus.setName(projectName);
+            }
             passed += modStatus.getPassed();
             failed += modStatus.getFailed();
             skipped += modStatus.getSkipped();
@@ -99,9 +104,13 @@ public class TestReport {
         }
         if (coverage) {
             for (ModuleCoverage modCov : moduleCoverage) {
+                if (TesterinaConstants.DOT.equals(modCov.getName())) {
+                    modCov.setName(projectName);
+                }
                 coveredLines += modCov.getCoveredLines();
                 missedLines += modCov.getMissedLines();
-                coveragePercentage = (float) coveredLines / (coveredLines + missedLines) * 100;
+                float coverageVal = (float) coveredLines / (coveredLines + missedLines) * 100;
+                coveragePercentage = (float) (Math.round(coverageVal * 100.0) / 100.0);
 
             }
         }

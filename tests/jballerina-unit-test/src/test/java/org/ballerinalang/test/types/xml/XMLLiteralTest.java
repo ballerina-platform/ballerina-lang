@@ -278,7 +278,7 @@ public class XMLLiteralTest {
 
         Assert.assertTrue(returns[2] instanceof BXML);
         Assert.assertEquals(returns[2].stringValue(),
-                "<ns1:root xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:root>");
+                "<ns1:root xmlns:ns1=\"http://ballerina.com/b\" xmlns=\"http://ballerina.com/\">hello</ns1:root>");
     }
 
     @Test
@@ -399,6 +399,20 @@ public class XMLLiteralTest {
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
                 "<p:person xmlns:p=\"foo\" xmlns:q=\"bar\">hello</p:person>");
+    }
+
+
+    @Test
+    public void xmlWithDefaultNamespaceToString() {
+        BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "XMLWithDefaultNamespaceToString");
+        Assert.assertEquals(returns[0].stringValue(),
+                "<Order xmlns=\"http://acme.company\" xmlns:acme=\"http://acme.company\">\n" +
+                        "        <OrderLines>\n" +
+                        "            <OrderLine acme:lineNo=\"334\" itemCode=\"334-2\"></OrderLine>\n" +
+                        "        </OrderLines>\n" +
+                        "        <ShippingAddress>\n" +
+                        "        </ShippingAddress>\n" +
+                        "    </Order>");
     }
 
     @Test (description = "Test sequence of brackets in content of XML")

@@ -61,7 +61,9 @@ public class Main {
         } catch (RuntimeException e) {
             exitStatus = 1;
         } finally {
-            writeStatusToJsonFile(ModuleStatus.getInstance(), jsonTmpSummaryPath);
+            if (testSuite.isReportRequired()) {
+                writeStatusToJsonFile(ModuleStatus.getInstance(), jsonTmpSummaryPath);
+            }
             Runtime.getRuntime().exit(exitStatus);
         }
     }
