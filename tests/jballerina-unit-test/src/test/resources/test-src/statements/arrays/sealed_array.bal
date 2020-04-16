@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.'int;
 
 // Int Arrays
 
@@ -41,6 +42,11 @@ function createIntDefaultSealedArray() {
     int[5] sealedArray = [0, 0, 0, 0, 0];
     assertArrayLengthPanic(5, sealedArray);
     isEqualPanic("0 0 0 0 0", sealedArray);
+}
+
+function createSealedArraysOfIntSubtypes() {
+    ('int:Unsigned16|'int:Signed32)[2] sealedArray = [];
+    assertArrayLengthPanic(2, sealedArray);
 }
 
 // Boolean Arrays
@@ -414,6 +420,21 @@ function createXMLAutoFilledSealedArray() {
     xml[5] sealedArray = [a, a];
     sealedArray[3] = a;
     assertEqualPanic("", sealedArray[4].toString());
+    assertArrayLengthPanic(5, sealedArray);
+}
+
+// const literal broad type filler value
+
+const FOO = 0;
+type Bar FOO | 1;
+function createConstLiteralAutoFilledSealedArray() {
+    Bar a = 1;
+    Bar[5] sealedArray = [a, a];
+    sealedArray[3] = a;
+    assertArrayValuePanic(1, sealedArray, 0);
+    assertArrayValuePanic(1, sealedArray, 1);
+    assertArrayValuePanic(0, sealedArray, 2);
+    assertArrayValuePanic(1, sealedArray, 3);
     assertArrayLengthPanic(5, sealedArray);
 }
 
