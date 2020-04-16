@@ -170,6 +170,21 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
+    public static STNode createLocalTypeDefinitionStatement(
+            STNode annots,
+            STNode typeKeyword,
+            STNode identifier,
+            STNode typeDescriptor,
+            STNode semicolonToken) {
+
+        return new STLocalTypeDefinitionStatement(
+                annots,
+                typeKeyword,
+                identifier,
+                typeDescriptor,
+                semicolonToken);
+    }
+
     public static STNode createVariableDeclaration(
             STNode annotations,
             STNode finalKeyword,
@@ -800,6 +815,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 equalsToken,
                 initializer,
                 semicolonToken);
+    }
+
+    public static STNode createIsExpression(
+            STNode expression,
+            STNode isKeyword,
+            STNode typeDescriptor) {
+
+        return new STIsExpression(
+                expression,
+                isKeyword,
+                typeDescriptor);
     }
 }
 

@@ -793,6 +793,17 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 semicolonToken);
     }
 
+    @Override
+    public Node transform(IsExpression isExpression) {
+        Node expression = modifyNode(isExpression.expression());
+        Token isKeyword = modifyToken(isExpression.isKeyword());
+        Node typeDescriptor = modifyNode(isExpression.typeDescriptor());
+        return isExpression.modify(
+                expression,
+                isKeyword,
+                typeDescriptor);
+    }
+
     // Tokens
 
     @Override

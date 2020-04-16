@@ -1397,6 +1397,25 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "IsExpression",
+            "base": "Expression",
+            "kind": "IS_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "Node"
+                },
+                {
+                    "name": "isKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeDescriptor",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }

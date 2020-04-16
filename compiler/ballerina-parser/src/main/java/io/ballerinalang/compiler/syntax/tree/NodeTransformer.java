@@ -72,6 +72,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(compoundAssignmentStatement);
     }
 
+    public T transform(LocalTypeDefinitionStatement localTypeDefinitionStatement) {
+        return transformSyntaxNode(localTypeDefinitionStatement);
+    }
+
     public T transform(VariableDeclaration variableDeclaration) {
         return transformSyntaxNode(variableDeclaration);
     }
@@ -278,6 +282,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(ModuleVariableDeclaration moduleVariableDeclaration) {
         return transformSyntaxNode(moduleVariableDeclaration);
+    }
+
+    public T transform(IsExpression isExpression) {
+        return transformSyntaxNode(isExpression);
     }
 
     // Tokens
