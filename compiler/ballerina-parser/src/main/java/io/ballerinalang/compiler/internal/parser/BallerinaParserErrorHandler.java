@@ -817,7 +817,7 @@ public class BallerinaParserErrorHandler {
                 case ACCESS_EXPRESSION:
                     return seekInAccessExpression(currentCtx, lookahead, currentDepth, matchingRulesCount);
                 case BASIC_LITERAL:
-                    STToken nextNextToken = this.tokenReader.peek(lookahead+1);
+                    STToken nextNextToken = this.tokenReader.peek(lookahead + 1);
                     hasMatch = isBasicLiteral(nextToken.kind, nextNextToken.kind);
                     break;
                 case COLON:
@@ -1412,7 +1412,7 @@ public class BallerinaParserErrorHandler {
                 if (parentCtx == ParserRuleContext.FUNC_DEFINITION) {
                     return ParserRuleContext.PARAM_LIST;
                 }
-                if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR || parentCtx == ParserRuleContext.NIL_LITERAL ) {
+                if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR || parentCtx == ParserRuleContext.NIL_LITERAL) {
                     return ParserRuleContext.CLOSE_PARENTHESIS;
                 }
                 return ParserRuleContext.ARG;
@@ -2427,6 +2427,7 @@ public class BallerinaParserErrorHandler {
                 if (nextKind == SyntaxKind.CLOSE_PAREN_TOKEN) {
                     return true;
                 }
+                return false;
             default:
                 return false;
         }
