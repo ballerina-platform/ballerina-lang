@@ -1180,7 +1180,8 @@ class JvmTypeGen {
                 mv.visitInsn(AASTORE);
                 i += 1;
             }
-            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;[L%s;)V", BTYPE, STRING_VALUE), false);
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;[L%s;)V",
+                    BTYPE, STRING_VALUE), false);
         } else {
             mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
         }

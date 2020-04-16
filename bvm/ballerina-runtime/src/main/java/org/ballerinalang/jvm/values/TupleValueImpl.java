@@ -67,8 +67,14 @@ public class TupleValueImpl extends AbstractArrayValue {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
         TupleValueImpl that = (TupleValueImpl) o;
         return minSize == that.minSize &&
                 hasRestElement == that.hasRestElement &&

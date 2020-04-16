@@ -43,6 +43,12 @@ import java.util.StringJoiner;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
 
+/**
+ * The runtime representation of table.
+ *
+ * @param <K> the type of keys maintained by this map
+ * @param <V> the type of mapped values
+ */
 public class TableValue<K, V> implements BTable<K, V> {
 
     private BTableType type;
