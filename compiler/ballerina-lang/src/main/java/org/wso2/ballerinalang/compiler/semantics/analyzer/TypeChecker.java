@@ -4886,7 +4886,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 keyTypeConstraint = createTableKeyConstraint(((BTableType) indexBasedAccessExpr.expr.type).
                         fieldNameList, ((BTableType) indexBasedAccessExpr.expr.type).constraint);
 
-                if(keyTypeConstraint == null) {
+                if (keyTypeConstraint == null) {
                     dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MEMBER_ACCESS_NOT_SUPPORT_FOR_KEYLESS_TABLE,
                             indexBasedAccessExpr.expr);
                     return symTable.semanticError;

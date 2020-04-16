@@ -1121,8 +1121,14 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
         ArrayValueImpl that = (ArrayValueImpl) o;
         return arrayType.equals(that.arrayType) &&
                 elementType.equals(that.elementType) &&
