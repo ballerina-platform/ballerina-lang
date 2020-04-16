@@ -25,8 +25,8 @@ public class FiniteType extends Type {
 
     public List<String> valueSpace = new ArrayList<>();
 
-    public FiniteType(String name, String description, List<String> valueSpace) {
-        super(name, description);
+    public FiniteType(String name, String description, boolean isDeprecated,  List<String> valueSpace) {
+        super(name, description, isDeprecated);
         this.valueSpace = valueSpace;
     }
 }
