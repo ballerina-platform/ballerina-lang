@@ -47,20 +47,11 @@
                     "kind": "ARRAY_TYPE",
                     "children": [
                         {
-                            "kind": "SIMPLE_TYPE",
-                            "value": "int"
-                        },
-                        {   "kind": "LIST",
+                            "kind": "ARRAY_TYPE",
                             "children": [
-                                {   "kind": "ARRAY_DIMENSION",
-                                    "children": [
-                                        {
-                                            "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                            "kind": "CLOSE_BRACKET_TOKEN"
-                                        }
-                                    ]
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "int"
                                 },
                                 {   "kind": "ARRAY_DIMENSION",
                                     "children": [
@@ -71,6 +62,16 @@
                                             "kind": "CLOSE_BRACKET_TOKEN"
                                         }
                                     ]
+                                }
+                            ]
+                        },
+                        {   "kind": "ARRAY_DIMENSION",
+                            "children": [
+                                {
+                                    "kind": "OPEN_BRACKET_TOKEN"
+                                },
+                                {
+                                    "kind": "CLOSE_BRACKET_TOKEN"
                                 }
                             ]
                         }

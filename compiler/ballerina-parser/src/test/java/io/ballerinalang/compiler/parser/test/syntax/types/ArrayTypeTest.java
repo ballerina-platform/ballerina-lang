@@ -77,6 +77,10 @@ public class ArrayTypeTest extends AbstractTypesTest {
         test("int[][][] a;", "array-type/array_type_assert_13.json");
     }
 
+    @Test
+    public void testValidOptionalTypeDescContainsArrayTypeDesc() {
+        test("int?[]? a;", "array-type/array_type_assert_14.json");
+    }
 
     //Recovery test
 
@@ -102,8 +106,7 @@ public class ArrayTypeTest extends AbstractTypesTest {
 
     @Test
     public void testInvalidTwoDimensionalArrayTypeMissingCloseBracket() {
-        test("int[][ a;", "array-type/array_type_assert_12.json");
+        test("T[][ a;", "array-type/array_type_assert_12.json");
     }
-
 
 }

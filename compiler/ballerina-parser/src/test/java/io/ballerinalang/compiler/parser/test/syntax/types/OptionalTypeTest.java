@@ -45,8 +45,8 @@ public class OptionalTypeTest extends AbstractTypesTest {
     //Recovery test
 
     @Test
-    public void testInvalidOptionalTypeWithExtraQuestionMark() {
-        test("int? ? a;", "optional-type/optional_type_assert_01.json");
+    public void testInvalidOptionalTypeWithExtraSymbol() {
+        test("int? % a;", "optional-type/optional_type_assert_01.json");
     }
 
     @Test

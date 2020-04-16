@@ -2073,6 +2073,8 @@ public class BallerinaParserErrorHandler {
             case ARRAY_TYPE_DESCRIPTOR:
                 if (nextToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
                     return ParserRuleContext.OPEN_BRACKET;
+                } else if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
+                    return ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR;
                 } else {
                     endContext(); //End array type descriptor context
                     return getNextRuleForTypeDescriptor();

@@ -12,27 +12,20 @@
             ]
         },
         {
-            "kind": "ARRAY_TYPE",
+            "kind": "OPTIONAL_TYPE",
             "children": [
                 {
                     "kind": "ARRAY_TYPE",
                     "children": [
                         {
-                            "kind": "ARRAY_TYPE",
+                            "kind": "OPTIONAL_TYPE",
                             "children": [
                                 {
                                     "kind": "SIMPLE_TYPE",
                                     "value": "int"
                                 },
-                                {   "kind": "ARRAY_DIMENSION",
-                                    "children": [
-                                        {
-                                            "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                            "kind": "CLOSE_BRACKET_TOKEN"
-                                        }
-                                    ]
+                                {
+                                    "kind": "QUESTION_MARK_TOKEN"
                                 }
                             ]
                         },
@@ -48,15 +41,8 @@
                         }
                     ]
                 },
-                {   "kind": "ARRAY_DIMENSION",
-                    "children": [
-                        {
-                            "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "CLOSE_BRACKET_TOKEN"
-                        }
-                    ]
+                {
+                    "kind": "QUESTION_MARK_TOKEN"
                 }
             ]
         },
