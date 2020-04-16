@@ -11,13 +11,13 @@
         </span>
         {{/if}}
     </div>
-    <p>
+    <div class="function-desc">
         {{#if isDeprecated}}
             <span class="stab">Deprecated</span>
         {{/if}}
         {{{ description }}}
-    </p>
-     {{#if parameters}}
+    </div>
+    {{#if parameters}}
         <div class="data-wrapper">
             <h3 class="param-title">Parameters</h3>
             {{#each parameters}}    
