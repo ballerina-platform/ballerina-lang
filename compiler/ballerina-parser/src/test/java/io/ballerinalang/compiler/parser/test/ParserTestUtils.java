@@ -54,7 +54,7 @@ import static io.ballerinalang.compiler.parser.test.ParserTestConstants.VALUE_FI
 
 /**
  * Convenient methods for testing the parser.
- * 
+ *
  * @since 1.2.0
  */
 public class ParserTestUtils {
@@ -63,7 +63,7 @@ public class ParserTestUtils {
 
     /**
      * Test parsing a valid source.
-     * 
+     *
      * @param sourceFilePath Path to the ballerina file
      * @param context Context to start parsing the given source
      * @param assertFilePath File to assert the resulting tree after parsing
@@ -75,7 +75,7 @@ public class ParserTestUtils {
 
     /**
      * Test parsing a valid source.
-     * 
+     *
      * @param source Input source that represent a ballerina code
      * @param context Context to start parsing the given source
      * @param assertFilePath File to assert the resulting tree after parsing
@@ -355,6 +355,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPEOF_KEYWORD;
             case "ANNOTATION_KEYWORD":
                 return SyntaxKind.ANNOTATION_KEYWORD;
+            case "IS_KEYWORD":
+                return SyntaxKind.IS_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -477,6 +479,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPEOF_EXPRESSION;
             case "UNARY_EXPRESSION":
                 return SyntaxKind.UNARY_EXPRESSION;
+            case "IS_EXPRESSION":
+                return SyntaxKind.IS_EXPRESSION;
 
             // Statements
             case "BLOCK_STATEMENT":

@@ -1103,9 +1103,9 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static ArrayDimension createArrayDimension(
-            Node openBracket,
+            Token openBracket,
             Node arrayLength,
-            Node closeBracket) {
+            Token closeBracket) {
         Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(arrayLength, "arrayLength must not be null");
         Objects.requireNonNull(closeBracket, "closeBracket must not be null");
@@ -1115,6 +1115,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 arrayLength.internalNode(),
                 closeBracket.internalNode());
         return stArrayDimension.createUnlinkedFacade();
+    }
+
+    public static IsExpression createIsExpression(
+            Node expression,
+            Token isKeyword,
+            Node typeDescriptor) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(isKeyword, "isKeyword must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+
+        STNode stIsExpression = STNodeFactory.createIsExpression(
+                expression.internalNode(),
+                isKeyword.internalNode(),
+                typeDescriptor.internalNode());
+        return stIsExpression.createUnlinkedFacade();
     }
 }
 

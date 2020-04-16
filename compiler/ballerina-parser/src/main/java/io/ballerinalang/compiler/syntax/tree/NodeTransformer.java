@@ -288,6 +288,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(arrayDimension);
     }
 
+    public T transform(IsExpression isExpression) {
+        return transformSyntaxNode(isExpression);
+    }
+
     // Tokens
 
     public T transform(Token token) {

@@ -804,13 +804,24 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
 
     @Override
     public Node transform(ArrayDimension arrayDimension) {
-        Node openBracket = modifyNode(arrayDimension.openBracket());
+        Token openBracket = modifyToken(arrayDimension.openBracket());
         Node arrayLength = modifyNode(arrayDimension.arrayLength());
-        Node closeBracket = modifyNode(arrayDimension.closeBracket());
+        Token closeBracket = modifyToken(arrayDimension.closeBracket());
         return arrayDimension.modify(
                 openBracket,
                 arrayLength,
                 closeBracket);
+    }
+
+    @Override
+    public Node transform(IsExpression isExpression) {
+        Node expression = modifyNode(isExpression.expression());
+        Token isKeyword = modifyToken(isExpression.isKeyword());
+        Node typeDescriptor = modifyNode(isExpression.typeDescriptor());
+        return isExpression.modify(
+                expression,
+                isKeyword,
+                typeDescriptor);
     }
 
     // Tokens

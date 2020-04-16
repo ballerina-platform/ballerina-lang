@@ -1377,7 +1377,7 @@
       "base": "ModuleMemberDeclaration",
       "kind": "MODULE_VAR_DECL",
       "attributes": [
-         {
+        {
           "name": "metadata",
           "type": "Metadata"
         },
@@ -1429,7 +1429,7 @@
       "attributes": [
         {
           "name": "openBracket",
-          "type": "Node"
+          "type": "Token"
         },
         {
           "name": "arrayLength",
@@ -1437,6 +1437,25 @@
         },
         {
           "name": "closeBracket",
+          "type": "Token"
+        }
+      ]
+    },
+    {
+      "name": "IsExpression",
+      "base": "Expression",
+      "kind": "IS_EXPRESSION",
+      "attributes": [
+        {
+          "name": "expression",
+          "type": "Node"
+        },
+        {
+          "name": "isKeyword",
+          "type": "Token"
+        },
+        {
+          "name": "typeDescriptor",
           "type": "Node"
         }
       ]

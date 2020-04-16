@@ -24,21 +24,21 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ArrayDimension extends NonTerminalNode {
+public class IsExpression extends Expression {
 
-    public ArrayDimension(STNode internalNode, int position, NonTerminalNode parent) {
+    public IsExpression(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token openBracket() {
+    public Node expression() {
         return childInBucket(0);
     }
 
-    public Node arrayLength() {
+    public Token isKeyword() {
         return childInBucket(1);
     }
 
-    public Token closeBracket() {
+    public Node typeDescriptor() {
         return childInBucket(2);
     }
 
@@ -52,20 +52,20 @@ public class ArrayDimension extends NonTerminalNode {
         return visitor.transform(this);
     }
 
-    public ArrayDimension modify(
-            Token openBracket,
-            Node arrayLength,
-            Token closeBracket) {
+    public IsExpression modify(
+            Node expression,
+            Token isKeyword,
+            Node typeDescriptor) {
         if (checkForReferenceEquality(
-                openBracket,
-                arrayLength,
-                closeBracket)) {
+                expression,
+                isKeyword,
+                typeDescriptor)) {
             return this;
         }
 
-        return NodeFactory.createArrayDimension(
-                openBracket,
-                arrayLength,
-                closeBracket);
+        return NodeFactory.createIsExpression(
+                expression,
+                isKeyword,
+                typeDescriptor);
     }
 }

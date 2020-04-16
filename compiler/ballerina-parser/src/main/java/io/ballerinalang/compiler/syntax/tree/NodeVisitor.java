@@ -287,6 +287,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(arrayDimension);
     }
 
+    public void visit(IsExpression isExpression) {
+        visitSyntaxNode(isExpression);
+    }
+
     // Tokens
 
     public void visit(Token token) {

@@ -821,5 +821,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 arrayLength,
                 closeBracket);
     }
+
+    public static STNode createIsExpression(
+            STNode expression,
+            STNode isKeyword,
+            STNode typeDescriptor) {
+
+        return new STIsExpression(
+                expression,
+                isKeyword,
+                typeDescriptor);
+    }
 }
 
