@@ -81,7 +81,7 @@ public class ImportDeclarationNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createImportDeclaration(
+        return NodeFactory.createImportDeclarationNode(
                 importKeyword,
                 orgName,
                 moduleName,

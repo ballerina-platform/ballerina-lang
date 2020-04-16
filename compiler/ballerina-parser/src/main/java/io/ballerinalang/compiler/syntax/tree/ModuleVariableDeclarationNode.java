@@ -87,7 +87,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
-        return NodeFactory.createModuleVariableDeclaration(
+        return NodeFactory.createModuleVariableDeclarationNode(
                 metadata,
                 finalKeyword,
                 typeName,

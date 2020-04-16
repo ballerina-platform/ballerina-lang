@@ -63,7 +63,7 @@ public class RestArgumentNode extends FunctionArgumentNode {
             return this;
         }
 
-        return NodeFactory.createRestArgument(
+        return NodeFactory.createRestArgumentNode(
                 leadingComma,
                 ellipsis,
                 expression);

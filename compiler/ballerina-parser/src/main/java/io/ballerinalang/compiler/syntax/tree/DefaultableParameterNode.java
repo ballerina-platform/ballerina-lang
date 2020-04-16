@@ -87,7 +87,7 @@ public class DefaultableParameterNode extends ParameterNode {
             return this;
         }
 
-        return NodeFactory.createDefaultableParameter(
+        return NodeFactory.createDefaultableParameterNode(
                 leadingComma,
                 annotations,
                 visibilityQualifier,

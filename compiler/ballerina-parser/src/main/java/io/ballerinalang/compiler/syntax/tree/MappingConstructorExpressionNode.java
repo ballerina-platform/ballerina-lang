@@ -63,7 +63,7 @@ public class MappingConstructorExpressionNode extends ExpressionNode {
             return this;
         }
 
-        return NodeFactory.createMappingConstructorExpression(
+        return NodeFactory.createMappingConstructorExpressionNode(
                 openBrace,
                 fields,
                 closeBrace);

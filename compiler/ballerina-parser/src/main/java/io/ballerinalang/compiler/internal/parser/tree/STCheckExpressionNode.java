@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.CallStatementNode;
+import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,23 +27,23 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STCallStatementNodeNode extends STStatementNode {
+public class STCheckExpressionNode extends STExpressionNode {
+    public final STNode checkKeyword;
     public final STNode expression;
-    public final STNode semicolonToken;
 
-    STCallStatementNodeNode(
-            STNode expression,
-            STNode semicolonToken) {
-        super(SyntaxKind.CALL_STATEMENT);
+    STCheckExpressionNode(
+            STNode checkKeyword,
+            STNode expression) {
+        super(SyntaxKind.CHECK_EXPRESSION);
+        this.checkKeyword = checkKeyword;
         this.expression = expression;
-        this.semicolonToken = semicolonToken;
 
         addChildren(
-                expression,
-                semicolonToken);
+                checkKeyword,
+                expression);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new CallStatementNode(this, position, parent);
+        return new CheckExpressionNode(this, position, parent);
     }
 }

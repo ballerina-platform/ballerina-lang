@@ -57,7 +57,7 @@ public class ImportVersionNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createImportVersion(
+        return NodeFactory.createImportVersionNode(
                 versionKeyword,
                 versionNumber);
     }

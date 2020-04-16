@@ -69,7 +69,7 @@ public class MemberAccessExpressionNode extends ExpressionNode {
             return this;
         }
 
-        return NodeFactory.createMemberAccessExpression(
+        return NodeFactory.createMemberAccessExpressionNode(
                 containerExpression,
                 openBracket,
                 keyExpression,

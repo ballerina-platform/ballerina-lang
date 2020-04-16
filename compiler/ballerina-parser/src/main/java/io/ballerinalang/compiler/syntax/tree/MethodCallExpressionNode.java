@@ -81,7 +81,7 @@ public class MethodCallExpressionNode extends ExpressionNode {
             return this;
         }
 
-        return NodeFactory.createMethodCallExpression(
+        return NodeFactory.createMethodCallExpressionNode(
                 expression,
                 dotToken,
                 methodName,

@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,28 +27,28 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STBinaryExpressionNodeNode extends STExpressionNode {
-    public final STNode lhsExpr;
-    public final STNode operator;
-    public final STNode rhsExpr;
+public class STBracedExpressionNode extends STExpressionNode {
+    public final STNode openParen;
+    public final STNode expression;
+    public final STNode closeParen;
 
-    STBinaryExpressionNodeNode(
+    STBracedExpressionNode(
             SyntaxKind kind,
-            STNode lhsExpr,
-            STNode operator,
-            STNode rhsExpr) {
+            STNode openParen,
+            STNode expression,
+            STNode closeParen) {
         super(kind);
-        this.lhsExpr = lhsExpr;
-        this.operator = operator;
-        this.rhsExpr = rhsExpr;
+        this.openParen = openParen;
+        this.expression = expression;
+        this.closeParen = closeParen;
 
         addChildren(
-                lhsExpr,
-                operator,
-                rhsExpr);
+                openParen,
+                expression,
+                closeParen);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new BinaryExpressionNode(this, position, parent);
+        return new BracedExpressionNode(this, position, parent);
     }
 }

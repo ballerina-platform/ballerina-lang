@@ -57,7 +57,7 @@ public class ImportPrefixNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createImportPrefix(
+        return NodeFactory.createImportPrefixNode(
                 asKeyword,
                 prefix);
     }

@@ -63,7 +63,7 @@ public class ReturnTypeDescriptorNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createReturnTypeDescriptor(
+        return NodeFactory.createReturnTypeDescriptorNode(
                 returnsKeyword,
                 annotations,
                 type);

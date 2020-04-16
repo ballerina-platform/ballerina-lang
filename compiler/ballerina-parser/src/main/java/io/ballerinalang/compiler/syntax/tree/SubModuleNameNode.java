@@ -57,7 +57,7 @@ public class SubModuleNameNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createSubModuleName(
+        return NodeFactory.createSubModuleNameNode(
                 leadingDot,
                 moduleName);
     }

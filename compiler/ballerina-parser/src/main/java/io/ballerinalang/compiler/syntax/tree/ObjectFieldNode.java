@@ -87,7 +87,7 @@ public class ObjectFieldNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createObjectField(
+        return NodeFactory.createObjectFieldNode(
                 metadata,
                 visibilityQualifier,
                 type,

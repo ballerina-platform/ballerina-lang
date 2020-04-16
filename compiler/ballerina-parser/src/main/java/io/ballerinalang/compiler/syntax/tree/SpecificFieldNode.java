@@ -69,7 +69,7 @@ public class SpecificFieldNode extends MappingFieldNode {
             return this;
         }
 
-        return NodeFactory.createSpecificField(
+        return NodeFactory.createSpecificFieldNode(
                 leadingComma,
                 fieldName,
                 colon,

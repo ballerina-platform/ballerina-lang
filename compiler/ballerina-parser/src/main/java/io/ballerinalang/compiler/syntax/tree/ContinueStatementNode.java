@@ -57,7 +57,7 @@ public class ContinueStatementNode extends StatementNode {
             return this;
         }
 
-        return NodeFactory.createContinueStatement(
+        return NodeFactory.createContinueStatementNode(
                 continueToken,
                 semicolonToken);
     }

@@ -19,43 +19,47 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 1.3.0
  */
-public class STRequiredParameterNode extends STParameterNode {
-    public final STNode leadingComma;
-    public final STNode annotations;
+public class STTypeDefinitionNode extends STModuleMemberDeclarationNode {
+    public final STNode metadata;
     public final STNode visibilityQualifier;
-    public final STNode type;
-    public final STNode paramName;
+    public final STNode typeKeyword;
+    public final STNode typeName;
+    public final STNode typeDescriptor;
+    public final STNode semicolonToken;
 
-    STRequiredParameterNode(
-            STNode leadingComma,
-            STNode annotations,
+    STTypeDefinitionNode(
+            STNode metadata,
             STNode visibilityQualifier,
-            STNode type,
-            STNode paramName) {
-        super(SyntaxKind.REQUIRED_PARAM);
-        this.leadingComma = leadingComma;
-        this.annotations = annotations;
+            STNode typeKeyword,
+            STNode typeName,
+            STNode typeDescriptor,
+            STNode semicolonToken) {
+        super(SyntaxKind.TYPE_DEFINITION);
+        this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
-        this.type = type;
-        this.paramName = paramName;
+        this.typeKeyword = typeKeyword;
+        this.typeName = typeName;
+        this.typeDescriptor = typeDescriptor;
+        this.semicolonToken = semicolonToken;
 
         addChildren(
-                leadingComma,
-                annotations,
+                metadata,
                 visibilityQualifier,
-                type,
-                paramName);
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new RequiredParameterNode(this, position, parent);
+        return new TypeDefinitionNode(this, position, parent);
     }
 }

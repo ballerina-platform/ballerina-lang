@@ -63,7 +63,7 @@ public class SpreadFieldNode extends MappingFieldNode {
             return this;
         }
 
-        return NodeFactory.createSpreadField(
+        return NodeFactory.createSpreadFieldNode(
                 leadingComma,
                 ellipsis,
                 valueExpr);

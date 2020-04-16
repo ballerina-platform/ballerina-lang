@@ -63,7 +63,7 @@ public class PanicStatementNode extends StatementNode {
             return this;
         }
 
-        return NodeFactory.createPanicStatement(
+        return NodeFactory.createPanicStatementNode(
                 panicKeyword,
                 expression,
                 semicolonToken);

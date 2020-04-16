@@ -75,7 +75,7 @@ public class ObjectTypeDescriptorNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createObjectTypeDescriptor(
+        return NodeFactory.createObjectTypeDescriptorNode(
                 objectTypeQualifiers,
                 objectKeyword,
                 openBrace,

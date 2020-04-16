@@ -63,7 +63,7 @@ public class ReturnStatementNode extends StatementNode {
             return this;
         }
 
-        return NodeFactory.createReturnStatement(
+        return NodeFactory.createReturnStatementNode(
                 returnKeyword,
                 expression,
                 semicolonToken);

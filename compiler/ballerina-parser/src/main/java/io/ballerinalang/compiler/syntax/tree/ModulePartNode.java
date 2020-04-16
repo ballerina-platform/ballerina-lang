@@ -63,7 +63,7 @@ public class ModulePartNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createModulePart(
+        return NodeFactory.createModulePartNode(
                 imports,
                 members,
                 eofToken);

@@ -69,7 +69,7 @@ public class NamedArgumentNode extends FunctionArgumentNode {
             return this;
         }
 
-        return NodeFactory.createNamedArgument(
+        return NodeFactory.createNamedArgumentNode(
                 leadingComma,
                 argumentName,
                 equalsToken,

@@ -38,7 +38,7 @@ public class ComputedNameFieldNode extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public Node fieldNameExpr() {
+    public ExpressionNode fieldNameExpr() {
         return childInBucket(2);
     }
 
@@ -50,7 +50,7 @@ public class ComputedNameFieldNode extends NonTerminalNode {
         return childInBucket(4);
     }
 
-    public Node valueExpr() {
+    public ExpressionNode valueExpr() {
         return childInBucket(5);
     }
 
@@ -67,10 +67,10 @@ public class ComputedNameFieldNode extends NonTerminalNode {
     public ComputedNameFieldNode modify(
             Token leadingComma,
             Token openBracket,
-            Node fieldNameExpr,
+            ExpressionNode fieldNameExpr,
             Token closeBracket,
             Token colonToken,
-            Node valueExpr) {
+            ExpressionNode valueExpr) {
         if (checkForReferenceEquality(
                 leadingComma,
                 openBracket,
@@ -81,7 +81,7 @@ public class ComputedNameFieldNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createComputedNameField(
+        return NodeFactory.createComputedNameFieldNode(
                 leadingComma,
                 openBracket,
                 fieldNameExpr,

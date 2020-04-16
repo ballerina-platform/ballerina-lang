@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
+import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,23 +27,31 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STElseBlockNodeNode extends STStatementNode {
-    public final STNode elseKeyword;
-    public final STNode elseBody;
+public class STAssignmentStatementNode extends STStatementNode {
+    public final STNode varRef;
+    public final STNode equalsToken;
+    public final STNode expression;
+    public final STNode semicolonToken;
 
-    STElseBlockNodeNode(
-            STNode elseKeyword,
-            STNode elseBody) {
-        super(SyntaxKind.ELSE_BLOCK);
-        this.elseKeyword = elseKeyword;
-        this.elseBody = elseBody;
+    STAssignmentStatementNode(
+            STNode varRef,
+            STNode equalsToken,
+            STNode expression,
+            STNode semicolonToken) {
+        super(SyntaxKind.ASSIGNMENT_STATEMENT);
+        this.varRef = varRef;
+        this.equalsToken = equalsToken;
+        this.expression = expression;
+        this.semicolonToken = semicolonToken;
 
         addChildren(
-                elseKeyword,
-                elseBody);
+                varRef,
+                equalsToken,
+                expression,
+                semicolonToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ElseBlockNode(this, position, parent);
+        return new AssignmentStatementNode(this, position, parent);
     }
 }

@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Solution;
-import io.ballerinalang.compiler.internal.parser.tree.STCheckExpressionNodeNode;
+import io.ballerinalang.compiler.internal.parser.tree.STCheckExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
@@ -4106,7 +4106,7 @@ public class BallerinaParser {
                 break;
             case CHECK_EXPRESSION:
                 // Recursively validate
-                STCheckExpressionNodeNode checkExpr = (STCheckExpressionNodeNode) expr;
+                STCheckExpressionNode checkExpr = (STCheckExpressionNode) expr;
                 validateExprInCallStatement(checkExpr.checkKeyword, checkExpr.expression);
                 break;
             default:

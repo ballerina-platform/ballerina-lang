@@ -30,7 +30,7 @@ public class CallStatementNode extends StatementNode {
         super(internalNode, position, parent);
     }
 
-    public Node expression() {
+    public ExpressionNode expression() {
         return childInBucket(0);
     }
 
@@ -49,7 +49,7 @@ public class CallStatementNode extends StatementNode {
     }
 
     public CallStatementNode modify(
-            Node expression,
+            ExpressionNode expression,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 expression,
@@ -57,7 +57,7 @@ public class CallStatementNode extends StatementNode {
             return this;
         }
 
-        return NodeFactory.createCallStatement(
+        return NodeFactory.createCallStatementNode(
                 expression,
                 semicolonToken);
     }

@@ -99,7 +99,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
-        return NodeFactory.createFunctionDefinition(
+        return NodeFactory.createFunctionDefinitionNode(
                 metadata,
                 visibilityQualifier,
                 functionKeyword,

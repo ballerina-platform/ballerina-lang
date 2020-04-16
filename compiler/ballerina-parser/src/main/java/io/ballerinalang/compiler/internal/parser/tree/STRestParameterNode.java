@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -26,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STRestParameterNode extends STNode {
+public class STRestParameterNode extends STParameterNode {
     public final STNode leadingComma;
     public final STNode annotations;
     public final STNode type;
@@ -54,7 +55,7 @@ public class STRestParameterNode extends STNode {
                 paramName);
     }
 
-    public io.ballerinalang.compiler.syntax.tree.Node createFacade(int position, NonTerminalNode parent) {
+    public Node createFacade(int position, NonTerminalNode parent) {
         return new RestParameterNode(this, position, parent);
     }
 }

@@ -57,7 +57,7 @@ public class OptionalTypeDescriptorNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createOptionalTypeDescriptor(
+        return NodeFactory.createOptionalTypeDescriptorNode(
                 typeDescriptor,
                 questionMarkToken);
     }

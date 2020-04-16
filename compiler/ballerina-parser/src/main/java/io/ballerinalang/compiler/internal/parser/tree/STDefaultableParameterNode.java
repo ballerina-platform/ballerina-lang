@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
@@ -26,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STDefaultableParameterNode extends STNode {
+public class STDefaultableParameterNode extends STParameterNode {
     public final STNode leadingComma;
     public final STNode annotations;
     public final STNode visibilityQualifier;
@@ -62,7 +63,7 @@ public class STDefaultableParameterNode extends STNode {
                 expression);
     }
 
-    public io.ballerinalang.compiler.syntax.tree.Node createFacade(int position, NonTerminalNode parent) {
+    public Node createFacade(int position, NonTerminalNode parent) {
         return new DefaultableParameterNode(this, position, parent);
     }
 }

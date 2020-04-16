@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
+import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,31 +27,28 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STAssignmentStatementNodeNode extends STStatementNode {
-    public final STNode varRef;
-    public final STNode equalsToken;
-    public final STNode expression;
-    public final STNode semicolonToken;
+public class STBinaryExpressionNode extends STExpressionNode {
+    public final STNode lhsExpr;
+    public final STNode operator;
+    public final STNode rhsExpr;
 
-    STAssignmentStatementNodeNode(
-            STNode varRef,
-            STNode equalsToken,
-            STNode expression,
-            STNode semicolonToken) {
-        super(SyntaxKind.ASSIGNMENT_STATEMENT);
-        this.varRef = varRef;
-        this.equalsToken = equalsToken;
-        this.expression = expression;
-        this.semicolonToken = semicolonToken;
+    STBinaryExpressionNode(
+            SyntaxKind kind,
+            STNode lhsExpr,
+            STNode operator,
+            STNode rhsExpr) {
+        super(kind);
+        this.lhsExpr = lhsExpr;
+        this.operator = operator;
+        this.rhsExpr = rhsExpr;
 
         addChildren(
-                varRef,
-                equalsToken,
-                expression,
-                semicolonToken);
+                lhsExpr,
+                operator,
+                rhsExpr);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new AssignmentStatementNode(this, position, parent);
+        return new BinaryExpressionNode(this, position, parent);
     }
 }

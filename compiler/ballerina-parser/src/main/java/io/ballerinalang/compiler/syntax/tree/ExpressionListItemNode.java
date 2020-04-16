@@ -34,7 +34,7 @@ public class ExpressionListItemNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Node expression() {
+    public ExpressionNode expression() {
         return childInBucket(1);
     }
 
@@ -50,14 +50,14 @@ public class ExpressionListItemNode extends NonTerminalNode {
 
     public ExpressionListItemNode modify(
             Token leadingComma,
-            Node expression) {
+            ExpressionNode expression) {
         if (checkForReferenceEquality(
                 leadingComma,
                 expression)) {
             return this;
         }
 
-        return NodeFactory.createExpressionListItem(
+        return NodeFactory.createExpressionListItemNode(
                 leadingComma,
                 expression);
     }

@@ -63,7 +63,7 @@ public class WhileStatementNode extends StatementNode {
             return this;
         }
 
-        return NodeFactory.createWhileStatement(
+        return NodeFactory.createWhileStatementNode(
                 whileKeyword,
                 condition,
                 whileBody);

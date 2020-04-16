@@ -34,7 +34,7 @@ public class BracedExpressionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public Node expression() {
+    public ExpressionNode expression() {
         return childInBucket(1);
     }
 
@@ -55,7 +55,7 @@ public class BracedExpressionNode extends ExpressionNode {
     public BracedExpressionNode modify(
             SyntaxKind kind,
             Token openParen,
-            Node expression,
+            ExpressionNode expression,
             Token closeParen) {
         if (checkForReferenceEquality(
                 openParen,
@@ -64,7 +64,7 @@ public class BracedExpressionNode extends ExpressionNode {
             return this;
         }
 
-        return NodeFactory.createBracedExpression(
+        return NodeFactory.createBracedExpressionNode(
                 kind,
                 openParen,
                 expression,

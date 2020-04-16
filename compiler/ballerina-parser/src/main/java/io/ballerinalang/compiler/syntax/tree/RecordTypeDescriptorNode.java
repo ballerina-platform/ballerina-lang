@@ -69,7 +69,7 @@ public class RecordTypeDescriptorNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createRecordTypeDescriptor(
+        return NodeFactory.createRecordTypeDescriptorNode(
                 objectKeyword,
                 bodyStartDelimiter,
                 fields,

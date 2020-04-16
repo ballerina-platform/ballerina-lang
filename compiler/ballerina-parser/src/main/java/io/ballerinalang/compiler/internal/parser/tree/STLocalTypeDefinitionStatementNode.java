@@ -28,27 +28,27 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  * @since 1.3.0
  */
 public class STLocalTypeDefinitionStatementNode extends STStatementNode {
-    public final STNode annots;    
+    public final STNode annotations;
     public final STNode typeKeyword;
     public final STNode typeName;
     public final STNode typeDescriptor;
     public final STNode semicolonToken;
 
     STLocalTypeDefinitionStatementNode(
-            STNode annots,
+            STNode annotations,
             STNode typeKeyword,
             STNode typeName,
             STNode typeDescriptor,
             STNode semicolonToken) {
         super(SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT);
-        this.annots = annots;        
+        this.annotations = annotations;
         this.typeKeyword = typeKeyword;
         this.typeName = typeName;
         this.typeDescriptor = typeDescriptor;
         this.semicolonToken = semicolonToken;
 
         addChildren(
-                annots,
+                annotations,
                 typeKeyword,
                 typeName,
                 typeDescriptor,

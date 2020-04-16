@@ -75,7 +75,7 @@ public class CompoundAssignmentStatementNode extends StatementNode {
             return this;
         }
 
-        return NodeFactory.createCompoundAssignmentStatement(
+        return NodeFactory.createCompoundAssignmentStatementNode(
                 lhsExpression,
                 binaryOperator,
                 equalsToken,

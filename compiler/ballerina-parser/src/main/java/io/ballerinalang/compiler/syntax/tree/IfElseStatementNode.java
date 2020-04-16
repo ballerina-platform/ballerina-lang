@@ -34,7 +34,7 @@ public class IfElseStatementNode extends StatementNode {
         return childInBucket(0);
     }
 
-    public Node condition() {
+    public ExpressionNode condition() {
         return childInBucket(1);
     }
 
@@ -58,7 +58,7 @@ public class IfElseStatementNode extends StatementNode {
 
     public IfElseStatementNode modify(
             Token ifKeyword,
-            Node condition,
+            ExpressionNode condition,
             Node ifBody,
             Node elseBody) {
         if (checkForReferenceEquality(
@@ -69,7 +69,7 @@ public class IfElseStatementNode extends StatementNode {
             return this;
         }
 
-        return NodeFactory.createIfElseStatement(
+        return NodeFactory.createIfElseStatementNode(
                 ifKeyword,
                 condition,
                 ifBody,

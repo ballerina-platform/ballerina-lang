@@ -63,7 +63,7 @@ public class BlockStatementNode extends StatementNode {
             return this;
         }
 
-        return NodeFactory.createBlockStatement(
+        return NodeFactory.createBlockStatementNode(
                 openBraceToken,
                 statements,
                 closeBraceToken);

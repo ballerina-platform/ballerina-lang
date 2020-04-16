@@ -81,7 +81,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         public Node transform(VariableDeclarationNode varDeclStmt) {
             String oldVarName = varDeclStmt.variableName().text();
             IdentifierToken newVarName = NodeFactory.createIdentifierToken(oldVarName + "new");
-            return NodeFactory.createVariableDeclaration(varDeclStmt.annotations(), varDeclStmt.finalKeyword(),
+            return NodeFactory.createVariableDeclarationNode(varDeclStmt.annotations(), varDeclStmt.finalKeyword(),
                     varDeclStmt.typeName(), newVarName, varDeclStmt.equalsToken(), varDeclStmt.initializer(),
                     varDeclStmt.semicolonToken());
         }

@@ -57,7 +57,7 @@ public class PositionalArgumentNode extends FunctionArgumentNode {
             return this;
         }
 
-        return NodeFactory.createPositionalArgument(
+        return NodeFactory.createPositionalArgumentNode(
                 leadingComma,
                 expression);
     }

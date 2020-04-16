@@ -63,7 +63,7 @@ public class QualifiedIdentifierNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createQualifiedIdentifier(
+        return NodeFactory.createQualifiedIdentifierNode(
                 modulePrefix,
                 colon,
                 identifier);

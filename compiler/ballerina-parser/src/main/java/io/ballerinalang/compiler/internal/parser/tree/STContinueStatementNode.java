@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,35 +27,23 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STCompoundAssignmentStatementNodeNode extends STStatementNode {
-    public final STNode lhsExpression;
-    public final STNode binaryOperator;
-    public final STNode equalsToken;
-    public final STNode rhsExpression;
+public class STContinueStatementNode extends STStatementNode {
+    public final STNode continueToken;
     public final STNode semicolonToken;
 
-    STCompoundAssignmentStatementNodeNode(
-            STNode lhsExpression,
-            STNode binaryOperator,
-            STNode equalsToken,
-            STNode rhsExpression,
+    STContinueStatementNode(
+            STNode continueToken,
             STNode semicolonToken) {
-        super(SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT);
-        this.lhsExpression = lhsExpression;
-        this.binaryOperator = binaryOperator;
-        this.equalsToken = equalsToken;
-        this.rhsExpression = rhsExpression;
+        super(SyntaxKind.CONTINUE_STATEMENT);
+        this.continueToken = continueToken;
         this.semicolonToken = semicolonToken;
 
         addChildren(
-                lhsExpression,
-                binaryOperator,
-                equalsToken,
-                rhsExpression,
+                continueToken,
                 semicolonToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new CompoundAssignmentStatementNode(this, position, parent);
+        return new ContinueStatementNode(this, position, parent);
     }
 }

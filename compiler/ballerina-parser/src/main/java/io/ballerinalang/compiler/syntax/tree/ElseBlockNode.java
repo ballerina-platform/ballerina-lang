@@ -57,7 +57,7 @@ public class ElseBlockNode extends StatementNode {
             return this;
         }
 
-        return NodeFactory.createElseBlock(
+        return NodeFactory.createElseBlockNode(
                 elseKeyword,
                 elseBody);
     }

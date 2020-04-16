@@ -57,7 +57,7 @@ public class BreakStatementNode extends StatementNode {
             return this;
         }
 
-        return NodeFactory.createBreakStatement(
+        return NodeFactory.createBreakStatementNode(
                 breakToken,
                 semicolonToken);
     }

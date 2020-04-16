@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.BreakStatementNode;
+import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,23 +27,35 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STBreakStatementNodeNode extends STStatementNode {
-    public final STNode breakToken;
+public class STCompoundAssignmentStatementNode extends STStatementNode {
+    public final STNode lhsExpression;
+    public final STNode binaryOperator;
+    public final STNode equalsToken;
+    public final STNode rhsExpression;
     public final STNode semicolonToken;
 
-    STBreakStatementNodeNode(
-            STNode breakToken,
+    STCompoundAssignmentStatementNode(
+            STNode lhsExpression,
+            STNode binaryOperator,
+            STNode equalsToken,
+            STNode rhsExpression,
             STNode semicolonToken) {
-        super(SyntaxKind.BREAK_STATEMENT);
-        this.breakToken = breakToken;
+        super(SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT);
+        this.lhsExpression = lhsExpression;
+        this.binaryOperator = binaryOperator;
+        this.equalsToken = equalsToken;
+        this.rhsExpression = rhsExpression;
         this.semicolonToken = semicolonToken;
 
         addChildren(
-                breakToken,
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
                 semicolonToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new BreakStatementNode(this, position, parent);
+        return new CompoundAssignmentStatementNode(this, position, parent);
     }
 }

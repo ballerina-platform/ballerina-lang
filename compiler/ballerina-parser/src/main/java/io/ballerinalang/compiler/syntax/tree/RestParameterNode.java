@@ -75,7 +75,7 @@ public class RestParameterNode extends ParameterNode {
             return this;
         }
 
-        return NodeFactory.createRestParameter(
+        return NodeFactory.createRestParameterNode(
                 leadingComma,
                 annotations,
                 type,

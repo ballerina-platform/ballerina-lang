@@ -63,7 +63,7 @@ public class TypeReferenceNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createTypeReference(
+        return NodeFactory.createTypeReferenceNode(
                 asteriskToken,
                 type,
                 semicolonToken);

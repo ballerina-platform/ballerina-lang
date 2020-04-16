@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.BreakStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,28 +27,23 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STBracedExpressionNodeNode extends STExpressionNode {
-    public final STNode openParen;
-    public final STNode expression;
-    public final STNode closeParen;
+public class STBreakStatementNode extends STStatementNode {
+    public final STNode breakToken;
+    public final STNode semicolonToken;
 
-    STBracedExpressionNodeNode(
-            SyntaxKind kind,
-            STNode openParen,
-            STNode expression,
-            STNode closeParen) {
-        super(kind);
-        this.openParen = openParen;
-        this.expression = expression;
-        this.closeParen = closeParen;
+    STBreakStatementNode(
+            STNode breakToken,
+            STNode semicolonToken) {
+        super(SyntaxKind.BREAK_STATEMENT);
+        this.breakToken = breakToken;
+        this.semicolonToken = semicolonToken;
 
         addChildren(
-                openParen,
-                expression,
-                closeParen);
+                breakToken,
+                semicolonToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new BracedExpressionNode(this, position, parent);
+        return new BreakStatementNode(this, position, parent);
     }
 }

@@ -69,7 +69,7 @@ public class AssignmentStatementNode extends StatementNode {
             return this;
         }
 
-        return NodeFactory.createAssignmentStatement(
+        return NodeFactory.createAssignmentStatementNode(
                 varRef,
                 equalsToken,
                 expression,

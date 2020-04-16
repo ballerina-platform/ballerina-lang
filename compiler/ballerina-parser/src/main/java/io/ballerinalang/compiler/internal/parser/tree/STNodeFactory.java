@@ -116,7 +116,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode typeDescriptor,
             STNode semicolonToken) {
 
-        return new STTypeDefinitionNodeNode(
+        return new STTypeDefinitionNode(
                 metadata,
                 visibilityQualifier,
                 typeKeyword,
@@ -148,7 +148,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode expression,
             STNode semicolonToken) {
 
-        return new STAssignmentStatementNodeNode(
+        return new STAssignmentStatementNode(
                 varRef,
                 equalsToken,
                 expression,
@@ -162,26 +162,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode rhsExpression,
             STNode semicolonToken) {
 
-        return new STCompoundAssignmentStatementNodeNode(
+        return new STCompoundAssignmentStatementNode(
                 lhsExpression,
                 binaryOperator,
                 equalsToken,
                 rhsExpression,
-                semicolonToken);
-    }
-
-    public static STNode createLocalTypeDefinitionStatementNode(
-            STNode annots,
-            STNode typeKeyword,
-            STNode identifier,
-            STNode typeDescriptor,
-            STNode semicolonToken) {
-
-        return new STLocalTypeDefinitionStatementNode(
-                annots,
-                typeKeyword,
-                identifier,
-                typeDescriptor,
                 semicolonToken);
     }
 
@@ -209,7 +194,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode statements,
             STNode closeBraceToken) {
 
-        return new STBlockStatementNodeNode(
+        return new STBlockStatementNode(
                 openBraceToken,
                 statements,
                 closeBraceToken);
@@ -219,7 +204,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode breakToken,
             STNode semicolonToken) {
 
-        return new STBreakStatementNodeNode(
+        return new STBreakStatementNode(
                 breakToken,
                 semicolonToken);
     }
@@ -228,7 +213,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode expression,
             STNode semicolonToken) {
 
-        return new STCallStatementNodeNode(
+        return new STCallStatementNode(
                 expression,
                 semicolonToken);
     }
@@ -237,7 +222,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode continueToken,
             STNode semicolonToken) {
 
-        return new STContinueStatementNodeNode(
+        return new STContinueStatementNode(
                 continueToken,
                 semicolonToken);
     }
@@ -272,7 +257,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode elseKeyword,
             STNode elseBody) {
 
-        return new STElseBlockNodeNode(
+        return new STElseBlockNode(
                 elseKeyword,
                 elseBody);
     }
@@ -310,13 +295,28 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
+    public static STNode createLocalTypeDefinitionStatementNode(
+            STNode annotations,
+            STNode typeKeyword,
+            STNode typeName,
+            STNode typeDescriptor,
+            STNode semicolonToken) {
+
+        return new STLocalTypeDefinitionStatementNode(
+                annotations,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken);
+    }
+
     public static STNode createBinaryExpressionNode(
             SyntaxKind kind,
             STNode lhsExpr,
             STNode operator,
             STNode rhsExpr) {
 
-        return new STBinaryExpressionNodeNode(
+        return new STBinaryExpressionNode(
                 kind,
                 lhsExpr,
                 operator,
@@ -329,7 +329,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode expression,
             STNode closeParen) {
 
-        return new STBracedExpressionNodeNode(
+        return new STBracedExpressionNode(
                 kind,
                 openParen,
                 expression,
@@ -340,7 +340,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode checkKeyword,
             STNode expression) {
 
-        return new STCheckExpressionNodeNode(
+        return new STCheckExpressionNode(
                 checkKeyword,
                 expression);
     }
@@ -455,7 +455,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode initializer,
             STNode semicolonToken) {
 
-        return new STConstantDeclarationNodeNode(
+        return new STConstantDeclarationNode(
                 metadata,
                 visibilityQualifier,
                 constKeyword,

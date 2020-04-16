@@ -57,7 +57,7 @@ public class ImportOrgNameNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createImportOrgName(
+        return NodeFactory.createImportOrgNameNode(
                 orgName,
                 slashToken);
     }

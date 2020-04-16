@@ -63,7 +63,7 @@ public class AnnotationNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createAnnotation(
+        return NodeFactory.createAnnotationNode(
                 atToken,
                 annotReference,
                 annotValue);

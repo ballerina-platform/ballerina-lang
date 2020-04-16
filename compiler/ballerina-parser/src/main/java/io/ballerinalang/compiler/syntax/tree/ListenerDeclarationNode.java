@@ -93,7 +93,7 @@ public class ListenerDeclarationNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
-        return NodeFactory.createListenerDeclaration(
+        return NodeFactory.createListenerDeclarationNode(
                 metadata,
                 visibilityQualifier,
                 listenerKeyword,

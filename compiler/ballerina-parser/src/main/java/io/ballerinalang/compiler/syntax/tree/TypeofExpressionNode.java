@@ -34,7 +34,7 @@ public class TypeofExpressionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public Node expression() {
+    public ExpressionNode expression() {
         return childInBucket(1);
     }
 
@@ -50,14 +50,14 @@ public class TypeofExpressionNode extends ExpressionNode {
 
     public TypeofExpressionNode modify(
             Token typeofKeyword,
-            Node expression) {
+            ExpressionNode expression) {
         if (checkForReferenceEquality(
                 typeofKeyword,
                 expression)) {
             return this;
         }
 
-        return NodeFactory.createTypeofExpression(
+        return NodeFactory.createTypeofExpressionNode(
                 typeofKeyword,
                 expression);
     }

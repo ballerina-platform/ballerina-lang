@@ -93,7 +93,7 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
-        return NodeFactory.createConstantDeclaration(
+        return NodeFactory.createConstantDeclarationNode(
                 metadata,
                 visibilityQualifier,
                 constKeyword,

@@ -13,18 +13,18 @@
     ],
     "nodes": [
         {
-            "name": "ModulePart",
+            "name": "ModulePartNode",
             "base": "Node",
             "kind": "MODULE_PART",
             "attributes": [
                 {
                     "name": "imports",
-                    "type": "ImportDeclaration",
+                    "type": "ImportDeclarationNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "members",
-                    "type": "ModuleMemberDeclaration",
+                    "type": "ModuleMemberDeclarationNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -34,18 +34,18 @@
             ]
         },
         {
-            "name": "ModuleMemberDeclaration",
+            "name": "ModuleMemberDeclarationNode",
             "base": "Node",
             "isAbstract": true
         },
         {
-            "name": "FunctionDefinition",
-            "base": "ModuleMemberDeclaration",
+            "name": "FunctionDefinitionNode",
+            "base": "ModuleMemberDeclarationNode",
             "kind": "FUNCTION_DEFINITION",
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "Metadata"
+                    "type": "MetadataNode"
                 },
                 {
                     "name": "visibilityQualifier",
@@ -57,7 +57,7 @@
                 },
                 {
                     "name": "functionName",
-                    "type": "Identifier"
+                    "type": "IdentifierToken"
                 },
                 {
                     "name": "openParenToken",
@@ -65,7 +65,7 @@
                 },
                 {
                     "name": "parameters",
-                    "type": "Parameter",
+                    "type": "ParameterNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -78,12 +78,12 @@
                 },
                 {
                     "name": "functionBody",
-                    "type": "BlockStatement"
+                    "type": "BlockStatementNode"
                 }
             ]
         },
         {
-            "name": "ImportDeclaration",
+            "name": "ImportDeclarationNode",
             "base": "Node",
             "kind": "IMPORT_DECLARATION",
             "attributes": [
@@ -114,13 +114,13 @@
             ]
         },
         {
-            "name": "ListenerDeclaration",
-            "base": "ModuleMemberDeclaration",
+            "name": "ListenerDeclarationNode",
+            "base": "ModuleMemberDeclarationNode",
             "kind": "LISTENER_DECLARATION",
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "Metadata"
+                    "type": "MetadataNode"
                 },
                 {
                     "name": "visibilityQualifier",
@@ -154,12 +154,12 @@
         },
         {
             "name": "TypeDefinitionNode",
-            "base": "ModuleMemberDeclaration",
+            "base": "ModuleMemberDeclarationNode",
             "kind": "TYPE_DEFINITION",
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "Metadata"
+                    "type": "MetadataNode"
                 },
                 {
                     "name": "visibilityQualifier",
@@ -184,13 +184,13 @@
             ]
         },
         {
-            "name": "ServiceDeclaration",
-            "base": "ModuleMemberDeclaration",
+            "name": "ServiceDeclarationNode",
+            "base": "ModuleMemberDeclarationNode",
             "kind": "SERVICE_DECLARATION",
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "Metadata"
+                    "type": "MetadataNode"
                 },
                 {
                     "name": "serviceKeyword",
@@ -198,7 +198,7 @@
                 },
                 {
                     "name": "serviceName",
-                    "type": "Identifier"
+                    "type": "IdentifierToken"
                 },
                 {
                     "name": "onKeyword",
@@ -206,7 +206,7 @@
                 },
                 {
                     "name": "expressions",
-                    "type": "Expression",
+                    "type": "ExpressionNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -216,13 +216,13 @@
             ]
         },
         {
-            "name": "Statement",
+            "name": "StatementNode",
             "base": "Node",
             "isAbstract": true
         },
         {
-            "name": "AssignmentStatement",
-            "base": "Statement",
+            "name": "AssignmentStatementNode",
+            "base": "StatementNode",
             "kind": "ASSIGNMENT_STATEMENT",
             "attributes": [
                 {
@@ -235,7 +235,7 @@
                 },
                 {
                     "name": "expression",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "semicolonToken",
@@ -244,13 +244,13 @@
             ]
         },
         {
-            "name": "CompoundAssignmentStatement",
-            "base": "Statement",
+            "name": "CompoundAssignmentStatementNode",
+            "base": "StatementNode",
             "kind": "COMPOUND_ASSIGNMENT_STATEMENT",
             "attributes": [
                 {
                     "name": "lhsExpression",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "binaryOperator",
@@ -262,7 +262,7 @@
                 },
                 {
                     "name": "rhsExpression",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "semicolonToken",
@@ -271,13 +271,13 @@
             ]
         },
         {
-            "name": "VariableDeclaration",
-            "base": "Statement",
+            "name": "VariableDeclarationNode",
+            "base": "StatementNode",
             "kind": "LOCAL_VAR_DECL",
             "attributes": [
                 {
                     "name": "annotations",
-                    "type": "Annotation",
+                    "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -298,7 +298,7 @@
                 },
                 {
                     "name": "initializer",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "semicolonToken",
@@ -307,8 +307,8 @@
             ]
         },
         {
-            "name": "BlockStatement",
-            "base": "Statement",
+            "name": "BlockStatementNode",
+            "base": "StatementNode",
             "kind": "BLOCK_STATEMENT",
             "attributes": [
                 {
@@ -317,7 +317,7 @@
                 },
                 {
                     "name": "statements",
-                    "type": "Statement",
+                    "type": "StatementNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -327,8 +327,8 @@
             ]
         },
         {
-            "name": "BreakStatement",
-            "base": "Statement",
+            "name": "BreakStatementNode",
+            "base": "StatementNode",
             "kind": "BREAK_STATEMENT",
             "attributes": [
                 {
@@ -342,13 +342,13 @@
             ]
         },
         {
-            "name": "CallStatement",
-            "base": "Statement",
+            "name": "CallStatementNode",
+            "base": "StatementNode",
             "kind": "CALL_STATEMENT",
             "attributes": [
                 {
                     "name": "expression",
-                    "type": "Node"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "semicolonToken",
@@ -357,8 +357,8 @@
             ]
         },
         {
-            "name": "ContinueStatement",
-            "base": "Statement",
+            "name": "ContinueStatementNode",
+            "base": "StatementNode",
             "kind": "CONTINUE_STATEMENT",
             "attributes": [
                 {
@@ -372,8 +372,8 @@
             ]
         },
         {
-            "name": "ExternalFunctionBody",
-            "base": "Statement",
+            "name": "ExternalFunctionBodyNode",
+            "base": "StatementNode",
             "kind": "EXTERNAL_FUNCTION_BODY",
             "attributes": [
                 {
@@ -382,7 +382,7 @@
                 },
                 {
                     "name": "annotations",
-                    "type": "Annotation",
+                    "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -396,8 +396,8 @@
             ]
         },
         {
-            "name": "IfElseStatement",
-            "base": "Statement",
+            "name": "IfElseStatementNode",
+            "base": "StatementNode",
             "kind": "IF_ELSE_STATEMENT",
             "attributes": [
                 {
@@ -406,7 +406,7 @@
                 },
                 {
                     "name": "condition",
-                    "type": "Node"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "ifBody",
@@ -419,8 +419,8 @@
             ]
         },
         {
-            "name": "ElseBlock",
-            "base": "Statement",
+            "name": "ElseBlockNode",
+            "base": "StatementNode",
             "kind": "ELSE_BLOCK",
             "attributes": [
                 {
@@ -434,8 +434,8 @@
             ]
         },
         {
-            "name": "WhileStatement",
-            "base": "Statement",
+            "name": "WhileStatementNode",
+            "base": "StatementNode",
             "kind": "WHILE_STATEMENT",
             "attributes": [
                 {
@@ -444,7 +444,7 @@
                 },
                 {
                     "name": "condition",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "whileBody",
@@ -453,8 +453,8 @@
             ]
         },
         {
-            "name": "PanicStatement",
-            "base": "Statement",
+            "name": "PanicStatementNode",
+            "base": "StatementNode",
             "kind": "PANIC_STATEMENT",
             "attributes": [
                 {
@@ -463,7 +463,7 @@
                 },
                 {
                     "name": "expression",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "semicolonToken",
@@ -472,8 +472,8 @@
             ]
         },
         {
-            "name": "ReturnStatement",
-            "base": "Statement",
+            "name": "ReturnStatementNode",
+            "base": "StatementNode",
             "kind": "RETURN_STATEMENT",
             "attributes": [
                 {
@@ -482,7 +482,7 @@
                 },
                 {
                     "name": "expression",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "semicolonToken",
@@ -491,13 +491,41 @@
             ]
         },
         {
-            "name": "Expression",
+            "name": "LocalTypeDefinitionStatementNode",
+            "base": "StatementNode",
+            "kind": "LOCAL_TYPE_DEFINITION_STATEMENT",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "typeKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeName",
+                    "type": "Node"
+                },
+                {
+                    "name": "typeDescriptor",
+                    "type": "Node"
+                },
+                {
+                    "name": "semicolonToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ExpressionNode",
             "base": "Node",
             "isAbstract": true
         },
         {
-            "name": "BinaryExpression",
-            "base": "Expression",
+            "name": "BinaryExpressionNode",
+            "base": "ExpressionNode",
             "attributes": [
                 {
                     "name": "lhsExpr",
@@ -514,8 +542,8 @@
             ]
         },
         {
-            "name": "BracedExpression",
-            "base": "Expression",
+            "name": "BracedExpressionNode",
+            "base": "ExpressionNode",
             "attributes": [
                 {
                     "name": "openParen",
@@ -523,7 +551,7 @@
                 },
                 {
                     "name": "expression",
-                    "type": "Node"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "closeParen",
@@ -532,8 +560,8 @@
             ]
         },
         {
-            "name": "CheckExpression",
-            "base": "Expression",
+            "name": "CheckExpressionNode",
+            "base": "ExpressionNode",
             "kind": "CHECK_EXPRESSION",
             "attributes": [
                 {
@@ -542,18 +570,18 @@
                 },
                 {
                     "name": "expression",
-                    "type": "Node"
+                    "type": "ExpressionNode"
                 }
             ]
         },
         {
-            "name": "FieldAccessExpression",
-            "base": "Expression",
+            "name": "FieldAccessExpressionNode",
+            "base": "ExpressionNode",
             "kind": "FIELD_ACCESS",
             "attributes": [
                 {
                     "name": "expression",
-                    "type": "Node"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "dotToken",
@@ -566,8 +594,8 @@
             ]
         },
         {
-            "name": "FunctionCallExpression",
-            "base": "Expression",
+            "name": "FunctionCallExpressionNode",
+            "base": "ExpressionNode",
             "kind": "FUNCTION_CALL",
             "attributes": [
                 {
@@ -580,7 +608,7 @@
                 },
                 {
                     "name": "arguments",
-                    "type": "FunctionArgument",
+                    "type": "FunctionArgumentNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -590,13 +618,13 @@
             ]
         },
         {
-            "name": "MethodCallExpression",
-            "base": "Expression",
+            "name": "MethodCallExpressionNode",
+            "base": "ExpressionNode",
             "kind": "METHOD_CALL",
             "attributes": [
                 {
                     "name": "expression",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "dotToken",
@@ -612,7 +640,7 @@
                 },
                 {
                     "name": "arguments",
-                    "type": "FunctionArgument",
+                    "type": "FunctionArgumentNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -622,8 +650,8 @@
             ]
         },
         {
-            "name": "MappingConstructorExpression",
-            "base": "Expression",
+            "name": "MappingConstructorExpressionNode",
+            "base": "ExpressionNode",
             "kind": "MAPPING_CONSTRUCTOR",
             "attributes": [
                 {
@@ -632,7 +660,7 @@
                 },
                 {
                     "name": "fields",
-                    "type": "MappingField",
+                    "type": "MappingFieldNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -642,13 +670,13 @@
             ]
         },
         {
-            "name": "MemberAccessExpression",
-            "base": "Expression",
+            "name": "MemberAccessExpressionNode",
+            "base": "ExpressionNode",
             "kind": "MEMBER_ACCESS",
             "attributes": [
                 {
                     "name": "containerExpression",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "openBracket",
@@ -656,7 +684,7 @@
                 },
                 {
                     "name": "keyExpression",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "closeBracket",
@@ -665,8 +693,8 @@
             ]
         },
         {
-            "name": "TypeofExpression",
-            "base": "Expression",
+            "name": "TypeofExpressionNode",
+            "base": "ExpressionNode",
             "kind": "TYPEOF_EXPRESSION",
             "attributes": [
                 {
@@ -675,13 +703,13 @@
                 },
                 {
                     "name": "expression",
-                    "type": "Node"
+                    "type": "ExpressionNode"
                 }
             ]
         },
         {
-            "name": "UnaryExpression",
-            "base": "Expression",
+            "name": "UnaryExpressionNode",
+            "base": "ExpressionNode",
             "kind": "UNARY_EXPRESSION",
             "attributes": [
                 {
@@ -690,12 +718,12 @@
                 },
                 {
                     "name": "expression",
-                    "type": "Node"
+                    "type": "ExpressionNode"
                 }
             ]
         },
         {
-            "name": "ComputedNameField",
+            "name": "ComputedNameFieldNode",
             "base": "Node",
             "kind": "COMPUTED_NAME_FIELD",
             "attributes": [
@@ -709,7 +737,7 @@
                 },
                 {
                     "name": "fieldNameExpr",
-                    "type": "Node"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "closeBracket",
@@ -721,18 +749,18 @@
                 },
                 {
                     "name": "valueExpr",
-                    "type": "Node"
+                    "type": "ExpressionNode"
                 }
             ]
         },
         {
-            "name": "ConstantDeclaration",
-            "base": "ModuleMemberDeclaration",
+            "name": "ConstantDeclarationNode",
+            "base": "ModuleMemberDeclarationNode",
             "kind": "CONST_DECLARATION",
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "Metadata"
+                    "type": "MetadataNode"
                 },
                 {
                     "name": "visibilityQualifier",
@@ -765,8 +793,13 @@
             ]
         },
         {
-            "name": "DefaultableParameter",
-            "base": "Parameter",
+            "name": "ParameterNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "DefaultableParameterNode",
+            "base": "ParameterNode",
             "kind": "DEFAULTABLE_PARAM",
             "attributes": [
                 {
@@ -775,7 +808,7 @@
                 },
                 {
                     "name": "annotations",
-                    "type": "Annotation",
+                    "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -801,8 +834,8 @@
             ]
         },
         {
-            "name": "RequiredParameter",
-            "base": "Parameter",
+            "name": "RequiredParameterNode",
+            "base": "ParameterNode",
             "kind": "REQUIRED_PARAM",
             "attributes": [
                 {
@@ -811,7 +844,7 @@
                 },
                 {
                     "name": "annotations",
-                    "type": "Annotation",
+                    "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -829,8 +862,8 @@
             ]
         },
         {
-            "name": "RestParameter",
-            "base": "Parameter",
+            "name": "RestParameterNode",
+            "base": "ParameterNode",
             "kind": "REST_PARAM",
             "attributes": [
                 {
@@ -839,7 +872,7 @@
                 },
                 {
                     "name": "annotations",
-                    "type": "Annotation",
+                    "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -857,7 +890,7 @@
             ]
         },
         {
-            "name": "ExpressionListItem",
+            "name": "ExpressionListItemNode",
             "base": "Node",
             "kind": "EXPRESSION_LIST_ITEM",
             "attributes": [
@@ -867,12 +900,12 @@
                 },
                 {
                     "name": "expression",
-                    "type": "Node"
+                    "type": "ExpressionNode"
                 }
             ]
         },
         {
-            "name": "ImportOrgName",
+            "name": "ImportOrgNameNode",
             "base": "Node",
             "kind": "IMPORT_ORG_NAME",
             "attributes": [
@@ -887,7 +920,7 @@
             ]
         },
         {
-            "name": "ImportPrefix",
+            "name": "ImportPrefixNode",
             "base": "Node",
             "kind": "IMPORT_PREFIX",
             "attributes": [
@@ -902,7 +935,7 @@
             ]
         },
         {
-            "name": "ImportSubVersion",
+            "name": "ImportSubVersionNode",
             "base": "Node",
             "kind": "IMPORT_SUB_VERSION",
             "attributes": [
@@ -917,7 +950,7 @@
             ]
         },
         {
-            "name": "ImportVersion",
+            "name": "ImportVersionNode",
             "base": "Node",
             "kind": "IMPORT_VERSION",
             "attributes": [
@@ -932,7 +965,7 @@
             ]
         },
         {
-            "name": "SubModuleName",
+            "name": "SubModuleNameNode",
             "base": "Node",
             "kind": "SUB_MODULE_NAME",
             "attributes": [
@@ -942,18 +975,18 @@
                 },
                 {
                     "name": "moduleName",
-                    "type": "Identifier"
+                    "type": "IdentifierToken"
                 }
             ]
         },
         {
-            "name": "MappingField",
+            "name": "MappingFieldNode",
             "base": "Node",
             "isAbstract": true
         },
         {
-            "name": "SpecificField",
-            "base": "MappingField",
+            "name": "SpecificFieldNode",
+            "base": "MappingFieldNode",
             "kind": "SPECIFIC_FIELD",
             "attributes": [
                 {
@@ -962,7 +995,7 @@
                 },
                 {
                     "name": "fieldName",
-                    "type": "Identifier"
+                    "type": "IdentifierToken"
                 },
                 {
                     "name": "colon",
@@ -970,13 +1003,13 @@
                 },
                 {
                     "name": "valueExpr",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 }
             ]
         },
         {
-            "name": "SpreadField",
-            "base": "MappingField",
+            "name": "SpreadFieldNode",
+            "base": "MappingFieldNode",
             "kind": "SPREAD_FIELD",
             "attributes": [
                 {
@@ -989,18 +1022,18 @@
                 },
                 {
                     "name": "valueExpr",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 }
             ]
         },
         {
-            "name": "FunctionArgument",
+            "name": "FunctionArgumentNode",
             "base": "Node",
             "isAbstract": true
         },
         {
-            "name": "NamedArgument",
-            "base": "FunctionArgument",
+            "name": "NamedArgumentNode",
+            "base": "FunctionArgumentNode",
             "kind": "NAMED_ARG",
             "attributes": [
                 {
@@ -1017,13 +1050,13 @@
                 },
                 {
                     "name": "expression",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 }
             ]
         },
         {
-            "name": "PositionalArgument",
-            "base": "FunctionArgument",
+            "name": "PositionalArgumentNode",
+            "base": "FunctionArgumentNode",
             "kind": "POSITIONAL_ARG",
             "attributes": [
                 {
@@ -1032,13 +1065,13 @@
                 },
                 {
                     "name": "expression",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 }
             ]
         },
         {
-            "name": "RestArgument",
-            "base": "FunctionArgument",
+            "name": "RestArgumentNode",
+            "base": "FunctionArgumentNode",
             "kind": "REST_ARG",
             "attributes": [
                 {
@@ -1051,12 +1084,12 @@
                 },
                 {
                     "name": "expression",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 }
             ]
         },
         {
-            "name": "ObjectTypeDescriptor",
+            "name": "ObjectTypeDescriptorNode",
             "base": "Node",
             "kind": "OBJECT_TYPE_DESCRIPTOR",
             "attributes": [
@@ -1085,7 +1118,7 @@
             ]
         },
         {
-            "name": "RecordTypeDescriptor",
+            "name": "RecordTypeDescriptorNode",
             "base": "Node",
             "kind": "RECORD_TYPE_DESCRIPTOR",
             "attributes": [
@@ -1109,7 +1142,7 @@
             ]
         },
         {
-            "name": "ReturnTypeDescriptor",
+            "name": "ReturnTypeDescriptorNode",
             "base": "Node",
             "kind": "RETURN_TYPE_DESCRIPTOR",
             "attributes": [
@@ -1119,7 +1152,7 @@
                 },
                 {
                     "name": "annotations",
-                    "type": "Annotation",
+                    "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
                 },
                 {
@@ -1129,7 +1162,7 @@
             ]
         },
         {
-            "name": "NilTypeDescriptor",
+            "name": "NilTypeDescriptorNode",
             "base": "Node",
             "kind": "NIL_TYPE",
             "attributes": [
@@ -1144,7 +1177,7 @@
             ]
         },
         {
-            "name": "OptionalTypeDescriptor",
+            "name": "OptionalTypeDescriptorNode",
             "base": "Node",
             "kind": "OPTIONAL_TYPE",
             "attributes": [
@@ -1159,13 +1192,13 @@
             ]
         },
         {
-            "name": "ObjectField",
+            "name": "ObjectFieldNode",
             "base": "Node",
             "kind": "OBJECT_FIELD",
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "Metadata"
+                    "type": "MetadataNode"
                 },
                 {
                     "name": "visibilityQualifier",
@@ -1185,7 +1218,7 @@
                 },
                 {
                     "name": "expression",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "semicolonToken",
@@ -1194,13 +1227,13 @@
             ]
         },
         {
-            "name": "RecordField",
+            "name": "RecordFieldNode",
             "base": "Node",
             "kind": "RECORD_FIELD",
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "Metadata"
+                    "type": "MetadataNode"
                 },
                 {
                     "name": "type",
@@ -1221,13 +1254,13 @@
             ]
         },
         {
-            "name": "RecordFieldWithDefaultValue",
+            "name": "RecordFieldWithDefaultValueNode",
             "base": "Node",
             "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "Metadata"
+                    "type": "MetadataNode"
                 },
                 {
                     "name": "type",
@@ -1243,7 +1276,7 @@
                 },
                 {
                     "name": "expression",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "semicolonToken",
@@ -1252,7 +1285,7 @@
             ]
         },
         {
-            "name": "RecordRestDescriptor",
+            "name": "RecordRestDescriptorNode",
             "base": "Node",
             "kind": "RECORD_REST_TYPE",
             "attributes": [
@@ -1271,7 +1304,7 @@
             ]
         },
         {
-            "name": "TypeReference",
+            "name": "TypeReferenceNode",
             "base": "Node",
             "kind": "TYPE_REFERENCE",
             "attributes": [
@@ -1290,7 +1323,7 @@
             ]
         },
         {
-            "name": "QualifiedIdentifier",
+            "name": "QualifiedIdentifierNode",
             "base": "Node",
             "kind": "QUALIFIED_IDENTIFIER",
             "attributes": [
@@ -1304,12 +1337,12 @@
                 },
                 {
                     "name": "identifier",
-                    "type": "Identifier"
+                    "type": "IdentifierToken"
                 }
             ]
         },
         {
-            "name": "ServiceBody",
+            "name": "ServiceBodyNode",
             "base": "Node",
             "kind": "SERVICE_BODY",
             "attributes": [
@@ -1329,7 +1362,7 @@
             ]
         },
         {
-            "name": "Annotation",
+            "name": "AnnotationNode",
             "base": "Node",
             "kind": "ANNOTATION",
             "attributes": [
@@ -1343,12 +1376,12 @@
                 },
                 {
                     "name": "annotValue",
-                    "type": "MappingConstructorExpression"
+                    "type": "MappingConstructorExpressionNode"
                 }
             ]
         },
         {
-            "name": "Metadata",
+            "name": "MetadataNode",
             "base": "Node",
             "kind": "METADATA",
             "attributes": [
@@ -1358,19 +1391,19 @@
                 },
                 {
                     "name": "annotations",
-                    "type": "Annotation",
+                    "type": "AnnotationNode",
                     "occurrences": "MULTIPLE"
                 }
             ]
         },
         {
-            "name": "ModuleVariableDeclaration",
-            "base": "ModuleMemberDeclaration",
+            "name": "ModuleVariableDeclarationNode",
+            "base": "ModuleMemberDeclarationNode",
             "kind": "MODULE_VAR_DECL",
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "Metadata"
+                    "type": "MetadataNode"
                 },
                 {
                     "name": "finalKeyword",
@@ -1390,7 +1423,7 @@
                 },
                 {
                     "name": "initializer",
-                    "type": "Expression"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "semicolonToken",
@@ -1399,13 +1432,13 @@
             ]
         },
         {
-            "name": "IsExpression",
-            "base": "Expression",
+            "name": "IsExpressionNode",
+            "base": "ExpressionNode",
             "kind": "IS_EXPRESSION",
             "attributes": [
                 {
                     "name": "expression",
-                    "type": "Node"
+                    "type": "ExpressionNode"
                 },
                 {
                     "name": "isKeyword",

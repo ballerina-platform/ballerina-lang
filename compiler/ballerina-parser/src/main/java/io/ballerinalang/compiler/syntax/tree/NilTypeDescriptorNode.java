@@ -57,7 +57,7 @@ public class NilTypeDescriptorNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createNilTypeDescriptor(
+        return NodeFactory.createNilTypeDescriptorNode(
                 openParenToken,
                 closeParenToken);
     }

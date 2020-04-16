@@ -30,8 +30,8 @@ public class LocalTypeDefinitionStatementNode extends StatementNode {
         super(internalNode, position, parent);
     }
 
-    public Node annots() {
-        return childInBucket(0);
+    public NodeList<AnnotationNode> annotations() {
+        return new NodeList<>(childInBucket(0));
     }
 
     public Token typeKeyword() {
@@ -61,25 +61,25 @@ public class LocalTypeDefinitionStatementNode extends StatementNode {
     }
 
     public LocalTypeDefinitionStatementNode modify(
-            Node annots,
+            NodeList<AnnotationNode> annotations,
             Token typeKeyword,
             Node typeName,
-            Node typeDescriptors,
+            Node typeDescriptor,
             Token semicolonToken) {
         if (checkForReferenceEquality(
-                annots,
+                annotations.underlyingListNode(),
                 typeKeyword,
                 typeName,
-                typeDescriptors,
+                typeDescriptor,
                 semicolonToken)) {
             return this;
         }
 
-        return NodeFactory.createLocalTypeDefinitionStatement(
-                annots,
+        return NodeFactory.createLocalTypeDefinitionStatementNode(
+                annotations,
                 typeKeyword,
                 typeName,
-                typeDescriptors,
+                typeDescriptor,
                 semicolonToken);
     }
 }

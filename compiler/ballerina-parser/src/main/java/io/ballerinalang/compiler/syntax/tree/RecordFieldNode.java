@@ -75,7 +75,7 @@ public class RecordFieldNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createRecordField(
+        return NodeFactory.createRecordFieldNode(
                 metadata,
                 type,
                 fieldName,

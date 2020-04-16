@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STConstantDeclarationNodeNode extends STModuleMemberDeclarationNode {
+public class STConstantDeclarationNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
     public final STNode visibilityQualifier;
     public final STNode constKeyword;
@@ -37,7 +37,7 @@ public class STConstantDeclarationNodeNode extends STModuleMemberDeclarationNode
     public final STNode initializer;
     public final STNode semicolonToken;
 
-    STConstantDeclarationNodeNode(
+    STConstantDeclarationNode(
             STNode metadata,
             STNode visibilityQualifier,
             STNode constKeyword,

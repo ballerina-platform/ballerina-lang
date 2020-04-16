@@ -57,7 +57,7 @@ public class MetadataNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createMetadata(
+        return NodeFactory.createMetadataNode(
                 documentationString,
                 annotations);
     }

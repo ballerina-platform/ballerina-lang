@@ -81,7 +81,7 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
-        return NodeFactory.createServiceDeclaration(
+        return NodeFactory.createServiceDeclarationNode(
                 metadata,
                 serviceKeyword,
                 serviceName,

@@ -75,7 +75,7 @@ public class RequiredParameterNode extends ParameterNode {
             return this;
         }
 
-        return NodeFactory.createRequiredParameter(
+        return NodeFactory.createRequiredParameterNode(
                 leadingComma,
                 annotations,
                 visibilityQualifier,

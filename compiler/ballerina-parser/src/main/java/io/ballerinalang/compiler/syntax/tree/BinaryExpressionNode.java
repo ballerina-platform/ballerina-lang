@@ -64,7 +64,7 @@ public class BinaryExpressionNode extends ExpressionNode {
             return this;
         }
 
-        return NodeFactory.createBinaryExpression(
+        return NodeFactory.createBinaryExpressionNode(
                 kind,
                 lhsExpr,
                 operator,

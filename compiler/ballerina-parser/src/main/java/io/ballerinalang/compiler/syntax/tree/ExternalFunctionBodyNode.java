@@ -69,7 +69,7 @@ public class ExternalFunctionBodyNode extends StatementNode {
             return this;
         }
 
-        return NodeFactory.createExternalFunctionBody(
+        return NodeFactory.createExternalFunctionBodyNode(
                 equalsToken,
                 annotations,
                 externalKeyword,

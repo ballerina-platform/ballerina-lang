@@ -63,7 +63,7 @@ public class ServiceBodyNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createServiceBody(
+        return NodeFactory.createServiceBodyNode(
                 openBraceToken,
                 resources,
                 closeBraceToken);

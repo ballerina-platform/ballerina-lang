@@ -69,7 +69,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
             return this;
         }
 
-        return NodeFactory.createFunctionCallExpression(
+        return NodeFactory.createFunctionCallExpressionNode(
                 functionName,
                 openParenToken,
                 arguments,

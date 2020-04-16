@@ -40,252 +40,252 @@ package io.ballerinalang.compiler.syntax.tree;
  */
 public abstract class NodeTransformer<T> {
 
-    public T transform(ModulePartNode modulePart) {
-        return transformSyntaxNode(modulePart);
+    public T transform(ModulePartNode modulePartNode) {
+        return transformSyntaxNode(modulePartNode);
     }
 
-    public T transform(FunctionDefinitionNode functionDefinition) {
-        return transformSyntaxNode(functionDefinition);
+    public T transform(FunctionDefinitionNode functionDefinitionNode) {
+        return transformSyntaxNode(functionDefinitionNode);
     }
 
-    public T transform(ImportDeclarationNode importDeclaration) {
-        return transformSyntaxNode(importDeclaration);
+    public T transform(ImportDeclarationNode importDeclarationNode) {
+        return transformSyntaxNode(importDeclarationNode);
     }
 
-    public T transform(ListenerDeclarationNode listenerDeclaration) {
-        return transformSyntaxNode(listenerDeclaration);
+    public T transform(ListenerDeclarationNode listenerDeclarationNode) {
+        return transformSyntaxNode(listenerDeclarationNode);
     }
 
     public T transform(TypeDefinitionNode typeDefinitionNode) {
         return transformSyntaxNode(typeDefinitionNode);
     }
 
-    public T transform(ServiceDeclarationNode serviceDeclaration) {
-        return transformSyntaxNode(serviceDeclaration);
+    public T transform(ServiceDeclarationNode serviceDeclarationNode) {
+        return transformSyntaxNode(serviceDeclarationNode);
     }
 
-    public T transform(AssignmentStatementNode assignmentStatement) {
-        return transformSyntaxNode(assignmentStatement);
+    public T transform(AssignmentStatementNode assignmentStatementNode) {
+        return transformSyntaxNode(assignmentStatementNode);
     }
 
-    public T transform(CompoundAssignmentStatementNode compoundAssignmentStatement) {
-        return transformSyntaxNode(compoundAssignmentStatement);
+    public T transform(CompoundAssignmentStatementNode compoundAssignmentStatementNode) {
+        return transformSyntaxNode(compoundAssignmentStatementNode);
     }
 
-    public T transform(LocalTypeDefinitionStatementNode localTypeDefinitionStatement) {
-        return transformSyntaxNode(localTypeDefinitionStatement);
+    public T transform(VariableDeclarationNode variableDeclarationNode) {
+        return transformSyntaxNode(variableDeclarationNode);
     }
 
-    public T transform(VariableDeclarationNode variableDeclaration) {
-        return transformSyntaxNode(variableDeclaration);
+    public T transform(BlockStatementNode blockStatementNode) {
+        return transformSyntaxNode(blockStatementNode);
     }
 
-    public T transform(BlockStatementNode blockStatement) {
-        return transformSyntaxNode(blockStatement);
+    public T transform(BreakStatementNode breakStatementNode) {
+        return transformSyntaxNode(breakStatementNode);
     }
 
-    public T transform(BreakStatementNode breakStatement) {
-        return transformSyntaxNode(breakStatement);
+    public T transform(CallStatementNode callStatementNode) {
+        return transformSyntaxNode(callStatementNode);
     }
 
-    public T transform(CallStatementNode callStatement) {
-        return transformSyntaxNode(callStatement);
+    public T transform(ContinueStatementNode continueStatementNode) {
+        return transformSyntaxNode(continueStatementNode);
     }
 
-    public T transform(ContinueStatementNode continueStatement) {
-        return transformSyntaxNode(continueStatement);
+    public T transform(ExternalFunctionBodyNode externalFunctionBodyNode) {
+        return transformSyntaxNode(externalFunctionBodyNode);
     }
 
-    public T transform(ExternalFunctionBodyNode externalFunctionBody) {
-        return transformSyntaxNode(externalFunctionBody);
+    public T transform(IfElseStatementNode ifElseStatementNode) {
+        return transformSyntaxNode(ifElseStatementNode);
     }
 
-    public T transform(IfElseStatementNode ifElseStatement) {
-        return transformSyntaxNode(ifElseStatement);
+    public T transform(ElseBlockNode elseBlockNode) {
+        return transformSyntaxNode(elseBlockNode);
     }
 
-    public T transform(ElseBlockNode elseBlock) {
-        return transformSyntaxNode(elseBlock);
+    public T transform(WhileStatementNode whileStatementNode) {
+        return transformSyntaxNode(whileStatementNode);
     }
 
-    public T transform(WhileStatementNode whileStatement) {
-        return transformSyntaxNode(whileStatement);
+    public T transform(PanicStatementNode panicStatementNode) {
+        return transformSyntaxNode(panicStatementNode);
     }
 
-    public T transform(PanicStatementNode panicStatement) {
-        return transformSyntaxNode(panicStatement);
+    public T transform(ReturnStatementNode returnStatementNode) {
+        return transformSyntaxNode(returnStatementNode);
     }
 
-    public T transform(ReturnStatementNode returnStatement) {
-        return transformSyntaxNode(returnStatement);
+    public T transform(LocalTypeDefinitionStatementNode localTypeDefinitionStatementNode) {
+        return transformSyntaxNode(localTypeDefinitionStatementNode);
     }
 
-    public T transform(BinaryExpressionNode binaryExpression) {
-        return transformSyntaxNode(binaryExpression);
+    public T transform(BinaryExpressionNode binaryExpressionNode) {
+        return transformSyntaxNode(binaryExpressionNode);
     }
 
-    public T transform(BracedExpressionNode bracedExpression) {
-        return transformSyntaxNode(bracedExpression);
+    public T transform(BracedExpressionNode bracedExpressionNode) {
+        return transformSyntaxNode(bracedExpressionNode);
     }
 
-    public T transform(CheckExpressionNode checkExpression) {
-        return transformSyntaxNode(checkExpression);
+    public T transform(CheckExpressionNode checkExpressionNode) {
+        return transformSyntaxNode(checkExpressionNode);
     }
 
-    public T transform(FieldAccessExpressionNode fieldAccessExpression) {
-        return transformSyntaxNode(fieldAccessExpression);
+    public T transform(FieldAccessExpressionNode fieldAccessExpressionNode) {
+        return transformSyntaxNode(fieldAccessExpressionNode);
     }
 
-    public T transform(FunctionCallExpressionNode functionCallExpression) {
-        return transformSyntaxNode(functionCallExpression);
+    public T transform(FunctionCallExpressionNode functionCallExpressionNode) {
+        return transformSyntaxNode(functionCallExpressionNode);
     }
 
-    public T transform(MethodCallExpressionNode methodCallExpression) {
-        return transformSyntaxNode(methodCallExpression);
+    public T transform(MethodCallExpressionNode methodCallExpressionNode) {
+        return transformSyntaxNode(methodCallExpressionNode);
     }
 
-    public T transform(MappingConstructorExpressionNode mappingConstructorExpression) {
-        return transformSyntaxNode(mappingConstructorExpression);
+    public T transform(MappingConstructorExpressionNode mappingConstructorExpressionNode) {
+        return transformSyntaxNode(mappingConstructorExpressionNode);
     }
 
-    public T transform(MemberAccessExpressionNode memberAccessExpression) {
-        return transformSyntaxNode(memberAccessExpression);
+    public T transform(MemberAccessExpressionNode memberAccessExpressionNode) {
+        return transformSyntaxNode(memberAccessExpressionNode);
     }
 
-    public T transform(TypeofExpressionNode typeofExpression) {
-        return transformSyntaxNode(typeofExpression);
+    public T transform(TypeofExpressionNode typeofExpressionNode) {
+        return transformSyntaxNode(typeofExpressionNode);
     }
 
-    public T transform(UnaryExpressionNode unaryExpression) {
-        return transformSyntaxNode(unaryExpression);
+    public T transform(UnaryExpressionNode unaryExpressionNode) {
+        return transformSyntaxNode(unaryExpressionNode);
     }
 
-    public T transform(ComputedNameFieldNode computedNameField) {
-        return transformSyntaxNode(computedNameField);
+    public T transform(ComputedNameFieldNode computedNameFieldNode) {
+        return transformSyntaxNode(computedNameFieldNode);
     }
 
-    public T transform(ConstantDeclarationNode constantDeclaration) {
-        return transformSyntaxNode(constantDeclaration);
+    public T transform(ConstantDeclarationNode constantDeclarationNode) {
+        return transformSyntaxNode(constantDeclarationNode);
     }
 
-    public T transform(DefaultableParameterNode defaultableParameter) {
-        return transformSyntaxNode(defaultableParameter);
+    public T transform(DefaultableParameterNode defaultableParameterNode) {
+        return transformSyntaxNode(defaultableParameterNode);
     }
 
-    public T transform(RequiredParameterNode requiredParameter) {
-        return transformSyntaxNode(requiredParameter);
+    public T transform(RequiredParameterNode requiredParameterNode) {
+        return transformSyntaxNode(requiredParameterNode);
     }
 
-    public T transform(RestParameterNode restParameter) {
-        return transformSyntaxNode(restParameter);
+    public T transform(RestParameterNode restParameterNode) {
+        return transformSyntaxNode(restParameterNode);
     }
 
-    public T transform(ExpressionListItemNode expressionListItem) {
-        return transformSyntaxNode(expressionListItem);
+    public T transform(ExpressionListItemNode expressionListItemNode) {
+        return transformSyntaxNode(expressionListItemNode);
     }
 
-    public T transform(ImportOrgNameNode importOrgName) {
-        return transformSyntaxNode(importOrgName);
+    public T transform(ImportOrgNameNode importOrgNameNode) {
+        return transformSyntaxNode(importOrgNameNode);
     }
 
-    public T transform(ImportPrefixNode importPrefix) {
-        return transformSyntaxNode(importPrefix);
+    public T transform(ImportPrefixNode importPrefixNode) {
+        return transformSyntaxNode(importPrefixNode);
     }
 
-    public T transform(ImportSubVersionNode importSubVersion) {
-        return transformSyntaxNode(importSubVersion);
+    public T transform(ImportSubVersionNode importSubVersionNode) {
+        return transformSyntaxNode(importSubVersionNode);
     }
 
-    public T transform(ImportVersionNode importVersion) {
-        return transformSyntaxNode(importVersion);
+    public T transform(ImportVersionNode importVersionNode) {
+        return transformSyntaxNode(importVersionNode);
     }
 
-    public T transform(SubModuleNameNode subModuleName) {
-        return transformSyntaxNode(subModuleName);
+    public T transform(SubModuleNameNode subModuleNameNode) {
+        return transformSyntaxNode(subModuleNameNode);
     }
 
-    public T transform(SpecificFieldNode specificField) {
-        return transformSyntaxNode(specificField);
+    public T transform(SpecificFieldNode specificFieldNode) {
+        return transformSyntaxNode(specificFieldNode);
     }
 
-    public T transform(SpreadFieldNode spreadField) {
-        return transformSyntaxNode(spreadField);
+    public T transform(SpreadFieldNode spreadFieldNode) {
+        return transformSyntaxNode(spreadFieldNode);
     }
 
-    public T transform(NamedArgumentNode namedArgument) {
-        return transformSyntaxNode(namedArgument);
+    public T transform(NamedArgumentNode namedArgumentNode) {
+        return transformSyntaxNode(namedArgumentNode);
     }
 
-    public T transform(PositionalArgumentNode positionalArgument) {
-        return transformSyntaxNode(positionalArgument);
+    public T transform(PositionalArgumentNode positionalArgumentNode) {
+        return transformSyntaxNode(positionalArgumentNode);
     }
 
-    public T transform(RestArgumentNode restArgument) {
-        return transformSyntaxNode(restArgument);
+    public T transform(RestArgumentNode restArgumentNode) {
+        return transformSyntaxNode(restArgumentNode);
     }
 
-    public T transform(ObjectTypeDescriptorNode objectTypeDescriptor) {
-        return transformSyntaxNode(objectTypeDescriptor);
+    public T transform(ObjectTypeDescriptorNode objectTypeDescriptorNode) {
+        return transformSyntaxNode(objectTypeDescriptorNode);
     }
 
-    public T transform(RecordTypeDescriptorNode recordTypeDescriptor) {
-        return transformSyntaxNode(recordTypeDescriptor);
+    public T transform(RecordTypeDescriptorNode recordTypeDescriptorNode) {
+        return transformSyntaxNode(recordTypeDescriptorNode);
     }
 
-    public T transform(ReturnTypeDescriptorNode returnTypeDescriptor) {
-        return transformSyntaxNode(returnTypeDescriptor);
+    public T transform(ReturnTypeDescriptorNode returnTypeDescriptorNode) {
+        return transformSyntaxNode(returnTypeDescriptorNode);
     }
 
-    public T transform(NilTypeDescriptorNode nilTypeDescriptor) {
-        return transformSyntaxNode(nilTypeDescriptor);
+    public T transform(NilTypeDescriptorNode nilTypeDescriptorNode) {
+        return transformSyntaxNode(nilTypeDescriptorNode);
     }
 
-    public T transform(OptionalTypeDescriptorNode optionalTypeDescriptor) {
-        return transformSyntaxNode(optionalTypeDescriptor);
+    public T transform(OptionalTypeDescriptorNode optionalTypeDescriptorNode) {
+        return transformSyntaxNode(optionalTypeDescriptorNode);
     }
 
-    public T transform(ObjectFieldNode objectField) {
-        return transformSyntaxNode(objectField);
+    public T transform(ObjectFieldNode objectFieldNode) {
+        return transformSyntaxNode(objectFieldNode);
     }
 
-    public T transform(RecordFieldNode recordField) {
-        return transformSyntaxNode(recordField);
+    public T transform(RecordFieldNode recordFieldNode) {
+        return transformSyntaxNode(recordFieldNode);
     }
 
-    public T transform(RecordFieldWithDefaultValueNode recordFieldWithDefaultValue) {
-        return transformSyntaxNode(recordFieldWithDefaultValue);
+    public T transform(RecordFieldWithDefaultValueNode recordFieldWithDefaultValueNode) {
+        return transformSyntaxNode(recordFieldWithDefaultValueNode);
     }
 
-    public T transform(RecordRestDescriptorNode recordRestDescriptor) {
-        return transformSyntaxNode(recordRestDescriptor);
+    public T transform(RecordRestDescriptorNode recordRestDescriptorNode) {
+        return transformSyntaxNode(recordRestDescriptorNode);
     }
 
-    public T transform(TypeReferenceNode typeReference) {
-        return transformSyntaxNode(typeReference);
+    public T transform(TypeReferenceNode typeReferenceNode) {
+        return transformSyntaxNode(typeReferenceNode);
     }
 
-    public T transform(QualifiedIdentifierNode qualifiedIdentifier) {
-        return transformSyntaxNode(qualifiedIdentifier);
+    public T transform(QualifiedIdentifierNode qualifiedIdentifierNode) {
+        return transformSyntaxNode(qualifiedIdentifierNode);
     }
 
-    public T transform(ServiceBodyNode serviceBody) {
-        return transformSyntaxNode(serviceBody);
+    public T transform(ServiceBodyNode serviceBodyNode) {
+        return transformSyntaxNode(serviceBodyNode);
     }
 
     public T transform(AnnotationNode annotationNode) {
         return transformSyntaxNode(annotationNode);
     }
 
-    public T transform(MetadataNode metadata) {
-        return transformSyntaxNode(metadata);
+    public T transform(MetadataNode metadataNode) {
+        return transformSyntaxNode(metadataNode);
     }
 
-    public T transform(ModuleVariableDeclarationNode moduleVariableDeclaration) {
-        return transformSyntaxNode(moduleVariableDeclaration);
+    public T transform(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
+        return transformSyntaxNode(moduleVariableDeclarationNode);
     }
 
-    public T transform(IsExpressionNode isExpression) {
-        return transformSyntaxNode(isExpression);
+    public T transform(IsExpressionNode isExpressionNode) {
+        return transformSyntaxNode(isExpressionNode);
     }
 
     // Tokens

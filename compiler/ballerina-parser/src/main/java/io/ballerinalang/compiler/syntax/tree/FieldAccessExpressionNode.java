@@ -30,7 +30,7 @@ public class FieldAccessExpressionNode extends ExpressionNode {
         super(internalNode, position, parent);
     }
 
-    public Node expression() {
+    public ExpressionNode expression() {
         return childInBucket(0);
     }
 
@@ -53,7 +53,7 @@ public class FieldAccessExpressionNode extends ExpressionNode {
     }
 
     public FieldAccessExpressionNode modify(
-            Node expression,
+            ExpressionNode expression,
             Token dotToken,
             Token fieldName) {
         if (checkForReferenceEquality(
@@ -63,7 +63,7 @@ public class FieldAccessExpressionNode extends ExpressionNode {
             return this;
         }
 
-        return NodeFactory.createFieldAccessExpression(
+        return NodeFactory.createFieldAccessExpressionNode(
                 expression,
                 dotToken,
                 fieldName);

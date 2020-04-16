@@ -17,9 +17,6 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,23 +24,9 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STContinueStatementNodeNode extends STStatementNode {
-    public final STNode continueToken;
-    public final STNode semicolonToken;
+public abstract class STParameterNode extends STNode {
 
-    STContinueStatementNodeNode(
-            STNode continueToken,
-            STNode semicolonToken) {
-        super(SyntaxKind.CONTINUE_STATEMENT);
-        this.continueToken = continueToken;
-        this.semicolonToken = semicolonToken;
-
-        addChildren(
-                continueToken,
-                semicolonToken);
-    }
-
-    public Node createFacade(int position, NonTerminalNode parent) {
-        return new ContinueStatementNode(this, position, parent);
+    STParameterNode(SyntaxKind kind) {
+        super(kind);
     }
 }

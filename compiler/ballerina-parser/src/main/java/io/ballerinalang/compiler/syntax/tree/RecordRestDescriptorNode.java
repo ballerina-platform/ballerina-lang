@@ -63,7 +63,7 @@ public class RecordRestDescriptorNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createRecordRestDescriptor(
+        return NodeFactory.createRecordRestDescriptorNode(
                 type,
                 ellipsisToken,
                 semicolonToken);

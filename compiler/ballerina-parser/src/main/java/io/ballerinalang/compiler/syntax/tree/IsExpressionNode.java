@@ -30,7 +30,7 @@ public class IsExpressionNode extends ExpressionNode {
         super(internalNode, position, parent);
     }
 
-    public Node expression() {
+    public ExpressionNode expression() {
         return childInBucket(0);
     }
 
@@ -53,7 +53,7 @@ public class IsExpressionNode extends ExpressionNode {
     }
 
     public IsExpressionNode modify(
-            Node expression,
+            ExpressionNode expression,
             Token isKeyword,
             Node typeDescriptor) {
         if (checkForReferenceEquality(
@@ -63,7 +63,7 @@ public class IsExpressionNode extends ExpressionNode {
             return this;
         }
 
-        return NodeFactory.createIsExpression(
+        return NodeFactory.createIsExpressionNode(
                 expression,
                 isKeyword,
                 typeDescriptor);

@@ -34,7 +34,7 @@ public class CheckExpressionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public Node expression() {
+    public ExpressionNode expression() {
         return childInBucket(1);
     }
 
@@ -50,14 +50,14 @@ public class CheckExpressionNode extends ExpressionNode {
 
     public CheckExpressionNode modify(
             Token checkKeyword,
-            Node expression) {
+            ExpressionNode expression) {
         if (checkForReferenceEquality(
                 checkKeyword,
                 expression)) {
             return this;
         }
 
-        return NodeFactory.createCheckExpression(
+        return NodeFactory.createCheckExpressionNode(
                 checkKeyword,
                 expression);
     }

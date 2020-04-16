@@ -87,7 +87,7 @@ public class VariableDeclarationNode extends StatementNode {
             return this;
         }
 
-        return NodeFactory.createVariableDeclaration(
+        return NodeFactory.createVariableDeclarationNode(
                 annotations,
                 finalKeyword,
                 typeName,

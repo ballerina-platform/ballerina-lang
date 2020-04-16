@@ -81,7 +81,7 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createRecordFieldWithDefaultValue(
+        return NodeFactory.createRecordFieldWithDefaultValueNode(
                 metadata,
                 type,
                 fieldName,

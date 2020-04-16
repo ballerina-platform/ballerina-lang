@@ -34,7 +34,7 @@ public class UnaryExpressionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public Node expression() {
+    public ExpressionNode expression() {
         return childInBucket(1);
     }
 
@@ -50,14 +50,14 @@ public class UnaryExpressionNode extends ExpressionNode {
 
     public UnaryExpressionNode modify(
             Token unaryOperator,
-            Node expression) {
+            ExpressionNode expression) {
         if (checkForReferenceEquality(
                 unaryOperator,
                 expression)) {
             return this;
         }
 
-        return NodeFactory.createUnaryExpression(
+        return NodeFactory.createUnaryExpressionNode(
                 unaryOperator,
                 expression);
     }
