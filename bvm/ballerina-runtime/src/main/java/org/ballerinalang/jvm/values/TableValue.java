@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
@@ -54,11 +55,24 @@ public class TableValue<K, V> implements BTable<K, V> {
     private BTableType type;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private BType iteratorNextReturnType;
+
+    public LinkedHashMap<K, V> getHashtable() {
+        return hashtable;
+    }
+
     private LinkedHashMap<K, V> hashtable;
     private ValueAdder valueAdder;
 
+    public String getTableId() {
+
+        return tableId;
+    }
+
+    public String tableId;
+
     public TableValue(BTableType type) {
         this.type = type;
+        this.tableId = UUID.randomUUID().toString();
         this.hashtable = new LinkedHashMap<>();
         if (type.getFieldNames() != null) {
             this.valueAdder = new KeyHashValueAdder(hashtable, type.getFieldNames());

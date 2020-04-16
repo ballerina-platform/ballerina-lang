@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,29 +19,31 @@
 package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
- * Native implementation of .
+ * Native implementation of lang.stream:filter(stream&lt;Type&gt;, function).
  *
- * @since 1.3.0
+ * @since 1.2
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "length",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        orgName = "ballerina", packageName = "lang.table", functionName = "forEach",
+        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
         isPublic = true
 )
-public class Length {
-
-    public static long length(Strand strand, TableValue tbl) {
-        return tbl.size();
-    }
-    public static long length_bstring(Strand strand, TableValue tbl) {
-        return length(strand, tbl);
+public class Foreach {
+    public static void forEach(Strand strand, TableValue tbl, FPValue<Object, Object> func) {
+        Collection collection = tbl.values();
+        Iterator iterator = collection.iterator();
+        while (iterator.hasNext()) {
+            func.call(new Object[]{strand, iterator.next(), true});
+        }
     }
 }

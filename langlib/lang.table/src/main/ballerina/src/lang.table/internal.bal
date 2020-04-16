@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
+//# Represent the iterator type returned when `iterator` method is invoked.
 //type TableIterator object {
 //
 //private table<Type> m;
@@ -22,6 +22,8 @@
 //self.m = m;
 //}
 //
+//# Return next member or nil if end of iteration is reached.
+//                                                # + return - iterator result
 //public function next() returns record {|Type value;|}? = external;
 //
 //};

@@ -19,6 +19,9 @@
 package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BTableType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -26,22 +29,28 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of .
+ * Native implementation of lang.map:filter(map&lt;Type&gt;, function).
  *
- * @since 1.3.0
+ * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "length",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        orgName = "ballerina", packageName = "lang.table", functionName = "filter",
+        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION)},
+        returnType = {@ReturnType(type = TypeKind.TABLE)},
         isPublic = true
 )
-public class Length {
+public class Filter {
 
-    public static long length(Strand strand, TableValue tbl) {
-        return tbl.size();
-    }
-    public static long length_bstring(Strand strand, TableValue tbl) {
-        return length(strand, tbl);
+    public static TableValue filter(Strand strand, TableValue tbl, FPValue<Object, Boolean> func) {
+
+        BType newTableType = tbl.getType();
+        TableValue newTable = new TableValue((BTableType) newTableType);
+        for (Object key : tbl.getKeys()) {
+            Object value = tbl.get(key);
+            if (func.apply(new Object[]{strand, value, true})) {
+                newTable.put(key, value);
+            }
+        }
+        return newTable;
     }
 }

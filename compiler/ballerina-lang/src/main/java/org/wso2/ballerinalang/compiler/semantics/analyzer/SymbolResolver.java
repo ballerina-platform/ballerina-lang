@@ -564,6 +564,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             case TypeTags.STREAM:
                 bSymbol = lookupLangLibMethodInModule(symTable.langStreamModuleSymbol, name);
                 break;
+            case TypeTags.TABLE:
+                bSymbol = lookupLangLibMethodInModule(symTable.langTableModuleSymbol, name);
+                break;
             case TypeTags.STRING:
             case TypeTags.CHAR_STRING:
                 bSymbol = lookupLangLibMethodInModule(symTable.langStringModuleSymbol, name);
@@ -799,6 +802,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
             symTable.detailType.restFieldType = symTable.pureType;
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
+            symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
             symTable.defineOperators(); // Define all operators e.g. binary, unary, cast and conversion
             symTable.pureType = BUnionType.create(null, symTable.anydataType, symTable.errorType);
             symTable.errorOrNilType = BUnionType.create(null, symTable.errorType, symTable.nilType);

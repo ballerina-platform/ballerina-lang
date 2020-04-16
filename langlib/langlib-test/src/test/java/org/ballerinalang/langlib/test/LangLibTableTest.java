@@ -55,15 +55,47 @@ public class LangLibTableTest {
 
     @Test
     public void testLength() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testLength");
-        assertEquals(((BInteger) returns[0]).intValue(), 4);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTableLength");
+        assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
-  /*  @Test
-    public void testIterator() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testIterator");
-        assertEquals(returns[0].stringValue(), "HelloWorld!FromBallerina");
+//    @Test
+//    public void testIterator() {
+//        BValue[] returns = BRunUtil.invoke(compileResult, "testIterator");
+//        assertEquals(returns[0].stringValue(), "HelloWorld!FromBallerina");
+//    }
+
+//        @Test
+    public void testNextKey() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testNextKey");
+            assertEquals(((BInteger) returns[0]).intValue(), 0);
     }
+
+//    @Test
+    public void getKey() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "getKey");
+        assertEquals(((BInteger) returns[0]).intValue(), 0);
+    }
+
+    @Test
+    public void testForeach() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testForeach");
+        assertEquals(returns[0].stringValue(), "AAABBB");
+    }
+
+    @Test
+    public void testFilter() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFilter");
+        assertEquals(returns[0].stringValue(), "AAA");
+    }
+
+    @Test
+    public void testMap() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMap");
+        assertEquals(returns[0].stringValue(), "AAABBB");
+    }
+
+/*
 
     @Test
     public void testEnumerate() {

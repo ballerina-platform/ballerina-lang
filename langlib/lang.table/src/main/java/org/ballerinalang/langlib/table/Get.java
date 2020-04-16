@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -26,22 +27,19 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of .
+ * Native implementation of lang.map:get(map&lt;Type&gt;, string).
  *
- * @since 1.3.0
+ * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "length",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        orgName = "ballerina", packageName = "lang.table", functionName = "get",
+        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "key", type = TypeKind.ANYDATA)},
+        returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true
 )
-public class Length {
+public class Get {
 
-    public static long length(Strand strand, TableValue tbl) {
-        return tbl.size();
-    }
-    public static long length_bstring(Strand strand, TableValue tbl) {
-        return length(strand, tbl);
+    public static Object get(Strand strand, TableValue tbl, Object key) {
+        return tbl.getOrThrow(key);
     }
 }
