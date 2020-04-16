@@ -34,7 +34,7 @@ public class SubModuleName extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Identifier moduleName() {
+    public IdentifierToken moduleName() {
         return childInBucket(1);
     }
 
@@ -50,7 +50,7 @@ public class SubModuleName extends NonTerminalNode {
 
     public SubModuleName modify(
             Token leadingDot,
-            Identifier moduleName) {
+            IdentifierToken moduleName) {
         if (checkForReferenceEquality(
                 leadingDot,
                 moduleName)) {

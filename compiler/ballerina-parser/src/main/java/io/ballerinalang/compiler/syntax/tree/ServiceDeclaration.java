@@ -38,7 +38,7 @@ public class ServiceDeclaration extends ModuleMemberDeclaration {
         return childInBucket(1);
     }
 
-    public Identifier serviceName() {
+    public IdentifierToken serviceName() {
         return childInBucket(2);
     }
 
@@ -67,7 +67,7 @@ public class ServiceDeclaration extends ModuleMemberDeclaration {
     public ServiceDeclaration modify(
             Metadata metadata,
             Token serviceKeyword,
-            Identifier serviceName,
+            IdentifierToken serviceName,
             Token onKeyword,
             NodeList<Expression> expressions,
             Node serviceBody) {

@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.Identifier;
+import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -42,7 +42,7 @@ public class STIdentifier extends STToken {
 
     @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new Identifier(this, position, parent);
+        return new IdentifierToken(this, position, parent);
     }
 
     @Override

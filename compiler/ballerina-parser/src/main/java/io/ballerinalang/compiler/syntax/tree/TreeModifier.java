@@ -45,7 +45,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Metadata metadata = modifyNode(functionDefinition.metadata());
         Token visibilityQualifier = modifyToken(functionDefinition.visibilityQualifier());
         Token functionKeyword = modifyToken(functionDefinition.functionKeyword());
-        Identifier functionName = modifyNode(functionDefinition.functionName());
+        IdentifierToken functionName = modifyNode(functionDefinition.functionName());
         Token openParenToken = modifyToken(functionDefinition.openParenToken());
         NodeList<Parameter> parameters = modifyNodeList(functionDefinition.parameters());
         Token closeParenToken = modifyToken(functionDefinition.closeParenToken());
@@ -122,7 +122,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(ServiceDeclaration serviceDeclaration) {
         Metadata metadata = modifyNode(serviceDeclaration.metadata());
         Token serviceKeyword = modifyToken(serviceDeclaration.serviceKeyword());
-        Identifier serviceName = modifyNode(serviceDeclaration.serviceName());
+        IdentifierToken serviceName = modifyNode(serviceDeclaration.serviceName());
         Token onKeyword = modifyToken(serviceDeclaration.onKeyword());
         NodeList<Expression> expressions = modifyNodeList(serviceDeclaration.expressions());
         Node serviceBody = modifyNode(serviceDeclaration.serviceBody());
@@ -539,7 +539,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(SubModuleName subModuleName) {
         Token leadingDot = modifyToken(subModuleName.leadingDot());
-        Identifier moduleName = modifyNode(subModuleName.moduleName());
+        IdentifierToken moduleName = modifyNode(subModuleName.moduleName());
         return subModuleName.modify(
                 leadingDot,
                 moduleName);
@@ -548,7 +548,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(SpecificField specificField) {
         Token leadingComma = modifyToken(specificField.leadingComma());
-        Identifier fieldName = modifyNode(specificField.fieldName());
+        IdentifierToken fieldName = modifyNode(specificField.fieldName());
         Token colon = modifyToken(specificField.colon());
         Expression valueExpr = modifyNode(specificField.valueExpr());
         return specificField.modify(
@@ -736,7 +736,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(QualifiedIdentifier qualifiedIdentifier) {
         Token modulePrefix = modifyToken(qualifiedIdentifier.modulePrefix());
         Node colon = modifyNode(qualifiedIdentifier.colon());
-        Identifier identifier = modifyNode(qualifiedIdentifier.identifier());
+        IdentifierToken identifier = modifyNode(qualifiedIdentifier.identifier());
         return qualifiedIdentifier.modify(
                 modulePrefix,
                 colon,
@@ -801,7 +801,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(Identifier identifier) {
+    public Node transform(IdentifierToken identifier) {
         return identifier;
     }
 

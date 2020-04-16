@@ -34,7 +34,7 @@ public class SpecificField extends MappingField {
         return childInBucket(0);
     }
 
-    public Identifier fieldName() {
+    public IdentifierToken fieldName() {
         return childInBucket(1);
     }
 
@@ -58,7 +58,7 @@ public class SpecificField extends MappingField {
 
     public SpecificField modify(
             Token leadingComma,
-            Identifier fieldName,
+            IdentifierToken fieldName,
             Token colon,
             Expression valueExpr) {
         if (checkForReferenceEquality(

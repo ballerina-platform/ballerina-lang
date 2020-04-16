@@ -24,9 +24,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class Identifier extends Token {
+public class IdentifierToken extends Token {
 
-    public Identifier(STNode token, int position, NonTerminalNode parent) {
+    public IdentifierToken(STNode token, int position, NonTerminalNode parent) {
         super(token, position, parent);
     }
 

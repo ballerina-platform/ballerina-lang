@@ -30,7 +30,7 @@ import io.ballerinalang.compiler.syntax.tree.EmptyToken;
 import io.ballerinalang.compiler.syntax.tree.Expression;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpression;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinition;
-import io.ballerinalang.compiler.syntax.tree.Identifier;
+import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclaration;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgName;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefix;
@@ -188,7 +188,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
         bLFunction.pos = emptyPos;
 
         // Set function name
-        Identifier funcName = funcDefNode.functionName();
+        IdentifierToken funcName = funcDefNode.functionName();
         bLFunction.name = createIdentifier(emptyPos, funcName.text());
 
         // Set the visibility qualifier

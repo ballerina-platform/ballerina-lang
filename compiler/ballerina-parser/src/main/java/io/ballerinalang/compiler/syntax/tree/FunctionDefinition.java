@@ -42,7 +42,7 @@ public class FunctionDefinition extends ModuleMemberDeclaration {
         return childInBucket(2);
     }
 
-    public Identifier functionName() {
+    public IdentifierToken functionName() {
         return childInBucket(3);
     }
 
@@ -80,7 +80,7 @@ public class FunctionDefinition extends ModuleMemberDeclaration {
             Metadata metadata,
             Token visibilityQualifier,
             Token functionKeyword,
-            Identifier functionName,
+            IdentifierToken functionName,
             Token openParenToken,
             NodeList<Parameter> parameters,
             Token closeParenToken,

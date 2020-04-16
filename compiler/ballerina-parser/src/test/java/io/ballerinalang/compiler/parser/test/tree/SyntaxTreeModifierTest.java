@@ -18,7 +18,7 @@
 package io.ballerinalang.compiler.parser.test.tree;
 
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinition;
-import io.ballerinalang.compiler.syntax.tree.Identifier;
+import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.ModulePart;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
@@ -80,7 +80,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         @Override
         public Node transform(VariableDeclaration varDeclStmt) {
             String oldVarName = varDeclStmt.variableName().text();
-            Identifier newVarName = NodeFactory.createIdentifier(oldVarName + "new");
+            IdentifierToken newVarName = NodeFactory.createIdentifier(oldVarName + "new");
             return NodeFactory.createVariableDeclaration(varDeclStmt.annotations(), varDeclStmt.finalKeyword(),
                     varDeclStmt.typeName(), newVarName, varDeclStmt.equalsToken(), varDeclStmt.initializer(),
                     varDeclStmt.semicolonToken());
@@ -93,7 +93,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
     private static class IdentifierModifier extends TreeModifier {
 
         @Override
-        public Node transform(Identifier identifier) {
+        public Node transform(IdentifierToken identifier) {
             return NodeFactory.createIdentifier(identifier.text() + "_new");
         }
     }

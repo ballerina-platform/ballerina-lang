@@ -38,7 +38,7 @@ public class QualifiedIdentifier extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public Identifier identifier() {
+    public IdentifierToken identifier() {
         return childInBucket(2);
     }
 
@@ -55,7 +55,7 @@ public class QualifiedIdentifier extends NonTerminalNode {
     public QualifiedIdentifier modify(
             Token modulePrefix,
             Node colon,
-            Identifier identifier) {
+            IdentifierToken identifier) {
         if (checkForReferenceEquality(
                 modulePrefix,
                 colon,

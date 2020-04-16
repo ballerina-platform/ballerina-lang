@@ -52,7 +52,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Metadata metadata,
             Token visibilityQualifier,
             Token functionKeyword,
-            Identifier functionName,
+            IdentifierToken functionName,
             Token openParenToken,
             NodeList<Parameter> parameters,
             Token closeParenToken,
@@ -162,7 +162,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ServiceDeclaration createServiceDeclaration(
             Metadata metadata,
             Token serviceKeyword,
-            Identifier serviceName,
+            IdentifierToken serviceName,
             Token onKeyword,
             NodeList<Expression> expressions,
             Node serviceBody) {
@@ -738,7 +738,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static SubModuleName createSubModuleName(
             Token leadingDot,
-            Identifier moduleName) {
+            IdentifierToken moduleName) {
         Objects.requireNonNull(leadingDot, "leadingDot must not be null");
         Objects.requireNonNull(moduleName, "moduleName must not be null");
 
@@ -750,7 +750,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static SpecificField createSpecificField(
             Token leadingComma,
-            Identifier fieldName,
+            IdentifierToken fieldName,
             Token colon,
             Expression valueExpr) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
@@ -1009,7 +1009,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static QualifiedIdentifier createQualifiedIdentifier(
             Token modulePrefix,
             Node colon,
-            Identifier identifier) {
+            IdentifierToken identifier) {
         Objects.requireNonNull(modulePrefix, "modulePrefix must not be null");
         Objects.requireNonNull(colon, "colon must not be null");
         Objects.requireNonNull(identifier, "identifier must not be null");
