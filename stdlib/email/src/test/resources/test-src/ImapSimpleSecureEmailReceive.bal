@@ -19,7 +19,7 @@ import ballerina/email;
 email:ImapConfig imapConfig = {
      port: 3993,
      enableSsl: true
- };
+};
 
 function testReceiveSimpleEmail(string host, string username, string password) returns email:Email|email:Error? {
     email:ImapClient|email:Error imapClient = new (host, username, password, imapConfig);
