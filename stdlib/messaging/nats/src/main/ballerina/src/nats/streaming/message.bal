@@ -16,7 +16,7 @@
 
 import ballerina/java;
 
-# Represents the message a NATS Streaming Server sends to a subscription service.
+# Represents the message a NATS Streaming Server sends to its subscribed services.
 public type StreamingMessage client object {
    private byte[] content;
    private string subject;
@@ -26,23 +26,23 @@ public type StreamingMessage client object {
        self.content = content;
    }
 
-   # Get the message content.
+   # Gets the message content.
    #
-   # + return - The data from the message as a 'byte[]'.
+   # + return - The data from the message as a 'byte[]'
    public function getData() returns byte[] {
        return self.content;
    }
 
-   # Get the subject.
+   # Gets the subject that the message was sent to.
    #
-   # + return - The subject that this message was sent to.
+   # + return - The subject, to which the message was sent 
    public function getSubject() returns string {
        return self.subject;
    }
 
-   # Acknowledge the NATS Streaming server upon the receipt of the message.
+   # Acknowledges the NATS streaming server upon the receipt of the message.
    #
-   # + return - Returns () if the acknowledgment completes successfully or an error.
+   # + return - `()` or else a `nats:Error` upon failure to acknowledge the server
    public remote function ack() returns Error? {
        return externAck(self);
    }

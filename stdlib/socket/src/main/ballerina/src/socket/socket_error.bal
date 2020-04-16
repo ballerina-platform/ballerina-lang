@@ -16,8 +16,8 @@
 
 # Record type to hold the details of an error.
 #
-# + message - Specific error message of the error.
-# + cause - Any other error, which causes this error.
+# + message - The specific error message for the error.
+# + cause - The cause of the error if this error occurred due to another error
 public type Detail record {
     string message;
     error cause?;

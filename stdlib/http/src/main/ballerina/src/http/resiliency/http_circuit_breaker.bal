@@ -60,9 +60,9 @@ public type CircuitHealth record {|
 
 # Provides a set of configurations for controlling the behaviour of the Circuit Breaker.
 #
-# + rollingWindow - `RollingWindow` options of the `CircuitBreaker`
-# + failureThreshold - The threshold for request failures. When this threshold exceeds, the circuit trips.
-#                      The threshold should be a value between 0 and 1.
+# + rollingWindow - The `http:RollingWindow` options of the `CircuitBreaker`
+# + failureThreshold - The threshold for request failures. When this threshold exceeds, the circuit trips
+#                      The threshold should be a value between 0 and 1
 # + resetTimeInMillis - The time period(in milliseconds) to wait before attempting to make another request to
 #                     the upstream service
 # + statusCodes - Array of HTTP response status codes which are considered as failures
@@ -105,7 +105,7 @@ public type Bucket record {|
 #                     the upstream service
 # + statusCodes - Array of HTTP response status codes which are considered as failures
 # + noOfBuckets - Number of buckets derived from the `RollingWindow`
-# + rollingWindow - `RollingWindow` options provided in the `CircuitBreakerConfig`
+# + rollingWindow - The `http:RollingWindow` options provided in the `http:CircuitBreakerConfig`
 public type CircuitBreakerInferredConfig record {|
     float failureThreshold = 0.0;
     int resetTimeInMillis = 0;
@@ -135,8 +135,8 @@ public type CircuitBreakerClient client object {
     #
     # + url - The URL of the target service
     # + config - The configurations of the client endpoint associated with this `CircuitBreaker` instance
-    # + circuitBreakerInferredConfig - Configurations derived from `CircuitBreakerConfig`
-    # + httpClient - The underlying `HttpActions` instance which will be making the actual network calls
+    # + circuitBreakerInferredConfig - Configurations derived from the `http:CircuitBreakerConfig`
+    # + httpClient - The underlying `HttpActions` instance, which will be making the actual network calls
     # + circuitHealth - The circuit health monitor
     public function __init(string url, ClientConfiguration config, CircuitBreakerInferredConfig
         circuitBreakerInferredConfig, HttpClient httpClient, CircuitHealth circuitHealth) {
@@ -342,14 +342,14 @@ public type CircuitBreakerClient client object {
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
-    # The `CircuitBreakerClient.submit()` function does not give out a `Response` as the result,
-    # rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
+    # The `CircuitBreakerClient.submit()` function does not give out a `Response` as the result.
+    # Rather it returns an `http:HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `http:ClientError` if the submission
+    # + return - An `http:HttpFuture` that represents an asynchronous service invocation or else an `http:ClientError` if the submission
     #            fails
     public function submit(string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
@@ -370,44 +370,44 @@ public type CircuitBreakerClient client object {
         }
     }
 
-    # Retrieves the `Response` for a previously submitted request.
+    # Retrieves the `http:Response` for a previously-submitted request.
     #
-    # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP response message, or an `http:ClientError` if the invocation fails
+    # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public function getResponse(HttpFuture httpFuture) returns Response|ClientError {
-        // No need to check for response as we already check for the response in submit method
+        // No need to check for the response as we already check for the response in the submit method
         return self.httpClient->getResponse(httpFuture);
     }
 
-    # Circuit breaking not supported. Defaults to the `CircuitBreakerClient.hasPromise()` function of the underlying
+    # Circuit breaking is not supported. The default value is the `CircuitBreakerClient.hasPromise()` function of the underlying
     # HTTP remote functions provider.
     #
-    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - A `boolean` that represents whether a `PushPromise` exists
+    # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
+    # + return - A `boolean`, which represents whether an `http:PushPromise` exists
     public function hasPromise(HttpFuture httpFuture) returns boolean {
         return self.httpClient->hasPromise(httpFuture);
     }
 
-    # Retrieves the next available `PushPromise` for a previously submitted request.
+    # Retrieves the next available `http:PushPromise` for a previously-submitted request.
     #
-    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - An HTTP `PushPromise` message, or an `http:ClientError` if the invocation fails
+    # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
+    # + return - An `http:PushPromise` message or else an `http:ClientError` if the invocation fails
     public function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         return self.httpClient->getNextPromise(httpFuture);
     }
 
     # Retrieves the promised server push `Response` message.
     #
-    # + promise - The related `PushPromise`
-    # + return - A promised HTTP `Response` message, or an `http:ClientError` if the invocation fails
+    # + promise - The related `http:PushPromise`
+    # + return - A promised `http:Response` message or else an `http:ClientError` if the invocation fails
     public function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         return self.httpClient->getPromisedResponse(promise);
     }
 
-    # Circuit breaking not supported. Defaults to the `CircuitBreakerClient.rejectPromise()` function of the underlying
+    # Circuit breaking is not supported. The default value is the `CircuitBreakerClient.rejectPromise()` function of the underlying
     # HTTP remote functions provider.
     #
-    # + promise - The `PushPromise` to be rejected
+    # + promise - The `http:PushPromise` to be rejected
     public function rejectPromise(PushPromise promise) {
         return self.httpClient->rejectPromise(promise);
     }
@@ -425,16 +425,16 @@ public type CircuitBreakerClient client object {
         self.circuitHealth.lastForcedOpenTime = time:currentTime();
     }
 
-    # Provides `CircuitState` of the circuit breaker.
+    # Provides the `http:CircuitState` of the circuit breaker.
     #
-    # + return - The current `CircuitState` of circuit breaker
+    # + return - The current `http:CircuitState` of the circuit breaker
     public function getCurrentState() returns CircuitState {
         return self.currentCircuitState;
     }
 };
 
 
-# Update circuit state.
+# Updates the circuit state.
 #
 # + circuitHealth - Circuit Breaker health status
 # + currentStateValue - Circuit Breaker current state value
@@ -562,7 +562,7 @@ function validateCircuitBreakerConfiguration(CircuitBreakerConfig circuitBreaker
     }
 }
 
-# Calculate Failure at a given point.
+# Calculates a failure at a given point.
 #
 # + circuitHealth - Circuit Breaker health status
 # + return - Current failure ratio
@@ -583,7 +583,7 @@ function getCurrentFailureRatio(CircuitHealth circuitHealth) returns float {
     return ratio;
 }
 
-# Calculate total requests count within `RollingWindow`.
+# Calculates the total requests count within a `RollingWindow`.
 #
 # + circuitHealth - Circuit Breaker health status
 # + return - Total requests count
@@ -597,7 +597,7 @@ function getTotalRequestsCount(CircuitHealth circuitHealth) returns int {
     return totalCount;
 }
 
-# Calculate the current bucket Id.
+# Calculates the current bucket ID.
 #
 # + circuitHealth - Circuit Breaker health status
 # + circuitBreakerInferredConfig - Configurations derived from `CircuitBreakerConfig`
@@ -611,7 +611,7 @@ function getCurrentBucketId(CircuitHealth circuitHealth, CircuitBreakerInferredC
     return currentBucketId;
 }
 
-# Update rejected requests count.
+# Updates the rejected requests count.
 #
 # + circuitHealth - Circuit Breaker health status
 # + circuitBreakerInferredConfig - Configurations derived from `CircuitBreakerConfig`
@@ -624,7 +624,7 @@ function updateRejectedRequestCount(CircuitHealth circuitHealth,
     bucket.rejectedCount += 1;
 }
 
-# Reset the bucket values to default ones.
+# Resets the bucket values to the default ones.
 #
 # + circuitHealth - - Circuit Breaker health status.
 # + bucketId - - Id of the bucket should reset.
@@ -643,7 +643,7 @@ function getEffectiveErrorTime(CircuitHealth circuitHealth) returns time:Time {
     return time:currentTime();
 }
 
-# Populate the `RollingWindow` statistics to handle circuit breaking within the `RollingWindow` time frame.
+# Populates the `RollingWindow` statistics to handle circuit breaking within the `RollingWindow` time frame.
 #
 # + circuitHealth - Circuit Breaker health status
 # + circuitBreakerInferredConfig - Configurations derived from `CircuitBreakerConfig`
@@ -692,7 +692,7 @@ function prepareRollingWindow(CircuitHealth circuitHealth, CircuitBreakerInferre
     }
 }
 
-# Reinitialize the Buckets to default state.
+# Reinitializes the Buckets to the default state.
 #
 # + circuitHealth - Circuit Breaker health status
 function reInitializeBuckets(CircuitHealth circuitHealth) {

@@ -9,7 +9,7 @@
       "label": "innerRecField1",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
+      "sortText": "210",
       "insertText": "innerRecField1: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "innerRecField2",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
+      "sortText": "210",
       "insertText": "innerRecField2: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +25,7 @@
       "label": "inner2Rec",
       "kind": "Field",
       "detail": "Field",
-      "sortText": "120",
+      "sortText": "210",
       "insertText": "inner2Rec: {${1}}",
       "insertTextFormat": "Snippet"
     },

@@ -12,7 +12,7 @@
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller.\n  \n**Params**  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel` or `mime:Entity[]`(Defaultable)  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- Returns an `http:ListenerError` if failed to respond  \n  \n"
+                  "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller.\n  \n**Params**  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`,\n            `io:ReadableByteChannel`, or `mime:Entity[]`(Defaultable)  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- An `http:ListenerError` if failed to respond or else `()`  \n  \n"
                 }
             },
             "sortText": "120",
@@ -66,7 +66,7 @@
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nSends an upgrade request with custom headers.\n  \n**Params**  \n- `map\u003cstring\u003e` headers: A `map` of custom headers for handshake  \n  \n**Returns** `(http:WebSocketCaller|http:WsConnectionClosureError|http:WsInvalidHandshakeError|http:WsPayloadTooBigError|http:WsProtocolError|http:WsConnectionError|http:WsInvalidContinuationFrameError|http:WsGenericError)`   \n- `WebSocketCaller` or error on failure to upgrade  \n  \n"
+                  "value": "**Package:** _ballerina/http_  \n  \nSends an upgrade request with custom headers.\n  \n**Params**  \n- `map<string>` headers: A `map` of custom headers for handshake  \n  \n**Returns** `(http:WebSocketCaller|http:WsConnectionClosureError|http:WsInvalidHandshakeError|http:WsPayloadTooBigError|http:WsProtocolError|http:WsConnectionError|http:WsInvalidContinuationFrameError|http:WsGenericError)`   \n- An `http:WebSocketCaller` instance or else an `http:WebSocketError` on failure to upgrade  \n  \n"
                 }
             },
             "sortText": "120",
@@ -102,7 +102,7 @@
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nSends a `100-continue` response to the caller.\n  \n  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- Returns an `http:ListenerError` if failed to send the `100-continue` response  \n  \n"
+                  "value": "**Package:** _ballerina/http_  \n  \nSends a `100-continue` response to the caller.\n  \n  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- An `http:ListenerError` if failed to send the `100-continue` response or else `()`  \n  \n"
                 }
             },
             "sortText": "120",
@@ -116,7 +116,7 @@
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nSends a redirect response to the user with the specified redirection status code.\n  \n**Params**  \n- `http:Response` response: Response to be sent to the caller  \n- `(300|301|302|303|304|305|307|308)` code: The redirect status code to be sent  \n- `string[]` locations: An array of URLs to which the caller can redirect to  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- Returns an `http:ListenerError` if failed to send the redirect response  \n  \n"
+                  "value": "**Package:** _ballerina/http_  \n  \nSends a redirect response to the user with the specified redirection status code.\n  \n**Params**  \n- `http:Response` response: Response to be sent to the caller  \n- `(300|301|302|303|304|305|307|308)` code: The redirect status code to be sent  \n- `string[]` locations: An array of URLs to which the caller can redirect to  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- An `http:ListenerError` if failed to send the redirect response or else `()`  \n  \n"
                 }
             },
             "sortText": "120",
@@ -134,7 +134,7 @@
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 200 OK.\n  \n**Params**  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`(Defaultable)  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- Returns an `http:ListenerError` if failed to respond  \n  \n"
+                  "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 200 OK.\n  \n**Params**  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`(Defaultable)  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- An `http:ListenerError` if failed to respond or else `()`  \n  \n"
                 }
             },
             "sortText": "120",
@@ -152,7 +152,7 @@
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 201 Created.\n  \n**Params**  \n- `string` uri: Represents the most specific URI for the newly created resource  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`. This message is optional.(Defaultable)  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- Returns an `http:ListenerError` if failed to respond  \n  \n"
+                  "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 201 Created.\n  \n**Params**  \n- `string` uri: Represents the most specific URI for the newly created resource  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`. This message is optional.(Defaultable)  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- An `http:ListenerError` if failed to respond or else `()`  \n  \n"
                 }
             },
             "sortText": "120",
@@ -170,7 +170,7 @@
             "documentation": {
                 "right": {
                     "kind": "markdown",
-                  "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 202 Accepted.\n  \n**Params**  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`. This message is optional.(Defaultable)  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- Returns an `http:ListenerError` if failed to respond  \n  \n"
+                  "value": "**Package:** _ballerina/http_  \n  \nSends the outbound response to the caller with the status 202 Accepted.\n  \n**Params**  \n- `(http:Response|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[])` message: The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ReadableByteChannel`\n            or `mime:Entity[]`. This message is optional.(Defaultable)  \n  \n**Returns** `(()|http:GenericListenerError|http:InitializingInboundRequestError|http:ReadingInboundRequestHeadersError|http:ReadingInboundRequestBodyError|http:InitializingOutboundResponseError|http:WritingOutboundResponseHeadersError|http:WritingOutboundResponseBodyError|http:Initiating100ContinueResponseError|http:Writing100ContinueResponseError|http:InvalidCookieError)`   \n- An `http:ListenerError` if failed to respond or else `()`  \n  \n"
                 }
             },
             "sortText": "120",

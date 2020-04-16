@@ -18,18 +18,29 @@ import ballerina/config;
 import ballerina/crypto;
 import ballerina/stringutils;
 
-# Represents the inbound basic Auth provider, which is a configuration-file-based Auth provider.
+# Represents the configuration file based inbound Basic Auth provider, which is an implementation of the
+# `auth:InboundAuthProvider` interface.
+# ```ballerina
+#  auth:InboundBasicAuthProvider inboundBasicAuthProvider = new;
+#  ```
+# A user is denoted by a section in the Ballerina configuration file. The password and the scopes assigned to the user
+# are denoted as keys under the relevant user section as shown below.
+# ```
+# [b7a.users.<username>]
+# password="<password>"
+# scopes="<comma_separated_scopes>"
+# ```
 #
-# + basicAuthConfig - The Basic Auth provider configurations.
+# + basicAuthConfig - The Basic Auth provider configurations
 public type InboundBasicAuthProvider object {
 
     *InboundAuthProvider;
 
     public BasicAuthConfig basicAuthConfig;
 
-    # Provides authentication based on the provided configuration.
+    # Provides authentication based on the provided configurations.
     #
-    # + basicAuthConfig - The Basic Auth provider configurations.
+    # + basicAuthConfig - Basic Auth provider configurations
     public function __init(BasicAuthConfig? basicAuthConfig = ()) {
         if (basicAuthConfig is BasicAuthConfig) {
             self.basicAuthConfig = basicAuthConfig;
@@ -38,10 +49,14 @@ public type InboundBasicAuthProvider object {
         }
     }
 
-    # Attempts to authenticate with credentials.
-    #
-    # + credential - Credential
-    # + return - `true` if authentication is successful, otherwise `false` or `Error` occurred while extracting credentials
+# Attempts to authenticate the base64-encoded `username:password` credentials.
+# ```ballerina
+# boolean|auth:Error authenticationResult = inboundBasicAuthProvider.authenticate("<credential>");
+# ```
+#
+# + credential - Base64-encoded `username:password` value
+# + return - `true` if the authentication is successful, `false` otherwise, or else an `auth:Error` occurred
+#             while authenticating the credentials
     public function authenticate(string credential) returns boolean|Error {
         if (credential == "") {
             return false;
@@ -78,21 +93,21 @@ public type InboundBasicAuthProvider object {
     }
 };
 
-# The `BasicAuthConfig` record can be used to configure inbound Basic Authentication configurations.
+# Represents the inbound Basic Authentication configurations.
 #
-# + tableName - The table name of the TOML file of the user-store.
+# + tableName - The table name specified in the user-store TOML configuration
 public type BasicAuthConfig record {|
     string tableName;
 |};
 
-# Reads the scope(s) of the user of the given username.
+# Reads the scope(s) of the user identified by the given username.
 #
-# + username - The username of the user.
-# + tableName - The table name of the TOML file of the user-store.
-# + return - An array of groups of the user who is denoted by the username.
+# + username - Username of the user
+# + tableName - Table name specified in the user-store TOML configuration
+# + return - An array of scopes of the user identified by the username
 function getScopes(string username, string tableName) returns string[] {
     // First, reads the user ID from the user->id mapping.
-    // Reads the groups of the user-id.
+    // Then, reads the scopes of the user-id.
     return getArray(getConfigAuthValue(tableName + "." + username, "scopes"));
 }
 
@@ -104,13 +119,13 @@ function extractHash(string configValue) returns string {
     return configValue.substring((<int> configValue.indexOf("{")) + 1, stringutils:lastIndexOf(configValue, "}"));
 }
 
-# Reads the password hash for a user.
+# Reads the password hash of a user.
 #
-# + username - Username
-# + return - Password hash read from userstore, or nil if not found
+# + username - Username of the user
+# + return - Password hash read from the userstore or else `()` if not found
 function readPassword(string username) returns string {
-    // first read the user id from user->id mapping
-    // read the hashed password from the user-store file, using the user id
+    // First, reads the user ID from the user->id mapping.
+    // Then, reads the hashed password from the user-store file using the user ID.
     return getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "password");
 }
 
@@ -118,10 +133,10 @@ function getConfigAuthValue(string instanceId, string property) returns string {
     return config:getAsString(instanceId + "." + property, "");
 }
 
-# Construct an array of groups from the comma separed group string passed.
+# Constructs an array of groups from the given comma-separated string of groups.
 #
-# + groupString - Comma separated string of groups
-# + return - Array of groups, nil if the groups string is empty/nil
+# + groupString - Comma-separated string of groups
+# + return - An array of groups or else `()` if the groups string is empty/`()`
 function getArray(string groupString) returns string[] {
     if (groupString.length() == 0) {
         return [];
