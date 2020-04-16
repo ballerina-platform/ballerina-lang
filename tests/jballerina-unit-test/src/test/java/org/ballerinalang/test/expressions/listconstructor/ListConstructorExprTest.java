@@ -78,5 +78,7 @@ public class ListConstructorExprTest {
         BRunUtil.invoke(resultInferType, "inferSimpleTuple");
         BRunUtil.invoke(resultInferType, "inferStructuredTuple");
         BRunUtil.invoke(resultInferType, "inferNestedTuple");
+        BRunUtil.invoke(resultInferType, "testInferSameRecordsInTuple");
+        BRunUtil.invoke(resultInferType, "testInferDifferentRecordsInTuple");
     }
 }
