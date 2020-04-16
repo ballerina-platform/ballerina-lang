@@ -24,18 +24,34 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class UnaryExpression extends Expression {
+public class MethodCallExpressionNode extends ExpressionNode {
 
-    public UnaryExpression(STNode internalNode, int position, NonTerminalNode parent) {
+    public MethodCallExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token unaryOperator() {
+    public ExpressionNode expression() {
         return childInBucket(0);
     }
 
-    public Node expression() {
+    public Token dotToken() {
         return childInBucket(1);
+    }
+
+    public Token methodName() {
+        return childInBucket(2);
+    }
+
+    public Token openParenToken() {
+        return childInBucket(3);
+    }
+
+    public NodeList<FunctionArgument> arguments() {
+        return new NodeList<>(childInBucket(4));
+    }
+
+    public Token closeParenToken() {
+        return childInBucket(5);
     }
 
     @Override
@@ -48,17 +64,29 @@ public class UnaryExpression extends Expression {
         return visitor.transform(this);
     }
 
-    public UnaryExpression modify(
-            Token unaryOperator,
-            Node expression) {
+    public MethodCallExpressionNode modify(
+            ExpressionNode expression,
+            Token dotToken,
+            Token methodName,
+            Token openParenToken,
+            NodeList<FunctionArgument> arguments,
+            Token closeParenToken) {
         if (checkForReferenceEquality(
-                unaryOperator,
-                expression)) {
+                expression,
+                dotToken,
+                methodName,
+                openParenToken,
+                arguments.underlyingListNode(),
+                closeParenToken)) {
             return this;
         }
 
-        return NodeFactory.createUnaryExpression(
-                unaryOperator,
-                expression);
+        return NodeFactory.createMethodCallExpression(
+                expression,
+                dotToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken);
     }
 }

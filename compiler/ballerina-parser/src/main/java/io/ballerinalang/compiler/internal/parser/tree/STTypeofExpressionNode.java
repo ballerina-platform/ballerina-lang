@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.TypeofExpression;
+import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
 
 /**
  * This is a generated internal syntax tree node.
@@ -44,6 +44,6 @@ public class STTypeofExpressionNode extends STExpressionNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new TypeofExpression(this, position, parent);
+        return new TypeofExpressionNode(this, position, parent);
     }
 }

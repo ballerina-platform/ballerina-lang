@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.IsExpression;
+import io.ballerinalang.compiler.syntax.tree.IsExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -48,6 +48,6 @@ public class STIsExpressionNode extends STExpressionNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new IsExpression(this, position, parent);
+        return new IsExpressionNode(this, position, parent);
     }
 }

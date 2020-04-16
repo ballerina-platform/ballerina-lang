@@ -46,7 +46,7 @@ public class ServiceDeclaration extends ModuleMemberDeclaration {
         return childInBucket(3);
     }
 
-    public NodeList<Expression> expressions() {
+    public NodeList<ExpressionNode> expressions() {
         return new NodeList<>(childInBucket(4));
     }
 
@@ -69,7 +69,7 @@ public class ServiceDeclaration extends ModuleMemberDeclaration {
             Token serviceKeyword,
             IdentifierToken serviceName,
             Token onKeyword,
-            NodeList<Expression> expressions,
+            NodeList<ExpressionNode> expressions,
             Node serviceBody) {
         if (checkForReferenceEquality(
                 metadata,

@@ -119,43 +119,43 @@ public abstract class NodeVisitor {
         visitSyntaxNode(returnStatement);
     }
 
-    public void visit(BinaryExpression binaryExpression) {
+    public void visit(BinaryExpressionNode binaryExpression) {
         visitSyntaxNode(binaryExpression);
     }
 
-    public void visit(BracedExpression bracedExpression) {
+    public void visit(BracedExpressionNode bracedExpression) {
         visitSyntaxNode(bracedExpression);
     }
 
-    public void visit(CheckExpression checkExpression) {
+    public void visit(CheckExpressionNode checkExpression) {
         visitSyntaxNode(checkExpression);
     }
 
-    public void visit(FieldAccessExpression fieldAccessExpression) {
+    public void visit(FieldAccessExpressionNode fieldAccessExpression) {
         visitSyntaxNode(fieldAccessExpression);
     }
 
-    public void visit(FunctionCallExpression functionCallExpression) {
+    public void visit(FunctionCallExpressionNode functionCallExpression) {
         visitSyntaxNode(functionCallExpression);
     }
 
-    public void visit(MethodCallExpression methodCallExpression) {
+    public void visit(MethodCallExpressionNode methodCallExpression) {
         visitSyntaxNode(methodCallExpression);
     }
 
-    public void visit(MappingConstructorExpression mappingConstructorExpression) {
+    public void visit(MappingConstructorExpressionNode mappingConstructorExpression) {
         visitSyntaxNode(mappingConstructorExpression);
     }
 
-    public void visit(MemberAccessExpression memberAccessExpression) {
+    public void visit(MemberAccessExpressionNode memberAccessExpression) {
         visitSyntaxNode(memberAccessExpression);
     }
 
-    public void visit(TypeofExpression typeofExpression) {
+    public void visit(TypeofExpressionNode typeofExpression) {
         visitSyntaxNode(typeofExpression);
     }
 
-    public void visit(UnaryExpression unaryExpression) {
+    public void visit(UnaryExpressionNode unaryExpression) {
         visitSyntaxNode(unaryExpression);
     }
 
@@ -283,7 +283,7 @@ public abstract class NodeVisitor {
         visitSyntaxNode(moduleVariableDeclaration);
     }
 
-    public void visit(IsExpression isExpression) {
+    public void visit(IsExpressionNode isExpression) {
         visitSyntaxNode(isExpression);
     }
 

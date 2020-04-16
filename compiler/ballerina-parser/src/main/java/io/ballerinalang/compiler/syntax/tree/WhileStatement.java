@@ -34,7 +34,7 @@ public class WhileStatement extends Statement {
         return childInBucket(0);
     }
 
-    public Expression condition() {
+    public ExpressionNode condition() {
         return childInBucket(1);
     }
 
@@ -54,7 +54,7 @@ public class WhileStatement extends Statement {
 
     public WhileStatement modify(
             Token whileKeyword,
-            Expression condition,
+            ExpressionNode condition,
             Node whileBody) {
         if (checkForReferenceEquality(
                 whileKeyword,

@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.CheckExpression;
+import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -44,6 +44,6 @@ public class STCheckExpressionNodeNode extends STExpressionNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new CheckExpression(this, position, parent);
+        return new CheckExpressionNode(this, position, parent);
     }
 }

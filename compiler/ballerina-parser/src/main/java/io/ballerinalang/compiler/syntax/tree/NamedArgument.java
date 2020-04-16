@@ -42,7 +42,7 @@ public class NamedArgument extends FunctionArgument {
         return childInBucket(2);
     }
 
-    public Expression expression() {
+    public ExpressionNode expression() {
         return childInBucket(3);
     }
 
@@ -60,7 +60,7 @@ public class NamedArgument extends FunctionArgument {
             Token leadingComma,
             Token argumentName,
             Token equalsToken,
-            Expression expression) {
+            ExpressionNode expression) {
         if (checkForReferenceEquality(
                 leadingComma,
                 argumentName,

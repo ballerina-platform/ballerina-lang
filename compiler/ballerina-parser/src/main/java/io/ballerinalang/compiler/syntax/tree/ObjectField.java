@@ -50,7 +50,7 @@ public class ObjectField extends NonTerminalNode {
         return childInBucket(4);
     }
 
-    public Expression expression() {
+    public ExpressionNode expression() {
         return childInBucket(5);
     }
 
@@ -74,7 +74,7 @@ public class ObjectField extends NonTerminalNode {
             Node type,
             Token fieldName,
             Token equalsToken,
-            Expression expression,
+            ExpressionNode expression,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,

@@ -50,7 +50,7 @@ public class VariableDeclaration extends Statement {
         return childInBucket(4);
     }
 
-    public Expression initializer() {
+    public ExpressionNode initializer() {
         return childInBucket(5);
     }
 
@@ -74,7 +74,7 @@ public class VariableDeclaration extends Statement {
             Node typeName,
             Token variableName,
             Token equalsToken,
-            Expression initializer,
+            ExpressionNode initializer,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 annotations.underlyingListNode(),

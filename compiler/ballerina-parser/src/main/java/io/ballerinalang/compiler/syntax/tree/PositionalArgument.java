@@ -34,7 +34,7 @@ public class PositionalArgument extends FunctionArgument {
         return childInBucket(0);
     }
 
-    public Expression expression() {
+    public ExpressionNode expression() {
         return childInBucket(1);
     }
 
@@ -50,7 +50,7 @@ public class PositionalArgument extends FunctionArgument {
 
     public PositionalArgument modify(
             Token leadingComma,
-            Expression expression) {
+            ExpressionNode expression) {
         if (checkForReferenceEquality(
                 leadingComma,
                 expression)) {

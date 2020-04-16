@@ -38,7 +38,7 @@ public class AssignmentStatement extends Statement {
         return childInBucket(1);
     }
 
-    public Expression expression() {
+    public ExpressionNode expression() {
         return childInBucket(2);
     }
 
@@ -59,7 +59,7 @@ public class AssignmentStatement extends Statement {
     public AssignmentStatement modify(
             Node varRef,
             Token equalsToken,
-            Expression expression,
+            ExpressionNode expression,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 varRef,

@@ -24,22 +24,18 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class FieldAccessExpression extends Expression {
+public class UnaryExpressionNode extends ExpressionNode {
 
-    public FieldAccessExpression(STNode internalNode, int position, NonTerminalNode parent) {
+    public UnaryExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Node expression() {
+    public Token unaryOperator() {
         return childInBucket(0);
     }
 
-    public Token dotToken() {
+    public Node expression() {
         return childInBucket(1);
-    }
-
-    public Token fieldName() {
-        return childInBucket(2);
     }
 
     @Override
@@ -52,20 +48,17 @@ public class FieldAccessExpression extends Expression {
         return visitor.transform(this);
     }
 
-    public FieldAccessExpression modify(
-            Node expression,
-            Token dotToken,
-            Token fieldName) {
+    public UnaryExpressionNode modify(
+            Token unaryOperator,
+            Node expression) {
         if (checkForReferenceEquality(
-                expression,
-                dotToken,
-                fieldName)) {
+                unaryOperator,
+                expression)) {
             return this;
         }
 
-        return NodeFactory.createFieldAccessExpression(
-                expression,
-                dotToken,
-                fieldName);
+        return NodeFactory.createUnaryExpression(
+                unaryOperator,
+                expression);
     }
 }

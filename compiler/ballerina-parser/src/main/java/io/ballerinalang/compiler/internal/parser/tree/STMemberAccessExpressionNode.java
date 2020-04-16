@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.MemberAccessExpression;
+import io.ballerinalang.compiler.syntax.tree.MemberAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -52,6 +52,6 @@ public class STMemberAccessExpressionNode extends STExpressionNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new MemberAccessExpression(this, position, parent);
+        return new MemberAccessExpressionNode(this, position, parent);
     }
 }

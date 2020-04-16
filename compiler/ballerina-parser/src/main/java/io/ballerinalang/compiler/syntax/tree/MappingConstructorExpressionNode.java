@@ -24,26 +24,22 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class FunctionCallExpression extends Expression {
+public class MappingConstructorExpressionNode extends ExpressionNode {
 
-    public FunctionCallExpression(STNode internalNode, int position, NonTerminalNode parent) {
+    public MappingConstructorExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Node functionName() {
+    public Token openBrace() {
         return childInBucket(0);
     }
 
-    public Token openParenToken() {
-        return childInBucket(1);
+    public NodeList<MappingField> fields() {
+        return new NodeList<>(childInBucket(1));
     }
 
-    public NodeList<FunctionArgument> arguments() {
-        return new NodeList<>(childInBucket(2));
-    }
-
-    public Token closeParenToken() {
-        return childInBucket(3);
+    public Token closeBrace() {
+        return childInBucket(2);
     }
 
     @Override
@@ -56,23 +52,20 @@ public class FunctionCallExpression extends Expression {
         return visitor.transform(this);
     }
 
-    public FunctionCallExpression modify(
-            Node functionName,
-            Token openParenToken,
-            NodeList<FunctionArgument> arguments,
-            Token closeParenToken) {
+    public MappingConstructorExpressionNode modify(
+            Token openBrace,
+            NodeList<MappingField> fields,
+            Token closeBrace) {
         if (checkForReferenceEquality(
-                functionName,
-                openParenToken,
-                arguments.underlyingListNode(),
-                closeParenToken)) {
+                openBrace,
+                fields.underlyingListNode(),
+                closeBrace)) {
             return this;
         }
 
-        return NodeFactory.createFunctionCallExpression(
-                functionName,
-                openParenToken,
-                arguments,
-                closeParenToken);
+        return NodeFactory.createMappingConstructorExpression(
+                openBrace,
+                fields,
+                closeBrace);
     }
 }

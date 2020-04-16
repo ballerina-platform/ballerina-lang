@@ -24,34 +24,22 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class MethodCallExpression extends Expression {
+public class BinaryExpressionNode extends ExpressionNode {
 
-    public MethodCallExpression(STNode internalNode, int position, NonTerminalNode parent) {
+    public BinaryExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Expression expression() {
+    public Node lhsExpr() {
         return childInBucket(0);
     }
 
-    public Token dotToken() {
+    public Token operator() {
         return childInBucket(1);
     }
 
-    public Token methodName() {
+    public Node rhsExpr() {
         return childInBucket(2);
-    }
-
-    public Token openParenToken() {
-        return childInBucket(3);
-    }
-
-    public NodeList<FunctionArgument> arguments() {
-        return new NodeList<>(childInBucket(4));
-    }
-
-    public Token closeParenToken() {
-        return childInBucket(5);
     }
 
     @Override
@@ -64,29 +52,22 @@ public class MethodCallExpression extends Expression {
         return visitor.transform(this);
     }
 
-    public MethodCallExpression modify(
-            Expression expression,
-            Token dotToken,
-            Token methodName,
-            Token openParenToken,
-            NodeList<FunctionArgument> arguments,
-            Token closeParenToken) {
+    public BinaryExpressionNode modify(
+            SyntaxKind kind,
+            Node lhsExpr,
+            Token operator,
+            Node rhsExpr) {
         if (checkForReferenceEquality(
-                expression,
-                dotToken,
-                methodName,
-                openParenToken,
-                arguments.underlyingListNode(),
-                closeParenToken)) {
+                lhsExpr,
+                operator,
+                rhsExpr)) {
             return this;
         }
 
-        return NodeFactory.createMethodCallExpression(
-                expression,
-                dotToken,
-                methodName,
-                openParenToken,
-                arguments,
-                closeParenToken);
+        return NodeFactory.createBinaryExpression(
+                kind,
+                lhsExpr,
+                operator,
+                rhsExpr);
     }
 }

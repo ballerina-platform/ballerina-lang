@@ -24,22 +24,18 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class MappingConstructorExpression extends Expression {
+public class TypeofExpressionNode extends ExpressionNode {
 
-    public MappingConstructorExpression(STNode internalNode, int position, NonTerminalNode parent) {
+    public TypeofExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token openBrace() {
+    public Token typeofKeyword() {
         return childInBucket(0);
     }
 
-    public NodeList<MappingField> fields() {
-        return new NodeList<>(childInBucket(1));
-    }
-
-    public Token closeBrace() {
-        return childInBucket(2);
+    public Node expression() {
+        return childInBucket(1);
     }
 
     @Override
@@ -52,20 +48,17 @@ public class MappingConstructorExpression extends Expression {
         return visitor.transform(this);
     }
 
-    public MappingConstructorExpression modify(
-            Token openBrace,
-            NodeList<MappingField> fields,
-            Token closeBrace) {
+    public TypeofExpressionNode modify(
+            Token typeofKeyword,
+            Node expression) {
         if (checkForReferenceEquality(
-                openBrace,
-                fields.underlyingListNode(),
-                closeBrace)) {
+                typeofKeyword,
+                expression)) {
             return this;
         }
 
-        return NodeFactory.createMappingConstructorExpression(
-                openBrace,
-                fields,
-                closeBrace);
+        return NodeFactory.createTypeofExpression(
+                typeofKeyword,
+                expression);
     }
 }

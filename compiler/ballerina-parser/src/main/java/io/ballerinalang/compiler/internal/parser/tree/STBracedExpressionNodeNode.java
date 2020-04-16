@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.BracedExpression;
+import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -49,6 +49,6 @@ public class STBracedExpressionNodeNode extends STExpressionNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new BracedExpression(this, position, parent);
+        return new BracedExpressionNode(this, position, parent);
     }
 }

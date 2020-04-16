@@ -27,8 +27,8 @@ import io.ballerinalang.compiler.syntax.tree.AssignmentStatement;
 import io.ballerinalang.compiler.syntax.tree.BlockStatement;
 import io.ballerinalang.compiler.syntax.tree.CallStatement;
 import io.ballerinalang.compiler.syntax.tree.EmptyToken;
-import io.ballerinalang.compiler.syntax.tree.Expression;
-import io.ballerinalang.compiler.syntax.tree.FunctionCallExpression;
+import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinition;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclaration;
@@ -270,7 +270,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
         return expressionStmt;
     }
 
-    public BLangInvocation transform(FunctionCallExpression functionCallNode) {
+    public BLangInvocation transform(FunctionCallExpressionNode functionCallNode) {
         BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
         Node nameNode = functionCallNode.functionName();
         if (nameNode.kind() == SyntaxKind.QUALIFIED_IDENTIFIER) {
@@ -291,7 +291,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangExpression transform(PositionalArgument argumentNode) {
-        Expression expression = argumentNode.expression();
+        ExpressionNode expression = argumentNode.expression();
         if (isSimpleLiteral(expression)) {
             return createSimpleLiteral(expression);
         }

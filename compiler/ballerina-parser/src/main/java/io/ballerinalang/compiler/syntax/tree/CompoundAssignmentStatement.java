@@ -30,7 +30,7 @@ public class CompoundAssignmentStatement extends Statement {
         super(internalNode, position, parent);
     }
 
-    public Expression lhsExpression() {
+    public ExpressionNode lhsExpression() {
         return childInBucket(0);
     }
 
@@ -42,7 +42,7 @@ public class CompoundAssignmentStatement extends Statement {
         return childInBucket(2);
     }
 
-    public Expression rhsExpression() {
+    public ExpressionNode rhsExpression() {
         return childInBucket(3);
     }
 
@@ -61,10 +61,10 @@ public class CompoundAssignmentStatement extends Statement {
     }
 
     public CompoundAssignmentStatement modify(
-            Expression lhsExpression,
+            ExpressionNode lhsExpression,
             Token binaryOperator,
             Token equalsToken,
-            Expression rhsExpression,
+            ExpressionNode rhsExpression,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 lhsExpression,

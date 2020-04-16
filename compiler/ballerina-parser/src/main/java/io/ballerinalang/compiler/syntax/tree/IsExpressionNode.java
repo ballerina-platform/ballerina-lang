@@ -24,21 +24,21 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class BinaryExpression extends Expression {
+public class IsExpressionNode extends ExpressionNode {
 
-    public BinaryExpression(STNode internalNode, int position, NonTerminalNode parent) {
+    public IsExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Node lhsExpr() {
+    public Node expression() {
         return childInBucket(0);
     }
 
-    public Token operator() {
+    public Token isKeyword() {
         return childInBucket(1);
     }
 
-    public Node rhsExpr() {
+    public Node typeDescriptor() {
         return childInBucket(2);
     }
 
@@ -52,22 +52,20 @@ public class BinaryExpression extends Expression {
         return visitor.transform(this);
     }
 
-    public BinaryExpression modify(
-            SyntaxKind kind,
-            Node lhsExpr,
-            Token operator,
-            Node rhsExpr) {
+    public IsExpressionNode modify(
+            Node expression,
+            Token isKeyword,
+            Node typeDescriptor) {
         if (checkForReferenceEquality(
-                lhsExpr,
-                operator,
-                rhsExpr)) {
+                expression,
+                isKeyword,
+                typeDescriptor)) {
             return this;
         }
 
-        return NodeFactory.createBinaryExpression(
-                kind,
-                lhsExpr,
-                operator,
-                rhsExpr);
+        return NodeFactory.createIsExpression(
+                expression,
+                isKeyword,
+                typeDescriptor);
     }
 }

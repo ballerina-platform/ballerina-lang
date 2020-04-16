@@ -164,7 +164,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token serviceKeyword,
             IdentifierToken serviceName,
             Token onKeyword,
-            NodeList<Expression> expressions,
+            NodeList<ExpressionNode> expressions,
             Node serviceBody) {
         Objects.requireNonNull(metadata, "metadata must not be null");
         Objects.requireNonNull(serviceKeyword, "serviceKeyword must not be null");
@@ -186,7 +186,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static AssignmentStatement createAssignmentStatement(
             Node varRef,
             Token equalsToken,
-            Expression expression,
+            ExpressionNode expression,
             Token semicolonToken) {
         Objects.requireNonNull(varRef, "varRef must not be null");
         Objects.requireNonNull(equalsToken, "equalsToken must not be null");
@@ -202,10 +202,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static CompoundAssignmentStatement createCompoundAssignmentStatement(
-            Expression lhsExpression,
+            ExpressionNode lhsExpression,
             Token binaryOperator,
             Token equalsToken,
-            Expression rhsExpression,
+            ExpressionNode rhsExpression,
             Token semicolonToken) {
         Objects.requireNonNull(lhsExpression, "lhsExpression must not be null");
         Objects.requireNonNull(binaryOperator, "binaryOperator must not be null");
@@ -249,7 +249,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Node typeName,
             Token variableName,
             Token equalsToken,
-            Expression initializer,
+            ExpressionNode initializer,
             Token semicolonToken) {
         Objects.requireNonNull(annotations, "annotations must not be null");
         Objects.requireNonNull(finalKeyword, "finalKeyword must not be null");
@@ -371,7 +371,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static WhileStatement createWhileStatement(
             Token whileKeyword,
-            Expression condition,
+            ExpressionNode condition,
             Node whileBody) {
         Objects.requireNonNull(whileKeyword, "whileKeyword must not be null");
         Objects.requireNonNull(condition, "condition must not be null");
@@ -386,7 +386,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static PanicStatement createPanicStatement(
             Token panicKeyword,
-            Expression expression,
+            ExpressionNode expression,
             Token semicolonToken) {
         Objects.requireNonNull(panicKeyword, "panicKeyword must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
@@ -401,7 +401,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ReturnStatement createReturnStatement(
             Token returnKeyword,
-            Expression expression,
+            ExpressionNode expression,
             Token semicolonToken) {
         Objects.requireNonNull(returnKeyword, "returnKeyword must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
@@ -414,7 +414,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stReturnStatement.createUnlinkedFacade();
     }
 
-    public static BinaryExpression createBinaryExpression(
+    public static BinaryExpressionNode createBinaryExpression(
             SyntaxKind kind,
             Node lhsExpr,
             Token operator,
@@ -431,7 +431,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stBinaryExpression.createUnlinkedFacade();
     }
 
-    public static BracedExpression createBracedExpression(
+    public static BracedExpressionNode createBracedExpression(
             SyntaxKind kind,
             Token openParen,
             Node expression,
@@ -448,7 +448,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stBracedExpression.createUnlinkedFacade();
     }
 
-    public static CheckExpression createCheckExpression(
+    public static CheckExpressionNode createCheckExpression(
             Token checkKeyword,
             Node expression) {
         Objects.requireNonNull(checkKeyword, "checkKeyword must not be null");
@@ -460,7 +460,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stCheckExpression.createUnlinkedFacade();
     }
 
-    public static FieldAccessExpression createFieldAccessExpression(
+    public static FieldAccessExpressionNode createFieldAccessExpression(
             Node expression,
             Token dotToken,
             Token fieldName) {
@@ -475,7 +475,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stFieldAccessExpression.createUnlinkedFacade();
     }
 
-    public static FunctionCallExpression createFunctionCallExpression(
+    public static FunctionCallExpressionNode createFunctionCallExpression(
             Node functionName,
             Token openParenToken,
             NodeList<FunctionArgument> arguments,
@@ -493,8 +493,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stFunctionCallExpression.createUnlinkedFacade();
     }
 
-    public static MethodCallExpression createMethodCallExpression(
-            Expression expression,
+    public static MethodCallExpressionNode createMethodCallExpression(
+            ExpressionNode expression,
             Token dotToken,
             Token methodName,
             Token openParenToken,
@@ -517,7 +517,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stMethodCallExpression.createUnlinkedFacade();
     }
 
-    public static MappingConstructorExpression createMappingConstructorExpression(
+    public static MappingConstructorExpressionNode createMappingConstructorExpression(
             Token openBrace,
             NodeList<MappingField> fields,
             Token closeBrace) {
@@ -532,10 +532,10 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stMappingConstructorExpression.createUnlinkedFacade();
     }
 
-    public static MemberAccessExpression createMemberAccessExpression(
-            Expression containerExpression,
+    public static MemberAccessExpressionNode createMemberAccessExpression(
+            ExpressionNode containerExpression,
             Token openBracket,
-            Expression keyExpression,
+            ExpressionNode keyExpression,
             Token closeBracket) {
         Objects.requireNonNull(containerExpression, "containerExpression must not be null");
         Objects.requireNonNull(openBracket, "openBracket must not be null");
@@ -550,7 +550,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stMemberAccessExpression.createUnlinkedFacade();
     }
 
-    public static TypeofExpression createTypeofExpression(
+    public static TypeofExpressionNode createTypeofExpression(
             Token typeofKeyword,
             Node expression) {
         Objects.requireNonNull(typeofKeyword, "typeofKeyword must not be null");
@@ -562,7 +562,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stTypeofExpression.createUnlinkedFacade();
     }
 
-    public static UnaryExpression createUnaryExpression(
+    public static UnaryExpressionNode createUnaryExpression(
             Token unaryOperator,
             Node expression) {
         Objects.requireNonNull(unaryOperator, "unaryOperator must not be null");
@@ -773,7 +773,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token leadingComma,
             IdentifierToken fieldName,
             Token colon,
-            Expression valueExpr) {
+            ExpressionNode valueExpr) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(fieldName, "fieldName must not be null");
         Objects.requireNonNull(colon, "colon must not be null");
@@ -790,7 +790,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static SpreadField createSpreadField(
             Token leadingComma,
             Token ellipsis,
-            Expression valueExpr) {
+            ExpressionNode valueExpr) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(ellipsis, "ellipsis must not be null");
         Objects.requireNonNull(valueExpr, "valueExpr must not be null");
@@ -806,7 +806,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token leadingComma,
             Token argumentName,
             Token equalsToken,
-            Expression expression) {
+            ExpressionNode expression) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(argumentName, "argumentName must not be null");
         Objects.requireNonNull(equalsToken, "equalsToken must not be null");
@@ -822,7 +822,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static PositionalArgument createPositionalArgument(
             Token leadingComma,
-            Expression expression) {
+            ExpressionNode expression) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
@@ -835,7 +835,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static RestArgument createRestArgument(
             Token leadingComma,
             Token ellipsis,
-            Expression expression) {
+            ExpressionNode expression) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
         Objects.requireNonNull(ellipsis, "ellipsis must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
@@ -931,7 +931,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Node type,
             Token fieldName,
             Token equalsToken,
-            Expression expression,
+            ExpressionNode expression,
             Token semicolonToken) {
         Objects.requireNonNull(metadata, "metadata must not be null");
         Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
@@ -978,7 +978,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Node type,
             Token fieldName,
             Token equalsToken,
-            Expression expression,
+            ExpressionNode expression,
             Token semicolonToken) {
         Objects.requireNonNull(metadata, "metadata must not be null");
         Objects.requireNonNull(type, "type must not be null");
@@ -1060,7 +1060,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static AnnotationNode createAnnotation(
             Token atToken,
             Node annotReference,
-            MappingConstructorExpression annotValue) {
+            MappingConstructorExpressionNode annotValue) {
         Objects.requireNonNull(atToken, "atToken must not be null");
         Objects.requireNonNull(annotReference, "annotReference must not be null");
         Objects.requireNonNull(annotValue, "annotValue must not be null");
@@ -1090,7 +1090,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Node typeName,
             Token variableName,
             Token equalsToken,
-            Expression initializer,
+            ExpressionNode initializer,
             Token semicolonToken) {
         Objects.requireNonNull(metadata, "metadata must not be null");
         Objects.requireNonNull(finalKeyword, "finalKeyword must not be null");
@@ -1111,7 +1111,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stModuleVariableDeclaration.createUnlinkedFacade();
     }
 
-    public static IsExpression createIsExpression(
+    public static IsExpressionNode createIsExpression(
             Node expression,
             Token isKeyword,
             Node typeDescriptor) {

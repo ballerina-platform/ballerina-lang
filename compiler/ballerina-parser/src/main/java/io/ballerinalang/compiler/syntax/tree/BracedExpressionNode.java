@@ -24,9 +24,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class BracedExpression extends Expression {
+public class BracedExpressionNode extends ExpressionNode {
 
-    public BracedExpression(STNode internalNode, int position, NonTerminalNode parent) {
+    public BracedExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -52,7 +52,7 @@ public class BracedExpression extends Expression {
         return visitor.transform(this);
     }
 
-    public BracedExpression modify(
+    public BracedExpressionNode modify(
             SyntaxKind kind,
             Token openParen,
             Node expression,

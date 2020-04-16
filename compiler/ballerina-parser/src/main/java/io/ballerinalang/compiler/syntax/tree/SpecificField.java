@@ -42,7 +42,7 @@ public class SpecificField extends MappingField {
         return childInBucket(2);
     }
 
-    public Expression valueExpr() {
+    public ExpressionNode valueExpr() {
         return childInBucket(3);
     }
 
@@ -60,7 +60,7 @@ public class SpecificField extends MappingField {
             Token leadingComma,
             IdentifierToken fieldName,
             Token colon,
-            Expression valueExpr) {
+            ExpressionNode valueExpr) {
         if (checkForReferenceEquality(
                 leadingComma,
                 fieldName,

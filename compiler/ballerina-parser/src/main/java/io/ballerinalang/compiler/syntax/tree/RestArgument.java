@@ -38,7 +38,7 @@ public class RestArgument extends FunctionArgument {
         return childInBucket(1);
     }
 
-    public Expression expression() {
+    public ExpressionNode expression() {
         return childInBucket(2);
     }
 
@@ -55,7 +55,7 @@ public class RestArgument extends FunctionArgument {
     public RestArgument modify(
             Token leadingComma,
             Token ellipsis,
-            Expression expression) {
+            ExpressionNode expression) {
         if (checkForReferenceEquality(
                 leadingComma,
                 ellipsis,

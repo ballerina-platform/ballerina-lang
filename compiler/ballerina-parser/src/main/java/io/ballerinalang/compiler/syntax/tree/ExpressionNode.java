@@ -24,41 +24,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class CheckExpression extends Expression {
+public abstract class ExpressionNode extends NonTerminalNode {
 
-    public CheckExpression(STNode internalNode, int position, NonTerminalNode parent) {
+    public ExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
-    }
-
-    public Token checkKeyword() {
-        return childInBucket(0);
-    }
-
-    public Node expression() {
-        return childInBucket(1);
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(NodeTransformer<T> visitor) {
-        return visitor.transform(this);
-    }
-
-    public CheckExpression modify(
-            Token checkKeyword,
-            Node expression) {
-        if (checkForReferenceEquality(
-                checkKeyword,
-                expression)) {
-            return this;
-        }
-
-        return NodeFactory.createCheckExpression(
-                checkKeyword,
-                expression);
     }
 }

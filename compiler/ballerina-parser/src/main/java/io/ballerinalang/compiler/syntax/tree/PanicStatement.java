@@ -34,7 +34,7 @@ public class PanicStatement extends Statement {
         return childInBucket(0);
     }
 
-    public Expression expression() {
+    public ExpressionNode expression() {
         return childInBucket(1);
     }
 
@@ -54,7 +54,7 @@ public class PanicStatement extends Statement {
 
     public PanicStatement modify(
             Token panicKeyword,
-            Expression expression,
+            ExpressionNode expression,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 panicKeyword,

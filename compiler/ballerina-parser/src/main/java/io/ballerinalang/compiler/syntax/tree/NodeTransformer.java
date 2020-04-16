@@ -120,43 +120,43 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(returnStatement);
     }
 
-    public T transform(BinaryExpression binaryExpression) {
+    public T transform(BinaryExpressionNode binaryExpression) {
         return transformSyntaxNode(binaryExpression);
     }
 
-    public T transform(BracedExpression bracedExpression) {
+    public T transform(BracedExpressionNode bracedExpression) {
         return transformSyntaxNode(bracedExpression);
     }
 
-    public T transform(CheckExpression checkExpression) {
+    public T transform(CheckExpressionNode checkExpression) {
         return transformSyntaxNode(checkExpression);
     }
 
-    public T transform(FieldAccessExpression fieldAccessExpression) {
+    public T transform(FieldAccessExpressionNode fieldAccessExpression) {
         return transformSyntaxNode(fieldAccessExpression);
     }
 
-    public T transform(FunctionCallExpression functionCallExpression) {
+    public T transform(FunctionCallExpressionNode functionCallExpression) {
         return transformSyntaxNode(functionCallExpression);
     }
 
-    public T transform(MethodCallExpression methodCallExpression) {
+    public T transform(MethodCallExpressionNode methodCallExpression) {
         return transformSyntaxNode(methodCallExpression);
     }
 
-    public T transform(MappingConstructorExpression mappingConstructorExpression) {
+    public T transform(MappingConstructorExpressionNode mappingConstructorExpression) {
         return transformSyntaxNode(mappingConstructorExpression);
     }
 
-    public T transform(MemberAccessExpression memberAccessExpression) {
+    public T transform(MemberAccessExpressionNode memberAccessExpression) {
         return transformSyntaxNode(memberAccessExpression);
     }
 
-    public T transform(TypeofExpression typeofExpression) {
+    public T transform(TypeofExpressionNode typeofExpression) {
         return transformSyntaxNode(typeofExpression);
     }
 
-    public T transform(UnaryExpression unaryExpression) {
+    public T transform(UnaryExpressionNode unaryExpression) {
         return transformSyntaxNode(unaryExpression);
     }
 
@@ -284,7 +284,7 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(moduleVariableDeclaration);
     }
 
-    public T transform(IsExpression isExpression) {
+    public T transform(IsExpressionNode isExpression) {
         return transformSyntaxNode(isExpression);
     }
 

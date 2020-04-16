@@ -38,7 +38,7 @@ public class SpreadField extends MappingField {
         return childInBucket(1);
     }
 
-    public Expression valueExpr() {
+    public ExpressionNode valueExpr() {
         return childInBucket(2);
     }
 
@@ -55,7 +55,7 @@ public class SpreadField extends MappingField {
     public SpreadField modify(
             Token leadingComma,
             Token ellipsis,
-            Expression valueExpr) {
+            ExpressionNode valueExpr) {
         if (checkForReferenceEquality(
                 leadingComma,
                 ellipsis,

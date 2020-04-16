@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.BinaryExpression;
+import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -49,6 +49,6 @@ public class STBinaryExpressionNodeNode extends STExpressionNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new BinaryExpression(this, position, parent);
+        return new BinaryExpressionNode(this, position, parent);
     }
 }

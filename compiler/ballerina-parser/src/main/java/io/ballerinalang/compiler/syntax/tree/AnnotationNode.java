@@ -38,7 +38,7 @@ public class AnnotationNode extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public MappingConstructorExpression annotValue() {
+    public MappingConstructorExpressionNode annotValue() {
         return childInBucket(2);
     }
 
@@ -55,7 +55,7 @@ public class AnnotationNode extends NonTerminalNode {
     public AnnotationNode modify(
             Token atToken,
             Node annotReference,
-            MappingConstructorExpression annotValue) {
+            MappingConstructorExpressionNode annotValue) {
         if (checkForReferenceEquality(
                 atToken,
                 annotReference,

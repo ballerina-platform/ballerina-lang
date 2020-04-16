@@ -24,22 +24,26 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class IsExpression extends Expression {
+public class FunctionCallExpressionNode extends ExpressionNode {
 
-    public IsExpression(STNode internalNode, int position, NonTerminalNode parent) {
+    public FunctionCallExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Node expression() {
+    public Node functionName() {
         return childInBucket(0);
     }
 
-    public Token isKeyword() {
+    public Token openParenToken() {
         return childInBucket(1);
     }
 
-    public Node typeDescriptor() {
-        return childInBucket(2);
+    public NodeList<FunctionArgument> arguments() {
+        return new NodeList<>(childInBucket(2));
+    }
+
+    public Token closeParenToken() {
+        return childInBucket(3);
     }
 
     @Override
@@ -52,20 +56,23 @@ public class IsExpression extends Expression {
         return visitor.transform(this);
     }
 
-    public IsExpression modify(
-            Node expression,
-            Token isKeyword,
-            Node typeDescriptor) {
+    public FunctionCallExpressionNode modify(
+            Node functionName,
+            Token openParenToken,
+            NodeList<FunctionArgument> arguments,
+            Token closeParenToken) {
         if (checkForReferenceEquality(
-                expression,
-                isKeyword,
-                typeDescriptor)) {
+                functionName,
+                openParenToken,
+                arguments.underlyingListNode(),
+                closeParenToken)) {
             return this;
         }
 
-        return NodeFactory.createIsExpression(
-                expression,
-                isKeyword,
-                typeDescriptor);
+        return NodeFactory.createFunctionCallExpression(
+                functionName,
+                openParenToken,
+                arguments,
+                closeParenToken);
     }
 }
