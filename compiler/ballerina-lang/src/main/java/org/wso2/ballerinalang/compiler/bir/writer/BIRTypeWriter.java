@@ -18,8 +18,6 @@
 package org.wso2.ballerinalang.compiler.bir.writer;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.FloatCPEntry;
@@ -269,7 +267,7 @@ public class BIRTypeWriter implements TypeVisitor {
             BSymbol symbol = field.symbol;
             buff.writeInt(addStringCPEntry(symbol.name.value));
             buff.writeInt(symbol.flags);
-            writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
+            DocAttachmentWriter.writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation, cp);
             writeTypeCpIndex(field.type);
         }
 
@@ -308,7 +306,7 @@ public class BIRTypeWriter implements TypeVisitor {
             buff.writeInt(addStringCPEntry(field.name.value));
             // TODO add position
             buff.writeInt(field.symbol.flags);
-            writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation);
+            DocAttachmentWriter.writeMarkdownDocAttachment(buff, field.symbol.markdownDocumentation, cp);
             writeTypeCpIndex(field.type);
         }
         List<BAttachedFunction> attachedFuncs;
@@ -361,30 +359,6 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BXMLType bxmlType) {
         writeTypeCpIndex(bxmlType.constraint);
-    }
-
-    void writeMarkdownDocAttachment(ByteBuf buf, MarkdownDocAttachment markdownDocAttachment) {
-        ByteBuf birbuf = Unpooled.buffer();
-        if (markdownDocAttachment == null) {
-            birbuf.writeBoolean(false);
-        } else {
-            birbuf.writeBoolean(true);
-
-            birbuf.writeInt(markdownDocAttachment.description == null ? -1
-                    : addStringCPEntry(markdownDocAttachment.description));
-            birbuf.writeInt(markdownDocAttachment.returnValueDescription == null ? -1
-                    : addStringCPEntry(markdownDocAttachment.returnValueDescription));
-            birbuf.writeInt(markdownDocAttachment.parameters.size());
-            for (MarkdownDocAttachment.Parameter parameter : markdownDocAttachment.parameters) {
-                birbuf.writeInt(parameter.name == null ? -1
-                        : addStringCPEntry(parameter.name));
-                birbuf.writeInt(parameter.description == null ? -1
-                        : addStringCPEntry(parameter.description));
-            }
-        }
-        int length = birbuf.nioBuffer().limit();
-        buf.writeInt(length);
-        buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
     }
 
     private void throwUnimplementedError(BType bType) {
