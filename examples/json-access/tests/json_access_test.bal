@@ -9,11 +9,11 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any|error... s) {
-    outputs[counter] = s;
+    outputs[counter] = s[0];
     counter += 1;
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function.
     main();
@@ -21,7 +21,7 @@ function testFunc() {
     test:assertEquals(outputs[1], "Colombo 03");
 
     error e = <error> outputs[2];
-    test:assertEquals(e.reason(), "{ballerina}KeyNotFound");
+    test:assertEquals(e.reason(), "{ballerina/lang.map}KeyNotFound");
     test:assertEquals(e.detail()?.message, "Key 'age' not found in JSON mapping");
     test:assertEquals(outputs[3], ());
     test:assertEquals(outputs[4], ());

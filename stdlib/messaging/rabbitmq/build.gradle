@@ -42,7 +42,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
     testCompile 'org.testng:testng:6.13.1'
-    testCompile project(':ballerina-jvm')
 
     interopImports project(':ballerina-crypto')
     interopImports 'com.rabbitmq:amqp-client:5.7.3'

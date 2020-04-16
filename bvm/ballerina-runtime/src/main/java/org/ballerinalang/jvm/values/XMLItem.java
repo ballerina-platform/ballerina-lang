@@ -606,13 +606,13 @@ public final class XMLItem extends XMLValue {
     }
 
     private QName getQName(String localName, String namespaceUri, String prefix) {
-        QName qname;
-        if (prefix != null) {
-            qname = new QName(namespaceUri, localName, prefix);
+        if (namespaceUri == null || namespaceUri.isEmpty()) {
+            return new QName(localName);
+        } else if (prefix == null || prefix.isEmpty()) {
+            return new QName(namespaceUri, localName);
         } else {
-            qname = new QName(namespaceUri, localName);
+            return new QName(namespaceUri, localName, prefix);
         }
-        return qname;
     }
 
     public XMLSequence getChildrenSeq() {

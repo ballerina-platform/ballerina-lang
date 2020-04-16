@@ -85,8 +85,11 @@ import static org.ballerinalang.jvm.util.BLangConstants.UNSIGNED8_MAX_VALUE;
  *
  * @since 0.995.0
  */
-@SuppressWarnings({ "rawtypes" })
+@SuppressWarnings({"rawtypes"})
 public class TypeChecker {
+
+    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
+    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
 
     public static Object checkCast(Object sourceVal, BType targetType) {
 
@@ -345,7 +348,7 @@ public class TypeChecker {
             } else if (value instanceof Integer || value instanceof Byte) {
                 return BTypes.typeByte;
             }
-        } else if (value instanceof String) {
+        } else if (value instanceof String || value instanceof BString) {
             return BTypes.typeString;
         } else if (value instanceof Boolean) {
             return BTypes.typeBoolean;
@@ -539,9 +542,17 @@ public class TypeChecker {
         return ((AnnotatableType) describingType).getAnnotation(annotTag);
     }
 
+    public static Object getAnnotValue(TypedescValue typedescValue, BString annotTag) {
+        BType describingType = typedescValue.getDescribingType();
+        if (!(describingType instanceof AnnotatableType)) {
+            return null;
+        }
+        return ((AnnotatableType) describingType).getAnnotation_bstring(annotTag);
+    }
+
     /**
      * Check whether a given type is equivalent to a target type.
-     * 
+     *
      * @param sourceType type to check
      * @param targetType type to compare with
      * @return flag indicating the the equivalence of the two types
@@ -1614,10 +1625,14 @@ public class TypeChecker {
         }
 
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
-            String fieldName = targetTypeEntry.getKey().toString();
-
+            Object fieldName;
+            if (USE_BSTRING) {
+                fieldName = StringUtils.fromString(targetTypeEntry.getKey().toString());
+            } else {
+                fieldName = targetTypeEntry.getKey().toString();
+            }
             if (!(((MapValueImpl) sourceValue).containsKey(fieldName)) &&
-                    !Flags.isFlagOn(targetType.getFields().get(fieldName).flags, Flags.OPTIONAL)) {
+                    !Flags.isFlagOn(targetType.getFields().get(fieldName.toString()).flags, Flags.OPTIONAL)) {
                 return false;
             }
         }
@@ -1627,8 +1642,8 @@ public class TypeChecker {
             String fieldName = valueEntry.getKey().toString();
 
             if (targetTypeField.containsKey(fieldName)) {
-                if (!checkIsLikeType((valueEntry.getValue()), targetTypeField.get(fieldName), unresolvedValues,
-                                     allowNumericConversion)) {
+                if (!checkIsLikeType((valueEntry.getValue()), targetTypeField.get(fieldName),
+                                     unresolvedValues, allowNumericConversion)) {
                     return false;
                 }
             } else {
