@@ -145,7 +145,12 @@ public class BallerinaLexer {
                 token = getSyntaxToken(SyntaxKind.PLUS_TOKEN);
                 break;
             case LexerTerminals.MINUS:
-                token = getSyntaxToken(SyntaxKind.MINUS_TOKEN);
+                if (peek() == LexerTerminals.GT) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.RIGHT_ARROW_TOKEN);
+                } else {
+                    token = getSyntaxToken(SyntaxKind.MINUS_TOKEN);
+                }
                 break;
             case LexerTerminals.ASTERISK:
                 token = getSyntaxToken(SyntaxKind.ASTERISK_TOKEN);
@@ -574,9 +579,7 @@ public class BallerinaLexer {
 
         String tokenText = getLexeme();
         switch (tokenText) {
-
             // Simple types
-
             case LexerTerminals.INT:
             case LexerTerminals.FLOAT:
             case LexerTerminals.STRING:
@@ -591,8 +594,7 @@ public class BallerinaLexer {
             case LexerTerminals.NEVER:
                 return getTypeToken(tokenText);
 
-            //Keywords
-
+            // Keywords
             case LexerTerminals.PUBLIC:
                 return getSyntaxToken(SyntaxKind.PUBLIC_KEYWORD);
             case LexerTerminals.PRIVATE:

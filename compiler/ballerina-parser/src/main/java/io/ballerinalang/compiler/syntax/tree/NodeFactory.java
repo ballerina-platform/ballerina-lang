@@ -276,16 +276,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stBreakStatementNode.createUnlinkedFacade();
     }
 
-    public static CallStatementNode createCallStatementNode(
+    public static ExpressionStatementNode createExpressionStatementNode(
+            SyntaxKind kind,
             ExpressionNode expression,
             Token semicolonToken) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
 
-        STNode stCallStatementNode = STNodeFactory.createCallStatementNode(
+        STNode stExpressionStatementNode = STNodeFactory.createExpressionStatementNode(
+                kind,
                 expression.internalNode(),
                 semicolonToken.internalNode());
-        return stCallStatementNode.createUnlinkedFacade();
+        return stExpressionStatementNode.createUnlinkedFacade();
     }
 
     public static ContinueStatementNode createContinueStatementNode(
@@ -1126,16 +1128,28 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stIsExpressionNode.createUnlinkedFacade();
     }
 
-    public static NilLiteralNode createNilLiteralNode(
+    public static RemoteMethodCallActionNode createRemoteMethodCallActionNode(
+            ExpressionNode expression,
+            Token rightArrowToken,
+            Token methodName,
             Token openParenToken,
+            NodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
+        Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
+        Objects.requireNonNull(methodName, "methodName must not be null");
         Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(arguments, "arguments must not be null");
         Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
 
-        STNode stNilLiteralNode = STNodeFactory.createNilLiteralNode(
+        STNode stRemoteMethodCallActionNode = STNodeFactory.createRemoteMethodCallActionNode(
+                expression.internalNode(),
+                rightArrowToken.internalNode(),
+                methodName.internalNode(),
                 openParenToken.internalNode(),
+                arguments.underlyingListNode().internalNode(),
                 closeParenToken.internalNode());
-        return stNilLiteralNode.createUnlinkedFacade();
+        return stRemoteMethodCallActionNode.createUnlinkedFacade();
     }
 }
 

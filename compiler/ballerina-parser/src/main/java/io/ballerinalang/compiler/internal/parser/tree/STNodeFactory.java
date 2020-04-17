@@ -209,11 +209,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createCallStatementNode(
+    public static STNode createExpressionStatementNode(
+            SyntaxKind kind,
             STNode expression,
             STNode semicolonToken) {
 
-        return new STCallStatementNode(
+        return new STExpressionStatementNode(
+                kind,
                 expression,
                 semicolonToken);
     }
@@ -828,12 +830,20 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 typeDescriptor);
     }
 
-    public static STNode createNilLiteralNode(
+    public static STNode createRemoteMethodCallActionNode(
+            STNode expression,
+            STNode rightArrowToken,
+            STNode methodName,
             STNode openParenToken,
+            STNode arguments,
             STNode closeParenToken) {
 
-        return new STNilLiteralNode(
+        return new STRemoteMethodCallActionNode(
+                expression,
+                rightArrowToken,
+                methodName,
                 openParenToken,
+                arguments,
                 closeParenToken);
     }
 }

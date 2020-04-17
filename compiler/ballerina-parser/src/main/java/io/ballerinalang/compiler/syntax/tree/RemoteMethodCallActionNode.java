@@ -24,9 +24,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class CallStatementNode extends StatementNode {
+public class RemoteMethodCallActionNode extends ActionNode {
 
-    public CallStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public RemoteMethodCallActionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -34,8 +34,24 @@ public class CallStatementNode extends StatementNode {
         return childInBucket(0);
     }
 
-    public Token semicolonToken() {
+    public Token rightArrowToken() {
         return childInBucket(1);
+    }
+
+    public Token methodName() {
+        return childInBucket(2);
+    }
+
+    public Token openParenToken() {
+        return childInBucket(3);
+    }
+
+    public NodeList<FunctionArgumentNode> arguments() {
+        return new NodeList<>(childInBucket(4));
+    }
+
+    public Token closeParenToken() {
+        return childInBucket(5);
     }
 
     @Override
@@ -48,17 +64,29 @@ public class CallStatementNode extends StatementNode {
         return visitor.transform(this);
     }
 
-    public CallStatementNode modify(
+    public RemoteMethodCallActionNode modify(
             ExpressionNode expression,
-            Token semicolonToken) {
+            Token rightArrowToken,
+            Token methodName,
+            Token openParenToken,
+            NodeList<FunctionArgumentNode> arguments,
+            Token closeParenToken) {
         if (checkForReferenceEquality(
                 expression,
-                semicolonToken)) {
+                rightArrowToken,
+                methodName,
+                openParenToken,
+                arguments.underlyingListNode(),
+                closeParenToken)) {
             return this;
         }
 
-        return NodeFactory.createCallStatementNode(
+        return NodeFactory.createRemoteMethodCallActionNode(
                 expression,
-                semicolonToken);
+                rightArrowToken,
+                methodName,
+                openParenToken,
+                arguments,
+                closeParenToken);
     }
 }

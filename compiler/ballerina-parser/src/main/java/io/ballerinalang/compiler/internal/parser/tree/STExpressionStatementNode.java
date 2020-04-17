@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.CallStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,14 +27,15 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STCallStatementNode extends STStatementNode {
+public class STExpressionStatementNode extends STStatementNode {
     public final STNode expression;
     public final STNode semicolonToken;
 
-    STCallStatementNode(
+    STExpressionStatementNode(
+            SyntaxKind kind,
             STNode expression,
             STNode semicolonToken) {
-        super(SyntaxKind.CALL_STATEMENT);
+        super(kind);
         this.expression = expression;
         this.semicolonToken = semicolonToken;
 
@@ -44,6 +45,6 @@ public class STCallStatementNode extends STStatementNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new CallStatementNode(this, position, parent);
+        return new ExpressionStatementNode(this, position, parent);
     }
 }
