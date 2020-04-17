@@ -35,6 +35,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.LinkedHashMap;
 
 /**
@@ -50,7 +51,7 @@ public class ExecuteTest {
             new BString(SQLDBUtils.DB_PASSWORD)};
 
     @BeforeClass
-    public void setup() {
+    public void setup() throws SQLException {
         result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("execute",
                 "execute-basic-test.bal"));
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
@@ -85,7 +86,7 @@ public class ExecuteTest {
         Assert.assertTrue(returnVal[0] instanceof BMap);
         LinkedHashMap result = ((BMap) returnVal[0]).getMap();
         Assert.assertEquals(((BByte) result.get(Constants.AFFECTED_ROW_COUNT_FIELD)).intValue(), 1);
-        Assert.assertNull(result.get(Constants.LAST_INSERTED_ID_FIELD));
+        Assert.assertEquals(((BInteger) result.get(Constants.LAST_INSERTED_ID_FIELD)).intValue(), 20);
     }
 
     @Test

@@ -1,25 +1,21 @@
 {
-    "range": {
-        "start": {
-            "line": 1,
-            "character": 20
-        },
-        "end": {
-            "line": 1,
-            "character": 20
-        }
-    },
+    "line": 1,
+    "character": 4,
     "expected": {
-        "title": "Make 'Apple' an Non-Abstract Object",
-        "command": "CHANGE_ABSTRACT_TYPE_OBJ",
-        "arguments": [
+        "title": "Make 'Apple' an Abstract Object",
+        "edits": [
             {
-                "argumentK": "node.line",
-                "argumentV": "1"
-            },
-            {
-                "argumentK": "node.column",
-                "argumentV": "4"
+                "range": {
+                    "start": {
+                        "line": 0,
+                        "character": 19
+                    },
+                    "end": {
+                        "line": 0,
+                        "character": 19
+                    }
+                },
+                "newText": " abstract"
             }
         ]
     }
