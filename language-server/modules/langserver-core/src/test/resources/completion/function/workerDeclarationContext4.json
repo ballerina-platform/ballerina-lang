@@ -105,28 +105,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "AuthnFilter",
-      "kind": "Interface",
-      "detail": "Object",
-      "documentation": {
-        "left": "Representation of the Authentication filter.\n"
-      },
-      "sortText": "190",
-      "insertText": "AuthnFilter",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "AuthzFilter",
-      "kind": "Interface",
-      "detail": "Object",
-      "documentation": {
-        "left": "Representation of the Authorization filter.\n"
-      },
-      "sortText": "190",
-      "insertText": "AuthzFilter",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "AuthzHandler",
       "kind": "Interface",
       "detail": "Object",
@@ -194,7 +172,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Configures cache control directives for a `Request`.\n"
+        "left": "Configures the cache control directives for an `http:Request`.\n"
       },
       "sortText": "190",
       "insertText": "RequestCacheControl",
@@ -205,7 +183,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Configures cache control directives for a `Response`.\n"
+        "left": "Configures cache control directives for an `http:Response`.\n"
       },
       "sortText": "190",
       "insertText": "ResponseCacheControl",
@@ -1163,22 +1141,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "BasicAuthHandler",
-      "kind": "Interface",
-      "detail": "Object",
-      "documentation": {
-        "left": "Defines the Basic Auth header handler for inbound and outbound HTTP traffic.\n"
-      },
-      "sortText": "190",
-      "insertText": "BasicAuthHandler",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "WebSocketFailoverClient",
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-          "left": "A WebSocket client endpoint, which provides failover support for multiple WebSocket targets."
+        "left": "A WebSocket client endpoint, which provides failover support for multiple WebSocket targets."
       },
       "sortText": "190",
       "insertText": "WebSocketFailoverClient",
@@ -1189,10 +1156,43 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-          "left": "Configurations for the WebSocket client endpoint.\n"
+        "left": "Configurations for the WebSocket client endpoint.\n"
       },
       "sortText": "180",
       "insertText": "WebSocketFailoverClientConfiguration",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AuthnFilter",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Representation of the Authentication filter.\n"
+      },
+      "sortText": "190",
+      "insertText": "AuthnFilter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AuthzFilter",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Representation of the Authorization filter.\n"
+      },
+      "sortText": "190",
+      "insertText": "AuthzFilter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "BasicAuthHandler",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Defines the Basic Auth header handler for inbound and outbound HTTP traffic.\n"
+      },
+      "sortText": "190",
+      "insertText": "BasicAuthHandler",
       "insertTextFormat": "Snippet"
     },
     {
