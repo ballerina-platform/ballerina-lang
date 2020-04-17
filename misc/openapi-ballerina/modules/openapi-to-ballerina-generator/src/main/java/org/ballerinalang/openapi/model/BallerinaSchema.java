@@ -174,8 +174,6 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
             default:
                 type = prop.getType();
                 break;
-                /*System.out.println(OpenApiMesseges.EXPERIMENTAL_ALLOF_TYPE);
-                throw new NullPointerException();*/
 
         }
         return type;
