@@ -636,6 +636,7 @@ public class BallerinaParserErrorHandler {
                     hasMatch = isBinaryOperator(nextToken);
                     break;
                 case EXPRESSION:
+                case TERMINAL_EXPRESSION:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, EXPRESSIONS);
                 case VAR_DECL_STMT_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, VAR_DECL_RHS);
@@ -1383,6 +1384,7 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.FUNC_BODY;
             case EXPRESSION:
             case BASIC_LITERAL:
+            case TERMINAL_EXPRESSION:
                 return ParserRuleContext.EXPRESSION_RHS;
             case EXTERNAL_KEYWORD:
                 return ParserRuleContext.SEMICOLON;
@@ -2108,7 +2110,7 @@ public class BallerinaParserErrorHandler {
      * @return <code>true</code> if the given context is an expression. <code>false</code> otherwise
      */
     private boolean isExpression(ParserRuleContext ctx) {
-        return ctx == ParserRuleContext.EXPRESSION;
+        return ctx == ParserRuleContext.EXPRESSION || ctx == ParserRuleContext.TERMINAL_EXPRESSION;
     }
 
     /**
@@ -2207,6 +2209,7 @@ public class BallerinaParserErrorHandler {
             case EXPRESSION_RHS:
                 return SyntaxKind.PLUS_TOKEN;
             case EXPRESSION:
+            case TERMINAL_EXPRESSION:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case EXTERNAL_FUNC_BODY:
                 return SyntaxKind.EQUAL_TOKEN;

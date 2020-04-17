@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.BallerinaParserErrorHandler.Solution;
+import io.ballerinalang.compiler.internal.parser.tree.STBracedExpressionNode;
+import io.ballerinalang.compiler.internal.parser.tree.STCheckExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STFieldAccessExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STMemberAccessExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
@@ -56,6 +58,41 @@ public class BallerinaParser {
      */
     public STNode parse() {
         return parseCompUnit();
+    }
+
+    /**
+     * Start parsing the input from a given context. Supported starting points are:
+     * <ul>
+     * <li>Module part (a file)</li>
+     * <li>Top level node</li>
+     * <li>Statement</li>
+     * <li>Expression</li>
+     * </ul>
+     *
+     * @param context Context to start parsing
+     * @return Parsed node
+     */
+    public STNode parse(ParserRuleContext context) {
+        switch (context) {
+            case COMP_UNIT:
+                return parseCompUnit();
+            case TOP_LEVEL_NODE:
+                startContext(ParserRuleContext.COMP_UNIT);
+                return parseTopLevelNode();
+            case STATEMENT:
+                startContext(ParserRuleContext.COMP_UNIT);
+                startContext(ParserRuleContext.FUNC_DEFINITION);
+                startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+                return parseStatement();
+            case EXPRESSION:
+                startContext(ParserRuleContext.COMP_UNIT);
+                startContext(ParserRuleContext.FUNC_DEFINITION);
+                startContext(ParserRuleContext.FUNC_BODY_BLOCK);
+                startContext(ParserRuleContext.STATEMENT);
+                return parseExpression();
+            default:
+                throw new UnsupportedOperationException("Cannot start parsing from: " + context);
+        }
     }
 
     /**
@@ -99,8 +136,8 @@ public class BallerinaParser {
                 return parseCloseParenthesis();
             case VARIABLE_NAME:
                 return parseVariableName();
-            case EXPRESSION:
-                return parseExpression();
+            case TERMINAL_EXPRESSION:
+                return parseTerminalExpression((boolean) args[0], (boolean) args[1]);
             case STATEMENT:
                 return parseStatement();
             case STATEMENT_WITHOUT_ANNOTS:
@@ -244,41 +281,6 @@ public class BallerinaParser {
                 return parseConstDecl((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
-        }
-    }
-
-    /**
-     * Start parsing the input from a given context. Supported starting points are:
-     * <ul>
-     * <li>Module part (a file)</li>
-     * <li>Top level node</li>
-     * <li>Statement</li>
-     * <li>Expression</li>
-     * </ul>
-     *
-     * @param context Context to start parsing
-     * @return Parsed node
-     */
-    public STNode parse(ParserRuleContext context) {
-        switch (context) {
-            case COMP_UNIT:
-                return parseCompUnit();
-            case TOP_LEVEL_NODE:
-                startContext(ParserRuleContext.COMP_UNIT);
-                return parseTopLevelNode();
-            case STATEMENT:
-                startContext(ParserRuleContext.COMP_UNIT);
-                startContext(ParserRuleContext.FUNC_DEFINITION);
-                startContext(ParserRuleContext.FUNC_BODY_BLOCK);
-                return parseStatement();
-            case EXPRESSION:
-                startContext(ParserRuleContext.COMP_UNIT);
-                startContext(ParserRuleContext.FUNC_DEFINITION);
-                startContext(ParserRuleContext.FUNC_BODY_BLOCK);
-                startContext(ParserRuleContext.STATEMENT);
-                return parseExpression();
-            default:
-                throw new UnsupportedOperationException("Cannot start parsing from: " + context);
         }
     }
 
@@ -2100,8 +2102,13 @@ public class BallerinaParser {
      * @param opPrecedenceLevel Precedence of the given operator
      * @return Kind of the operator to insert
      */
-    private SyntaxKind getOperatorKindToInsert(OperatorPrecedence opPrecedenceLevel) {
+    private SyntaxKind getBinaryOperatorKindToInsert(OperatorPrecedence opPrecedenceLevel) {
         switch (opPrecedenceLevel) {
+            case UNARY:
+            case ACTION:
+                // If the current precedence level is unary/action, then we return
+                // the binary operator with closest precedence level to it.
+                // Therefore fall through
             case MULTIPLICATIVE:
                 return SyntaxKind.ASTERISK_TOKEN;
             case ADDITIVE:
@@ -2119,10 +2126,6 @@ public class BallerinaParser {
             case LOGICAL_AND:
                 return SyntaxKind.LOGICAL_AND_TOKEN;
             case LOGICAL_OR:
-                return SyntaxKind.LOGICAL_OR_TOKEN;
-            case ACTION:
-                // For actions we return the binary operator with the lowest precedence, instead of
-                // a action token.
                 return SyntaxKind.LOGICAL_OR_TOKEN;
             default:
                 throw new UnsupportedOperationException(
@@ -2883,7 +2886,7 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseExpression() {
-        return parseExpression(DEFAULT_OP_PRECEDENCE, false, false);
+        return parseExpression(DEFAULT_OP_PRECEDENCE, true, false);
     }
 
     /**
@@ -2892,11 +2895,25 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseActionOrExpression() {
-        return parseExpression(DEFAULT_OP_PRECEDENCE, false, true);
+        return parseExpression(DEFAULT_OP_PRECEDENCE, true, true);
     }
 
     private STNode parseActionOrExpression(SyntaxKind tokenKind) {
-        return parseExpression(tokenKind, DEFAULT_OP_PRECEDENCE, false, true);
+        return parseExpression(tokenKind, DEFAULT_OP_PRECEDENCE, true, true);
+    }
+
+    private STNode parseActionOrExpression(boolean isRhsExpr) {
+        return parseExpression(DEFAULT_OP_PRECEDENCE, isRhsExpr, true);
+    }
+
+    /**
+     * Parse expression.
+     * 
+     * @param isRhsExpr Flag indicating whether this is a rhs expression
+     * @return Parsed node
+     */
+    private STNode parseExpression(boolean isRhsExpr) {
+        return parseExpression(DEFAULT_OP_PRECEDENCE, isRhsExpr, false);
     }
 
     private void validateLVExpr(STNode expression) {
@@ -2904,15 +2921,6 @@ public class BallerinaParser {
             return;
         }
         this.errorHandler.reportInvalidNode(null, "invalid expression for assignment lhs");
-    }
-
-    /**
-     * Parse expression from a given precedence level.
-     * 
-     * @return Parsed node
-     */
-    private STNode parseExpression(OperatorPrecedence precedenceLevel) {
-        return parseExpression(precedenceLevel, false, false);
     }
 
     private boolean isValidLVExpr(STNode expression) {
@@ -2933,29 +2941,34 @@ public class BallerinaParser {
      * Parse an expression that has an equal or higher precedence than a given level.
      *
      * @param precedenceLevel Precedence level of expression to be parsed
-     * @param isLhsExpr Flag indicating whether this is on a lhsExpr of a statement
+     * @param isRhsExpr Flag indicating whether this is a rhs expression
      * @param allowActions Flag indicating whether the current context support actions
      * @return Parsed node
      */
-    private STNode parseExpression(OperatorPrecedence precedenceLevel, boolean isAssignmentLhs, boolean allowActions) {
+    private STNode parseExpression(OperatorPrecedence precedenceLevel, boolean isRhsExpr, boolean allowActions) {
         STToken token = peek();
-        return parseExpression(token.kind, precedenceLevel, isAssignmentLhs, allowActions);
+        return parseExpression(token.kind, precedenceLevel, isRhsExpr, allowActions);
     }
 
-    private STNode parseExpression(SyntaxKind kind, OperatorPrecedence precedenceLevel, boolean isAssignmentLhs,
+    private STNode parseExpression(SyntaxKind kind, OperatorPrecedence precedenceLevel, boolean isRhsExpr,
                                    boolean allowActions) {
-        STNode expr = parseTerminalExpression(kind);
-        return parseExpressionRhs(precedenceLevel, expr, isAssignmentLhs, allowActions);
+        STNode expr = parseTerminalExpression(kind, isRhsExpr, allowActions);
+        return parseExpressionRhs(precedenceLevel, expr, isRhsExpr, allowActions);
     }
 
     /**
      * Parse terminal expressions. A terminal expression has the highest precedence level
      * out of all expressions, and will be at the leaves of an expression tree.
      * 
-     * @param kind Next token kind
+     * @param isRhsExpr Is a rhs expression
+     * @param allowActions Allow actions
      * @return Parsed node
      */
-    private STNode parseTerminalExpression(SyntaxKind kind) {
+    private STNode parseTerminalExpression(boolean isRhsExpr, boolean allowActions) {
+        return parseTerminalExpression(peek().kind, isRhsExpr, allowActions);
+    }
+
+    private STNode parseTerminalExpression(SyntaxKind kind, boolean isRhsExpr, boolean allowActions) {
         // TODO: Whenever a new expression start is added, make sure to
         // add it to all the other places as well.
         switch (kind) {
@@ -2966,24 +2979,26 @@ public class BallerinaParser {
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_NAME);
             case OPEN_PAREN_TOKEN:
-                return parseBracedExpression();
+                return parseBracedExpression(isRhsExpr, allowActions);
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
                 return parseBooleanLiteral();
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
-                return parseCheckExpression();
+                // In the checking action, nested actions are allowed. And thats the only
+                // place where actions are allowed within an action or an expression.
+                return parseCheckExpression(isRhsExpr, allowActions);
             case OPEN_BRACE_TOKEN:
                 return parseMappingConstructorExpr();
             case TYPEOF_KEYWORD:
-                return parseTypeofExpression();
+                return parseTypeofExpression(isRhsExpr);
             case PLUS_TOKEN:
             case MINUS_TOKEN:
             case NEGATION_TOKEN:
             case EXCLAMATION_MARK_TOKEN:
-                return parseUnaryExpression();
+                return parseUnaryExpression(isRhsExpr);
             default:
-                Solution solution = recover(peek(), ParserRuleContext.EXPRESSION);
+                Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
                 if (solution.recoveredNode.kind == SyntaxKind.IDENTIFIER_TOKEN) {
                     return parseQualifiedIdentifier(solution.recoveredNode);
@@ -2994,7 +3009,7 @@ public class BallerinaParser {
     }
 
     private STNode parseActionOrExpressionInLhs(STNode lhsExpr) {
-        return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, lhsExpr, true, true);
+        return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, lhsExpr, false, true);
     }
 
     /**
@@ -3021,20 +3036,23 @@ public class BallerinaParser {
     /**
      * Parse the right hand side of an expression given the next token kind.
      *
-     * @param currentPrecedenceLevel Precedence level of the expression that is being parsed currently
      * @param tokenKind Next token kind
+     * @param currentPrecedenceLevel Precedence level of the expression that is being parsed currently
+     * @param lhsExpr LHS expression
+     * @param isRhsExpr Flag indicating whether this is a rhs expr or not
+     * @param allowActions Flag indicating whether to allow actions or not
      * @return Parsed node
      */
     private STNode parseExpressionRhs(SyntaxKind tokenKind, OperatorPrecedence currentPrecedenceLevel, STNode lhsExpr,
-                                      boolean isLVExpr, boolean allowActions) {
-        if (isEndOfExpression(tokenKind, isLVExpr, allowActions)) {
+                                      boolean isRhsExpr, boolean allowActions) {
+        if (isEndOfExpression(tokenKind, isRhsExpr)) {
             return lhsExpr;
         }
 
-        if (!isValidExprRhsStart(tokenKind, allowActions)) {
+        if (!isValidExprRhsStart(tokenKind)) {
             STToken token = peek();
             Solution solution = recover(token, ParserRuleContext.EXPRESSION_RHS, currentPrecedenceLevel, lhsExpr,
-                    isLVExpr, allowActions);
+                    isRhsExpr, allowActions);
 
             // If the current rule was recovered by removing a token,
             // then this entire rule is already parsed while recovering.
@@ -3050,10 +3068,10 @@ public class BallerinaParser {
             if (solution.ctx == ParserRuleContext.BINARY_OPERATOR) {
                 // We come here if the operator is missing. Treat this as injecting an operator
                 // that matches to the current operator precedence level, and continue.
-                SyntaxKind binaryOpKind = getOperatorKindToInsert(currentPrecedenceLevel);
-                return parseExpressionRhs(binaryOpKind, currentPrecedenceLevel, lhsExpr, isLVExpr, allowActions);
+                SyntaxKind binaryOpKind = getBinaryOperatorKindToInsert(currentPrecedenceLevel);
+                return parseExpressionRhs(binaryOpKind, currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions);
             } else {
-                return parseExpressionRhs(solution.tokenKind, currentPrecedenceLevel, lhsExpr, isLVExpr, allowActions);
+                return parseExpressionRhs(solution.tokenKind, currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions);
             }
         }
 
@@ -3093,17 +3111,19 @@ public class BallerinaParser {
                 // precedence is reached, then come back here and finish the current
                 // binary expr. If a an operator with higher precedence level is reached,
                 // then complete that binary-expr, come back here and finish the current expr.
-                STNode rhsExpr = parseExpression(nextOperatorPrecedence, isLVExpr, allowActions);
+
+                // Actions within binary-expressions are not allowed.
+                STNode rhsExpr = parseExpression(nextOperatorPrecedence, isRhsExpr, false);
                 newLhsExpr = STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, lhsExpr, operator,
                         rhsExpr);
                 break;
         }
 
         // Then continue the operators with the same precedence level.
-        return parseExpressionRhs(currentPrecedenceLevel, newLhsExpr, isLVExpr, allowActions);
+        return parseExpressionRhs(currentPrecedenceLevel, newLhsExpr, isRhsExpr, allowActions);
     }
 
-    private boolean isValidExprRhsStart(SyntaxKind tokenKind, boolean allowActions) {
+    private boolean isValidExprRhsStart(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case OPEN_PAREN_TOKEN:
             case DOT_TOKEN:
@@ -3181,30 +3201,58 @@ public class BallerinaParser {
      * Parse braced expression.
      * </p>
      * <code>braced-expr := ( expression )</code>
-     *
+     * 
+     * @param isRhsExpr Flag indicating whether this is on a rhsExpr of a statement
+     * @param allowActions Allow actions
      * @return Parsed node
      */
-    private STNode parseBracedExpression() {
+    private STNode parseBracedExpression(boolean isRhsExpr, boolean allowActions) {
         STNode openParen = parseOpenParenthesis();
-        STNode expr = parseExpression();
+        STNode expr;
+        if (allowActions) {
+            expr = parseActionOrExpression(isRhsExpr);
+        } else {
+            expr = parseExpression(isRhsExpr);
+        }
+
         STNode closeParen = parseCloseParenthesis();
-        return STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_EXPRESSION, openParen, expr, closeParen);
+        if (isAction(expr)) {
+            return STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_ACTION, openParen, expr, closeParen);
+        } else {
+            return STNodeFactory.createBracedExpressionNode(SyntaxKind.BRACED_EXPRESSION, openParen, expr, closeParen);
+        }
+    }
+
+    /**
+     * Check whether a given node is an action node.
+     * 
+     * @param node Node to check
+     * @return <code>true</code> if the node is an action node. <code>false</code> otherwise
+     */
+    private boolean isAction(STNode node) {
+        switch (node.kind) {
+            case REMOTE_METHOD_CALL_ACTION:
+            case BRACED_ACTION:
+            case CHECK_ACTION:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /**
      * Check whether the given token is an end of a expression.
      *
      * @param tokenKind Token to check
-     * @param isLhsExpr Flag indicating whether this is on a lhsExpr of a statement
-     * @param allowActions Flag indicating whether the current context support actions
+     * @param isRhsExpr Flag indicating whether this is on a rhsExpr of a statement
      * @return <code>true</code> if the token represents an end of a block. <code>false</code> otherwise
      */
-    private boolean isEndOfExpression(SyntaxKind tokenKind, boolean isLhsExpr, boolean allowActions) {
-        if (isLhsExpr) {
+    private boolean isEndOfExpression(SyntaxKind tokenKind, boolean isRhsExpr) {
+        if (!isRhsExpr) {
             if (isCompoundBinaryOperator(tokenKind)) {
                 return true;
             }
-            return !isValidExprRhsStart(tokenKind, allowActions);
+            return !isValidExprRhsStart(tokenKind);
         }
 
         switch (tokenKind) {
@@ -4047,63 +4095,27 @@ public class BallerinaParser {
     }
 
     /**
-     * <p>
-     * Parse call statement, given the call expression.
-     * <p>
-     * <code>
-     * call-stmt := call-expr ;
-     * <br/>
-     * call-expr := function-call-expr | method-call-expr | checking-keyword call-expr
-     * </code>
-     *
-     * @param expression Call expression associated with the call statement
-     * @return Call statement node
-     */
-    private STNode parseCallStatement(STNode expression) {
-        STNode semicolon = parseSemicolon();
-        return STNodeFactory.createExpressionStatementNode(SyntaxKind.CALL_STATEMENT, expression, semicolon);
-    }
-
-    /**
-     * Check whether a node is a missing node.
-     *
-     * @param node Node to check
-     * @return <code>true</code> if the node is a missing node. <code>false</code> otherwise
-     */
-    private boolean isMissingNode(STNode node) {
-        return node instanceof STMissingToken;
-    }
-
-    /**
-     * Parse check expression.
+     * Parse check expression. This method is used to parse both check expression
+     * as well as check action.
+     * 
      * <p>
      * <code>
      * checking-expr := checking-keyword expression
+     * checking-action := checking-keyword action
      * </code>
      *
+     * @param allowActions Allow actions
+     * @param isRhsExpr Is rhs expression
      * @return Check expression node
      */
-    private STNode parseCheckExpression() {
+    private STNode parseCheckExpression(boolean isRhsExpr, boolean allowActions) {
         STNode checkingKeyword = parseCheckingKeyword();
-        STNode expr = parseExpression(OperatorPrecedence.UNARY);
-
-        switch (expr.kind) {
-            case FUNCTION_CALL:
-            case METHOD_CALL:
-            case CHECK_EXPRESSION:
-                break;
-            default:
-                if (isMissingNode(expr)) {
-                    break;
-                }
-
-                // TODO:
-                this.errorHandler.reportInvalidNode(null, "expression followed by the checking keyword must be a " +
-                        "func-call, a method-call or a check-expr");
-                break;
+        STNode expr = parseExpression(OperatorPrecedence.UNARY, isRhsExpr, allowActions);
+        if (isAction(expr)) {
+            return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_ACTION, checkingKeyword, expr);
+        } else {
+            return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkingKeyword, expr);
         }
-
-        return STNodeFactory.createCheckExpressionNode(checkingKeyword, expr);
     }
 
     /**
@@ -5095,11 +5107,15 @@ public class BallerinaParser {
      * typeof-expr := typeof expression
      * </code>
      *
+     * @param isRhsExpr
      * @return Typeof expression node
      */
-    private STNode parseTypeofExpression() {
+    private STNode parseTypeofExpression(boolean isRhsExpr) {
         STNode typeofKeyword = parseTypeofKeyword();
-        STNode expr = parseExpression(OperatorPrecedence.UNARY);
+
+        // allow-actions flag is always false, since there will not be any actions
+        // within the typeof-expression, due to the precedence.
+        STNode expr = parseExpression(OperatorPrecedence.UNARY, isRhsExpr, false);
         return STNodeFactory.createTypeofExpressionNode(typeofKeyword, expr);
     }
 
@@ -5138,11 +5154,15 @@ public class BallerinaParser {
      * unary-expr := + expression | - expression | ~ expression | ! expression
      * </code>
      *
+     * @param isRhsExpr
      * @return Unary expression node
      */
-    private STNode parseUnaryExpression() {
+    private STNode parseUnaryExpression(boolean isRhsExpr) {
         STNode unaryOperator = parseUnaryOperator();
-        STNode expr = parseExpression(OperatorPrecedence.UNARY);
+
+        // allow-actions flag is always false, since there will not be any actions
+        // within the unary expression, due to the precedence.
+        STNode expr = parseExpression(OperatorPrecedence.UNARY, isRhsExpr, false);
         return STNodeFactory.createUnaryExpressionNode(unaryOperator, expr);
     }
 
@@ -5396,7 +5416,7 @@ public class BallerinaParser {
 
                 // If the next token is part of a valid expression, then still parse it
                 // as a statement that starts with an expression.
-                if (isValidExprRhsStart(nextTokenKind, true)) {
+                if (isValidExprRhsStart(nextTokenKind)) {
                     STNode expression = parseActionOrExpressionInLhs(identifier);
                     return parseStamentStartWithExpr(expression);
                 }
@@ -5474,24 +5494,77 @@ public class BallerinaParser {
 
     private STNode getExpressionAsStatement(STNode expression) {
         switch (expression.kind) {
-            case CHECK_EXPRESSION:
             case METHOD_CALL:
             case FUNCTION_CALL:
+            case CHECK_EXPRESSION:
                 return parseCallStatement(expression);
             case REMOTE_METHOD_CALL_ACTION:
+            case CHECK_ACTION:
+            case BRACED_ACTION:
                 return parseActionStatement(expression);
             default:
                 // Everything else can not be written as a statement.
-                // Therefore consume the semicolon, and report an error.
-                consume();
-
                 // TODO: Add proper error reporting
                 this.errorHandler.reportInvalidNode(null,
                         "left hand side of an assignment must be a variable reference");
 
-                // return null
-                return null;
+                STNode semicolon = parseSemicolon();
+                return STNodeFactory.createExpressionStatementNode(SyntaxKind.INVALID, expression, semicolon);
         }
+    }
+
+    /**
+     * <p>
+     * Parse call statement, given the call expression.
+     * <p>
+     * <code>
+     * call-stmt := call-expr ;
+     * <br/>
+     * call-expr := function-call-expr | method-call-expr | checking-keyword call-expr
+     * </code>
+     *
+     * @param expression Call expression associated with the call statement
+     * @return Call statement node
+     */
+    private STNode parseCallStatement(STNode expression) {
+        validateExprInCallStmt(expression);
+        STNode semicolon = parseSemicolon();
+        return STNodeFactory.createExpressionStatementNode(SyntaxKind.CALL_STATEMENT, expression, semicolon);
+    }
+
+    private void validateExprInCallStmt(STNode expression) {
+        switch (expression.kind) {
+            case FUNCTION_CALL:
+            case METHOD_CALL:
+                break;
+            case CHECK_EXPRESSION:
+                validateExprInCallStmt(((STCheckExpressionNode) expression).expression);
+                break;
+            case REMOTE_METHOD_CALL_ACTION:
+                break;
+            case BRACED_EXPRESSION:
+                validateExprInCallStmt(((STBracedExpressionNode) expression).expression);
+                break;
+            default:
+                if (isMissingNode(expression)) {
+                    break;
+                }
+
+                // TODO:
+                this.errorHandler.reportInvalidNode(null, "expression followed by the checking keyword must be a " +
+                        "func-call, a method-call or a check-expr");
+                break;
+        }
+    }
+
+    /**
+     * Check whether a node is a missing node.
+     *
+     * @param node Node to check
+     * @return <code>true</code> if the node is a missing node. <code>false</code> otherwise
+     */
+    private boolean isMissingNode(STNode node) {
+        return node instanceof STMissingToken;
     }
 
     private STNode parseActionStatement(STNode action) {

@@ -161,6 +161,8 @@ public enum SyntaxKind {
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),
+    BRACED_ACTION(2501),
+    CHECK_ACTION(2502),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),

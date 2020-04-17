@@ -15,26 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test.syntax.statements;
+package io.ballerinalang.compiler.parser.test.syntax.actions;
 
-import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
-import io.ballerinalang.compiler.parser.test.ParserTestUtils;
-
-import java.nio.file.Paths;
+import org.testng.annotations.Test;
 
 /**
- * Test parsing statements.
+ * Test parsing braced action.
+ * <p>
+ * i.e.: <code>(action)</code>
  * 
  * @since 1.3.0
  */
-public class AbstractStatementTest {
+public class BracedActionTest extends AbstractActionTest {
 
-    void test(String source, String filePath) {
-        ParserTestUtils.test(source, ParserRuleContext.STATEMENT, Paths.get("statements/", filePath));
+    // Valid source tests
+
+    @Test
+    public void testBasicBracedAction() {
+        testFile("braced-action/braced_action_source_01.bal", "braced-action/braced_action_assert_01.json");
     }
 
-    void testFile(String path, String filePath) {
-        ParserTestUtils.test(Paths.get("statements/", path), ParserRuleContext.TOP_LEVEL_NODE,
-                Paths.get("statements/", filePath));
+    @Test
+    public void testUsingBracedActionForPrecedence() {
+        testFile("braced-action/braced_action_source_02.bal", "braced-action/braced_action_assert_02.json");
     }
 }

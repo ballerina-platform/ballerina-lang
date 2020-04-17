@@ -333,6 +333,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token checkKeyword = modifyToken(checkExpressionNode.checkKeyword());
         ExpressionNode expression = modifyNode(checkExpressionNode.expression());
         return checkExpressionNode.modify(
+                checkExpressionNode.kind(),
                 checkKeyword,
                 expression);
     }

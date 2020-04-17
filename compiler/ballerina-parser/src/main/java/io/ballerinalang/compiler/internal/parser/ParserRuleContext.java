@@ -192,6 +192,7 @@ public enum ParserRuleContext {
 
     // Expressions
     EXPRESSION("expression"),
+    TERMINAL_EXPRESSION("terminal-expression"),
     EXPRESSION_RHS("expression-rhs"),
     FUNC_CALL("func-call"),
     BASIC_LITERAL("basic-literal"),
