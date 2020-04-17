@@ -1485,6 +1485,21 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "NilLiteralNode",
+            "base": "Node",
+            "kind": "NIL_LITERAL",
+            "attributes": [
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "closeParenToken",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

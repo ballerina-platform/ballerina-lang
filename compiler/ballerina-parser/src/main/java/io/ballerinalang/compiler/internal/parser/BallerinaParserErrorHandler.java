@@ -205,10 +205,10 @@ public class BallerinaParserErrorHandler {
             { ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TYPE_DESCRIPTOR };
 
     private static final ParserRuleContext[] STMT_START_WITH_EXPR_RHS = { ParserRuleContext.ASSIGN_OP,
-        ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.SEMICOLON };
+            ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] STMT_START_WITH_IDENTIFIER =
-        { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS };
+            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -879,13 +879,13 @@ public class BallerinaParserErrorHandler {
                     return seekInIsExpression(currentCtx, lookahead, currentDepth, matchingRulesCount);
                 case STMT_START_WITH_EXPR_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
-                        STMT_START_WITH_EXPR_RHS);
+                            STMT_START_WITH_EXPR_RHS);
                 case RIGHT_ARROW:
                     hasMatch = nextToken.kind == SyntaxKind.RIGHT_ARROW_TOKEN;
                     break;
                 case STMT_START_WITH_IDENTIFIER:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
-                        STMT_START_WITH_IDENTIFIER);
+                            STMT_START_WITH_IDENTIFIER);
                 case NULL_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.NULL_KEYWORD;
                     break;

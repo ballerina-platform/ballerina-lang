@@ -291,6 +291,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(remoteMethodCallActionNode);
     }
 
+    public void visit(NilLiteralNode nilLiteralNode) {
+        visitSyntaxNode(nilLiteralNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

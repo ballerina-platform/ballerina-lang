@@ -292,6 +292,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(remoteMethodCallActionNode);
     }
 
+    public T transform(NilLiteralNode nilLiteralNode) {
+        return transformSyntaxNode(nilLiteralNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

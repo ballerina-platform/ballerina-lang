@@ -1151,5 +1151,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeParenToken.internalNode());
         return stRemoteMethodCallActionNode.createUnlinkedFacade();
     }
+
+    public static NilLiteralNode createNilLiteralNode(
+            Token openParenToken,
+            Token closeParenToken) {
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stNilLiteralNode = STNodeFactory.createNilLiteralNode(
+                openParenToken.internalNode(),
+                closeParenToken.internalNode());
+        return stNilLiteralNode.createUnlinkedFacade();
+    }
 }
 

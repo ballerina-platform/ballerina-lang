@@ -837,6 +837,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 closeParenToken);
     }
 
+    @Override
+    public Node transform(NilLiteralNode nilLiteralNode) {
+        Token openParenToken = modifyToken(nilLiteralNode.openParenToken());
+        Token closeParenToken = modifyToken(nilLiteralNode.closeParenToken());
+        return nilLiteralNode.modify(
+                openParenToken,
+                closeParenToken);
+    }
+
     // Tokens
 
     @Override

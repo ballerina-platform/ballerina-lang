@@ -846,5 +846,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 arguments,
                 closeParenToken);
     }
+
+    public static STNode createNilLiteralNode(
+            STNode openParenToken,
+            STNode closeParenToken) {
+
+        return new STNilLiteralNode(
+                openParenToken,
+                closeParenToken);
+    }
 }
 
