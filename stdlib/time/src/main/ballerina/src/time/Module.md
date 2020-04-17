@@ -1,3 +1,5 @@
+## Module Overview
+
 This module provides implementations related to time, date, time zones, and durations. 
 
 The module has two main types as [Time](records/Time.html) and [TimeZone](records/TimeZone.html). The `Time` type represents a time associated with a given time zone. It has `time` and `zone` as its attributes. The `TimeZone` type represents the time zone associated with a given time. It has `id` and `offset` as its attributes. An `id` can be one of the following:

@@ -302,21 +302,25 @@ function populateGenericLoadBalanceActionError(LoadBalanceActionErrorData loadBa
 }
 
 
-# The configurations related to the load balance client endpoint.
+# The configurations related to the load balance client endpoint. Following fields are inherited from the other
+# configuration records in addition to the load balance client specific configs.
 #
-# httpVersion - Copied from CommonClientConfiguration
-# http1Settings - Copied from CommonClientConfiguration
-# http2Settings - Copied from CommonClientConfiguration
-# timeoutInMillis - Copied from CommonClientConfiguration
-# forwarded - Copied from CommonClientConfiguration
-# followRedirects - Copied from CommonClientConfiguration
-# poolConfig - Copied from CommonClientConfiguration
-# cache - Copied from CommonClientConfiguration
-# compression - Copied from CommonClientConfiguration
-# auth - Copied from CommonClientConfiguration
-# circuitBreaker - Copied from CommonClientConfiguration
-# retryConfig - Copied from CommonClientConfiguration
-# cookieConfig - Copied from CommonClientConfiguration
+# |                                                         |
+# |:------------------------------------------------------- |
+# | httpVersion - Copied from CommonClientConfiguration     |
+# | http1Settings - Copied from CommonClientConfiguration   |
+# | http2Settings - Copied from CommonClientConfiguration   |
+# | timeoutInMillis - Copied from CommonClientConfiguration |
+# | forwarded - Copied from CommonClientConfiguration       |
+# | followRedirects - Copied from CommonClientConfiguration |
+# | poolConfig - Copied from CommonClientConfiguration      |
+# | cache - Copied from CommonClientConfiguration           |
+# | compression - Copied from CommonClientConfiguration     |
+# | auth - Copied from CommonClientConfiguration            |
+# | circuitBreaker - Copied from CommonClientConfiguration  |
+# | retryConfig - Copied from CommonClientConfiguration     |
+# | cookieConfig - Copied from CommonClientConfiguration    |
+#
 # + targets - The upstream HTTP endpoints among which the incoming HTTP traffic load should be distributed
 # + lbRule - LoadBalancing rule
 # + failover - Configuration for load balancer whether to fail over in case of a failure
