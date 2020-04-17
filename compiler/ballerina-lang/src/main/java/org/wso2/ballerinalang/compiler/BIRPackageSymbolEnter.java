@@ -931,6 +931,9 @@ public class BIRPackageSymbolEnter {
                         }
                     } else if (hasKeyTypeConstraint) {
                         bTableType.keyTypeConstraint = readTypeFromCp();
+                        bTableType.keyTypeConstraint.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE,
+                                Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID,
+                                bTableType.keyTypeConstraint, env.pkgSymbol.owner);
                     }
                     return bTableType;
                 case TypeTags.MAP:

@@ -11,14 +11,21 @@ import org.ballerinalang.model.values.BValue;
 public class BTableType extends BType {
 
     private BType constraint;
+    private BType keyType;
+    private String[] fieldNames;
 
-    /**
-     * Create a {@code BTableType} which represents the SQL Result Set.
-     *
-     * @param typeName string name of the type
-     */
-    BTableType(String typeName, String pkgPath) {
-        super(typeName, pkgPath, BTable.class);
+    public BTableType(BType constraint, String[] fieldNames) {
+        super(TypeConstants.TABLE_TNAME, null, BTable.class);
+        this.constraint = constraint;
+        this.fieldNames = fieldNames;
+        this.keyType = null;
+    }
+
+    public BTableType(BType constraint, BType keyType, String pkgPath) {
+        super(TypeConstants.TABLE_TNAME, pkgPath, BTable.class);
+        this.constraint = constraint;
+        this.keyType = keyType;
+        this.fieldNames = new String[]{};
     }
 
     public BTableType(BType constraint) {
@@ -30,6 +37,14 @@ public class BTableType extends BType {
         return constraint;
     }
 
+    public BType getKeyType() {
+        return keyType;
+    }
+
+    public String[] getFieldNames() {
+        return fieldNames;
+    }
+
     @Override
     public <V extends BValue> V getZeroValue() {
         return null;
@@ -37,8 +52,13 @@ public class BTableType extends BType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        return getZeroValue();
+        return null;
     }
+
+    public void setKeyType(BType keyType) {
+        this.keyType = keyType;
+    }
+
 
     @Override
     public int getTag() {
@@ -61,7 +81,7 @@ public class BTableType extends BType {
         }
 
         BTableType other = (BTableType) obj;
-        if (constraint == other.constraint) {
+        if (constraint == other.constraint && keyType == other.keyType) {
             return true;
         }
 
@@ -69,6 +89,10 @@ public class BTableType extends BType {
             return false;
         }
 
-        return constraint.equals(other.constraint);
+        if (keyType == null || other.keyType == null) {
+            return false;
+        }
+
+        return constraint.equals(other.constraint) && keyType.equals(other.keyType);
     }
 }

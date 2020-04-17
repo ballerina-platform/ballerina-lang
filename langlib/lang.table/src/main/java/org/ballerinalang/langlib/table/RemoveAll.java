@@ -18,27 +18,30 @@
 
 package org.ballerinalang.langlib.table;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.array:iterator(Type[]).
+ * Native implementation of lang.array:removeAll((any|error)[]).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "iterator",
+        orgName = "ballerina", packageName = "lang.table", functionName = "removeAll",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true
 )
-public class GetIterator {
-    public static IteratorValue iterator(Strand strand, TableValue tbl) {
-        return tbl.getIterator();
+public class RemoveAll {
+
+    public static void removeAll(Strand strand, TableValue tbl) {
+        try {
+            tbl.clear();
+        } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
+            throw BallerinaErrors.createError(e.getMessage(), "Failed to remove all from table: " + e.getDetail());
+        }
     }
 }

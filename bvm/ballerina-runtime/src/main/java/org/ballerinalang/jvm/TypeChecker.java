@@ -33,6 +33,7 @@ import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStreamType;
+import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
@@ -624,6 +625,8 @@ public class TypeChecker {
                 return checkIsMapType(sourceType, (BMapType) targetType, unresolvedTypes);
             case TypeTags.STREAM_TAG:
                 return checkIsStreamType(sourceType, (BStreamType) targetType, unresolvedTypes);
+            case TypeTags.TABLE_TAG:
+                return checkIsTableType(sourceType, (BTableType) targetType, unresolvedTypes);
             case TypeTags.JSON_TAG:
                 return checkIsJSONType(sourceType, unresolvedTypes);
             case TypeTags.RECORD_TYPE_TAG:
@@ -741,6 +744,19 @@ public class TypeChecker {
         }
         return checkContraints(((BStreamType) sourceType).getConstrainedType(), targetType.getConstrainedType(),
                                unresolvedTypes);
+    }
+
+    private static boolean checkIsTableType(BType sourceType, BTableType targetType, List<TypePair> unresolvedTypes) {
+        if (sourceType.getTag() != TypeTags.TABLE_TAG) {
+            return false;
+        }
+        boolean isTableType = checkContraints(((BTableType) sourceType).getConstrainedType(),
+                targetType.getConstrainedType(), unresolvedTypes);
+        if (isTableType && ((BTableType) sourceType).getKeyType() != null) {
+            isTableType = checkContraints(((BTableType) sourceType).getKeyType(), targetType.getKeyType(),
+                    unresolvedTypes);
+        }
+        return isTableType;
     }
 
     private static boolean checkIsJSONType(BType sourceType, List<TypePair> unresolvedTypes) {

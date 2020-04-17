@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.IteratorValue;
+import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -27,18 +27,25 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.array:iterator(Type[]).
+ * Native implementation of lang.array:reduce(Type[], function).
  *
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table", functionName = "iterator",
-        args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
-        returnType = {@ReturnType(type = TypeKind.OBJECT)},
+        orgName = "ballerina", packageName = "lang.table", functionName = "reduce",
+        args = {@Argument(name = "tbl", type = TypeKind.TABLE), @Argument(name = "func", type = TypeKind.FUNCTION),
+                @Argument(name = "initial", type = TypeKind.ANY)},
+        returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true
 )
-public class GetIterator {
-    public static IteratorValue iterator(Strand strand, TableValue tbl) {
-        return tbl.getIterator();
+public class Reduce {
+
+    public static Object reduce(Strand strand, TableValue tbl, FPValue<Object, Boolean> func, Object initial) {
+        Object accum = initial;
+        for (Object key : tbl.getKeys()) {
+            Object value = tbl.get(key);
+            accum = func.apply(new Object[]{strand, accum, true, value, true});
+        }
+        return accum;
     }
 }

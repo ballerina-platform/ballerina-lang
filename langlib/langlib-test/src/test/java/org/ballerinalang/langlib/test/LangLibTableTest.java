@@ -53,22 +53,35 @@ public class LangLibTableTest {
         compileResult = BCompileUtil.compile("test-src/tablelib_test.bal");
     }
 
-    @Test
+//    @Test
     public void testLength() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testTableLength");
         assertEquals(((BInteger) returns[0]).intValue(), 2);
     }
 
-//    @Test
-//    public void testIterator() {
-//        BValue[] returns = BRunUtil.invoke(compileResult, "testIterator");
-//        assertEquals(returns[0].stringValue(), "HelloWorld!FromBallerina");
-//    }
+    @Test
+    public void testIterator() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testIterator");
+        assertEquals(returns[0].stringValue(), "AAABBB");
+    }
 
 //        @Test
     public void testNextKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNextKey");
             assertEquals(((BInteger) returns[0]).intValue(), 0);
+    }
+
+
+//    @Test
+    public void testForeach() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testForeach");
+        assertEquals(returns[0].stringValue(), "AAABBB");
+    }
+
+//    @Test
+    public void testFilter() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testFilter");
+        assertEquals(returns[0].stringValue(), "AAA");
     }
 
 //    @Test
@@ -77,19 +90,25 @@ public class LangLibTableTest {
         assertEquals(((BInteger) returns[0]).intValue(), 0);
     }
 
-    @Test
-    public void testForeach() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testForeach");
-        assertEquals(returns[0].stringValue(), "AAABBB");
+//        @Test
+    public void testReduce() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testReduce");
+        assertEquals(((BFloat) returns[0]).floatValue(), 32.5);
     }
 
-    @Test
-    public void testFilter() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFilter");
-        assertEquals(returns[0].stringValue(), "AAA");
+//            @Test
+    public void testRemove() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "removeFromKey");
+                assertEquals(returns[0].stringValue(), "BBB");
     }
 
-    @Test
+    //            @Test
+    public void removeIfHasKey() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "removeIfHasKey");
+        assertEquals(returns[0].stringValue(), "BBB");
+    }
+
+//    @Test
     public void testMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMap");
         assertEquals(returns[0].stringValue(), "AAABBB");

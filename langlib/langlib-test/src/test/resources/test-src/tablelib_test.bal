@@ -24,23 +24,23 @@ string name;
 string dep;
 };
 
+//type GlobalTable table<Person> key<string>;
 type GlobalTable table<Person> key(name);
 
-type StrTable table<Emp> key(name);
 
+//type StrTable table<Emp> key(name);
+
+//GlobalTable tab = table key(name)[
 GlobalTable tab = table [
 { name: "AAA", age: 31 },
 { name: "BBB", age: 34 }
 ];
 
 
-function testTableLength() returns int {
-return tab.length();
-}
-
-//function getKey() returns Person? {
-//    return tab.get("AAA");
+//function testTableLength() returns int {
+//return tab.length();
 //}
+
 
 //function testNextKey() returns int {
 //return tab.nextKey();
@@ -49,62 +49,86 @@ return tab.length();
 //
 
 
-function testForeach() returns string {
-string result = "";
-
-tab.forEach(function (Person? x) {
-if (x is Person) {
-result += x.name;
-}
-});
-
-return result;
-}
-
-function testFilter() returns string {
-
-GlobalTable  filteredT = tab.filter(function (Person p) returns boolean { return p.name ==  "AAA"; });
-string result = "";
-
-filteredT.forEach(function (Person? x) {
-if (x is Person) {
-result += x.name;
-}
-});
-
-return result;
-}
-
-
-function testMap() returns string {
-StrTable newTbl = tab.'map(function (Person x) returns Emp {
-return {name: x.name, dep : "HR"};
-});
-
-                                                                                                     string result = "";
-newTbl.forEach(function (Emp? x) {
-                                    if (x is Emp) {
-result += x.name;
-            }
-            });
-return result;
-}
-
-
-//function testIterator() returns string {
-//    string[] arr = ["Hello", "World!", "From", "Ballerina"];
-//    abstract object {
-//                 public function next() returns record {| Person value; |}?;
-//} itr = tab.iterator();
-//
-//record {| Person value; |}|() elem = itr.next();
-//
+//function testForeach() returns string {
 //string result = "";
 //
-//while (elem is record {| Person value; |}) {
-//result += elem.value.name;
-//               elem = itr.next();
-//                              }
-//
-//                              return result;
+//tab.forEach(function (Person? x) {
+//if (x is Person) {
+//result += x.name;
 //}
+//});
+//
+//return result;
+//}
+//
+//function testFilter() returns string {
+//
+//GlobalTable  filteredT = tab.filter(function (Person p) returns boolean { return p.name ==  "AAA"; });
+//string result = "";
+//
+//filteredT.forEach(function (Person? x) {
+//if (x is Person) {
+//result += x.name;
+//}
+//});
+//
+//return result;
+//}
+
+
+//function getKey() returns Person? {
+//    return tab.get("AAA");
+//}
+
+//function testReduce() returns float {
+//float avg = tab.reduce(function (float accum, Person val) returns float {
+//return accum + <float>val.age / tab.length();
+//}, 0.0);
+//return avg;
+//}
+
+//function removeFromKey() returns Person {
+//
+//Person removedPerson = tab.remove("AAA");
+//return removedPerson;
+//}
+
+//function removeIfHasKey() returns Person {
+//
+//Person removedPerson = tab.remove("AAA");
+//return removedPerson;
+//}
+
+//
+//
+//function testMap() returns string {
+//StrTable newTbl = tab.'map(function (Person x) returns Emp {
+//return {name: x.name, dep : "HR"};
+//});
+//
+//                                                                                                     string result = "";
+//newTbl.forEach(function (Emp? x) {
+//                                    if (x is Emp) {
+//result += x.name;
+//            }
+//            });
+//return result;
+//}
+
+
+function testIterator() returns string {
+    abstract object {
+                 public function next() returns record {| Person value; |}?;
+} itr = tab.iterator();
+
+record {| Person value; |}|() elem = itr.next();
+
+string result = "";
+
+while (elem is record {| Person value; |}) {
+result += elem.value.name;
+               elem = itr.next();
+                              }
+
+                              return result;
+}
