@@ -1,3 +1,5 @@
+## Module Overview
+
 [RabbitMQ](https://www.rabbitmq.com/) is one of the most popular open-source enterprise messaging systems modelled on the Advanced Message Queuing Protocol (AMQP) standard. This guide covers the Ballerina RabbitMQ module and its public API. This module contains the functionality to support messaging with the RabbitMQ broker (AMQP 0-9-1). It assumes that the most recent version of Ballerina is used and is built on top of the basics.
  
 Key sections include: 
