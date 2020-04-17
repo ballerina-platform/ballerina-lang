@@ -28,8 +28,8 @@ import java.util.ArrayList;
  * @since 1.3.0
  */
 public abstract class AbstractNodeFactory {
-    public static Identifier createIdentifier(String text) {
-        STToken token = STNodeFactory.createIdentifier(text, STNodeFactory.createNodeList(new ArrayList<>()),
+    public static IdentifierToken createIdentifierToken(String text) {
+        STToken token = STNodeFactory.createIdentifierToken(text, STNodeFactory.createNodeList(new ArrayList<>()),
                 STNodeFactory.createNodeList(new ArrayList<>()));
         return token.createUnlinkedFacade();
     }

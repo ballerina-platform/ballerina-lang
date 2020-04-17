@@ -24,13 +24,13 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class TypeDefinitionNode extends ModuleMemberDeclaration {
+public class TypeDefinitionNode extends ModuleMemberDeclarationNode {
 
     public TypeDefinitionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Metadata metadata() {
+    public MetadataNode metadata() {
         return childInBucket(0);
     }
 
@@ -65,7 +65,7 @@ public class TypeDefinitionNode extends ModuleMemberDeclaration {
     }
 
     public TypeDefinitionNode modify(
-            Metadata metadata,
+            MetadataNode metadata,
             Token visibilityQualifier,
             Token typeKeyword,
             Token typeName,
