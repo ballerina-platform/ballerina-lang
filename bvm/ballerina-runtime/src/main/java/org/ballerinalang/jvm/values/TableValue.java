@@ -110,7 +110,7 @@ public class TableValue<K, V> implements BTable<K, V> {
 
     @Override
     public V get(Object key) {
-        return valueHolder.getData((K)key);
+        return valueHolder.getData((K) key);
     }
 
     @Override
