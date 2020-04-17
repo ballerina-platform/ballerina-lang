@@ -208,15 +208,20 @@ public class CodeGenerator {
 
         switch (type) {
             case GEN_CLIENT:
-                // modelPackage is not in use at the moment. All models will be written into same package
-                // as other src files.
-                // Therefore value set to modelPackage is ignored here
-                BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).srcPackage(srcPackage)
-                        .modelPackage(srcPackage);
-                definitionContext.setDefinitionPath(reldefinitionPath);
+                try {
+                    // modelPackage is not in use at the moment. All models will be written into same package
+                    // as other src files.
+                    // Therefore value set to modelPackage is ignored here
+                    BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).srcPackage(srcPackage)
+                            .modelPackage(srcPackage);
+                    definitionContext.setDefinitionPath(reldefinitionPath);
 
-                sourceFiles = generateClient(definitionContext);
-                break;
+                    sourceFiles = generateClient(definitionContext);
+                    break;
+                } catch (NullPointerException e){
+                    outStream.println("test_214. ");
+                }
+
             case GEN_SERVICE:
                 sourceFiles = generateBallerinaService(openApi);
                 break;
@@ -273,22 +278,25 @@ public class CodeGenerator {
         handlebars.setInfiniteLoops(true); //This will allow templates to call themselves with recursion.
         handlebars.registerHelpers(StringHelpers.class);
         handlebars.registerHelper("equals", (object, options) -> {
-            CharSequence result;
+            CharSequence result = null;
             Object param0 = options.param(0);
-
-            if (param0 == null) {
-                throw new IllegalArgumentException("found 'null', expected 'string'");
-            }
-            if (object != null) {
-                if (object.toString().equals(param0.toString())) {
-                    result = options.fn(options.context);
-                } else {
-                    result = options.inverse();
+            try{
+                if (param0 == null) {
+                    throw new IllegalArgumentException("found 'null', expected 'string'");
                 }
-            } else {
-                result = null;
-            }
+                if (object != null) {
+                    if (object.toString().equals(param0.toString())) {
+                        result = options.fn(options.context);
+                    } else {
+                        result = options.inverse();
+                    }
+                } else {
+                    result = null;
+                }
 
+            }catch(IllegalArgumentException e){
+                //Ignore exception and try to build next
+            }
             return result;
         });
 
