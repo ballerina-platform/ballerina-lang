@@ -554,6 +554,7 @@ body .content-wrapper .module-desc {
 }
 body .content-wrapper .function-desc p {
   display: block;
+  white-space: pre-line;
   color: #333;
 }
 body .content-wrapper .stab {
