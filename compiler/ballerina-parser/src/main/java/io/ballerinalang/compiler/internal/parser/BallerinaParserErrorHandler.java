@@ -200,7 +200,7 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] ARRAY_LENGTH = { ParserRuleContext.CLOSE_BRACKET,
             ParserRuleContext.DECIMAL_INTEGER_LITERAL, ParserRuleContext.HEX_INTEGER_LITERAL,
-            ParserRuleContext.ASTERISK, ParserRuleContext.STATEMENT_START_IDENTIFIER};
+            ParserRuleContext.ASTERISK, ParserRuleContext.VARIABLE_REF};
 
     private static final ParserRuleContext[] PARAMETER =
             { ParserRuleContext.ANNOTATIONS, ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TYPE_DESCRIPTOR };
