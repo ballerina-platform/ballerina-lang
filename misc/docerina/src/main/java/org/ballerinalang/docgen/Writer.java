@@ -102,9 +102,9 @@ public class Writer {
 
             handlebars.registerHelper("editDescription", (Helper<String>) (description, options) -> {
                 //remove anything with <pre> tag
-                String newDescription = description.replaceAll("<pre>(.|\\n)*?<\\/pre>","");
+                String newDescription = description.replaceAll("<pre>(.|\\n)*?<\\/pre>", "");
                 // select only the first sentence
-                newDescription = newDescription.replaceAll("\\.(.|\\n)*",".");
+                newDescription = newDescription.replaceAll("\\.(.|\\n)*", ".");
                 return newDescription;
             });
 
