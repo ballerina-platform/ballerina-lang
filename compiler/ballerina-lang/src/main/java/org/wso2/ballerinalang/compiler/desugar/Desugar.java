@@ -1184,17 +1184,76 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariable varNode) {
-        result = varNode;
+        //  case 1:
+        //  (string, int) (a, b) = (tuple)
+        //
+        //  any[] x = (tuple);
+        //  string a = x[0];
+        //  int b = x[1];
+        //
+        //  case 2:
+        //  ((string, float) int)) ((a, b), c)) = (tuple)
+        //
+        //  any[] x = (tuple);
+        //  string a = x[0][0];
+        //  float b = x[0][1];
+        //  int c = x[1];
+
+        //create tuple destruct block stmt
+        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
+
+        //create a simple var for the array 'any[] x = (tuple)' based on the dimension for x
+        String name = "tuple";
+        final BLangSimpleVariable tuple =
+                ASTBuilderUtil.createVariable(varNode.pos, name, symTable.arrayAllType, null,
+                                              new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
+                                                             symTable.arrayAllType, this.env.scope.owner));
+        tuple.expr = varNode.expr;
+        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varNode.pos, blockStmt);
+        variableDef.var = tuple;
+
+        //create the variable definition statements using the root block stmt created
+        createVarDefStmts(varNode, blockStmt, tuple.symbol, null);
+        createRestFieldVarDefStmts(varNode, blockStmt, tuple.symbol);
+
+        //finally rewrite the populated block statement
+        result = rewrite(blockStmt, env);
     }
 
     @Override
     public void visit(BLangRecordVariable varNode) {
-        result = varNode;
+        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
+        final BLangSimpleVariable mapVariable =
+                ASTBuilderUtil.createVariable(varNode.pos, "$map$0", symTable.mapAllType, null,
+                                              new BVarSymbol(0, names.fromString("$map$0"), this.env.scope.owner.pkgID,
+                                                             symTable.mapAllType, this.env.scope.owner));
+        mapVariable.expr = varNode.expr;
+        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varNode.pos, blockStmt);
+        variableDef.var = mapVariable;
+
+        createVarDefStmts(varNode, blockStmt, mapVariable.symbol, null);
+        result = rewrite(blockStmt, env);
     }
 
     @Override
     public void visit(BLangErrorVariable varNode) {
-        result = varNode;
+        // Create error destruct block stmt.
+        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
+
+        // Create a simple var for the error 'error x = ($error$)'.
+        BVarSymbol errorVarSymbol = new BVarSymbol(0, names.fromString("$error$"), this.env.scope.owner.pkgID,
+                                                   symTable.errorType, this.env.scope.owner);
+        final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varNode.pos, errorVarSymbol.name.value,
+                                                                        symTable.errorType, null, errorVarSymbol);
+        error.expr = varNode.expr;
+        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varNode.pos, blockStmt);
+        variableDef.var = error;
+
+        // Create the variable definition statements using the root block stmt created.
+        createVarDefStmts(varNode, blockStmt, error.symbol, null);
+
+        // Finally rewrite the populated block statement.
+        result = rewrite(blockStmt, env);
     }
 
     // Statements
@@ -1214,44 +1273,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariableDef varDefNode) {
-        //  case 1:
-        //  (string, int) (a, b) = (tuple)
-        //
-        //  any[] x = (tuple);
-        //  string a = x[0];
-        //  int b = x[1];
-        //
-        //  case 2:
-        //  ((string, float) int)) ((a, b), c)) = (tuple)
-        //
-        //  any[] x = (tuple);
-        //  string a = x[0][0];
-        //  float b = x[0][1];
-        //  int c = x[1];
-        varDefNode.var = rewrite(varDefNode.var, env);
-        BLangTupleVariable tupleVariable = varDefNode.var;
-
-        //create tuple destruct block stmt
-        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
-
-        //create a array of any-type based on the dimension
-        BType runTimeType = new BArrayType(symTable.anyType);
-
-        //create a simple var for the array 'any[] x = (tuple)' based on the dimension for x
-        String name = "tuple";
-        final BLangSimpleVariable tuple = ASTBuilderUtil.createVariable(varDefNode.pos, name, runTimeType, null,
-                new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID, runTimeType,
-                        this.env.scope.owner));
-        tuple.expr = tupleVariable.expr;
-        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varDefNode.pos, blockStmt);
-        variableDef.var = tuple;
-
-        //create the variable definition statements using the root block stmt created
-        createVarDefStmts(tupleVariable, blockStmt, tuple.symbol, null);
-        createRestFieldVarDefStmts(tupleVariable, blockStmt, tuple.symbol);
-
-        //finally rewrite the populated block statement
-        result = rewrite(blockStmt, env);
+        result = rewrite(varDefNode.var, env);
     }
 
     private void createRestFieldVarDefStmts(BLangTupleVariable parentTupleVariable, BLangBlockStmt blockStmt,
@@ -1307,46 +1329,12 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVariableDef varDefNode) {
-
-        BLangRecordVariable varNode = varDefNode.var;
-
-        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
-
-        BType runTimeType = new BMapType(TypeTags.MAP, symTable.anyType, null);
-
-        final BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(varDefNode.pos, "$map$0", runTimeType,
-                null, new BVarSymbol(0, names.fromString("$map$0"), this.env.scope.owner.pkgID,
-                        runTimeType, this.env.scope.owner));
-        mapVariable.expr = varDefNode.var.expr;
-        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varDefNode.pos, blockStmt);
-        variableDef.var = mapVariable;
-
-        createVarDefStmts(varNode, blockStmt, mapVariable.symbol, null);
-
-        result = rewrite(blockStmt, env);
+        result = rewrite(varDefNode.var, env);
     }
 
     @Override
     public void visit(BLangErrorVariableDef varDefNode) {
-        BLangErrorVariable errorVariable = varDefNode.errorVariable;
-
-        // Create error destruct block stmt.
-        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
-
-        // Create a simple var for the error 'error x = ($error$)'.
-        BVarSymbol errorVarSymbol = new BVarSymbol(0, names.fromString("$error$"),
-                this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner);
-        final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varDefNode.pos, errorVarSymbol.name.value,
-                symTable.errorType, null, errorVarSymbol);
-        error.expr = errorVariable.expr;
-        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varDefNode.pos, blockStmt);
-        variableDef.var = error;
-
-        // Create the variable definition statements using the root block stmt created.
-        createVarDefStmts(errorVariable, blockStmt, error.symbol, null);
-
-        // Finally rewrite the populated block statement.
-        result = rewrite(blockStmt, env);
+        result = rewrite(varDefNode.errorVariable, env);
     }
 
     /**
