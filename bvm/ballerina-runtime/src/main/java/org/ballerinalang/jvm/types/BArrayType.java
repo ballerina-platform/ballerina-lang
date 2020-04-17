@@ -129,7 +129,7 @@ public class BArrayType extends BType {
     @Override
     public String toString() {
         String arrayString = "";
-        String arrayTypeName = getName();
+        String arrayTypeName = getTypeName();
         arrayString = size != -1 ? arrayString + "[" + size + "]" : arrayString + "[]";
         arrayString = arrayString.concat(elementType.toString());
         if (arrayString.contains(arrayTypeName)) {
@@ -138,8 +138,13 @@ public class BArrayType extends BType {
         return arrayString;
     }
 
-    @Override
-    public String getName() {
+    public String getTypeName() {
+        if (elementType instanceof  BMapType) {
+            return elementType.toString();
+        }
+        if (elementType instanceof BArrayType) {
+            return ((BArrayType) elementType).getTypeName();
+        }
         return elementType.getName();
     }
 
