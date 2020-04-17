@@ -25,3 +25,26 @@ function testIncompatibleListConstructorExprs2() {
 
 type NoFillerObject abstract object {
 };
+
+function testInvalidAssignmentForInferredTuple() {
+    var tup = [
+        {id: 123, name: "Anne", city: "Colombo"},
+        {id: 456, name: "Jo", age: 40},
+        1,
+        "abc"
+    ];
+
+    [record {|
+         int id;
+         string name;
+         int city;
+    |},
+    record {}, boolean, string] tup2 = tup;
+
+    record {|
+         int id;
+         string name;
+         string age;
+    |} v1 = tup[1];
+    float v2 = tup[2];
+}

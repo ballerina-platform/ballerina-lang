@@ -2885,6 +2885,10 @@ public class Types {
                 BTupleType tupleType = (BTupleType) type;
                 return tupleType.getTupleTypes().stream().allMatch(eleType -> hasFillerValue(eleType));
             default:
+                // filler value is 0
+                if (TypeTags.isIntegerTypeTag(type.tag)) {
+                    return true;
+                }
                 return false;
         }
     }
@@ -2932,7 +2936,7 @@ public class Types {
 
         while (iterator.hasNext()) {
             BLangExpression value = (BLangExpression) iterator.next();
-            if (!isSameType(value.type, firstElement.type)) {
+            if (!isSameBasicType(value.type, firstElement.type)) {
                 return false;
             }
             if (!defaultFillValuePresent && isImplicitDefaultValue(value)) {
@@ -2943,18 +2947,73 @@ public class Types {
         return defaultFillValuePresent;
     }
 
+    private boolean hasImplicitDefaultValue(Set<BLangExpression> valueSpace) {
+        for (BLangExpression expression : valueSpace) {
+            if (isImplicitDefaultValue(expression)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private boolean checkFillerValue(BUnionType type) {
         if (type.isNullable()) {
             return true;
         }
-        Iterator<BType> iterator = type.getMemberTypes().iterator();
+
+        Set<BType> memberTypes = new HashSet<>();
+        boolean hasFillerValue = false;
+        boolean defaultValuePresent = false;
+        boolean finiteTypePresent = false;
+        for (BType member : type.getMemberTypes()) {
+            if (member.tag == TypeTags.FINITE) {
+                Set<BType> uniqueValues = getValueTypes(((BFiniteType) member).getValueSpace());
+                memberTypes.addAll(uniqueValues);
+                if (!defaultValuePresent && hasImplicitDefaultValue(((BFiniteType) member).getValueSpace())) {
+                    defaultValuePresent = true;
+                }
+                finiteTypePresent = true;
+            } else {
+                memberTypes.add(member);
+            }
+            if (!hasFillerValue && hasFillerValue(member)) {
+                hasFillerValue = true;
+            }
+        }
+        if (!hasFillerValue) {
+            return false;
+        }
+
+        Iterator<BType> iterator = memberTypes.iterator();
         BType firstMember = iterator.next();
         while (iterator.hasNext()) {
-            if (!isSameType(firstMember, iterator.next())) {
+            if (!isSameBasicType(firstMember, iterator.next())) {
                 return false;
             }
         }
-        return isValueType(firstMember) && hasFillerValue(firstMember);
+
+        if (finiteTypePresent) {
+            return defaultValuePresent;
+        }
+        return true;
+    }
+
+    private boolean isSameBasicType(BType source, BType target) {
+        if (isSameType(source, target)) {
+            return true;
+        }
+        if (TypeTags.isIntegerTypeTag(source.tag) && TypeTags.isIntegerTypeTag(target.tag)) {
+            return true;
+        }
+        return false;
+    }
+
+    private Set<BType> getValueTypes(Set<BLangExpression> valueSpace) {
+        Set<BType> uniqueType = new HashSet<>();
+        for (BLangExpression expression : valueSpace) {
+            uniqueType.add(expression.type);
+        }
+        return uniqueType;
     }
 
     private boolean isImplicitDefaultValue(BLangExpression expression) {
