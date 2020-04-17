@@ -1449,6 +1449,29 @@
             ]
         },
         {
+            "name": "ArrayTypeDescriptorNode",
+            "base": "Node",
+            "kind": "ARRAY_TYPE",
+            "attributes": [
+                {
+                    "name": "typeDescriptorNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "openBracketToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "arrayLengthNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "closeBracketToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "ActionNode",
             "base": "ExpressionNode",
             "isAbstract": true

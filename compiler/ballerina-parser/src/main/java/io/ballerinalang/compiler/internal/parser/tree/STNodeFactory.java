@@ -832,6 +832,19 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 typeDescriptor);
     }
 
+    public static STNode createArrayTypeDescriptorNode(
+            STNode typeDescriptorNode,
+            STNode openBracketToken,
+            STNode arrayLengthNode,
+            STNode closeBracketToken) {
+
+        return new STArrayTypeDescriptorNode(
+                typeDescriptorNode,
+                openBracketToken,
+                arrayLengthNode,
+                closeBracketToken);
+    }
+
     public static STNode createRemoteMethodCallActionNode(
             STNode expression,
             STNode rightArrowToken,
