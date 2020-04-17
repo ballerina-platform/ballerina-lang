@@ -300,7 +300,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @Override
     public int hashCode() {
         return System.identityHashCode(this);
-
     }
 
     /**

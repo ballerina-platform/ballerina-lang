@@ -292,7 +292,6 @@ public class JvmInstructionGen {
                 TypeTags.isStringTypeTag(bType.tag) ||
                 bType.tag == TypeTags.MAP ||
                 bType.tag == TypeTags.STREAM ||
-                bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.NIL ||
