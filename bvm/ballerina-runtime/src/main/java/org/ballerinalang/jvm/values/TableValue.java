@@ -199,7 +199,7 @@ public class TableValue<K, V> implements BTable<K, V> {
     }
 
     private String createStringValueDataEntry(Iterator<Map.Entry<K, V>> itr) {
-        StringJoiner sj = new StringJoiner(" ");
+        StringJoiner sj = new StringJoiner("\n");
         while (itr.hasNext()) {
             Map.Entry<K, V> struct = itr.next();
             sj.add(struct.getValue().toString());
