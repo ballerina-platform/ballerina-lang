@@ -208,6 +208,12 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] PARAMETER_WITHOUT_ANNOTS =
             { ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TYPE_DESCRIPTOR };
 
+    private static final ParserRuleContext[] STMT_START_WITH_EXPR_RHS = { ParserRuleContext.ASSIGN_OP,
+            ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.SEMICOLON };
+
+    private static final ParserRuleContext[] STMT_START_WITH_IDENTIFIER =
+            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS };
+
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
@@ -376,6 +382,8 @@ public class BallerinaParserErrorHandler {
             case RESOURCE_DEF:
             case PARAMETER_WITHOUT_ANNOTS:
             case PARAMETER:
+            case STMT_START_WITH_IDENTIFIER:
+            case STMT_START_WITH_EXPR_RHS:
                 return true;
             default:
                 return false;
@@ -877,6 +885,15 @@ public class BallerinaParserErrorHandler {
                     break;
                 case IS_EXPRESSION:
                     return seekInIsExpression(currentCtx, lookahead, currentDepth, matchingRulesCount);
+                case STMT_START_WITH_EXPR_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                            STMT_START_WITH_EXPR_RHS);
+                case RIGHT_ARROW:
+                    hasMatch = nextToken.kind == SyntaxKind.RIGHT_ARROW_TOKEN;
+                    break;
+                case STMT_START_WITH_IDENTIFIER:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                            STMT_START_WITH_IDENTIFIER);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1098,9 +1115,9 @@ public class BallerinaParserErrorHandler {
             throw new IllegalStateException();
         }
 
-        ParserRuleContext[] alternatives = { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
-                ParserRuleContext.OPEN_BRACKET, ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.IS_KEYWORD,
-                nextContext };
+        ParserRuleContext[] alternatives =
+                { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET,
+                        ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.IS_KEYWORD, nextContext };
         return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, alternatives);
     }
 
@@ -1374,7 +1391,6 @@ public class BallerinaParserErrorHandler {
                     // After parsing nil type descriptor all the other parsing is same as next rule of simple type
                     return getNextRuleForTypeDescriptor();
                 }
-
                 // endContext(); // end func signature
                 return ParserRuleContext.FUNC_BODY;
             case EXPRESSION:
@@ -1661,6 +1677,9 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.EXPRESSION_RHS;
             case LOCAL_TYPE_DEFINITION_STMT:
                 return ParserRuleContext.TYPE_KEYWORD;
+            case RIGHT_ARROW:
+                return ParserRuleContext.EXPRESSION;
+
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
             case STATEMENT_START_IDENTIFIER:
@@ -1702,6 +1721,11 @@ public class BallerinaParserErrorHandler {
             case CONST_DECL_RHS:
             case OBJECT_MEMBER_WITHOUT_METADATA:
             case TOP_LEVEL_NODE:
+            case PARAMETER:
+            case PARAMETER_WITHOUT_ANNOTS:
+            case RECORD_FIELD_WITHOUT_METADATA:
+            case STMT_START_WITH_IDENTIFIER:
+            case STMT_START_WITH_EXPR_RHS:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -1800,10 +1824,15 @@ public class BallerinaParserErrorHandler {
             case CONSTANT_DECL:
                 return ParserRuleContext.EXPRESSION;
             default:
+                if (parentCtx == ParserRuleContext.STMT_START_WITH_IDENTIFIER) {
+                    switchContext(ParserRuleContext.ASSIGNMENT_OR_VAR_DECL_STMT);
+                    return ParserRuleContext.EXPRESSION;
+                }
+
                 if (isStatement(parentCtx)) {
                     return ParserRuleContext.EXPRESSION;
                 }
-                throw new IllegalStateException();
+                throw new IllegalStateException("eqaul op cannot exsist in a " + parentCtx);
         }
     }
 
@@ -2139,6 +2168,8 @@ public class BallerinaParserErrorHandler {
             case RETURN_STMT:
             case COMPOUND_ASSIGNMENT_STMT:
             case LOCAL_TYPE_DEFINITION_STMT:
+            case STMT_START_WITH_IDENTIFIER:
+            case EXPRESSION_STATEMENT:
                 return true;
             default:
                 return false;
@@ -2181,6 +2212,10 @@ public class BallerinaParserErrorHandler {
             case PIPE_TOKEN:
             case LOGICAL_AND_TOKEN:
             case LOGICAL_OR_TOKEN:
+                return true;
+
+            // Treat these also as binary operators.
+            case RIGHT_ARROW_TOKEN:
                 return true;
             default:
                 return false;
@@ -2400,6 +2435,20 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.IS_KEYWORD;
             case TYPE_DESCRIPTOR:
                 return SyntaxKind.SIMPLE_TYPE;
+            case OBJECT_MEMBER_WITHOUT_METADATA:
+            case RECORD_FIELD_WITHOUT_METADATA:
+            case PARAMETER_WITHOUT_ANNOTS:
+                return SyntaxKind.SIMPLE_TYPE;
+            case TYPEOF_EXPRESSION:
+                return SyntaxKind.TYPEOF_KEYWORD;
+            case RIGHT_ARROW:
+                return SyntaxKind.RIGHT_ARROW_TOKEN;
+            case STMT_START_WITH_EXPR_RHS:
+                return SyntaxKind.EQUAL_TOKEN;
+            case COMPOUND_BINARY_OPERATOR:
+                return SyntaxKind.PLUS_TOKEN;
+            case UNARY_EXPRESSION:
+                return SyntaxKind.PLUS_TOKEN;
 
             // TODO:
             case COMP_UNIT:
@@ -2456,7 +2505,9 @@ public class BallerinaParserErrorHandler {
             case CONSTANT_DECL:
             case ANNOT_REFERENCE:
             case DOC_STRING:
-            case OBJECT_MEMBER_WITHOUT_METADATA:
+            case COMPOUND_ASSIGNMENT_STMT:
+            case PARAMETER:
+            case STMT_START_WITH_IDENTIFIER:
             case IS_EXPRESSION:
             case LOCAL_TYPE_DEFINITION_STMT:
             default:

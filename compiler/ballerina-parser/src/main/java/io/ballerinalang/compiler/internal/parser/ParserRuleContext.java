@@ -98,6 +98,7 @@ public enum ParserRuleContext {
     DOC_STRING("doc-string"),
     IDENTIFIER("identifier"),
     QUALIFIED_IDENTIFIER("qualified-identifier"),
+    EQUAL_OR_RIGHT_ARROW("equal-or-right-arrow"),
 
     // Statements
     STATEMENT("statement"),
@@ -122,6 +123,9 @@ public enum ParserRuleContext {
     RETURN_STMT_RHS("return-stmt-rhs"),
     COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
     LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
+    STMT_START_WITH_IDENTIFIER("stmt-start-with-identifier"),
+    STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
+    EXPRESSION_STATEMENT("expression-statement"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -173,6 +177,7 @@ public enum ParserRuleContext {
     CLOSE_BRACKET("]"),
     SLASH("/"),
     AT("@"),
+    RIGHT_ARROW("->"),
 
     // Other terminals
     FUNC_NAME("function-name"),

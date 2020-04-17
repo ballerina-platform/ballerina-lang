@@ -342,9 +342,8 @@
             ]
         },
         {
-            "name": "CallStatementNode",
+            "name": "ExpressionStatementNode",
             "base": "StatementNode",
-            "kind": "CALL_STATEMENT",
             "attributes": [
                 {
                     "name": "expression",
@@ -1469,6 +1468,43 @@
                 },
                 {
                     "name": "closeBracketToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ActionNode",
+            "base": "ExpressionNode",
+            "isAbstract": true
+        },
+        {
+            "name": "RemoteMethodCallActionNode",
+            "base": "ActionNode",
+            "kind": "REMOTE_METHOD_CALL_ACTION",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "rightArrowToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "methodName",
+                    "type": "Token"
+                },
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "arguments",
+                    "type": "FunctionArgumentNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeParenToken",
                     "type": "Token"
                 }
             ]
