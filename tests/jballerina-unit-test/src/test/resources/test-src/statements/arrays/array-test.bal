@@ -201,3 +201,18 @@ function assertArrayLengthPanic(int expected, any[] arr, string message = "Array
         panic error(message + " Expected : " + expected.toString() + " Actual : " + actual.toString());
     }
 }
+<<<<<<< HEAD
+=======
+
+function testMultidimensionalArrayString() returns string {
+    int[][2] arr = [];
+    typedesc<any> t = typeof arr;
+    return t.toString();
+}
+
+function testArrayMapString() returns string {
+        map<Foo>[2][] arr = [];
+        typedesc<any> t = typeof arr;
+        return t.toString();
+}
+>>>>>>> 52879ba833b... Change year into 2020 in license section
