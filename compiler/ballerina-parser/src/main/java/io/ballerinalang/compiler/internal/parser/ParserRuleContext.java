@@ -126,6 +126,7 @@ public enum ParserRuleContext {
     STMT_START_WITH_IDENTIFIER("stmt-start-with-identifier"),
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
     EXPRESSION_STATEMENT("expression-statement"),
+    EXPRESSION_STATEMENT_START("expression-statement-start"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -202,7 +203,7 @@ public enum ParserRuleContext {
     DECIMAL_INTEGER_LITERAL("decimal-int-literal"),
     VARIABLE_REF("var-ref"),
     STRING_LITERAL("string-literal"),
-    MAPPING_CONSTRUCTOR("maping-constructor"),
+    MAPPING_CONSTRUCTOR("mapping-constructor"),
     MAPPING_FIELD("maping-field"),
     MAPPING_FIELD_NAME("maping-field-name"),
     SPECIFIC_FIELD_RHS("specific-field-rhs"),

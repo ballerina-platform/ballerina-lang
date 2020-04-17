@@ -285,6 +285,8 @@ public class BallerinaParser {
                 return parseComma();
             case CONST_DECL_TYPE:
                 return parseConstDecl((STNode) args[0], (STNode) args[1], (STNode) args[2]);
+            case STMT_START_WITH_IDENTIFIER:
+                return parseStatementStartsWithIdentifier((STNode) args[0], (STNode) args[1]);
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -512,7 +514,7 @@ public class BallerinaParser {
                 // Scenario: foo =
                 // Even though this is not valid, consider this as a var-decl and continue;
             case OPEN_BRACKET_TOKEN:
-                //Scenario foo[] (Array type descriptor with custom type)
+                // Scenario foo[] (Array type descriptor with custom type)
             case QUESTION_MARK_TOKEN:
                 // Scenario foo? (Optional type descriptor with custom type)
                 return true;
@@ -1639,6 +1641,7 @@ public class BallerinaParser {
 
     /**
      * This will handle the parsing of optional,array,union type desc to infinite length.
+     * 
      * @param typeDesc
      *
      * @return Parsed type descriptor node
@@ -1646,10 +1649,10 @@ public class BallerinaParser {
     private STNode parseComplexTypeDescriptor(STNode typeDesc) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            //If next token after a type descriptor is <code>?</code> then it is an optional type descriptor
+            // If next token after a type descriptor is <code>?</code> then it is an optional type descriptor
             case QUESTION_MARK_TOKEN:
                 return parseComplexTypeDescriptor(parseOptionalTypeDescriptor(typeDesc));
-            //If next token after a type descriptor is <code>[</code> then it is an array type descriptor
+            // If next token after a type descriptor is <code>[</code> then it is an array type descriptor
             case OPEN_BRACKET_TOKEN:
                 return parseComplexTypeDescriptor(parseArrayTypeDescriptor(typeDesc));
             // TODO union type descriptor
@@ -2622,7 +2625,8 @@ public class BallerinaParser {
         STNode annots = null;
         switch (tokenKind) {
             case SEMICOLON_TOKEN:
-                return null;
+                this.errorHandler.removeInvalidToken();
+                return parseStatement();
             case AT_TOKEN:
                 annots = parseAnnotations(tokenKind);
                 tokenKind = peek().kind;
@@ -2697,7 +2701,8 @@ public class BallerinaParser {
         // TODO: validate annotations: not every statement supports annots
         switch (tokenKind) {
             case SEMICOLON_TOKEN:
-                return null;
+                this.errorHandler.removeInvalidToken();
+                return parseStatement(tokenKind, annots);
             case FINAL_KEYWORD:
                 STNode finalKeyword = parseFinalKeyword();
                 return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
@@ -5111,9 +5116,10 @@ public class BallerinaParser {
 
     /**
      * Parse nil type descriptor.
-     *<p>
-     *<code>nil-type-descriptor :=  ( ) </code>
-     *</p>
+     * <p>
+     * <code>nil-type-descriptor :=  ( ) </code>
+     * </p>
+     * 
      * @return Parsed node
      */
     private STNode parseNilTypeDescriptor() {
@@ -5164,6 +5170,7 @@ public class BallerinaParser {
      * <p>
      * <code>optional-type-descriptor := type-descriptor ? </code>
      * </p>
+     * 
      * @return Parsed node
      */
     private STNode parseOptionalTypeDescriptor(STNode typeDescriptorNode) {
@@ -5240,6 +5247,7 @@ public class BallerinaParser {
      * inferred-array-length := *
      * </code>
      * </p>
+     * 
      * @param typeDescriptorNode
      *
      * @return Parsed Node
@@ -5279,7 +5287,7 @@ public class BallerinaParser {
                 return consume();
             case CLOSE_BRACKET_TOKEN:
                 return STNodeFactory.createEmptyNode();
-            //Parsing variable-reference-expr is same as parsing qualified identifier
+            // Parsing variable-reference-expr is same as parsing qualified identifier
             case IDENTIFIER_TOKEN:
                 // If <code>int[ a; </code> then take <code>a</code> as the identifier not a the array length var
                 nextToken = peek(2);
@@ -5488,6 +5496,10 @@ public class BallerinaParser {
         STNode stmt = parseStatementStartsWithIdentifier(nextToken.kind, annots, identifier);
         endContext();
         return stmt;
+    }
+
+    private STNode parseStatementStartsWithIdentifier(STNode annots, STNode identifier) {
+        return parseStatementStartsWithIdentifier(peek().kind, annots, identifier);
     }
 
     private STNode parseStatementStartsWithIdentifier(SyntaxKind nextTokenKind, STNode annots, STNode identifier) {
