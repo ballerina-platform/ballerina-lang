@@ -46,3 +46,11 @@ Customer customer = customerTable[222];
 
 table<int> tableWithInvalidConstarint = table [];
 
+function testArrayAccessWithMultiKey() returns (string) {
+    map<any> namesMap = {fname:"Supun",lname:"Setunga"};
+    string keyString = "";
+    var a = namesMap["fname","lname"];
+    keyString =  a is string ? a : "";
+    return keyString;
+}
+
