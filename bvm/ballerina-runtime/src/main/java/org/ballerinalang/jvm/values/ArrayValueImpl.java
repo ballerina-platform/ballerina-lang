@@ -466,6 +466,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Deprecated
     @Override
     public void add(long index, String value) {
+        if (USE_BSTRING) {
+            add(index, org.ballerinalang.jvm.StringUtils.fromString(value));
+            return;
+        }
         handleFrozenArrayValue();
         prepareForAdd(index, value, BTypes.typeString, stringValues.length);
         stringValues[(int) index] = value;

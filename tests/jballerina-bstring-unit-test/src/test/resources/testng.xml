@@ -74,6 +74,13 @@
             <package name="org.ballerinalang.test.expressions.typeof.*" />
             <package name="org.ballerinalang.test.expressions.unaryoperations.*" />
             <package name="org.ballerinalang.test.expressions.varref.*" />
+            <package name="org.ballerinalang.test.functions.*" />
+            <package name="org.ballerinalang.test.imports.*" />
+            <package name="org.ballerinalang.test.javainterop.*" />
+            <package name="org.ballerinalang.test.jvm.*" />
+            <package name="org.ballerinalang.test.lock.*" />
+            <package name="org.ballerinalang.test.main.function.*" />
+<!--            <package name="org.ballerinalang.test.nativeimpl.functions.*" />-->
             <package name="org.ballerinalang.test.types.any.*" />
             <package name="org.ballerinalang.test.types.anydata.*" />
             <package name="org.ballerinalang.test.types.bytetype.*" />

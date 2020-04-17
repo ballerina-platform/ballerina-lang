@@ -77,6 +77,7 @@ dependencies {
     birJar project(path: ':ballerina-lang:xml', configuration: 'bStringBirJar')
     birJar project(path: ':ballerina-system', configuration: 'bStringBirJar')
 
+    baloImplementation project(path: ':ballerina-java-arrays', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:future', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:integer', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
