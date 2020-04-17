@@ -24,11 +24,11 @@ package io.ballerinalang.compiler.syntax.tree;
  */
 public class NodeParser {
 
-    public Statement parseStatement(String text) {
+    public StatementNode parseStatement(String text) {
         return null;
     }
 
-    public ExpressionTree parseExpression(String text) {
+    public ExpressionNode parseExpression(String text) {
         return null;
     }
 }

@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerinalang.compiler.syntax.tree.AssignmentStatement;
+import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.NodeVisitor;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
@@ -81,9 +81,9 @@ public class NodeVisitorTest extends AbstractSyntaxTreeAPITest {
      * @since 1.3.0
      */
     private static class AssignmentStmtVisitor extends NodeVisitor {
-        List<AssignmentStatement> stmtList = new ArrayList<>();
+        List<AssignmentStatementNode> stmtList = new ArrayList<>();
 
-        public void visit(AssignmentStatement assignmentStatement) {
+        public void visit(AssignmentStatementNode assignmentStatement) {
             stmtList.add(assignmentStatement);
         }
     }

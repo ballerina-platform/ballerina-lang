@@ -281,7 +281,7 @@ public class BallerinaLexer {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
-        return STNodeFactory.createIdentifier(lexeme, leadingTrivia, trailingTrivia);
+        return STNodeFactory.createIdentifierToken(lexeme, leadingTrivia, trailingTrivia);
     }
 
     private STToken getLiteral(SyntaxKind kind) {

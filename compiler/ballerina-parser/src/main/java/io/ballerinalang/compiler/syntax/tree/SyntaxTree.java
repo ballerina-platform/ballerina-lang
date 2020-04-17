@@ -21,9 +21,9 @@ import io.ballerinalang.compiler.text.TextDocument;
 
 public class SyntaxTree {
     private TextDocument textDocument;
-    private ModulePart modulePart;
+    private ModulePartNode modulePart;
 
-    public SyntaxTree(ModulePart modulePart, TextDocument textDocument) {
+    public SyntaxTree(ModulePartNode modulePart, TextDocument textDocument) {
         this.modulePart = modulePart;
         this.textDocument = textDocument;
     }
@@ -32,7 +32,7 @@ public class SyntaxTree {
         return textDocument;
     }
 
-    public ModulePart getModulePart() {
+    public ModulePartNode getModulePart() {
         return modulePart;
     }
 
