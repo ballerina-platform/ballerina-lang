@@ -1128,6 +1128,24 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stIsExpressionNode.createUnlinkedFacade();
     }
 
+    public static ArrayTypeDescriptorNode createArrayTypeDescriptorNode(
+            Node typeDescriptorNode,
+            Token openBracketToken,
+            Node arrayLengthNode,
+            Token closeBracketToken) {
+        Objects.requireNonNull(typeDescriptorNode, "typeDescriptorNode must not be null");
+        Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
+        Objects.requireNonNull(arrayLengthNode, "arrayLengthNode must not be null");
+        Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
+
+        STNode stArrayTypeDescriptorNode = STNodeFactory.createArrayTypeDescriptorNode(
+                typeDescriptorNode.internalNode(),
+                openBracketToken.internalNode(),
+                arrayLengthNode.internalNode(),
+                closeBracketToken.internalNode());
+        return stArrayTypeDescriptorNode.createUnlinkedFacade();
+    }
+
     public static RemoteMethodCallActionNode createRemoteMethodCallActionNode(
             ExpressionNode expression,
             Token rightArrowToken,

@@ -821,6 +821,19 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        Node typeDescriptorNode = modifyNode(arrayTypeDescriptorNode.typeDescriptorNode());
+        Token openBracketToken = modifyToken(arrayTypeDescriptorNode.openBracketToken());
+        Node arrayLengthNode = modifyNode(arrayTypeDescriptorNode.arrayLengthNode());
+        Token closeBracketToken = modifyToken(arrayTypeDescriptorNode.closeBracketToken());
+        return arrayTypeDescriptorNode.modify(
+                typeDescriptorNode,
+                openBracketToken,
+                arrayLengthNode,
+                closeBracketToken);
+    }
+
+    @Override
     public Node transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
         ExpressionNode expression = modifyNode(remoteMethodCallActionNode.expression());
         Token rightArrowToken = modifyToken(remoteMethodCallActionNode.rightArrowToken());
