@@ -19,6 +19,8 @@ const INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.map}InherentTypeViolatio
 function testReadonlyRecordFields() {
     testRecordWithSimpleReadonlyFields();
     testInvalidRecordSimpleReadonlyFieldUpdate();
+    testValidUpdateOfPossiblyReadonlyFieldInUnion();
+    testInvalidUpdateOfPossiblyReadonlyFieldInUnion();
 }
 
 type Student record {
@@ -73,10 +75,65 @@ type Employee record {
     string department;
 };
 
+type ReadonlyName record {
+    readonly string name;
+};
+
 type Details record {
     string name;
     int id;
 };
+
+function testValidUpdateOfPossiblyReadonlyFieldInUnion() {
+    Details d = {
+        name: "Jo",
+        id: 1234
+    };
+
+    Student|Details sd = d;
+    sd.name = "May";
+    sd.id = 4567;
+
+    assertEquality("May", sd.name);
+    assertEquality(4567, sd?.id);
+
+    ReadonlyName|Details rnd = d;
+    rnd.name = "Sue";
+    rnd["id"] = 2525;
+
+    assertEquality("Sue", rnd.name);
+    assertEquality(2525, rnd?.id);
+
+}
+
+function testInvalidUpdateOfPossiblyReadonlyFieldInUnion() {
+    Student s = {
+        name: "Jo",
+        id: 1234
+    };
+
+    Student|Details sd = s;
+
+    var fn1 = function () {
+        sd["name"] = "May";
+    };
+    error? res = trap fn1();
+    assertTrue(res is error);
+
+    error err = <error> res;
+    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
+    assertEquality("cannot update 'readonly' field 'name' in record of type 'Student'", err.detail()?.message);
+
+    var fn2 = function () {
+        sd.id = 4567;
+    };
+    res = trap fn2();
+    assertTrue(res is error);
+
+    err = <error> res;
+    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.reason());
+    assertEquality("cannot update 'readonly' field 'id' in record of type 'Student'", err.detail()?.message);
+}
 
 function testRecordWithStructuredReadonlyFields() {
     // TODO

@@ -61,3 +61,19 @@ function testRecordWithStructuredReadonlyFields() {
     string str = "details";
     e[str] = details;
 }
+
+type Customer record {
+    readonly string name;
+    int id;
+};
+
+function testInvalidUpdateOfReadonlyFieldInUnion() {
+    Customer customer = {
+        name: "Jo",
+        id: 1234
+    };
+
+    Student|Customer sd = customer;
+    sd.name = "May"; // invalid
+    sd.id = 4567; // valid
+}

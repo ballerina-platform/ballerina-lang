@@ -1063,46 +1063,15 @@ public class TypeChecker extends BLangNodeVisitor {
 
         for (BField field : type.fields) {
             String fieldName = field.name.value;
-            BType fieldType = symTable.semanticError;
-            DiagnosticPos fieldPos;
 
             if (specFieldNames.contains(fieldName)) {
-                RecordLiteralNode.RecordField recordField = getRecordFieldByName(specifiedFields, fieldName);
-                if (recordField == null) {
-                    continue;
-                }
-
-                switch (recordField.getKind()) {
-                    case RECORD_LITERAL_KEY_VALUE:
-                        BLangRecordKeyValueField keyValueField = (BLangRecordKeyValueField) recordField;
-                        fieldType = keyValueField.type;
-                        fieldPos = keyValueField.valueExpr.pos;
-                        break;
-                    case SIMPLE_VARIABLE_REF:
-                        BLangRecordLiteral.BLangRecordVarNameField varNameField =
-                                (BLangRecordLiteral.BLangRecordVarNameField) recordField;
-                        fieldType = varNameField.type;
-                        fieldPos = varNameField.pos;
-                        break;
-                    default:
-                        BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =
-                                (BLangRecordLiteral.BLangRecordSpreadOperatorField) recordField;
-                        BRecordType recordType = (BRecordType) spreadOpField.expr.type;
-
-                        for (BField bField : recordType.fields) {
-                            if (fieldName.equals(bField.name.value)) {
-                                fieldType = bField.type;
-                                break;
-                            }
-                        }
-                        fieldPos = spreadOpField.expr.pos;
-                }
+                FieldTypePosPair typePosPair = getRecordFieldByName(specifiedFields, fieldName);
 
                 if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY) ||
-                        types.isAssignable(fieldType, symTable.readonlyType)) {
+                        types.isAssignable(typePosPair.type, symTable.readonlyType)) {
                     continue;
                 }
-                dlog.error(fieldPos, DiagnosticCode.INVALID_FIELD_FOR_READONLY_RECORD_FIELD, field.name);
+                dlog.error(typePosPair.pos, DiagnosticCode.INVALID_FIELD_FOR_READONLY_RECORD_FIELD, fieldName);
                 if (hasValidReadonlyFields) {
                     hasValidReadonlyFields = false;
                 }
@@ -1119,28 +1088,30 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     /**
-     * Get the specified field for a required or optional field in the record type descriptor.
+     * Get the specified field or the field type-desc as obtained from a record type descriptor in a spread field,
+     * for a field expected in the record type descriptor.
      *
      * @param fields    The fields of the mapping constructor expression
      * @param name      The name of the field to look for
-     * @return  The type of the specified field in the mapping constructor
+     * @return  The type and pos pair of the relevant field in the mapping constructor
      */
-    private RecordLiteralNode.RecordField getRecordFieldByName(List<RecordLiteralNode.RecordField> fields,
-                                                               String name) {
+    private FieldTypePosPair getRecordFieldByName(List<RecordLiteralNode.RecordField> fields, String name) {
         for (RecordLiteralNode.RecordField field : fields) {
             if (field.isKeyValueField()) {
-                if (name.equals(getKeyValueFieldName((BLangRecordKeyValueField) field))) {
-                    return field;
+                BLangRecordKeyValueField keyValueField = (BLangRecordKeyValueField) field;
+                if (name.equals(getKeyValueFieldName(keyValueField))) {
+                    return new FieldTypePosPair(keyValueField.type, keyValueField.pos);
                 }
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                if (name.equals(getVarNameFieldName((BLangRecordLiteral.BLangRecordVarNameField) field))) {
-                    return field;
+                BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                        (BLangRecordLiteral.BLangRecordVarNameField) field;
+                if (name.equals(getVarNameFieldName(varNameField))) {
+                    return new FieldTypePosPair(varNameField.type, varNameField.pos);
                 }
             } else {
-                BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField =
-                        (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
+                BLangExpression spreadFieldExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
 
-                BType spreadFieldType = spreadOperatorField.expr.type;
+                BType spreadFieldType = spreadFieldExpr.type;
                 if (spreadFieldType.tag != TypeTags.RECORD) {
                     continue;
                 }
@@ -1149,7 +1120,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 for (BField bField : recordType.fields) {
                     if (name.equals(bField.name.value)) {
-                        return field;
+                        return new FieldTypePosPair(bField.type, spreadFieldExpr.pos);
                     }
                 }
             }
@@ -5570,6 +5541,16 @@ public class TypeChecker extends BLangNodeVisitor {
         private FieldInfo(List<BType> types, boolean required) {
             this.types = types;
             this.required = required;
+        }
+    }
+
+    private static class FieldTypePosPair {
+        BType type;
+        DiagnosticPos pos;
+
+        FieldTypePosPair(BType type, DiagnosticPos pos) {
+            this.type = type;
+            this.pos = pos;
         }
     }
 }

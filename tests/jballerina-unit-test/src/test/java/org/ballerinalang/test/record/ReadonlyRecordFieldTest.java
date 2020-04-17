@@ -46,10 +46,11 @@ public class ReadonlyRecordFieldTest {
 
         validateError(result, index++, "cannot update 'readonly' record field 'name' in 'Student'", 27, 5);
         validateError(result, index++, "cannot update 'readonly' record field 'name' in 'Student'", 28, 5);
-        validateError(result, index++, "invalid field; 'readonly' field expected for 'details'", 52, 9);
+        validateError(result, index++, "invalid field: 'readonly' field expected for 'details'", 52, 9);
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 56, 5);
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 57, 5);
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 58, 5);
+        validateError(result, index++, "cannot update 'readonly' record field 'name' in '(Student|Customer)'", 77, 5);
         assertEquals(result.getErrorCount(), index);
     }
 }
