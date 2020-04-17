@@ -28,7 +28,9 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * This class contains the utility methods required by the table implementation
+ * This class contains the utility methods required by the table implementation.
+ *
+ * @since 1.3.0
  */
 
 public class TableUtils {

@@ -51,6 +51,8 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_
  *
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
+ *
+ * @since 1.3.0
  */
 public class TableValue<K, V> implements BTable<K, V> {
 
