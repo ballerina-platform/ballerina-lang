@@ -1,3 +1,5 @@
+## Module Overview
+
 This module provides support for the gRPC messaging protocol. gRPC is an inter-process communication technology that allows you to connect, invoke and operate distributed heterogeneous applications as easily as making a local function call. The gRPC protocol is layered over HTTP/2 and It uses Protocol Buffers for marshaling/unmarshaling messages. This makes gRPC, highly efficient on wire and a simple service definition framework.
 
 When you develop a gRPC application the first thing you do is define a service definition using Protocol Buffers.
