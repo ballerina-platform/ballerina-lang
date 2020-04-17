@@ -239,6 +239,8 @@ public class BallerinaParser {
                 return parseIdentifier(context);
             case IS_KEYWORD:
                 return parseIsKeyword();
+            case NULL_KEYWORD:
+                return parseNullKeyword();
             case NIL_LITERAL:
                 return parseNilLiteral();
             default:
@@ -3012,7 +3014,7 @@ public class BallerinaParser {
             case EXCLAMATION_MARK_TOKEN:
                 return parseUnaryExpression();
             case NULL_KEYWORD:
-                return parseNilLiteral();
+                return parseNullKeyword();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.EXPRESSION);
 
@@ -5423,26 +5425,30 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse nil literal.
+     * Parse null-keyword.
+     *
+     * @return null-keyword node
+     */
+    private STNode parseNullKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.NULL_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.NULL_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse nil literal. Here nil literal is only referred to ( ).
      *
      * @return Parsed node
      */
     private STNode parseNilLiteral() {
-        STToken token = peek();
-        switch (token.kind) {
-            case NULL_KEYWORD:
-                STNode nullKeyword = consume();
-                STNode emptyNode = STNodeFactory.createEmptyNode();
-                return STNodeFactory.createNilLiteral(nullKeyword, emptyNode);
-            case OPEN_PAREN_TOKEN:
-                startContext(ParserRuleContext.NIL_LITERAL);
-                STNode openParenthesisToken = parseOpenParenthesis();
-                STNode closeParenthesisToken = parseCloseParenthesis();
-                endContext();
-                return STNodeFactory.createNilLiteral(openParenthesisToken, closeParenthesisToken);
-            default:
-                Solution sol = recover(token, ParserRuleContext.NIL_LITERAL);
-                return sol.recoveredNode;
-        }
+        startContext(ParserRuleContext.NIL_LITERAL);
+        STNode openParenthesisToken = parseOpenParenthesis();
+        STNode closeParenthesisToken = parseCloseParenthesis();
+        endContext();
+        return STNodeFactory.createNilLiteralNode(openParenthesisToken, closeParenthesisToken);
     }
 }

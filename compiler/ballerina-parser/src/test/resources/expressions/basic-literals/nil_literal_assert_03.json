@@ -19,12 +19,7 @@
             "kind": "BINARY_EXPRESSION",
             "children": [
                 {
-                    "kind": "NIL_LITERAL",
-                    "children": [
-                        {
-                            "kind": "NULL_KEYWORD"
-                        }
-                    ]
+                    "kind": "NULL_KEYWORD"
                 },
                 {
                     "kind": "PLUS_TOKEN"

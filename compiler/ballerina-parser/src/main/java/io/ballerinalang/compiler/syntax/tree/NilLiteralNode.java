@@ -24,17 +24,17 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class NilLiteral extends NonTerminalNode {
+public class NilLiteralNode extends NonTerminalNode {
 
-    public NilLiteral(STNode internalNode, int position, NonTerminalNode parent) {
+    public NilLiteralNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token firstToken() {
+    public Token openParenToken() {
         return childInBucket(0);
     }
 
-    public Token secondToken() {
+    public Token closeParenToken() {
         return childInBucket(1);
     }
 
@@ -48,17 +48,17 @@ public class NilLiteral extends NonTerminalNode {
         return visitor.transform(this);
     }
 
-    public NilLiteral modify(
-            Token firstToken,
-            Token secondToken) {
+    public NilLiteralNode modify(
+            Token openParenToken,
+            Token closeParenToken) {
         if (checkForReferenceEquality(
-                firstToken,
-                secondToken)) {
+                openParenToken,
+                closeParenToken)) {
             return this;
         }
 
-        return NodeFactory.createNilLiteral(
-                firstToken,
-                secondToken);
+        return NodeFactory.createNilLiteralNode(
+                openParenToken,
+                closeParenToken);
     }
 }

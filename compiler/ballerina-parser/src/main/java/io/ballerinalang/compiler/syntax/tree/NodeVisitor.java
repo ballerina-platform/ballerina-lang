@@ -287,8 +287,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(isExpressionNode);
     }
 
-    public void visit(NilLiteral nilLiteral) {
-        visitSyntaxNode(nilLiteral);
+    public void visit(NilLiteralNode nilLiteralNode) {
+        visitSyntaxNode(nilLiteralNode);
     }
 
     // Tokens

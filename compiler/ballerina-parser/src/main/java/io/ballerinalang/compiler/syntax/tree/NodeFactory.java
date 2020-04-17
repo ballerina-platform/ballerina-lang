@@ -1126,16 +1126,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stIsExpressionNode.createUnlinkedFacade();
     }
 
-    public static NilLiteral createNilLiteral(
-            Token firstToken,
-            Token secondToken) {
-        Objects.requireNonNull(firstToken, "firstToken must not be null");
-        Objects.requireNonNull(secondToken, "secondToken must not be null");
+    public static NilLiteralNode createNilLiteralNode(
+            Token openParenToken,
+            Token closeParenToken) {
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
 
-        STNode stNilLiteral = STNodeFactory.createNilLiteral(
-                firstToken.internalNode(),
-                secondToken.internalNode());
-        return stNilLiteral.createUnlinkedFacade();
+        STNode stNilLiteralNode = STNodeFactory.createNilLiteralNode(
+                openParenToken.internalNode(),
+                closeParenToken.internalNode());
+        return stNilLiteralNode.createUnlinkedFacade();
     }
 }
 

@@ -828,13 +828,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 typeDescriptor);
     }
 
-    public static STNode createNilLiteral(
-            STNode firstToken,
-            STNode secondToken) {
+    public static STNode createNilLiteralNode(
+            STNode openParenToken,
+            STNode closeParenToken) {
 
-        return new STNilLiteral(
-                firstToken,
-                secondToken);
+        return new STNilLiteralNode(
+                openParenToken,
+                closeParenToken);
     }
 }
 

@@ -288,8 +288,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(isExpressionNode);
     }
 
-    public T transform(NilLiteral nilLiteral) {
-        return transformSyntaxNode(nilLiteral);
+    public T transform(NilLiteralNode nilLiteralNode) {
+        return transformSyntaxNode(nilLiteralNode);
     }
 
     // Tokens

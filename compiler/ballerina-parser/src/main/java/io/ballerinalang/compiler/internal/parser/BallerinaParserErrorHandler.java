@@ -204,9 +204,6 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] PARAMETER_WITHOUT_ANNOTS =
             { ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TYPE_DESCRIPTOR };
 
-    private static final ParserRuleContext[] NIL_LITERALS =
-            { ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.NULL_KEYWORD };
-
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
@@ -817,8 +814,7 @@ public class BallerinaParserErrorHandler {
                 case ACCESS_EXPRESSION:
                     return seekInAccessExpression(currentCtx, lookahead, currentDepth, matchingRulesCount);
                 case BASIC_LITERAL:
-                    STToken nextNextToken = this.tokenReader.peek(lookahead + 1);
-                    hasMatch = isBasicLiteral(nextToken.kind, nextNextToken.kind);
+                    hasMatch = isBasicLiteral(nextToken.kind);
                     break;
                 case COLON:
                     hasMatch = nextToken.kind == SyntaxKind.COLON_TOKEN;
@@ -876,8 +872,6 @@ public class BallerinaParserErrorHandler {
                 case NULL_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.NULL_KEYWORD;
                     break;
-                case NIL_LITERAL:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, NIL_LITERALS);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -925,6 +919,7 @@ public class BallerinaParserErrorHandler {
                 case VARIABLE_REF:
                 case TYPE_REFERENCE:
                 case ANNOT_REFERENCE:
+                case NIL_LITERAL:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1318,6 +1313,7 @@ public class BallerinaParserErrorHandler {
             case ANNOT_REFERENCE:
             case MAPPING_CONSTRUCTOR:
             case LOCAL_TYPE_DEFINITION_STMT:
+            case NIL_LITERAL:
                 startContext(currentCtx);
                 break;
             default:
@@ -1658,8 +1654,9 @@ public class BallerinaParserErrorHandler {
             case LOCAL_TYPE_DEFINITION_STMT:
                 return ParserRuleContext.TYPE_KEYWORD;
             case NULL_KEYWORD:
-                endContext(); // end nil-literal
                 return ParserRuleContext.EXPRESSION_RHS;
+            case NIL_LITERAL:
+                return ParserRuleContext.OPEN_PARENTHESIS;
             case DECIMAL_INTEGER_LITERAL:
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
@@ -1699,7 +1696,6 @@ public class BallerinaParserErrorHandler {
             case CONST_DECL_RHS:
             case OBJECT_MEMBER_WITHOUT_METADATA:
             case TOP_LEVEL_NODE:
-            case NIL_LITERAL:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -2413,7 +2409,7 @@ public class BallerinaParserErrorHandler {
      * @param kind Token kind to check
      * @return <code>true</code> if the given token kind belongs to a basic literal.<code>false</code> otherwise
      */
-    private boolean isBasicLiteral(SyntaxKind kind, SyntaxKind nextKind) {
+    private boolean isBasicLiteral(SyntaxKind kind) {
         switch (kind) {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -2422,12 +2418,6 @@ public class BallerinaParserErrorHandler {
             case FALSE_KEYWORD:
             case NULL_KEYWORD:
                 return true;
-            case OPEN_PAREN_TOKEN:
-                // check for a `()` match
-                if (nextKind == SyntaxKind.CLOSE_PAREN_TOKEN) {
-                    return true;
-                }
-                return false;
             default:
                 return false;
         }

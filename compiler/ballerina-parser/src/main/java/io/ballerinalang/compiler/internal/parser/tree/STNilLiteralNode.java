@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.NilLiteral;
+import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,23 +27,23 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STNilLiteral extends STNode {
-    public final STNode firstToken;
-    public final STNode secondToken;
+public class STNilLiteralNode extends STNode {
+    public final STNode openParenToken;
+    public final STNode closeParenToken;
 
-    STNilLiteral(
-            STNode firstToken,
-            STNode secondToken) {
+    STNilLiteralNode(
+            STNode openParenToken,
+            STNode closeParenToken) {
         super(SyntaxKind.NIL_LITERAL);
-        this.firstToken = firstToken;
-        this.secondToken = secondToken;
+        this.openParenToken = openParenToken;
+        this.closeParenToken = closeParenToken;
 
         addChildren(
-                firstToken,
-                secondToken);
+                openParenToken,
+                closeParenToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new NilLiteral(this, position, parent);
+        return new NilLiteralNode(this, position, parent);
     }
 }
