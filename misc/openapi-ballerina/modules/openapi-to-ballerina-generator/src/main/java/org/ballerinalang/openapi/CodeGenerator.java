@@ -219,7 +219,7 @@ public class CodeGenerator {
                     sourceFiles = generateClient(definitionContext);
                     break;
                 } catch (NullPointerException e){
-                    outStream.println("test_214. ");
+                    outStream.println(OpenApiMesseges.EXPERIMENTAL_ALLOF_TYPE);
                 }
 
             case GEN_SERVICE:
