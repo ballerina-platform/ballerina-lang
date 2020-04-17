@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
@@ -114,10 +115,12 @@ public class TableValue<K, V> implements BTable<K, V> {
 
     @Override
     public V put(K key, V value) {
-        if (containsKey(key)) {
-            throw BallerinaErrors.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR, "A value found for key '" + key + "'");
-        }
         return valueHolder.putData(key, value);
+    }
+
+    @Override
+    public void add(V data) {
+        valueHolder.addData(data);
     }
 
     @Override
@@ -127,7 +130,7 @@ public class TableValue<K, V> implements BTable<K, V> {
 
     @Override
     public boolean containsKey(Object key) {
-        return entries.containsKey(key);
+        return valueHolder.containsKey((K) key);
     }
 
     @Override
@@ -143,6 +146,8 @@ public class TableValue<K, V> implements BTable<K, V> {
     @Override
     public void clear() {
         entries.clear();
+        keys.clear();
+        values.clear();
     }
 
     @Override
@@ -160,7 +165,7 @@ public class TableValue<K, V> implements BTable<K, V> {
 
     @Override
     public K[] getKeys() {
-        return (K[]) entries.keySet().toArray();
+        return (K[]) keys.values().toArray(new Object[]{});
     }
 
     @Override
@@ -266,8 +271,9 @@ public class TableValue<K, V> implements BTable<K, V> {
 
         public void addData(V data) {
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
-            entries.put(TableUtils.hash(data), entry);
-            values.put(TableUtils.hash(data), data);
+            UUID uuid = UUID.randomUUID();
+            entries.put(uuid.hashCode(), entry);
+            values.put(uuid.hashCode(), data);
         }
 
         public V getData(K key) {
@@ -280,6 +286,10 @@ public class TableValue<K, V> implements BTable<K, V> {
 
         public V remove(K key) {
             throw new RuntimeException("RRR");
+        }
+
+        public boolean containsKey(K key) {
+            throw new RuntimeException("BBBBB");
         }
     }
 
@@ -298,10 +308,17 @@ public class TableValue<K, V> implements BTable<K, V> {
         public void addData(V data) {
             MapValue dataMap = (MapValue) data;
             Object key = this.keyWrapper.wrapKey(dataMap);
+
+            if (containsKey((K) key)) {
+                throw BallerinaErrors.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR, "A value found for key '" +
+                        key + "'");
+            }
+
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
-            entries.put(TableUtils.hash(key), entry);
-            keys.put(TableUtils.hash(key), (K) key);
-            values.put(TableUtils.hash(key), (V) data);
+            Integer hash = TableUtils.hash(key);
+            keys.put(hash, (K) key);
+            values.put(hash, (V) data);
+            entries.put(hash, entry);
         }
 
         public V getData(K key) {
@@ -310,15 +327,21 @@ public class TableValue<K, V> implements BTable<K, V> {
 
         public V putData(K key, V data) {
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
-            entries.put(TableUtils.hash(key), entry);
-            keys.put(TableUtils.hash(key), key);
-            return values.put(TableUtils.hash(key), data);
+            Integer hash = TableUtils.hash(key);
+            entries.put(hash, entry);
+            keys.put(hash, key);
+            return values.put(hash, data);
         }
 
         public V remove(K key) {
-            entries.remove(TableUtils.hash(key));
-            keys.remove(TableUtils.hash(key));
-            return values.remove(TableUtils.hash(key));
+            Integer hash = TableUtils.hash(key);
+            entries.remove(hash);
+            keys.remove(hash);
+            return values.remove(hash);
+        }
+
+        public boolean containsKey(K key) {
+            return keys.containsKey(TableUtils.hash(key));
         }
 
         private class DefaultKeyWrapper {
