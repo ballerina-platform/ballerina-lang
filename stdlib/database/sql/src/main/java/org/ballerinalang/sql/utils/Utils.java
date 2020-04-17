@@ -159,6 +159,10 @@ class Utils {
             case Constants.SqlTypes.VARCHAR:
             case Constants.SqlTypes.LONGVARCHAR:
             case Constants.SqlTypes.CHAR:
+            case Constants.SqlTypes.TINYTEXT:
+            case Constants.SqlTypes.MEDIUMTEXT:
+            case Constants.SqlTypes.TEXT:
+            case Constants.SqlTypes.LONGTEXT:
                 preparedStatement.setString(index, value.toString());
                 break;
             case Constants.SqlTypes.LONGNVARCHAR:
@@ -191,6 +195,7 @@ class Utils {
                     throw throwInvalidParameterError(value, sqlType);
                 }
                 break;
+            case Constants.SqlTypes.MEDIUMINT:
             case Constants.SqlTypes.INTEGER:
                 if (value instanceof Integer || value instanceof Long) {
                     preparedStatement.setInt(index, ((Number) value).intValue());
@@ -250,7 +255,10 @@ class Utils {
             case Constants.SqlTypes.BINARY:
             case Constants.SqlTypes.LONGVARBINARY:
             case Constants.SqlTypes.VARBINARY:
+            case Constants.SqlTypes.TINYBLOB:
+            case Constants.SqlTypes.MEDIUMBLOB:
             case Constants.SqlTypes.BLOB:
+            case Constants.SqlTypes.LONGBLOB:
                 if (value instanceof ArrayValue) {
                     ArrayValue arrayValue = (ArrayValue) value;
                     if (arrayValue.getElementType().getTag() == org.wso2.ballerinalang.compiler.util.TypeTags.BYTE) {
@@ -356,6 +364,13 @@ class Utils {
                     throw throwInvalidParameterError(value, sqlType);
                 }
                 preparedStatement.setTimestamp(index, timestamp);
+                break;
+            case Constants.SqlTypes.YEAR:
+                if (value instanceof Long || value instanceof Integer) {
+                    preparedStatement.setShort(index, ((Number) value).shortValue());
+                } else {
+                    throw throwInvalidParameterError(value, sqlType);
+                }
                 break;
             case Constants.SqlTypes.ARRAY:
                 Object[] arrayData = getArrayData(value);
