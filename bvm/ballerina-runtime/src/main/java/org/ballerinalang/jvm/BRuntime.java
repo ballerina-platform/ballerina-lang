@@ -55,6 +55,21 @@ public class BRuntime {
         this.scheduler = scheduler;
     }
 
+    /**
+     * Gets the instance of ballerina runtime.
+     *
+     * @return Ballerina runtime instance.
+     */
+    public static BRuntime getCurrentRuntime() {
+        Strand strand = Scheduler.getStrand();
+        return new BRuntime(strand.scheduler);
+    }
+
+    /**
+     * Block the current strand to execute asynchronously.
+     *
+     * @return Future object to unblock the strand.
+     */
     public static CompletableFuture<Object> markAsync() {
         Strand strand = Scheduler.getStrand();
         strand.blockedOnExtern = true;
@@ -62,11 +77,6 @@ public class BRuntime {
         CompletableFuture<Object> future = new CompletableFuture<>();
         future.whenComplete(new Unblocker(strand));
         return future;
-    }
-
-    public static BRuntime getCurrentRuntime() {
-        Strand strand = Scheduler.getStrand();
-        return new BRuntime(strand.scheduler);
     }
 
     /**
