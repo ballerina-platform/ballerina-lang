@@ -828,24 +828,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 typeDescriptor);
     }
 
-    public static STNode createArrayTypeDescriptor(
+    public static STNode createArrayTypeDescriptorNode(
             STNode typeDescriptorNode,
-            STNode dimensions) {
+            STNode openBracketToken,
+            STNode arrayLengthNode,
+            STNode closeBracketToken) {
 
-        return new STArrayTypeDescriptor(
+        return new STArrayTypeDescriptorNode(
                 typeDescriptorNode,
-                dimensions);
-    }
-
-    public static STNode createArrayDimension(
-            STNode openBracket,
-            STNode arrayLength,
-            STNode closeBracket) {
-
-        return new STArrayDimension(
-                openBracket,
-                arrayLength,
-                closeBracket);
+                openBracketToken,
+                arrayLengthNode,
+                closeBracketToken);
     }
 }
 

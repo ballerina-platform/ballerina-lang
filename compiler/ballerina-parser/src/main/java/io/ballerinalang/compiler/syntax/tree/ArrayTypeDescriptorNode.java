@@ -24,22 +24,26 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ArrayDimension extends NonTerminalNode {
+public class ArrayTypeDescriptorNode extends NonTerminalNode {
 
-    public ArrayDimension(STNode internalNode, int position, NonTerminalNode parent) {
+    public ArrayTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token openBracket() {
+    public Node typeDescriptorNode() {
         return childInBucket(0);
     }
 
-    public Node arrayLength() {
+    public Token openBracketToken() {
         return childInBucket(1);
     }
 
-    public Token closeBracket() {
+    public Node arrayLengthNode() {
         return childInBucket(2);
+    }
+
+    public Token closeBracketToken() {
+        return childInBucket(3);
     }
 
     @Override
@@ -52,20 +56,23 @@ public class ArrayDimension extends NonTerminalNode {
         return visitor.transform(this);
     }
 
-    public ArrayDimension modify(
-            Token openBracket,
-            Node arrayLength,
-            Token closeBracket) {
+    public ArrayTypeDescriptorNode modify(
+            Node typeDescriptorNode,
+            Token openBracketToken,
+            Node arrayLengthNode,
+            Token closeBracketToken) {
         if (checkForReferenceEquality(
-                openBracket,
-                arrayLength,
-                closeBracket)) {
+                typeDescriptorNode,
+                openBracketToken,
+                arrayLengthNode,
+                closeBracketToken)) {
             return this;
         }
 
-        return NodeFactory.createArrayDimension(
-                openBracket,
-                arrayLength,
-                closeBracket);
+        return NodeFactory.createArrayTypeDescriptorNode(
+                typeDescriptorNode,
+                openBracketToken,
+                arrayLengthNode,
+                closeBracketToken);
     }
 }

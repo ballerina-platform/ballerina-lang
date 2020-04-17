@@ -1126,31 +1126,22 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stIsExpressionNode.createUnlinkedFacade();
     }
 
-    public static ArrayTypeDescriptor createArrayTypeDescriptor(
+    public static ArrayTypeDescriptorNode createArrayTypeDescriptorNode(
             Node typeDescriptorNode,
-            Node dimensions) {
+            Token openBracketToken,
+            Node arrayLengthNode,
+            Token closeBracketToken) {
         Objects.requireNonNull(typeDescriptorNode, "typeDescriptorNode must not be null");
-        Objects.requireNonNull(dimensions, "dimensions must not be null");
+        Objects.requireNonNull(openBracketToken, "openBracketToken must not be null");
+        Objects.requireNonNull(arrayLengthNode, "arrayLengthNode must not be null");
+        Objects.requireNonNull(closeBracketToken, "closeBracketToken must not be null");
 
-        STNode stArrayTypeDescriptor = STNodeFactory.createArrayTypeDescriptor(
+        STNode stArrayTypeDescriptorNode = STNodeFactory.createArrayTypeDescriptorNode(
                 typeDescriptorNode.internalNode(),
-                dimensions.internalNode());
-        return stArrayTypeDescriptor.createUnlinkedFacade();
-    }
-
-    public static ArrayDimension createArrayDimension(
-            Token openBracket,
-            Node arrayLength,
-            Token closeBracket) {
-        Objects.requireNonNull(openBracket, "openBracket must not be null");
-        Objects.requireNonNull(arrayLength, "arrayLength must not be null");
-        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
-
-        STNode stArrayDimension = STNodeFactory.createArrayDimension(
-                openBracket.internalNode(),
-                arrayLength.internalNode(),
-                closeBracket.internalNode());
-        return stArrayDimension.createUnlinkedFacade();
+                openBracketToken.internalNode(),
+                arrayLengthNode.internalNode(),
+                closeBracketToken.internalNode());
+        return stArrayTypeDescriptorNode.createUnlinkedFacade();
     }
 }
 

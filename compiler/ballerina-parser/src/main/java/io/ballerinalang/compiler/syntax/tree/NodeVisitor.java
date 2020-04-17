@@ -287,12 +287,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(isExpressionNode);
     }
 
-    public void visit(ArrayTypeDescriptor arrayTypeDescriptor) {
-        visitSyntaxNode(arrayTypeDescriptor);
-    }
-
-    public void visit(ArrayDimension arrayDimension) {
-        visitSyntaxNode(arrayDimension);
+    public void visit(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        visitSyntaxNode(arrayTypeDescriptorNode);
     }
 
     // Tokens

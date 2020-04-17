@@ -53,20 +53,6 @@
                                     "kind": "SIMPLE_TYPE",
                                     "value": "int"
                                 },
-                                {   "kind": "ARRAY_DIMENSION",
-                                    "children": [
-                                        {
-                                            "kind": "OPEN_BRACKET_TOKEN"
-                                        },
-                                        {
-                                            "kind": "CLOSE_BRACKET_TOKEN"
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {   "kind": "ARRAY_DIMENSION",
-                            "children": [
                                 {
                                     "kind": "OPEN_BRACKET_TOKEN"
                                 },
@@ -74,6 +60,12 @@
                                     "kind": "CLOSE_BRACKET_TOKEN"
                                 }
                             ]
+                        },
+                        {
+                            "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                            "kind": "CLOSE_BRACKET_TOKEN"
                         }
                     ]
                 }

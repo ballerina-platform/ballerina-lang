@@ -5271,23 +5271,13 @@ public class BallerinaParser {
      */
     private STNode parseArrayTypeDescriptor(STNode typeDescriptorNode) {
         startContext(ParserRuleContext.ARRAY_TYPE_DESCRIPTOR);
-        STNode dimension = parseDimension();
+        STNode openBracketToken = parseOpenBracket();
+        STNode arrayLengthNode = parseArrayLength();
+        STNode closeBracketToken = parseCloseBracket();
 
         endContext();
-        return STNodeFactory.createArrayTypeDescriptor(typeDescriptorNode, dimension);
-    }
-
-    /**
-     * Parse a dimension.
-     *
-     * @return Parsed dimension node
-     */
-    private STNode parseDimension() {
-        STNode openBracket = parseOpenBracket();
-        STNode arrayLength = parseArrayLength();
-        STNode closeBracket = parseCloseBracket();
-
-        return STNodeFactory.createArrayDimension(openBracket, arrayLength, closeBracket);
+        return STNodeFactory.createArrayTypeDescriptorNode(typeDescriptorNode, openBracketToken, arrayLengthNode,
+                closeBracketToken);
     }
 
     /**

@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptor;
+import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,23 +27,31 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STArrayTypeDescriptor extends STNode {
+public class STArrayTypeDescriptorNode extends STNode {
     public final STNode typeDescriptorNode;
-    public final STNode dimensions;
+    public final STNode openBracketToken;
+    public final STNode arrayLengthNode;
+    public final STNode closeBracketToken;
 
-    STArrayTypeDescriptor(
+    STArrayTypeDescriptorNode(
             STNode typeDescriptorNode,
-            STNode dimensions) {
+            STNode openBracketToken,
+            STNode arrayLengthNode,
+            STNode closeBracketToken) {
         super(SyntaxKind.ARRAY_TYPE);
         this.typeDescriptorNode = typeDescriptorNode;
-        this.dimensions = dimensions;
+        this.openBracketToken = openBracketToken;
+        this.arrayLengthNode = arrayLengthNode;
+        this.closeBracketToken = closeBracketToken;
 
         addChildren(
                 typeDescriptorNode,
-                dimensions);
+                openBracketToken,
+                arrayLengthNode,
+                closeBracketToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ArrayTypeDescriptor(this, position, parent);
+        return new ArrayTypeDescriptorNode(this, position, parent);
     }
 }

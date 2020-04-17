@@ -18,15 +18,11 @@
                     "kind": "IDENTIFIER_TOKEN",
                     "value": "T"
                 },
-                {   "kind": "ARRAY_DIMENSION",
-                    "children": [
-                        {
-                            "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "CLOSE_BRACKET_TOKEN"
-                        }
-                    ]
+                {
+                    "kind": "OPEN_BRACKET_TOKEN"
+                },
+                {
+                    "kind": "CLOSE_BRACKET_TOKEN"
                 }
             ]
         },

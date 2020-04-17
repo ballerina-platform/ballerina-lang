@@ -26,19 +26,15 @@
                         }
                     ]
                 },
-                {   "kind": "ARRAY_DIMENSION",
-                    "children": [
-                        {
-                            "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "DECIMAL_INTEGER_LITERAL",
-                            "value": "5"
-                        },
-                        {
-                            "kind": "CLOSE_BRACKET_TOKEN"
-                        }
-                    ]
+                {
+                    "kind": "OPEN_BRACKET_TOKEN"
+                },
+                {
+                    "kind": "DECIMAL_INTEGER_LITERAL",
+                    "value": "5"
+                },
+                {
+                    "kind": "CLOSE_BRACKET_TOKEN"
                 }
             ]
         },

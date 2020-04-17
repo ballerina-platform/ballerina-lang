@@ -1451,7 +1451,7 @@
             ]
         },
         {
-            "name": "ArrayTypeDescriptor",
+            "name": "ArrayTypeDescriptorNode",
             "base": "Node",
             "kind": "ARRAY_TYPE",
             "attributes": [
@@ -1460,26 +1460,15 @@
                     "type": "Node"
                 },
                 {
-                    "name": "dimensions",
-                    "type": "Node"
-                }
-            ]
-        },
-        {
-            "name": "ArrayDimension",
-            "base": "Node",
-            "kind": "ARRAY_DIMENSION",
-            "attributes": [
-                {
-                    "name": "openBracket",
+                    "name": "openBracketToken",
                     "type": "Token"
                 },
                 {
-                    "name": "arrayLength",
+                    "name": "arrayLengthNode",
                     "type": "Node"
                 },
                 {
-                    "name": "closeBracket",
+                    "name": "closeBracketToken",
                     "type": "Token"
                 }
             ]
