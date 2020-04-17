@@ -231,20 +231,24 @@ public type TargetService record {|
 |};
 
 # Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.
+# Following fields are inherited from the other configuration records in addition to the Client specific
+# configs.
 #
-# httpVersion - Copied from CommonClientConfiguration
-# http1Settings - Copied from CommonClientConfiguration
-# http2Settings - Copied from CommonClientConfiguration
-# timeoutInMillis - Copied from CommonClientConfiguration
-# forwarded - Copied from CommonClientConfiguration
-# followRedirects - Copied from CommonClientConfiguration
-# poolConfig - Copied from CommonClientConfiguration
-# cache - Copied from CommonClientConfiguration
-# compression - Copied from CommonClientConfiguration
-# auth - Copied from CommonClientConfiguration
-# circuitBreaker - Copied from CommonClientConfiguration
-# retryConfig - Copied from CommonClientConfiguration
-# cookieConfig - Copied from CommonClientConfiguration
+# |                                                         |
+# |:------------------------------------------------------- |
+# | httpVersion - Copied from CommonClientConfiguration     |
+# | http1Settings - Copied from CommonClientConfiguration   |
+# | http2Settings - Copied from CommonClientConfiguration   |
+# | timeoutInMillis - Copied from CommonClientConfiguration |
+# | forwarded - Copied from CommonClientConfiguration       |
+# | followRedirects - Copied from CommonClientConfiguration |
+# | poolConfig - Copied from CommonClientConfiguration      |
+# | cache - Copied from CommonClientConfiguration           |
+# | compression - Copied from CommonClientConfiguration     |
+# | auth - Copied from CommonClientConfiguration            |
+# | circuitBreaker - Copied from CommonClientConfiguration  |
+# | retryConfig - Copied from CommonClientConfiguration     |
+# | cookieConfig - Copied from CommonClientConfiguration    |
 # + secureSocket - SSL/TLS related options
 public type ClientConfiguration record {|
     *CommonClientConfiguration;

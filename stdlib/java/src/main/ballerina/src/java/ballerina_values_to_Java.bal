@@ -60,7 +60,7 @@ public function createNull() returns handle = external;
 # This function performs a Java `class.forName(name)` except for the following cases:
 #
 # | Name     |   Output                                                      |
-# |:--------:|:-------------------------------------------------------------:|
+# |:---------|:--------------------------------------------------------------|
 # | boolean  |   Java Class instance representing the primitive type boolean |
 # | byte     |   Java Class instance representing the primitive type byte    |
 # | char     |   Java Class instance representing the primitive type char    |
