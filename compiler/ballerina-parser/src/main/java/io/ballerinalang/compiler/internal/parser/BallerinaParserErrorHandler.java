@@ -207,8 +207,8 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] STMT_START_WITH_EXPR_RHS = { ParserRuleContext.ASSIGN_OP,
             ParserRuleContext.RIGHT_ARROW, ParserRuleContext.COMPOUND_BINARY_OPERATOR, ParserRuleContext.SEMICOLON };
 
-    private static final ParserRuleContext[] STMT_START_WITH_IDENTIFIER = { ParserRuleContext.ASSIGN_OP,
-            ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS, ParserRuleContext.RIGHT_ARROW };
+    private static final ParserRuleContext[] STMT_START_WITH_IDENTIFIER =
+            { ParserRuleContext.ASSIGN_OP, ParserRuleContext.VARIABLE_NAME, ParserRuleContext.EXPRESSION_RHS };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -1662,10 +1662,6 @@ public class BallerinaParserErrorHandler {
             case LOCAL_TYPE_DEFINITION_STMT:
                 return ParserRuleContext.TYPE_KEYWORD;
             case RIGHT_ARROW:
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.STMT_START_WITH_IDENTIFIER) {
-                    switchContext(ParserRuleContext.ASSIGNMENT_OR_VAR_DECL_STMT);
-                }
                 return ParserRuleContext.EXPRESSION;
 
             case DECIMAL_INTEGER_LITERAL:
