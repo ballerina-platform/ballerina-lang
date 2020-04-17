@@ -84,8 +84,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(breakStatementNode);
     }
 
-    public T transform(CallStatementNode callStatementNode) {
-        return transformSyntaxNode(callStatementNode);
+    public T transform(ExpressionStatementNode expressionStatementNode) {
+        return transformSyntaxNode(expressionStatementNode);
     }
 
     public T transform(ContinueStatementNode continueStatementNode) {
@@ -286,6 +286,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(IsExpressionNode isExpressionNode) {
         return transformSyntaxNode(isExpressionNode);
+    }
+
+    public T transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
+        return transformSyntaxNode(remoteMethodCallActionNode);
     }
 
     // Tokens
