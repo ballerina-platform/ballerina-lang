@@ -94,7 +94,6 @@ public class GlobalVariableRefAnalyzer {
     public void populateFunctionDependencies(Map<BSymbol, Set<BSymbol>> globalNodeDependsOn) {
         resetAnalyzer();
         this.globalNodeDependsOn = globalNodeDependsOn;
-        pruneDependencyRelations();
 
         Set<BSymbol> dependentSet = this.globalNodeDependsOn.keySet();
         for (BSymbol dependent : dependentSet) {
