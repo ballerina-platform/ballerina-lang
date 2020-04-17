@@ -292,14 +292,15 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return entrySet().equals(mapValue.entrySet());
     }
 
+    /**
+     * Returns the hash code value.
+     *
+     * @return returns hashcode value
+     */
     @Override
     public int hashCode() {
-        int result = type.hashCode();
-        for (Map.Entry entry : this.entrySet()) {
-            result = 31 * result + entry.getKey().hashCode() +
-                    (entry.getValue() == null ? 0 : entry.getValue().hashCode());
-        }
-        return result;
+        return System.identityHashCode(this);
+
     }
 
     /**
