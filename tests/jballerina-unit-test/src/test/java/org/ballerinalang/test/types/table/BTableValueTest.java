@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.test.types.table;
 
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -41,10 +41,14 @@ public class BTableValueTest {
     }
 
     @Test(description = "Test global table constructor expr")
-    public void testGlobalTableConstructExpr1() {
-        BValue[] values = BRunUtil.invoke(result, "testGlobalTableConstructExpr1", new BValue[]{});
-        Assert.assertEquals(((BString) values[0]).value(), "name=AAA age=31\n" +
-                "name=BBB age=34");
+    public void testGlobalTableConstructExpr() {
+        BValue[] values = BRunUtil.invoke(result, "testGlobalTableConstructExpr", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test key specifier and key type constraint options")
+    public void testKeySpecifierAndTypeConstraintOptions() {
+        BRunUtil.invoke(result, "runKeySpecifierTestCases");
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class})
