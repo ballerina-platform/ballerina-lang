@@ -24,7 +24,7 @@ import com.google.gson.JsonObject;
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
-import io.ballerinalang.compiler.internal.parser.tree.STIdentifier;
+import io.ballerinalang.compiler.internal.parser.tree.STIdentifierToken;
 import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
@@ -247,7 +247,7 @@ public class ParserTestUtils {
     public static String getTokenText(STNode token) {
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
-                return ((STIdentifier) token).text;
+                return ((STIdentifierToken) token).text;
             case STRING_LITERAL:
                 String val = ((STLiteralValueToken) token).text;
                 int stringLen = val.length();
@@ -507,6 +507,8 @@ public class ParserTestUtils {
                 return SyntaxKind.RETURN_STATEMENT;
             case "COMPOUND_ASSIGNMENT_STATEMENT":
                 return SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT;
+            case "LOCAL_TYPE_DEFINITION_STATEMENT":
+                return SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT;
 
             // Others
             case "SIMPLE_TYPE":

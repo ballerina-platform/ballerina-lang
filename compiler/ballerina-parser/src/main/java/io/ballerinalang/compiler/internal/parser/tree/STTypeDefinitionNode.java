@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
  *
  * @since 1.3.0
  */
-public class STTypeDefinitionNode extends STModuleMemberDeclaration {
+public class STTypeDefinitionNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
     public final STNode visibilityQualifier;
     public final STNode typeKeyword;

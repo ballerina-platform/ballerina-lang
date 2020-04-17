@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.incremental;
 
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.ChildNodeList;
-import io.ballerinalang.compiler.syntax.tree.ModulePart;
+import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -43,7 +43,7 @@ class NodePointer {
         this.childBucketIndex = childBucketIndex;
     }
 
-    NodePointer(ModulePart node) {
+    NodePointer(ModulePartNode node) {
         this(node, 0);
     }
 

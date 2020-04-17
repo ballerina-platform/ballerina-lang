@@ -36,18 +36,18 @@ public class STNodeFactory extends STAbstractNodeFactory {
     private STNodeFactory() {
     }
 
-    public static STNode createModulePart(
+    public static STNode createModulePartNode(
             STNode imports,
             STNode members,
             STNode eofToken) {
 
-        return new STModulePart(
+        return new STModulePartNode(
                 imports,
                 members,
                 eofToken);
     }
 
-    public static STNode createFunctionDefinition(
+    public static STNode createFunctionDefinitionNode(
             STNode metadata,
             STNode visibilityQualifier,
             STNode functionKeyword,
@@ -58,7 +58,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode returnTypeDesc,
             STNode functionBody) {
 
-        return new STFunctionDefinition(
+        return new STFunctionDefinitionNode(
                 metadata,
                 visibilityQualifier,
                 functionKeyword,
@@ -70,7 +70,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 functionBody);
     }
 
-    public static STNode createImportDeclaration(
+    public static STNode createImportDeclarationNode(
             STNode importKeyword,
             STNode orgName,
             STNode moduleName,
@@ -78,7 +78,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode prefix,
             STNode semicolon) {
 
-        return new STImportDeclaration(
+        return new STImportDeclarationNode(
                 importKeyword,
                 orgName,
                 moduleName,
@@ -87,7 +87,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolon);
     }
 
-    public static STNode createListenerDeclaration(
+    public static STNode createListenerDeclarationNode(
             STNode metadata,
             STNode visibilityQualifier,
             STNode listenerKeyword,
@@ -97,7 +97,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode initializer,
             STNode semicolonToken) {
 
-        return new STListenerDeclaration(
+        return new STListenerDeclarationNode(
                 metadata,
                 visibilityQualifier,
                 listenerKeyword,
@@ -125,7 +125,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createServiceDeclaration(
+    public static STNode createServiceDeclarationNode(
             STNode metadata,
             STNode serviceKeyword,
             STNode serviceName,
@@ -133,7 +133,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode expressions,
             STNode serviceBody) {
 
-        return new STServiceDeclaration(
+        return new STServiceDeclarationNode(
                 metadata,
                 serviceKeyword,
                 serviceName,
@@ -142,27 +142,27 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 serviceBody);
     }
 
-    public static STNode createAssignmentStatement(
+    public static STNode createAssignmentStatementNode(
             STNode varRef,
             STNode equalsToken,
             STNode expression,
             STNode semicolonToken) {
 
-        return new STAssignmentStatement(
+        return new STAssignmentStatementNode(
                 varRef,
                 equalsToken,
                 expression,
                 semicolonToken);
     }
 
-    public static STNode createCompoundAssignmentStatement(
+    public static STNode createCompoundAssignmentStatementNode(
             STNode lhsExpression,
             STNode binaryOperator,
             STNode equalsToken,
             STNode rhsExpression,
             STNode semicolonToken) {
 
-        return new STCompoundAssignmentStatement(
+        return new STCompoundAssignmentStatementNode(
                 lhsExpression,
                 binaryOperator,
                 equalsToken,
@@ -170,7 +170,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createVariableDeclaration(
+    public static STNode createVariableDeclarationNode(
             STNode annotations,
             STNode finalKeyword,
             STNode typeName,
@@ -179,7 +179,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode initializer,
             STNode semicolonToken) {
 
-        return new STVariableDeclaration(
+        return new STVariableDeclarationNode(
                 annotations,
                 finalKeyword,
                 typeName,
@@ -189,172 +189,187 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createBlockStatement(
+    public static STNode createBlockStatementNode(
             STNode openBraceToken,
             STNode statements,
             STNode closeBraceToken) {
 
-        return new STBlockStatement(
+        return new STBlockStatementNode(
                 openBraceToken,
                 statements,
                 closeBraceToken);
     }
 
-    public static STNode createBreakStatement(
+    public static STNode createBreakStatementNode(
             STNode breakToken,
             STNode semicolonToken) {
 
-        return new STBreakStatement(
+        return new STBreakStatementNode(
                 breakToken,
                 semicolonToken);
     }
 
-    public static STNode createCallStatement(
+    public static STNode createCallStatementNode(
             STNode expression,
             STNode semicolonToken) {
 
-        return new STCallStatement(
+        return new STCallStatementNode(
                 expression,
                 semicolonToken);
     }
 
-    public static STNode createContinueStatement(
+    public static STNode createContinueStatementNode(
             STNode continueToken,
             STNode semicolonToken) {
 
-        return new STContinueStatement(
+        return new STContinueStatementNode(
                 continueToken,
                 semicolonToken);
     }
 
-    public static STNode createExternalFunctionBody(
+    public static STNode createExternalFunctionBodyNode(
             STNode equalsToken,
             STNode annotations,
             STNode externalKeyword,
             STNode semicolonToken) {
 
-        return new STExternalFunctionBody(
+        return new STExternalFunctionBodyNode(
                 equalsToken,
                 annotations,
                 externalKeyword,
                 semicolonToken);
     }
 
-    public static STNode createIfElseStatement(
+    public static STNode createIfElseStatementNode(
             STNode ifKeyword,
             STNode condition,
             STNode ifBody,
             STNode elseBody) {
 
-        return new STIfElseStatement(
+        return new STIfElseStatementNode(
                 ifKeyword,
                 condition,
                 ifBody,
                 elseBody);
     }
 
-    public static STNode createElseBlock(
+    public static STNode createElseBlockNode(
             STNode elseKeyword,
             STNode elseBody) {
 
-        return new STElseBlock(
+        return new STElseBlockNode(
                 elseKeyword,
                 elseBody);
     }
 
-    public static STNode createWhileStatement(
+    public static STNode createWhileStatementNode(
             STNode whileKeyword,
             STNode condition,
             STNode whileBody) {
 
-        return new STWhileStatement(
+        return new STWhileStatementNode(
                 whileKeyword,
                 condition,
                 whileBody);
     }
 
-    public static STNode createPanicStatement(
+    public static STNode createPanicStatementNode(
             STNode panicKeyword,
             STNode expression,
             STNode semicolonToken) {
 
-        return new STPanicStatement(
+        return new STPanicStatementNode(
                 panicKeyword,
                 expression,
                 semicolonToken);
     }
 
-    public static STNode createReturnStatement(
+    public static STNode createReturnStatementNode(
             STNode returnKeyword,
             STNode expression,
             STNode semicolonToken) {
 
-        return new STReturnStatement(
+        return new STReturnStatementNode(
                 returnKeyword,
                 expression,
                 semicolonToken);
     }
 
-    public static STNode createBinaryExpression(
+    public static STNode createLocalTypeDefinitionStatementNode(
+            STNode annotations,
+            STNode typeKeyword,
+            STNode typeName,
+            STNode typeDescriptor,
+            STNode semicolonToken) {
+
+        return new STLocalTypeDefinitionStatementNode(
+                annotations,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken);
+    }
+
+    public static STNode createBinaryExpressionNode(
             SyntaxKind kind,
             STNode lhsExpr,
             STNode operator,
             STNode rhsExpr) {
 
-        return new STBinaryExpression(
+        return new STBinaryExpressionNode(
                 kind,
                 lhsExpr,
                 operator,
                 rhsExpr);
     }
 
-    public static STNode createBracedExpression(
+    public static STNode createBracedExpressionNode(
             SyntaxKind kind,
             STNode openParen,
             STNode expression,
             STNode closeParen) {
 
-        return new STBracedExpression(
+        return new STBracedExpressionNode(
                 kind,
                 openParen,
                 expression,
                 closeParen);
     }
 
-    public static STNode createCheckExpression(
+    public static STNode createCheckExpressionNode(
             STNode checkKeyword,
             STNode expression) {
 
-        return new STCheckExpression(
+        return new STCheckExpressionNode(
                 checkKeyword,
                 expression);
     }
 
-    public static STNode createFieldAccessExpression(
+    public static STNode createFieldAccessExpressionNode(
             STNode expression,
             STNode dotToken,
             STNode fieldName) {
 
-        return new STFieldAccessExpression(
+        return new STFieldAccessExpressionNode(
                 expression,
                 dotToken,
                 fieldName);
     }
 
-    public static STNode createFunctionCallExpression(
+    public static STNode createFunctionCallExpressionNode(
             STNode functionName,
             STNode openParenToken,
             STNode arguments,
             STNode closeParenToken) {
 
-        return new STFunctionCallExpression(
+        return new STFunctionCallExpressionNode(
                 functionName,
                 openParenToken,
                 arguments,
                 closeParenToken);
     }
 
-    public static STNode createMethodCallExpression(
+    public static STNode createMethodCallExpressionNode(
             STNode expression,
             STNode dotToken,
             STNode methodName,
@@ -362,7 +377,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode arguments,
             STNode closeParenToken) {
 
-        return new STMethodCallExpression(
+        return new STMethodCallExpressionNode(
                 expression,
                 dotToken,
                 methodName,
@@ -371,49 +386,49 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeParenToken);
     }
 
-    public static STNode createMappingConstructorExpression(
+    public static STNode createMappingConstructorExpressionNode(
             STNode openBrace,
             STNode fields,
             STNode closeBrace) {
 
-        return new STMappingConstructorExpression(
+        return new STMappingConstructorExpressionNode(
                 openBrace,
                 fields,
                 closeBrace);
     }
 
-    public static STNode createMemberAccessExpression(
+    public static STNode createMemberAccessExpressionNode(
             STNode containerExpression,
             STNode openBracket,
             STNode keyExpression,
             STNode closeBracket) {
 
-        return new STMemberAccessExpression(
+        return new STMemberAccessExpressionNode(
                 containerExpression,
                 openBracket,
                 keyExpression,
                 closeBracket);
     }
 
-    public static STNode createTypeofExpression(
+    public static STNode createTypeofExpressionNode(
             STNode typeofKeyword,
             STNode expression) {
 
-        return new STTypeofExpression(
+        return new STTypeofExpressionNode(
                 typeofKeyword,
                 expression);
     }
 
-    public static STNode createUnaryExpression(
+    public static STNode createUnaryExpressionNode(
             STNode unaryOperator,
             STNode expression) {
 
-        return new STUnaryExpression(
+        return new STUnaryExpressionNode(
                 unaryOperator,
                 expression);
     }
 
-    public static STNode createComputedNameField(
+    public static STNode createComputedNameFieldNode(
             STNode leadingComma,
             STNode openBracket,
             STNode fieldNameExpr,
@@ -421,7 +436,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode colonToken,
             STNode valueExpr) {
 
-        return new STComputedNameField(
+        return new STComputedNameFieldNode(
                 leadingComma,
                 openBracket,
                 fieldNameExpr,
@@ -430,7 +445,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 valueExpr);
     }
 
-    public static STNode createConstantDeclaration(
+    public static STNode createConstantDeclarationNode(
             STNode metadata,
             STNode visibilityQualifier,
             STNode constKeyword,
@@ -440,7 +455,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode initializer,
             STNode semicolonToken) {
 
-        return new STConstantDeclaration(
+        return new STConstantDeclarationNode(
                 metadata,
                 visibilityQualifier,
                 constKeyword,
@@ -451,7 +466,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createDefaultableParameter(
+    public static STNode createDefaultableParameterNode(
             STNode leadingComma,
             STNode annotations,
             STNode visibilityQualifier,
@@ -460,7 +475,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode equalsToken,
             STNode expression) {
 
-        return new STDefaultableParameter(
+        return new STDefaultableParameterNode(
                 leadingComma,
                 annotations,
                 visibilityQualifier,
@@ -470,14 +485,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
-    public static STNode createRequiredParameter(
+    public static STNode createRequiredParameterNode(
             STNode leadingComma,
             STNode annotations,
             STNode visibilityQualifier,
             STNode type,
             STNode paramName) {
 
-        return new STRequiredParameter(
+        return new STRequiredParameterNode(
                 leadingComma,
                 annotations,
                 visibilityQualifier,
@@ -485,14 +500,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 paramName);
     }
 
-    public static STNode createRestParameter(
+    public static STNode createRestParameterNode(
             STNode leadingComma,
             STNode annotations,
             STNode type,
             STNode ellipsisToken,
             STNode paramName) {
 
-        return new STRestParameter(
+        return new STRestParameterNode(
                 leadingComma,
                 annotations,
                 type,
@@ -500,125 +515,125 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 paramName);
     }
 
-    public static STNode createExpressionListItem(
+    public static STNode createExpressionListItemNode(
             STNode leadingComma,
             STNode expression) {
 
-        return new STExpressionListItem(
+        return new STExpressionListItemNode(
                 leadingComma,
                 expression);
     }
 
-    public static STNode createImportOrgName(
+    public static STNode createImportOrgNameNode(
             STNode orgName,
             STNode slashToken) {
 
-        return new STImportOrgName(
+        return new STImportOrgNameNode(
                 orgName,
                 slashToken);
     }
 
-    public static STNode createImportPrefix(
+    public static STNode createImportPrefixNode(
             STNode asKeyword,
             STNode prefix) {
 
-        return new STImportPrefix(
+        return new STImportPrefixNode(
                 asKeyword,
                 prefix);
     }
 
-    public static STNode createImportSubVersion(
+    public static STNode createImportSubVersionNode(
             STNode leadingDot,
             STNode versionNumber) {
 
-        return new STImportSubVersion(
+        return new STImportSubVersionNode(
                 leadingDot,
                 versionNumber);
     }
 
-    public static STNode createImportVersion(
+    public static STNode createImportVersionNode(
             STNode versionKeyword,
             STNode versionNumber) {
 
-        return new STImportVersion(
+        return new STImportVersionNode(
                 versionKeyword,
                 versionNumber);
     }
 
-    public static STNode createSubModuleName(
+    public static STNode createSubModuleNameNode(
             STNode leadingDot,
             STNode moduleName) {
 
-        return new STSubModuleName(
+        return new STSubModuleNameNode(
                 leadingDot,
                 moduleName);
     }
 
-    public static STNode createSpecificField(
+    public static STNode createSpecificFieldNode(
             STNode leadingComma,
             STNode fieldName,
             STNode colon,
             STNode valueExpr) {
 
-        return new STSpecificField(
+        return new STSpecificFieldNode(
                 leadingComma,
                 fieldName,
                 colon,
                 valueExpr);
     }
 
-    public static STNode createSpreadField(
+    public static STNode createSpreadFieldNode(
             STNode leadingComma,
             STNode ellipsis,
             STNode valueExpr) {
 
-        return new STSpreadField(
+        return new STSpreadFieldNode(
                 leadingComma,
                 ellipsis,
                 valueExpr);
     }
 
-    public static STNode createNamedArgument(
+    public static STNode createNamedArgumentNode(
             STNode leadingComma,
             STNode argumentName,
             STNode equalsToken,
             STNode expression) {
 
-        return new STNamedArgument(
+        return new STNamedArgumentNode(
                 leadingComma,
                 argumentName,
                 equalsToken,
                 expression);
     }
 
-    public static STNode createPositionalArgument(
+    public static STNode createPositionalArgumentNode(
             STNode leadingComma,
             STNode expression) {
 
-        return new STPositionalArgument(
+        return new STPositionalArgumentNode(
                 leadingComma,
                 expression);
     }
 
-    public static STNode createRestArgument(
+    public static STNode createRestArgumentNode(
             STNode leadingComma,
             STNode ellipsis,
             STNode expression) {
 
-        return new STRestArgument(
+        return new STRestArgumentNode(
                 leadingComma,
                 ellipsis,
                 expression);
     }
 
-    public static STNode createObjectTypeDescriptor(
+    public static STNode createObjectTypeDescriptorNode(
             STNode objectTypeQualifiers,
             STNode objectKeyword,
             STNode openBrace,
             STNode members,
             STNode closeBrace) {
 
-        return new STObjectTypeDescriptor(
+        return new STObjectTypeDescriptorNode(
                 objectTypeQualifiers,
                 objectKeyword,
                 openBrace,
@@ -626,49 +641,49 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 closeBrace);
     }
 
-    public static STNode createRecordTypeDescriptor(
+    public static STNode createRecordTypeDescriptorNode(
             STNode objectKeyword,
             STNode bodyStartDelimiter,
             STNode fields,
             STNode bodyEndDelimiter) {
 
-        return new STRecordTypeDescriptor(
+        return new STRecordTypeDescriptorNode(
                 objectKeyword,
                 bodyStartDelimiter,
                 fields,
                 bodyEndDelimiter);
     }
 
-    public static STNode createReturnTypeDescriptor(
+    public static STNode createReturnTypeDescriptorNode(
             STNode returnsKeyword,
             STNode annotations,
             STNode type) {
 
-        return new STReturnTypeDescriptor(
+        return new STReturnTypeDescriptorNode(
                 returnsKeyword,
                 annotations,
                 type);
     }
 
-    public static STNode createNilTypeDescriptor(
+    public static STNode createNilTypeDescriptorNode(
             STNode openParenToken,
             STNode closeParenToken) {
 
-        return new STNilTypeDescriptor(
+        return new STNilTypeDescriptorNode(
                 openParenToken,
                 closeParenToken);
     }
 
-    public static STNode createOptionalTypeDescriptor(
+    public static STNode createOptionalTypeDescriptorNode(
             STNode typeDescriptor,
             STNode questionMarkToken) {
 
-        return new STOptionalTypeDescriptor(
+        return new STOptionalTypeDescriptorNode(
                 typeDescriptor,
                 questionMarkToken);
     }
 
-    public static STNode createObjectField(
+    public static STNode createObjectFieldNode(
             STNode metadata,
             STNode visibilityQualifier,
             STNode type,
@@ -677,7 +692,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode expression,
             STNode semicolonToken) {
 
-        return new STObjectField(
+        return new STObjectFieldNode(
                 metadata,
                 visibilityQualifier,
                 type,
@@ -687,14 +702,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createRecordField(
+    public static STNode createRecordFieldNode(
             STNode metadata,
             STNode type,
             STNode fieldName,
             STNode questionMarkToken,
             STNode semicolonToken) {
 
-        return new STRecordField(
+        return new STRecordFieldNode(
                 metadata,
                 type,
                 fieldName,
@@ -702,7 +717,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createRecordFieldWithDefaultValue(
+    public static STNode createRecordFieldWithDefaultValueNode(
             STNode metadata,
             STNode type,
             STNode fieldName,
@@ -710,7 +725,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode expression,
             STNode semicolonToken) {
 
-        return new STRecordFieldWithDefaultValue(
+        return new STRecordFieldWithDefaultValueNode(
                 metadata,
                 type,
                 fieldName,
@@ -719,71 +734,71 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createRecordRestDescriptor(
+    public static STNode createRecordRestDescriptorNode(
             STNode type,
             STNode ellipsisToken,
             STNode semicolonToken) {
 
-        return new STRecordRestDescriptor(
+        return new STRecordRestDescriptorNode(
                 type,
                 ellipsisToken,
                 semicolonToken);
     }
 
-    public static STNode createTypeReference(
+    public static STNode createTypeReferenceNode(
             STNode asteriskToken,
             STNode type,
             STNode semicolonToken) {
 
-        return new STTypeReference(
+        return new STTypeReferenceNode(
                 asteriskToken,
                 type,
                 semicolonToken);
     }
 
-    public static STNode createQualifiedIdentifier(
+    public static STNode createQualifiedIdentifierNode(
             STNode modulePrefix,
             STNode colon,
             STNode identifier) {
 
-        return new STQualifiedIdentifier(
+        return new STQualifiedIdentifierNode(
                 modulePrefix,
                 colon,
                 identifier);
     }
 
-    public static STNode createServiceBody(
+    public static STNode createServiceBodyNode(
             STNode openBraceToken,
             STNode resources,
             STNode closeBraceToken) {
 
-        return new STServiceBody(
+        return new STServiceBodyNode(
                 openBraceToken,
                 resources,
                 closeBraceToken);
     }
 
-    public static STNode createAnnotation(
+    public static STNode createAnnotationNode(
             STNode atToken,
             STNode annotReference,
             STNode annotValue) {
 
-        return new STAnnotation(
+        return new STAnnotationNode(
                 atToken,
                 annotReference,
                 annotValue);
     }
 
-    public static STNode createMetadata(
+    public static STNode createMetadataNode(
             STNode documentationString,
             STNode annotations) {
 
-        return new STMetadata(
+        return new STMetadataNode(
                 documentationString,
                 annotations);
     }
 
-    public static STNode createModuleVariableDeclaration(
+    public static STNode createModuleVariableDeclarationNode(
             STNode metadata,
             STNode finalKeyword,
             STNode typeName,
@@ -792,7 +807,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode initializer,
             STNode semicolonToken) {
 
-        return new STModuleVariableDeclaration(
+        return new STModuleVariableDeclarationNode(
                 metadata,
                 finalKeyword,
                 typeName,
@@ -800,6 +815,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 equalsToken,
                 initializer,
                 semicolonToken);
+    }
+
+    public static STNode createIsExpressionNode(
+            STNode expression,
+            STNode isKeyword,
+            STNode typeDescriptor) {
+
+        return new STIsExpressionNode(
+                expression,
+                isKeyword,
+                typeDescriptor);
     }
 
     public static STNode createArrayTypeDescriptor(
@@ -820,17 +846,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openBracket,
                 arrayLength,
                 closeBracket);
-    }
-
-    public static STNode createIsExpression(
-            STNode expression,
-            STNode isKeyword,
-            STNode typeDescriptor) {
-
-        return new STIsExpression(
-                expression,
-                isKeyword,
-                typeDescriptor);
     }
 }
 

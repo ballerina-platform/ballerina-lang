@@ -33,8 +33,8 @@ import java.util.List;
  */
 public abstract class STAbstractNodeFactory {
 
-    public static STToken createIdentifier(String text, STNode leadingTrivia, STNode trailingTrivia) {
-        return new STIdentifier(text, leadingTrivia, trailingTrivia);
+    public static STToken createIdentifierToken(String text, STNode leadingTrivia, STNode trailingTrivia) {
+        return new STIdentifierToken(text, leadingTrivia, trailingTrivia);
     }
 
     public static STNode createNodeList(List<STNode> children) {
