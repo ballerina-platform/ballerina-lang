@@ -198,6 +198,10 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] CONST_DECL_RHS =
             { ParserRuleContext.STATEMENT_START_IDENTIFIER, ParserRuleContext.ASSIGN_OP };
 
+    private static final ParserRuleContext[] ARRAY_LENGTH = { ParserRuleContext.CLOSE_BRACKET,
+            ParserRuleContext.DECIMAL_INTEGER_LITERAL, ParserRuleContext.HEX_INTEGER_LITERAL,
+            ParserRuleContext.ASTERISK, ParserRuleContext.VARIABLE_REF};
+
     private static final ParserRuleContext[] PARAMETER =
             { ParserRuleContext.ANNOTATIONS, ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TYPE_DESCRIPTOR };
 
@@ -818,7 +822,6 @@ public class BallerinaParserErrorHandler {
                     break;
                 case RETURN_STMT_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RETURN_RHS);
-
                 case ACCESS_EXPRESSION:
                     return seekInAccessExpression(currentCtx, lookahead, currentDepth, matchingRulesCount);
                 case BASIC_LITERAL:
@@ -863,6 +866,11 @@ public class BallerinaParserErrorHandler {
                     break;
                 case UNARY_OPERATOR:
                     hasMatch = isUnaryOperator(nextToken);
+                    break;
+                case ARRAY_LENGTH:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, ARRAY_LENGTH);
+                case HEX_INTEGER_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.HEX_INTEGER_LITERAL;
                     break;
                 case AT:
                     hasMatch = nextToken.kind == SyntaxKind.AT_TOKEN;
@@ -928,6 +936,7 @@ public class BallerinaParserErrorHandler {
                 case CONSTANT_DECL:
                 case NIL_TYPE_DESCRIPTOR:
                 case OPTIONAL_TYPE_DESCRIPTOR:
+                case ARRAY_TYPE_DESCRIPTOR:
                 case LOCAL_TYPE_DEFINITION_STMT:
                 case ANNOTATIONS:
                 case DOC_STRING:
@@ -1104,6 +1113,8 @@ public class BallerinaParserErrorHandler {
             nextContext = ParserRuleContext.SEMICOLON;
         } else if (parentCtx == ParserRuleContext.ANNOTATIONS) {
             nextContext = ParserRuleContext.TOP_LEVEL_NODE;
+        } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
+            nextContext = ParserRuleContext.CLOSE_BRACKET;
         } else {
             throw new IllegalStateException();
         }
@@ -1324,6 +1335,7 @@ public class BallerinaParserErrorHandler {
             case NIL_TYPE_DESCRIPTOR:
             case COMPOUND_ASSIGNMENT_STMT:
             case OPTIONAL_TYPE_DESCRIPTOR:
+            case ARRAY_TYPE_DESCRIPTOR:
             case ANNOTATIONS:
             case VARIABLE_REF:
             case TYPE_REFERENCE:
@@ -1496,6 +1508,10 @@ public class BallerinaParserErrorHandler {
             case RECORD_TYPE_DESCRIPTOR:
                 return ParserRuleContext.RECORD_KEYWORD;
             case ASTERISK:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
+                    return ParserRuleContext.CLOSE_BRACKET;
+                }
                 return ParserRuleContext.TYPE_REFERENCE;
             case TYPE_NAME:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
@@ -1512,13 +1528,9 @@ public class BallerinaParserErrorHandler {
             case CLIENT_KEYWORD:
                 return ParserRuleContext.OBJECT_KEYWORD;
             case OPEN_BRACKET:
-                return ParserRuleContext.EXPRESSION;
+                return getNextRuleForOpenBracket();
             case CLOSE_BRACKET:
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.COMPUTED_FIELD_NAME) {
-                    endContext(); // end computed-field-name
-                }
-                return ParserRuleContext.EXPRESSION_RHS;
+                return getNextRuleForCloseBracket(nextLookahead);
             case FIELD_OR_FUNC_NAME:
                 return ParserRuleContext.EXPRESSION_RHS;
             case DOT:
@@ -1633,6 +1645,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.UNARY_OPERATOR;
             case UNARY_OPERATOR:
                 return ParserRuleContext.EXPRESSION;
+            case ARRAY_TYPE_DESCRIPTOR:
+                return ParserRuleContext.TYPE_DESCRIPTOR;
+            case ARRAY_LENGTH:
+                return ParserRuleContext.CLOSE_BRACKET;
             case AT:
                 return ParserRuleContext.ANNOT_REFERENCE;
             case DOC_STRING:
@@ -1678,6 +1694,9 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.OPEN_PARENTHESIS;
 
             case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case STATEMENT_START_IDENTIFIER:
+                return getNextRuleForDecimalIntegerLiteral();
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
@@ -1700,7 +1719,6 @@ public class BallerinaParserErrorHandler {
             case RECORD_BODY_END:
             case RECORD_BODY_START:
             case RECORD_FIELD:
-            case STATEMENT_START_IDENTIFIER:
             case TOP_LEVEL_NODE_WITHOUT_METADATA:
             case TYPE_DESCRIPTOR:
             case VAR_DECL_STMT_RHS:
@@ -1787,6 +1805,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.FUNC_BODY;
             case OPTIONAL_TYPE_DESCRIPTOR:
                 return ParserRuleContext.QUESTION_MARK;
+            case ARRAY_TYPE_DESCRIPTOR:
+                return ParserRuleContext.OPEN_BRACKET;
             case IS_EXPRESSION:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
@@ -1958,6 +1978,8 @@ public class BallerinaParserErrorHandler {
             return ParserRuleContext.NAMED_OR_POSITIONAL_ARG_RHS;
         } else if (parentCtx == ParserRuleContext.OBJECT_MEMBER) {
             return ParserRuleContext.OBJECT_FIELD_RHS;
+        } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
+            return ParserRuleContext.CLOSE_BRACKET;
         } else {
             throw new IllegalStateException();
         }
@@ -2083,6 +2105,59 @@ public class BallerinaParserErrorHandler {
         }
     }
 
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#OPEN_BRACKET}.
+     *
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForOpenBracket() {
+        ParserRuleContext parentCtx = getParentContext();
+        switch (parentCtx) {
+            case ARRAY_TYPE_DESCRIPTOR:
+                return ParserRuleContext.ARRAY_LENGTH;
+            default:
+                return ParserRuleContext.EXPRESSION;
+        }
+    }
+
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#CLOSE_BRACKET}.
+     *
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForCloseBracket(int nextLookahead) {
+        ParserRuleContext parentCtx = getParentContext();
+        STToken nextToken = this.tokenReader.peek(nextLookahead);
+        switch (parentCtx) {
+            case ARRAY_TYPE_DESCRIPTOR:
+                if (nextToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
+                    return ParserRuleContext.OPEN_BRACKET;
+                } else if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
+                    return ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR;
+                } else {
+                    endContext(); //End array type descriptor context
+                    return getNextRuleForTypeDescriptor();
+                }
+            case COMPUTED_FIELD_NAME:
+            default:
+                endContext(); // end computed-field-name
+                return ParserRuleContext.EXPRESSION_RHS;
+        }
+    }
+
+    /**
+     * Get the next parser context to visit after a {@link ParserRuleContext#DECIMAL_INTEGER_LITERAL}.
+     *
+     * @return Next parser context
+     */
+    private ParserRuleContext getNextRuleForDecimalIntegerLiteral() {
+        ParserRuleContext parentCtx = getParentContext();
+        switch (parentCtx) {
+            case ARRAY_TYPE_DESCRIPTOR:
+            default:
+                return ParserRuleContext.CLOSE_BRACKET;
+        }
+    }
     /**
      * Check whether the given context is a statement.
      * 
@@ -2359,6 +2434,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.OPTIONAL_TYPE;
             case UNARY_OPERATOR:
                 return SyntaxKind.PLUS_TOKEN;
+            case ARRAY_TYPE_DESCRIPTOR:
+                return SyntaxKind.ARRAY_TYPE;
             case AT:
                 return SyntaxKind.AT_TOKEN;
             case FIELD_DESCRIPTOR_RHS:

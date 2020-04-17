@@ -20,7 +20,7 @@ package io.ballerinalang.compiler.parser.test.syntax.types;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing nil type.
+ * Test parsing optional type.
  */
 
 public class OptionalTypeTest extends AbstractTypesTest {
@@ -45,8 +45,8 @@ public class OptionalTypeTest extends AbstractTypesTest {
     //Recovery test
 
     @Test
-    public void testInvalidOptionalTypeWithExtraQuestionMark() {
-        test("int? ? a;", "optional-type/optional_type_assert_01.json");
+    public void testInvalidOptionalTypeWithExtraSymbol() {
+        test("int? % a;", "optional-type/optional_type_assert_01.json");
     }
 
     @Test

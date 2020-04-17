@@ -159,6 +159,7 @@ public enum SyntaxKind {
     OBJECT_TYPE_DESCRIPTOR(2001),
     NIL_TYPE(2002),
     OPTIONAL_TYPE(2003),
+    ARRAY_TYPE(2004),
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),
@@ -190,7 +191,8 @@ public enum SyntaxKind {
     SERVICE_BODY(3023),
     ANNOTATION(3024),
     METADATA(3025),
-    NIL_LITERAL(3026),
+    ARRAY_DIMENSION(3026),
+    NIL_LITERAL(3027),
 
     INVALID(4),
     MODULE_PART(3),

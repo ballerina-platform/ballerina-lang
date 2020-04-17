@@ -287,6 +287,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(isExpressionNode);
     }
 
+    public void visit(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        visitSyntaxNode(arrayTypeDescriptorNode);
+    }
+
     public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
         visitSyntaxNode(remoteMethodCallActionNode);
     }

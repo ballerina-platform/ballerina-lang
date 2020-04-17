@@ -232,6 +232,12 @@ public class BallerinaParser {
                 return parseCompoundAssignmentStmt();
             case TYPEOF_KEYWORD:
                 return parseTypeofKeyword();
+            case ARRAY_TYPE_DESCRIPTOR:
+                return parseArrayTypeDescriptor((STNode) args[0]);
+            case ARRAY_LENGTH:
+                return parseArrayLength();
+            case FUNC_DEFINITION:
+            case REQUIRED_PARAM:
             case ANNOT_REFERENCE:
                 return parseIdentifier(context);
             case IS_KEYWORD:
@@ -507,6 +513,8 @@ public class BallerinaParser {
             case EQUAL_TOKEN:
                 // Scenario: foo =
                 // Even though this is not valid, consider this as a var-decl and continue;
+            case OPEN_BRACKET_TOKEN:
+                //Scenario foo[] (Array type descriptor with custom type)
             case QUESTION_MARK_TOKEN:
                 // Scenario foo? (Optional type descriptor with custom type)
                 return true;
@@ -1626,14 +1634,29 @@ public class BallerinaParser {
      */
     private STNode parseTypeDescriptor() {
         STToken token = peek();
-        STNode type = parseTypeDescriptor(token.kind);
+        STNode typeDesc = parseTypeDescriptor(token.kind);
+        return parseComplexTypeDescriptor(typeDesc);
+
+    }
+
+    /**
+     * This will handle the parsing of optional,array,union type desc to infinite length.
+     * @param typeDesc
+     *
+     * @return Parsed type descriptor node
+     */
+    private STNode parseComplexTypeDescriptor(STNode typeDesc) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
-            // If next token after a type descriptor is <code>?</code> then it is an Optional type descriptor
+            //If next token after a type descriptor is <code>?</code> then it is an optional type descriptor
             case QUESTION_MARK_TOKEN:
-                return parseOptionalTypeDescriptor(type);
+                return parseComplexTypeDescriptor(parseOptionalTypeDescriptor(typeDesc));
+            //If next token after a type descriptor is <code>[</code> then it is an array type descriptor
+            case OPEN_BRACKET_TOKEN:
+                return parseComplexTypeDescriptor(parseArrayTypeDescriptor(typeDesc));
+            // TODO union type descriptor
             default:
-                return type;
+                return typeDesc;
         }
     }
 
@@ -5088,7 +5111,9 @@ public class BallerinaParser {
 
     /**
      * Parse nil type descriptor.
-     *
+     *<p>
+     *<code>nil-type-descriptor :=  ( ) </code>
+     *</p>
      * @return Parsed node
      */
     private STNode parseNilTypeDescriptor() {
@@ -5132,7 +5157,9 @@ public class BallerinaParser {
 
     /**
      * Parse optional type descriptor.
-     *
+     * <p>
+     * <code>optional-type-descriptor := type-descriptor ? </code>
+     * </p>
      * @return Parsed node
      */
     private STNode parseOptionalTypeDescriptor(STNode typeDescriptorNode) {
@@ -5189,6 +5216,72 @@ public class BallerinaParser {
                 return true;
             default:
                 return false;
+        }
+    }
+
+    /**
+     * Parse array type descriptor.
+     * <p>
+     * <code>
+     * array-type-descriptor := member-type-descriptor [ [ array-length ] ]
+     * member-type-descriptor := type-descriptor
+     * array-length :=
+     *    int-literal
+     *    | constant-reference-expr
+     *    | inferred-array-length
+     * inferred-array-length := *
+     * </code>
+     * </p>
+     * @param typeDescriptorNode
+     *
+     * @return Parsed Node
+     */
+    private STNode parseArrayTypeDescriptor(STNode typeDescriptorNode) {
+        startContext(ParserRuleContext.ARRAY_TYPE_DESCRIPTOR);
+        STNode openBracketToken = parseOpenBracket();
+        STNode arrayLengthNode = parseArrayLength();
+        STNode closeBracketToken = parseCloseBracket();
+
+        endContext();
+        return STNodeFactory.createArrayTypeDescriptorNode(typeDescriptorNode, openBracketToken, arrayLengthNode,
+                closeBracketToken);
+    }
+
+    /**
+     * Parse array length.
+     * <p>
+     * <code>
+     *     array-length :=
+     *    int-literal
+     *    | constant-reference-expr
+     *    | inferred-array-length
+     * constant-reference-expr := variable-reference-expr
+     * </code>
+     * </p>
+     *
+     * @return Parsed array length
+     */
+    private STNode parseArrayLength() {
+        STToken token = peek();
+        STToken nextToken;
+        switch (token.kind) {
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case ASTERISK_TOKEN:
+                return consume();
+            case CLOSE_BRACKET_TOKEN:
+                return STNodeFactory.createEmptyNode();
+            //Parsing variable-reference-expr is same as parsing qualified identifier
+            case IDENTIFIER_TOKEN:
+                // If <code>int[ a; </code> then take <code>a</code> as the identifier not a the array length var
+                nextToken = peek(2);
+                if (nextToken.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
+                    return parseQualifiedIdentifier(ParserRuleContext.ARRAY_LENGTH);
+                }
+                return STNodeFactory.createEmptyNode();
+            default:
+                Solution sol = recover(token, ParserRuleContext.ARRAY_LENGTH);
+                return sol.recoveredNode;
         }
     }
 

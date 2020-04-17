@@ -288,6 +288,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(isExpressionNode);
     }
 
+    public T transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        return transformSyntaxNode(arrayTypeDescriptorNode);
+    }
+
     public T transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
         return transformSyntaxNode(remoteMethodCallActionNode);
     }
