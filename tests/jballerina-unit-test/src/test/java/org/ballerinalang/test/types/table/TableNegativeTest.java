@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 7);
+        Assert.assertEquals(compileResult.getErrorCount(), 8);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -51,6 +51,8 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "member access is not supported for keyless table " +
                 "'customerTable'", 45, 21);
         validateError(compileResult, index++, "invalid constraint type. expected subtype of " +
-                "map<anydata|error> but 'int'", 47, 41);
+                "'map<anydata|error>' but 'int'", 47, 41);
+        validateError(compileResult, index++, "multi key member access is not supported for " +
+                "type 'map'. only support for subtype of 'table'", 52, 13);
     }
 }

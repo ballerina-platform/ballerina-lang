@@ -42,8 +42,12 @@ public class BTableValueTest {
     @Test(description = "Test global table constructor expr")
     public void testGlobalTableConstructExpr1() {
         BValue[] values = BRunUtil.invoke(result, "testGlobalTableConstructExpr1", new BValue[]{});
-        Assert.assertEquals(((BString) values[0]).value(), "name=AAA age=31\n" +
-                "name=BBB age=34");
+        Assert.assertEquals(((BString) values[0]).value(), "name=AAA age=31 name=BBB age=34");
+    }
+
+    @Test(description = "Test key specifier and key type constraint options")
+    public void testKeySpecifierAndTypeConstraintOptions() {
+        BRunUtil.invoke(result, "runKeySpecifierTestcases");
     }
 
     //TODO:Ideally this should fail at compile time due to duplicate keys, currently it replaces older record
