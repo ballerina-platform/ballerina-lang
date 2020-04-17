@@ -208,19 +208,15 @@ public class CodeGenerator {
 
         switch (type) {
             case GEN_CLIENT:
-                try {
-                    // modelPackage is not in use at the moment. All models will be written into same package
-                    // as other src files.
-                    // Therefore value set to modelPackage is ignored here
-                    BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).srcPackage(srcPackage)
-                            .modelPackage(srcPackage);
-                    definitionContext.setDefinitionPath(reldefinitionPath);
+                // modelPackage is not in use at the moment. All models will be written into same package
+                // as other src files.
+                // Therefore value set to modelPackage is ignored here
+                BallerinaOpenApi definitionContext = new BallerinaOpenApi().buildContext(api).srcPackage(srcPackage)
+                        .modelPackage(srcPackage);
+                definitionContext.setDefinitionPath(reldefinitionPath);
 
-                    sourceFiles = generateClient(definitionContext);
-                    break;
-                } catch (NullPointerException e){
-                    outStream.println(OpenApiMesseges.EXPERIMENTAL_ALLOF_TYPE);
-                }
+                sourceFiles = generateClient(definitionContext);
+                break;
             case GEN_SERVICE:
                 sourceFiles = generateBallerinaService(openApi);
                 break;
