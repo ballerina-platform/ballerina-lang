@@ -32,7 +32,6 @@ import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.PasswordSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
-import org.ballerinalang.openapi.OpenApiMesseges;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
 
@@ -112,10 +111,9 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
             name = toPropertyName(entry.getKey());
             try {
                 prop.setType(getPropertyType(prop));
-            }
-            catch (NullPointerException e){
-                //System.out.println(OpenApiMesseges.EXPERIMENTAL_ALLOF_TYPE); Ignore exception and try to
-                // build next property. No need to break the flow for a failure of one property.
+            } catch (NullPointerException e) {
+                //Ignore exception and try to build next property.
+                // Not to break the flow for a failure of one property.
             }
             newEntries.add(new AbstractMap.SimpleEntry<>(name, prop));
         }
@@ -139,7 +137,7 @@ public class BallerinaSchema implements BallerinaOpenApiObject<BallerinaSchema, 
         return refPath.substring(refPath.lastIndexOf(GeneratorConstants.OAS_PATH_SEPARATOR) + 1);
     }
 
-    private String getPropertyType(Schema prop) throws NullPointerException{
+    private String getPropertyType(Schema prop) throws NullPointerException {
 
         String type;
 

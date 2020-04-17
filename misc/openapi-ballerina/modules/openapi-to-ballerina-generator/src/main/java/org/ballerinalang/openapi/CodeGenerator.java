@@ -221,7 +221,6 @@ public class CodeGenerator {
                 } catch (NullPointerException e){
                     outStream.println(OpenApiMesseges.EXPERIMENTAL_ALLOF_TYPE);
                 }
-
             case GEN_SERVICE:
                 sourceFiles = generateBallerinaService(openApi);
                 break;
@@ -280,7 +279,7 @@ public class CodeGenerator {
         handlebars.registerHelper("equals", (object, options) -> {
             CharSequence result = null;
             Object param0 = options.param(0);
-            try{
+            try {
                 if (param0 == null) {
                     throw new IllegalArgumentException("found 'null', expected 'string'");
                 }
@@ -294,7 +293,7 @@ public class CodeGenerator {
                     result = null;
                 }
 
-            }catch(IllegalArgumentException e){
+            } catch (IllegalArgumentException e) {
                 //Ignore exception and try to build next
             }
             return result;
