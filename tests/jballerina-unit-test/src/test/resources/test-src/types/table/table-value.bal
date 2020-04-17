@@ -20,8 +20,7 @@ type Customer record {
     string address;
 };
 
-Customer[] cutomerList = [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
-                                { id: 23 , name: "James" , address: "Clark" }];
+string cutomerListString = "id=13 name=Sanjiva address=Weerawarana\nid=23 name=James address=Clark";
 
 type CustomerTableWithKS table<Customer> key(id);
 
@@ -38,14 +37,14 @@ function testTableTypeWithKeySpecifier() {
     CustomerTableWithKS tab = table [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
                                     { id: 23 , name: "James" , address: "Clark" }];
 
-    assertEquality(cutomerList.toString(), tab.toString());
+    assertEquality(cutomerListString, tab.toString());
 }
 
 function testTableConstructorWithKeySpecifier() {
     CustomerTableWithKS tab = table key(id) [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
                                     { id: 23 , name: "James" , address: "Clark" }];
 
-    assertEquality(cutomerList.toString(), tab.toString());
+    assertEquality(cutomerListString, tab.toString());
 }
 
 type CustomerTableWithCKS table<Customer> key(id, name);
@@ -54,14 +53,14 @@ function testTableTypeWithCompositeKeySpecifier() {
     CustomerTableWithCKS tab = table [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
                                     { id: 23 , name: "James" , address: "Clark" }];
 
-    assertEquality(cutomerList.toString(), tab.toString());
+    assertEquality(cutomerListString, tab.toString());
 }
 
 function testTableConstructorWithCompositeKeySpecifier() {
     CustomerTableWithCKS tab = table key(id, name) [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
                                     { id: 23 , name: "James" , address: "Clark" }];
 
-    assertEquality(cutomerList.toString(), tab.toString());
+    assertEquality(cutomerListString, tab.toString());
 }
 
 type CustomerTableWithKTC table<Customer> key<int>;
@@ -70,7 +69,7 @@ function testTableTypeWithKeyTypeConstraint() {
     CustomerTableWithKTC tab = table key(id) [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
                                     { id: 23 , name: "James" , address: "Clark" }];
 
-    assertEquality(cutomerList.toString(), tab.toString());
+    assertEquality(cutomerListString, tab.toString());
 }
 
 type CustomerTableWithCKTC table<Customer> key<[int, string]>;
@@ -79,7 +78,7 @@ function testTableTypeWithCompositeKeyTypeConstraint() {
     CustomerTableWithCKTC tab = table key(id, name) [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
                                     { id: 23 , name: "James" , address: "Clark" }];
 
-    assertEquality(cutomerList.toString(), tab.toString());
+    assertEquality(cutomerListString, tab.toString());
 }
 
 type AssertionError error<ASSERTION_ERROR_REASON>;
