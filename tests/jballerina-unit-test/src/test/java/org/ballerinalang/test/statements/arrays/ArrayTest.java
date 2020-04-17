@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -215,5 +216,19 @@ public class ArrayTest {
     @Test
     public void testObjectDynamicArrayFilling() {
         BRunUtil.invokeFunction(compileResult, "testObjectDynamicArrayFilling");
+    }
+
+    @Test
+    public void testMultidimensionalArrayString() {
+        BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testMultidimensionalArrayString");
+        BString value = (BString) retVals[0];
+        Assert.assertEquals(value.stringValue(), "typedesc int[][2]");
+    }
+
+    @Test
+    public void testArrayMapString() {
+        BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArrayMapString");
+        BString value = (BString) retVals[0];
+        Assert.assertEquals(value.stringValue(), "typedesc map<Foo>[2][]");
     }
 }
