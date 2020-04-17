@@ -58,7 +58,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{#if isAnonymous}}Anonymous record{{else}}{{{ description }}}{{/if}}
+                                {{#if isAnonymous}}Anonymous record{{else}}{{{ editDescription description }}}{{/if}}
                             </td>
                         </tr>
                     {{/each}}
@@ -84,7 +84,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
@@ -110,7 +110,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
@@ -136,7 +136,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
@@ -163,7 +163,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
@@ -190,7 +190,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
@@ -212,7 +212,7 @@
                         <tr>
                             <td class="module-title truncate annotations" id="{{name}}" title="{{name}}"><a
                                     class="annotations" href="annotations.html#{{name}}">{{name}}</a></td>
-                            <td class="module-desc">{{{ description }}}</td>
+                            <td class="module-desc">{{{ editDescription description }}}</td>
                         </tr>
                     {{/each}}
                 </table>
@@ -237,7 +237,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
@@ -263,7 +263,7 @@
                                 {{#if isDeprecated}}
                                     <span class="stab">Deprecated</span>
                                 {{/if}}
-                                {{{ description }}}
+                                {{{ editDescription description }}}
                             </td>
                         </tr>
                     {{/each}}
