@@ -90,7 +90,7 @@ public class FailoverClientTest extends WebSocketTestCommons {
         firstRemoteServer = initiateServer(FIRST_SERVER_PORT);
         WebSocketTestClient client = initiateClient("ws://localhost:21034");
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        countDownLatch.await(30, TimeUnit.SECONDS);
         sendTextDataAndAssert(client);
         closeConnection(client, firstRemoteServer);
     }
