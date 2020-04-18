@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
@@ -45,6 +46,7 @@ public class GetKeys {
 
     public static ArrayValue keys(Strand strand, TableValue tbl) {
         BType tableKeyType = ((BTableType) tbl.getType()).getKeyType();
+        tableKeyType = tableKeyType != null ? tableKeyType : BTypes.typeAny;
         return new ArrayValueImpl((Object[]) tbl.getKeys(), new BArrayType(tableKeyType));
     }
 }
