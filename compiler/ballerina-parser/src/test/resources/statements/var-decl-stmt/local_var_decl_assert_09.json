@@ -1,49 +1,12 @@
 {
-    "kind": "FUNCTION_DEFINITION",
+    "kind": "INVALID",
     "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "FUNCTION_KEYWORD"
-        },
-        {
             "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
+            "value": "Foo"
         },
         {
-            "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-            "kind": "LIST",
-            "children": [
-            ]
-        },
-        {
-            "kind": "CLOSE_PAREN_TOKEN"
-        },
-        {
-            "kind": "BLOCK_STATEMENT",
-            "children": [
-                {
-                    "kind": "OPEN_BRACE_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                },
-                {
-                    "kind": "CLOSE_BRACE_TOKEN"
-                }
-            ]
+            "kind": "SEMICOLON_TOKEN"
         }
     ]
 }

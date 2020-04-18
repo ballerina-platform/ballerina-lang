@@ -487,6 +487,10 @@ public class ParserTestUtils {
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
                 return SyntaxKind.REMOTE_METHOD_CALL_ACTION;
+            case "BRACED_ACTION":
+                return SyntaxKind.BRACED_ACTION;
+            case "CHECK_ACTION":
+                return SyntaxKind.CHECK_ACTION;
 
             // Statements
             case "BLOCK_STATEMENT":

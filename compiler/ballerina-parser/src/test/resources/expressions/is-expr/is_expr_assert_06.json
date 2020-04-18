@@ -1,14 +1,6 @@
 {
-    "kind": "BINARY_EXPRESSION",
+    "kind": "IS_EXPRESSION",
     "children": [
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "x"
-        },
-        {
-            "kind": "PLUS_TOKEN",
-            "isMissing": true
-        },
         {
             "kind": "BINARY_EXPRESSION",
             "children": [
@@ -16,8 +8,21 @@
                     "kind": "IS_EXPRESSION",
                     "children": [
                         {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "a"
+                            "kind": "BINARY_EXPRESSION",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "x"
+                                },
+                                {
+                                    "kind": "PLUS_TOKEN",
+                                    "isMissing": true
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "a"
+                                }
+                            ]
                         },
                         {
                             "kind": "IS_KEYWORD"
@@ -33,22 +38,17 @@
                     "isMissing": true
                 },
                 {
-                    "kind": "IS_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "c"
-                        },
-                        {
-                            "kind": "IS_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "d"
-                        }
-                    ]
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "c"
                 }
             ]
+        },
+        {
+            "kind": "IS_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "d"
         }
     ]
 }

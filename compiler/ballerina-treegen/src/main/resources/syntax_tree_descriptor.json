@@ -561,7 +561,6 @@
         {
             "name": "CheckExpressionNode",
             "base": "ExpressionNode",
-            "kind": "CHECK_EXPRESSION",
             "attributes": [
                 {
                     "name": "checkKeyword",

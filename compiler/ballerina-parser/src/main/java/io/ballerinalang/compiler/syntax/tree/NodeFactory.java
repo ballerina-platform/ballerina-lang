@@ -451,12 +451,14 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static CheckExpressionNode createCheckExpressionNode(
+            SyntaxKind kind,
             Token checkKeyword,
             ExpressionNode expression) {
         Objects.requireNonNull(checkKeyword, "checkKeyword must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stCheckExpressionNode = STNodeFactory.createCheckExpressionNode(
+                kind,
                 checkKeyword.internalNode(),
                 expression.internalNode());
         return stCheckExpressionNode.createUnlinkedFacade();
