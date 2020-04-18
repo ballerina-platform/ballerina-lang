@@ -114,11 +114,15 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] RECORD_BODY_END =
             { ParserRuleContext.CLOSED_RECORD_BODY_END, ParserRuleContext.CLOSE_BRACE };
 
+    // Give object the higher priority over records, since record body is a subset of object body.
     private static final ParserRuleContext[] TYPE_DESCRIPTORS =
-            { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.RECORD_TYPE_DESCRIPTOR,
-                    ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR };
+            { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.OBJECT_TYPE_DESCRIPTOR,
+                    ParserRuleContext.RECORD_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR };
 
-    private static final ParserRuleContext[] RECORD_FIELD =
+    private static final ParserRuleContext[] RECORD_FIELD_OR_RECORD_END =
+            { ParserRuleContext.RECORD_FIELD, ParserRuleContext.RECORD_BODY_END };
+
+    private static final ParserRuleContext[] RECORD_FIELD_START =
             { ParserRuleContext.ANNOTATIONS, ParserRuleContext.ASTERISK, ParserRuleContext.TYPE_DESCRIPTOR };
 
     private static final ParserRuleContext[] RECORD_FIELD_WITHOUT_METADATA =
@@ -389,6 +393,7 @@ public class BallerinaParserErrorHandler {
             case PARAMETER:
             case STMT_START_WITH_IDENTIFIER:
             case STMT_START_WITH_EXPR_RHS:
+            case RECORD_FIELD_OR_RECORD_END:
                 return true;
             default:
                 return false;
@@ -453,8 +458,6 @@ public class BallerinaParserErrorHandler {
                     case CLOSE_BRACE_TOKEN:
                     case EOF_TOKEN:
                     case CLOSE_BRACE_PIPE_TOKEN:
-                    case PUBLIC_KEYWORD:
-                    case FUNCTION_KEYWORD:
                     case ELSE_KEYWORD:
                         return true;
                     default:
@@ -466,9 +469,6 @@ public class BallerinaParserErrorHandler {
                     case EOF_TOKEN:
                     case CLOSE_BRACE_PIPE_TOKEN:
                     case TYPE_KEYWORD:
-                    case PUBLIC_KEYWORD:
-                    case FUNCTION_KEYWORD:
-                    case SERVICE_KEYWORD:
                     case RESOURCE_KEYWORD:
                         return true;
                     default:
@@ -704,8 +704,11 @@ public class BallerinaParserErrorHandler {
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RECORD_BODY_START);
                 case TYPE_DESCRIPTOR:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_DESCRIPTORS);
-                case RECORD_FIELD:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RECORD_FIELD);
+                case RECORD_FIELD_OR_RECORD_END:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                            RECORD_FIELD_OR_RECORD_END);
+                case RECORD_FIELD_START:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RECORD_FIELD_START);
                 case RECORD_FIELD_WITHOUT_METADATA:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             RECORD_FIELD_WITHOUT_METADATA);
@@ -1490,14 +1493,14 @@ public class BallerinaParserErrorHandler {
             case MODULE_TYPE_DEFINITION:
                 return ParserRuleContext.TYPE_KEYWORD;
             case CLOSED_RECORD_BODY_END:
+                endContext();
                 nextToken = this.tokenReader.peek(nextLookahead);
                 if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
                     return ParserRuleContext.EOF;
                 }
-                return ParserRuleContext.TOP_LEVEL_NODE;
+                return getNextRuleForTypeDescriptor();
             case CLOSED_RECORD_BODY_START:
-                startContext(ParserRuleContext.RECORD_FIELD);
-                return ParserRuleContext.RECORD_FIELD;
+                return ParserRuleContext.RECORD_FIELD_OR_RECORD_END;
             case ELLIPSIS:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.MAPPING_CONSTRUCTOR || parentCtx == ParserRuleContext.ARG) {
@@ -1699,6 +1702,8 @@ public class BallerinaParserErrorHandler {
                 return getNextRuleForDecimalIntegerLiteral();
             case EXPRESSION_STATEMENT:
                 return ParserRuleContext.EXPRESSION_STATEMENT_START;
+            case RECORD_FIELD:
+                return ParserRuleContext.RECORD_FIELD_START;
 
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
@@ -1721,7 +1726,6 @@ public class BallerinaParserErrorHandler {
             case OBJECT_TYPE_DESCRIPTOR_START:
             case RECORD_BODY_END:
             case RECORD_BODY_START:
-            case RECORD_FIELD:
             case TOP_LEVEL_NODE_WITHOUT_METADATA:
             case TYPE_DESCRIPTOR:
             case VAR_DECL_STMT_RHS:
@@ -2055,11 +2059,11 @@ public class BallerinaParserErrorHandler {
             }
             return ParserRuleContext.STATEMENT;
         } else if (parentCtx == ParserRuleContext.RECORD_FIELD) {
+            endContext(); // end record field
             if (isEndOfBlock(this.tokenReader.peek(nextLookahead))) {
-                endContext(); // end record field
                 return ParserRuleContext.RECORD_BODY_END;
             }
-            return ParserRuleContext.RECORD_FIELD;
+            return ParserRuleContext.RECORD_FIELD_OR_RECORD_END;
         } else if (parentCtx == ParserRuleContext.MODULE_TYPE_DEFINITION ||
                 parentCtx == ParserRuleContext.LISTENER_DECL || parentCtx == ParserRuleContext.CONSTANT_DECL) {
             endContext(); // end declaration

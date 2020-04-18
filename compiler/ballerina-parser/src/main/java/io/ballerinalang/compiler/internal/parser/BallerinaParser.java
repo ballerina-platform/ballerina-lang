@@ -171,8 +171,6 @@ public class BallerinaParser {
                 return parseFieldDescriptorRhs((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             case NAMED_OR_POSITIONAL_ARG_RHS:
                 return parseNamedOrPositionalArg((STNode) args[0]);
-            case RECORD_BODY_END:
-                return parseRecordBodyCloseDelimiter();
             case RECORD_BODY_START:
                 return parseRecordBodyStartDelimiter();
             case TYPE_DESCRIPTOR:
@@ -287,6 +285,8 @@ public class BallerinaParser {
                 return parseConstDecl((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             case STMT_START_WITH_IDENTIFIER:
                 return parseStatementStartsWithIdentifier((STNode) args[0], (STNode) args[1]);
+            case RECORD_FIELD_OR_RECORD_END:
+                return parseFieldOrRestDescriptor((boolean) args[0]);
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -1798,7 +1798,6 @@ public class BallerinaParser {
     }
 
     private boolean isEndOfRecordTypeNode(SyntaxKind nextTokenKind) {
-        STToken nexNextToken = peek(2);
         switch (nextTokenKind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
@@ -1812,49 +1811,21 @@ public class BallerinaParser {
             case SERVICE_KEYWORD:
                 return isServiceDeclStart(ParserRuleContext.RECORD_FIELD, 1);
             default:
-                switch (nexNextToken.kind) {
-                    case EOF_TOKEN:
-                    case CLOSE_BRACE_TOKEN:
-                    case CLOSE_BRACE_PIPE_TOKEN:
-                    case TYPE_KEYWORD:
-                    case FUNCTION_KEYWORD:
-                    case PUBLIC_KEYWORD:
-                    case LISTENER_KEYWORD:
-                    case IMPORT_KEYWORD:
-                        return true;
-                    case SERVICE_KEYWORD:
-                        return isServiceDeclStart(ParserRuleContext.RECORD_FIELD, 2);
-                    default:
-                        return false;
-                }
+                return false;
         }
     }
 
-    private boolean isEndOfObjectTypeNode(SyntaxKind tokenKind, SyntaxKind nextNextTokenKind) {
+    private boolean isEndOfObjectTypeNode(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
             case CLOSE_BRACE_PIPE_TOKEN:
-            case TYPE_KEYWORD:
-            case LISTENER_KEYWORD:
             case IMPORT_KEYWORD:
                 return true;
             case SERVICE_KEYWORD:
                 return isServiceDeclStart(ParserRuleContext.OBJECT_MEMBER, 1);
             default:
-                switch (nextNextTokenKind) {
-                    case EOF_TOKEN:
-                    case CLOSE_BRACE_TOKEN:
-                    case CLOSE_BRACE_PIPE_TOKEN:
-                    case TYPE_KEYWORD:
-                    case LISTENER_KEYWORD:
-                    case IMPORT_KEYWORD:
-                        return true;
-                    case SERVICE_KEYWORD:
-                        return isServiceDeclStart(ParserRuleContext.OBJECT_MEMBER, 2);
-                    default:
-                        return false;
-                }
+                return false;
         }
     }
 
@@ -2194,7 +2165,7 @@ public class BallerinaParser {
         boolean isInclusive = bodyStartDelimiter.kind == SyntaxKind.OPEN_BRACE_TOKEN;
         STNode fields = parseFieldDescriptors(isInclusive);
 
-        STNode bodyEndDelimiter = parseRecordBodyCloseDelimiter();
+        STNode bodyEndDelimiter = parseRecordBodyCloseDelimiter(bodyStartDelimiter.kind);
         endContext();
 
         return STNodeFactory.createRecordTypeDescriptorNode(recordKeyword, bodyStartDelimiter, fields,
@@ -2252,18 +2223,15 @@ public class BallerinaParser {
      *
      * @return Parsed node
      */
-    private STNode parseRecordBodyCloseDelimiter() {
-        STToken token = peek();
-        return parseRecordBodyCloseDelimiter(token.kind);
-    }
-
-    private STNode parseRecordBodyCloseDelimiter(SyntaxKind kind) {
-        switch (kind) {
-            case CLOSE_BRACE_PIPE_TOKEN:
+    private STNode parseRecordBodyCloseDelimiter(SyntaxKind startingDelimeter) {
+        switch (startingDelimeter) {
+            case OPEN_BRACE_PIPE_TOKEN:
                 return parseClosedRecordBodyEnd();
-            case CLOSE_BRACE_TOKEN:
+            case OPEN_BRACE_TOKEN:
                 return parseCloseBrace();
             default:
+                // Ideally should never reach here.
+
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.RECORD_BODY_END);
 
@@ -2318,8 +2286,13 @@ public class BallerinaParser {
     private STNode parseFieldDescriptors(boolean isInclusive) {
         ArrayList<STNode> recordFields = new ArrayList<>();
         STToken token = peek();
+        boolean endOfFields = false;
         while (!isEndOfRecordTypeNode(token.kind)) {
             STNode field = parseFieldOrRestDescriptor(isInclusive);
+            if (field == null) {
+                endOfFields = true;
+                break;
+            }
             recordFields.add(field);
             token = peek();
 
@@ -2330,7 +2303,7 @@ public class BallerinaParser {
 
         // Following loop will only run if there are more fields after the rest type descriptor.
         // Try to parse them and mark as invalid.
-        while (!isEndOfRecordTypeNode(token.kind)) {
+        while (!endOfFields && !isEndOfRecordTypeNode(token.kind)) {
             parseFieldOrRestDescriptor(isInclusive);
             // TODO: Mark these nodes as error/invalid nodes.
             this.errorHandler.reportInvalidNode(token, "cannot have more fields after the rest type descriptor");
@@ -2357,31 +2330,66 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseFieldOrRestDescriptor(boolean isInclusive) {
-        startContext(ParserRuleContext.RECORD_FIELD);
+        return parseFieldOrRestDescriptor(peek().kind, isInclusive);
+    }
 
-        // record-type-reference
-        STToken token = peek();
-        if (token.kind == SyntaxKind.ASTERISK_TOKEN) {
-            STNode asterisk = consume();
-            STNode type = parseTypeReference();
-            STNode semicolonToken = parseSemicolon();
-            endContext();
-            return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
+    private STNode parseFieldOrRestDescriptor(SyntaxKind nextTokenKind, boolean isInclusive) {
+        switch (nextTokenKind) {
+            case CLOSE_BRACE_TOKEN:
+            case CLOSE_BRACE_PIPE_TOKEN:
+                return null;
+            case ASTERISK_TOKEN:
+                // record-type-reference
+                startContext(ParserRuleContext.RECORD_FIELD);
+                STNode asterisk = consume();
+                STNode type = parseTypeReference();
+                STNode semicolonToken = parseSemicolon();
+                endContext();
+                return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
+            case AT_TOKEN:
+                startContext(ParserRuleContext.RECORD_FIELD);
+                STNode metadata = parseMetaData(nextTokenKind);
+                type = parseTypeDescriptor();
+                STNode fieldOrRestDesc = parseFieldDescriptor(isInclusive, type, metadata);
+                endContext();
+                return fieldOrRestDesc;
+            // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
+            case SIMPLE_TYPE:
+            case SERVICE_KEYWORD:
+            case RECORD_KEYWORD:
+            case OBJECT_KEYWORD:
+            case ABSTRACT_KEYWORD:
+            case CLIENT_KEYWORD:
+            case IDENTIFIER_TOKEN:
+                // individual-field-descriptor
+                startContext(ParserRuleContext.RECORD_FIELD);
+                metadata = createEmptyMetadata();
+                type = parseTypeDescriptor(nextTokenKind);
+                fieldOrRestDesc = parseFieldDescriptor(isInclusive, type, metadata);
+                endContext();
+                return fieldOrRestDesc;
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.RECORD_FIELD_OR_RECORD_END, isInclusive);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseFieldOrRestDescriptor(solution.tokenKind, isInclusive);
         }
+    }
 
-        // individual-field-descriptor
-        STNode metadata = parseMetaData();
-        STNode type = parseTypeDescriptor();
-        STNode fieldOrRestDesc;
+    private STNode parseFieldDescriptor(boolean isInclusive, STNode type, STNode metadata) {
         if (isInclusive) {
             STNode fieldName = parseVariableName();
-            fieldOrRestDesc = parseFieldDescriptorRhs(metadata, type, fieldName);
+            return parseFieldDescriptorRhs(metadata, type, fieldName);
         } else {
-            fieldOrRestDesc = parseFieldOrRestDescriptorRhs(metadata, type);
+            return parseFieldOrRestDescriptorRhs(metadata, type);
         }
-
-        endContext();
-        return fieldOrRestDesc;
     }
 
     /**
@@ -3622,19 +3630,18 @@ public class BallerinaParser {
      */
     private STNode parseObjectMembers() {
         ArrayList<STNode> objectMembers = new ArrayList<>();
-        STToken nextToken = peek(1);
-        STToken nextNextToken = peek(2);
-        while (!isEndOfObjectTypeNode(nextToken.kind, nextNextToken.kind)) {
+        STToken nextToken = peek();
+        while (!isEndOfObjectTypeNode(nextToken.kind)) {
             startContext(ParserRuleContext.OBJECT_MEMBER);
-            STNode field = parseObjectMember(nextToken.kind);
+            STNode member = parseObjectMember(nextToken.kind);
             endContext();
 
-            if (field == null) {
+            // Null member indicates the end of object members
+            if (member == null) {
                 break;
             }
-            objectMembers.add(field);
-            nextToken = peek(1);
-            nextNextToken = peek(2);
+            objectMembers.add(member);
+            nextToken = peek();
         }
 
         return STNodeFactory.createNodeList(objectMembers);
@@ -3648,6 +3655,10 @@ public class BallerinaParser {
     private STNode parseObjectMember(SyntaxKind nextTokenKind) {
         STNode metadata;
         switch (nextTokenKind) {
+            case EOF_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+                // Null return indicates the end of object members
+                return null;
             case ASTERISK_TOKEN:
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
@@ -3680,9 +3691,6 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                if (isEndOfObjectTypeNode(solution.tokenKind, nextTokenKind)) {
-                    return null;
-                }
                 return parseObjectMember(solution.tokenKind);
         }
 
@@ -3692,6 +3700,10 @@ public class BallerinaParser {
     private STNode parseObjectMember(SyntaxKind nextTokenKind, STNode metadata) {
         STNode member;
         switch (nextTokenKind) {
+            case EOF_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+                // TODO report metadata
+                return null;
             case ASTERISK_TOKEN:
                 STNode asterisk = consume();
                 STNode type = parseTypeReference();
@@ -3731,9 +3743,6 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                if (isEndOfObjectTypeNode(solution.tokenKind, nextTokenKind)) {
-                    return null;
-                }
                 return parseObjectMember(solution.tokenKind);
         }
 
@@ -4900,15 +4909,8 @@ public class BallerinaParser {
                 // Then this is a service decl.
                 return true;
             default:
-                // If not any of above, this is not a valid syntax. Hence try to recover
-                // silently and find what's the best token. From that recovered token try
-                // to determine whether the next construct is a service decl or not.
-
-                Solution sol = recover(peek(), ParserRuleContext.STATEMENT);
-
-                // If the recovered token is an end-of block, then
-                // next construct must be a service decl.
-                return sol.tokenKind == SyntaxKind.CLOSE_BRACE_TOKEN;
+                this.errorHandler.removeInvalidToken();
+                return false;
         }
     }
 
@@ -5310,7 +5312,12 @@ public class BallerinaParser {
      */
     private STNode parseAnnotation() {
         STNode atToken = parseAtToken();
-        STNode annotReference = parseQualifiedIdentifier(ParserRuleContext.ANNOT_REFERENCE);
+        STNode annotReference;
+        if (peek().kind != SyntaxKind.IDENTIFIER_TOKEN) {
+            annotReference = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+        } else {
+            annotReference = parseQualifiedIdentifier(ParserRuleContext.ANNOT_REFERENCE);
+        }
         STNode annotValue = parseMappingConstructorExpr();
         return STNodeFactory.createAnnotationNode(atToken, annotReference, annotValue);
     }
@@ -5338,11 +5345,6 @@ public class BallerinaParser {
      *
      * @return Parse node
      */
-    private STNode parseMetaData() {
-        STToken nextToken = peek();
-        return parseMetaData(nextToken.kind);
-    }
-
     private STNode parseMetaData(SyntaxKind nextTokenKind) {
         STNode docString;
         STNode annotations;
@@ -5372,37 +5374,6 @@ public class BallerinaParser {
     private STNode createEmptyMetadata() {
         return STNodeFactory.createMetadataNode(STNodeFactory.createEmptyNode(),
                 STNodeFactory.createNodeList(new ArrayList<>()));
-    }
-
-    /**
-     * Get the number of tokens to skip to reach the end of annotations.
-     *
-     * @return Number of tokens to skip to reach the end of annotations
-     */
-    private int getNumberOfTokensToAnnotsEnd() {
-        STToken nextToken;
-        int lookahead = 0;
-        while (true) {
-            nextToken = peek(lookahead);
-            switch (nextToken.kind) {
-                case EOF_TOKEN:
-                case FUNCTION_KEYWORD:
-                case TYPE_KEYWORD:
-                case LISTENER_KEYWORD:
-                case CONST_KEYWORD:
-                case IMPORT_KEYWORD:
-                case SERVICE_KEYWORD:
-                    return lookahead;
-                case IDENTIFIER_TOKEN:
-                    if (isModuleVarDeclStart(lookahead)) {
-                        return lookahead;
-                    }
-                    // fall through
-                default:
-                    lookahead++;
-                    break;
-            }
-        }
     }
 
     /**

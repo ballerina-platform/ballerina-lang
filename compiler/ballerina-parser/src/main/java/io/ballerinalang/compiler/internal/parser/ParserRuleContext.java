@@ -50,6 +50,8 @@ public enum ParserRuleContext {
     RECORD_BODY_START("record-body-start"),
     RECORD_BODY_END("record-body-end"),
     RECORD_FIELD("record-field"),
+    RECORD_FIELD_OR_RECORD_END("record-field-orrecord-end"),
+    RECORD_FIELD_START("record-field-start"),
     RECORD_FIELD_WITHOUT_METADATA("record-field-without-metadata"),
     TYPE_DESCRIPTOR("type-descriptor"),
     RECORD_TYPE_DESCRIPTOR("record-type-desc"),
