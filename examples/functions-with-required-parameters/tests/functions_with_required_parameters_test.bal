@@ -1,7 +1,6 @@
 import ballerina/test;
-import ballerina/io;
 
-int[] outputs = [];
+any[] outputs = [];
 int counter = 0;
 
 // This is the mock function, which will replace the real function.
@@ -10,11 +9,11 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = <int> s;
+    outputs[counter] = s[0];
     counter += 1;
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();

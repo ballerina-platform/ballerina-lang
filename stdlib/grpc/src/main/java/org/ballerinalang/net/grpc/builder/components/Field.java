@@ -72,13 +72,21 @@ public class Field {
         private DescriptorProtos.FieldDescriptorProto fieldDescriptor;
 
         public Field build() {
-            String fieldType = FIELD_TYPE_MAP.get(fieldDescriptor.getType()) != null ? FIELD_TYPE_MAP.get
-                    (fieldDescriptor.getType()) : fieldDescriptor.getTypeName();
+            String fieldType = fieldDescriptor.getTypeName();
+            String fieldDefaultValue = null;
+            if (CUSTOM_FIELD_TYPE_MAP.get(fieldDescriptor.getTypeName()) != null) {
+                fieldType = CUSTOM_FIELD_TYPE_MAP.get(fieldDescriptor.getTypeName());
+                fieldDefaultValue = CUSTOM_DEFAULT_VALUE_MAP.get(fieldDescriptor.getTypeName());
+            } else if (FIELD_TYPE_MAP.get(fieldDescriptor.getType()) != null) {
+                fieldType = FIELD_TYPE_MAP.get(fieldDescriptor.getType());
+                fieldDefaultValue = FIELD_DEFAULT_VALUE_MAP.get(fieldDescriptor.getType());
+            }
+
             if (fieldType.startsWith(DOT)) {
                 String[] fieldTypeArray = fieldType.split(REGEX_DOT_SEPERATOR);
                 fieldType = fieldTypeArray[fieldTypeArray.length - 1];
             }
-            String fieldDefaultValue = FIELD_DEFAULT_VALUE_MAP.get(fieldDescriptor.getType());
+
             String fieldLabel = FIELD_LABEL_MAP.get(fieldDescriptor.getLabel());
             if (fieldDescriptor.getLabel() == DescriptorProtos.FieldDescriptorProto.Label.LABEL_REPEATED) {
                 fieldDefaultValue = fieldLabel;
@@ -97,8 +105,10 @@ public class Field {
     }
 
     private static final Map<DescriptorProtos.FieldDescriptorProto.Type, String> FIELD_TYPE_MAP;
+    private static final Map<String, String> CUSTOM_FIELD_TYPE_MAP;
     private static final Map<DescriptorProtos.FieldDescriptorProto.Label, String> FIELD_LABEL_MAP;
     private static final Map<DescriptorProtos.FieldDescriptorProto.Type, String> FIELD_DEFAULT_VALUE_MAP;
+    private static final Map<String, String> CUSTOM_DEFAULT_VALUE_MAP;
 
     static {
         FIELD_TYPE_MAP = new HashMap<>();
@@ -118,6 +128,9 @@ public class Field {
         FIELD_TYPE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING, "string");
         FIELD_TYPE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES, "byte[]");
 
+        CUSTOM_FIELD_TYPE_MAP = new HashMap<>();
+        CUSTOM_FIELD_TYPE_MAP.put(".google.protobuf.Any", "anydata");
+
         FIELD_DEFAULT_VALUE_MAP = new HashMap<>();
         FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE, "0.0");
         FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_FLOAT, "0.0");
@@ -134,6 +147,9 @@ public class Field {
         FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BOOL, "false");
         FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_STRING, "");
         FIELD_DEFAULT_VALUE_MAP.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES, "[]");
+
+        CUSTOM_DEFAULT_VALUE_MAP = new HashMap<>();
+        CUSTOM_DEFAULT_VALUE_MAP.put(".google.protobuf.Any", "()");
 
         FIELD_LABEL_MAP = new HashMap<>();
         FIELD_LABEL_MAP.put(DescriptorProtos.FieldDescriptorProto.Label.LABEL_OPTIONAL, null);

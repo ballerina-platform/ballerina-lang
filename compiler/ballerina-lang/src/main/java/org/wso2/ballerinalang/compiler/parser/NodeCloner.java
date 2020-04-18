@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
@@ -100,7 +101,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorE
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -796,17 +796,6 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTableLiteral source) {
-
-        BLangTableLiteral clone = new BLangTableLiteral();
-        source.cloneRef = clone;
-        clone.columns.addAll(source.columns);
-        clone.tableDataRows = cloneList(source.tableDataRows);
-        clone.indexColumnsArrayLiteral = clone(source.indexColumnsArrayLiteral);
-        clone.keyColumnsArrayLiteral = clone(source.keyColumnsArrayLiteral);
-    }
-
-    @Override
     public void visit(BLangRecordLiteral source) {
 
         BLangRecordLiteral clone = new BLangRecordLiteral();
@@ -1430,6 +1419,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.sealed = source.sealed;
         clone.restFieldType = clone(source.restFieldType);
+        clone.analyzed = source.analyzed;
         cloneBLangStructureTypeNode(source, clone);
         cloneBLangType(source, clone);
     }
@@ -1628,8 +1618,14 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMarkdownDocumentation source) {
+    public void visit(BLangMarkDownDeprecatedParametersDocumentation source) {
+        BLangMarkDownDeprecatedParametersDocumentation clone = new BLangMarkDownDeprecatedParametersDocumentation();
+        source.cloneRef = clone;
+        clone.parameters = source.parameters;
+    }
 
+    @Override
+    public void visit(BLangMarkdownDocumentation source) {
         BLangMarkdownDocumentation clone = new BLangMarkdownDocumentation();
         source.cloneRef = clone;
         clone.documentationLines.addAll(cloneList(source.documentationLines));
@@ -1637,6 +1633,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.references.addAll(cloneList(source.references));
         clone.returnParameter = clone(source.returnParameter);
         clone.deprecationDocumentation = clone(source.deprecationDocumentation);
+        clone.deprecatedParametersDocumentation = clone(source.deprecatedParametersDocumentation);
     }
 
     @Override

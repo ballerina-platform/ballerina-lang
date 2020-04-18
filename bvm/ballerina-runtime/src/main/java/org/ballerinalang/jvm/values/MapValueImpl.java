@@ -381,11 +381,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     }
 
     @Override
-    public StringValue bStringValue() {
-        return null;
-    }
-
-    @Override
     public BType getType() {
         return type;
     }
@@ -483,11 +478,6 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         @Override
         public boolean hasNext() {
             return iterator.hasNext();
-        }
-
-        @Override
-        public BString bStringValue() {
-            return null;
         }
     }
 

@@ -24,6 +24,8 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.StringValue;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,6 +66,24 @@ public class ObserveUtils {
      */
     public static void addObserver(BallerinaObserver observer) {
         observers.add(observer);
+    }
+
+
+    /**
+     * Start observation of a resource invocation.
+     * This is used in the BString mode in the compiler.
+     *
+     * @param serviceName name of the service to which the observer context belongs.
+     * @param resourceName name of the resource being invoked.
+     * @param tags tags to be used in the observation
+     */
+    public static void startResourceObservation(StringValue serviceName, StringValue resourceName,
+                                                MapValue<StringValue, StringValue> tags) {
+        MapValue<String, String> stringTags = new MapValueImpl<>();
+        for (Map.Entry<StringValue, StringValue> tagEntry : tags.entrySet()) {
+            stringTags.put(tagEntry.getKey().getValue(), tagEntry.getValue().getValue());
+        }
+        startResourceObservation(serviceName.getValue(), resourceName.getValue(), stringTags);
     }
 
     /**
@@ -135,6 +155,23 @@ public class ObserveUtils {
             observerContext.addTag(ObservabilityConstants.TAG_KEY_ERROR, ObservabilityConstants.TAG_ERROR_TRUE_VALUE);
             observerContext.addProperty(ObservabilityConstants.PROPERTY_BSTRUCT_ERROR, errorValue);
         });
+    }
+
+    /**
+     * Start observability for the synchronous function/action invocations.
+     * This is used in the BString mode in the compiler.
+     *
+     * @param serviceName name of the service to which the observer context belongs.
+     * @param resourceName name of the resource being invoked.
+     * @param tags tags to be used in the observation
+     */
+    public static void startCallableObservation(StringValue serviceName, StringValue resourceName,
+                                                MapValue<StringValue, StringValue> tags) {
+        MapValue<String, String> stringTags = new MapValueImpl<>();
+        for (Map.Entry<StringValue, StringValue> tagEntry : tags.entrySet()) {
+            stringTags.put(tagEntry.getKey().getValue(), tagEntry.getValue().getValue());
+        }
+        startCallableObservation(serviceName.getValue(), resourceName.getValue(), stringTags);
     }
 
     /**

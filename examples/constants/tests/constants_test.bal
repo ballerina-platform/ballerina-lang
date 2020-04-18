@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 
 any[] outputs = [];
 int count = 0;
@@ -14,7 +13,7 @@ public function mockPrint(any... s) {
     count += 1;
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Calling the main function with an empty args array.
     main();

@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.api.BString;
 
 /**
@@ -44,7 +43,6 @@ public class StringUtils {
      * @param value The value on which the function is invoked
      * @return String value of the value
      */
-    @Deprecated
     public static String getStringValue(Object value) {
         if (value == null) {
             return "";
@@ -53,8 +51,8 @@ public class StringUtils {
         BType type = TypeChecker.getType(value);
 
         //TODO: bstring - change to type tag check
-        if (value instanceof StringValue) {
-            return ((StringValue) value).getValue();
+        if (value instanceof BString) {
+            return ((BString) value).getValue();
         }
 
         if (type.getTag() < TypeTags.JSON_TAG) {
@@ -91,47 +89,6 @@ public class StringUtils {
         return refValue.stringValue();
     }
 
-    public static BString getBStringValue(Object value) {
-        if (value == null) {
-            return org.ballerinalang.jvm.StringUtils.fromString("");
-        }
-
-        BType type = TypeChecker.getType(value);
-
-        //TODO: bstring - change to type tag check
-        if (value instanceof StringValue) {
-            return (StringValue) value;
-        }
-
-        if (type.getTag() < TypeTags.JSON_TAG) {
-            return org.ballerinalang.jvm.StringUtils.fromString(String.valueOf(value));
-        }
-
-        if (type.getTag() == TypeTags.MAP_TAG || type.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            MapValueImpl mapValue = (MapValueImpl) value;
-            return org.ballerinalang.jvm.StringUtils.fromString(mapValue.stringValue());
-        }
-
-        if (type.getTag() == TypeTags.ARRAY_TAG || type.getTag() == TypeTags.TUPLE_TAG) {
-            ArrayValue arrayValue = (ArrayValue) value;
-            return org.ballerinalang.jvm.StringUtils.fromString(arrayValue.stringValue());
-        }
-
-        if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            AbstractObjectValue objectValue = (AbstractObjectValue) value;
-            BObjectType objectType = objectValue.getType();
-            for (AttachedFunction func : objectType.getAttachedFunctions()) {
-                if (func.funcName.equals("toString") && func.paramTypes.length == 0 &&
-                        func.type.retType.getTag() == TypeTags.STRING_TAG) {
-                    return (StringValue) objectValue.call(Scheduler.getStrand(), "toString");
-                }
-            }
-        }
-
-        RefValue refValue = (RefValue) value;
-        return refValue.bStringValue();
-    }
-
     /**
      * Returns the json string value of Ballerina values.
      *
@@ -161,5 +118,8 @@ public class StringUtils {
 
         RefValue refValue = (RefValue) value;
         return refValue.stringValue();
+    }
+
+    private StringUtils() {
     }
 }

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/mime;
+
 # Email message sending and receiving configurations.
 #
 # + to - TO address list
@@ -24,6 +26,7 @@
 # + from - From address
 # + sender - Sender's address
 # + replyTo - Reply To addresses
+# + attachments - Email attachements
 public type Email record {|
     string[] to;
     string[] cc?;
@@ -33,6 +36,7 @@ public type Email record {|
     string 'from;
     string sender?;
     string[] replyTo?;
+    mime:Entity[] attachments?;
 |};
 
 # Default email folder to read emails.

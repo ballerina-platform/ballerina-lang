@@ -86,12 +86,12 @@ public interface BArray extends BRefValue, BCollection {
     @Deprecated
     String getString(long index);
 
-   /**
-    * Get string value in the given index.
-    * @param index array index
-    * @return array element
-    */
-   BString getBString(long index);
+    /**
+     * Get string value in the given index.
+     * @param index array index
+     * @return array element
+     */
+    BString getBString(long index);
 
     /**
      * Add ref value to the given array index.

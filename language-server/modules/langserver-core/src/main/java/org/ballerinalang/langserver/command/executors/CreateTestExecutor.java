@@ -217,8 +217,8 @@ public class CreateTestExecutor implements LSCommandExecutor {
                 }
                 position.setLine(position.getLine() + incrementer);
             };
-            List<TextEdit> content = TestGenerator.generate(docManager, bLangNode, focusLineAcceptor,
-                                                            builtSourceFile, pkgRelativeSourceFilePath, testFile);
+            List<TextEdit> content = TestGenerator.generate(docManager, bLangNode, focusLineAcceptor, builtSourceFile,
+                                                            pkgRelativeSourceFilePath, testFile, context);
 
             // If not exists, create a new test file
             List<Either<TextDocumentEdit, ResourceOperation>> edits = new ArrayList<>();

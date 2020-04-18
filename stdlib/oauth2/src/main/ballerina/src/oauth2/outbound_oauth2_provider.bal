@@ -62,7 +62,7 @@ public type OutboundOAuth2Provider object {
             }
             return prepareAuthError("Failed to generate OAuth2 token since OAuth2 provider config is not defined and auth token is not defined in the authentication context at invocation context.");
         } else {
-            string|Error authToken = generateAuthTokenForOAuth2(oauth2ProviderConfig, self.oauth2CacheEntry);
+            string|Error authToken = generateOAuth2Token(oauth2ProviderConfig, self.oauth2CacheEntry);
             if (authToken is string) {
                 return authToken;
             } else {
@@ -221,14 +221,14 @@ type RequestConfig record {|
 # + authConfig - OAuth2 configurations
 # + oauth2CacheEntry - OAuth2 cache entry
 # + return - Auth token or `Error` if the validation fails
-function generateAuthTokenForOAuth2(GrantTypeConfig authConfig, @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
-                                    returns @tainted (string|Error) {
+function generateOAuth2Token(GrantTypeConfig authConfig, @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
+                             returns @tainted (string|Error) {
     if (authConfig is PasswordGrantConfig) {
-        return getAuthTokenForOAuth2PasswordGrant(authConfig, oauth2CacheEntry);
+        return getOAuth2TokenForPasswordGrant(authConfig, oauth2CacheEntry);
     } else if (authConfig is ClientCredentialsGrantConfig) {
-        return getAuthTokenForOAuth2ClientCredentialsGrant(authConfig, oauth2CacheEntry);
+        return getOAuth2TokenForClientCredentialsGrant(authConfig, oauth2CacheEntry);
     } else {
-        return getAuthTokenForOAuth2DirectTokenMode(authConfig, oauth2CacheEntry);
+        return getOAuth2TokenForDirectTokenMode(authConfig, oauth2CacheEntry);
     }
 }
 
@@ -241,16 +241,16 @@ function inspectAuthTokenForOAuth2(GrantTypeConfig authConfig, @tainted Outbound
                                    returns @tainted (string|Error) {
     if (authConfig is PasswordGrantConfig) {
         if (authConfig.retryRequest) {
-            return getAuthTokenForOAuth2PasswordGrant(authConfig, oauth2CacheEntry);
+            return getOAuth2TokenForPasswordGrant(authConfig, oauth2CacheEntry);
         }
     } else if (authConfig is ClientCredentialsGrantConfig) {
         if (authConfig.retryRequest) {
-            return getAuthTokenForOAuth2ClientCredentialsGrant(authConfig, oauth2CacheEntry);
+            return getOAuth2TokenForClientCredentialsGrant(authConfig, oauth2CacheEntry);
         }
     } else {
         if (authConfig.retryRequest) {
             authConfig.accessToken = "";
-            return getAuthTokenForOAuth2DirectTokenMode(authConfig, oauth2CacheEntry);
+            return getOAuth2TokenForDirectTokenMode(authConfig, oauth2CacheEntry);
         }
     }
     return prepareError("Failed to get the access token since retry request is set as false.");
@@ -261,9 +261,9 @@ function inspectAuthTokenForOAuth2(GrantTypeConfig authConfig, @tainted Outbound
 # + grantTypeConfig - Password grant configurations
 # + oauth2CacheEntry - OAuth2 cache entry
 # + return - Auth token or `Error` if an error occurred during the HTTP client invocation or validation
-function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
-                                            @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
-                                            returns @tainted (string|Error) {
+function getOAuth2TokenForPasswordGrant(PasswordGrantConfig grantTypeConfig,
+                                        @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
+                                        returns @tainted (string|Error) {
     string cachedAccessToken = oauth2CacheEntry.accessToken;
     if (cachedAccessToken == "") {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, oauth2CacheEntry);
@@ -302,9 +302,9 @@ function getAuthTokenForOAuth2PasswordGrant(PasswordGrantConfig grantTypeConfig,
 # + grantTypeConfig - Client credentials grant configurations
 # + oauth2CacheEntry - OAuth2 cache entry
 # + return - Auth token or `Error` if an error occurred during the HTTP client invocation or validation
-function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfig grantTypeConfig,
-                                                     @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
-                                                     returns @tainted (string|Error) {
+function getOAuth2TokenForClientCredentialsGrant(ClientCredentialsGrantConfig grantTypeConfig,
+                                                 @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
+                                                 returns @tainted (string|Error) {
     string cachedAccessToken = oauth2CacheEntry.accessToken;
     if (cachedAccessToken == "") {
         string accessToken = check getAccessTokenFromAuthorizationRequest(grantTypeConfig, oauth2CacheEntry);
@@ -343,9 +343,9 @@ function getAuthTokenForOAuth2ClientCredentialsGrant(ClientCredentialsGrantConfi
 # + grantTypeConfig - Direct token configurations
 # + oauth2CacheEntry - OAuth2 cache entry
 # + return - Auth token or `Error` if an error occurred during the HTTP client invocation or validation
-function getAuthTokenForOAuth2DirectTokenMode(DirectTokenConfig grantTypeConfig,
-                                              @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
-                                              returns @tainted (string|Error) {
+function getOAuth2TokenForDirectTokenMode(DirectTokenConfig grantTypeConfig,
+                                          @tainted OutboundOAuth2CacheEntry oauth2CacheEntry)
+                                          returns @tainted (string|Error) {
     string cachedAccessToken = oauth2CacheEntry.accessToken;
     if (cachedAccessToken == "") {
         string? directAccessToken = grantTypeConfig?.accessToken;

@@ -2,7 +2,7 @@ NAME
        ballerina-doc - Build a Ballerina module's documentation
 
 SYNOPSIS
-       ballerina doc [<options>] <ballerina-file-path> | <module-name>
+       ballerina doc [<options>] <module-name>
        ballerina doc -a | --all [<options>]
 
 
@@ -15,16 +15,9 @@ DESCRIPTION
        This command writes the module documentation to the 'target/apidocs'
        directory inside the project.
 
-       If docs are being generated for a single ballerina file,
-       output path should be provided with -o option.
 
 
 OPTIONS
-       -o <output>, --output <output>
-           Build and store the module documentation in the specified directory.
-           This is required if you are generating docs for a Ballerina file
-           outside of a project.
-
        --sourceroot <path>
            Provide the path to be taken as the root of the source.
            Source will be looked up relative to the given source root
@@ -49,6 +42,3 @@ EXAMPLES
 
        Generate API documentation for a single module.
           $ ballerina doc hello
-
-       Generate API documentation for a Ballerina source file.
-          $ ballerina doc -o ./apidocs helloworld.bal

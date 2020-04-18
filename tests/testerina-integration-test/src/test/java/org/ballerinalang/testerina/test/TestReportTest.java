@@ -122,33 +122,45 @@ public class TestReportTest extends BaseTestCase {
         JsonParser parser = new JsonParser();
         // service module
         int[] serviceMainCovered = new int[]{10, 19, 20, 23, 24}, serviceMainMissed = new int[]{21};
-        float serviceMainPercentage =
+        float serviceMainPercentageVal =
                 (float) (serviceMainCovered.length) / (serviceMainCovered.length + serviceMainMissed.length) * 100;
+        float serviceMainPercentage =
+                (float) (Math.round(serviceMainPercentageVal * 100.0) / 100.0);
 
         int serviceCovered = serviceMainCovered.length, serviceMissed = serviceMainMissed.length;
+
         //math module
         int[] mathAddCovered = new int[] {6, 7, 8, 10, 13, 15}, mathAddMissed = new int[] {11};
-        float mathAddPercentage =
+        float mathAddPercentageVal =
                 (float) (mathAddCovered.length) / (mathAddCovered.length + mathAddMissed.length) * 100;
+        float mathAddPercentage =
+                (float) (Math.round(mathAddPercentageVal * 100.0) / 100.0);
+
         int[] mathDivideCovered = new int[] {6, 7, 9, 10, 14}, mathDivideMissed = new int[] {12};
-        float mathDividePercentage =
+        float mathDividePercentageVal =
                 (float) (mathDivideCovered.length) / (mathDivideCovered.length + mathDivideMissed.length) * 100;
+        float mathDividePercentage =
+                (float) (Math.round(mathDividePercentageVal * 100.0) / 100.0);
 
         int mathCovered = mathAddCovered.length + mathDivideCovered.length,
                 mathMissed = mathAddMissed.length + mathDivideMissed.length;
-        float mathPercentage = (float) mathCovered / (mathCovered + mathMissed) * 100;
+        float mathPercentageVal = (float) mathCovered / (mathCovered + mathMissed) * 100;
+        float mathPercentage = (float) (Math.round(mathPercentageVal * 100.0) / 100.0);
 
         //foo module
         int[] fooMainCovered = new int[] {9, 10, 11, 16, 17, 23, 24}, fooMainMissed = new int[] {13};
-        float fooMainPercentage =
+        float fooMainPercentageVal =
                 (float) (fooMainCovered.length) / (fooMainCovered.length + fooMainMissed.length) * 100;
+        float fooMainPercentage =
+                (float) (Math.round(fooMainPercentageVal * 100.0) / 100.0);
 
         int fooCovered = fooMainCovered.length, fooMissed = fooMainMissed.length;
 
         // project
         int totalCovered = serviceCovered + mathCovered + fooCovered;
         int totalMissed =  serviceMissed + mathMissed + fooMissed;
-        float coveragePercentage = (float) (totalCovered) / (totalCovered + totalMissed) * 100;
+        float coveragePercentageVal = (float) (totalCovered) / (totalCovered + totalMissed) * 100;
+        float coveragePercentage = (float) (Math.round(coveragePercentageVal * 100.0) / 100.0);
 
         // Verify module level coverage
         for (JsonElement element : resultObj.get("moduleCoverage").getAsJsonArray()) {

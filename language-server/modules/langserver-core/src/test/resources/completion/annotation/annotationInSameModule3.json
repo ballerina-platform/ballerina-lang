@@ -190,6 +190,14 @@
       ]
     },
     {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "v3",
       "kind": "Property",
       "detail": "Annotation",

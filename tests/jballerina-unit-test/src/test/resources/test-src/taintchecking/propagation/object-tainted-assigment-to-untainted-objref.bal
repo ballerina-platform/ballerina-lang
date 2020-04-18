@@ -36,7 +36,7 @@ type TestObject object {
     }
 };
 
-function secureFunction(@untainted string secureIn, @untainted string insecureIn) {
+function secureFunction(@untainted string secureIn, string insecureIn) {
 
 }
 

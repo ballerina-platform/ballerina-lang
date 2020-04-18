@@ -3419,7 +3419,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Inferred failover configurations passed into the failover client.\n"
+                "left": "Represents the inferred failover configurations passed into the failover client.\n"
             },
             "sortText": "120",
             "insertText": "FailoverInferredConfig",
@@ -3722,7 +3722,7 @@
             "kind": "Struct",
             "detail": "Record",
             "documentation": {
-                "left": "Configuration for the WebSocket client endpoint.\n"
+                "left": "Configurations for the WebSocket client endpoint.\n"
             },
             "sortText": "120",
             "insertText": "WebSocketClientConfiguration",
@@ -3839,6 +3839,28 @@
             "insertTextFormat": "Snippet"
         },
         {
+            "label": "WebSocketFailoverClient",
+            "kind": "Interface",
+            "detail": "Object",
+            "documentation": {
+                "left": "A WebSocket client endpoint, which provides failover support for multiple WebSocket targets."
+            },
+            "sortText": "190",
+            "insertText": "WebSocketFailoverClient",
+            "insertTextFormat": "Snippet"
+        },
+        {
+            "label": "WebSocketFailoverClientConfiguration",
+            "kind": "Struct",
+            "detail": "Record",
+            "documentation": {
+                "left": "Configurations for the WebSocket client endpoint.\n"
+            },
+            "sortText": "180",
+            "insertText": "WebSocketFailoverClientConfiguration",
+            "insertTextFormat": "Snippet"
+        },
+        {
             "label": "BearerAuthHandler",
             "kind": "Interface",
             "detail": "Object",
@@ -3858,17 +3880,6 @@
             },
             "sortText": "120",
             "insertText": "ClientConfiguration",
-            "insertTextFormat": "Snippet"
-        },
-        {
-            "label": "CsvPersistentCookieHandler",
-            "kind": "Interface",
-            "detail": "Object",
-            "documentation": {
-                "left": "Represents a default persistent cookie handler, which stores persistent cookies in a CSV file.\n"
-            },
-            "sortText": "120",
-            "insertText": "CsvPersistentCookieHandler",
             "insertTextFormat": "Snippet"
         },
         {
