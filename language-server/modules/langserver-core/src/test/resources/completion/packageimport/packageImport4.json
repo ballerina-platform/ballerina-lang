@@ -279,6 +279,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "table",
+      "kind": "Unit",
+      "detail": "Other",
+      "sortText": "230",
+      "insertText": "table",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "anydata",
       "kind": "Unit",
       "detail": "Anydata",
@@ -612,6 +620,29 @@
       ]
     },
     {
+      "label": "ballerina/bir",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "bir",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/bir;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/config",
       "kind": "Module",
       "detail": "Module",
@@ -792,6 +823,29 @@
             }
           },
           "newText": "import ballerina/oauth2;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/jvm",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "jvm",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/jvm;\n"
         }
       ]
     },

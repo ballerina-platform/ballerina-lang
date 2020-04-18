@@ -1337,6 +1337,29 @@ public class JvmInstructionGen {
             this.storeToVar(inst.lhsOp.variableDcl);
         }
 
+        void generateTableLoadIns(FieldAccess inst) {
+
+            this.loadVar(inst.rhsOp.variableDcl);
+            this.mv.visitTypeInsn(CHECKCAST, TABLE_VALUE);
+            this.loadVar(inst.keyOp.variableDcl);
+            BType bType = inst.lhsOp.variableDcl.type;
+            this.mv.visitMethodInsn(INVOKEINTERFACE, TABLE_VALUE, "getOrThrow",
+                    String.format("(L%s;)L%s;", OBJECT, OBJECT), true);
+
+            @Nilable String targetTypeClass = getTargetClass(bType);
+            if (targetTypeClass != null) {
+                this.mv.visitTypeInsn(CHECKCAST, targetTypeClass);
+            } else {
+                addUnboxInsn(this.mv, bType);
+            }
+
+            this.storeToVar(inst.lhsOp.variableDcl);
+        }
+
+        public void generateTableStoreIns(FieldAccess inst) {
+
+        }
+
         void generateNewErrorIns(NewError newErrorIns) {
 
             this.mv.visitTypeInsn(NEW, ERROR_VALUE);

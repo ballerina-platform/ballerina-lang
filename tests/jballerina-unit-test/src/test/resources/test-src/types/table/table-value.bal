@@ -3,15 +3,30 @@ type Person record {
     int age;
 };
 
-type GlobalTable table<Person> key(name);
+type Foo record {
+    map<string> m;
+    int age;
+};
 
-GlobalTable tab = table [
+type GlobalTable1 table<Person> key(name);
+type GlobalTable2 table<Foo> key(m);
+
+GlobalTable1 tab1 = table [
   { name: "AAA", age: 31 },
   { name: "BBB", age: 34 }
 ];
 
-function testGlobalTableConstructExpr() returns string {
-    return tab.toString();
+function testGlobalTableConstructExpr() returns boolean {
+    return tab1.toString() == "name=AAA age=31\nname=BBB age=34";
+}
+
+function testTableConstructExprWithDuplicateKeys() returns string {
+    GlobalTable2 tab2 = table [
+      { m: {"AAA":"DDDD"}, age: 31 },
+      { m: {"AAA":"DDDD"}, age: 34 }
+    ];
+
+    return tab2.toString();
 }
 
 type Customer record {
@@ -24,7 +39,7 @@ string cutomerListString = "id=13 name=Sanjiva address=Weerawarana\nid=23 name=J
 
 type CustomerTableWithKS table<Customer> key(id);
 
-function runKeySpecifierTestcases() {
+function runKeySpecifierTestCases() {
     testTableTypeWithKeySpecifier();
     testTableConstructorWithKeySpecifier();
     testTableTypeWithCompositeKeySpecifier();

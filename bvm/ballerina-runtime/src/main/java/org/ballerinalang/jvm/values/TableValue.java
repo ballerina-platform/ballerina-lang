@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.IteratorUtils;
+import org.ballerinalang.jvm.TableUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTableType;
@@ -31,14 +32,17 @@ import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
 import org.ballerinalang.jvm.values.freeze.Status;
 
+import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
@@ -48,22 +52,30 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_
  *
  * @param <K> the type of keys maintained by this map
  * @param <V> the type of mapped values
+ *
+ * @since 1.3.0
  */
 public class TableValue<K, V> implements BTable<K, V> {
 
     private BTableType type;
     private volatile Status freezeStatus = new Status(State.UNFROZEN);
     private BType iteratorNextReturnType;
-    private LinkedHashMap<K, V> hashtable;
-    private ValueAdder valueAdder;
+    private LinkedHashMap<Integer, Map.Entry<K, V>> entries;
+    private LinkedHashMap<Integer, V> values;
+    private LinkedHashMap<Integer, K> keys;
+    private String[] fieldNames;
+    private ValueHolder valueHolder;
 
     public TableValue(BTableType type) {
         this.type = type;
-        this.hashtable = new LinkedHashMap<>();
+        this.entries = new LinkedHashMap<>();
+        this.keys = new LinkedHashMap<>();
+        this.values = new LinkedHashMap<>();
+        this.fieldNames = type.getFieldNames();
         if (type.getFieldNames() != null) {
-            this.valueAdder = new KeyHashValueAdder(hashtable, type.getFieldNames());
+            this.valueHolder = new KeyHashValueHolder();
         } else {
-            this.valueAdder = new ValueAdder(hashtable);
+            this.valueHolder = new ValueHolder();
         }
     }
 
@@ -76,14 +88,14 @@ public class TableValue<K, V> implements BTable<K, V> {
         BIterator itr = data.getIterator();
         while (itr.hasNext()) {
             Object next = itr.next();
-            valueAdder.addData((V) next);
+            valueHolder.addData((V) next);
         }
     }
 
 
     @Override
     public IteratorValue getIterator() {
-        return new TableIterator<K, V>(new LinkedHashMap<K, V>(hashtable).entrySet().iterator());
+        return new TableIterator<K, V>(entries.values().iterator());
     }
 
     @Override
@@ -98,40 +110,44 @@ public class TableValue<K, V> implements BTable<K, V> {
 
     @Override
     public V get(Object key) {
-        return hashtable.get(key);
+        return valueHolder.getData((K) key);
     }
 
     @Override
     public V put(K key, V value) {
-        if (containsKey(key)) {
-            throw BallerinaErrors.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR, "A value found for key '" + key + "'");
-        }
-        return hashtable.put(key, value);
+        return valueHolder.putData(key, value);
+    }
+
+    @Override
+    public void add(V data) {
+        valueHolder.addData(data);
     }
 
     @Override
     public V remove(Object key) {
-        return hashtable.remove(key);
+        return valueHolder.remove((K) key);
     }
 
     @Override
     public boolean containsKey(Object key) {
-        return hashtable.containsKey(key);
+        return valueHolder.containsKey((K) key);
     }
 
     @Override
     public Set<Map.Entry<K, V>> entrySet() {
-        return hashtable.entrySet();
+        return new LinkedHashSet<>(entries.values());
     }
 
     @Override
     public Collection<V> values() {
-        return hashtable.values();
+        return values.values();
     }
 
     @Override
     public void clear() {
-        hashtable.clear();
+        entries.clear();
+        keys.clear();
+        values.clear();
     }
 
     @Override
@@ -149,17 +165,17 @@ public class TableValue<K, V> implements BTable<K, V> {
 
     @Override
     public K[] getKeys() {
-        return (K[]) hashtable.keySet().toArray();
+        return (K[]) keys.values().toArray(new Object[]{});
     }
 
     @Override
     public int size() {
-        return hashtable.size();
+        return entries.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return hashtable.isEmpty();
+        return entries.isEmpty();
     }
 
     @Override
@@ -194,15 +210,15 @@ public class TableValue<K, V> implements BTable<K, V> {
     }
 
     public String stringValue() {
-        Iterator<Map.Entry<K, V>> itr = hashtable.entrySet().iterator();
+        Iterator<Map.Entry<Integer, Map.Entry<K, V>>> itr = entries.entrySet().iterator();
         return createStringValueDataEntry(itr);
     }
 
-    private String createStringValueDataEntry(Iterator<Map.Entry<K, V>> itr) {
+    private String createStringValueDataEntry(Iterator<Map.Entry<Integer, Map.Entry<K, V>>> itr) {
         StringJoiner sj = new StringJoiner("\n");
         while (itr.hasNext()) {
-            Map.Entry<K, V> struct = itr.next();
-            sj.add(struct.getValue().toString());
+            Map.Entry<Integer, Map.Entry<K, V>> struct = itr.next();
+            sj.add(struct.getValue().getValue().toString());
         }
         return sj.toString();
     }
@@ -251,34 +267,98 @@ public class TableValue<K, V> implements BTable<K, V> {
         }
     }
 
-    private class ValueAdder {
-        protected LinkedHashMap<K, V> hashtable;
-
-        public ValueAdder(LinkedHashMap<K, V> hashtable) {
-            this.hashtable = hashtable;
-        }
+    private class ValueHolder {
 
         public void addData(V data) {
-            this.hashtable.put((K) data, data);
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
+            UUID uuid = UUID.randomUUID();
+            entries.put(uuid.hashCode(), entry);
+            values.put(uuid.hashCode(), data);
+        }
+
+        public V getData(K key) {
+            throw new RuntimeException("GGGG");
+        }
+
+        public V putData(K key, V data) {
+            throw new RuntimeException("TTTT");
+        }
+
+        public V remove(K key) {
+            throw new RuntimeException("RRR");
+        }
+
+        public boolean containsKey(K key) {
+            throw new RuntimeException("BBBBB");
         }
     }
 
-    private class KeyHashValueAdder extends ValueAdder {
-        private String[] fieldNames;
+    private class KeyHashValueHolder extends ValueHolder {
+        private DefaultKeyWrapper keyWrapper;
 
-        public KeyHashValueAdder(LinkedHashMap<K, V> hashtable, String[] fieldNames) {
-            super(hashtable);
-            this.fieldNames = fieldNames;
+        public KeyHashValueHolder() {
+            super();
+            if (fieldNames.length > 1) {
+                keyWrapper = new MultiKeyWrapper();
+            } else {
+                keyWrapper = new DefaultKeyWrapper();
+            }
         }
 
         public void addData(V data) {
             MapValue dataMap = (MapValue) data;
-            ArrayValueImpl arr = (ArrayValueImpl) BValueCreator
-                    .createArrayValue(new BArrayType(BTypes.typeAny, fieldNames.length));
-            for (int i = 0; i < fieldNames.length; i++) {
-                arr.add(i, dataMap.get(fieldNames[i]));
+            Object key = this.keyWrapper.wrapKey(dataMap);
+
+            if (containsKey((K) key)) {
+                throw BallerinaErrors.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR, "A value found for key '" +
+                        key + "'");
             }
-            this.hashtable.put((K) arr, data);
+
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
+            Integer hash = TableUtils.hash(key);
+            keys.put(hash, (K) key);
+            values.put(hash, (V) data);
+            entries.put(hash, entry);
+        }
+
+        public V getData(K key) {
+            return values.get(TableUtils.hash(key));
+        }
+
+        public V putData(K key, V data) {
+            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
+            Integer hash = TableUtils.hash(key);
+            entries.put(hash, entry);
+            keys.put(hash, key);
+            return values.put(hash, data);
+        }
+
+        public V remove(K key) {
+            Integer hash = TableUtils.hash(key);
+            entries.remove(hash);
+            keys.remove(hash);
+            return values.remove(hash);
+        }
+
+        public boolean containsKey(K key) {
+            return keys.containsKey(TableUtils.hash(key));
+        }
+
+        private class DefaultKeyWrapper {
+            public Object wrapKey(MapValue data) {
+                return data.get(fieldNames[0]);
+            }
+        }
+
+        private class MultiKeyWrapper extends DefaultKeyWrapper {
+            public Object wrapKey(MapValue data) {
+                ArrayValueImpl arr = (ArrayValueImpl) BValueCreator
+                        .createArrayValue(new BArrayType(BTypes.typeAny, fieldNames.length));
+                for (int i = 0; i < fieldNames.length; i++) {
+                    arr.add(i, data.get(fieldNames[i]));
+                }
+                return arr;
+            }
         }
     }
 }

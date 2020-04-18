@@ -946,6 +946,12 @@ public class JvmMethodGen {
                         case NEW_TABLE:
                             instGen.generateTableNewIns((NewTable) inst);
                             break;
+                        case TABLE_STORE:
+                            instGen.generateTableStoreIns((FieldAccess) inst);
+                            break;
+                        case TABLE_LOAD:
+                            instGen.generateTableLoadIns((FieldAccess) inst);
+                            break;
                         case NEW_ARRAY:
                             instGen.generateArrayNewIns((NewArray) inst);
                             break;

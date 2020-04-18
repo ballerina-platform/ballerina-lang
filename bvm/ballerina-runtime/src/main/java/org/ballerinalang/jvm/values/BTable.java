@@ -33,4 +33,5 @@ import org.ballerinalang.jvm.values.api.BMap;
  */
 public interface BTable<K, V> extends RefValue, CollectionValue, BMap<K, V> {
 
+    void add(V data);
 }
