@@ -40,6 +40,10 @@ import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedIdentifierNode;
+import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
+import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
+import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
@@ -47,6 +51,7 @@ import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -71,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -87,6 +93,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
@@ -195,6 +202,45 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
                 pkgNameComps.get(pkgNameComps.size() - 1);
 
         return importDcl;
+    }
+
+    public BLangTypeDefinition transform(TypeDefinitionNode typeDefinitionNode) {
+        BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
+        BLangIdentifier identifierNode = this.createIdentifier(emptyPos, typeDefinitionNode.typeName().text());
+        typeDef.setName(identifierNode);
+        switch (typeDefinitionNode.typeDescriptor().kind()) {
+            case RECORD_TYPE_DESCRIPTOR:
+                typeDef.typeNode = createRecordTypeNode(typeDefinitionNode);
+                break;
+        }
+        typeDef.pos = emptyPos;
+        return typeDef;
+    }
+
+    @Override
+    public BLangSimpleVariable transform(RecordFieldNode recordFieldNode) {
+        BLangSimpleVariable simpleVar = createSimpleVar(recordFieldNode.fieldName().text(), recordFieldNode.typeName());
+        simpleVar.flagSet.add(Flag.PUBLIC);
+        if (recordFieldNode.questionMarkToken().isPresent()) {
+            simpleVar.flagSet.add(Flag.OPTIONAL);
+        }
+        return simpleVar;
+    }
+
+    @Override
+    public BLangSimpleVariable transform(RecordFieldWithDefaultValueNode recordFieldNode) {
+        BLangSimpleVariable simpleVar = createSimpleVar(recordFieldNode.fieldName().text(), recordFieldNode.typeName());
+        simpleVar.flagSet.add(Flag.PUBLIC);
+        if (isPresent(recordFieldNode.expression())) {
+            simpleVar.setInitialExpression(createExpression(recordFieldNode.expression()));
+            simpleVar.flagSet.add(Flag.REQUIRED);
+        }
+        return simpleVar;
+    }
+
+    @Override
+    public BLangType transform(RecordRestDescriptorNode recordFieldNode) {
+        return createTypeNode(recordFieldNode.typeName());
     }
 
     @Override
@@ -387,6 +433,24 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
         } else {
             bLFunction.setReturnTypeNode(createTypeNode(null));
         }
+    }
+
+    private BLangRecordTypeNode createRecordTypeNode(TypeDefinitionNode typeDefinitionNode) {
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
+        RecordTypeDescriptorNode typeDescriptorNode = (RecordTypeDescriptorNode) typeDefinitionNode.typeDescriptor();
+        final boolean[] hasRestField = {false};
+        typeDescriptorNode.fields().forEach(field -> {
+            if (field.kind() == SyntaxKind.RECORD_FIELD || field.kind() == SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) {
+                recordTypeNode.fields.add((BLangSimpleVariable) field.apply(this));
+            } else if (field.kind() == SyntaxKind.RECORD_REST_TYPE) {
+                recordTypeNode.restFieldType = (BLangValueType) field.apply(this);
+                hasRestField[0] = true;
+            }
+        });
+        recordTypeNode.isFieldAnalyseRequired = true;
+        recordTypeNode.sealed = !hasRestField[0];
+        recordTypeNode.pos = emptyPos;
+        return recordTypeNode;
     }
 
     private BLangExpression createExpression(Node expression) {
