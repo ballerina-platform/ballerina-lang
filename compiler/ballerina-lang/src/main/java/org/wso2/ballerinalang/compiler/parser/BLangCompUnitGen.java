@@ -84,6 +84,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -246,6 +247,33 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(AssignmentStatementNode assignmentStatement) {
         return null;
+    }
+
+    @Override
+    public BLangSimpleVariableDef transform(VariableDeclarationNode varDeclaration) {
+        BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        BLangSimpleVariableDef varDefNode = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
+        var.pos = emptyPos;
+        var.setName(this.createIdentifier(emptyPos, varDeclaration.variableName().text()));
+        var.name.pos = emptyPos;
+
+        if (varDeclaration.finalKeyword().isPresent()) {
+            markVariableAsFinal(var);
+        }
+
+        boolean isDeclaredWithVar = (VAR.equals(varDeclaration.typeName().toString().trim()));
+        if (isDeclaredWithVar) {
+            var.isDeclaredWithVar = true;
+        } else {
+            var.setTypeNode(createTypeNode(varDeclaration.typeName()));
+        }
+        if (varDeclaration.initializer().isPresent()) {
+            var.setInitialExpression(createExpression(varDeclaration.initializer().get()));
+        }
+
+        varDefNode.pos = emptyPos;
+        varDefNode.setVariable(var);
+        return varDefNode;
     }
 
     @Override
