@@ -84,6 +84,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -140,23 +141,23 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangImportPackage transform(ImportDeclarationNode importDeclaration) {
-        Node orgNameNode = importDeclaration.orgName();
-        Node versionNode = importDeclaration.version();
-        Node prefixNode = importDeclaration.prefix();
+        Node orgNameNode = importDeclaration.orgName().orElse(null);
+        Node versionNode = importDeclaration.version().orElse(null);
+        Node prefixNode = importDeclaration.prefix().orElse(null);
 
         String orgName = null;
-        if (orgNameNode.kind() == SyntaxKind.IMPORT_ORG_NAME) {
+        if (orgNameNode != null) {
             ImportOrgNameNode importOrgName = (ImportOrgNameNode) orgNameNode;
             orgName = importOrgName.orgName().text();
         }
 
         String version = null;
-        if (versionNode.kind() == SyntaxKind.IMPORT_VERSION) {
+        if (versionNode != null) {
             version = ((ImportVersionNode) versionNode).versionNumber().toString();
         }
 
         String prefix = null;
-        if (prefixNode.kind() == SyntaxKind.IMPORT_PREFIX) {
+        if (prefixNode != null) {
             prefix = ((ImportPrefixNode) prefixNode).prefix().toString();
         }
 
@@ -192,14 +193,14 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
         bLFunction.name = createIdentifier(emptyPos, funcName.text());
 
         // Set the visibility qualifier
-        Token visibilityQual = funcDefNode.visibilityQualifier();
-        if (isPresent(visibilityQual)) {
+        Optional<Token> optionalVisibilityQual = funcDefNode.visibilityQualifier();
+        optionalVisibilityQual.ifPresent(visibilityQual -> {
             if (visibilityQual.kind() == SyntaxKind.PUBLIC_KEYWORD) {
                 bLFunction.flagSet.add(Flag.PUBLIC);
             } else if (visibilityQual.kind() == SyntaxKind.PRIVATE_KEYWORD) {
                 bLFunction.flagSet.add(Flag.PRIVATE);
             }
-        }
+        });
 
         // TODO populate function signature
         getFuncSignature(bLFunction, funcDefNode);
@@ -225,8 +226,9 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
         });
 
         // Set Return Type
-        Node retNode = funcDefNode.returnTypeDesc();
-        if (retNode.kind() == SyntaxKind.RETURN_TYPE_DESCRIPTOR) {
+        Optional<Node> optionalRetNode = funcDefNode.returnTypeDesc();
+        if (optionalRetNode.isPresent()) {
+            Node retNode = optionalRetNode.get();
             VariableDeclarationNode returnType = (VariableDeclarationNode) retNode;
             String typeText = getTokenText(returnType.typeName().internalNode());
             BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
