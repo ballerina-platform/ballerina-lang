@@ -68,6 +68,18 @@ public class DefaultableParameterNode extends ParameterNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "leadingComma",
+                "annotations",
+                "visibilityQualifier",
+                "type",
+                "paramName",
+                "equalsToken",
+                "expression"};
+    }
+
     public DefaultableParameterNode modify(
             Token leadingComma,
             NodeList<AnnotationNode> annotations,

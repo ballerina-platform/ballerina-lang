@@ -48,6 +48,13 @@ public class ImportOrgNameNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "orgName",
+                "slashToken"};
+    }
+
     public ImportOrgNameNode modify(
             Token orgName,
             Token slashToken) {

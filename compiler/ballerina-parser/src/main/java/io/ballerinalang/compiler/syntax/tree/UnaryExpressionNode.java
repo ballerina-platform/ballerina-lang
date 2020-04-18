@@ -48,6 +48,13 @@ public class UnaryExpressionNode extends ExpressionNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "unaryOperator",
+                "expression"};
+    }
+
     public UnaryExpressionNode modify(
             Token unaryOperator,
             ExpressionNode expression) {

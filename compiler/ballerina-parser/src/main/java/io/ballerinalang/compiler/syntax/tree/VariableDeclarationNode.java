@@ -70,6 +70,18 @@ public class VariableDeclarationNode extends StatementNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "annotations",
+                "finalKeyword",
+                "typeName",
+                "variableName",
+                "equalsToken",
+                "initializer",
+                "semicolonToken"};
+    }
+
     public VariableDeclarationNode modify(
             NodeList<AnnotationNode> annotations,
             Token finalKeyword,

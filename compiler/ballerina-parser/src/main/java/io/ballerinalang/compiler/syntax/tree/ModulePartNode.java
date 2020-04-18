@@ -52,6 +52,14 @@ public class ModulePartNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "imports",
+                "members",
+                "eofToken"};
+    }
+
     public ModulePartNode modify(
             NodeList<ImportDeclarationNode> imports,
             NodeList<ModuleMemberDeclarationNode> members,

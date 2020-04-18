@@ -58,6 +58,15 @@ public class IfElseStatementNode extends StatementNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "ifKeyword",
+                "condition",
+                "ifBody",
+                "elseBody"};
+    }
+
     public IfElseStatementNode modify(
             Token ifKeyword,
             ExpressionNode condition,

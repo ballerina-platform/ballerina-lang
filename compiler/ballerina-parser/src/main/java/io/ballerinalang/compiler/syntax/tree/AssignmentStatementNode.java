@@ -56,6 +56,15 @@ public class AssignmentStatementNode extends StatementNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "varRef",
+                "equalsToken",
+                "expression",
+                "semicolonToken"};
+    }
+
     public AssignmentStatementNode modify(
             Node varRef,
             Token equalsToken,

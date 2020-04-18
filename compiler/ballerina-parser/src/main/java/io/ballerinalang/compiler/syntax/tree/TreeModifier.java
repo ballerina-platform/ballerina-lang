@@ -864,11 +864,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(EmptyToken emptyToken) {
-        return emptyToken;
-    }
-
-    @Override
     protected Node transformSyntaxNode(Node node) {
         return node;
     }

@@ -52,6 +52,14 @@ public class ServiceBodyNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "openBraceToken",
+                "resources",
+                "closeBraceToken"};
+    }
+
     public ServiceBodyNode modify(
             Token openBraceToken,
             NodeList<Node> resources,

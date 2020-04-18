@@ -48,6 +48,13 @@ public class ContinueStatementNode extends StatementNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "continueToken",
+                "semicolonToken"};
+    }
+
     public ContinueStatementNode modify(
             Token continueToken,
             Token semicolonToken) {

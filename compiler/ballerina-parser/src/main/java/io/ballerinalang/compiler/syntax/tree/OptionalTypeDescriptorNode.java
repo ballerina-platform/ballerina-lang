@@ -48,6 +48,13 @@ public class OptionalTypeDescriptorNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "typeDescriptor",
+                "questionMarkToken"};
+    }
+
     public OptionalTypeDescriptorNode modify(
             Node typeDescriptor,
             Token questionMarkToken) {

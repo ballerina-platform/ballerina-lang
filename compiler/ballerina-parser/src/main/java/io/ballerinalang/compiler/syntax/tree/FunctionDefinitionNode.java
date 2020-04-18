@@ -78,6 +78,20 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "metadata",
+                "visibilityQualifier",
+                "functionKeyword",
+                "functionName",
+                "openParenToken",
+                "parameters",
+                "closeParenToken",
+                "returnTypeDesc",
+                "functionBody"};
+    }
+
     public FunctionDefinitionNode modify(
             MetadataNode metadata,
             Token visibilityQualifier,

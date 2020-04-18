@@ -60,6 +60,16 @@ public class RequiredParameterNode extends ParameterNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "leadingComma",
+                "annotations",
+                "visibilityQualifier",
+                "type",
+                "paramName"};
+    }
+
     public RequiredParameterNode modify(
             Token leadingComma,
             NodeList<AnnotationNode> annotations,

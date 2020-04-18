@@ -60,6 +60,16 @@ public class ObjectTypeDescriptorNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "objectTypeQualifiers",
+                "objectKeyword",
+                "openBrace",
+                "members",
+                "closeBrace"};
+    }
+
     public ObjectTypeDescriptorNode modify(
             NodeList<Token> objectTypeQualifiers,
             Token objectKeyword,

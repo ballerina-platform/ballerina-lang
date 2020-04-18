@@ -48,6 +48,13 @@ public class ExpressionListItemNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "leadingComma",
+                "expression"};
+    }
+
     public ExpressionListItemNode modify(
             Token leadingComma,
             ExpressionNode expression) {

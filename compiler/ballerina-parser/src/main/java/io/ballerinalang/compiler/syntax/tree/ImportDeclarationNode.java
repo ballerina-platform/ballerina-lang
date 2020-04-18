@@ -66,6 +66,17 @@ public class ImportDeclarationNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "importKeyword",
+                "orgName",
+                "moduleName",
+                "version",
+                "prefix",
+                "semicolon"};
+    }
+
     public ImportDeclarationNode modify(
             Token importKeyword,
             Node orgName,

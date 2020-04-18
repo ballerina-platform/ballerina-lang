@@ -66,6 +66,17 @@ public class TypeDefinitionNode extends ModuleMemberDeclarationNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "metadata",
+                "visibilityQualifier",
+                "typeKeyword",
+                "typeName",
+                "typeDescriptor",
+                "semicolonToken"};
+    }
+
     public TypeDefinitionNode modify(
             MetadataNode metadata,
             Token visibilityQualifier,

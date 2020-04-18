@@ -48,6 +48,13 @@ public class SubModuleNameNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "leadingDot",
+                "moduleName"};
+    }
+
     public SubModuleNameNode modify(
             Token leadingDot,
             IdentifierToken moduleName) {
