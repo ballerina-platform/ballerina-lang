@@ -25,7 +25,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STTypeToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
-import io.ballerinalang.compiler.syntax.tree.EmptyToken;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
@@ -538,11 +537,6 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
             identifier = StringEscapeUtils.unescapeJava(identifier).substring(1);
         }
         return identifier;
-    }
-
-    private boolean isPresent(Token token) {
-        // TODO find a better way to check this condition
-        return !(token instanceof EmptyToken);
     }
 
     private boolean isPresent(Node node) {
