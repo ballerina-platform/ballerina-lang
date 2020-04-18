@@ -842,6 +842,10 @@ public class TypeChecker extends BLangNodeVisitor {
             memTypes.add(fieldType);
         }
 
+        if (memTypes.size() == 1) {
+            return memTypes.get(0);
+        }
+
         return new BTupleType(memTypes);
     }
 
