@@ -20,6 +20,10 @@ package {{packageName}};
 {{#imports}}
 import {{name}};
 {{/imports}}
+{{#optionalFieldExists}}
+
+import java.util.Optional;
+{{/optionalFieldExists}}
 
 /**
  * This is a generated syntax tree node.
@@ -41,10 +45,18 @@ public{{#isAbstract}} abstract{{/isAbstract}} class {{externalClassName}} extend
 
     {{/isList}}
     {{^isList}}
+    {{#isOptional}}
+    public Optional<{{fieldClassName}}> {{fieldName}}() {
+        return optionalChildInBucket({{index}});
+    }
+
+    {{/isOptional}}
+    {{^isOptional}}
     public {{fieldClassName}} {{fieldName}}() {
         return childInBucket({{index}});
     }
 
+    {{/isOptional}}
     {{/isList}}
     {{/fields}}
     @Override

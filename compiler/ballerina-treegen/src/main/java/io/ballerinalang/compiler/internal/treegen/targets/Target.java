@@ -110,7 +110,8 @@ public abstract class Target {
             SyntaxNodeAttribute attribute = attributes.get(index);
             boolean isLast = (index + 1) == attributeCount;
             fields.add(new Field(attribute.getType(), attribute.getName(), index,
-                    attribute.getOccurrenceKind() == SyntaxNodeAttribute.OccurrenceKind.MULTIPLE, isLast));
+                    attribute.getOccurrenceKind() == SyntaxNodeAttribute.OccurrenceKind.MULTIPLE,
+                    attribute.isOptional(), isLast));
         }
         return fields;
     }

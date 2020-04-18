@@ -49,7 +49,8 @@
                 },
                 {
                     "name": "visibilityQualifier",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "functionKeyword",
@@ -74,7 +75,8 @@
                 },
                 {
                     "name": "returnTypeDesc",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 },
                 {
                     "name": "functionBody",
@@ -93,7 +95,8 @@
                 },
                 {
                     "name": "orgName",
-                    "type": "Token"
+                    "type": "Node",
+                    "isOptional": true
                 },
                 {
                     "name": "moduleName",
@@ -101,11 +104,13 @@
                 },
                 {
                     "name": "version",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 },
                 {
                     "name": "prefix",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 },
                 {
                     "name": "semicolon",
@@ -124,7 +129,8 @@
                 },
                 {
                     "name": "visibilityQualifier",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "listenerKeyword",
@@ -163,7 +169,8 @@
                 },
                 {
                     "name": "visibilityQualifier",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "typeKeyword",
@@ -282,7 +289,8 @@
                 },
                 {
                     "name": "finalKeyword",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "typeName",
@@ -294,11 +302,13 @@
                 },
                 {
                     "name": "equalsToken",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "initializer",
-                    "type": "ExpressionNode"
+                    "type": "ExpressionNode",
+                    "isOptional": true
                 },
                 {
                     "name": "semicolonToken",
@@ -413,7 +423,8 @@
                 },
                 {
                     "name": "elseBody",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 }
             ]
         },
@@ -1375,7 +1386,8 @@
                 },
                 {
                     "name": "annotValue",
-                    "type": "MappingConstructorExpressionNode"
+                    "type": "MappingConstructorExpressionNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -1386,7 +1398,8 @@
             "attributes": [
                 {
                     "name": "documentationString",
-                    "type": "Node"
+                    "type": "Node",
+                    "isOptional": true
                 },
                 {
                     "name": "annotations",
@@ -1406,7 +1419,8 @@
                 },
                 {
                     "name": "finalKeyword",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "typeName",

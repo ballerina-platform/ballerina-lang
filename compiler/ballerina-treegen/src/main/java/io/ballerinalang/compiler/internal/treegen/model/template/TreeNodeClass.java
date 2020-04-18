@@ -109,6 +109,10 @@ public class TreeNodeClass {
         return externalClassName.replaceFirst(firstChar, firstCharLowercase);
     }
 
+    public boolean optionalFieldExists() {
+        return fields.stream().anyMatch(Field::isOptional);
+    }
+
     public boolean extendFromNode() {
         return "Node".equals(superClassName);
     }
