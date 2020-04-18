@@ -17,12 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
-import io.ballerinalang.compiler.internal.parser.tree.STIdentifierToken;
-import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
-import io.ballerinalang.compiler.internal.parser.tree.STTypeToken;
-import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
 import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
@@ -541,31 +535,5 @@ public class BLangCompUnitGen extends NodeTransformer<BLangNode> {
 
     private boolean isPresent(Node node) {
         return node.kind() != SyntaxKind.NONE;
-    }
-
-    private static String getTokenText(STNode stNode) {
-        switch (stNode.kind) {
-            case IDENTIFIER_TOKEN:
-                return ((STIdentifierToken) stNode).text;
-            case STRING_LITERAL:
-                String val = ((STLiteralValueToken) stNode).text;
-                int stringLen = val.length();
-                int lastCharPosition = val.endsWith("\"") ? stringLen - 1 : stringLen;
-                return val.substring(1, lastCharPosition);
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-                return ((STLiteralValueToken) stNode).text;
-            case SIMPLE_TYPE:
-                return ((STTypeToken) stNode).text;
-            case WHITESPACE_TRIVIA:
-            case END_OF_LINE_TRIVIA:
-            case COMMENT:
-            case INVALID:
-                return ((SyntaxTrivia) stNode).text;
-            case NONE:
-                return "";
-            default:
-                return stNode.kind.toString();
-        }
     }
 }
