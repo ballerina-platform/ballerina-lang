@@ -1870,12 +1870,18 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if ((varRefType.tag == TypeTags.TUPLE) && hasDifferentTypeThanRest((BTupleType) varRefType) &&
-                (invocationName.compareTo(FUNCTION_NAME_SHIFT) == 0)) {
+        if (isShiftOnIncompatibleTuples(varRefType, invocationName)) {
             dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_TUPLE_SHAPE, invocationName,
                        varRefType);
             resultType = symTable.semanticError;
             return;
+        }
+    }
+
+    private boolean isShiftOnIncompatibleTuples(BType varRefType, String invocationName) {
+        if ((varRefType.tag == TypeTags.TUPLE) && (invocationName.compareTo(FUNCTION_NAME_SHIFT) == 0) &&
+                hasDifferentTypeThanRest((BTupleType) varRefType)) {
+            return true;
         }
 
         if ((varRefType.tag == TypeTags.UNION) && (invocationName.compareTo(FUNCTION_NAME_SHIFT) == 0)) {
@@ -1890,12 +1896,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     break;
                 }
             }
-            if (allTuplesHasFixedShape) {
-                dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_TUPLE_SHAPE, invocationName,
-                           varRefType);
-                resultType = symTable.semanticError;
-            }
+            return allTuplesHasFixedShape;
         }
+        return false;
     }
 
     private boolean hasDifferentTypeThanRest(BTupleType tupleType) {
