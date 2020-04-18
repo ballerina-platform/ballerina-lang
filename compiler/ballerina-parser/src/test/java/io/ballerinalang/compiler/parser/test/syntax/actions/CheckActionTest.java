@@ -15,26 +15,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test.syntax.statements;
+package io.ballerinalang.compiler.parser.test.syntax.actions;
 
-import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
-import io.ballerinalang.compiler.parser.test.ParserTestUtils;
-
-import java.nio.file.Paths;
+import org.testng.annotations.Test;
 
 /**
- * Test parsing statements.
+ * Test parsing check action.
+ * <p>
+ * i.e.:
+ * <code>check|checkpanic action</code>
+ * 
  * 
  * @since 1.3.0
  */
-public class AbstractStatementTest {
+public class CheckActionTest extends AbstractActionTest {
 
-    void test(String source, String filePath) {
-        ParserTestUtils.test(source, ParserRuleContext.STATEMENT, Paths.get("statements/", filePath));
+    // Valid source tests
+
+    @Test
+    public void testBasicCheckAction() {
+        testFile("check-action/check_action_source_01.bal", "check-action/check_action_assert_01.json");
     }
 
-    void testFile(String path, String filePath) {
-        ParserTestUtils.test(Paths.get("statements/", path), ParserRuleContext.TOP_LEVEL_NODE,
-                Paths.get("statements/", filePath));
+    // Recovery tests
+
+    @Test
+    public void testInvalidTokenInCheckAction() {
+        testFile("check-action/check_action_source_02.bal", "check-action/check_action_assert_02.json");
     }
 }

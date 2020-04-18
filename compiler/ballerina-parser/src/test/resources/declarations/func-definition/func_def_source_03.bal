@@ -1,2 +1,2 @@
-public function foo hello (
+public function foo hello ()
 }

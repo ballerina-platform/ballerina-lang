@@ -32,9 +32,10 @@ public class STCheckExpressionNode extends STExpressionNode {
     public final STNode expression;
 
     STCheckExpressionNode(
+            SyntaxKind kind,
             STNode checkKeyword,
             STNode expression) {
-        super(SyntaxKind.CHECK_EXPRESSION);
+        super(kind);
         this.checkKeyword = checkKeyword;
         this.expression = expression;
 

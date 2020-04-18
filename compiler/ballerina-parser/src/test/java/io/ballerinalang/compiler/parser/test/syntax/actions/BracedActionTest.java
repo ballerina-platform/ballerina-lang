@@ -15,36 +15,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test.syntax.expressions;
+package io.ballerinalang.compiler.parser.test.syntax.actions;
 
 import org.testng.annotations.Test;
 
 /**
- * Test parsing check expression.
+ * Test parsing braced action.
+ * <p>
+ * i.e.: <code>(action)</code>
  * 
  * @since 1.3.0
  */
-public class CheckExpressionTest extends AbstractExpressionsTest {
+public class BracedActionTest extends AbstractActionTest {
+
+    // Valid source tests
 
     @Test
-    public void testSimpleCheckExpr() {
-        testFile("check-expr/check_expr_source_01.bal", "check-expr/check_expr_assert_01.json");
+    public void testBasicBracedAction() {
+        testFile("braced-action/braced_action_source_01.bal", "braced-action/braced_action_assert_01.json");
     }
 
     @Test
-    public void testCheckExprPrecedence() {
-        testFile("check-expr/check_expr_source_02.bal", "check-expr/check_expr_assert_02.json");
+    public void testUsingBracedActionForPrecedence() {
+        testFile("braced-action/braced_action_source_02.bal", "braced-action/braced_action_assert_02.json");
     }
 
-    // Recovery test
+    // Recovery tests
 
     @Test
-    public void testCheckWithMissingExpr() {
-        testFile("check-expr/check_expr_source_03.bal", "check-expr/check_expr_assert_03.json");
-    }
-
-    @Test
-    public void testCheckWithMissingBinaryOp() {
-        testFile("check-expr/check_expr_source_04.bal", "check-expr/check_expr_assert_04.json");
+    public void testMissingCloseParen() {
+        testFile("braced-action/braced_action_source_03.bal", "braced-action/braced_action_assert_03.json");
     }
 }
