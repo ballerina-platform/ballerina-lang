@@ -67,7 +67,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(ImportDeclarationNode importDeclarationNode) {
         Token importKeyword = modifyToken(importDeclarationNode.importKeyword());
         Node orgName = modifyNode(importDeclarationNode.orgName().orElse(null));
-        Node moduleName = modifyNode(importDeclarationNode.moduleName());
+        NodeList<IdentifierToken> moduleName = modifyNodeList(importDeclarationNode.moduleName());
         Node version = modifyNode(importDeclarationNode.version().orElse(null));
         Node prefix = modifyNode(importDeclarationNode.prefix().orElse(null));
         Token semicolon = modifyToken(importDeclarationNode.semicolon());
@@ -463,8 +463,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(DefaultableParameterNode defaultableParameterNode) {
         Token leadingComma = modifyToken(defaultableParameterNode.leadingComma());
         NodeList<AnnotationNode> annotations = modifyNodeList(defaultableParameterNode.annotations());
-        Token visibilityQualifier = modifyToken(defaultableParameterNode.visibilityQualifier());
-        Node type = modifyNode(defaultableParameterNode.type());
+        Token visibilityQualifier = modifyToken(defaultableParameterNode.visibilityQualifier().orElse(null));
+        Node typeName = modifyNode(defaultableParameterNode.typeName());
         Token paramName = modifyToken(defaultableParameterNode.paramName());
         Token equalsToken = modifyToken(defaultableParameterNode.equalsToken());
         Node expression = modifyNode(defaultableParameterNode.expression());
@@ -472,7 +472,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 leadingComma,
                 annotations,
                 visibilityQualifier,
-                type,
+                typeName,
                 paramName,
                 equalsToken,
                 expression);
@@ -482,14 +482,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(RequiredParameterNode requiredParameterNode) {
         Token leadingComma = modifyToken(requiredParameterNode.leadingComma());
         NodeList<AnnotationNode> annotations = modifyNodeList(requiredParameterNode.annotations());
-        Token visibilityQualifier = modifyToken(requiredParameterNode.visibilityQualifier());
-        Node type = modifyNode(requiredParameterNode.type());
+        Token visibilityQualifier = modifyToken(requiredParameterNode.visibilityQualifier().orElse(null));
+        Node typeName = modifyNode(requiredParameterNode.typeName());
         Token paramName = modifyToken(requiredParameterNode.paramName());
         return requiredParameterNode.modify(
                 leadingComma,
                 annotations,
                 visibilityQualifier,
-                type,
+                typeName,
                 paramName);
     }
 
@@ -497,13 +497,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(RestParameterNode restParameterNode) {
         Token leadingComma = modifyToken(restParameterNode.leadingComma());
         NodeList<AnnotationNode> annotations = modifyNodeList(restParameterNode.annotations());
-        Node type = modifyNode(restParameterNode.type());
+        Node typeName = modifyNode(restParameterNode.typeName());
         Token ellipsisToken = modifyToken(restParameterNode.ellipsisToken());
         Token paramName = modifyToken(restParameterNode.paramName());
         return restParameterNode.modify(
                 leadingComma,
                 annotations,
-                type,
+                typeName,
                 ellipsisToken,
                 paramName);
     }
@@ -680,7 +680,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(ObjectFieldNode objectFieldNode) {
         MetadataNode metadata = modifyNode(objectFieldNode.metadata());
         Token visibilityQualifier = modifyToken(objectFieldNode.visibilityQualifier());
-        Node type = modifyNode(objectFieldNode.type());
+        Node typeName = modifyNode(objectFieldNode.typeName());
         Token fieldName = modifyToken(objectFieldNode.fieldName());
         Token equalsToken = modifyToken(objectFieldNode.equalsToken());
         ExpressionNode expression = modifyNode(objectFieldNode.expression());
@@ -688,7 +688,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return objectFieldNode.modify(
                 metadata,
                 visibilityQualifier,
-                type,
+                typeName,
                 fieldName,
                 equalsToken,
                 expression,
@@ -698,13 +698,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(RecordFieldNode recordFieldNode) {
         MetadataNode metadata = modifyNode(recordFieldNode.metadata());
-        Node type = modifyNode(recordFieldNode.type());
+        Node typeName = modifyNode(recordFieldNode.typeName());
         Token fieldName = modifyToken(recordFieldNode.fieldName());
-        Token questionMarkToken = modifyToken(recordFieldNode.questionMarkToken());
+        Token questionMarkToken = modifyToken(recordFieldNode.questionMarkToken().orElse(null));
         Token semicolonToken = modifyToken(recordFieldNode.semicolonToken());
         return recordFieldNode.modify(
                 metadata,
-                type,
+                typeName,
                 fieldName,
                 questionMarkToken,
                 semicolonToken);
@@ -713,14 +713,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(RecordFieldWithDefaultValueNode recordFieldWithDefaultValueNode) {
         MetadataNode metadata = modifyNode(recordFieldWithDefaultValueNode.metadata());
-        Node type = modifyNode(recordFieldWithDefaultValueNode.type());
+        Node typeName = modifyNode(recordFieldWithDefaultValueNode.typeName());
         Token fieldName = modifyToken(recordFieldWithDefaultValueNode.fieldName());
         Token equalsToken = modifyToken(recordFieldWithDefaultValueNode.equalsToken());
         ExpressionNode expression = modifyNode(recordFieldWithDefaultValueNode.expression());
         Token semicolonToken = modifyToken(recordFieldWithDefaultValueNode.semicolonToken());
         return recordFieldWithDefaultValueNode.modify(
                 metadata,
-                type,
+                typeName,
                 fieldName,
                 equalsToken,
                 expression,
@@ -729,11 +729,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
 
     @Override
     public Node transform(RecordRestDescriptorNode recordRestDescriptorNode) {
-        Node type = modifyNode(recordRestDescriptorNode.type());
+        Node typeName = modifyNode(recordRestDescriptorNode.typeName());
         Token ellipsisToken = modifyToken(recordRestDescriptorNode.ellipsisToken());
         Token semicolonToken = modifyToken(recordRestDescriptorNode.semicolonToken());
         return recordRestDescriptorNode.modify(
-                type,
+                typeName,
                 ellipsisToken,
                 semicolonToken);
     }
@@ -741,11 +741,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(TypeReferenceNode typeReferenceNode) {
         Token asteriskToken = modifyToken(typeReferenceNode.asteriskToken());
-        Node type = modifyNode(typeReferenceNode.type());
+        Node typeName = modifyNode(typeReferenceNode.typeName());
         Token semicolonToken = modifyToken(typeReferenceNode.semicolonToken());
         return typeReferenceNode.modify(
                 asteriskToken,
-                type,
+                typeName,
                 semicolonToken);
     }
 
