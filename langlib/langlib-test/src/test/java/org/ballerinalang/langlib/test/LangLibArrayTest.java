@@ -445,11 +445,11 @@ public class LangLibArrayTest {
                                           "float][1])'",
                                   79, 22);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                                  "cannot call 'shift' on tuple(s) of type '[int,string...]'; cannot violate inherent" +
+                                  "cannot call 'shift' on tuple(s) of type '[int,string...]': cannot violate inherent" +
                                           " type",
                                   84, 24);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                                  "cannot call 'shift' on tuple(s) of type '[int,string,int...]'; cannot violate " +
+                                  "cannot call 'shift' on tuple(s) of type '[int,string,int...]': cannot violate " +
                                           "inherent type",
                                   89, 24);
         BAssertUtil.validateError(negativeResult, errorIndex++,
