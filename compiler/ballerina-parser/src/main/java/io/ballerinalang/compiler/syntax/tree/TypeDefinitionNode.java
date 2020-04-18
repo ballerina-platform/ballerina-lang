@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
@@ -34,8 +36,8 @@ public class TypeDefinitionNode extends ModuleMemberDeclarationNode {
         return childInBucket(0);
     }
 
-    public Token visibilityQualifier() {
-        return childInBucket(1);
+    public Optional<Token> visibilityQualifier() {
+        return optionalChildInBucket(1);
     }
 
     public Token typeKeyword() {
