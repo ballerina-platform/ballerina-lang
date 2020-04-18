@@ -397,11 +397,11 @@ public class CommandExecutionTest {
         File file1 = new File(sourcesPath.resolve("source").resolve(contract).toString());
         String contractContent = org.apache.commons.io.FileUtils.readFileToString(file1, StandardCharsets.UTF_8);
 
-        String OS = System.getProperty("os.name").toLowerCase();
+        String os = System.getProperty("os.name").toLowerCase();
         File fileLinux = new File(sourcesPath.resolve("source").resolve(expectedLinux).toString());
         File fileWin = new File(sourcesPath.resolve("source").resolve(expectedWin).toString());
         String expectedContractContent = "";
-        if (OS.contains("win")) {
+        if (os.contains("win")) {
             expectedContractContent = org.apache.commons.io.FileUtils.readFileToString(fileWin,
                     StandardCharsets.UTF_8);
         } else {
@@ -410,8 +410,8 @@ public class CommandExecutionTest {
         }
 
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
-        Assert.assertEquals(contractContent.replaceAll("\\P{Print}",""),
-                expectedContractContent.replaceAll("\\P{Print}",""), "Test Failed for: " + config);
+        Assert.assertEquals(contractContent.replaceAll("\\P{Print}", ""),
+                expectedContractContent.replaceAll("\\P{Print}", ""), "Test Failed for: " + config);
     }
 
     @Test(dataProvider = "openApi-create-service-resource-method-in-contract-data-provider")
@@ -436,11 +436,11 @@ public class CommandExecutionTest {
         File file1 = new File(sourcesPath.resolve("source").resolve(contract).toString());
         String contractContent = org.apache.commons.io.FileUtils.readFileToString(file1, StandardCharsets.UTF_8);
 
-        String OS = System.getProperty("os.name").toLowerCase();
+        String os = System.getProperty("os.name").toLowerCase();
         File fileLinux = new File(sourcesPath.resolve("source").resolve(expectedLinux).toString());
         File fileWin = new File(sourcesPath.resolve("source").resolve(expectedWin).toString());
         String expectedContractContent = "";
-        if (OS.contains("win")) {
+        if (os.contains("win")) {
             expectedContractContent = org.apache.commons.io.FileUtils.readFileToString(fileWin,
                     StandardCharsets.UTF_8);
         } else {
@@ -449,8 +449,8 @@ public class CommandExecutionTest {
         }
 
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
-        Assert.assertEquals(contractContent.replaceAll("\\P{Print}",""),
-                expectedContractContent.replaceAll("\\P{Print}",""), "Test Failed for: " + config);
+        Assert.assertEquals(contractContent.replaceAll("\\P{Print}", ""),
+                expectedContractContent.replaceAll("\\P{Print}", ""), "Test Failed for: " + config);
     }
 
     @DataProvider(name = "package-import-data-provider")
