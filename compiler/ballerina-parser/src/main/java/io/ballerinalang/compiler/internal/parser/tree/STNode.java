@@ -69,7 +69,9 @@ public abstract class STNode {
         this.bucketCount = children.length;
         this.childBuckets = children;
         for (STNode child : children) {
-            this.width += child.width;
+            if (SyntaxUtils.isSTNodePresent(child)) {
+                this.width += child.width;
+            }
         }
     }
 

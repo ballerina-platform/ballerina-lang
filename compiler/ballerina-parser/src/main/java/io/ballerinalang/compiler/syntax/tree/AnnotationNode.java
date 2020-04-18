@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
@@ -38,8 +40,8 @@ public class AnnotationNode extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public MappingConstructorExpressionNode annotValue() {
-        return childInBucket(2);
+    public Optional<MappingConstructorExpressionNode> annotValue() {
+        return optionalChildInBucket(2);
     }
 
     @Override
