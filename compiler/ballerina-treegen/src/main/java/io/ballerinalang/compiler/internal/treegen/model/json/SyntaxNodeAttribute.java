@@ -28,10 +28,11 @@ public class SyntaxNodeAttribute {
     private String occurrences;
     private boolean isOptional;
 
-    public SyntaxNodeAttribute(String name, String type, String occurrences) {
+    public SyntaxNodeAttribute(String name, String type, String occurrences, boolean isOptional) {
         this.name = name;
         this.type = type;
         this.occurrences = occurrences;
+        this.isOptional = isOptional;
     }
 
     public String getName() {
