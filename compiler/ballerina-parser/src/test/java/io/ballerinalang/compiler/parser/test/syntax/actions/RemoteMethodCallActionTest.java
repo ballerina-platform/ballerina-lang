@@ -77,4 +77,10 @@ public class RemoteMethodCallActionTest extends AbstractActionTest {
         testFile("remote-method-call-action/remote_method_call_source_08.bal",
                 "remote-method-call-action/remote_method_call_assert_08.json");
     }
+
+    @Test
+    public void testMissingRHS() {
+        testFile("remote-method-call-action/remote_method_call_source_09.bal",
+                "remote-method-call-action/remote_method_call_assert_09.json");
+    }
 }

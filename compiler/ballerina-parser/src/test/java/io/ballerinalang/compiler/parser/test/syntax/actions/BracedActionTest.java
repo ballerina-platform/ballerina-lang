@@ -39,4 +39,11 @@ public class BracedActionTest extends AbstractActionTest {
     public void testUsingBracedActionForPrecedence() {
         testFile("braced-action/braced_action_source_02.bal", "braced-action/braced_action_assert_02.json");
     }
+
+    // Recovery tests
+
+    @Test
+    public void testMissingCloseParen() {
+        testFile("braced-action/braced_action_source_03.bal", "braced-action/braced_action_assert_03.json");
+    }
 }
