@@ -128,3 +128,24 @@ function assignErrorArrayToAnyTypeArrayViseVersa() {
     any[] anyArray = [];
     error[] errorArray = anyArray;
 }
+
+public const C_ERROR = "CError";
+public const L_ERROR = "LError";
+
+public type Detail record {
+    string message;
+    error cause?;
+};
+
+type CError error<C_ERROR, Detail>;
+type LError error<L_ERROR, Detail>;
+type CLError CError|LError;
+
+function nonAssingableErrorTypeArrayAssign() {
+    CLError? [] err = [];
+    error? [] errs = err;
+    ProcessErrors(errs);
+    err = errs;
+}
+
+function ProcessErrors(CLError?[] errors) {}

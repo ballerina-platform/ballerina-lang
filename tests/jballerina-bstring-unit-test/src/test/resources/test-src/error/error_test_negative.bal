@@ -122,6 +122,13 @@ function errorDefinitionNegative() {
     error<string, record { string message?; error cause?; int i;}> e  = 1;
 }
 
+function assignErrorArrayToAnyTypeArrayViseVersa() {
+    error[] ea = [];
+    any[] j = ea;
+    any[] anyArray = [];
+    error[] errorArray = anyArray;
+}
+
 public const C_ERROR = "CError";
 public const L_ERROR = "LError";
 
@@ -132,13 +139,13 @@ public type Detail record {
 
 type CError error<C_ERROR, Detail>;
 type LError error<L_ERROR, Detail>;
-type MyError CError|LError;
+type CLError CError|LError;
 
 function nonAssingableErrorTypeArrayAssign() {
-    MyError? [] err = [];
+    CLError? [] err = [];
     error? [] errs = err;
     ProcessErrors(errs);
     err = errs;
 }
 
-function ProcessErrors(MyError?[] errors) {}
+function ProcessErrors(CLError?[] errors) {}

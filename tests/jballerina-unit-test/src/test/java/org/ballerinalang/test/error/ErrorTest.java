@@ -237,7 +237,7 @@ public class ErrorTest {
 
     @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 20);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 22);
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
                                   "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
@@ -277,6 +277,10 @@ public class ErrorTest {
                                   "incompatible types: expected 'any[]', found 'error[]'", 127, 15);
         BAssertUtil.validateError(negativeCompileResult, i++,
                                   "incompatible types: expected 'error[]', found 'any[]'", 129, 26);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                                 "incompatible types: expected '(CError|LError)?[]', found 'error?[]'", 147, 19);
+        BAssertUtil.validateError(negativeCompileResult, i,
+                                  "incompatible types: expected '(CError|LError)?[]', found 'error?[]'", 148, 11);
     }
 
     @DataProvider(name = "userDefTypeAsReasonTests")
