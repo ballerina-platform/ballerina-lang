@@ -1797,42 +1797,6 @@ public class BallerinaParser {
         return STNodeFactory.createBlockStatementNode(openBrace, stmts, closeBrace);
     }
 
-    /**
-     * Check whether the given token is an end of a block.
-     *
-     * @param tokenKind STToken to check
-     * @return <code>true</code> if the token represents an end of a block. <code>false</code> otherwise
-     */
-    private boolean isEndOfBlockNode(SyntaxKind tokenKind) {
-        return isEndOfBlockNode(tokenKind, 1);
-    }
-
-    private boolean isEndOfBlockNode(SyntaxKind tokenKind, int lookahead) {
-        switch (tokenKind) {
-            case EOF_TOKEN:
-            case HASH_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-            case CLOSE_BRACE_PIPE_TOKEN:
-            case PUBLIC_KEYWORD:
-            case LISTENER_KEYWORD:
-            case FUNCTION_KEYWORD:
-            case IMPORT_KEYWORD:
-                // TODO: statements can also start from function-keyword. handle
-                // this case similar to service-keyword.
-            case ELSE_KEYWORD:
-            case RESOURCE_KEYWORD:
-                return true;
-            case SERVICE_KEYWORD:
-                return isServiceDeclStart(ParserRuleContext.STATEMENT, lookahead);
-            case AT_TOKEN:
-                lookahead = getNumberOfTokensToAnnotsEnd();
-                return isEndOfBlockNode(peek(lookahead).kind, lookahead);
-            // TODO: check what's the construct after the annotation
-            default:
-                return false;
-        }
-    }
-
     private boolean isEndOfRecordTypeNode(SyntaxKind nextTokenKind) {
         STToken nexNextToken = peek(2);
         switch (nextTokenKind) {
@@ -2599,7 +2563,7 @@ public class BallerinaParser {
         STToken token = peek();
 
         ArrayList<STNode> stmts = new ArrayList<>();
-        while (!isEndOfBlockNode(token.kind)) {
+        while (!isEndOfStatements(token.kind)) {
             STNode stmt = parseStatement();
             if (stmt == null) {
                 break;
@@ -2609,6 +2573,18 @@ public class BallerinaParser {
         }
 
         return STNodeFactory.createNodeList(stmts);
+    }
+
+    private boolean isEndOfStatements(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case EOF_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+                return true;
+            case SERVICE_KEYWORD:
+                return isServiceDeclStart(ParserRuleContext.STATEMENT, 1);
+            default:
+                return false;
+        }
     }
 
     /**
@@ -2624,6 +2600,9 @@ public class BallerinaParser {
     private STNode parseStatement(SyntaxKind tokenKind) {
         STNode annots = null;
         switch (tokenKind) {
+            case CLOSE_BRACE_TOKEN:
+                // Returning null marks the end of statements
+                return null;
             case SEMICOLON_TOKEN:
                 this.errorHandler.removeInvalidToken();
                 return parseStatement();
@@ -2655,12 +2634,6 @@ public class BallerinaParser {
             default:
                 if (isValidLHSExpression(tokenKind)) {
                     break;
-                }
-
-                // If the next token in the token stream does not match to any of the statements and
-                // if it is not the end of statement, then try to fix it and continue.
-                if (isEndOfBlockNode(tokenKind)) {
-                    return null;
                 }
 
                 STToken token = peek();
@@ -2700,6 +2673,10 @@ public class BallerinaParser {
     private STNode parseStatement(SyntaxKind tokenKind, STNode annots) {
         // TODO: validate annotations: not every statement supports annots
         switch (tokenKind) {
+            case CLOSE_BRACE_TOKEN:
+                this.errorHandler.reportInvalidNode(null, "invalid annotations");
+                // Returning null marks the end of statements
+                return null;
             case SEMICOLON_TOKEN:
                 this.errorHandler.removeInvalidToken();
                 return parseStatement(tokenKind, annots);
@@ -2743,12 +2720,6 @@ public class BallerinaParser {
                 // with a user defined type, or some statement starts with an expression
                 return parseStatementStartsWithIdentifier(getAnnotations(annots));
             default:
-                // If the next token in the token stream does not match to any of the statements and
-                // if it is not the end of statement, then try to fix it and continue.
-                if (isEndOfBlockNode(tokenKind)) {
-                    return null;
-                }
-
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.STATEMENT_WITHOUT_ANNOTS, annots);
 
