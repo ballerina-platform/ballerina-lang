@@ -1867,6 +1867,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (isFixedLengthList(varRefType)) {
             dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_LIST_SIZE, invocationName, varRefType);
             resultType = symTable.semanticError;
+            return;
         }
 
         if ((varRefType.tag == TypeTags.TUPLE) && hasDifferentTypeThanRest((BTupleType) varRefType) &&
@@ -1874,6 +1875,7 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_TUPLE_SHAPE, invocationName,
                        varRefType);
             resultType = symTable.semanticError;
+            return;
         }
 
         if ((varRefType.tag == TypeTags.UNION) && (invocationName.compareTo(FUNCTION_NAME_SHIFT) == 0)) {
