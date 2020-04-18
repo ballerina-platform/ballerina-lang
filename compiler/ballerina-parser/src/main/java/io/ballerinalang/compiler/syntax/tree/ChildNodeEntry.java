@@ -23,7 +23,6 @@ import java.util.Optional;
  * A {@code ChildNodeEntry} (key-value pair) represents the name, node pair of a
  * child node of a non-terminal node.
  *
-// * @see NonTerminalNode#childEntries()
  * @since 1.3.0
  */
 public class ChildNodeEntry {
