@@ -34,11 +34,11 @@ abstract class AbstractSyntaxTreeAPITest {
         return ParserTestUtils.parseFile(getPath(sourceFilePath));
     }
 
-    String getSourceText(String sourceFilePath) {
-        return ParserTestUtils.getSourceText(getPath(sourceFilePath));
+    String getFileContentAsString(String filePath) {
+        return ParserTestUtils.getSourceText(getPath(filePath));
     }
 
-    Path getPath(String sourceFilePath) {
-        return Paths.get("tree", sourceFilePath);
+    Path getPath(String filePath) {
+        return Paths.get("tree", filePath);
     }
 }
