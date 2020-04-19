@@ -136,8 +136,8 @@ public class BallerinaParser {
                 return parseCloseParenthesis();
             case VARIABLE_NAME:
                 return parseVariableName();
-            ccase TERMINAL_EXPRESSION:
-            return parseTerminalExpression((boolean) args[0], (boolean) args[1]);
+            case TERMINAL_EXPRESSION:
+                return parseTerminalExpression((boolean) args[0], (boolean) args[1]);
             case STATEMENT:
                 return parseStatement();
             case STATEMENT_WITHOUT_ANNOTS:
@@ -2996,6 +2996,10 @@ public class BallerinaParser {
      * @param allowActions Allow actions
      * @return Parsed node
      */
+    private STNode parseTerminalExpression(boolean isRhsExpr, boolean allowActions) {
+        return parseTerminalExpression(peek().kind, isRhsExpr, allowActions);
+    }
+
     private STNode parseTerminalExpression(SyntaxKind kind, boolean isRhsExpr, boolean allowActions) {
         // TODO: Whenever a new expression start is added, make sure to
         // add it to all the other places as well.

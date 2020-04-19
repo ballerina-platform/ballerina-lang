@@ -24,7 +24,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class NilLiteralNode extends NonTerminalNode {
+public class NilLiteralNode extends ExpressionNode {
 
     public NilLiteralNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
@@ -46,6 +46,13 @@ public class NilLiteralNode extends NonTerminalNode {
     @Override
     public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "openParenToken",
+                "closeParenToken"};
     }
 
     public NilLiteralNode modify(
