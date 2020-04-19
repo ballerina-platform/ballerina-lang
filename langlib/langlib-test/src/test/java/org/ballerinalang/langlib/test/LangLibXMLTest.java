@@ -240,8 +240,18 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testElementsNS()  {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testElementsNS");
+    }
+
+    @Test
     public void testElementChildren() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testElementChildren");
+    }
+
+    @Test
+    public void testElementChildrenNS()  {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testElementChildrenNS");
     }
 
     @Test

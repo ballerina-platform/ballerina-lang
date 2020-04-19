@@ -249,6 +249,25 @@ function testElements() {
     assert(z.toString(), "<RUS>Putin</RUS>");
 }
 
+function testElementsNS() {
+    xmlns "foo" as ns;
+    xml presidents = xml `<Leaders>
+                            <!-- This is a comment -->
+                            <ns:US>Obama</ns:US>
+                            <US>Trump</US>
+                            <RUS>Putin</RUS>
+                          </Leaders>`;
+    xml seq = presidents/*;
+
+    xml usNs = seq.elements("{foo}US");
+    assert(usNs.length(), 1);
+    assert(usNs.toString(), "<ns:US xmlns:ns=\"foo\">Obama</ns:US>");
+
+    xml usNoNs = seq.elements("US");
+    assert(usNoNs.length(), 1);
+    assert(usNoNs.toString(), "<US>Trump</US>");
+}
+
 function testElementChildren() {
     xml letter = xml `<note>
                         <to>Tove</to>
@@ -275,6 +294,26 @@ function testElementChildren() {
                          "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>");
     assert(z.length(), 4);
     assert(z.toString(), "<to>Tove</to><to>Irshad</to><to>Tove</to><to>Irshad</to>");
+}
+
+function testElementChildrenNS() {
+    xmlns "foo" as ns;
+    xml letter = xml `<note>
+                            <ns:to>Tove</ns:to>
+                            <to>Irshad</to>
+                            <!-- This is a comment -->
+                            <from>Jani</from>
+                            <body>Don't forget me this weekend!</body>
+                          </note>`;
+    xml seq = 'xml:concat(letter, letter);
+
+    xml toNs = seq.elementChildren("{foo}to");
+    assert(toNs.length(), 2);
+    assert(toNs.toString(), "<ns:to xmlns:ns=\"foo\">Tove</ns:to><ns:to xmlns:ns=\"foo\">Tove</ns:to>");
+
+    xml toNoNs = seq.elementChildren("to");
+    assert(toNoNs.length(), 2);
+    assert(toNoNs.toString(), "<to>Irshad</to><to>Irshad</to>");
 }
 
 function assert(anydata actual, anydata expected) {
