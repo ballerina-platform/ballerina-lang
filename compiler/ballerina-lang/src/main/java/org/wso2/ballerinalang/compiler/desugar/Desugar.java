@@ -846,7 +846,6 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTableTypeNode tableTypeNode) {
         tableTypeNode.constraint = rewrite(tableTypeNode.constraint, env);
-//        tableTypeNode.tableKeySpecifier = rewrite(tableTypeNode.tableKeySpecifier, env);
         tableTypeNode.tableKeyTypeConstraint = rewrite(tableTypeNode.tableKeyTypeConstraint, env);
         result = tableTypeNode;
     }
