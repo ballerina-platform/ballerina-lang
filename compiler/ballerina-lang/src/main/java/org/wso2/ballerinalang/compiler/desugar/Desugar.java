@@ -87,7 +87,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
-import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
@@ -857,12 +856,6 @@ public class Desugar extends BLangNodeVisitor {
         keyTypeConstraint.keyType = rewrite(keyTypeConstraint.keyType, env);
         result = keyTypeConstraint;
     }
-
-//    @Override
-//    public void visit(BLangTableKeySpecifier keySpecifier) {
-//        keySpecifier.fieldNameIdentifierList = rewrite(keySpecifier.fieldNameIdentifierList, env);
-//        result = keySpecifier;
-//    }
 
     @Override
     public void visit(BLangValueType valueType) {

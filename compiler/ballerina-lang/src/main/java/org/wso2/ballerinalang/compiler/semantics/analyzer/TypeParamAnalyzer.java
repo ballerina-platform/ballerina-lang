@@ -556,7 +556,7 @@ public class TypeParamAnalyzer {
             case TypeTags.TABLE:
                 BType tableConstraint = getMatchingBoundType(((BTableType) expType).constraint, env, resolvedTypes);
                 BTableType tableType = new BTableType(TypeTags.TABLE, tableConstraint, symTable.tableType.tsymbol);
-                if(((BTableType) expType).keyTypeConstraint != null) {
+                if (((BTableType) expType).keyTypeConstraint != null) {
                     BType keyTypeConstraint = getMatchingBoundType(((BTableType) expType).keyTypeConstraint, env,
                             resolvedTypes);
                     tableType.keyTypeConstraint = keyTypeConstraint;

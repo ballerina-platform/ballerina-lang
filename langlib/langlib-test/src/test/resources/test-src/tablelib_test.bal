@@ -15,17 +15,17 @@
 // under the License.
 
 type Person record {
-string name;
-int age;
+  string name;
+  int age;
 };
 
 type PersonValue record {|
-Person value;
+  Person value;
 |};
 
 type Employee record {|
-string name;
-string department;
+  string name;
+  string department;
 |};
 
 type PersonalTable table<Person> key(name);
@@ -33,126 +33,132 @@ type PersonalTable table<Person> key(name);
 type EmployeeTable table<Employee> key(name);
 
 PersonalTable tab = table key(name)[
-{ name: "Chiran", age: 33 },
-{ name: "Mohan", age: 37 },
-{ name: "Gima", age: 38 },
-{ name: "Granier", age: 34 }
+  { name: "Chiran", age: 33 },
+  { name: "Mohan", age: 37 },
+  { name: "Gima", age: 38 },
+  { name: "Granier", age: 34 }
 ];
 
 function getPerson(record {| Person value; |}? returnedVal) returns Person? {
-if (returnedVal is PersonValue) {
-return returnedVal.value;
-} else {
-return ();
-}
+    if (returnedVal is PersonValue) {
+       return returnedVal.value;
+    } else {
+       return ();
+    }
 }
 
 function getPersonList() returns Person[] {
-Person[] personList = [];
-Person personA = { name: "Chiran", age: 33 };
-Person personB = { name: "Mohan", age: 37 };
-Person personC = { name: "Gima", age: 38 };
-Person personD = { name: "Granier", age: 34 };
+    Person[] personList = [];
+    Person personA = { name: "Chiran", age: 33 };
+    Person personB = { name: "Mohan", age: 37 };
+    Person personC = { name: "Gima", age: 38 };
+    Person personD = { name: "Granier", age: 34 };
 
-personList.push(personA);
-personList.push(personB);
-personList.push(personC);
-personList.push(personD);
+    personList.push(personA);
+    personList.push(personB);
+    personList.push(personC);
+    personList.push(personD);
 
-return personList;
+    return personList;
 }
 
 function testTableLength() returns int {
-return tab.length();
+    return tab.length();
 }
 
 function testIterator() returns boolean {
-boolean testPassed = true;
-Person[] personList = getPersonList();
-abstract object { public function next() returns record {| Person value; |}?;} itr = tab.iterator();
+    boolean testPassed = true;
+    Person[] personList = getPersonList();
+    abstract object { public function next() returns record {| Person value; |}?;} itr = tab.iterator();
 
-Person? person = getPerson(itr.next());
-testPassed = testPassed && person == personList[0];
-person = getPerson(itr.next());
-testPassed = testPassed && person == personList[1];
-person = getPerson(itr.next());
-testPassed = testPassed && person == personList[2];
-person = getPerson(itr.next());
-testPassed = testPassed && person == personList[3];
+    Person? person = getPerson(itr.next());
+    testPassed = testPassed && person == personList[0];
+    person = getPerson(itr.next());
+    testPassed = testPassed && person == personList[1];
+    person = getPerson(itr.next());
+    testPassed = testPassed && person == personList[2];
+    person = getPerson(itr.next());
+    testPassed = testPassed && person == personList[3];
 
-return testPassed;
+    return testPassed;
 }
 
 function getValueFromKey() returns boolean {
-boolean testPassed = true;
-Person[] personList = getPersonList();
-testPassed = testPassed && tab.get("Chiran") == personList[0];
-testPassed = testPassed && tab.get("Mohan") == personList[1];
-testPassed = testPassed && tab.get("Gima") == personList[2];
-testPassed = testPassed && tab.get("Granier") == personList[3];
-return testPassed;
+    boolean testPassed = true;
+    Person[] personList = getPersonList();
+    testPassed = testPassed && tab.get("Chiran") == personList[0];
+    testPassed = testPassed && tab.get("Mohan") == personList[1];
+    testPassed = testPassed && tab.get("Gima") == personList[2];
+    testPassed = testPassed && tab.get("Granier") == personList[3];
+
+    return testPassed;
 }
 
 
 function testMap() returns boolean {
-boolean testPassed = true;
-Person[] personList = getPersonList();
+    boolean testPassed = true;
+    Person[] personList = getPersonList();
 
-EmployeeTable empTab = tab.'map(function (Person person) returns Employee {
-return {name: person.name, department : "HR"};
-});
+    EmployeeTable empTab = tab.'map(function (Person person) returns Employee {
+          return {name: person.name, department : "HR"};
+    });
 
-int index = 0;
-empTab.forEach(function (Employee emp) {
-testPassed = testPassed && emp.name == personList[index].name;
-testPassed = testPassed && emp.department == "HR";
-index+=1;
-});
-return testPassed;
+    int index = 0;
+    empTab.forEach(function (Employee emp) {
+    testPassed = testPassed && emp.name == personList[index].name;
+    testPassed = testPassed && emp.department == "HR";
+    index+=1;
+    });
+
+    return testPassed;
 }
 
 function testForeach() returns string {
-string filtered = "";
+    string filtered = "";
 
-tab.forEach(function (Person person) {
-if(person.age < 35) {
-filtered+=       person.name;
-filtered+=       " ";
-}
-});
-return filtered;
+    tab.forEach(function (Person person) {
+       if(person.age < 35) {
+          filtered += person.name;
+          filtered += " ";
+       }
+    });
+    return filtered;
 }
 
 function testFilter() returns boolean {
-PersonalTable  filteredTable = tab.filter(function (Person person) returns boolean { return person.age < 35; });
-return filteredTable.length() == 2;
+    PersonalTable  filteredTable = tab.filter(function (Person person) returns boolean {
+                                                  return person.age < 35;
+                                              });
+    return filteredTable.length() == 2;
 }
 
 function testReduce() returns float {
-float avg = tab.reduce(function (float accum, Person val) returns float {
-return accum + <float>val.age / tab.length();
-}, 0.0);
-return avg;
+    float avg = tab.reduce(function (float accum, Person val) returns float {
+                               return accum + <float>val.age / tab.length();
+                           }, 0.0);
+    return avg;
 }
 
 function removeWithKey() returns boolean {
     PersonalTable tbl = table key(name) [{ name: "Chiran", age: 33 },
-{ name: "Mohan", age: 37 },
-  { name: "Gima", age: 38 },
+    { name: "Mohan", age: 37 },
+    { name: "Gima", age: 38 },
     { name: "Granier", age: 34 }];
+
     Person[] personList = getPersonList();
-Person removedPerson = tbl.remove("Gima");
-return removedPerson == personList[2];
+    Person removedPerson = tbl.remove("Gima");
+
+    return removedPerson == personList[2];
 }
 
 function removeIfHasKey() returns boolean {
     PersonalTable tbl = table key(name) [{ name: "Chiran", age: 33 },
-{ name: "Mohan", age: 37 },
-  { name: "Gima", age: 38 },
+    { name: "Mohan", age: 37 },
+    { name: "Gima", age: 38 },
     { name: "Granier", age: 34 }];
-Person? removedPerson1 = tbl.removeIfHasKey("AAA");
-Person? removedPerson2 = tbl.removeIfHasKey("Chiran");
-return removedPerson1 == () && removedPerson2?.name == "Chiran";
+    Person? removedPerson1 = tbl.removeIfHasKey("AAA");
+    Person? removedPerson2 = tbl.removeIfHasKey("Chiran");
+    return removedPerson1 == () && removedPerson2?.name == "Chiran";
 }
 
 function testHasKey() returns boolean {
@@ -160,15 +166,16 @@ function testHasKey() returns boolean {
 }
 
 function testGetKeyList() returns any[] {
-return tab.keys();
+    return tab.keys();
 }
 
 function removeAllFromTable() returns boolean {
-PersonalTable tbl = table key(name) [{ name: "Chiran", age: 33 },
-{ name: "Mohan", age: 37 },
-{ name: "Gima", age: 38 },
-{ name: "Granier", age: 34 }];
-tbl.removeAll();
+    PersonalTable tbl = table key(name) [{ name: "Chiran", age: 33 },
+    { name: "Mohan", age: 37 },
+    { name: "Gima", age: 38 },
+    { name: "Granier", age: 34 }];
+
+    tbl.removeAll();
     return tbl.length() == 0;
 }
 

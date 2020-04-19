@@ -924,6 +924,7 @@ public class BIRPackageSymbolEnter {
                     boolean hasFieldNameList = inputStream.readByte() == 1;
                     boolean hasKeyTypeConstraint = inputStream.readByte() == 1;
                     if (hasFieldNameList) {
+                        bTableType.fieldNameList = new ArrayList<>();
                         int fieldNameListSize = inputStream.readInt();
                         for (int i = 0; i < fieldNameListSize; i++) {
                             String fieldName = getStringCPEntryValue(inputStream);

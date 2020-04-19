@@ -43,8 +43,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
-import org.ballerinalang.jvm.values.StringValue;
-import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -60,7 +58,6 @@ import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
-import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypeDesc;
@@ -79,7 +76,6 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
@@ -1228,10 +1224,6 @@ public class BRunUtil {
                 StreamValue streamValue = (StreamValue) value;
                 bvmValue = new BStream(getBVMType(streamValue.getType(), new Stack<>()), streamValue.getStreamId());
                 break;
-            case org.ballerinalang.jvm.types.TypeTags.TABLE_TAG:
-                TableValue tableValue = (TableValue) value;
-                bvmValue = new BTable(tableValue.getTableId(), getBVMType(tableValue.getType(), new Stack<>()));
-                break;
             case org.ballerinalang.jvm.types.TypeTags.FUNCTION_POINTER_TAG:
                 FPValue functionValue = (FPValue) value;
                 bvmValue = new BFunctionPointer(getBVMType(functionValue.getType(), new Stack<>()));
@@ -1314,15 +1306,6 @@ public class BRunUtil {
             case org.ballerinalang.jvm.types.TypeTags.STREAM_TAG:
                 org.ballerinalang.jvm.types.BStreamType streamType = (org.ballerinalang.jvm.types.BStreamType) jvmType;
                 return new BStreamType(getBVMType(streamType.getConstrainedType(), selfTypeStack));
-            case org.ballerinalang.jvm.types.TypeTags.TABLE_TAG:
-                org.ballerinalang.jvm.types.BTableType tableType = (org.ballerinalang.jvm.types.BTableType) jvmType;
-                BType constrainType = getBVMType(tableType.getConstrainedType(), selfTypeStack);
-                BTableType bTableType = new BTableType(constrainType);
-                if(tableType.getKeyType() != null) {
-                    BType keyType = getBVMType(tableType.getKeyType(), selfTypeStack);
-                    bTableType.setKeyType(keyType);
-                }
-                return bTableType;
             case org.ballerinalang.jvm.types.TypeTags.UNION_TAG:
                 org.ballerinalang.jvm.types.BUnionType unionType = (org.ballerinalang.jvm.types.BUnionType) jvmType;
                 memberTypes = new ArrayList<>();

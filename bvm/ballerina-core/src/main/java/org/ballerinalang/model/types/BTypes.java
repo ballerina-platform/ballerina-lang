@@ -37,7 +37,6 @@ public class BTypes {
     public static BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, null);
     public static BType typeAnydata = new BAnydataType(TypeConstants.ANYDATA_TNAME, null);
     public static BType typeStream = new BStreamType(TypeConstants.STREAM_TNAME, typeAny, null);
-    public static BType typeTable = new BTableType(typeAny);
     public static BType typeDesc = new BTypeDesc(TypeConstants.TYPEDESC_TNAME, null);
     public static BType typeMap = new BMapType(TypeConstants.MAP_TNAME, typeAny, null);
     public static BType typeFuture = new BFutureType(TypeConstants.FUTURE_TNAME, null);
@@ -90,8 +89,6 @@ public class BTypes {
                 return typeFuture;
             case TypeConstants.STREAM_TNAME:
                 return typeStream;
-            case TypeConstants.TABLE_TNAME:
-                return typeTable;
             case TypeConstants.CHANNEL:
                 return typeChannel;
             case TypeConstants.ANY_TNAME:
