@@ -30,7 +30,7 @@ public class RecordRestDescriptorNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Node type() {
+    public Node typeName() {
         return childInBucket(0);
     }
 
@@ -61,18 +61,18 @@ public class RecordRestDescriptorNode extends NonTerminalNode {
     }
 
     public RecordRestDescriptorNode modify(
-            Node type,
+            Node typeName,
             Token ellipsisToken,
             Token semicolonToken) {
         if (checkForReferenceEquality(
-                type,
+                typeName,
                 ellipsisToken,
                 semicolonToken)) {
             return this;
         }
 
         return NodeFactory.createRecordRestDescriptorNode(
-                type,
+                typeName,
                 ellipsisToken,
                 semicolonToken);
     }

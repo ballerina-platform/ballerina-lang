@@ -34,7 +34,7 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Node type() {
+    public Node typeName() {
         return childInBucket(1);
     }
 
@@ -77,14 +77,14 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
 
     public RecordFieldWithDefaultValueNode modify(
             MetadataNode metadata,
-            Node type,
+            Node typeName,
             Token fieldName,
             Token equalsToken,
             ExpressionNode expression,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
-                type,
+                typeName,
                 fieldName,
                 equalsToken,
                 expression,
@@ -94,7 +94,7 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
 
         return NodeFactory.createRecordFieldWithDefaultValueNode(
                 metadata,
-                type,
+                typeName,
                 fieldName,
                 equalsToken,
                 expression,
