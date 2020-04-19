@@ -230,6 +230,31 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testChildren() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testChildren");
+    }
+
+    @Test
+    public void testElements() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testElements");
+    }
+
+    @Test
+    public void testElementsNS()  {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testElementsNS");
+    }
+
+    @Test
+    public void testElementChildren() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testElementChildren");
+    }
+
+    @Test
+    public void testElementChildrenNS()  {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testElementChildrenNS");
+    }
+
+    @Test
     public void testNegativeCases() {
         int i = 0;
         validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 21, 12);
