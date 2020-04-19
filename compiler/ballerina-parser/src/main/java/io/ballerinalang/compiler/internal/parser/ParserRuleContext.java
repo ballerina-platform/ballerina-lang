@@ -100,7 +100,22 @@ public enum ParserRuleContext {
     DOC_STRING("doc-string"),
     IDENTIFIER("identifier"),
     QUALIFIED_IDENTIFIER("qualified-identifier"),
-    EQUAL_OR_RIGHT_ARROW("equal-or-right-arrow"),
+    ANNOTATION_DECL("annotation-decl"),
+    ANNOT_DECL_OPTIONAL_TYPE("annot-decl-optional-type"),
+    ANNOT_DECL_RHS("annot-decl-rhs"),
+    ANNOT_OPTIONAL_ATTACH_POINTS("annot-optional-attach-points"),
+    ANNOT_ATTACH_POINTS_LIST("annot-attach-points-list"),
+    ATTACH_POINT("attach-point"),
+    ATTACH_POINT_IDENT("attach-point-ident"),
+    SINGLE_KEYWORD_ATTACH_POINT_IDENT("single-keyword-attach-point-ident"),
+    IDENT_AFTER_OBJECT_IDENT("ident-after-object-ident"),
+    FUNCTION_IDENT("func-ident"),
+    FIELD_IDENT("field-ident"),
+    OBJECT_IDENT("object-ident"),
+    RESOURCE_IDENT("resource-ident"),
+    RECORD_IDENT("record-ident"),
+    ANNOTATION_TAG("annotation-tag"),
+    ATTACH_POINT_END("attach-point-end"),
 
     // Statements
     STATEMENT("statement"),
@@ -160,6 +175,8 @@ public enum ParserRuleContext {
     CONST_KEYWORD("const"),
     TYPEOF_KEYWORD("typeof"),
     IS_KEYWORD("is"),
+    ANNOTATION_KEYWORD("annotation"),
+    SOURCE_KEYWORD("source"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

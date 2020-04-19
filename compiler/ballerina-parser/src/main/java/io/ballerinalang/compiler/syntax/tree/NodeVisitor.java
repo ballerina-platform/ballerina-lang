@@ -295,6 +295,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(remoteMethodCallActionNode);
     }
 
+    public void visit(AnnotationDeclarationNode annotationDeclarationNode) {
+        visitSyntaxNode(annotationDeclarationNode);
+    }
+
+    public void visit(AnnotationAttachPointNode annotationAttachPointNode) {
+        visitSyntaxNode(annotationAttachPointNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

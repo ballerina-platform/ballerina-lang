@@ -296,6 +296,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(remoteMethodCallActionNode);
     }
 
+    public T transform(AnnotationDeclarationNode annotationDeclarationNode) {
+        return transformSyntaxNode(annotationDeclarationNode);
+    }
+
+    public T transform(AnnotationAttachPointNode annotationAttachPointNode) {
+        return transformSyntaxNode(annotationAttachPointNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

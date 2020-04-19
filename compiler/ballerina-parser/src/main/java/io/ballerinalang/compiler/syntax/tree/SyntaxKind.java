@@ -41,6 +41,10 @@ public enum SyntaxKind {
     ON_KEYWORD(112, "on"),
     RESOURCE_KEYWORD(113, "resource"),
     FINAL_KEYWORD(114, "final"),
+    SOURCE_KEYWORD(115, "source"),
+    WORKER_KEYWORD(117, "worker"),
+    PARAMETER_KEYWORD(118, "parameter"),
+    FIELD_KEYWORD(119, "field"),
 
     RETURNS_KEYWORD(200, "returns"),
     RETURN_KEYWORD(201, "return"),
@@ -57,6 +61,7 @@ public enum SyntaxKind {
     BREAK_KEYWORD(212,"break"),
     TYPEOF_KEYWORD(213,"typeof"),
     IS_KEYWORD(214, "is"),
+    VAR_KEYWORD(215, "var"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -122,6 +127,7 @@ public enum SyntaxKind {
     MODULE_VAR_DECL(2004),
     LISTENER_DECLARATION(2005),
     CONST_DECLARATION(2006),
+    ANNOTATION_DECLARATION(2007),
 
     // Statements
     BLOCK_STATEMENT(1200),
@@ -193,6 +199,7 @@ public enum SyntaxKind {
     ANNOTATION(3024),
     METADATA(3025),
     ARRAY_DIMENSION(3026),
+    ANNOTATION_ATTACH_POINT(3027),
 
     INVALID(4),
     MODULE_PART(3),

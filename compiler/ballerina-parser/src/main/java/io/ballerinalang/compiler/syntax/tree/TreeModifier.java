@@ -851,6 +851,40 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 closeParenToken);
     }
 
+    @Override
+    public Node transform(AnnotationDeclarationNode annotationDeclarationNode) {
+        MetadataNode metadata = modifyNode(annotationDeclarationNode.metadata());
+        Token visibilityQualifier = modifyToken(annotationDeclarationNode.visibilityQualifier());
+        Token constKeyword = modifyToken(annotationDeclarationNode.constKeyword());
+        Token annotationKeyword = modifyToken(annotationDeclarationNode.annotationKeyword());
+        Node typeDescriptor = modifyNode(annotationDeclarationNode.typeDescriptor());
+        Token annotationTag = modifyToken(annotationDeclarationNode.annotationTag());
+        Token onKeyword = modifyToken(annotationDeclarationNode.onKeyword());
+        Node attachPoints = modifyNode(annotationDeclarationNode.attachPoints());
+        Token semicolonToken = modifyToken(annotationDeclarationNode.semicolonToken());
+        return annotationDeclarationNode.modify(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                annotationKeyword,
+                typeDescriptor,
+                annotationTag,
+                onKeyword,
+                attachPoints,
+                semicolonToken);
+    }
+
+    @Override
+    public Node transform(AnnotationAttachPointNode annotationAttachPointNode) {
+        Token sourceKeyword = modifyToken(annotationAttachPointNode.sourceKeyword());
+        Token firstIdent = modifyToken(annotationAttachPointNode.firstIdent());
+        Token secondIdent = modifyToken(annotationAttachPointNode.secondIdent());
+        return annotationAttachPointNode.modify(
+                sourceKeyword,
+                firstIdent,
+                secondIdent);
+    }
+
     // Tokens
 
     @Override

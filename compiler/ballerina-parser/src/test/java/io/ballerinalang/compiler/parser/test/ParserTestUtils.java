@@ -357,6 +357,16 @@ public class ParserTestUtils {
                 return SyntaxKind.ANNOTATION_KEYWORD;
             case "IS_KEYWORD":
                 return SyntaxKind.IS_KEYWORD;
+            case "VAR_KEYWORD":
+                return SyntaxKind.VAR_KEYWORD;
+            case "SOURCE_KEYWORD":
+                return SyntaxKind.SOURCE_KEYWORD;
+            case "WORKER_KEYWORD":
+                return SyntaxKind.WORKER_KEYWORD;
+            case "PARAMETER_KEYWORD":
+                return SyntaxKind.PARAMETER_KEYWORD;
+            case "FIELD_KEYWORD":
+                return SyntaxKind.FIELD_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -585,6 +595,10 @@ public class ParserTestUtils {
                 return SyntaxKind.METADATA;
             case "ANNOTATION":
                 return SyntaxKind.ANNOTATION;
+            case "ANNOTATION_DECLARATION":
+                return SyntaxKind.ANNOTATION_DECLARATION;
+            case "ANNOTATION_ATTACH_POINT":
+                return SyntaxKind.ANNOTATION_ATTACH_POINT;
 
             // Trivia
             case "EOF_TOKEN":

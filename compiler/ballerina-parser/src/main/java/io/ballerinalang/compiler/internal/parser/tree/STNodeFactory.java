@@ -861,5 +861,39 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 arguments,
                 closeParenToken);
     }
+
+    public static STNode createAnnotationDeclarationNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode constKeyword,
+            STNode annotationKeyword,
+            STNode typeDescriptor,
+            STNode annotationTag,
+            STNode onKeyword,
+            STNode attachPoints,
+            STNode semicolonToken) {
+
+        return new STAnnotationDeclarationNode(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                annotationKeyword,
+                typeDescriptor,
+                annotationTag,
+                onKeyword,
+                attachPoints,
+                semicolonToken);
+    }
+
+    public static STNode createAnnotationAttachPointNode(
+            STNode sourceKeyword,
+            STNode firstIdent,
+            STNode secondIdent) {
+
+        return new STAnnotationAttachPointNode(
+                sourceKeyword,
+                firstIdent,
+                secondIdent);
+    }
 }
 

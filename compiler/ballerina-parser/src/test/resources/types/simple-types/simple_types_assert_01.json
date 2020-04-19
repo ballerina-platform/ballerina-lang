@@ -280,8 +280,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "var"
+                                    "kind": "VAR_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",

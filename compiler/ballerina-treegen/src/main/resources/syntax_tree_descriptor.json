@@ -1507,6 +1507,68 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "AnnotationDeclarationNode",
+            "base": "ModuleMemberDeclarationNode",
+            "kind": "ANNOTATION_DECLARATION",
+            "attributes": [
+                {
+                    "name": "metadata",
+                    "type": "MetadataNode"
+                },
+                {
+                    "name": "visibilityQualifier",
+                    "type": "Token"
+                },
+                {
+                    "name": "constKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "annotationKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeDescriptor",
+                    "type": "Node"
+                },
+                {
+                    "name": "annotationTag",
+                    "type": "Token"
+                },
+                {
+                    "name": "onKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "attachPoints",
+                    "type": "Node"
+                },
+                {
+                    "name": "semicolonToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "AnnotationAttachPointNode",
+            "base": "Node",
+            "kind": "ANNOTATION_ATTACH_POINT",
+            "attributes": [
+                {
+                    "name": "sourceKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "firstIdent",
+                    "type": "Token"
+                },
+                {
+                    "name": "secondIdent",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

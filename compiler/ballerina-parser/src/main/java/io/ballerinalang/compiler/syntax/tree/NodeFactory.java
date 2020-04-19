@@ -1171,5 +1171,53 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 closeParenToken.internalNode());
         return stRemoteMethodCallActionNode.createUnlinkedFacade();
     }
+
+    public static AnnotationDeclarationNode createAnnotationDeclarationNode(
+            MetadataNode metadata,
+            Token visibilityQualifier,
+            Token constKeyword,
+            Token annotationKeyword,
+            Node typeDescriptor,
+            Token annotationTag,
+            Token onKeyword,
+            Node attachPoints,
+            Token semicolonToken) {
+        Objects.requireNonNull(metadata, "metadata must not be null");
+        Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
+        Objects.requireNonNull(constKeyword, "constKeyword must not be null");
+        Objects.requireNonNull(annotationKeyword, "annotationKeyword must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(annotationTag, "annotationTag must not be null");
+        Objects.requireNonNull(onKeyword, "onKeyword must not be null");
+        Objects.requireNonNull(attachPoints, "attachPoints must not be null");
+        Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+
+        STNode stAnnotationDeclarationNode = STNodeFactory.createAnnotationDeclarationNode(
+                metadata.internalNode(),
+                visibilityQualifier.internalNode(),
+                constKeyword.internalNode(),
+                annotationKeyword.internalNode(),
+                typeDescriptor.internalNode(),
+                annotationTag.internalNode(),
+                onKeyword.internalNode(),
+                attachPoints.internalNode(),
+                semicolonToken.internalNode());
+        return stAnnotationDeclarationNode.createUnlinkedFacade();
+    }
+
+    public static AnnotationAttachPointNode createAnnotationAttachPointNode(
+            Token sourceKeyword,
+            Token firstIdent,
+            Token secondIdent) {
+        Objects.requireNonNull(sourceKeyword, "sourceKeyword must not be null");
+        Objects.requireNonNull(firstIdent, "firstIdent must not be null");
+        Objects.requireNonNull(secondIdent, "secondIdent must not be null");
+
+        STNode stAnnotationAttachPointNode = STNodeFactory.createAnnotationAttachPointNode(
+                sourceKeyword.internalNode(),
+                firstIdent.internalNode(),
+                secondIdent.internalNode());
+        return stAnnotationAttachPointNode.createUnlinkedFacade();
+    }
 }
 
