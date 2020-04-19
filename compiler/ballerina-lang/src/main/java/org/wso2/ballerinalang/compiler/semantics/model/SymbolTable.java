@@ -130,6 +130,7 @@ public class SymbolTable {
     public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
+    public final BType nullSet = new BType(TypeTags.NULL_SET, null);
 
     public BType streamType = new BStreamType(TypeTags.STREAM, anydataType, null, null);
     public BErrorType errorType;

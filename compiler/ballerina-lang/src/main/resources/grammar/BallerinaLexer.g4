@@ -597,7 +597,7 @@ DoubleBacktickEnd
 mode TRIPLE_BACKTICKED_DOCUMENTATION;
 
 TripleBacktickContent
-    :   ((~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n])? (DocumentationLineStart (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n]?)+
+    :   ((~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n])? (WS? DocumentationLineStart (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n]?)+
     |   (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])+
     ;
 
