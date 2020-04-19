@@ -5712,6 +5712,14 @@ public class BallerinaParser {
         }
     }
 
+    /**
+     * Parse remote method call action, given the starting expression.
+     * <p>
+     * <code>remote-method-call-action := expression -> method-name ( arg-list )</code>
+     * 
+     * @param expression LHS expression
+     * @return
+     */
     private STNode parseRemoteMethodCallAction(STNode expression) {
         STNode rightArrow = parseRightArrow();
         STNode methodName = parseFunctionName();
@@ -5847,6 +5855,13 @@ public class BallerinaParser {
         }
     }
 
+    /**
+     * Parse annotation tag.
+     * <p>
+     * <code>annot-tag := identifier</code>
+     * 
+     * @return
+     */
     private STNode parseAnnotationTag() {
         STToken token = peek();
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
@@ -6040,6 +6055,11 @@ public class BallerinaParser {
         return STNodeFactory.createNodeList(attachPoints);
     }
 
+    /**
+     * Parse annotation attach point end.
+     * 
+     * @return Parsed node
+     */
     private STNode parseAttachPointEnd() {
         STToken nextToken = peek();
         return parseAttachPointEnd(nextToken.kind);
@@ -6183,6 +6203,13 @@ public class BallerinaParser {
         }
     }
 
+    /**
+     * Parse dual-attach-point ident.
+     * 
+     * @param sourceKeyword Source keyword
+     * @param firstIdent first part of the dual attach-point
+     * @return Parsed node
+     */
     private STNode parseDualAttachPointIdent(STNode sourceKeyword, STNode firstIdent) {
         STNode secondIdent;
         switch (firstIdent.kind) {
@@ -6209,6 +6236,11 @@ public class BallerinaParser {
         return STNodeFactory.createAnnotationAttachPointNode(sourceKeyword, firstIdent, secondIdent);
     }
 
+    /**
+     * Parse the idents that are supported after object-ident.
+     * 
+     * @return Parsed node
+     */
     private STNode parseIdentAfterObjectIdent() {
         STToken token = peek();
         switch (token.kind) {
@@ -6342,6 +6374,13 @@ public class BallerinaParser {
         return expr;
     }
 
+    /**
+     * Parse the portion after the namsepsace-uri of an XML declaration.
+     * 
+     * @param xmlnsKeyword XMLNS keyword
+     * @param namespaceUri Namespace URI
+     * @return Parsed node
+     */
     private STNode parseXMLDeclRhs(STNode xmlnsKeyword, STNode namespaceUri) {
         return parseXMLDeclRhs(peek().kind, xmlnsKeyword, namespaceUri);
     }
