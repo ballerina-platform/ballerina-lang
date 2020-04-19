@@ -60,6 +60,16 @@ public class LocalTypeDefinitionStatementNode extends StatementNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "annotations",
+                "typeKeyword",
+                "typeName",
+                "typeDescriptor",
+                "semicolonToken"};
+    }
+
     public LocalTypeDefinitionStatementNode modify(
             NodeList<AnnotationNode> annotations,
             Token typeKeyword,

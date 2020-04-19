@@ -20,7 +20,11 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils.isSTNodePresent;
 
@@ -52,6 +56,22 @@ public abstract class NonTerminalNode extends Node {
         childNodeList = new ChildNodeList(this);
         return childNodeList;
     }
+
+    /**
+     * Returns a collection of name and node pairs of the children of this node.
+     *
+     * @return a collection of {@code ChildNodeEntry}
+     */
+    public Collection<ChildNodeEntry> childEntries() {
+        String[] childNames = childNames();
+        return Collections.unmodifiableCollection(
+                IntStream.range(0, bucketCount())
+                        .filter(bucket -> childInBucket(bucket) != null)
+                        .mapToObj(bucket -> new ChildNodeEntry(childNames[bucket], childInBucket(bucket)))
+                        .collect(Collectors.toList()));
+    }
+
+    protected abstract String[] childNames();
 
     protected int bucketCount() {
         return internalNode.bucketCount();

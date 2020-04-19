@@ -56,6 +56,15 @@ public class SpecificFieldNode extends MappingFieldNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "leadingComma",
+                "fieldName",
+                "colon",
+                "valueExpr"};
+    }
+
     public SpecificFieldNode modify(
             Token leadingComma,
             IdentifierToken fieldName,

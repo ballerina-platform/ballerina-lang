@@ -50,6 +50,13 @@ public class MetadataNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "documentationString",
+                "annotations"};
+    }
+
     public MetadataNode modify(
             Node documentationString,
             NodeList<AnnotationNode> annotations) {

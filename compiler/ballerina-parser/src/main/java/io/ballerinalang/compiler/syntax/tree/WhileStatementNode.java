@@ -52,6 +52,14 @@ public class WhileStatementNode extends StatementNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "whileKeyword",
+                "condition",
+                "whileBody"};
+    }
+
     public WhileStatementNode modify(
             Token whileKeyword,
             ExpressionNode condition,

@@ -52,6 +52,14 @@ public class BinaryExpressionNode extends ExpressionNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "lhsExpr",
+                "operator",
+                "rhsExpr"};
+    }
+
     public BinaryExpressionNode modify(
             SyntaxKind kind,
             Node lhsExpr,

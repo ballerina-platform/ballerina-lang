@@ -54,6 +54,14 @@ public class AnnotationNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "atToken",
+                "annotReference",
+                "annotValue"};
+    }
+
     public AnnotationNode modify(
             Token atToken,
             Node annotReference,

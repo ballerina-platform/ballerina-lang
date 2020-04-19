@@ -52,6 +52,14 @@ public class RecordRestDescriptorNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "type",
+                "ellipsisToken",
+                "semicolonToken"};
+    }
+
     public RecordRestDescriptorNode modify(
             Node type,
             Token ellipsisToken,

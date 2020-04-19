@@ -74,6 +74,19 @@ public class ListenerDeclarationNode extends ModuleMemberDeclarationNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "metadata",
+                "visibilityQualifier",
+                "listenerKeyword",
+                "typeDescriptor",
+                "variableName",
+                "equalsToken",
+                "initializer",
+                "semicolonToken"};
+    }
+
     public ListenerDeclarationNode modify(
             MetadataNode metadata,
             Token visibilityQualifier,

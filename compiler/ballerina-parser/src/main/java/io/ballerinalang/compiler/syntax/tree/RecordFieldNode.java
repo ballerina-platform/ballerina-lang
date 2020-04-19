@@ -60,6 +60,16 @@ public class RecordFieldNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "metadata",
+                "type",
+                "fieldName",
+                "questionMarkToken",
+                "semicolonToken"};
+    }
+
     public RecordFieldNode modify(
             MetadataNode metadata,
             Node type,

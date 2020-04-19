@@ -69,6 +69,14 @@ public{{#isAbstract}} abstract{{/isAbstract}} class {{externalClassName}} extend
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+        {{#fields}}
+                {{^isLast}}"{{fieldName}}",{{/isLast}}{{#isLast}}"{{fieldName}}"};{{/isLast}}
+        {{/fields}}
+    }
+
     public {{externalClassName}} modify(
             {{^syntaxKind}}SyntaxKind kind, &#10;            {{/syntaxKind}}{{#fields}}{{#isList}}NodeList<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}}{{^isLast}}, &#10;            {{/isLast}}{{/fields}}) {
         if (checkForReferenceEquality(

@@ -60,6 +60,16 @@ public class RestParameterNode extends ParameterNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "leadingComma",
+                "annotations",
+                "type",
+                "ellipsisToken",
+                "paramName"};
+    }
+
     public RestParameterNode modify(
             Token leadingComma,
             NodeList<AnnotationNode> annotations,

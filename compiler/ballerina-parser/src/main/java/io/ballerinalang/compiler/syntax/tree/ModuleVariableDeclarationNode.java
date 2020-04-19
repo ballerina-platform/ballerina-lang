@@ -70,6 +70,18 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "metadata",
+                "finalKeyword",
+                "typeName",
+                "variableName",
+                "equalsToken",
+                "initializer",
+                "semicolonToken"};
+    }
+
     public ModuleVariableDeclarationNode modify(
             MetadataNode metadata,
             Token finalKeyword,

@@ -48,6 +48,13 @@ public class ElseBlockNode extends StatementNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "elseKeyword",
+                "elseBody"};
+    }
+
     public ElseBlockNode modify(
             Token elseKeyword,
             Node elseBody) {
