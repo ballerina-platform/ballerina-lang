@@ -72,6 +72,19 @@ public class ConstantDeclarationNode extends ModuleMemberDeclarationNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "metadata",
+                "visibilityQualifier",
+                "constKeyword",
+                "typeDescriptor",
+                "variableName",
+                "equalsToken",
+                "initializer",
+                "semicolonToken"};
+    }
+
     public ConstantDeclarationNode modify(
             MetadataNode metadata,
             Token visibilityQualifier,

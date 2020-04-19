@@ -52,6 +52,14 @@ public class FieldAccessExpressionNode extends ExpressionNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "expression",
+                "dotToken",
+                "fieldName"};
+    }
+
     public FieldAccessExpressionNode modify(
             ExpressionNode expression,
             Token dotToken,

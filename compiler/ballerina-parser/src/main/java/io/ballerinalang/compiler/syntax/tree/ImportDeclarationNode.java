@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
@@ -34,20 +36,20 @@ public class ImportDeclarationNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Token orgName() {
-        return childInBucket(1);
+    public Optional<Node> orgName() {
+        return optionalChildInBucket(1);
     }
 
     public Node moduleName() {
         return childInBucket(2);
     }
 
-    public Node version() {
-        return childInBucket(3);
+    public Optional<Node> version() {
+        return optionalChildInBucket(3);
     }
 
-    public Node prefix() {
-        return childInBucket(4);
+    public Optional<Node> prefix() {
+        return optionalChildInBucket(4);
     }
 
     public Token semicolon() {
@@ -64,9 +66,20 @@ public class ImportDeclarationNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "importKeyword",
+                "orgName",
+                "moduleName",
+                "version",
+                "prefix",
+                "semicolon"};
+    }
+
     public ImportDeclarationNode modify(
             Token importKeyword,
-            Token orgName,
+            Node orgName,
             Node moduleName,
             Node version,
             Node prefix,

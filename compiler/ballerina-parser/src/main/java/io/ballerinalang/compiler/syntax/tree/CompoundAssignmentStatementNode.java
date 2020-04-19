@@ -60,6 +60,16 @@ public class CompoundAssignmentStatementNode extends StatementNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "lhsExpression",
+                "binaryOperator",
+                "equalsToken",
+                "rhsExpression",
+                "semicolonToken"};
+    }
+
     public CompoundAssignmentStatementNode modify(
             ExpressionNode lhsExpression,
             Token binaryOperator,

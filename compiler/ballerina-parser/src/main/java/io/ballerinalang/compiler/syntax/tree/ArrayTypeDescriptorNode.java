@@ -56,6 +56,15 @@ public class ArrayTypeDescriptorNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "typeDescriptorNode",
+                "openBracketToken",
+                "arrayLengthNode",
+                "closeBracketToken"};
+    }
+
     public ArrayTypeDescriptorNode modify(
             Node typeDescriptorNode,
             Token openBracketToken,

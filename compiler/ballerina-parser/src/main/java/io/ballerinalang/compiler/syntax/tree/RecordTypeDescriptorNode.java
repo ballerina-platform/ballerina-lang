@@ -56,6 +56,15 @@ public class RecordTypeDescriptorNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "objectKeyword",
+                "bodyStartDelimiter",
+                "fields",
+                "bodyEndDelimiter"};
+    }
+
     public RecordTypeDescriptorNode modify(
             Token objectKeyword,
             Token bodyStartDelimiter,

@@ -49,4 +49,8 @@ public class SyntaxUtils {
         // TODO find a syntaxKind based approach to check
         return !isToken(node);
     }
+
+    public static boolean isSTNodePresent(STNode node) {
+        return node != null;
+    }
 }

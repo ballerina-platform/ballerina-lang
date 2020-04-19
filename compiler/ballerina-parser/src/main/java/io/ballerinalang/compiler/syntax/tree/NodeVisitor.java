@@ -308,13 +308,7 @@ public abstract class NodeVisitor {
     public void visit(Token token) {
     }
 
-    public void visit(EmptyToken emptyToken) {
-    }
-
     // Misc
-
-    public void visit(EmptyNode emptyNode) {
-    }
 
     public void visit(Minutiae minutiae) {
     }

@@ -52,6 +52,14 @@ public class SpreadFieldNode extends MappingFieldNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "leadingComma",
+                "ellipsis",
+                "valueExpr"};
+    }
+
     public SpreadFieldNode modify(
             Token leadingComma,
             Token ellipsis,

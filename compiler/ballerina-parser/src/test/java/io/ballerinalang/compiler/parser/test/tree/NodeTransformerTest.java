@@ -17,7 +17,6 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
-import io.ballerinalang.compiler.syntax.tree.EmptyToken;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
@@ -74,11 +73,6 @@ public class NodeTransformerTest extends AbstractSyntaxTreeAPITest {
         }
 
         @Override
-        public Integer transform(EmptyToken emptyToken) {
-            return 0;
-        }
-
-        @Override
         protected Integer transformSyntaxNode(Node node) {
             if (node instanceof Token) {
                 return node.apply(this);
@@ -124,11 +118,6 @@ public class NodeTransformerTest extends AbstractSyntaxTreeAPITest {
         @Override
         public TokenWrapper transform(IdentifierToken identifier) {
             return new TokenWrapper(identifier);
-        }
-
-        @Override
-        public TokenWrapper transform(EmptyToken emptyToken) {
-            return null;
         }
 
         @Override

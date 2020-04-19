@@ -48,6 +48,13 @@ public class PositionalArgumentNode extends FunctionArgumentNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "leadingComma",
+                "expression"};
+    }
+
     public PositionalArgumentNode modify(
             Token leadingComma,
             ExpressionNode expression) {

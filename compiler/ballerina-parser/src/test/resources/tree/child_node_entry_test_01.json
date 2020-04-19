@@ -1,0 +1,130 @@
+{
+    "imports": [],
+    "members": [
+        {
+            "kind": "FUNCTION_DEFINITION",
+            "value": {
+                "metadata": {
+                    "kind": "METADATA",
+                    "value": {
+                        "annotations": []
+                    }
+                },
+                "functionKeyword": {
+                    "kind": "FUNCTION_KEYWORD",
+                    "value": "function"
+                },
+                "functionName": {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "getName"
+                },
+                "openParenToken": {
+                    "kind": "OPEN_PAREN_TOKEN",
+                    "value": "("
+                },
+                "parameters": [],
+                "closeParenToken": {
+                    "kind": "CLOSE_PAREN_TOKEN",
+                    "value": ")"
+                },
+                "returnTypeDesc": {
+                    "kind": "RETURN_TYPE_DESCRIPTOR",
+                    "value": {
+                        "returnsKeyword": {
+                            "kind": "RETURNS_KEYWORD",
+                            "value": "returns"
+                        },
+                        "annotations": [],
+                        "type": {
+                            "kind": "SIMPLE_TYPE",
+                            "value": "string"
+                        }
+                    }
+                },
+                "functionBody": {
+                    "kind": "BLOCK_STATEMENT",
+                    "value": {
+                        "openBraceToken": {
+                            "kind": "OPEN_BRACE_TOKEN",
+                            "value": "{"
+                        },
+                        "statements": [
+                            {
+                                "kind": "LOCAL_VAR_DECL",
+                                "value": {
+                                    "annotations": [],
+                                    "typeName": {
+                                        "kind": "SIMPLE_TYPE",
+                                        "value": "int"
+                                    },
+                                    "variableName": {
+                                        "kind": "IDENTIFIER_TOKEN",
+                                        "value": "a"
+                                    },
+                                    "equalsToken": {
+                                        "kind": "EQUAL_TOKEN",
+                                        "value": "\u003d"
+                                    },
+                                    "initializer": {
+                                        "kind": "DECIMAL_INTEGER_LITERAL",
+                                        "value": "5"
+                                    },
+                                    "semicolonToken": {
+                                        "kind": "SEMICOLON_TOKEN",
+                                        "value": ";"
+                                    }
+                                }
+                            },
+                            {
+                                "kind": "ASSIGNMENT_STATEMENT",
+                                "value": {
+                                    "varRef": {
+                                        "kind": "IDENTIFIER_TOKEN",
+                                        "value": "a"
+                                    },
+                                    "equalsToken": {
+                                        "kind": "EQUAL_TOKEN",
+                                        "value": "\u003d"
+                                    },
+                                    "expression": {
+                                        "kind": "DECIMAL_INTEGER_LITERAL",
+                                        "value": "10"
+                                    },
+                                    "semicolonToken": {
+                                        "kind": "SEMICOLON_TOKEN",
+                                        "value": ";"
+                                    }
+                                }
+                            },
+                            {
+                                "kind": "RETURN_STATEMENT",
+                                "value": {
+                                    "returnKeyword": {
+                                        "kind": "RETURN_KEYWORD",
+                                        "value": "return"
+                                    },
+                                    "expression": {
+                                        "kind": "DECIMAL_INTEGER_LITERAL",
+                                        "value": "10"
+                                    },
+                                    "semicolonToken": {
+                                        "kind": "SEMICOLON_TOKEN",
+                                        "value": ";"
+                                    }
+                                }
+                            }
+                        ],
+                        "closeBraceToken": {
+                            "kind": "CLOSE_BRACE_TOKEN",
+                            "value": "}"
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "eofToken": {
+        "kind": "EOF_TOKEN",
+        "value": ""
+    }
+}

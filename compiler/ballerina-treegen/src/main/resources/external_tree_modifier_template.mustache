@@ -35,7 +35,7 @@ public abstract class {{className}} extends {{superClassName}}<Node> {
     @Override
     public Node transform({{externalClassName}} {{camelCaseExternalClassName}}) {
         {{#fields}}
-        {{#isList}}NodeList<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}} = modify{{#isList}}NodeList{{/isList}}{{^isList}}{{#isToken}}Token{{/isToken}}{{#isNode}}Node{{/isNode}}{{/isList}}({{camelCaseExternalClassName}}.{{fieldName}}());
+        {{#isList}}NodeList<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}} = modify{{#isList}}NodeList{{/isList}}{{^isList}}{{#isToken}}Token{{/isToken}}{{#isNode}}Node{{/isNode}}{{/isList}}({{camelCaseExternalClassName}}.{{fieldName}}(){{#isOptional}}.orElse(null){{/isOptional}});
         {{/fields}}
         return {{camelCaseExternalClassName}}.modify(
                 {{^syntaxKind}}{{camelCaseExternalClassName}}.kind(), &#10;                {{/syntaxKind}}{{#fields}}{{fieldName}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}});
@@ -53,11 +53,6 @@ public abstract class {{className}} extends {{superClassName}}<Node> {
     @Override
     public Node transform(IdentifierToken identifier) {
         return identifier;
-    }
-
-    @Override
-    public Node transform(EmptyToken emptyToken) {
-        return emptyToken;
     }
 
     @Override
@@ -90,11 +85,17 @@ public abstract class {{className}} extends {{superClassName}}<Node> {
     }
 
     protected <T extends Token> T modifyToken(T token) {
+        if (token == null) {
+            return null;
+        }
         // TODO
         return (T) token.apply(this);
     }
 
     protected <T extends Node> T modifyNode(T node) {
+        if (node == null) {
+            return null;
+        }
         // TODO
         return (T) node.apply(this);
     }

@@ -48,6 +48,13 @@ public class ExpressionStatementNode extends StatementNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "expression",
+                "semicolonToken"};
+    }
+
     public ExpressionStatementNode modify(
             SyntaxKind kind,
             ExpressionNode expression,
