@@ -82,6 +82,11 @@ public class ArrayTypeTest extends AbstractTypesTest {
         test("int?[]? a;", "array-type/array_type_assert_14.json");
     }
 
+    @Test
+    public void testValidArrayTypeDescWithQualifiedIdentifier() {
+        test("int[b:c] a;", "array-type/array_type_assert_15    .json");
+    }
+
     //Recovery test
 
     @Test

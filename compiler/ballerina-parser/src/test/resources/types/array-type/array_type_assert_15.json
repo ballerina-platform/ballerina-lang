@@ -9,22 +9,27 @@
             "kind": "ARRAY_TYPE",
             "children": [
                 {
-                    "kind": "ARRAY_TYPE",
-                    "children": [
-                        {
-                            "kind": "SIMPLE_TYPE",
-                            "value": "int"
-                        },
-                        {
-                            "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "CLOSE_BRACKET_TOKEN"
-                        }
-                    ]
+                    "kind": "SIMPLE_TYPE",
+                    "value": "int"
                 },
                 {
                     "kind": "OPEN_BRACKET_TOKEN"
+                },
+                {
+                    "kind": "QUALIFIED_IDENTIFIER",
+                    "children": [
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "b"
+                        },
+                        {
+                            "kind": "COLON_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "c"
+                        }
+                    ]
                 },
                 {
                     "kind": "CLOSE_BRACKET_TOKEN"

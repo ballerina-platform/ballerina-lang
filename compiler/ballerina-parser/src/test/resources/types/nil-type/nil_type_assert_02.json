@@ -1,14 +1,9 @@
 {
-    "kind": "MODULE_VAR_DECL",
+    "kind": "LOCAL_VAR_DECL",
     "children": [
         {
-            "kind": "METADATA",
+            "kind": "LIST",
             "children": [
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                }
             ]
         },
         {

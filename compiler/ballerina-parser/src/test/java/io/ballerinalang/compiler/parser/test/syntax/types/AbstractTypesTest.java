@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 public class AbstractTypesTest {
 
     void test(String source, String filePath) {
-        ParserTestUtils.test(source, ParserRuleContext.TOP_LEVEL_NODE, Paths.get("types/", filePath));
+        ParserTestUtils.test(source, ParserRuleContext.STATEMENT, Paths.get("types/", filePath));
     }
     void testFile(String sourceFilePath, String filePath) {
         ParserTestUtils.test(Paths.get("types/", sourceFilePath), ParserRuleContext.TOP_LEVEL_NODE,
