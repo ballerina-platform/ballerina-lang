@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 
@@ -32,5 +33,9 @@ public abstract class AbstractNodeFactory {
         STToken token = STNodeFactory.createIdentifierToken(text, STNodeFactory.createNodeList(new ArrayList<>()),
                 STNodeFactory.createNodeList(new ArrayList<>()));
         return token.createUnlinkedFacade();
+    }
+
+    protected static STNode getOptionalSTNode(Node node) {
+        return node != null ? node.internalNode() : null;
     }
 }

@@ -339,10 +339,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createCheckExpressionNode(
+            SyntaxKind kind,
             STNode checkKeyword,
             STNode expression) {
 
         return new STCheckExpressionNode(
+                kind,
                 checkKeyword,
                 expression);
     }

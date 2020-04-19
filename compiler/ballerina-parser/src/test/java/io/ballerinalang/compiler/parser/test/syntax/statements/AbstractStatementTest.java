@@ -23,7 +23,9 @@ import io.ballerinalang.compiler.parser.test.ParserTestUtils;
 import java.nio.file.Paths;
 
 /**
- * Test parsing expressions.
+ * Test parsing statements.
+ * 
+ * @since 1.3.0
  */
 public class AbstractStatementTest {
 

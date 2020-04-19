@@ -48,6 +48,13 @@ public class TypeofExpressionNode extends ExpressionNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "typeofKeyword",
+                "expression"};
+    }
+
     public TypeofExpressionNode modify(
             Token typeofKeyword,
             ExpressionNode expression) {

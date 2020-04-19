@@ -52,6 +52,14 @@ public class BracedExpressionNode extends ExpressionNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "openParen",
+                "expression",
+                "closeParen"};
+    }
+
     public BracedExpressionNode modify(
             SyntaxKind kind,
             Token openParen,

@@ -310,15 +310,7 @@ public abstract class NodeTransformer<T> {
         return null;
     }
 
-    public T transform(EmptyToken emptyToken) {
-        return null;
-    }
-
     // Misc
-
-    public T transform(EmptyNode emptyNode) {
-        return transformSyntaxNode(emptyNode);
-    }
 
     // TODO Why Minutiae is in this visitor? Check on this.
     public T transform(Minutiae minutiae) {

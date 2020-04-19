@@ -52,6 +52,14 @@ public class TypeReferenceNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "asteriskToken",
+                "type",
+                "semicolonToken"};
+    }
+
     public TypeReferenceNode modify(
             Token asteriskToken,
             Node type,

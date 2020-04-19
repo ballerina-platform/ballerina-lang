@@ -64,6 +64,17 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "metadata",
+                "type",
+                "fieldName",
+                "equalsToken",
+                "expression",
+                "semicolonToken"};
+    }
+
     public RecordFieldWithDefaultValueNode modify(
             MetadataNode metadata,
             Node type,

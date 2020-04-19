@@ -42,8 +42,7 @@ public abstract class STAbstractNodeFactory {
     }
 
     public static STNode createEmptyNode() {
-        // TODO Seems like we can use a single instance of this node
-        return new STEmptyNode();
+        return null;
     }
 
     public static STNode createMissingToken(SyntaxKind kind) {

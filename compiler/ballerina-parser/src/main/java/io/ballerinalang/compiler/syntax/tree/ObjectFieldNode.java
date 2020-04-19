@@ -68,6 +68,18 @@ public class ObjectFieldNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "metadata",
+                "visibilityQualifier",
+                "type",
+                "fieldName",
+                "equalsToken",
+                "expression",
+                "semicolonToken"};
+    }
+
     public ObjectFieldNode modify(
             MetadataNode metadata,
             Token visibilityQualifier,

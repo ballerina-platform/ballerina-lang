@@ -48,6 +48,13 @@ public class ImportPrefixNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "asKeyword",
+                "prefix"};
+    }
+
     public ImportPrefixNode modify(
             Token asKeyword,
             Token prefix) {

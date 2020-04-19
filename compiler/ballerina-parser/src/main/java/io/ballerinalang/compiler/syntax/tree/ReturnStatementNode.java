@@ -52,6 +52,14 @@ public class ReturnStatementNode extends StatementNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "returnKeyword",
+                "expression",
+                "semicolonToken"};
+    }
+
     public ReturnStatementNode modify(
             Token returnKeyword,
             ExpressionNode expression,

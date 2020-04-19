@@ -52,6 +52,14 @@ public class RestArgumentNode extends FunctionArgumentNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "leadingComma",
+                "ellipsis",
+                "expression"};
+    }
+
     public RestArgumentNode modify(
             Token leadingComma,
             Token ellipsis,

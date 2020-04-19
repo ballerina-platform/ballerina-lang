@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
@@ -42,8 +44,8 @@ public class IfElseStatementNode extends StatementNode {
         return childInBucket(2);
     }
 
-    public Node elseBody() {
-        return childInBucket(3);
+    public Optional<Node> elseBody() {
+        return optionalChildInBucket(3);
     }
 
     @Override
@@ -54,6 +56,15 @@ public class IfElseStatementNode extends StatementNode {
     @Override
     public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "ifKeyword",
+                "condition",
+                "ifBody",
+                "elseBody"};
     }
 
     public IfElseStatementNode modify(

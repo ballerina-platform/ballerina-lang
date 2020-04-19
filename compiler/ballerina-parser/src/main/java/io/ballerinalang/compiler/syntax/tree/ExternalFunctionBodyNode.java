@@ -56,6 +56,15 @@ public class ExternalFunctionBodyNode extends StatementNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "equalsToken",
+                "annotations",
+                "externalKeyword",
+                "semicolonToken"};
+    }
+
     public ExternalFunctionBodyNode modify(
             Token equalsToken,
             NodeList<AnnotationNode> annotations,

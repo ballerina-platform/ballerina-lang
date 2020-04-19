@@ -39,8 +39,17 @@
                     "kind": "LIST",
                     "children": [
                         {
-                            "kind": "ASSIGNMENT_STATEMENT",
+                            "kind": "LOCAL_VAR_DECL",
                             "children": [
+                                {
+                                    "kind": "LIST",
+                                    "children": [
+                                    ]
+                                },
+                                {
+                                    "kind": "SIMPLE_TYPE",
+                                    "value": "int"
+                                },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
                                     "value": "x"
@@ -52,31 +61,17 @@
                                     "kind": "BINARY_EXPRESSION",
                                     "children": [
                                         {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "y"
-                                        },
-                                        {
-                                            "kind": "PLUS_TOKEN"
-                                        },
-                                        {
-                                            "kind": "BRACED_EXPRESSION",
+                                            "kind": "CHECK_EXPRESSION",
                                             "children": [
                                                 {
-                                                    "kind": "OPEN_PAREN_TOKEN"
+                                                    "kind": "CHECK_KEYWORD"
                                                 },
                                                 {
-                                                    "kind": "REMOTE_METHOD_CALL_ACTION",
+                                                    "kind": "FUNCTION_CALL",
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
                                                             "value": "a"
-                                                        },
-                                                        {
-                                                            "kind": "RIGHT_ARROW_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "b"
                                                         },
                                                         {
                                                             "kind": "OPEN_PAREN_TOKEN"
@@ -84,20 +79,32 @@
                                                         {
                                                             "kind": "LIST",
                                                             "children": [
-                                                                {
-                                                                    "kind": "POSITIONAL_ARG",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "c"
-                                                                        }
-                                                                    ]
-                                                                }
                                                             ]
                                                         },
                                                         {
                                                             "kind": "CLOSE_PAREN_TOKEN"
                                                         }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "PLUS_TOKEN",
+                                            "isMissing": true
+                                        },
+                                        {
+                                            "kind": "FUNCTION_CALL",
+                                            "children": [
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "b"
+                                                },
+                                                {
+                                                    "kind": "OPEN_PAREN_TOKEN"
+                                                },
+                                                {
+                                                    "kind": "LIST",
+                                                    "children": [
                                                     ]
                                                 },
                                                 {

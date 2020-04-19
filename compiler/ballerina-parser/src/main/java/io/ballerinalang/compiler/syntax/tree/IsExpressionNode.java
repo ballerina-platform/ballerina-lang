@@ -52,6 +52,14 @@ public class IsExpressionNode extends ExpressionNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "expression",
+                "isKeyword",
+                "typeDescriptor"};
+    }
+
     public IsExpressionNode modify(
             ExpressionNode expression,
             Token isKeyword,

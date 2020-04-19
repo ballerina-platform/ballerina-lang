@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
@@ -34,8 +36,8 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         return childInBucket(0);
     }
 
-    public Token visibilityQualifier() {
-        return childInBucket(1);
+    public Optional<Token> visibilityQualifier() {
+        return optionalChildInBucket(1);
     }
 
     public Token functionKeyword() {
@@ -58,8 +60,8 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         return childInBucket(6);
     }
 
-    public Node returnTypeDesc() {
-        return childInBucket(7);
+    public Optional<Node> returnTypeDesc() {
+        return optionalChildInBucket(7);
     }
 
     public BlockStatementNode functionBody() {
@@ -74,6 +76,20 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
     @Override
     public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "metadata",
+                "visibilityQualifier",
+                "functionKeyword",
+                "functionName",
+                "openParenToken",
+                "parameters",
+                "closeParenToken",
+                "returnTypeDesc",
+                "functionBody"};
     }
 
     public FunctionDefinitionNode modify(

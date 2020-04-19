@@ -30,8 +30,7 @@
             ]
         },
         {
-            "kind": "CLOSE_PAREN_TOKEN",
-            "isMissing": true
+            "kind": "CLOSE_PAREN_TOKEN"
         },
         {
             "kind": "BLOCK_STATEMENT",
