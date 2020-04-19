@@ -116,6 +116,9 @@ public enum ParserRuleContext {
     RECORD_IDENT("record-ident"),
     ANNOTATION_TAG("annotation-tag"),
     ATTACH_POINT_END("attach-point-end"),
+    XML_NAMESPACE_DECLARATION("xml-namespace-decl"),
+    XML_NAMESPACE_PREFIX_DECL("namespace-prefix-decl"),
+    NAMESPACE_PREFIX("namespace-prefix"),
 
     // Statements
     STATEMENT("statement"),
@@ -177,6 +180,7 @@ public enum ParserRuleContext {
     IS_KEYWORD("is"),
     ANNOTATION_KEYWORD("annotation"),
     SOURCE_KEYWORD("source"),
+    XMLNS_KEYWORD("xmlns"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -231,6 +235,8 @@ public enum ParserRuleContext {
     UNARY_EXPRESSION("unary-expr"),
     HEX_INTEGER_LITERAL("hex-integer-literal"),
     IS_EXPRESSION("is-expr"),
+    CONSTANT_EXPRESSION("constant-expr"),
+    CONSTANT_EXPRESSION_START("constant-expr-start"),
     ;
 
     private String value;

@@ -76,6 +76,20 @@ public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "metadata",
+                "visibilityQualifier",
+                "constKeyword",
+                "annotationKeyword",
+                "typeDescriptor",
+                "annotationTag",
+                "onKeyword",
+                "attachPoints",
+                "semicolonToken"};
+    }
+
     public AnnotationDeclarationNode modify(
             MetadataNode metadata,
             Token visibilityQualifier,

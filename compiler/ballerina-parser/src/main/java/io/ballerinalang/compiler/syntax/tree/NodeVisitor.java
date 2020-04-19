@@ -303,6 +303,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(annotationAttachPointNode);
     }
 
+    public void visit(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {
+        visitSyntaxNode(xMLNamespaceDeclarationNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

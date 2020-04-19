@@ -24,22 +24,30 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class AnnotationAttachPointNode extends NonTerminalNode {
+public class XMLNamespaceDeclarationNode extends NonTerminalNode {
 
-    public AnnotationAttachPointNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public XMLNamespaceDeclarationNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token sourceKeyword() {
+    public Token xmlnsKeyword() {
         return childInBucket(0);
     }
 
-    public Token firstIdent() {
+    public ExpressionNode namespaceuri() {
         return childInBucket(1);
     }
 
-    public Token secondIdent() {
+    public Token asKeyword() {
         return childInBucket(2);
+    }
+
+    public IdentifierToken namespacePrefix() {
+        return childInBucket(3);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(4);
     }
 
     @Override
@@ -55,25 +63,33 @@ public class AnnotationAttachPointNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "sourceKeyword",
-                "firstIdent",
-                "secondIdent"};
+                "xmlnsKeyword",
+                "namespaceuri",
+                "asKeyword",
+                "namespacePrefix",
+                "semicolonToken"};
     }
 
-    public AnnotationAttachPointNode modify(
-            Token sourceKeyword,
-            Token firstIdent,
-            Token secondIdent) {
+    public XMLNamespaceDeclarationNode modify(
+            Token xmlnsKeyword,
+            ExpressionNode namespaceuri,
+            Token asKeyword,
+            IdentifierToken namespacePrefix,
+            Token semicolonToken) {
         if (checkForReferenceEquality(
-                sourceKeyword,
-                firstIdent,
-                secondIdent)) {
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken)) {
             return this;
         }
 
-        return NodeFactory.createAnnotationAttachPointNode(
-                sourceKeyword,
-                firstIdent,
-                secondIdent);
+        return NodeFactory.createXMLNamespaceDeclarationNode(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken);
     }
 }

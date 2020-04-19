@@ -308,6 +308,12 @@ public class BallerinaParser {
                 return parseFunctionIdent();
             case FIELD_IDENT:
                 return parseFieldIdent();
+            case XMLNS_KEYWORD:
+                return parseXMLNSKeyword();
+            case XML_NAMESPACE_PREFIX_DECL:
+                return parseXMLDeclRhs((STNode) args[0], (STNode) args[1]);
+            case NAMESPACE_PREFIX:
+                return parseNamespacePrefix();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -420,6 +426,7 @@ public class BallerinaParser {
             case LISTENER_KEYWORD:
             case CONST_KEYWORD:
             case ANNOTATION_KEYWORD:
+            case XMLNS_KEYWORD:
 
             case SERVICE_KEYWORD:
             case SIMPLE_TYPE:
@@ -496,6 +503,7 @@ public class BallerinaParser {
             case FINAL_KEYWORD:
             case IMPORT_KEYWORD:
             case ANNOTATION_KEYWORD:
+            case XMLNS_KEYWORD:
 
                 // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
                 // TODO: add type binding pattern
@@ -1068,6 +1076,10 @@ public class BallerinaParser {
                 reportInvalidQualifier(qualifier);
                 // TODO log error for metadata
                 return parseImportDecl();
+            case XMLNS_KEYWORD:
+                reportInvalidQualifier(qualifier);
+                // TODO log error for metadata
+                return parseXMLNamepsaceDeclaration();
 
             // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             // TODO: add type binding pattern
@@ -3044,7 +3056,7 @@ public class BallerinaParser {
             case STRING_LITERAL:
                 return parseLiteral();
             case IDENTIFIER_TOKEN:
-                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_NAME);
+                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
             case OPEN_PAREN_TOKEN:
                 return parseBracedExpression(isRhsExpr, allowActions);
             case TRUE_KEYWORD:
@@ -3339,6 +3351,7 @@ public class BallerinaParser {
             case EQUAL_TOKEN:
             case AT_TOKEN:
             case HASH_TOKEN:
+            case AS_KEYWORD:
                 return true;
             default:
                 return false;
@@ -5335,7 +5348,7 @@ public class BallerinaParser {
                 // If <code>int[ a; </code> then take <code>a</code> as the identifier not a the array length var
                 nextToken = peek(2);
                 if (nextToken.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
-                    return parseQualifiedIdentifier(ParserRuleContext.ARRAY_LENGTH);
+                    return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
                 }
                 return STNodeFactory.createEmptyNode();
             default:
@@ -6235,6 +6248,144 @@ public class BallerinaParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.FIELD_IDENT);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse XML namespace declaration.
+     * <p>
+     * <code>xmlns-decl := xmlns xml-namespace-uri [ as xml-namespace-prefix ] ;
+     * <br/>
+     * xml-namespace-uri := simple-const-expr
+     * <br/>
+     * xml-namespace-prefix := identifier
+     * </code>
+     * 
+     * @return
+     */
+    private STNode parseXMLNamepsaceDeclaration() {
+        startContext(ParserRuleContext.XML_NAMESPACE_DECLARATION);
+        STNode xmlnsKeyword = parseXMLNSKeyword();
+        STNode namespaceUri = parseXMLNamespaceUri();
+        STNode xmlnsDecl = parseXMLDeclRhs(xmlnsKeyword, namespaceUri);
+        endContext();
+        return xmlnsDecl;
+    }
+
+    /**
+     * Parse xmlns keyword
+     * 
+     * @return Parsed node
+     */
+    private STNode parseXMLNSKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.XMLNS_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.XMLNS_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse namespace uri.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseXMLNamespaceUri() {
+        STNode expr = parseConstExpr();
+        switch (expr.kind) {
+            case STRING_LITERAL:
+            case IDENTIFIER_TOKEN:
+            case QUALIFIED_IDENTIFIER:
+                break;
+            default:
+                this.errorHandler.reportInvalidNode(null, "namespace uri must be a subtype of string");
+        }
+
+        return expr;
+    }
+
+    /**
+     * Parse constants expr.
+     *
+     * @return Parsed node
+     */
+    private STNode parseConstExpr() {
+        startContext(ParserRuleContext.CONSTANT_EXPRESSION);
+        STToken nextToken = peek();
+        STNode expr;
+        switch (nextToken.kind) {
+            case STRING_LITERAL:
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+                expr = consume();
+                break;
+            case IDENTIFIER_TOKEN:
+                expr = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
+                break;
+            case OPEN_BRACE_TOKEN:
+                // TODO: nil-literal
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.CONSTANT_EXPRESSION_START);
+                expr = solution.recoveredNode;
+                break;
+        }
+
+        endContext();
+        return expr;
+    }
+
+    private STNode parseXMLDeclRhs(STNode xmlnsKeyword, STNode namespaceUri) {
+        return parseXMLDeclRhs(peek().kind, xmlnsKeyword, namespaceUri);
+    }
+
+    private STNode parseXMLDeclRhs(SyntaxKind nextTokenKind, STNode xmlnsKeyword, STNode namespaceUri) {
+        STNode asKeyword = STNodeFactory.createEmptyNode();
+        STNode namespacePrefix = STNodeFactory.createEmptyNode();
+
+        switch (nextTokenKind) {
+            case AS_KEYWORD:
+                asKeyword = parseAsKeyword();
+                namespacePrefix = parseNamespacePrefix();
+            case SEMICOLON_TOKEN:
+                break;
+            default:
+                STToken token = peek();
+                Solution solution =
+                        recover(token, ParserRuleContext.XML_NAMESPACE_PREFIX_DECL, xmlnsKeyword, namespaceUri);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseXMLDeclRhs(solution.tokenKind, xmlnsKeyword, namespaceUri);
+        }
+        STNode semicolon = parseSemicolon();
+        return STNodeFactory.createXMLNamespaceDeclarationNode(xmlnsKeyword, namespaceUri, asKeyword, namespacePrefix,
+                semicolon);
+    }
+
+    /**
+     * Parse import prefix.
+     *
+     * @return Parsed node
+     */
+    private STNode parseNamespacePrefix() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(peek(), ParserRuleContext.NAMESPACE_PREFIX);
             return sol.recoveredNode;
         }
     }

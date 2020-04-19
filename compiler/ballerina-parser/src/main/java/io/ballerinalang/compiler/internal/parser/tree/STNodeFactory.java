@@ -895,5 +895,20 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 firstIdent,
                 secondIdent);
     }
+
+    public static STNode createXMLNamespaceDeclarationNode(
+            STNode xmlnsKeyword,
+            STNode namespaceuri,
+            STNode asKeyword,
+            STNode namespacePrefix,
+            STNode semicolonToken) {
+
+        return new STXMLNamespaceDeclarationNode(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken);
+    }
 }
 

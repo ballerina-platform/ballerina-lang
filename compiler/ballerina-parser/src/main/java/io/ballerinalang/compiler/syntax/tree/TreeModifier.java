@@ -885,6 +885,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 secondIdent);
     }
 
+    @Override
+    public Node transform(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {
+        Token xmlnsKeyword = modifyToken(xMLNamespaceDeclarationNode.xmlnsKeyword());
+        ExpressionNode namespaceuri = modifyNode(xMLNamespaceDeclarationNode.namespaceuri());
+        Token asKeyword = modifyToken(xMLNamespaceDeclarationNode.asKeyword());
+        IdentifierToken namespacePrefix = modifyNode(xMLNamespaceDeclarationNode.namespacePrefix());
+        Token semicolonToken = modifyToken(xMLNamespaceDeclarationNode.semicolonToken());
+        return xMLNamespaceDeclarationNode.modify(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken);
+    }
+
     // Tokens
 
     @Override

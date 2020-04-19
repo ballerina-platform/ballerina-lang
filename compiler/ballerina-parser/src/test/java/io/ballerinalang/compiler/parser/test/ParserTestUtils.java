@@ -287,6 +287,10 @@ public class ParserTestUtils {
                 return SyntaxKind.CONST_DECLARATION;
             case "MODULE_VAR_DECL":
                 return SyntaxKind.MODULE_VAR_DECL;
+            case "XML_NAMESPACE_DECLARATION":
+                return SyntaxKind.XML_NAMESPACE_DECLARATION;
+            case "ANNOTATION_DECLARATION":
+                return SyntaxKind.ANNOTATION_DECLARATION;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -367,6 +371,8 @@ public class ParserTestUtils {
                 return SyntaxKind.PARAMETER_KEYWORD;
             case "FIELD_KEYWORD":
                 return SyntaxKind.FIELD_KEYWORD;
+            case "XMLNS_KEYWORD":
+                return SyntaxKind.XMLNS_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -595,8 +601,6 @@ public class ParserTestUtils {
                 return SyntaxKind.METADATA;
             case "ANNOTATION":
                 return SyntaxKind.ANNOTATION;
-            case "ANNOTATION_DECLARATION":
-                return SyntaxKind.ANNOTATION_DECLARATION;
             case "ANNOTATION_ATTACH_POINT":
                 return SyntaxKind.ANNOTATION_ATTACH_POINT;
 

@@ -62,6 +62,7 @@ public class LexerTerminals {
     public static final String WORKER = "worker";
     public static final String PARAMETER = "parameter";
     public static final String FIELD = "field";
+    public static final String XMLNS = "xmlns";
 
     // Types
     public static final String INT = "int";

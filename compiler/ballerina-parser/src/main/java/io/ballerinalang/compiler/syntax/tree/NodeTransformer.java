@@ -304,6 +304,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(annotationAttachPointNode);
     }
 
+    public T transform(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {
+        return transformSyntaxNode(xMLNamespaceDeclarationNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
