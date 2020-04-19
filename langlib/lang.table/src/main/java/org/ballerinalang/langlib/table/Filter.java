@@ -31,7 +31,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
 /**
  * Native implementation of lang.table:filter(table&lt;Type&gt;, function).
  *
- * @since 1.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.table", functionName = "filter",

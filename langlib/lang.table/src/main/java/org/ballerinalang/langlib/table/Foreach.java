@@ -29,9 +29,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 /**
- * Native implementation of lang.stream:filter(stream&lt;Type&gt;, function).
+ * Native implementation of lang.table:forEach(table&lt;Type&gt;, function).
  *
- * @since 1.2
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.table", functionName = "forEach",

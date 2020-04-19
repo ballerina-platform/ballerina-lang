@@ -34,9 +34,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import java.util.Collection;
 
 /**
- * Function for returning the values of the map as an array. T[] vals = m.toArray();
+ * Function for returning the values of the table as an array. T[] vals = tbl.toArray();
  *
- * @since 1.2.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.table",

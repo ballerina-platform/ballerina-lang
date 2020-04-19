@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -30,9 +30,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native implementation of lang.map:map(map&lt;Type&gt;, function).
+ * Native implementation of lang.table:map(table&lt;Type&gt;, function).
  *
- * @since 1.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.table", functionName = "map",
