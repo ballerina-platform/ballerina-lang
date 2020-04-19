@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.query;
 
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -72,5 +73,18 @@ public class MultipleWhereClauseTest {
         Assert.assertEquals(person1.get("firstName").stringValue(), "Alex");
         Assert.assertEquals(person1.get("lastName").stringValue(), "George");
         Assert.assertEquals(person1.get("deptAccess").stringValue(), "Operations");
+    }
+    @Test(description = "Test logical operands with where")
+    public void testLogicalOperandsWithWhere() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testLogicalOperandsWithWhere");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+
+        BMap<String, BValue> person1 = (BMap<String, BValue>) returnValues[0];
+
+        Assert.assertEquals(person1.get("firstName").stringValue(), "Ranjan");
+        Assert.assertEquals(person1.get("lastName").stringValue(), "Fonseka");
+        Assert.assertEquals(((BFloat) person1.get("score")).floatValue(), 90.6);
     }
 }

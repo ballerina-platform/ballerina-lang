@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.HashMap;
 
 /**
@@ -51,7 +52,7 @@ public class ConnectionPoolTest {
             "Connection is not available, request timed out after";
 
     @BeforeClass
-    public void setup() throws IOException {
+    public void setup() throws IOException, SQLException {
         String poolSubDir = "pool";
         Path ballerinaConfPath = SQLDBUtils.getResourcePath("ballerina.conf");
         ConfigRegistry registry = ConfigRegistry.getInstance();

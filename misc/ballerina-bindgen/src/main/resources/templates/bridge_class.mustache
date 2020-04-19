@@ -6,10 +6,11 @@
 //
 // E.g. $ ballerina bindgen {{className}}
 
-{{/unless}}{{#if isDirectClass}}import ballerina/java;
+{{/unless}}{{#if hasJavaModuleImport}}
+import ballerina/java;
 
-{{/if}}{{#isInterface}}// Java Interface{{/isInterface}}{{#isAbstract}}// Java Abstract Class{{/isAbstract}}
-// Ballerina object mapping for the Java class `{{className}}`.
+{{/if}}// Ballerina object mapping for the {{#if isInterface}}Java interface{{else}}{{#if isAbstract}}Java abstract class{{else}}Java class{{/if}}{{/if}} `{{className}}`.
+
 public type {{shortClassName}} object {
 
     *JObject;
@@ -30,15 +31,15 @@ public type {{shortClassName}} object {
     public function {{#if reservedWord}}{{#controlChars methodName ""}}{{/controlChars}}{{else}}{{methodName}}{{/if}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) {{#getReturn this ""}}{{/getReturn}}{
     {{#if objectReturn}}{{#if isArrayReturn}}
         {{returnType}} obj = [];
-        {{#if isStringArrayReturn}}any[] anyObj = {{else}}handle[] anyObj = <handle[]>{{/if}}getArrayFromHandle({{#if handleException}}check {{/if}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}}));
+        {{#if isStringArrayReturn}}any[] anyObj = {{else}}handle[] anyObj = <handle[]>{{/if}}getArrayFromHandle({{#if handleException}}check {{/if}}{{prefix}}_{{methodName}}(self.jObj{{#hasParams}}, {{/hasParams}}{{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}}));
         int count = anyObj.length();
         foreach int i in 0 ... count-1 {
             obj[i]{{#unless isStringArrayReturn}}.jObj{{/unless}} = {{#if isStringArrayReturn}}<string>{{/if}}anyObj[i];
         }
         return obj;{{else}}
-        {{returnType}} obj = new({{#if handleException}}check {{/if}}{{#if isStringReturn}}java:toString({{/if}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}}){{#if isStringReturn}}){{/if}});
+        {{returnType}} obj = new({{#if handleException}}check {{/if}}{{#if isStringReturn}}java:toString({{/if}}{{prefix}}_{{methodName}}(self.jObj{{#hasParams}}, {{/hasParams}}{{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}}){{#if isStringReturn}}){{/if}});
         return obj;{{/if}}{{else}}
-        {{#if hasReturn}}return {{else}}_ = {{/if}}{{#if isStringReturn}}java:toString({{else if isArrayReturn}}<{{returnType}}>getArrayFromHandle({{/if}}{{#if handleException}}check {{/if}}{{prefix}}_{{methodName}}(self.jObj{{#noParams}}, {{/noParams}}{{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}}){{#if isStringReturn}}){{else if isArrayReturn}}){{/if}};{{/if}}
+        {{#if hasReturn}}return {{else}}_ = {{/if}}{{#if isStringReturn}}java:toString({{else if isArrayReturn}}<{{returnType}}>getArrayFromHandle({{/if}}{{#if handleException}}check {{/if}}{{prefix}}_{{methodName}}(self.jObj{{#hasParams}}, {{/hasParams}}{{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}}){{#if isStringReturn}}){{else if isArrayReturn}}){{/if}};{{/if}}
     }{{/unless}}{{/methodList}}{{#fieldList}}{{#unless isStatic}}{{#if isSetter}}
 
     public function {{fieldMethodName}}({{fieldType}} arg) {
@@ -72,7 +73,7 @@ public function {{shortClassName}}_{{methodName}}({{#parameters}}{{shortTypeName
     return obj;{{/if}}{{else}}
     {{#if hasReturn}}return {{else}}_ = {{/if}}{{#if isStringReturn}}java:toString({{else if isArrayReturn}}<{{returnType}}>getArrayFromHandle({{/if}}{{#if handleException}}check {{/if}}{{prefix}}_{{methodName}}({{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}}){{#if isStringReturn}}){{else if isArrayReturn}}){{/if}};{{/if}}
 }
-{{/isStatic}}{{/methodList}}{{#fieldList}}{{#isStatic}}{{#if isSetter}}
+{{/isStatic}}{{/methodList}}{{#fieldList}}{{#if isStatic}}{{#if isSetter}}
 public function {{shortClassName}}_{{fieldMethodName}}({{fieldType}} arg) {
     _ = {{prefix}}_{{fieldMethodName}}({{#getParams fieldObj ""}}{{/getParams}});
 }
@@ -83,19 +84,25 @@ public function {{shortClassName}}_{{fieldMethodName}}() returns {{fieldType}}{{
     return obj;{{else}}
     return {{#if isString}}java:toString({{else if isArray}}<{{fieldType}}>getArrayFromHandle({{/if}}{{prefix}}_{{fieldMethodName}}(){{#if isString}}){{else if isArray}}){{/if}};{{/if}}
 }
-{{/if}}{{/isStatic}}{{/fieldList}}{{#constructorList}}
+{{/if}}{{/if}}{{/fieldList}}{{#if constructorList}}
+// External interop functions for mapping public constructors.
+{{/if}}{{#constructorList}}
 function {{prefix}}_{{constructorName}}({{#parameters}}{{externalType}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) returns handle{{#if handleException}}|error{{/if}} = {{interopType}} {
     class: "{{className}}",
     paramTypes: [{{#parameters}}"{{type}}"{{#if hasNext}}, {{/if}}{{/parameters}}]
 } external;
-{{/constructorList}}{{#methodList}}
-function {{prefix}}_{{methodName}}({{#unless isStatic}}handle receiver{{#noParams}}, {{/noParams}}{{/unless}}{{#parameters}}{{externalType}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}){{#if hasReturn}} returns {{externalType}}{{#if handleException}}|error{{/if}}{{else}}{{#if handleException}} returns error?{{/if}}{{/if}} = {{interopType}} {
+{{/constructorList}}{{#if methodList}}
+// External interop functions for mapping public methods.
+{{/if}}{{#methodList}}
+function {{prefix}}_{{methodName}}({{#getInteropMethod this "param"}}{{/getInteropMethod}}){{#getInteropMethod this "return"}}{{/getInteropMethod}} = {{interopType}} {
     name: "{{javaMethodName}}",
     class: "{{className}}"{{#if isOverloaded}},
     paramTypes: [{{#parameters}}"{{type}}"{{#if hasNext}}, {{/if}}{{/parameters}}]{{/if}}
 } external;
-{{/methodList}}{{#fieldList}}
-function {{prefix}}_{{fieldMethodName}}({{#unless isStatic}}handle receiver{{/unless}}{{#isSetter}}, {{externalType}} arg{{/isSetter}}){{#unless isSetter}} returns {{externalType}}{{/unless}} = {{interopType}} {
+{{/methodList}}{{#if fieldList}}
+// External interop functions for mapping public fields.
+{{/if}}{{#fieldList}}
+function {{prefix}}_{{fieldMethodName}}({{#getInteropFieldParam this ""}}{{/getInteropFieldParam}}){{#unless isSetter}} returns {{externalType}}{{/unless}} = {{interopType}} {
     name: "{{fieldName}}",
     class: "{{className}}"
 } external;

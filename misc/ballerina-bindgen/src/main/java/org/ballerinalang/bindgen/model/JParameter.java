@@ -44,6 +44,7 @@ public class JParameter {
     private Boolean hasNext = true;
     private Boolean isString = false;
     private Boolean isObjArray = false;
+    private Boolean isStringArray = false;
     private Boolean isPrimitiveArray = false;
 
     JParameter(Class parameterClass) {
@@ -57,7 +58,7 @@ public class JParameter {
             isString = true;
             shortTypeName = BALLERINA_STRING;
         } else if (parameterClass.equals(String[].class)) {
-            isString = true;
+            isStringArray = true;
             shortTypeName = BALLERINA_STRING_ARRAY;
         } else {
             if (!parameterClass.isPrimitive()) {
@@ -130,5 +131,13 @@ public class JParameter {
 
     public Boolean getHasNext() {
         return hasNext;
+    }
+
+    public String getExternalType() {
+        return externalType;
+    }
+
+    public Boolean getIsStringArray() {
+        return isStringArray;
     }
 }

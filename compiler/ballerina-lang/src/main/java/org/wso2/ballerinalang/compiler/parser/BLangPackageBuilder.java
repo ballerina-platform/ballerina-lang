@@ -389,8 +389,8 @@ public class BLangPackageBuilder {
         this.typeNodeStack.push(tupleTypeNode);
     }
 
-    void addRecordType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous,
-                       boolean hasRestField, boolean isExclusiveTypeDesc) {
+    void addRecordType(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous, boolean hasRestField,
+                       boolean isExclusiveTypeDesc) {
         // If there is an explicitly defined rest field, take it.
         BLangType restFieldType = null;
         if (hasRestField) {
@@ -398,7 +398,6 @@ public class BLangPackageBuilder {
         }
         // Create an anonymous record and add it to the list of records in the current package.
         BLangRecordTypeNode recordTypeNode = populateRecordTypeNode(pos, ws, isAnonymous);
-        recordTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
         recordTypeNode.sealed = isExclusiveTypeDesc && !hasRestField;
         recordTypeNode.restFieldType = restFieldType;
 
@@ -2345,11 +2344,10 @@ public class BLangPackageBuilder {
         startFieldBlockList();
     }
 
-    void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous,
-                       boolean isAbstract, boolean isClient, boolean isService) {
+    void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous, boolean isAbstract,
+                       boolean isClient, boolean isService) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
-        objectTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
 
         if (isAbstract) {
             objectTypeNode.flagSet.add(Flag.ABSTRACT);
