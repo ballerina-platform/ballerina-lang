@@ -483,8 +483,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPEOF_EXPRESSION;
             case "UNARY_EXPRESSION":
                 return SyntaxKind.UNARY_EXPRESSION;
-            case "IS_EXPRESSION":
-                return SyntaxKind.IS_EXPRESSION;
+            case "TYPE_TEST_EXPRESSION":
+                return SyntaxKind.TYPE_TEST_EXPRESSION;
             case "NIL_LITERAL":
                 return SyntaxKind.NIL_LITERAL;
 

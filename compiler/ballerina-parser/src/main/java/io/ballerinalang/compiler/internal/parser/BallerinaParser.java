@@ -3138,7 +3138,7 @@ public class BallerinaParser {
                 newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr);
                 break;
             case IS_KEYWORD:
-                newLhsExpr = parseIsExpression(lhsExpr);
+                newLhsExpr = parseTypeTestExpression(lhsExpr);
                 break;
             case RIGHT_ARROW_TOKEN:
                 newLhsExpr = parseAction(tokenKind, lhsExpr);
@@ -5460,12 +5460,12 @@ public class BallerinaParser {
      * @param lhsExpr Preceding expression of the is expression
      * @return Is expression node
      */
-    private STNode parseIsExpression(STNode lhsExpr) {
-        startContext(ParserRuleContext.IS_EXPRESSION);
+    private STNode parseTypeTestExpression(STNode lhsExpr) {
+        startContext(ParserRuleContext.TYPE_TEST_EXPRESSION);
         STNode isKeyword = parseIsKeyword();
         STNode typeDescriptor = parseTypeDescriptor();
         endContext();
-        return STNodeFactory.createIsExpressionNode(lhsExpr, isKeyword, typeDescriptor);
+        return STNodeFactory.createTypeTestExpressionNode(lhsExpr, isKeyword, typeDescriptor);
     }
 
     /**

@@ -212,7 +212,7 @@ public enum ParserRuleContext {
     TYPEOF_EXPRESSION("typeof-expr"),
     UNARY_EXPRESSION("unary-expr"),
     HEX_INTEGER_LITERAL("hex-integer-literal"),
-    IS_EXPRESSION("is-expr"),
+    TYPE_TEST_EXPRESSION("type-test-expr"),
     NIL_LITERAL("nil-literal"),
     ;
 

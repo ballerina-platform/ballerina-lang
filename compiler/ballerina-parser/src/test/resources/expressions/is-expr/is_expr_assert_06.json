@@ -1,11 +1,11 @@
 {
-    "kind": "IS_EXPRESSION",
+    "kind": "TYPE_TEST_EXPRESSION",
     "children": [
         {
             "kind": "BINARY_EXPRESSION",
             "children": [
                 {
-                    "kind": "IS_EXPRESSION",
+                    "kind": "TYPE_TEST_EXPRESSION",
                     "children": [
                         {
                             "kind": "BINARY_EXPRESSION",

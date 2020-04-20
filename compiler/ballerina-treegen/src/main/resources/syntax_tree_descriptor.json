@@ -1444,9 +1444,9 @@
             ]
         },
         {
-            "name": "IsExpressionNode",
+            "name": "TypeTestExpressionNode",
             "base": "ExpressionNode",
-            "kind": "IS_EXPRESSION",
+            "kind": "TYPE_TEST_EXPRESSION",
             "attributes": [
                 {
                     "name": "expression",

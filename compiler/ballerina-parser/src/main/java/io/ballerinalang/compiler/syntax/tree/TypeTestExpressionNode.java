@@ -24,9 +24,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class IsExpressionNode extends ExpressionNode {
+public class TypeTestExpressionNode extends ExpressionNode {
 
-    public IsExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public TypeTestExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -60,7 +60,7 @@ public class IsExpressionNode extends ExpressionNode {
                 "typeDescriptor"};
     }
 
-    public IsExpressionNode modify(
+    public TypeTestExpressionNode modify(
             ExpressionNode expression,
             Token isKeyword,
             Node typeDescriptor) {
@@ -71,7 +71,7 @@ public class IsExpressionNode extends ExpressionNode {
             return this;
         }
 
-        return NodeFactory.createIsExpressionNode(
+        return NodeFactory.createTypeTestExpressionNode(
                 expression,
                 isKeyword,
                 typeDescriptor);

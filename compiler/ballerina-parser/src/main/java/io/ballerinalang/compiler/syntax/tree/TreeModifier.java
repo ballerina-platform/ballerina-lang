@@ -811,11 +811,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(IsExpressionNode isExpressionNode) {
-        ExpressionNode expression = modifyNode(isExpressionNode.expression());
-        Token isKeyword = modifyToken(isExpressionNode.isKeyword());
-        Node typeDescriptor = modifyNode(isExpressionNode.typeDescriptor());
-        return isExpressionNode.modify(
+    public Node transform(TypeTestExpressionNode typeTestExpressionNode) {
+        ExpressionNode expression = modifyNode(typeTestExpressionNode.expression());
+        Token isKeyword = modifyToken(typeTestExpressionNode.isKeyword());
+        Node typeDescriptor = modifyNode(typeTestExpressionNode.typeDescriptor());
+        return typeTestExpressionNode.modify(
                 expression,
                 isKeyword,
                 typeDescriptor);

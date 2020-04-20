@@ -821,12 +821,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createIsExpressionNode(
+    public static STNode createTypeTestExpressionNode(
             STNode expression,
             STNode isKeyword,
             STNode typeDescriptor) {
 
-        return new STIsExpressionNode(
+        return new STTypeTestExpressionNode(
                 expression,
                 isKeyword,
                 typeDescriptor);
