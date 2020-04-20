@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -166,7 +167,6 @@ public class BMainInstance implements BMain {
             flags = new String[]{};
         }
 
-
         if (args == null) {
             args = new String[]{};
         }
@@ -271,6 +271,138 @@ public class BMainInstance implements BMain {
         } catch (InterruptedException e) {
             throw new BallerinaTestException("Error waiting for execution to finish", e);
         }
+    }
+
+    /**
+     * Executing the sh or bat file to start the server in debug mode.
+     *
+     * @param command       command to run
+     * @param args          command line arguments to pass when executing the sh or bat file
+     * @param envProperties environmental properties to be appended to the environment
+     * @param clientArgs    arguments which program expects
+     * @param leechers      log leechers to check the log if any
+     * @param commandDir    where to execute the command
+     * @param timeout       timeout for the process waiting time, in seconds.
+     * @throws BallerinaTestException if starting services failed
+     */
+    public void debugMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
+                          LogLeecher[] leechers, String commandDir, int timeout) throws BallerinaTestException {
+        String scriptName;
+        if (BCompileUtil.jBallerinaTestsEnabled()) {
+            scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
+        } else {
+            scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
+        }
+        String[] cmdArray;
+        Process process = null;
+        try {
+
+            if (Utils.getOSName().toLowerCase(Locale.ENGLISH).contains("windows")) {
+                cmdArray = new String[]{"cmd.exe", "/c", balServer.getServerHome() +
+                        File.separator + "bin" + File.separator + scriptName + ".bat", command};
+            } else {
+                cmdArray = new String[]{"bash", balServer.getServerHome() +
+                        File.separator + "bin/" + scriptName, command};
+            }
+
+            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
+            ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
+            if (envProperties != null) {
+                Map<String, String> env = processBuilder.environment();
+                for (Map.Entry<String, String> entry : envProperties.entrySet()) {
+                    env.put(entry.getKey(), entry.getValue());
+                }
+            }
+            process = processBuilder.start();
+
+            ServerLogReader infoReader = new ServerLogReader("inputStream", process.getInputStream());
+            ServerLogReader errorReader = new ServerLogReader("errorStream", process.getErrorStream());
+            if (leechers == null) {
+                leechers = new LogLeecher[]{};
+            }
+            for (LogLeecher leecher : leechers) {
+                switch (leecher.getLeecherType()) {
+                    case INFO:
+                        infoReader.addLeecher(leecher);
+                        break;
+                    case ERROR:
+                        errorReader.addLeecher(leecher);
+                        break;
+                }
+            }
+
+            infoReader.start();
+            errorReader.start();
+            if (clientArgs != null && clientArgs.length > 0) {
+                writeClientArgsToProcess(clientArgs, process);
+            }
+
+            // process.waitFor() method cannot be used here as the debug process gets suspended waiting for a remote
+            // client to be attached, resulting the method waits forever. Therefore we have to manually check whether
+            // expected results are received for all the leechers, and forcefully terminate the process if so.
+            boolean processFinished = false;
+            boolean leechingDone = false;
+            int elapsedTime = 0;
+            while (elapsedTime < timeout && !processFinished && !leechingDone) {
+                processFinished = process.waitFor(1000, TimeUnit.MILLISECONDS);
+                // Checks whether all the leechers have received expected logs.
+                leechingDone = isLeechingDone(infoReader, errorReader);
+                elapsedTime++;
+            }
+
+            // If the process is still alive, either the program is suspended in debug mode (as expected), or still
+            // being executed.
+            if (process.isAlive()) {
+                process.destroyForcibly();
+            }
+
+            infoReader.stop();
+            infoReader.removeAllLeechers();
+            errorReader.stop();
+            errorReader.removeAllLeechers();
+
+            if (elapsedTime >= timeout) {
+                throw new BallerinaTestException("Timeout expired waiting for matching logs in debug mode.");
+            } else if (!leechingDone) {
+                throw new BallerinaTestException("Program execution in debug mode is finished without receiving the " +
+                        "suspend log.");
+            } else if (processFinished) {
+                throw new BallerinaTestException("Program unexpectedly terminated without being suspended in debug " +
+                        "mode.");
+            }
+
+        } catch (IOException e) {
+            throw new BallerinaTestException("Error executing ballerina", e);
+        } catch (InterruptedException e) {
+            throw new BallerinaTestException("Error waiting for execution to finish", e);
+        } finally {
+            // If the process is still alive, either the program is suspended in debug mode (as expected), or still
+            // being executed.
+            if (process != null && process.isAlive()) {
+                process.destroyForcibly();
+            }
+        }
+    }
+
+    /**
+     * checks whether all the expected logs are received.
+     *
+     * @param infoReader  ServerLogReader instance attached to the process input stream.
+     * @param errorReader ServerLogReader instance attached to the  error stream.
+     * @return true if all the expected texts are already found, or else false.
+     */
+    private boolean isLeechingDone(ServerLogReader infoReader, ServerLogReader errorReader) {
+        for (LogLeecher leecher : infoReader.getAllLeechers()) {
+            if (!leecher.isTextFound()) {
+                return false;
+            }
+        }
+        for (LogLeecher leecher : errorReader.getAllLeechers()) {
+            if (!leecher.isTextFound()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
