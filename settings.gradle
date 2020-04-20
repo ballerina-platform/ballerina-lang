@@ -263,3 +263,4 @@ buildCache {
         push = true
     }
 }
+include 'ballerina-compiler-api'
