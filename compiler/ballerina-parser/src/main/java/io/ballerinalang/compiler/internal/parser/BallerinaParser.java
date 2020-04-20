@@ -314,6 +314,10 @@ public class BallerinaParser {
                 return parseXMLDeclRhs((STNode) args[0], (STNode) args[1]);
             case NAMESPACE_PREFIX:
                 return parseNamespacePrefix();
+            case WORKER_KEYWORD:
+                return parseWorkerKeywrod();
+            case WORKER_NAME:
+                return parseWorkerName();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -5835,7 +5839,6 @@ public class BallerinaParser {
             case FALSE_KEYWORD:
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
-            case OPEN_BRACE_TOKEN:
             case TYPEOF_KEYWORD:
             case NEGATION_TOKEN:
             case EXCLAMATION_MARK_TOKEN:

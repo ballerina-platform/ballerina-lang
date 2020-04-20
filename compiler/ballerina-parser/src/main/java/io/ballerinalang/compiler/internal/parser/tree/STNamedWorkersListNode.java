@@ -34,7 +34,7 @@ public class STNamedWorkersListNode extends STNode {
     STNamedWorkersListNode(
             STNode workerInitStatements,
             STNode namedWorkerDecl) {
-        super(SyntaxKind.NAMED_WORKERS_LIST);
+        super(SyntaxKind.NAMED_WORKERS);
         this.workerInitStatements = workerInitStatements;
         this.namedWorkerDecl = namedWorkerDecl;
 

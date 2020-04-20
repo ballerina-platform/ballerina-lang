@@ -67,12 +67,15 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] FUNC_BODIES =
             { ParserRuleContext.FUNC_BODY_BLOCK, ParserRuleContext.EXTERNAL_FUNC_BODY };
 
+    // We add named-worker-decl also as a statement. This is because we let having a named-worker
+    // in all places a statement can be added during parsing, but then validates it based on the
+    // context after the parsing the node is complete. This is to provide bertter error messages.
     private static final ParserRuleContext[] STATEMENTS = { ParserRuleContext.CLOSE_BRACE,
             ParserRuleContext.ASSIGNMENT_STMT, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.IF_BLOCK,
             ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CALL_STMT, ParserRuleContext.PANIC_STMT,
             ParserRuleContext.CONTINUE_STATEMENT, ParserRuleContext.BREAK_STATEMENT, ParserRuleContext.RETURN_STMT,
             ParserRuleContext.COMPOUND_ASSIGNMENT_STMT, ParserRuleContext.LOCAL_TYPE_DEFINITION_STMT,
-            ParserRuleContext.EXPRESSION_STATEMENT };
+            ParserRuleContext.EXPRESSION_STATEMENT, ParserRuleContext.NAMED_WORKER_DECL };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -629,6 +632,7 @@ public class BallerinaParserErrorHandler {
                 case IDENTIFIER:
                 case ANNOTATION_TAG:
                 case NAMESPACE_PREFIX:
+                case WORKER_NAME:
                     hasMatch = nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case OPEN_PARENTHESIS:
@@ -1030,8 +1034,10 @@ public class BallerinaParserErrorHandler {
                 case XMLNS_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.XMLNS_KEYWORD;
                     break;
+                case WORKER_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.WORKER_KEYWORD;
 
-                // Productions (Non-terminals which doesn't have alternative paths)
+                    // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
                 case FUNC_DEFINITION:
                 case RETURN_TYPE_DESCRIPTOR:
@@ -1083,6 +1089,10 @@ public class BallerinaParserErrorHandler {
                 case UNARY_EXPRESSION:
                 case CONSTANT_EXPRESSION:
                 case XML_NAMESPACE_DECLARATION:
+                case DEFAULT_WORKER_INIT:
+                case DEFAULT_WORKER:
+                case NAMED_WORKERS:
+                case NAMED_WORKER_DECL:
 
                     // start a context, so that we know where to fall back, and continue
                     // having the qualified-identifier as the next rule.
@@ -1506,6 +1516,7 @@ public class BallerinaParserErrorHandler {
             case ANNOT_ATTACH_POINTS_LIST:
             case XML_NAMESPACE_DECLARATION:
             case CONSTANT_EXPRESSION:
+            case NAMED_WORKER_DECL:
                 startContext(currentCtx);
                 break;
             default:
@@ -1904,6 +1915,14 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.CONSTANT_EXPRESSION;
             case CONSTANT_EXPRESSION:
                 return ParserRuleContext.CONSTANT_EXPRESSION_START;
+            case XML_NAMESPACE_PREFIX_DECL:
+                return ParserRuleContext.SEMICOLON;
+            case NAMED_WORKER_DECL:
+                return ParserRuleContext.WORKER_KEYWORD;
+            case WORKER_KEYWORD:
+                return ParserRuleContext.WORKER_NAME;
+            case WORKER_NAME:
+                return ParserRuleContext.RETURN_TYPE_DESCRIPTOR;
 
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
@@ -1954,6 +1973,10 @@ public class BallerinaParserErrorHandler {
             case ATTACH_POINT:
             case ATTACH_POINT_IDENT:
             case ATTACH_POINT_END:
+            case CONSTANT_EXPRESSION_START:
+            case DEFAULT_WORKER:
+            case DEFAULT_WORKER_INIT:
+            case NAMED_WORKERS:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -2030,7 +2053,14 @@ public class BallerinaParserErrorHandler {
             case MODULE_TYPE_DEFINITION:
                 return ParserRuleContext.SEMICOLON;
             case RETURN_TYPE_DESCRIPTOR:
-                return ParserRuleContext.FUNC_BODY;
+                endContext();
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.NAMED_WORKER_DECL) {
+                    return ParserRuleContext.BLOCK_STMT;
+                } else if (parentCtx == ParserRuleContext.FUNC_DEFINITION) {
+                    return ParserRuleContext.FUNC_BODY;
+                }
+                throw new IllegalStateException();
             case OPTIONAL_TYPE_DESCRIPTOR:
                 return ParserRuleContext.QUESTION_MARK;
             case ARRAY_TYPE_DESCRIPTOR:
@@ -2126,6 +2156,9 @@ public class BallerinaParserErrorHandler {
                     return ParserRuleContext.ELSE_BLOCK;
                 } else if (parentCtx == ParserRuleContext.WHILE_BLOCK) {
                     endContext(); // end while-block
+                    return ParserRuleContext.STATEMENT;
+                } else if (parentCtx == ParserRuleContext.NAMED_WORKER_DECL) {
+                    endContext(); // end named-worker
                     return ParserRuleContext.STATEMENT;
                 }
                 return ParserRuleContext.STATEMENT;
@@ -2763,6 +2796,11 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.XMLNS_KEYWORD;
             case XML_NAMESPACE_PREFIX_DECL:
                 return SyntaxKind.SEMICOLON_TOKEN;
+            case NAMED_WORKER_DECL:
+            case WORKER_KEYWORD:
+                return SyntaxKind.WORKER_KEYWORD;
+            case WORKER_NAME:
+                return SyntaxKind.IDENTIFIER_TOKEN;
 
             // TODO:
             case COMP_UNIT:
@@ -2832,6 +2870,9 @@ public class BallerinaParserErrorHandler {
             case RECORD_FIELD_START:
             case ANNOTATION_TAG:
             case ATTACH_POINT:
+            case DEFAULT_WORKER:
+            case DEFAULT_WORKER_INIT:
+            case NAMED_WORKERS:
             default:
                 break;
         }

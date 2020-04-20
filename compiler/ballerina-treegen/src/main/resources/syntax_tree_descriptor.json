@@ -1668,7 +1668,7 @@
         {
             "name": "NamedWorkersListNode",
             "base": "Node",
-            "kind": "NAMED_WORKERS_LIST",
+            "kind": "NAMED_WORKERS",
             "attributes": [
                 {
                     "name": "workerInitStatements",

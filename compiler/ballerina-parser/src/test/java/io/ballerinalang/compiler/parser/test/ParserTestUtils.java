@@ -605,6 +605,10 @@ public class ParserTestUtils {
                 return SyntaxKind.ANNOTATION;
             case "ANNOTATION_ATTACH_POINT":
                 return SyntaxKind.ANNOTATION_ATTACH_POINT;
+            case "NAMED_WORKER_DECLARATION":
+                return SyntaxKind.NAMED_WORKER_DECLARATION;
+            case "NAMED_WORKERS":
+                return SyntaxKind.NAMED_WORKERS;
 
             // Trivia
             case "EOF_TOKEN":
