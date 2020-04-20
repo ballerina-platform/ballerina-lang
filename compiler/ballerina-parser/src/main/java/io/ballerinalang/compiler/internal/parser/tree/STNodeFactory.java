@@ -564,15 +564,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 versionNumber);
     }
 
-    public static STNode createSubModuleNameNode(
-            STNode leadingDot,
-            STNode moduleName) {
-
-        return new STSubModuleNameNode(
-                leadingDot,
-                moduleName);
-    }
-
     public static STNode createSpecificFieldNode(
             STNode leadingComma,
             STNode fieldName,
