@@ -201,7 +201,7 @@ public class CommandExecutionTest {
             args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
             args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
             args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN,
-                                         arguments.get("node.column").getAsString()));
+                    arguments.get("node.column").getAsString()));
             JsonObject responseJson = getCommandResponse(args, CreateTestExecutor.COMMAND);
             JsonElement resultElm = responseJson.get("result");
             if (resultElm.getAsBoolean()) {
@@ -230,7 +230,7 @@ public class CommandExecutionTest {
             args.add(new CommandArgument(CommandConstants.ARG_KEY_DOC_URI, sourcePath.toUri().toString()));
             args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_LINE, arguments.get("node.line").getAsString()));
             args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN,
-                                         arguments.get("node.column").getAsString()));
+                    arguments.get("node.column").getAsString()));
             JsonObject responseJson = getCommandResponse(args, CreateTestExecutor.COMMAND);
             JsonElement resultElm = responseJson.get("result");
             String content = resultElm.getAsJsonObject().get("edit").getAsJsonObject()
@@ -266,13 +266,13 @@ public class CommandExecutionTest {
             testablePkg.getCompilationUnits()
                     .forEach(unit -> unit.getTopLevelNodes()
                             .forEach(node -> {
-                                         if (node instanceof BLangImportPackage) {
-                                             BLangImportPackage importPkg = (BLangImportPackage) node;
-                                             imports.removeIf(pkgName -> {
-                                                 return pkgName.equals(importPkg.orgName.value + "/" + importPkg.alias);
-                                             });
-                                         }
-                                     }
+                                        if (node instanceof BLangImportPackage) {
+                                            BLangImportPackage importPkg = (BLangImportPackage) node;
+                                            imports.removeIf(pkgName -> {
+                                                return pkgName.equals(importPkg.orgName.value + "/" + importPkg.alias);
+                                            });
+                                        }
+                                    }
                             )
                     );
             // Remove found values from the expected values
@@ -367,7 +367,7 @@ public class CommandExecutionTest {
         args.add(new CommandArgument(CommandConstants.ARG_KEY_NODE_COLUMN, arguments.get("node.column").getAsString()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_PATH, arguments.get("resource.path").getAsString()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_PARAMETER,
-                                     arguments.get("resource.parameter").getAsString()));
+                arguments.get("resource.parameter").getAsString()));
         args.add(new CommandArgument(CommandConstants.ARG_KEY_METHOD, arguments.get("resource.method").getAsString()));
         JsonObject responseJson = getCommandResponse(args, AddMissingParameterInBallerinaExecutor.COMMAND);
         responseJson.get("result").getAsJsonObject().get("edit").getAsJsonObject().getAsJsonArray("documentChanges")
@@ -377,7 +377,8 @@ public class CommandExecutionTest {
     }
 
     @Test(dataProvider = "openApi-create-service-resource-in-contract-data-provider")
-    public void testOpenCreateServiceResourceInContract(String config, Path source, Path contract, Path expected)
+    public void testOpenCreateServiceResourceInContract(String config, Path source, Path contract,
+                                                        Path expectedLinux, Path expectedWin)
             throws IOException {
         LSContextManager.getInstance().clearAllContexts();
         String configJsonPath = "command" + File.separator + config;
@@ -396,16 +397,26 @@ public class CommandExecutionTest {
         File file1 = new File(sourcesPath.resolve("source").resolve(contract).toString());
         String contractContent = org.apache.commons.io.FileUtils.readFileToString(file1, StandardCharsets.UTF_8);
 
-        File file2 = new File(sourcesPath.resolve("source").resolve(expected).toString());
-        String expectedContractContent = org.apache.commons.io.FileUtils.readFileToString(file2,
-                StandardCharsets.UTF_8);
+        String os = System.getProperty("os.name").toLowerCase();
+        File fileLinux = new File(sourcesPath.resolve("source").resolve(expectedLinux).toString());
+        File fileWin = new File(sourcesPath.resolve("source").resolve(expectedWin).toString());
+        String expectedContractContent = "";
+        if (os.contains("win")) {
+            expectedContractContent = org.apache.commons.io.FileUtils.readFileToString(fileWin,
+                    StandardCharsets.UTF_8);
+        } else {
+            expectedContractContent = org.apache.commons.io.FileUtils.readFileToString(fileLinux,
+                    StandardCharsets.UTF_8);
+        }
 
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
-        Assert.assertEquals(contractContent, expectedContractContent, "Test Failed for: " + config);
+        Assert.assertEquals(contractContent.replaceAll("\\P{Print}", ""),
+                expectedContractContent.replaceAll("\\P{Print}", ""), "Test Failed for: " + config);
     }
 
     @Test(dataProvider = "openApi-create-service-resource-method-in-contract-data-provider")
-    public void testOpenCreateServiceResourceMethodInContract(String config, Path source, Path contract, Path expected)
+    public void testOpenCreateServiceResourceMethodInContract(String config, Path source, Path contract,
+                                                              Path expectedLinux, Path expectedWin)
             throws IOException {
         LSContextManager.getInstance().clearAllContexts();
         String configJsonPath = "command" + File.separator + config;
@@ -425,12 +436,21 @@ public class CommandExecutionTest {
         File file1 = new File(sourcesPath.resolve("source").resolve(contract).toString());
         String contractContent = org.apache.commons.io.FileUtils.readFileToString(file1, StandardCharsets.UTF_8);
 
-        File file2 = new File(sourcesPath.resolve("source").resolve(expected).toString());
-        String expectedContractContent = org.apache.commons.io.FileUtils.readFileToString(file2,
-                StandardCharsets.UTF_8);
+        String os = System.getProperty("os.name").toLowerCase();
+        File fileLinux = new File(sourcesPath.resolve("source").resolve(expectedLinux).toString());
+        File fileWin = new File(sourcesPath.resolve("source").resolve(expectedWin).toString());
+        String expectedContractContent = "";
+        if (os.contains("win")) {
+            expectedContractContent = org.apache.commons.io.FileUtils.readFileToString(fileWin,
+                    StandardCharsets.UTF_8);
+        } else {
+            expectedContractContent = org.apache.commons.io.FileUtils.readFileToString(fileLinux,
+                    StandardCharsets.UTF_8);
+        }
 
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
-        Assert.assertEquals(contractContent, expectedContractContent, "Test Failed for: " + config);
+        Assert.assertEquals(contractContent.replaceAll("\\P{Print}", ""),
+                expectedContractContent.replaceAll("\\P{Print}", ""), "Test Failed for: " + config);
     }
 
     @DataProvider(name = "package-import-data-provider")
@@ -555,7 +575,9 @@ public class CommandExecutionTest {
                         Paths.get("openApi", "ballerinaToOpenApi", "src",
                                 "module-giga", "resources", "petstore.yaml"),
                         Paths.get("openApi", "ballerinaToOpenApi", "src",
-                                "module-giga", "resources", "petstore_expected.yaml")
+                                "module-giga", "resources", "petstore_expectedLinux.yaml"),
+                        Paths.get("openApi", "ballerinaToOpenApi", "src",
+                                "module-giga", "resources", "petstore_expectedWin.yaml")
                 },
         };
     }
@@ -569,7 +591,9 @@ public class CommandExecutionTest {
                         Paths.get("openApi", "ballerinaToOpenApi", "src",
                                 "module-giga", "resources", "petstore2.yaml"),
                         Paths.get("openApi", "ballerinaToOpenApi", "src",
-                                "module-giga", "resources", "petstore_expected2.yaml")
+                                "module-giga", "resources", "petstore_expected2Linux.yaml"),
+                        Paths.get("openApi", "ballerinaToOpenApi", "src",
+                                "module-giga", "resources", "petstore_expected2Win.yaml")
                 },
         };
     }
