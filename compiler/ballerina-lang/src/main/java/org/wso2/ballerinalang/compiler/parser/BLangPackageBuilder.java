@@ -476,7 +476,7 @@ public class BLangPackageBuilder {
 
     void addFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
                           boolean exprAvailable, int annotCount, boolean isPrivate, boolean isOptional,
-                          boolean markdownExists) {
+                          boolean markdownExists, boolean isReadonly) {
         BLangSimpleVariable field = addSimpleVar(pos, ws, identifier, identifierPos, exprAvailable, annotCount);
 
         if (!isPrivate) {
@@ -487,6 +487,10 @@ public class BLangPackageBuilder {
             field.flagSet.add(Flag.OPTIONAL);
         } else if (!exprAvailable) {
             field.flagSet.add(Flag.REQUIRED);
+        }
+
+        if (isReadonly) {
+            field.flagSet.add(Flag.READONLY);
         }
 
         if (markdownExists) {
@@ -1592,7 +1596,7 @@ public class BLangPackageBuilder {
         recordLiteralNodes.peek().fields.add((BLangRecordLiteral.BLangRecordVarNameField) exprNodeStack.pop());
     }
 
-    void addKeyValueRecordField(Set<Whitespace> ws, boolean computedKey) {
+    void addKeyValueRecordField(Set<Whitespace> ws, boolean computedKey, boolean isReadonly) {
         BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
         keyValue.addWS(ws);
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
@@ -1601,6 +1605,7 @@ public class BLangPackageBuilder {
             keyValue.addWS(this.recordKeyWS.pop());
         }
         keyValue.key.computedKey = computedKey;
+        keyValue.isReadonly = isReadonly;
         recordLiteralNodes.peek().fields.add(keyValue);
     }
 
@@ -1669,8 +1674,11 @@ public class BLangPackageBuilder {
         createSimpleVariableReference(pos, ws, (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode());
     }
 
-    void createBLangRecordVarRefNameField(DiagnosticPos pos, Set<Whitespace> ws) {
-        createSimpleVariableReference(pos, ws, (BLangSimpleVarRef) TreeBuilder.createRecordVarRefNameFieldNode());
+    void createBLangRecordVarRefNameField(DiagnosticPos pos, Set<Whitespace> ws, boolean isReadonly) {
+        BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                (BLangRecordLiteral.BLangRecordVarNameField) TreeBuilder.createRecordVarRefNameFieldNode();
+        varNameField.isReadonly = isReadonly;
+        createSimpleVariableReference(pos, ws, varNameField);
     }
 
     private void createSimpleVariableReference(DiagnosticPos pos, Set<Whitespace> ws, BLangSimpleVarRef varRef) {

@@ -45,6 +45,11 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 public class MapUtils {
 
     public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value) {
+        handleMapStore(mapValue, fieldName, value, false);
+    }
+
+    public static void handleMapStore(MapValue<BString, Object> mapValue, BString fieldName, Object value,
+                                      boolean isStoreOnCreation) {
         BType mapType = mapValue.getType();
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
@@ -67,7 +72,18 @@ public class MapUtils {
                 BType recFieldType;
 
                 if (recField != null) {
-                    // If there is a corresponding field in the record, use it
+                    // If there is a corresponding field in the record, and an entry in the value, check if it can be
+                    // updated.
+                    // i.e., it is not a `readonly` field or this is the first insertion of the field into the record.
+                    if (mapValue.containsKey(fieldName) && Flags.isFlagOn(recField.flags, Flags.READONLY) &&
+                            !isStoreOnCreation) {
+                        throw BallerinaErrors.createError(
+                                getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                                BLangExceptionHelper.getErrorMessage(RuntimeErrors.RECORD_INVALID_READONLY_FIELD_UPDATE,
+                                                                     fieldName, mapType));
+                    }
+
+                    // If it can be updated, use it.
                     recFieldType = recField.type;
                 } else if (recType.restFieldType != null) {
                     // If there isn't a corresponding field, but there is a rest field, use it
@@ -100,6 +116,12 @@ public class MapUtils {
 
     @Deprecated
     public static void handleMapStore(MapValue<String, Object> mapValue, String fieldName, Object value) {
+        handleMapStore(mapValue, fieldName, value, false);
+    }
+
+    @Deprecated
+    public static void handleMapStore(MapValue<String, Object> mapValue, String fieldName, Object value,
+                                      boolean isStoreOnCreation) {
         BType mapType = mapValue.getType();
         switch (mapType.getTag()) {
             case TypeTags.MAP_TAG:
@@ -119,7 +141,18 @@ public class MapUtils {
                 BType recFieldType;
 
                 if (recField != null) {
-                    // If there is a corresponding field in the record, use it
+                    // If there is a corresponding field in the record, and an entry in the value, check if it can be
+                    // updated.
+                    // i.e., it is not a `readonly` field or this is the first insertion of the field into the record.
+                    if (mapValue.containsKey(fieldName) && Flags.isFlagOn(recField.flags, Flags.READONLY) &&
+                            !isStoreOnCreation) {
+                        throw BallerinaErrors.createError(
+                                getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                                BLangExceptionHelper.getErrorMessage(RuntimeErrors.RECORD_INVALID_READONLY_FIELD_UPDATE,
+                                                                     fieldName, mapType));
+                    }
+
+                    // If it can be updated, use it.
                     recFieldType = recField.type;
                 } else if (recType.restFieldType != null) {
                     // If there isn't a corresponding field, but there is a rest field, use it
