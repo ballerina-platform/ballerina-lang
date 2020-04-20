@@ -1448,9 +1448,9 @@
             ]
         },
         {
-            "name": "IsExpressionNode",
+            "name": "TypeTestExpressionNode",
             "base": "ExpressionNode",
-            "kind": "IS_EXPRESSION",
+            "kind": "TYPE_TEST_EXPRESSION",
             "attributes": [
                 {
                     "name": "expression",
@@ -1519,6 +1519,21 @@
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
                     "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeParenToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "NilLiteralNode",
+            "base": "ExpressionNode",
+            "kind": "NIL_LITERAL",
+            "attributes": [
+                {
+                    "name": "openParenToken",
+                    "type": "Token"
                 },
                 {
                     "name": "closeParenToken",

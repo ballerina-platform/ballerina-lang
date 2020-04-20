@@ -17,26 +17,26 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.IsExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 1.3.0
  */
-public class STIsExpressionNode extends STExpressionNode {
+public class STTypeTestExpressionNode extends STExpressionNode {
     public final STNode expression;
     public final STNode isKeyword;
     public final STNode typeDescriptor;
 
-    STIsExpressionNode(
+    STTypeTestExpressionNode(
             STNode expression,
             STNode isKeyword,
             STNode typeDescriptor) {
-        super(SyntaxKind.IS_EXPRESSION);
+        super(SyntaxKind.TYPE_TEST_EXPRESSION);
         this.expression = expression;
         this.isKeyword = isKeyword;
         this.typeDescriptor = typeDescriptor;
@@ -48,6 +48,6 @@ public class STIsExpressionNode extends STExpressionNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new IsExpressionNode(this, position, parent);
+        return new TypeTestExpressionNode(this, position, parent);
     }
 }

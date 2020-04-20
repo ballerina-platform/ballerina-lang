@@ -1099,7 +1099,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stModuleVariableDeclarationNode.createUnlinkedFacade();
     }
 
-    public static IsExpressionNode createIsExpressionNode(
+    public static TypeTestExpressionNode createTypeTestExpressionNode(
             ExpressionNode expression,
             Token isKeyword,
             Node typeDescriptor) {
@@ -1107,11 +1107,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(isKeyword, "isKeyword must not be null");
         Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
 
-        STNode stIsExpressionNode = STNodeFactory.createIsExpressionNode(
+        STNode stTypeTestExpressionNode = STNodeFactory.createTypeTestExpressionNode(
                 expression.internalNode(),
                 isKeyword.internalNode(),
                 typeDescriptor.internalNode());
-        return stIsExpressionNode.createUnlinkedFacade();
+        return stTypeTestExpressionNode.createUnlinkedFacade();
     }
 
     public static ArrayTypeDescriptorNode createArrayTypeDescriptorNode(
@@ -1154,6 +1154,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 arguments.underlyingListNode().internalNode(),
                 closeParenToken.internalNode());
         return stRemoteMethodCallActionNode.createUnlinkedFacade();
+    }
+
+    public static NilLiteralNode createNilLiteralNode(
+            Token openParenToken,
+            Token closeParenToken) {
+        Objects.requireNonNull(openParenToken, "openParenToken must not be null");
+        Objects.requireNonNull(closeParenToken, "closeParenToken must not be null");
+
+        STNode stNilLiteralNode = STNodeFactory.createNilLiteralNode(
+                openParenToken.internalNode(),
+                closeParenToken.internalNode());
+        return stNilLiteralNode.createUnlinkedFacade();
     }
 }
 

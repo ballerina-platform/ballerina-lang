@@ -287,6 +287,10 @@ public class BallerinaParser {
                 return parseConstDecl((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             case STMT_START_WITH_IDENTIFIER:
                 return parseStatementStartsWithIdentifier((STNode) args[0], (STNode) args[1]);
+            case NULL_KEYWORD:
+                return parseNullKeyword();
+            case NIL_LITERAL:
+                return parseNilLiteral();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -1641,7 +1645,7 @@ public class BallerinaParser {
 
     /**
      * This will handle the parsing of optional,array,union type desc to infinite length.
-     * 
+     *
      * @param typeDesc
      *
      * @return Parsed type descriptor node
@@ -2693,7 +2697,7 @@ public class BallerinaParser {
 
     /**
      * Parse a single statement, given the next token kind.
-     * 
+     *
      * @param tokenKind Next token kind
      * @return Parsed node
      */
@@ -2892,7 +2896,7 @@ public class BallerinaParser {
      * Parse the RHS portion of the assignment.
      * </p>
      * <code>assignment-stmt-rhs := = action-or-expr ;</code>
-     * 
+     *
      * @param lvExpr LHS expression
      * @return Parsed node
      */
@@ -2910,7 +2914,7 @@ public class BallerinaParser {
 
     /**
      * Parse expression. This will start parsing expressions from the lowest level of precedence.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseExpression() {
@@ -2919,7 +2923,7 @@ public class BallerinaParser {
 
     /**
      * Parse action or expression. This will start parsing actions or expressions from the lowest level of precedence.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseActionOrExpression() {
@@ -2936,7 +2940,7 @@ public class BallerinaParser {
 
     /**
      * Parse expression.
-     * 
+     *
      * @param isRhsExpr Flag indicating whether this is a rhs expression
      * @return Parsed node
      */
@@ -2987,7 +2991,7 @@ public class BallerinaParser {
     /**
      * Parse terminal expressions. A terminal expression has the highest precedence level
      * out of all expressions, and will be at the leaves of an expression tree.
-     * 
+     *
      * @param isRhsExpr Is a rhs expression
      * @param allowActions Allow actions
      * @return Parsed node
@@ -3007,6 +3011,11 @@ public class BallerinaParser {
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_NAME);
             case OPEN_PAREN_TOKEN:
+                STToken nextNextToken = peek(2);
+                // parse nil literal '()'
+                if (nextNextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
+                    return parseNilLiteral();
+                }
                 return parseBracedExpression(isRhsExpr, allowActions);
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
@@ -3025,11 +3034,17 @@ public class BallerinaParser {
             case NEGATION_TOKEN:
             case EXCLAMATION_MARK_TOKEN:
                 return parseUnaryExpression(isRhsExpr);
+            case NULL_KEYWORD:
+                return parseNullKeyword();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
                 if (solution.recoveredNode.kind == SyntaxKind.IDENTIFIER_TOKEN) {
                     return parseQualifiedIdentifier(solution.recoveredNode);
+                }
+                if (solution.recoveredNode.kind == SyntaxKind.OPEN_PAREN_TOKEN &&
+                        peek().kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
+                    return parseNilLiteral();
                 }
 
                 return solution.recoveredNode;
@@ -3123,7 +3138,7 @@ public class BallerinaParser {
                 newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr);
                 break;
             case IS_KEYWORD:
-                newLhsExpr = parseIsExpression(lhsExpr);
+                newLhsExpr = parseTypeTestExpression(lhsExpr);
                 break;
             case RIGHT_ARROW_TOKEN:
                 newLhsExpr = parseAction(tokenKind, lhsExpr);
@@ -3229,7 +3244,7 @@ public class BallerinaParser {
      * Parse braced expression.
      * </p>
      * <code>braced-expr := ( expression )</code>
-     * 
+     *
      * @param isRhsExpr Flag indicating whether this is on a rhsExpr of a statement
      * @param allowActions Allow actions
      * @return Parsed node
@@ -3253,7 +3268,7 @@ public class BallerinaParser {
 
     /**
      * Check whether a given node is an action node.
-     * 
+     *
      * @param node Node to check
      * @return <code>true</code> if the node is an action node. <code>false</code> otherwise
      */
@@ -3459,6 +3474,7 @@ public class BallerinaParser {
             case OPEN_PAREN_TOKEN:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
+            case NULL_KEYWORD:
             default:
                 expr = parseExpression();
                 arg = STNodeFactory.createPositionalArgumentNode(leadingComma, expr);
@@ -3497,6 +3513,7 @@ public class BallerinaParser {
             case OPEN_PAREN_TOKEN:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
+            case NULL_KEYWORD:
             default:
                 expr = parseExpression();
                 return STNodeFactory.createPositionalArgumentNode(leadingComma, expr);
@@ -4125,7 +4142,7 @@ public class BallerinaParser {
     /**
      * Parse check expression. This method is used to parse both check expression
      * as well as check action.
-     * 
+     *
      * <p>
      * <code>
      * checking-expr := checking-keyword expression
@@ -4537,7 +4554,7 @@ public class BallerinaParser {
      * Parse the RHS portion of the compound assignment.
      * </p>
      * <code>compound-assignment-stmt-rhs := CompoundAssignmentOperator action-or-expr ;</code>
-     * 
+     *
      * @param lvExpr LHS expression
      * @return Parsed node
      */
@@ -4653,7 +4670,7 @@ public class BallerinaParser {
      * Check whether the given token kind is a compound binary operator.
      * <p>
      * <code>compound-binary-operator := + | - | * | / | & | | | ^ | << | >> | >>></code>
-     * 
+     *
      * @param tokenKind STToken kind
      * @return <code>true</code> if the token kind refers to a binary operator. <code>false</code> otherwise
      */
@@ -5119,7 +5136,7 @@ public class BallerinaParser {
      * <p>
      * <code>nil-type-descriptor :=  ( ) </code>
      * </p>
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseNilTypeDescriptor() {
@@ -5170,7 +5187,7 @@ public class BallerinaParser {
      * <p>
      * <code>optional-type-descriptor := type-descriptor ? </code>
      * </p>
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseOptionalTypeDescriptor(STNode typeDescriptorNode) {
@@ -5247,7 +5264,7 @@ public class BallerinaParser {
      * inferred-array-length := *
      * </code>
      * </p>
-     * 
+     *
      * @param typeDescriptorNode
      *
      * @return Parsed Node
@@ -5443,12 +5460,12 @@ public class BallerinaParser {
      * @param lhsExpr Preceding expression of the is expression
      * @return Is expression node
      */
-    private STNode parseIsExpression(STNode lhsExpr) {
-        startContext(ParserRuleContext.IS_EXPRESSION);
+    private STNode parseTypeTestExpression(STNode lhsExpr) {
+        startContext(ParserRuleContext.TYPE_TEST_EXPRESSION);
         STNode isKeyword = parseIsKeyword();
         STNode typeDescriptor = parseTypeDescriptor();
         endContext();
-        return STNodeFactory.createIsExpressionNode(lhsExpr, isKeyword, typeDescriptor);
+        return STNodeFactory.createTypeTestExpressionNode(lhsExpr, isKeyword, typeDescriptor);
     }
 
     /**
@@ -5485,7 +5502,7 @@ public class BallerinaParser {
 
     /**
      * Pass statements that starts with an identifier.
-     * 
+     *
      * @param tokenKind Next token kind
      * @return Parsed node
      */
@@ -5542,7 +5559,7 @@ public class BallerinaParser {
 
     /**
      * Parse statement which is only consists of an action or expression.
-     * 
+     *
      * @param nextTokenKind Next token kind
      * @return Parsed node
      */
@@ -5556,7 +5573,7 @@ public class BallerinaParser {
 
     /**
      * Parse statements that starts with an expression.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseStamentStartWithExpr(STNode expression) {
@@ -5566,7 +5583,7 @@ public class BallerinaParser {
 
     /**
      * Parse the component followed by the expression, at the beginning of a statement.
-     * 
+     *
      * @param nextTokenKind Kind of the next token
      * @return Parsed node
      */
@@ -5699,7 +5716,7 @@ public class BallerinaParser {
 
     /**
      * Parse right arrow (<code>-></code>) token.
-     * 
+     *
      * @return Parsed node
      */
     private STNode parseRightArrow() {
@@ -5740,5 +5757,33 @@ public class BallerinaParser {
             default:
                 return false;
         }
+    }
+
+    /**
+     * Parse null-keyword.
+     *
+     * @return null-keyword node
+     */
+    private STNode parseNullKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.NULL_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.NULL_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse nil literal. Here nil literal is only referred to ( ).
+     *
+     * @return Parsed node
+     */
+    private STNode parseNilLiteral() {
+        startContext(ParserRuleContext.NIL_LITERAL);
+        STNode openParenthesisToken = parseOpenParenthesis();
+        STNode closeParenthesisToken = parseCloseParenthesis();
+        endContext();
+        return STNodeFactory.createNilLiteralNode(openParenthesisToken, closeParenthesisToken);
     }
 }
