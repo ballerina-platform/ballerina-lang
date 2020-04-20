@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -37,7 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Remove {
 
-    public static Object remove(Strand strand, TableValue tbl, Object key) {
+    public static Object remove(Strand strand, TableValueImpl tbl, Object key) {
         return tbl.removeOrThrow(key);
     }
 }

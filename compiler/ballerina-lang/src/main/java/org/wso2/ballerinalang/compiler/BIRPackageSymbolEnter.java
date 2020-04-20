@@ -919,10 +919,11 @@ public class BIRPackageSymbolEnter {
                     }
                     return bStreamType;
                 case TypeTags.TABLE:
-                    BTableType bTableType = new BTableType(TypeTags.TABLE, null, symTable.tableType.tsymbol);
+                    BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet
+                            .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
+                    BTableType bTableType = new BTableType(TypeTags.TABLE, null, arrayTypeSymbol);
                     bTableType.constraint = readTypeFromCp();
                     boolean hasFieldNameList = inputStream.readByte() == 1;
-                    boolean hasKeyTypeConstraint = inputStream.readByte() == 1;
                     if (hasFieldNameList) {
                         bTableType.fieldNameList = new ArrayList<>();
                         int fieldNameListSize = inputStream.readInt();
@@ -930,11 +931,6 @@ public class BIRPackageSymbolEnter {
                             String fieldName = getStringCPEntryValue(inputStream);
                             bTableType.fieldNameList.add(fieldName);
                         }
-                    } else if (hasKeyTypeConstraint) {
-                        bTableType.keyTypeConstraint = readTypeFromCp();
-                        bTableType.keyTypeConstraint.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE,
-                                Flags.asMask(EnumSet.of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID,
-                                bTableType.keyTypeConstraint, env.pkgSymbol.owner);
                     }
                     return bTableType;
                 case TypeTags.MAP:
@@ -966,9 +962,9 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.ARRAY:
                     byte state = inputStream.readByte();
                     int size = inputStream.readInt();
-                    BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(EnumSet
+                    BTypeSymbol tableTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(EnumSet
                             .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
-                    BArrayType bArrayType = new BArrayType(null, arrayTypeSymbol, size, BArrayState.valueOf(state));
+                    BArrayType bArrayType = new BArrayType(null, tableTypeSymbol, size, BArrayState.valueOf(state));
                     bArrayType.eType = readTypeFromCp();
                     return bArrayType;
                 case TypeTags.UNION:

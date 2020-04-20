@@ -25,7 +25,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -46,7 +46,7 @@ import java.util.Collection;
 )
 public class ToArray {
 
-    public static ArrayValue toArray(Strand strand, TableValue tbl) {
+    public static ArrayValue toArray(Strand strand, TableValueImpl tbl) {
         BType constrainedType = ((BTableType) tbl.getType()).getConstrainedType();
 
         Collection values = tbl.values();

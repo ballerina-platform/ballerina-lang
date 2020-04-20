@@ -23,7 +23,7 @@ import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -41,12 +41,12 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Map {
 
-    public static TableValue map(Strand strand, TableValue tbl, FPValue<Object, Object> func) {
+    public static TableValueImpl map(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
 
         BType newConstraintType = ((BFunctionType) func.getType()).retType;
         BTableType newTableType = new BTableType(newConstraintType, ((BTableType) tbl.getType()).getKeyType());
 
-        TableValue newTable = new TableValue(newTableType);
+        TableValueImpl newTable = new TableValueImpl(newTableType);
         for (Object key : tbl.getKeys()) {
             Object value = tbl.get(key);
             Object newVal = func.apply(new Object[]{strand, value, true});

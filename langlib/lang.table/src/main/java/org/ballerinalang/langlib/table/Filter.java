@@ -22,7 +22,7 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -40,10 +40,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Filter {
 
-    public static TableValue filter(Strand strand, TableValue tbl, FPValue<Object, Boolean> func) {
+    public static TableValueImpl filter(Strand strand, TableValueImpl tbl, FPValue<Object, Boolean> func) {
 
         BType newTableType = tbl.getType();
-        TableValue newTable = new TableValue((BTableType) newTableType);
+        TableValueImpl newTable = new TableValueImpl((BTableType) newTableType);
         for (Object key : tbl.getKeys()) {
             Object value = tbl.get(key);
             if (func.apply(new Object[]{strand, value, true})) {

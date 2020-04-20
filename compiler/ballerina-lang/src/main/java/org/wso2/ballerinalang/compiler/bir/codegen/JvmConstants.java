@@ -56,6 +56,7 @@ public class JvmConstants {
     public static final String FUNCTION_POINTER = "org/ballerinalang/jvm/values/FPValue";
     public static final String ARRAY_VALUE_IMPL = "org/ballerinalang/jvm/values/ArrayValueImpl";
     public static final String TUPLE_VALUE_IMPL = "org/ballerinalang/jvm/values/TupleValueImpl";
+    public static final String TABLE_VALUE_IMPL = "org/ballerinalang/jvm/values/TableValueImpl";
     public static final String SIMPLE_VALUE = "org/ballerinalang/jvm/values/SimpleValue";
 
     public static final String BHANDLE = "org/ballerinalang/jvm/values/api/BHandle";
@@ -97,6 +98,7 @@ public class JvmConstants {
     public static final String CHANNEL_DETAILS = "org/ballerinalang/jvm/values/ChannelDetails";
     public static final String WORKER_UTILS = "org/ballerinalang/jvm/scheduling/WorkerUtils";
     public static final String MAP_UTILS = "org/ballerinalang/jvm/MapUtils";
+    public static final String TABLE_UTILS = "org/ballerinalang/jvm/TableUtils";
     public static final String STRING_UTILS = "org/ballerinalang/jvm/StringUtils";
     public static final String BAL_ERRORS = "org/ballerinalang/jvm/BallerinaErrors";
     public static final String RUNTIME_UTILS = "org/ballerinalang/jvm/util/RuntimeUtils";

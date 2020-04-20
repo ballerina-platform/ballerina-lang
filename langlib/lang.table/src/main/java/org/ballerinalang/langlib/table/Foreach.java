@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -38,7 +38,7 @@ import java.util.Iterator;
         isPublic = true
 )
 public class Foreach {
-    public static void forEach(Strand strand, TableValue tbl, FPValue<Object, Object> func) {
+    public static void forEach(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
         Collection collection = tbl.values();
         Iterator iterator = collection.iterator();
         while (iterator.hasNext()) {

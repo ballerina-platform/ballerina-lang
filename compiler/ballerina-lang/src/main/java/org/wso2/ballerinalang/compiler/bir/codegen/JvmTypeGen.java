@@ -130,7 +130,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_TY
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
@@ -1187,10 +1187,7 @@ class JvmTypeGen {
         mv.visitInsn(DUP);
 
         loadType(mv, bType.constraint);
-        if (bType.keyTypeConstraint != null) {
-            loadType(mv, bType.keyTypeConstraint);
-            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;L%s;)V", BTYPE, BTYPE), false);
-        } else if (bType.fieldNameList != null) {
+        if (bType.fieldNameList != null) {
             // Create the field names array
             List<String> fieldNames = bType.fieldNameList;
             mv.visitLdcInsn((long) fieldNames.size());
@@ -1428,7 +1425,7 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.STREAM) {
             return String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.TABLE) {
-            return String.format("L%s;", TABLE_VALUE);
+            return String.format("L%s;", TABLE_VALUE_IMPL);
         } else if (bType.tag == TypeTags.DECIMAL) {
             return String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.OBJECT) {

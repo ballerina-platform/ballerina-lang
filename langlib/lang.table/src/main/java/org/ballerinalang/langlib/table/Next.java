@@ -24,7 +24,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -45,15 +45,15 @@ public class Next {
     //TODO: refactor hard coded values
     public static Object next(Strand strand, ObjectValue t) {
         IteratorValue tableIterator = (IteratorValue) t.getNativeData("&iterator&");
-        TableValue tableValue = (TableValue) t.get("t");
+        TableValueImpl tableValueImpl = (TableValueImpl) t.get("t");
         if (tableIterator == null) {
-            tableIterator = tableValue.getIterator();
+            tableIterator = tableValueImpl.getIterator();
             t.addNativeData("&iterator&", tableIterator);
         }
 
         if (tableIterator.hasNext()) {
             ArrayValue keyValueTuple = (ArrayValue) tableIterator.next();
-            return BallerinaValues.createRecord(new MapValueImpl<>(tableValue.getIteratorNextReturnType()),
+            return BallerinaValues.createRecord(new MapValueImpl<>(tableValueImpl.getIteratorNextReturnType()),
                     keyValueTuple.get(1));
         }
 

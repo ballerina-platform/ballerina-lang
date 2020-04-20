@@ -55,4 +55,16 @@ public class BTableValueTest {
     public void testGlobalTableConstructExpr2() {
         BRunUtil.invoke(result, "testTableConstructExprWithDuplicateKeys", new BValue[]{});
     }
+
+    @Test(description = "Test member access in table in store operation")
+    public void testTableMemberAccessStore() {
+        BValue[] values = BRunUtil.invoke(result, "testTableMemberAccessStore", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test member access in table in load operation")
+    public void testTableMemberAccessLoad() {
+        BValue[] values = BRunUtil.invoke(result, "testTableMemberAccessLoad", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
 }
