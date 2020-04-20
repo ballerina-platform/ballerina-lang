@@ -287,6 +287,8 @@ public class BallerinaParser {
                 return parseConstDecl((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             case STMT_START_WITH_IDENTIFIER:
                 return parseStatementStartsWithIdentifier((STNode) args[0], (STNode) args[1]);
+            case MAP_TYPE_DESCRIPTOR:
+                return parseMapTypeDescriptor();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -2657,6 +2659,7 @@ public class BallerinaParser {
             case RETURN_KEYWORD:
             case TYPE_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+            case MAP_KEYWORD: // map type descriptor
                 break;
             default:
                 if (isValidLHSExpression(tokenKind)) {
@@ -2748,6 +2751,9 @@ public class BallerinaParser {
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
                 return parseStatementStartsWithIdentifier(getAnnotations(annots));
+            case MAP_KEYWORD:
+                // map type descriptor
+                return parseMapTypeDescriptor();
             default:
                 // If the next token in the token stream does not match to any of the statements and
                 // if it is not the end of statement, then try to fix it and continue.
@@ -5748,7 +5754,7 @@ public class BallerinaParser {
      *
      * @return Parsed node
      */
-    private STNode parseMapTypeDescriptor(){
+    private STNode parseMapTypeDescriptor() {
         startContext(ParserRuleContext.MAP_TYPE_DESCRIPTOR);
         STNode mapKeywordToken = parseMapKeyword();
         STNode ltToken = parseLTToken();
@@ -5769,7 +5775,7 @@ public class BallerinaParser {
         if (nextToken.kind == SyntaxKind.MAP_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(nextToken, ParserRuleContext.MAP_TYPE_DESCRIPTOR);
+            Solution sol = recover(nextToken, ParserRuleContext.MAP_KEYWORD);
             return sol.recoveredNode;
         }
     }
@@ -5784,7 +5790,7 @@ public class BallerinaParser {
         if (nextToken.kind == SyntaxKind.GT_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(nextToken, ParserRuleContext.MAP_TYPE_DESCRIPTOR);
+            Solution sol = recover(nextToken, ParserRuleContext.GT);
             return sol.recoveredNode;
         }
     }
@@ -5799,7 +5805,7 @@ public class BallerinaParser {
         if (nextToken.kind == SyntaxKind.LT_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(nextToken, ParserRuleContext.MAP_TYPE_DESCRIPTOR);
+            Solution sol = recover(nextToken, ParserRuleContext.LT);
             return sol.recoveredNode;
         }
     }

@@ -159,6 +159,7 @@ public enum ParserRuleContext {
     CONST_KEYWORD("const"),
     TYPEOF_KEYWORD("typeof"),
     IS_KEYWORD("is"),
+    MAP_KEYWORD("map"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -180,6 +181,8 @@ public enum ParserRuleContext {
     SLASH("/"),
     AT("@"),
     RIGHT_ARROW("->"),
+    GT(">"),
+    LT("<"),
 
     // Other terminals
     FUNC_NAME("function-name"),

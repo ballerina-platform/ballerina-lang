@@ -116,7 +116,9 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] TYPE_DESCRIPTORS =
             { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.RECORD_TYPE_DESCRIPTOR,
-                    ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR };
+                    ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR,
+                    ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.ARRAY_TYPE_DESCRIPTOR,
+                    ParserRuleContext.MAP_TYPE_DESCRIPTOR};
 
     private static final ParserRuleContext[] RECORD_FIELD =
             { ParserRuleContext.ANNOTATIONS, ParserRuleContext.ASTERISK, ParserRuleContext.TYPE_DESCRIPTOR };
@@ -903,6 +905,14 @@ public class BallerinaParserErrorHandler {
                 case EXPRESSION_STATEMENT_START:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             EXPRESSION_STATEMENT_START);
+                case MAP_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.MAP_KEYWORD;
+                    break;
+                case LT:
+                    hasMatch = nextToken.kind == SyntaxKind.LT_TOKEN;
+                    break;
+                case GT:
+                    hasMatch = nextToken.kind == SyntaxKind.GT_TOKEN;
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -946,6 +956,7 @@ public class BallerinaParserErrorHandler {
                 case LOCAL_TYPE_DEFINITION_STMT:
                 case ANNOTATIONS:
                 case DOC_STRING:
+                case MAP_TYPE_DESCRIPTOR:
                     // start a context, so that we know where to fall back, and continue
                     // having the qualified-identifier as the next rule.
                 case VARIABLE_REF:
@@ -1348,6 +1359,7 @@ public class BallerinaParserErrorHandler {
             case MAPPING_CONSTRUCTOR:
             case LOCAL_TYPE_DEFINITION_STMT:
             case EXPRESSION_STATEMENT:
+            case MAP_TYPE_DESCRIPTOR:
                 startContext(currentCtx);
                 break;
             default:
@@ -1699,7 +1711,18 @@ public class BallerinaParserErrorHandler {
                 return getNextRuleForDecimalIntegerLiteral();
             case EXPRESSION_STATEMENT:
                 return ParserRuleContext.EXPRESSION_STATEMENT_START;
-
+            case MAP_TYPE_DESCRIPTOR:
+                return ParserRuleContext.MAP_KEYWORD;
+            case MAP_KEYWORD:
+                return ParserRuleContext.LT;
+            case LT:
+                return ParserRuleContext.TYPE_DESCRIPTOR;
+            case GT:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.MAP_TYPE_DESCRIPTOR){
+                    endContext();
+                    return ParserRuleContext.VARIABLE_NAME;
+                }
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
@@ -1824,6 +1847,8 @@ public class BallerinaParserErrorHandler {
             case IS_EXPRESSION:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
+            case MAP_TYPE_DESCRIPTOR:
+                return ParserRuleContext.GT;
             default:
                 if (isStatement(parentCtx) || isParameter(parentCtx)) {
                     return ParserRuleContext.VARIABLE_NAME;
@@ -2478,6 +2503,12 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.PLUS_TOKEN;
             case UNARY_EXPRESSION:
                 return SyntaxKind.PLUS_TOKEN;
+            case MAP_KEYWORD:
+                return SyntaxKind.MAP_KEYWORD;
+            case GT:
+                return SyntaxKind.GT_TOKEN;
+            case LT:
+                return SyntaxKind.LT_TOKEN;
 
             // TODO:
             case COMP_UNIT:
