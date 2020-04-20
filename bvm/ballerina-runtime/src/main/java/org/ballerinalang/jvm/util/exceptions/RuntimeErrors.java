@@ -74,7 +74,8 @@ public enum RuntimeErrors {
     ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE("illegal.rest.tuple.size", "RUNTIME_0047"),
     STRING_INDEX_OUT_OF_RANGE("string.index.out.of.range", "RUNTIME_0048"),
     INVALID_SUBSTRING_RANGE("invalid.substring.range", "RUNTIME_0049"),
-    XML_SEQUENCE_INDEX_OUT_OF_RANGE("xml.index.out.of.range", "RUNTIME_0050");
+    XML_SEQUENCE_INDEX_OUT_OF_RANGE("xml.index.out.of.range", "RUNTIME_0050"),
+    RECORD_INVALID_READONLY_FIELD_UPDATE("record.invalid.readonly.field.update", "RUNTIME_0051");
 
     private String errorMsgKey;
     private String errorCode;

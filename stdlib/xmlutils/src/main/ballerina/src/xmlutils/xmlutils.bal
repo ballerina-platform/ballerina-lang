@@ -16,41 +16,59 @@
 
 import ballerina/java;
 
-# Record to provide configurations for the JSON to XML conversion.
+# Represents a record type to provide configurations for the JSON to XML
+# conversion.
 #
-# + attributePrefix - attribute prefix to use in XML
-# + arrayEntryTag - XML tag to add an element from a JSON array
+# + attributePrefix - The attribute prefix to use in the XML representation
+# + arrayEntryTag - The XML tag to add an element from a JSON array
 public type JsonOptions record {
     string attributePrefix = "@";
     string arrayEntryTag = "root";
 };
 
 # Converts a JSON object to an XML representation.
+# ```ballerina
+# json data = {
+#     name: "John",
+#     age: 30
+# };
+# xml|error xmlValue = xmlutils:fromJSON(data);
+# ```
 #
-# + j - The json source
-# + options - JsonOptions struct for JSON to XML conversion properties
-# + return - XML representation of the given JSON
-public function fromJSON(json? j, JsonOptions options = {}) returns xml|error {
-    return externFromJson(j, options);
+# + jsonValue - The JSON source
+# + options - The `xmlutils:JsonOptions` record for JSON to XML conversion properties
+# + return - XML representation of the given JSON if the JSON is
+#            successfully converted or else an `error`
+public function fromJSON(json? jsonValue, JsonOptions options = {}) returns xml|error {
+    return externFromJson(jsonValue, options);
 }
 
 // This is a temporary fix until resolve the #19917
-function externFromJson(json? j, JsonOptions options = {}) returns xml|error = @java:Method {
+function externFromJson(json? jsonValue, JsonOptions options = {}) returns xml|error = @java:Method {
     name: "fromJSON",
     class: "org.ballerinalang.stdlib.xmlutils.ConvertUtils"
 } external;
 
 
 //TODO Table remove - Fix
-//# Converts a table to its xml representation.
+//# Converts a table to its XML representation.
+//# ```ballerina
+//# table<Person> personTable = table{
+//#     { key id, age, salary, name, married },
+//#     [ { 1, 30,  300.5, "Mary", true },
+//#         { 2, 20,  300.5, "John", true }
+//#     ]
+//# };
+//# xml xmlValue = xmlutils:fromTable(personTable).toString();
+//# ```
 //#
-//# + tbl - The source table
-//# + return - XML representation of source table
-//public function fromTable(table<record{}> tbl) returns xml {
+//# + tableValue - The `table` value to be converted to an XML
+//# + return - The XML representation of the provided table
+//public function fromTable(table<record{}> tableValue) returns xml {
 //    return externFromTable(tbl);
 //}
 //
-//function externFromTable(table<record{}> tbl) returns xml = @java:Method {
+//function externFromTable(table<record{}> tableValue) returns xml = @java:Method {
 //    name: "fromTable",
 //    class: "org.ballerinalang.stdlib.xmlutils.ConvertUtils"
 //} external;
