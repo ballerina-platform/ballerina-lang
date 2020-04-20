@@ -45,4 +45,8 @@ public interface QueryExpressionNode extends ExpressionNode {
     List<? extends LetClauseNode> getLetClauseList();
 
     void addLetClause(LetClauseNode letClauseNode);
+
+    boolean isStream();
+
+    void setIsStream(boolean isStream);
 }

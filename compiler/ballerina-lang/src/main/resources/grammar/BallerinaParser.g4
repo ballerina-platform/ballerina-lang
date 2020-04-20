@@ -882,7 +882,7 @@ queryPipeline
     ;
 
 queryExpr
-    :   queryPipeline selectClause
+    :   TYPE_STREAM? queryPipeline selectClause
     ;
 
 queryAction

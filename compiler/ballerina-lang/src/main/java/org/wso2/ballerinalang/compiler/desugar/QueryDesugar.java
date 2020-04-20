@@ -148,6 +148,17 @@ public class QueryDesugar extends BLangNodeVisitor {
         DiagnosticPos pos = fromClause.pos;
         parentBlock = ASTBuilderUtil.createBlockStmt(fromClause.pos);
 
+        //TODO: desugar should go in different flows here;
+        if (queryExpr.isStream) {
+
+            //- type node
+            //- type def
+            //- add to top level nodes
+
+        } else {
+
+        }
+
         // Create output data array variable
         // Person[]|error $outputDataArray$ = ();
         BType queryExpOutputType = queryExpr.type;

@@ -44,6 +44,7 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     public BLangSelectClause selectClause;
     public List<BLangWhereClause> whereClauseList = new ArrayList<>();
     public List<BLangLetClause> letClausesList = new ArrayList<>();
+    public boolean isStream = false;
 
     @Override
     public List<? extends FromClauseNode> getFromClauseNodes() {
@@ -83,6 +84,16 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     @Override
     public void addLetClause(LetClauseNode letClauseNode) {
         letClausesList.add((BLangLetClause) letClauseNode);
+    }
+
+    @Override
+    public boolean isStream() {
+        return isStream;
+    }
+
+    @Override
+    public void setIsStream(boolean isStream) {
+        this.isStream = isStream;
     }
 
     @Override

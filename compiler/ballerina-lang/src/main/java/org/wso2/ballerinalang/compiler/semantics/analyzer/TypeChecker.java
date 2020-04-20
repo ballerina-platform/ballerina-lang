@@ -2812,6 +2812,13 @@ public class TypeChecker extends BLangNodeVisitor {
             whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, selectClause, parentEnv);
         }
 
+        //TODO: type checking should go in different flows here;
+        if (queryExpr.isStream) {
+
+        } else {
+
+        }
+
         BType actualType = findAssignableType(whereEnv, selectClause.expression,  collectionNode.type, expType);
         if (actualType != symTable.semanticError) {
             resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);

@@ -1851,10 +1851,11 @@ public class BLangPackageBuilder {
         addExpressionNode(trapExpr);
     }
 
-    void createQueryExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+    void createQueryExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean isStream) {
         BLangQueryExpr queryExpr = (BLangQueryExpr) TreeBuilder.createQueryExpressionNode();
         queryExpr.pos = pos;
         queryExpr.addWS(ws);
+        queryExpr.setIsStream(isStream);
 
         Collections.reverse(fromClauseNodeStack);
         while (fromClauseNodeStack.size() > 0) {
