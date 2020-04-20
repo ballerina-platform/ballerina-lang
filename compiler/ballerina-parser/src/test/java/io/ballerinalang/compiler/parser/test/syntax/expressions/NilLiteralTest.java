@@ -35,5 +35,18 @@ public class NilLiteralTest extends AbstractExpressionsTest {
     @Test
     public void testNilLiteral() {
         test("() != null + a", "basic-literals/nil_literal_assert_03.json");
+        test("((null) + (()))", "basic-literals/nil_literal_assert_04.json");
+        testFile("basic-literals/nil_literal_source_01.bal", "basic-literals/nil_literal_assert_05.json");
+        testFile("basic-literals/nil_literal_source_02.bal", "basic-literals/nil_literal_assert_06.json");
+        testFile("basic-literals/nil_literal_source_03.bal", "basic-literals/nil_literal_assert_07.json");
+        testFile("basic-literals/nil_literal_source_04.bal", "basic-literals/nil_literal_assert_08.json");
+    }
+
+    // Recovery test
+
+    @Test
+    public void testNilLiteralWithMissingOpenParenthesis() {
+        test(")", "basic-literals/nil_literal_assert_09.json");
+        testFile("basic-literals/nil_literal_source_05.bal", "basic-literals/nil_literal_assert_10.json");
     }
 }

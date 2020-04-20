@@ -3042,6 +3042,10 @@ public class BallerinaParser {
                 if (solution.recoveredNode.kind == SyntaxKind.IDENTIFIER_TOKEN) {
                     return parseQualifiedIdentifier(solution.recoveredNode);
                 }
+                if (solution.recoveredNode.kind == SyntaxKind.OPEN_PAREN_TOKEN &&
+                        peek().kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
+                    return parseNilLiteral();
+                }
 
                 return solution.recoveredNode;
         }
