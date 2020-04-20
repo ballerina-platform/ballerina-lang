@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -283,6 +284,9 @@ public class HttpClientRequest {
         } catch (IOException ex) {
             if (conn.getErrorStream() == null) {
                 if (throwError) {
+                    if (ex instanceof FileNotFoundException) {
+                        throw new IOException("Server returned HTTP response code: 404 or 410");
+                    }
                     throw ex;
                 } else {
                     LOG.error("Error in building HTTP response", ex.getMessage());
