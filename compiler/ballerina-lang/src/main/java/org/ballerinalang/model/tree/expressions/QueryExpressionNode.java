@@ -20,6 +20,7 @@ import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
 
@@ -45,6 +46,10 @@ public interface QueryExpressionNode extends ExpressionNode {
     List<? extends LetClauseNode> getLetClauseList();
 
     void addLetClause(LetClauseNode letClauseNode);
+
+    List<? extends BLangNode> getQueryClauses();
+
+    void addQueryClause(BLangNode queryClause);
 
     boolean isStream();
 

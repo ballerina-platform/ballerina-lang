@@ -23,6 +23,7 @@ import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
@@ -44,6 +45,7 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     public BLangSelectClause selectClause;
     public List<BLangWhereClause> whereClauseList = new ArrayList<>();
     public List<BLangLetClause> letClausesList = new ArrayList<>();
+    public List<BLangNode> queryClauseList = new ArrayList<>();
     public boolean isStream = false;
 
     @Override
@@ -87,6 +89,16 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     }
 
     @Override
+    public List<BLangNode> getQueryClauses() {
+        return queryClauseList;
+    }
+
+    @Override
+    public void addQueryClause(BLangNode queryClause) {
+        this.queryClauseList.add(queryClause);
+    }
+
+    @Override
     public boolean isStream() {
         return isStream;
     }
@@ -108,11 +120,6 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
 
     @Override
     public String toString() {
-        return fromClauseList.stream().map(BLangFromClause::toString).collect(Collectors.joining("\n")) + "\n"
-                + letClausesList.stream().map(BLangLetClause::toString).collect(Collectors.joining("\n"))
-                + "\n" +
-                whereClauseList.stream().map(BLangWhereClause::toString).collect(Collectors.joining("\n"))
-                + "\n" +
-                selectClause.toString();
+        return queryClauseList.stream().map(BLangNode::toString).collect(Collectors.joining("\n"));
     }
 }

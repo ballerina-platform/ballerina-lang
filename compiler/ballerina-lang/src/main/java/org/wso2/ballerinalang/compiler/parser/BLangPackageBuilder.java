@@ -71,6 +71,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangMarkdownReferenceDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -278,6 +279,8 @@ public class BLangPackageBuilder {
     private Stack<BLangWhereClause> whereClauseNodeStack = new Stack<>();
 
     private Stack<BLangDoClause> doClauseNodeStack = new Stack<>();
+
+    private Stack<BLangNode> queryClauseStack = new Stack<>();
 
     private Stack<TransactionNode> transactionNodeStack = new Stack<>();
 
@@ -1573,6 +1576,7 @@ public class BLangPackageBuilder {
         letClause.pos = pos;
         letClause.letVarDeclarations = letVarListStack.pop();
         letClauseNodeStack.push(letClause);
+        queryClauseStack.push(letClause);
     }
 
     void addLetExpression(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -1870,6 +1874,10 @@ public class BLangPackageBuilder {
         while (whereClauseNodeStack.size() > 0) {
             queryExpr.addWhereClauseNode(whereClauseNodeStack.pop());
         }
+        Collections.reverse(queryClauseStack);
+        while (queryClauseStack.size() > 0) {
+            queryExpr.addQueryClause(queryClauseStack.pop());
+        }
         addExpressionNode(queryExpr);
     }
 
@@ -1943,6 +1951,7 @@ public class BLangPackageBuilder {
         fromClause.setCollection(this.exprNodeStack.pop());
         fromClause.isDeclaredWithVar = isDeclaredWithVar;
         fromClauseNodeStack.push(fromClause);
+        queryClauseStack.push(fromClause);
     }
 
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -1951,6 +1960,7 @@ public class BLangPackageBuilder {
         selectClause.pos = pos;
         selectClause.expression = (BLangExpression) this.exprNodeStack.pop();
         selectClauseNodeStack.push(selectClause);
+        queryClauseStack.push(selectClause);
     }
 
     void createWhereClause(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -1959,6 +1969,7 @@ public class BLangPackageBuilder {
         whereClause.pos = pos;
         whereClause.expression = (BLangExpression) this.exprNodeStack.pop();
         whereClauseNodeStack.push(whereClause);
+        queryClauseStack.push(whereClause);
     }
 
     void startDoActionBlock() {
@@ -1974,6 +1985,7 @@ public class BLangPackageBuilder {
         doClause.setBody(blockNode);
         doClause.addWS(ws);
         doClauseNodeStack.push(doClause);
+        queryClauseStack.push(doClause);
     }
 
     void createQueryActionExpr(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -1992,6 +2004,10 @@ public class BLangPackageBuilder {
         Collections.reverse(whereClauseNodeStack);
         while (whereClauseNodeStack.size() > 0) {
             queryAction.addWhereClauseNode(whereClauseNodeStack.pop());
+        }
+        Collections.reverse(queryClauseStack);
+        while (queryClauseStack.size() > 0) {
+            queryAction.addQueryClause(queryClauseStack.pop());
         }
 
         queryAction.setDoClauseNode(doClauseNodeStack.pop());

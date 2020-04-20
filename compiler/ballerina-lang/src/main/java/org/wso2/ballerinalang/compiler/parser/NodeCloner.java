@@ -1248,6 +1248,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.letClauseList = cloneList(source.letClauseList);
         clone.doClause = clone(source.doClause);
         clone.whereClauseList = cloneList(source.whereClauseList);
+        clone.queryClauseList = cloneList(source.queryClauseList);
     }
 
     @Override
@@ -1259,6 +1260,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.letClausesList = cloneList(source.letClausesList);
         clone.selectClause = clone(source.selectClause);
         clone.whereClauseList = cloneList(source.whereClauseList);
+        clone.queryClauseList = cloneList(source.queryClauseList);
         clone.isStream = source.isStream;
     }
 

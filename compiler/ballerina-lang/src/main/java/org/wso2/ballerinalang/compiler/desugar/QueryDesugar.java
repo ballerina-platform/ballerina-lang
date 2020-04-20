@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
@@ -147,6 +148,29 @@ public class QueryDesugar extends BLangNodeVisitor {
         List<BLangLetClause> letClauseList = queryExpr.letClausesList;
         DiagnosticPos pos = fromClause.pos;
         parentBlock = ASTBuilderUtil.createBlockStmt(fromClause.pos);
+
+        List<BLangNode> queryClauses = queryExpr.getQueryClauses();
+        BLangNode initFromClause = queryClauses.get(0);
+        System.out.println("FROM: " + initFromClause);
+        for (BLangNode clause : queryClauses.subList(1, queryClauses.size() - 1)) {
+            switch (clause.getKind()) {
+                case FROM:
+                    System.out.println("JOIN: " + clause);
+                    break;
+                case LET_CLAUSE:
+                    System.out.println("LET_CLAUSE: " + clause);
+                    break;
+                case WHERE:
+                    System.out.println("WHERE: " + clause);
+                    break;
+                case SELECT:
+                    System.out.println("SELECT: " + clause);
+                    break;
+                case DO:
+                    System.out.println("DO: " + clause);
+                    break;
+            }
+        }
 
         //TODO: desugar should go in different flows here;
         if (queryExpr.isStream) {
