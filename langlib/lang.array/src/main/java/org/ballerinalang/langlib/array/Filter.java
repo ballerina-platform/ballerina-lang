@@ -48,13 +48,15 @@ public class Filter {
         ArrayValue newArr = new ArrayValueImpl((BArrayType) arr.getType());
         int size = arr.size();
         AtomicInteger newArraySize = new AtomicInteger(-1);
+        AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, strand, size,
-                                                       i -> new Object[]{strand, arr.get(i), true},
-                                                       (index, future) -> {
-                                                           if ((Boolean) future.result) {
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                                                       () -> new Object[]{strand, arr.get(index.incrementAndGet()),
+                                                               true},
+                                                       result -> {
+                                                           if ((Boolean) result) {
                                                                newArr.add(newArraySize.incrementAndGet(),
-                                                                          arr.get(index));
+                                                                          arr.get(index.get()));
                                                            }
                                                        }, () -> newArr);
         return newArr;

@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.array;
 
-import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -81,7 +80,7 @@ public class Sort {
                 input.add(k, aux.get(i++));
             } else {
                 Object[] args = new Object[]{strand, aux.get(j), true, aux.get(i), true};
-                if (BRuntime.getCurrentRuntime().invokeMethodSync(comparator, args) < 0) {
+                if (comparator.getFunction().apply(args) < 0) {
                     input.add(k, aux.get(j++));
                 } else {
                     input.add(k, aux.get(i++));

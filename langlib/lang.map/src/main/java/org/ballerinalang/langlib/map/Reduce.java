@@ -27,6 +27,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -46,12 +47,10 @@ public class Reduce {
     public static Object reduce(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func, Object initial) {
         int size = m.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
+        AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, strand, size,
-                                                       i -> new Object[]{strand, accum.get(), true,
-                                                               m.get(m.getKeys()[i])
-                                                               , true}, (index, future) -> accum.set(future.result),
-                                                       accum::get);
+                .invokeFunctionPointerAsyncIteratively(func, size, () -> new Object[]{strand, accum.get(), true,
+                        m.get(m.getKeys()[index.incrementAndGet()]), true}, accum::set, accum::get);
         return accum.get();
     }
 

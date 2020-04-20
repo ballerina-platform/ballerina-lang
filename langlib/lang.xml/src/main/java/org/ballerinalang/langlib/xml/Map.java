@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Native implementation of lang.xml:map(map&lt;Type&gt;, function).
@@ -51,16 +51,15 @@ public class Map {
     public static XMLValue map(Strand strand, XMLValue x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
             Object[] args = new Object[]{strand, x, true};
-            AtomicReference<Object> returnVal = new AtomicReference<>();
-            BRuntime.getCurrentRuntime().invokeFunctionPointerAsync(func, strand, args);
+            func.call(args);
             return null;
         }
-
         List<BXML> elements = new ArrayList<>();
+        AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, strand, x.size(),
-                                                       index -> new Object[]{strand, x.getItem(index), true},
-                                                       (index, future) -> elements.add((XMLValue) future.result),
+                .invokeFunctionPointerAsyncIteratively(func, x.size(),
+                                                       () -> new Object[]{strand, x.getItem(index.incrementAndGet()),
+                                                               true}, result -> elements.add((XMLValue) result),
                                                        () -> new XMLSequence(elements));
         return new XMLSequence(elements);
     }

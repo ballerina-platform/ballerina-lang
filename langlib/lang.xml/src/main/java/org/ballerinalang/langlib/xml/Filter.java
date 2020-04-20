@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Native implementation of lang.xml:filter(map&lt;Type&gt;, function).
@@ -50,26 +50,26 @@ public class Filter {
 
     public static XMLValue filter(Strand strand, XMLValue x, FPValue<Object, Boolean> func) {
         if (x.isSingleton()) {
-            AtomicReference<XMLValue> xmlValue = new AtomicReference<>(new XMLSequence());
             Object[] args = new Object[]{strand, x, true};
-            BRuntime.getCurrentRuntime().invokeFunctionPointerAsync(func, strand, args, future -> {
-                if ((Boolean) future.result) {
-                    xmlValue.set(x);
+            func.call(args, result -> {
+                if ((Boolean) result) {
+                    return new XMLSequence(x);
                 }
-            }, () -> true, () -> xmlValue);
+                return new XMLSequence();
+            });
             return new XMLSequence();
         }
 
         List<BXML> elements = new ArrayList<>();
         int size = x.size();
-        BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, strand, size,
-                                                       index -> new Object[]{strand, x.getItem(index), true},
-                                                       (index, future) -> {
-                                                           if ((Boolean) future.result) {
-                                                               elements.add(x.getItem(index));
-                                                           }
-                                                       }, () -> new XMLSequence(elements));
+        AtomicInteger index = new AtomicInteger(-1);
+        BRuntime.getCurrentRuntime().invokeFunctionPointerAsyncIteratively(func, size, () -> new Object[]{strand,
+                x.getItem(index.incrementAndGet()), true}, result -> {
+            if ((Boolean) result) {
+                elements.add(x.getItem(index.get()));
+            }
+        }, () -> new XMLSequence(elements));
+
         return new XMLSequence(elements);
     }
 }

@@ -33,6 +33,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
 
 /**
@@ -64,12 +66,14 @@ public class Filter {
         }
         MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
         int size = m.size();
+        AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, strand, size,
-                                                       index -> new Object[]{strand, m.get(m.getKeys()[index]), true},
-                                                       (index, future) -> {
-                                                           if ((Boolean) future.result) {
-                                                               Object key = m.getKeys()[index];
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                                                       () -> new Object[]{strand,
+                                                               m.get(m.getKeys()[index.incrementAndGet()]), true},
+                                                       result -> {
+                                                           if ((Boolean) result) {
+                                                               Object key = m.getKeys()[index.get()];
                                                                Object value = m.get(key);
                                                                newMap.put(key, value);
                                                            }

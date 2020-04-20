@@ -33,6 +33,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
@@ -66,14 +68,17 @@ public class Map {
             default:
                 throw createOpNotSupportedError(arrType, "map()");
         }
+        AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, strand, size,
-                                                       i -> new Object[]{strand, getFn.get(arr, i), true},
-                                                       (index, future) -> retArr.add(index, future.result),
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                                                       () -> new Object[]{strand,
+                                                               getFn.get(arr, index.incrementAndGet()), true},
+                                                       result -> retArr.add(index.get(), result),
                                                        () -> retArr);
 
         return retArr;
     }
+
     public static ArrayValue map_bstring(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
         return map(strand, arr, func);
     }

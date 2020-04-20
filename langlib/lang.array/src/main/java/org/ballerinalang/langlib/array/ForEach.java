@@ -28,6 +28,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunction;
 
 /**
@@ -46,12 +48,15 @@ public class ForEach {
         int size = arr.size();
         BType arrType = arr.getType();
         GetFunction getFn = getElementAccessFunction(arrType, "forEach()");
+        AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, strand, size,
-                                                       i -> new Object[]{strand, getFn.get(arr, i), true},
-                                                       (index, future) -> {
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                                                       () -> new Object[]{strand,
+                                                               getFn.get(arr, index.incrementAndGet()), true},
+                                                       result -> {
                                                        }, () -> null);
     }
+
     public static void forEach_bstring(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
         forEach(strand, arr, func);
     }

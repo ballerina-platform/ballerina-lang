@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunction;
@@ -52,11 +53,12 @@ public class Reduce {
         int size = arr.size();
         GetFunction getFn = getElementAccessFunction(arrType, "reduce()");
         AtomicReference<Object> accum = new AtomicReference<>(initial);
-        BRuntime.getCurrentRuntime().invokeFunctionPointerAsyncIteratively(func, strand, size,
-                                                                           i -> new Object[]{strand, accum.get(), true,
-                                                                                   getFn.get(arr, i), true},
-                                                                           (index, future) -> accum.set(future.result),
-                                                                           accum::get);
+        AtomicInteger index = new AtomicInteger(-1);
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncIteratively(func, size, () -> new Object[]{strand, accum.get(), true,
+                        getFn.get(arr, index.incrementAndGet()), true}, accum::set, accum::get);
         return accum.get();
+
+        
     }
 }

@@ -26,6 +26,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * Native implementation of lang.xml:forEach(map&lt;Type&gt;, function).
  *
@@ -43,13 +45,14 @@ public class ForEach {
     public static void forEach(Strand strand, XMLValue x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
             Object[] args = new Object[]{strand, x, true};
-            BRuntime.getCurrentRuntime().invokeFunctionPointerAsync(func, strand, args);
+            func.call(args);
             return;
         }
+        AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, strand, x.size(),
-                                                       index -> new Object[]{strand, x.getItem(index), true},
-                                                       (index, future) -> {
+                .invokeFunctionPointerAsyncIteratively(func, x.size(), () -> new Object[]{strand,
+                                                               x.getItem(index.incrementAndGet()), true},
+                                                       result -> {
                                                        }, () -> null);
     }
 
