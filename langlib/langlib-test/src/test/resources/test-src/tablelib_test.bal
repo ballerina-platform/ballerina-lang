@@ -15,7 +15,7 @@
 // under the License.
 
 type Person record {
-  string name;
+  readonly string name;
   int age;
 };
 
@@ -24,7 +24,7 @@ type PersonValue record {|
 |};
 
 type Employee record {|
-  string name;
+  readonly string name;
   string department;
 |};
 
