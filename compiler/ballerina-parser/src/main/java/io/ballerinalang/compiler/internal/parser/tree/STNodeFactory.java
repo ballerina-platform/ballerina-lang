@@ -821,12 +821,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createIsExpressionNode(
+    public static STNode createTypeTestExpressionNode(
             STNode expression,
             STNode isKeyword,
             STNode typeDescriptor) {
 
-        return new STIsExpressionNode(
+        return new STTypeTestExpressionNode(
                 expression,
                 isKeyword,
                 typeDescriptor);
@@ -873,6 +873,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 ltToken,
                 typeNode,
                 gtToken);
+    }
+
+    public static STNode createNilLiteralNode(
+            STNode openParenToken,
+            STNode closeParenToken) {
+
+        return new STNilLiteralNode(
+                openParenToken,
+                closeParenToken);
     }
 }
 

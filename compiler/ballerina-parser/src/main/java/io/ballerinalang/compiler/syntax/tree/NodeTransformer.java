@@ -284,8 +284,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(moduleVariableDeclarationNode);
     }
 
-    public T transform(IsExpressionNode isExpressionNode) {
-        return transformSyntaxNode(isExpressionNode);
+    public T transform(TypeTestExpressionNode typeTestExpressionNode) {
+        return transformSyntaxNode(typeTestExpressionNode);
     }
 
     public T transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
@@ -298,6 +298,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(MapTypeDescriptorNode mapTypeDescriptorNode) {
         return transformSyntaxNode(mapTypeDescriptorNode);
+    }
+
+    public T transform(NilLiteralNode nilLiteralNode) {
+        return transformSyntaxNode(nilLiteralNode);
     }
 
     // Tokens

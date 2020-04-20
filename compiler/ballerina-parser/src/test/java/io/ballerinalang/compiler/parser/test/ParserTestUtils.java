@@ -359,6 +359,8 @@ public class ParserTestUtils {
                 return SyntaxKind.IS_KEYWORD;
             case "MAP_KEYWORD":
                 return SyntaxKind.MAP_KEYWORD;
+            case "NULL_KEYWORD":
+                return SyntaxKind.NULL_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -483,8 +485,10 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPEOF_EXPRESSION;
             case "UNARY_EXPRESSION":
                 return SyntaxKind.UNARY_EXPRESSION;
-            case "IS_EXPRESSION":
-                return SyntaxKind.IS_EXPRESSION;
+            case "TYPE_TEST_EXPRESSION":
+                return SyntaxKind.TYPE_TEST_EXPRESSION;
+            case "NIL_LITERAL":
+                return SyntaxKind.NIL_LITERAL;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
