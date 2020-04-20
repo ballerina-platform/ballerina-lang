@@ -160,6 +160,7 @@ public enum SyntaxKind {
     NIL_TYPE(2002),
     OPTIONAL_TYPE(2003),
     ARRAY_TYPE(2004),
+    MAP_TYPE(2005),
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),

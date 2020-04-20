@@ -296,6 +296,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(remoteMethodCallActionNode);
     }
 
+    public T transform(MapTypeDescriptorNode mapTypeDescriptorNode) {
+        return transformSyntaxNode(mapTypeDescriptorNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

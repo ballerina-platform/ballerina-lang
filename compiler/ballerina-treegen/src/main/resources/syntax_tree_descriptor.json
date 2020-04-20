@@ -1525,6 +1525,29 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "MapTypeDescriptorNode",
+            "base": "Node",
+            "kind": "MAP_TYPE",
+            "attributes": [
+                {
+                    "name": "mapKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

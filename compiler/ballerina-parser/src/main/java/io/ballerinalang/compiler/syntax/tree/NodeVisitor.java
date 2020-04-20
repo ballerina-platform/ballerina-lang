@@ -295,6 +295,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(remoteMethodCallActionNode);
     }
 
+    public void visit(MapTypeDescriptorNode mapTypeDescriptorNode) {
+        visitSyntaxNode(mapTypeDescriptorNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {
