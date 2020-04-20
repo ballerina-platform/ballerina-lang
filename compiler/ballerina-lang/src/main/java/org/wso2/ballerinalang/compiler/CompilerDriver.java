@@ -57,6 +57,7 @@ import static org.ballerinalang.model.elements.PackageID.MAP;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
+import static org.ballerinalang.model.elements.PackageID.TABLE;
 import static org.ballerinalang.model.elements.PackageID.TYPEDESC;
 import static org.ballerinalang.model.elements.PackageID.VALUE;
 import static org.ballerinalang.model.elements.PackageID.XML;
@@ -178,6 +179,16 @@ public class CompilerDriver {
         // Other lang modules requires internal module. Hence loading it.
 
         symbolTable.langInternalModuleSymbol = pkgLoader.loadPackageSymbol(INTERNAL, null, null);
+
+        if (langLib.equals(STREAM)) {
+            // Stream module requires array, map, string, table, xml & value modules. Hence loading them.
+            symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
+            symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
+            symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
+            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
+            symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
+            symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
+        }
 
         symResolver.reloadIntRangeType();
 
