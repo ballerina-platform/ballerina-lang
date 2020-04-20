@@ -2742,6 +2742,10 @@ public class BallerinaParser {
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
                 return parseStatementStartsWithIdentifier(getAnnotations(annots));
+            case LOCK_KEYWORD:
+                return parseLockStatement();
+            case OPEN_BRACE_TOKEN:
+                return parseBlockNode();
             default:
                 // If the next token in the token stream does not match to any of the statements and
                 // if it is not the end of statement, then try to fix it and continue.
@@ -5739,6 +5743,35 @@ public class BallerinaParser {
             case OPEN_PAREN_TOKEN:
             default:
                 return false;
+        }
+    }
+
+    /**
+     * Parse lock statement.
+     * <code>lock-stmt := lock block-stmt ;</code>
+     *
+     * @return Lock statement
+     */
+    private STNode parseLockStatement() {
+        startContext(ParserRuleContext.LOCK_STMT);
+        STNode lockKeyword = parseLockKeyword();
+        STNode blockStatement = parseBlockNode();
+        endContext();
+        return STNodeFactory.createLockStatementNode(lockKeyword, blockStatement);
+    }
+
+    /**
+     * Parse lock-keyword.
+     *
+     * @return lock-keyword node
+     */
+    private STNode parseLockKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.LOCK_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.LOCK_KEYWORD);
+            return sol.recoveredNode;
         }
     }
 }
