@@ -131,7 +131,7 @@ public class BArrayType extends BType {
         String arrayString = "";
         String arrayTypeName = getTypeName();
         arrayString = size != -1 ? arrayString + "[" + size + "]" : arrayString + "[]";
-        arrayString = arrayString.concat(elementType.toString());
+        arrayString = arrayString + elementType.toString();
         if (arrayString.contains(arrayTypeName)) {
             arrayString = arrayTypeName + arrayString.replace(arrayTypeName, "");
         }
