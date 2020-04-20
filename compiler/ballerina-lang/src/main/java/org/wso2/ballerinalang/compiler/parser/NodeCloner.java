@@ -842,8 +842,16 @@ public class NodeCloner extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef source) {
 
-        BLangSimpleVarRef clone = source instanceof BLangRecordVarNameField ?
-                new BLangRecordVarNameField() : new BLangSimpleVarRef();
+        BLangSimpleVarRef clone;
+
+        if (source instanceof BLangRecordVarNameField) {
+            BLangRecordVarNameField clonedVarNameField = new BLangRecordVarNameField();
+            clonedVarNameField.isReadonly = ((BLangRecordVarNameField) source).isReadonly;
+            clone = clonedVarNameField;
+        } else {
+            clone = new BLangSimpleVarRef();
+        }
+
         source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
         clone.variableName = source.variableName;
@@ -1754,6 +1762,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangRecordKeyValueField clone = new BLangRecordKeyValueField();
         source.cloneRef = clone;
         clone.pos = source.pos;
+        clone.isReadonly = source.isReadonly;
         clone.addWS(source.getWS());
 
         BLangRecordKey newKey = new BLangRecordKey(clone(source.key.expr));
