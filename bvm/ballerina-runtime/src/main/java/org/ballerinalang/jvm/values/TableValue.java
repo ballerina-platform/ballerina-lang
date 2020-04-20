@@ -158,6 +158,13 @@ public class TableValue<K, V> implements BTable<K, V> {
         return this.get(key);
     }
 
+    public V removeOrThrow(Object key) {
+        if (!containsKey(key)) {
+            throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "cannot find key '" + key + "'");
+        }
+        return this.remove(key);
+    }
+
     @Override
     public V fillAndGet(Object key) {
         return null;
