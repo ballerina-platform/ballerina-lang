@@ -27,40 +27,63 @@ public type Listener object {
     private int port = 0;
     private ListenerConfiguration config = {};
 
-    # Starts the registered service.
-    #
-    # + return - Returns an error if encounters an error while starting the server, returns nil otherwise.
+# Starts the registered service.
+# ```ballerina
+# error? result = listenerEp.__start();
+# ```
+#
+# + return - An `error` if an error occurs while starting the server or else `()`
     public function __start() returns error? {
         return externStart(self);
     }
 
+# Stops the service listener gracefully. Already-accepted requests will be served before the connection closure.
+# ```ballerina
+# error? result = listenerEp.__gracefulStop();
+# ```
+#
+# + return - An `error` if an error occurred during the listener stopping process or else `()`
     public function __gracefulStop() returns error? {
         return ();
     }
 
-    # Stops the registered service.
-    #
-    # + return - Returns an error if encounters an error while stopping the server, returns nil otherwise.
+# Stops the registered service.
+# ```ballerina
+# error? result = listenerEp.__immediateStop();
+# ```
+#
+# + return - An `error` if an error occurs while stopping the server or else `()`
     public function __immediateStop() returns error? {
         return externStop(self);
     }
 
-    # Gets called every time a service attaches itself to this endpoint - also happens at module init time.
-    #
-    # + s - The type of the service to be registered.
-    # + name - Name of the service.
-    # + return - Returns an error if encounters an error while attaching the service, returns nil otherwise.
+# Gets called every time a service attaches itself to this endpoint - also happens at module init time.
+# ```ballerina
+# error? result = listenerEp.__attach(helloService);
+# ```
+#
+# + s - The type of the service to be registered
+# + name - Name of the service
+# + return - An `error` if encounters an error while attaching the service or else `()`
     public function __attach(service s, string? name = ()) returns error? {
         return externRegister(self, s, name);
     }
 
+# Detaches an HTTP or WebSocket service from the listener. Note that detaching a WebSocket service would not affect
+# the functionality of the existing connections.
+# ```ballerina
+# error? result = listenerEp.__detach(helloService);
+# ```
+#
+# + s - The service to be detached
+# + return - An `error` if occurred during detaching of a service or else `()`
     public function __detach(service s) returns error? {
     }
 
-    # Gets called when the endpoint is being initialize during module init time.
+    # Gets called when the endpoint is being initialized during the module init time.
     #
-    # + port - Listener port.
-    # + config - The ServiceEndpointConfiguration of the endpoint.
+    # + port - Listener port
+    # + config - The `grpc:ListenerConfiguration` of the endpoint
     public function __init(int port, ListenerConfiguration? config = ()) {
         self.config = config ?: {};
         self.port = port;
@@ -99,10 +122,10 @@ const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
 
 # Represents the gRPC server endpoint configuration.
 #
-# + host - The server hostname.
-# + secureSocket - The SSL configurations for the client endpoint.
+# + host - The server hostname
+# + secureSocket - The SSL configurations for the client endpoint
 # + timeoutInMillis - Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
-#                   disable timeout.
+#                   disable the timeout
 public type ListenerConfiguration record {|
     string host = "0.0.0.0";
     ListenerSecureSocket? secureSocket = ();

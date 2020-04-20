@@ -46,6 +46,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -522,6 +523,10 @@ public class Types {
             return true;
         }
 
+        if (targetTag == TypeTags.READONLY &&  isReadonlyType(source)) {
+            return true;
+        }
+
         if (targetTag == TypeTags.MAP && sourceTag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) source;
             return isAssignableRecordType(recordType, target);
@@ -854,6 +859,23 @@ public class Types {
         // Source param types should be contravariant with target param types. Hence s and t switched when checking
         // assignability.
         return checkFunctionTypeEquality(source, target, unresolvedTypes, (s, t, ut) -> isAssignable(t, s, ut));
+    }
+
+    private boolean isReadonlyType(BType sourceType) {
+        if (isValueType(sourceType)) {
+            return true;
+        }
+
+        switch (sourceType.tag) {
+            case TypeTags.NIL:
+            case TypeTags.ERROR:
+            case TypeTags.INVOKABLE:
+            case TypeTags.SERVICE:
+            case TypeTags.TYPEDESC:
+            case TypeTags.HANDLE:
+                return true;
+        }
+        return false;
     }
 
     private boolean containsTypeParams(BInvokableType type) {
@@ -1412,7 +1434,8 @@ public class Types {
             case TypeTags.UNSIGNED16_INT:
             case TypeTags.UNSIGNED8_INT:
             case TypeTags.CHAR_STRING:
-                if (targetTag == TypeTags.JSON || targetTag == TypeTags.ANYDATA || targetTag == TypeTags.ANY) {
+                if (targetTag == TypeTags.JSON || targetTag == TypeTags.ANYDATA || targetTag == TypeTags.ANY ||
+                        targetTag == TypeTags.READONLY) {
                     return TypeTestResult.TRUE;
                 }
                 break;
@@ -2624,7 +2647,7 @@ public class Types {
         }
 
         if (remainingTypes.isEmpty()) {
-            return symTable.semanticError;
+            return symTable.nullSet;
         }
 
         return BUnionType.create(null, new LinkedHashSet<>(remainingTypes));
@@ -2672,6 +2695,8 @@ public class Types {
                 return new BAnyType(type.tag, type.tsymbol, false);
             case TypeTags.ANYDATA:
                 return new BAnydataType(type.tag, type.tsymbol, false);
+            case TypeTags.READONLY:
+                return new BReadonlyType(type.tag, type.tsymbol, false);
         }
 
         if (type.tag != TypeTags.UNION) {

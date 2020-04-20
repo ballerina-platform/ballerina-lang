@@ -600,6 +600,8 @@ public class TypeChecker {
                 return checkIsServiceType(sourceType);
             case TypeTags.HANDLE_TAG:
                 return sourceType.getTag() == TypeTags.HANDLE_TAG;
+            case TypeTags.READONLY_TAG:
+                return isReadonlyType(sourceType);
             default:
                 return checkIsRecursiveType(sourceType, targetType,
                         unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
@@ -1115,6 +1117,23 @@ public class TypeChecker {
         return false;
     }
 
+    private static boolean isReadonlyType(BType sourceType) {
+        if (isSimpleBasicType(sourceType)) {
+            return true;
+        }
+
+        switch (sourceType.getTag()) {
+            case TypeTags.NULL_TAG:
+            case TypeTags.ERROR_TAG:
+            case TypeTags.INVOKABLE_TAG:
+            case TypeTags.SERVICE_TAG:
+            case TypeTags.TYPEDESC_TAG:
+            case TypeTags.HANDLE_TAG:
+                return true;
+        }
+        return false;
+    }
+
     private static boolean checkContraints(BType sourceConstraint, BType targetConstraint,
                                            List<TypePair> unresolvedTypes) {
         if (sourceConstraint == null) {
@@ -1184,6 +1203,8 @@ public class TypeChecker {
     private static boolean checkIsLikeOnValue(Object sourceValue, BType sourceType, BType targetType,
                                               List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
         switch (targetType.getTag()) {
+            case TypeTags.READONLY_TAG:
+                return true;
             case TypeTags.BYTE_TAG:
                 if (TypeTags.isIntegerTypeTag(sourceType.getTag())) {
                     return isByteLiteral((Long) sourceValue);

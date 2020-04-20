@@ -24,15 +24,10 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
-import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -143,15 +138,10 @@ public class OptimizeAllImportsCodeAction extends AbstractCodeActionProvider {
             editText.append(";").append(System.lineSeparator());
         }
 
+        String commandTitle = CommandConstants.OPTIMIZE_IMPORTS_TITLE;
         Range range = new Range(new Position(importSLine, importSCol), new Position(importELine, importECol));
         List<TextEdit> edits = Collections.singletonList(new TextEdit(range, editText.toString()));
-
-        CodeAction action = new CodeAction(CommandConstants.OPTIMIZE_IMPORTS_TITLE);
-        action.setKind(CodeActionKind.QuickFix);
-        action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
-        action.setDiagnostics(null);
-        actions.add(action);
+        actions.add(createQuickFixCodeAction(commandTitle, edits, uri));
         return actions;
     }
 

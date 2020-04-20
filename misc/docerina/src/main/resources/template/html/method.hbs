@@ -11,8 +11,10 @@
         </span>
         {{/if}}
     </div>
-    <p>{{{ description }}}</p>
-     {{#if parameters}}
+    <div class="function-desc">
+        {{{ description }}}
+    </div>
+    {{#if parameters}}
         <div class="data-wrapper">
             <h3 class="param-title">Parameters</h3>
             {{#each parameters}}    

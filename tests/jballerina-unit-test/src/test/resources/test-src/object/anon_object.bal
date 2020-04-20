@@ -212,3 +212,12 @@ function testObjectWithSelfReference() returns [int, string] {
     sample.test(10, "Jewell");
     return [sample.age, sample.name];
 }
+
+function testCodeAnalyzerRunningOnAnonymousObjectsForDeprecatedFunctionAnnotation() {
+    object {
+        int b = Test();
+    } obj = new;
+}
+
+@deprecated
+function Test() returns int { return 0;}
