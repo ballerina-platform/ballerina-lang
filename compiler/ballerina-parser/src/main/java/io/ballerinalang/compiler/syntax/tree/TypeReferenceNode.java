@@ -56,7 +56,7 @@ public class TypeReferenceNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "asteriskToken",
-                "type",
+                "typeName",
                 "semicolonToken"};
     }
 

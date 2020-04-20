@@ -65,7 +65,7 @@ public class RestParameterNode extends ParameterNode {
         return new String[]{
                 "leadingComma",
                 "annotations",
-                "type",
+                "typeName",
                 "ellipsisToken",
                 "paramName"};
     }
