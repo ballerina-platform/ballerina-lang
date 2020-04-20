@@ -1059,6 +1059,9 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.STREAM) {
             loadStreamType(mv, (BStreamType) bType);
             return;
+        } else if (bType.tag == TypeTags.TABLE) {
+            loadTableType(mv, (BTableType) bType);
+            return;
         } else if (bType.tag == TypeTags.ERROR) {
             loadErrorType(mv, (BErrorType) bType);
             return;

@@ -582,6 +582,10 @@ public class JvmMethodGen {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", STREAM_VALUE));
                 mv.visitVarInsn(ASTORE, index);
+            } else if (bType.tag == TypeTags.TABLE) {
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                        String.format("L%s;", TABLE_VALUE));
+                mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.ARRAY ||
                     bType.tag == TypeTags.TUPLE) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),

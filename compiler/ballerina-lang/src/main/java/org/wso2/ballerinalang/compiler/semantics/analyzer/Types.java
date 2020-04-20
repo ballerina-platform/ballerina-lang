@@ -556,6 +556,10 @@ public class Types {
             return isAssignable(((BStreamType) source).constraint, ((BStreamType) target).constraint, unresolvedTypes);
         }
 
+        if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
+            return isAssignable(((BTableType) source).constraint, ((BTableType) target).constraint, unresolvedTypes);
+        }
+
         if (isBuiltInTypeWidenPossible(source, target) == TypeTestResult.TRUE) {
             return true;
         }
