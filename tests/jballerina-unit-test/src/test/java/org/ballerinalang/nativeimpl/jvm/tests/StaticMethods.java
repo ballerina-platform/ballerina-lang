@@ -73,8 +73,8 @@ public class StaticMethods {
         return new BmpStringValue("hello world");
     }
 
-    public static BString stringParamAndReturn(BString a1) {
-        return a1.concat(new BmpStringValue(" and Hadrian"));
+    public static String stringParamAndReturn(String a1) {
+        return a1 + " and Hadrian";
     }
 
     public static Date acceptSomethingAndReturnSomething(Date date) {

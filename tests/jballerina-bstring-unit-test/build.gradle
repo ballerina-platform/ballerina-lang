@@ -84,6 +84,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
 
     balHome project(path: ':ballerina-http', configuration: 'baloImplementation')
     balHome project(path: ':ballerina-java', configuration: 'baloImplementation')

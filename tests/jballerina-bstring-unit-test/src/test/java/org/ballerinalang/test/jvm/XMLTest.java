@@ -98,7 +98,7 @@ public class XMLTest {
 
         Assert.assertTrue(returns[2] instanceof BXML);
         Assert.assertEquals(returns[2].stringValue(),
-                "<ns1:root xmlns:ns1=\"http://ballerina.com/b\">hello</ns1:root>");
+                "<ns1:root xmlns:ns1=\"http://ballerina.com/b\" xmlns=\"http://ballerina.com/\">hello</ns1:root>");
     }
 
     @Test
