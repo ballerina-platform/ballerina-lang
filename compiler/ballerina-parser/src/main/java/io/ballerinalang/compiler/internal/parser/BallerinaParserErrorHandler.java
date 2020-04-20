@@ -188,10 +188,11 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] RETURN_RHS = { ParserRuleContext.SEMICOLON, ParserRuleContext.EXPRESSION };
 
-    private static final ParserRuleContext[] EXPRESSION_START = { ParserRuleContext.BASIC_LITERAL,
-            ParserRuleContext.VARIABLE_REF, ParserRuleContext.ACCESS_EXPRESSION, ParserRuleContext.TYPEOF_EXPRESSION,
-            ParserRuleContext.UNARY_EXPRESSION, ParserRuleContext.IS_EXPRESSION, ParserRuleContext.CHECKING_KEYWORD,
-            ParserRuleContext.OPEN_PARENTHESIS };
+    private static final ParserRuleContext[] EXPRESSION_START =
+            { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.NIL_LITERAL, ParserRuleContext.VARIABLE_REF,
+                    ParserRuleContext.ACCESS_EXPRESSION, ParserRuleContext.TYPEOF_EXPRESSION,
+                    ParserRuleContext.UNARY_EXPRESSION, ParserRuleContext.TYPE_TEST_EXPRESSION,
+                    ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -965,7 +966,7 @@ public class BallerinaParserErrorHandler {
                 case IS_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.IS_KEYWORD;
                     break;
-                case IS_EXPRESSION:
+                case TYPE_TEST_EXPRESSION:
                     return seekInIsExpression(currentCtx, lookahead, currentDepth, matchingRulesCount, isEntryPoint);
                 case STMT_START_WITH_EXPR_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
@@ -979,6 +980,9 @@ public class BallerinaParserErrorHandler {
                 case EXPRESSION_STATEMENT_START:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             EXPRESSION_STATEMENT_START, isEntryPoint);
+                case NULL_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.NULL_KEYWORD;
+                    break;
                 case ANNOTATION_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.ANNOTATION_KEYWORD;
                     break;
@@ -1099,6 +1103,7 @@ public class BallerinaParserErrorHandler {
                 case VARIABLE_REF:
                 case TYPE_REFERENCE:
                 case ANNOT_REFERENCE:
+                case NIL_LITERAL:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1512,6 +1517,7 @@ public class BallerinaParserErrorHandler {
             case MAPPING_CONSTRUCTOR:
             case LOCAL_TYPE_DEFINITION_STMT:
             case EXPRESSION_STATEMENT:
+            case NIL_LITERAL:
             case ANNOTATION_DECL:
             case ANNOT_ATTACH_POINTS_LIST:
             case XML_NAMESPACE_DECLARATION:
@@ -1570,6 +1576,10 @@ public class BallerinaParserErrorHandler {
                     // After parsing nil type descriptor all the other parsing is same as next rule of simple type
                     return getNextRuleForTypeDescriptor();
                 }
+                if (parentCtx == ParserRuleContext.NIL_LITERAL) {
+                    endContext();
+                    return ParserRuleContext.EXPRESSION_RHS;
+                }
                 // endContext(); // end func signature
                 return ParserRuleContext.FUNC_BODY;
             case EXPRESSION:
@@ -1611,7 +1621,8 @@ public class BallerinaParserErrorHandler {
                     return ParserRuleContext.EXPRESSION;
                 } else if (parentCtx == ParserRuleContext.FUNC_DEFINITION) {
                     return ParserRuleContext.PARAM_LIST;
-                } else if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR) {
+                } else if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR ||
+                        parentCtx == ParserRuleContext.NIL_LITERAL) {
                     return ParserRuleContext.CLOSE_PARENTHESIS;
                 }
                 return ParserRuleContext.ARG;
@@ -1872,8 +1883,12 @@ public class BallerinaParserErrorHandler {
                 }
             case IS_KEYWORD:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
-            case IS_EXPRESSION:
-                return getNextRuleForExpr();
+            case NULL_KEYWORD:
+                return ParserRuleContext.EXPRESSION_RHS;
+            case NIL_LITERAL:
+                return ParserRuleContext.OPEN_PARENTHESIS;
+            case TYPE_TEST_EXPRESSION:
+                return ParserRuleContext.EXPRESSION_RHS;
             case LOCAL_TYPE_DEFINITION_STMT:
                 return ParserRuleContext.TYPE_KEYWORD;
             case RIGHT_ARROW:
@@ -2065,7 +2080,7 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.QUESTION_MARK;
             case ARRAY_TYPE_DESCRIPTOR:
                 return ParserRuleContext.OPEN_BRACKET;
-            case IS_EXPRESSION:
+            case TYPE_TEST_EXPRESSION:
                 endContext();
                 return getNextRuleForExpr();
             case ANNOTATION_DECL:
@@ -2758,6 +2773,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.PLUS_TOKEN;
             case UNARY_EXPRESSION:
                 return SyntaxKind.PLUS_TOKEN;
+            case NULL_KEYWORD:
+                return SyntaxKind.NULL_KEYWORD;
             case ANNOTATION_KEYWORD:
                 return SyntaxKind.ANNOTATION_KEYWORD;
             case ANNOT_DECL_OPTIONAL_TYPE:
@@ -2860,7 +2877,7 @@ public class BallerinaParserErrorHandler {
             case COMPOUND_ASSIGNMENT_STMT:
             case PARAMETER:
             case STMT_START_WITH_IDENTIFIER:
-            case IS_EXPRESSION:
+            case TYPE_TEST_EXPRESSION:
             case LOCAL_TYPE_DEFINITION_STMT:
             case ANNOTATION_DECL:
             case ANNOT_ATTACH_POINTS_LIST:
@@ -2893,6 +2910,7 @@ public class BallerinaParserErrorHandler {
             case STRING_LITERAL:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
+            case NULL_KEYWORD:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
                 return true;
@@ -2962,7 +2980,7 @@ public class BallerinaParserErrorHandler {
         STToken nextNextToken = this.tokenReader.peek(lookahead + 1);
         switch (nextNextToken.kind) {
             case IS_KEYWORD:
-                startContext(ParserRuleContext.IS_EXPRESSION);
+                startContext(ParserRuleContext.TYPE_TEST_EXPRESSION);
                 nextContext = ParserRuleContext.IS_KEYWORD;
                 break;
             default:

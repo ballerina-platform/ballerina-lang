@@ -57,6 +57,7 @@ public class LexerTerminals {
     public static final String FINAL = "final";
     public static final String TYPEOF = "typeof";
     public static final String IS = "is";
+    public static final String NULL = "null";
     public static final String ANNOTATION = "annotation";
     public static final String SOURCE = "source";
     public static final String WORKER = "worker";
@@ -78,7 +79,7 @@ public class LexerTerminals {
     public static final String SERVICE = "service";
     public static final String VAR = "var";
     public static final String NEVER = "never";
-    
+
     // Separators
     public static final char SEMICOLON = ';';
     public static final char COLON = ':';

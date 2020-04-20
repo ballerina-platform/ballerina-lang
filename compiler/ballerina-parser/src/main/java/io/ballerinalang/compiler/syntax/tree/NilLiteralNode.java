@@ -19,37 +19,23 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-import java.util.Optional;
-
 /**
  * This is a generated syntax tree node.
  *
  * @since 1.3.0
  */
-public class RecordFieldNode extends NonTerminalNode {
+public class NilLiteralNode extends ExpressionNode {
 
-    public RecordFieldNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public NilLiteralNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public MetadataNode metadata() {
+    public Token openParenToken() {
         return childInBucket(0);
     }
 
-    public Node typeName() {
+    public Token closeParenToken() {
         return childInBucket(1);
-    }
-
-    public Token fieldName() {
-        return childInBucket(2);
-    }
-
-    public Optional<Token> questionMarkToken() {
-        return optionalChildInBucket(3);
-    }
-
-    public Token semicolonToken() {
-        return childInBucket(4);
     }
 
     @Override
@@ -65,33 +51,21 @@ public class RecordFieldNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "metadata",
-                "typeName",
-                "fieldName",
-                "questionMarkToken",
-                "semicolonToken"};
+                "openParenToken",
+                "closeParenToken"};
     }
 
-    public RecordFieldNode modify(
-            MetadataNode metadata,
-            Node typeName,
-            Token fieldName,
-            Token questionMarkToken,
-            Token semicolonToken) {
+    public NilLiteralNode modify(
+            Token openParenToken,
+            Token closeParenToken) {
         if (checkForReferenceEquality(
-                metadata,
-                typeName,
-                fieldName,
-                questionMarkToken,
-                semicolonToken)) {
+                openParenToken,
+                closeParenToken)) {
             return this;
         }
 
-        return NodeFactory.createRecordFieldNode(
-                metadata,
-                typeName,
-                fieldName,
-                questionMarkToken,
-                semicolonToken);
+        return NodeFactory.createNilLiteralNode(
+                openParenToken,
+                closeParenToken);
     }
 }

@@ -31,7 +31,7 @@ public class STDefaultableParameterNode extends STParameterNode {
     public final STNode leadingComma;
     public final STNode annotations;
     public final STNode visibilityQualifier;
-    public final STNode type;
+    public final STNode typeName;
     public final STNode paramName;
     public final STNode equalsToken;
     public final STNode expression;
@@ -40,7 +40,7 @@ public class STDefaultableParameterNode extends STParameterNode {
             STNode leadingComma,
             STNode annotations,
             STNode visibilityQualifier,
-            STNode type,
+            STNode typeName,
             STNode paramName,
             STNode equalsToken,
             STNode expression) {
@@ -48,7 +48,7 @@ public class STDefaultableParameterNode extends STParameterNode {
         this.leadingComma = leadingComma;
         this.annotations = annotations;
         this.visibilityQualifier = visibilityQualifier;
-        this.type = type;
+        this.typeName = typeName;
         this.paramName = paramName;
         this.equalsToken = equalsToken;
         this.expression = expression;
@@ -57,7 +57,7 @@ public class STDefaultableParameterNode extends STParameterNode {
                 leadingComma,
                 annotations,
                 visibilityQualifier,
-                type,
+                typeName,
                 paramName,
                 equalsToken,
                 expression);

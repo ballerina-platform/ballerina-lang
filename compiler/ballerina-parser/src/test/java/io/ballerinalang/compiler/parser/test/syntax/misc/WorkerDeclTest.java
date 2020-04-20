@@ -51,6 +51,7 @@ public class WorkerDeclTest extends AbstractMiscTest {
 
     @Test
     public void testInvalidUsageOfNamedWorkers() {
-        testFile("worker-decl/worker_decl_source_04.bal", "worker-decl/worker_decl_assert_04.json");
+        testFile("worker-decl/worker_decl_source_05.bal", "worker-decl/worker_decl_assert_05.json");
     }
+    
 }

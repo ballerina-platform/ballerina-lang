@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,35 +27,23 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STRecordFieldNode extends STNode {
-    public final STNode metadata;
-    public final STNode typeName;
-    public final STNode fieldName;
-    public final STNode questionMarkToken;
-    public final STNode semicolonToken;
+public class STNilLiteralNode extends STExpressionNode {
+    public final STNode openParenToken;
+    public final STNode closeParenToken;
 
-    STRecordFieldNode(
-            STNode metadata,
-            STNode typeName,
-            STNode fieldName,
-            STNode questionMarkToken,
-            STNode semicolonToken) {
-        super(SyntaxKind.RECORD_FIELD);
-        this.metadata = metadata;
-        this.typeName = typeName;
-        this.fieldName = fieldName;
-        this.questionMarkToken = questionMarkToken;
-        this.semicolonToken = semicolonToken;
+    STNilLiteralNode(
+            STNode openParenToken,
+            STNode closeParenToken) {
+        super(SyntaxKind.NIL_LITERAL);
+        this.openParenToken = openParenToken;
+        this.closeParenToken = closeParenToken;
 
         addChildren(
-                metadata,
-                typeName,
-                fieldName,
-                questionMarkToken,
-                semicolonToken);
+                openParenToken,
+                closeParenToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new RecordFieldNode(this, position, parent);
+        return new NilLiteralNode(this, position, parent);
     }
 }
