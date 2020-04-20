@@ -45,7 +45,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -163,6 +165,9 @@ public class Generator {
         } else if (kind == NodeKind.BUILT_IN_REF_TYPE) {
             // TODO: handle built in ref type
             added = true;
+        } else if (kind == NodeKind.CONSTRAINED_TYPE) {
+            // TODO: handle constrained types
+            added = true;
         }
         if (!added) {
             throw new UnsupportedOperationException("Type def not supported for " + kind);
@@ -243,10 +248,17 @@ public class Generator {
         String desc = paramAnnotation(functionNode, param);
         String defaultValue = EMPTY_STRING;
         if (null != param.getInitialExpression()) {
-            defaultValue = param.getInitialExpression().toString();
+            defaultValue = getExprStringValue(param.expr);
         }
         return new DefaultableVarible(param.getName().value, desc, Type.fromTypeNode(param.typeNode, mod.id),
-                defaultValue);
+                                      defaultValue);
+    }
+
+    private static String getExprStringValue(BLangExpression expr) {
+        if (expr.getKind() == NodeKind.TYPE_CONVERSION_EXPR) {
+            return getExprStringValue(((BLangTypeConversionExpr) expr).expr);
+        }
+        return expr.toString();
     }
 
     /**
@@ -282,7 +294,7 @@ public class Generator {
 
                 String defaultValue = EMPTY_STRING;
                 if (null != param.getInitialExpression()) {
-                    defaultValue = param.getInitialExpression().toString();
+                    defaultValue = getExprStringValue(param.expr);
                 }
                 DefaultableVarible field = new DefaultableVarible(name, desc,
                         Type.fromTypeNode(param.typeNode, param.type, module.id), defaultValue);
