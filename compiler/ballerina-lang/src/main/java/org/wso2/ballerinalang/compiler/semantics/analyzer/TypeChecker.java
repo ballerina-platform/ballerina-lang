@@ -1886,17 +1886,18 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if ((varRefType.tag == TypeTags.UNION) && (invocationName.compareTo(FUNCTION_NAME_SHIFT) == 0)) {
             BUnionType unionVarRef = (BUnionType) varRefType;
-            boolean allTuplesHasFixedShape = true;
+            boolean allMemberAreFixedShapeTuples = true;
             for (BType member : unionVarRef.getMemberTypes()) {
                 if (member.tag != TypeTags.TUPLE) {
+                    allMemberAreFixedShapeTuples = false;
                     break;
                 }
-                if (!hasDifferentTypeThanRest((BTupleType) varRefType)) {
-                    allTuplesHasFixedShape = false;
+                if (!hasDifferentTypeThanRest((BTupleType) member)) {
+                    allMemberAreFixedShapeTuples = false;
                     break;
                 }
             }
-            return allTuplesHasFixedShape;
+            return allMemberAreFixedShapeTuples;
         }
         return false;
     }
