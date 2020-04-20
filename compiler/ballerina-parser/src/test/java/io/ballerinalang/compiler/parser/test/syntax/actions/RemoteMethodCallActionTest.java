@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test.syntax.statements;
+package io.ballerinalang.compiler.parser.test.syntax.actions;
 
 import org.testng.annotations.Test;
 
@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
  * 
  * @since 1.3.0
  */
-public class RemoteMethodCallActionTest extends AbstractStatementTest {
+public class RemoteMethodCallActionTest extends AbstractActionTest {
 
     // Valid source tests
 
@@ -61,8 +61,26 @@ public class RemoteMethodCallActionTest extends AbstractStatementTest {
     }
 
     @Test
-    public void testActionInvalidUsage() {
+    public void testActionInBinaryExprRhs() {
         testFile("remote-method-call-action/remote_method_call_source_06.bal",
                 "remote-method-call-action/remote_method_call_assert_06.json");
+    }
+
+    @Test
+    public void testActionInsideFunctionCall() {
+        testFile("remote-method-call-action/remote_method_call_source_07.bal",
+                "remote-method-call-action/remote_method_call_assert_07.json");
+    }
+
+    @Test
+    public void testActionPrecedenceWithExpressions() {
+        testFile("remote-method-call-action/remote_method_call_source_08.bal",
+                "remote-method-call-action/remote_method_call_assert_08.json");
+    }
+
+    @Test
+    public void testMissingRHS() {
+        testFile("remote-method-call-action/remote_method_call_source_09.bal",
+                "remote-method-call-action/remote_method_call_assert_09.json");
     }
 }

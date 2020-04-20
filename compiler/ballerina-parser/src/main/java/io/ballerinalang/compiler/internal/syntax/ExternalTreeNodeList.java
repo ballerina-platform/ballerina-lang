@@ -39,7 +39,6 @@ public class ExternalTreeNodeList extends NonTerminalNode {
 
     @Override
     public void accept(NodeVisitor visitor) {
-
     }
 
     @Override
@@ -57,5 +56,10 @@ public class ExternalTreeNodeList extends NonTerminalNode {
         child = (T) internalChild.createFacade(getChildPosition(bucket), this.parent);
         childBuckets[bucket] = child;
         return child;
+    }
+
+    @Override
+    protected String[] childNames() {
+        return new String[0];
     }
 }

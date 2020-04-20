@@ -31,27 +31,27 @@ public class STRequiredParameterNode extends STParameterNode {
     public final STNode leadingComma;
     public final STNode annotations;
     public final STNode visibilityQualifier;
-    public final STNode type;
+    public final STNode typeName;
     public final STNode paramName;
 
     STRequiredParameterNode(
             STNode leadingComma,
             STNode annotations,
             STNode visibilityQualifier,
-            STNode type,
+            STNode typeName,
             STNode paramName) {
         super(SyntaxKind.REQUIRED_PARAM);
         this.leadingComma = leadingComma;
         this.annotations = annotations;
         this.visibilityQualifier = visibilityQualifier;
-        this.type = type;
+        this.typeName = typeName;
         this.paramName = paramName;
 
         addChildren(
                 leadingComma,
                 annotations,
                 visibilityQualifier,
-                type,
+                typeName,
                 paramName);
     }
 

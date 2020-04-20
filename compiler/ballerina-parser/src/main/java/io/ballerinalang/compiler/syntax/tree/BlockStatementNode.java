@@ -52,6 +52,14 @@ public class BlockStatementNode extends StatementNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "openBraceToken",
+                "statements",
+                "closeBraceToken"};
+    }
+
     public BlockStatementNode modify(
             Token openBraceToken,
             NodeList<StatementNode> statements,

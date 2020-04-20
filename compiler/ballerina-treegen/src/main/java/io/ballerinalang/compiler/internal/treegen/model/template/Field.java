@@ -31,14 +31,21 @@ public class Field {
     private final boolean isToken;
     private final boolean isNode;
     private final boolean isList;
+    private final boolean isOptional;
 
-    public Field(String fieldClassName, String fieldName, int index, boolean isList, boolean isLast) {
+    public Field(String fieldClassName,
+                 String fieldName,
+                 int index,
+                 boolean isList,
+                 boolean isOptional,
+                 boolean isLast) {
         this.fieldClassName = fieldClassName;
         this.fieldName = fieldName;
         this.index = index;
         this.isLast = isLast;
 
         this.isList = isList;
+        this.isOptional = isOptional;
         this.isToken = "Token".equals(fieldClassName);
         this.isNode = !(isList || isToken);
     }
@@ -69,5 +76,9 @@ public class Field {
 
     public boolean isList() {
         return isList;
+    }
+
+    public boolean isOptional() {
+        return isOptional;
     }
 }

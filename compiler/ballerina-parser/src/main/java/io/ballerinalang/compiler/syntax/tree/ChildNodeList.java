@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
 
 import java.util.Iterator;
 import java.util.Spliterator;
@@ -40,11 +41,11 @@ public class ChildNodeList implements Iterable<Node> {
     }
 
     public Node get(int childIndex) {
+        rangeCheck(childIndex);
         Node child = childNodes[childIndex];
         if (child != null) {
             return child;
         }
-
         return loadNode(childIndex);
     }
 
@@ -66,7 +67,14 @@ public class ChildNodeList implements Iterable<Node> {
         int count = 0;
         for (int bucket = 0; bucket < parent.bucketCount(); bucket++) {
             STNode child = parent.childInBucket(bucket);
-            count += child.kind == SyntaxKind.LIST ? child.bucketCount() : 1;
+            if (!SyntaxUtils.isSTNodePresent(child)) {
+                continue;
+            }
+            if (child.kind == SyntaxKind.LIST) {
+                count += child.bucketCount();
+            } else {
+                count++;
+            }
         }
         return count;
     }
@@ -76,6 +84,9 @@ public class ChildNodeList implements Iterable<Node> {
         Node child = null;
         for (int bucket = 0; bucket < parent.bucketCount(); bucket++) {
             STNode internalChild = parent.internalNode.childInBucket(bucket);
+            if (!SyntaxUtils.isSTNodePresent(internalChild)) {
+                continue;
+            }
             if (internalChild.kind == SyntaxKind.LIST) {
                 if (childIndex < index + internalChild.bucketCount()) {
                     int listChildIndex = childIndex - index;
@@ -95,6 +106,11 @@ public class ChildNodeList implements Iterable<Node> {
             }
         }
         return child;
+    }
+
+    private void rangeCheck(int childIndex) {
+        if (childIndex >= size || childIndex < 0)
+            throw new IndexOutOfBoundsException("Index: " + childIndex + ", Size: " + size);
     }
 
     /**

@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
@@ -38,11 +40,11 @@ public class RequiredParameterNode extends ParameterNode {
         return new NodeList<>(childInBucket(1));
     }
 
-    public Token visibilityQualifier() {
-        return childInBucket(2);
+    public Optional<Token> visibilityQualifier() {
+        return optionalChildInBucket(2);
     }
 
-    public Node type() {
+    public Node typeName() {
         return childInBucket(3);
     }
 
@@ -60,17 +62,27 @@ public class RequiredParameterNode extends ParameterNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "leadingComma",
+                "annotations",
+                "visibilityQualifier",
+                "type",
+                "paramName"};
+    }
+
     public RequiredParameterNode modify(
             Token leadingComma,
             NodeList<AnnotationNode> annotations,
             Token visibilityQualifier,
-            Node type,
+            Node typeName,
             Token paramName) {
         if (checkForReferenceEquality(
                 leadingComma,
                 annotations.underlyingListNode(),
                 visibilityQualifier,
-                type,
+                typeName,
                 paramName)) {
             return this;
         }
@@ -79,7 +91,7 @@ public class RequiredParameterNode extends ParameterNode {
                 leadingComma,
                 annotations,
                 visibilityQualifier,
-                type,
+                typeName,
                 paramName);
     }
 }

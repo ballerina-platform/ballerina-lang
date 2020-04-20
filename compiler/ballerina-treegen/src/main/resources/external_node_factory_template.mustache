@@ -38,11 +38,13 @@ public abstract class {{className}} extends {{superClassName}} {
     public static {{externalClassName}} create{{externalClassName}}(
             {{^syntaxKind}}SyntaxKind kind, &#10;            {{/syntaxKind}}{{#fields}}{{#isList}}NodeList<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}}{{^isLast}}, &#10;            {{/isLast}}{{/fields}}) {
         {{#fields}}
+        {{^isOptional}}
         Objects.requireNonNull({{fieldName}}, "{{fieldName}} must not be null");
+        {{/isOptional}}
         {{/fields}}
 
         STNode st{{externalClassName}} = STNodeFactory.create{{externalClassName}}(
-                {{^syntaxKind}}kind, &#10;                {{/syntaxKind}}{{#fields}}{{fieldName}}{{#isList}}.underlyingListNode(){{/isList}}.internalNode(){{^isLast}}, &#10;                {{/isLast}}{{/fields}});
+                {{^syntaxKind}}kind, &#10;                {{/syntaxKind}}{{#fields}}{{#isList}}{{fieldName}}.underlyingListNode().internalNode(){{/isList}}{{^isList}}{{^isOptional}}{{fieldName}}.internalNode(){{/isOptional}}{{#isOptional}}getOptionalSTNode({{fieldName}}){{/isOptional}}{{/isList}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}});
         return st{{externalClassName}}.createUnlinkedFacade();
     }
     {{/isAbstract}}

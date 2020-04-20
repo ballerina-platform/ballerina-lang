@@ -339,10 +339,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createCheckExpressionNode(
+            SyntaxKind kind,
             STNode checkKeyword,
             STNode expression) {
 
         return new STCheckExpressionNode(
+                kind,
                 checkKeyword,
                 expression);
     }
@@ -472,7 +474,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode leadingComma,
             STNode annotations,
             STNode visibilityQualifier,
-            STNode type,
+            STNode typeName,
             STNode paramName,
             STNode equalsToken,
             STNode expression) {
@@ -481,7 +483,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 leadingComma,
                 annotations,
                 visibilityQualifier,
-                type,
+                typeName,
                 paramName,
                 equalsToken,
                 expression);
@@ -491,28 +493,28 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode leadingComma,
             STNode annotations,
             STNode visibilityQualifier,
-            STNode type,
+            STNode typeName,
             STNode paramName) {
 
         return new STRequiredParameterNode(
                 leadingComma,
                 annotations,
                 visibilityQualifier,
-                type,
+                typeName,
                 paramName);
     }
 
     public static STNode createRestParameterNode(
             STNode leadingComma,
             STNode annotations,
-            STNode type,
+            STNode typeName,
             STNode ellipsisToken,
             STNode paramName) {
 
         return new STRestParameterNode(
                 leadingComma,
                 annotations,
-                type,
+                typeName,
                 ellipsisToken,
                 paramName);
     }
@@ -688,7 +690,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createObjectFieldNode(
             STNode metadata,
             STNode visibilityQualifier,
-            STNode type,
+            STNode typeName,
             STNode fieldName,
             STNode equalsToken,
             STNode expression,
@@ -697,7 +699,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STObjectFieldNode(
                 metadata,
                 visibilityQualifier,
-                type,
+                typeName,
                 fieldName,
                 equalsToken,
                 expression,
@@ -706,14 +708,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createRecordFieldNode(
             STNode metadata,
-            STNode type,
+            STNode typeName,
             STNode fieldName,
             STNode questionMarkToken,
             STNode semicolonToken) {
 
         return new STRecordFieldNode(
                 metadata,
-                type,
+                typeName,
                 fieldName,
                 questionMarkToken,
                 semicolonToken);
@@ -721,7 +723,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createRecordFieldWithDefaultValueNode(
             STNode metadata,
-            STNode type,
+            STNode typeName,
             STNode fieldName,
             STNode equalsToken,
             STNode expression,
@@ -729,7 +731,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STRecordFieldWithDefaultValueNode(
                 metadata,
-                type,
+                typeName,
                 fieldName,
                 equalsToken,
                 expression,
@@ -737,24 +739,24 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createRecordRestDescriptorNode(
-            STNode type,
+            STNode typeName,
             STNode ellipsisToken,
             STNode semicolonToken) {
 
         return new STRecordRestDescriptorNode(
-                type,
+                typeName,
                 ellipsisToken,
                 semicolonToken);
     }
 
     public static STNode createTypeReferenceNode(
             STNode asteriskToken,
-            STNode type,
+            STNode typeName,
             STNode semicolonToken) {
 
         return new STTypeReferenceNode(
                 asteriskToken,
-                type,
+                typeName,
                 semicolonToken);
     }
 

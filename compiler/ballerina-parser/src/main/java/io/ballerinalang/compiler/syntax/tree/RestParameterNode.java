@@ -38,7 +38,7 @@ public class RestParameterNode extends ParameterNode {
         return new NodeList<>(childInBucket(1));
     }
 
-    public Node type() {
+    public Node typeName() {
         return childInBucket(2);
     }
 
@@ -60,16 +60,26 @@ public class RestParameterNode extends ParameterNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "leadingComma",
+                "annotations",
+                "type",
+                "ellipsisToken",
+                "paramName"};
+    }
+
     public RestParameterNode modify(
             Token leadingComma,
             NodeList<AnnotationNode> annotations,
-            Node type,
+            Node typeName,
             Token ellipsisToken,
             Token paramName) {
         if (checkForReferenceEquality(
                 leadingComma,
                 annotations.underlyingListNode(),
-                type,
+                typeName,
                 ellipsisToken,
                 paramName)) {
             return this;
@@ -78,7 +88,7 @@ public class RestParameterNode extends ParameterNode {
         return NodeFactory.createRestParameterNode(
                 leadingComma,
                 annotations,
-                type,
+                typeName,
                 ellipsisToken,
                 paramName);
     }

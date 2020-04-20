@@ -52,6 +52,14 @@ public class ReturnTypeDescriptorNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "returnsKeyword",
+                "annotations",
+                "type"};
+    }
+
     public ReturnTypeDescriptorNode modify(
             Token returnsKeyword,
             NodeList<AnnotationNode> annotations,

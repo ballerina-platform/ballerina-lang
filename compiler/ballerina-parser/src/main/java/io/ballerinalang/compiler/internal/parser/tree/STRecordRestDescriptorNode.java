@@ -28,21 +28,21 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  * @since 1.3.0
  */
 public class STRecordRestDescriptorNode extends STNode {
-    public final STNode type;
+    public final STNode typeName;
     public final STNode ellipsisToken;
     public final STNode semicolonToken;
 
     STRecordRestDescriptorNode(
-            STNode type,
+            STNode typeName,
             STNode ellipsisToken,
             STNode semicolonToken) {
         super(SyntaxKind.RECORD_REST_TYPE);
-        this.type = type;
+        this.typeName = typeName;
         this.ellipsisToken = ellipsisToken;
         this.semicolonToken = semicolonToken;
 
         addChildren(
-                type,
+                typeName,
                 ellipsisToken,
                 semicolonToken);
     }

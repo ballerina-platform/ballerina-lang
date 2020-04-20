@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
@@ -34,7 +36,7 @@ public class RecordFieldNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Node type() {
+    public Node typeName() {
         return childInBucket(1);
     }
 
@@ -42,8 +44,8 @@ public class RecordFieldNode extends NonTerminalNode {
         return childInBucket(2);
     }
 
-    public Token questionMarkToken() {
-        return childInBucket(3);
+    public Optional<Token> questionMarkToken() {
+        return optionalChildInBucket(3);
     }
 
     public Token semicolonToken() {
@@ -60,15 +62,25 @@ public class RecordFieldNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "metadata",
+                "type",
+                "fieldName",
+                "questionMarkToken",
+                "semicolonToken"};
+    }
+
     public RecordFieldNode modify(
             MetadataNode metadata,
-            Node type,
+            Node typeName,
             Token fieldName,
             Token questionMarkToken,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
-                type,
+                typeName,
                 fieldName,
                 questionMarkToken,
                 semicolonToken)) {
@@ -77,7 +89,7 @@ public class RecordFieldNode extends NonTerminalNode {
 
         return NodeFactory.createRecordFieldNode(
                 metadata,
-                type,
+                typeName,
                 fieldName,
                 questionMarkToken,
                 semicolonToken);

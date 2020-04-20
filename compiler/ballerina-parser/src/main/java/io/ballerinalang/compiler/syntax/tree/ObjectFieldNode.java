@@ -38,7 +38,7 @@ public class ObjectFieldNode extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public Node type() {
+    public Node typeName() {
         return childInBucket(2);
     }
 
@@ -68,10 +68,22 @@ public class ObjectFieldNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "metadata",
+                "visibilityQualifier",
+                "type",
+                "fieldName",
+                "equalsToken",
+                "expression",
+                "semicolonToken"};
+    }
+
     public ObjectFieldNode modify(
             MetadataNode metadata,
             Token visibilityQualifier,
-            Node type,
+            Node typeName,
             Token fieldName,
             Token equalsToken,
             ExpressionNode expression,
@@ -79,7 +91,7 @@ public class ObjectFieldNode extends NonTerminalNode {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
-                type,
+                typeName,
                 fieldName,
                 equalsToken,
                 expression,
@@ -90,7 +102,7 @@ public class ObjectFieldNode extends NonTerminalNode {
         return NodeFactory.createObjectFieldNode(
                 metadata,
                 visibilityQualifier,
-                type,
+                typeName,
                 fieldName,
                 equalsToken,
                 expression,

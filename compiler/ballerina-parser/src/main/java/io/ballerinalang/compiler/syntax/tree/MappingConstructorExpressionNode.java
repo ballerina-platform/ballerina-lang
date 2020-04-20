@@ -52,6 +52,14 @@ public class MappingConstructorExpressionNode extends ExpressionNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "openBrace",
+                "fields",
+                "closeBrace"};
+    }
+
     public MappingConstructorExpressionNode modify(
             Token openBrace,
             NodeList<MappingFieldNode> fields,
