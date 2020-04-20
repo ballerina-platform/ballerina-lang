@@ -116,9 +116,8 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] TYPE_DESCRIPTORS =
             { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.RECORD_TYPE_DESCRIPTOR,
-                    ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR,
-                    ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.ARRAY_TYPE_DESCRIPTOR,
-                    ParserRuleContext.MAP_TYPE_DESCRIPTOR};
+                    ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR
+                    /*ParserRuleContext.MAP_TYPE_DESCRIPTOR*/};
 
     private static final ParserRuleContext[] RECORD_FIELD =
             { ParserRuleContext.ANNOTATIONS, ParserRuleContext.ASTERISK, ParserRuleContext.TYPE_DESCRIPTOR };
@@ -913,7 +912,7 @@ public class BallerinaParserErrorHandler {
                     break;
                 case GT:
                     hasMatch = nextToken.kind == SyntaxKind.GT_TOKEN;
-
+                    break;
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
                 case FUNC_DEFINITION:
@@ -1131,6 +1130,8 @@ public class BallerinaParserErrorHandler {
             nextContext = ParserRuleContext.TOP_LEVEL_NODE;
         } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
             nextContext = ParserRuleContext.CLOSE_BRACKET;
+        } else if (parentCtx == ParserRuleContext.MAP_TYPE_DESCRIPTOR) {
+            nextContext = ParserRuleContext.GT;
         } else {
             throw new IllegalStateException();
         }
@@ -1719,10 +1720,11 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case GT:
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.MAP_TYPE_DESCRIPTOR){
+                if (parentCtx == ParserRuleContext.MAP_TYPE_DESCRIPTOR) {
                     endContext();
                     return ParserRuleContext.VARIABLE_NAME;
                 }
+                // fall through
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
@@ -2019,8 +2021,12 @@ public class BallerinaParserErrorHandler {
             return ParserRuleContext.OBJECT_FIELD_RHS;
         } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
             return ParserRuleContext.CLOSE_BRACKET;
+        } else if (parentCtx == ParserRuleContext.MAP_TYPE_DESCRIPTOR) {
+            return ParserRuleContext.GT;
+        } else if (parentCtx == ParserRuleContext.RETURN_TYPE_DESCRIPTOR) {
+            return ParserRuleContext.FUNC_BODY;
         } else {
-            throw new IllegalStateException();
+            throw new IllegalStateException("In getNextRuleForVarName " + parentCtx);
         }
     }
 

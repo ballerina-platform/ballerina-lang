@@ -289,6 +289,10 @@ public class BallerinaParser {
                 return parseStatementStartsWithIdentifier((STNode) args[0], (STNode) args[1]);
             case MAP_TYPE_DESCRIPTOR:
                 return parseMapTypeDescriptor();
+            case LT:
+                return parseLTToken();
+            case GT:
+                return parseGTToken();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -2723,6 +2727,7 @@ public class BallerinaParser {
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+            case MAP_KEYWORD: //map type descriptor
                 // If the statement starts with a type, then its a var declaration.
                 // This is an optimization since if we know the next token is a type, then
                 // we can parse the var-def faster.
@@ -2751,9 +2756,6 @@ public class BallerinaParser {
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
                 return parseStatementStartsWithIdentifier(getAnnotations(annots));
-            case MAP_KEYWORD:
-                // map type descriptor
-                return parseMapTypeDescriptor();
             default:
                 // If the next token in the token stream does not match to any of the statements and
                 // if it is not the end of statement, then try to fix it and continue.

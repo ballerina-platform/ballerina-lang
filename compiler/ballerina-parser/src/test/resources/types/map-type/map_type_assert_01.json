@@ -1,0 +1,41 @@
+{
+    "kind": "MODULE_VAR_DECL",
+    "children": [
+        {
+            "kind": "METADATA",
+            "children": [
+                {
+                    "kind": "LIST",
+                    "children": [
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "MAP_TYPE",
+            "children": [
+                {
+                    "kind": "MAP_KEYWORD"
+                },
+                {
+                    "kind": "LT_TOKEN"
+                },
+                {
+                    "kind": "SIMPLE_TYPE",
+                    "value": "string"
+                },
+
+                {
+                    "kind": "GT_TOKEN"
+                }
+            ]
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "a"
+        },
+        {
+            "kind": "SEMICOLON_TOKEN"
+        }
+    ]
+}

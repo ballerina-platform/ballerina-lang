@@ -357,6 +357,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ANNOTATION_KEYWORD;
             case "IS_KEYWORD":
                 return SyntaxKind.IS_KEYWORD;
+            case "MAP_KEYWORD":
+                return SyntaxKind.MAP_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -585,6 +587,8 @@ public class ParserTestUtils {
                 return SyntaxKind.METADATA;
             case "ANNOTATION":
                 return SyntaxKind.ANNOTATION;
+            case "MAP_TYPE":
+                return SyntaxKind.MAP_TYPE;
 
             // Trivia
             case "EOF_TOKEN":
