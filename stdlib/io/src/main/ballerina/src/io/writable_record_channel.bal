@@ -24,13 +24,13 @@ public type WritableTextRecordChannel object {
 
     # Constructs a DelimitedTextRecordChannel from a given WritableCharacterChannel.
 
-    # + characterChannel - WritableCharacterChannel, which will point to the input/output resource
+    # + characterChannel - The `WritableCharacterChannel`, which will point to the input/output resource
     # + fs - Field separator (this could be a regex)
     # + rs - Record separator (this could be a regex)
-    # + fmt - The format, which will be used to represent the CSV (this could be "DEFAULT" (the format specified by the CSVChannel), 
-    # "CSV" (Field separator would be "," and record separator would be a new line), 
-    # or TDF (Field separator will be a tab and record separator will be a new line).
-    # 
+    # + fmt - The format, which will be used to represent the CSV (this could be 
+    #         "DEFAULT" (the format specified by the CSVChannel), 
+    #         "CSV" (Field separator would be "," and record separator would be a new line) or else
+    #         "TDF" (Field separator will be a tab and record separator will be a new line). 
     public function __init(WritableCharacterChannel characterChannel, public string fs = "", public string rs = "",
                            public string fmt = "default") {
         self.characterChannel = characterChannel;
@@ -39,10 +39,13 @@ public type WritableTextRecordChannel object {
         initWritableTextRecordChannel(self, characterChannel, java:fromString(fs), java:fromString(rs), java:fromString(fmt));
     }
 
-    # Writes records to a given output resource.
-
-    # + textRecord - List of fields to be written
-    # + return - An `Error` if the records could not be written properly
+# Writes records to a given output resource.
+# ```ballerina
+# io:Error? err = writableChannel.write(records);
+# ```
+# 
+# + textRecord - List of fields to be written
+# + return - An `io:Error` if the records could not be written properly or else `()`
     public function write(string[] textRecord) returns Error? {
         handle[] records = [];
             foreach string v in textRecord {
@@ -51,9 +54,12 @@ public type WritableTextRecordChannel object {
         return writeRecordExtern(self, records);
     }
 
-    # Closes a given record channel.
-
-    # + return - An `Error` if the record channel could not be closed properly
+# Closes a given record channel.
+# ```ballerina
+# io:Error? err = writableChannel.close();
+# ```
+# 
+# + return - An `io:Error` if the record channel could not be closed properly or else `()`
     public function close() returns Error? {
         return closeWritableTextRecordChannelExtern(self);
     }

@@ -53,7 +53,7 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
+    # + return - An `http:Response` for the request or else an `http:ClientError` if failed to establish communication with the upstream server
     public remote function head(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_HEAD));
     }
@@ -63,7 +63,7 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
+    # + return - An `http:Response` for the request or else an `http:ClientError` if failed to establish communication with the upstream server
     public remote function put(@untainted string path, RequestMessage message) returns Response|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_PUT));
     }
@@ -74,7 +74,7 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
+    # + return - An `http:Response` for the request or else an `http:ClientError` if failed to establish communication with the upstream server
     public remote function execute(@untainted string httpVerb, @untainted string path, RequestMessage message) returns Response|ClientError {
         return externExecute(self, java:fromString(httpVerb), java:fromString(path), <Request>message);
     }
@@ -84,7 +84,7 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
+    # + return - The response for the request or else an `http:ClientError` if failed to establish communication with the upstream server
     public remote function patch(@untainted string path, RequestMessage message) returns Response|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_PATCH));
     }
@@ -94,7 +94,7 @@ public type HttpClient client object {
     # + path - Resource path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
+    # + return - An `http:Response` for the request or else an `http:ClientError` if failed to establish communication with the upstream server
     public remote function delete(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_DELETE));
     }
@@ -104,7 +104,7 @@ public type HttpClient client object {
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
+    # + return - An `http:Response` for the request or else an `http:ClientError` if failed to establish communication with the upstream server
     public remote function get(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_GET));
     }
@@ -114,7 +114,7 @@ public type HttpClient client object {
     # + path - Request path
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
+    # + return - The response for the request or else an `http:ClientError` if failed to establish communication with the upstream server
     public remote function options(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         return externExecuteClientAction(self, java:fromString(path), <Request>message, java:fromString(HTTP_OPTIONS));
     }
@@ -123,57 +123,57 @@ public type HttpClient client object {
     #
     # + path - Request path
     # + request - An HTTP inbound request message
-    # + return - The response for the request or an `ClientError` if failed to establish communication with the upstream server
+    # + return - An `http:Response` for the request or else an `http:ClientError` if failed to establish communication with the upstream server
     public remote function forward(@untainted string path, Request request) returns Response|ClientError {
         return externForward(self, java:fromString(path), request);
     }
 
     # Submits an HTTP request to a service with the specified HTTP verb.
-    # The `HttpClient.submit()` function does not give out a `Response` as the result,
-    # rather it returns an `HttpFuture` which can be used to do further interactions with the endpoint.
+    # The `HttpClient->submit()` function does not give out an `http:Response` as the result.
+    # Rather, it returns an `http:HttpFuture` which can be used to do further interactions with the endpoint.
     #
     # + httpVerb - The HTTP verb value
     # + path - The resource path
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
-    # + return - An `HttpFuture` that represents an asynchronous service invocation, or an `ClientError` if the submission fails
+    # + return - An `http:HttpFuture` that represents an asynchronous service invocation, or else an `http:ClientError` if the submission fails
     public remote function submit(@untainted string httpVerb, string path, RequestMessage message) returns HttpFuture|ClientError {
         return externSubmit(self, java:fromString(httpVerb), java:fromString(path), <Request>message);
     }
 
-    # Retrieves the `Response` for a previously submitted request.
+    # Retrieves the `http:Response` for a previously-submitted request.
     #
-    # + httpFuture - The `HttpFuture` related to a previous asynchronous invocation
-    # + return - An HTTP response message, or an `ClientError` if the invocation fails
+    # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
+    # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function getResponse(HttpFuture httpFuture) returns Response|ClientError {
         return externGetResponse(self, httpFuture);
     }
 
-    # Checks whether a `PushPromise` exists for a previously submitted request.
+    # Checks whether an `http:PushPromise` exists for a previously-submitted request.
     #
-    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - A `boolean` that represents whether a `PushPromise` exists
+    # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
+    # + return - A `boolean`, which represents whether an `http:PushPromise` exists
     public remote function hasPromise(HttpFuture httpFuture) returns boolean {
         return externHasPromise(self, httpFuture);
     }
 
-    # Retrieves the next available `PushPromise` for a previously submitted request.
+    # Retrieves the next available `http:PushPromise` for a previously-submitted request.
     #
-    # + httpFuture - The `HttpFuture` relates to a previous asynchronous invocation
-    # + return - An HTTP Push Promise message, or an `ClientError` if the invocation fails
+    # + httpFuture - The `http:HttpFuture` related to a previous asynchronous invocation
+    # + return - An `http:PushPromise` message or else an `http:ClientError` if the invocation fails
     public remote function getNextPromise(HttpFuture httpFuture) returns PushPromise|ClientError {
         return externGetNextPromise(self, httpFuture);
     }
 
-    # Retrieves the promised server push `Response` message.
+    # Retrieves the promised server push `http:Response` message.
     #
-    # + promise - The related `PushPromise`
-    # + return - A promised HTTP `Response` message, or an `ClientError` if the invocation fails
+    # + promise - The related `http:PushPromise`
+    # + return - A promised `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         return externGetPromisedResponse(self, promise);
     }
 
-    # Rejects a `PushPromise`. When a `PushPromise` is rejected, there is no chance of fetching a promised
+    # Rejects an `http:PushPromise`. When an `http:PushPromise` is rejected, there is no chance of fetching a promised
     # response using the rejected promise.
     #
     # + promise - The Push Promise to be rejected

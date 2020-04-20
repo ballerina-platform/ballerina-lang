@@ -23,6 +23,7 @@ import com.icegreen.greenmail.util.ServerSetupTest;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
+import org.ballerinalang.stdlib.email.util.CommonUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -30,7 +31,11 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -38,12 +43,16 @@ import java.util.Arrays;
 import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
+import javax.mail.util.SharedByteArrayInputStream;
 
 import static org.testng.Assert.assertNull;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
+import static org.testng.AssertJUnit.fail;
 
 /**
  * Test class for email send using SMTP with all the parameters.
@@ -100,19 +109,131 @@ public class SmtpComplexEmailSendTest {
                 new BValueArray(EMAIL_BCC_ADDRESSES), new BValueArray(EMAIL_REPLY_TO_ADDRESSES)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSendComplexEmail", args);
         assertNull(returns[0], "Error while sending email in complex use case.");
-        // fetch messages from server
+        // Fetch messages from the server
         MimeMessage[] messages = mailServer.getReceivedMessages();
         assertNotNull(messages);
         assertEquals(6, messages.length);
         for (MimeMessage message : messages) {
             assertEquals(EMAIL_SUBJECT, message.getSubject());
-            assertTrue(String.valueOf(message.getContent()).contains(EMAIL_TEXT));
+
+            assertTrue(message.isMimeType("multipart/*"));
+            Multipart multiPart = (Multipart) message.getContent();
+            int multiPartCount = multiPart.getCount();
+            assertEquals(7, multiPartCount);
+
+            testMessageBody((MimeBodyPart) multiPart.getBodyPart(0));
+            testAttachment1((MimeBodyPart) multiPart.getBodyPart(1));
+            testAttachment2((MimeBodyPart) multiPart.getBodyPart(2));
+            testAttachment3((MimeBodyPart) multiPart.getBodyPart(3));
+            testAttachment4((MimeBodyPart) multiPart.getBodyPart(4));
+            testAttachment5((MimeBodyPart) multiPart.getBodyPart(5));
+            testAttachment6((MimeBodyPart) multiPart.getBodyPart(6));
+
             assertEquals(EMAIL_FROM, message.getFrom()[0].toString());
             assertEquals(EMAIL_SENDER, message.getSender().toString());
             assertTrue(containAddresses(message.getRecipients(Message.RecipientType.TO), EMAIL_TO_ADDRESSES));
             assertTrue(containAddresses(message.getRecipients(Message.RecipientType.CC), EMAIL_CC_ADDRESSES));
             assertTrue(containAddresses(message.getReplyTo(), EMAIL_REPLY_TO_ADDRESSES));
         }
+    }
+
+    private static void testMessageBody(MimeBodyPart bodyPart) throws IOException, MessagingException {
+        assertEquals(EMAIL_TEXT, ((String) bodyPart.getContent()));
+    }
+
+    private static void testAttachment1(MimeBodyPart bodyPart) throws IOException, MessagingException {
+        InputStream input = bodyPart.getInputStream();
+        assertEquals("Ballerina text body part", convertInputStreamToString(input));
+    }
+
+    private static void testAttachment2(MimeBodyPart bodyPart) throws IOException, MessagingException {
+        InputStream input = bodyPart.getInputStream();
+        assertEquals("{\"bodyPart\":\"jsonPart\"}", convertInputStreamToString(input));
+    }
+
+    private static void testAttachment3(MimeBodyPart bodyPart) throws IOException, MessagingException {
+        InputStream input = bodyPart.getInputStream();
+        assertEquals("<name>Ballerina xml file part</name>", convertInputStreamToString(input));
+        assertEquals("text/xml", bodyPart.getContentType());
+    }
+
+    private static void testAttachment4(MimeBodyPart bodyPart) throws MessagingException, IOException {
+        assertEquals("test.tmp", bodyPart.getFileName());
+        assertEquals("attachment", bodyPart.getDisposition());
+        assertEquals("bodyPart4", bodyPart.getContentID());
+        assertEquals("application/octet-stream", bodyPart.getContentType());
+        assertEquals("7bit", bodyPart.getEncoding());
+        assertEquals("7bit", bodyPart.getHeader("Content-Transfer-Encoding")[0]);
+        assertEquals("attachment;name=\"test\";filename=\"test.tmp\"",
+                bodyPart.getHeader("content-disposition")[0]);
+        assertEquals("application/octet-stream", bodyPart.getHeader("content-type")[0]);
+        assertEquals("V1", bodyPart.getHeader("H1")[0]);
+        assertEquals("This is a test attachment file.",
+                convertInputStreamToString((InputStream) bodyPart.getContent()));
+    }
+
+    private static void testAttachment5(MimeBodyPart bodyPart) throws MessagingException, IOException {
+        assertEquals("corona_virus.jpg", bodyPart.getFileName());
+        assertEquals("inline", bodyPart.getDisposition());
+        assertEquals("image/jpeg", bodyPart.getContentType());
+        assertEquals("base64", bodyPart.getEncoding());
+        compareInputStreams(new FileInputStream("src/test/resources/datafiles/corona_virus.jpg"),
+                (InputStream) bodyPart.getContent());
+    }
+
+    private static void testAttachment6(MimeBodyPart bodyPart) throws IOException, MessagingException {
+        assertEquals("application/octet-stream", bodyPart.getContentType());
+        assertEquals("Test content".getBytes(),
+                CommonUtil.convertInputStreamToByteArray((SharedByteArrayInputStream) bodyPart.getContent()));
+    }
+
+    public static void compareInputStreams(InputStream input1, InputStream input2) throws IOException {
+        try {
+            byte[] buffer1 = new byte[1024];
+            byte[] buffer2 = new byte[1024];
+            try {
+                int numRead1;
+                int numRead2;
+                while (true) {
+                    numRead1 = input1.read(buffer1);
+                    numRead2 = input2.read(buffer2);
+                    if (numRead1 > -1) {
+                        if (numRead2 != numRead1 || !Arrays.equals(buffer1, buffer2)) {
+                            fail();
+                            break;
+                        }
+                    } else {
+                        if (numRead2 < 0) {
+                            assertTrue(true);
+                        } else {
+                            fail();
+                        }
+                        break;
+                    }
+                }
+            } finally {
+                input1.close();
+            }
+        } catch (IOException | RuntimeException e) {
+            fail();
+        } finally {
+            try {
+                input2.close();
+            } catch (IOException e) {
+                fail();
+            }
+        }
+    }
+
+    private static String convertInputStreamToString(InputStream inputStream)
+            throws IOException {
+        ByteArrayOutputStream result = new ByteArrayOutputStream();
+        byte[] buffer = new byte[1024];
+        int length;
+        while ((length = inputStream.read(buffer)) != -1) {
+            result.write(buffer, 0, length);
+        }
+        return result.toString(StandardCharsets.UTF_8.name());
     }
 
     private boolean containAddresses(Address[] receivedList, String[] realList) {

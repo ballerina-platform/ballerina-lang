@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TypedescValue;
@@ -37,6 +38,7 @@ import org.ballerinalang.sql.datasource.SQLDatasource;
 import org.ballerinalang.sql.exception.ApplicationError;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -57,17 +59,21 @@ import java.util.Set;
  */
 public class QueryUtils {
 
-    public static StreamValue nativeQuery(ObjectValue client, String sqlQuery, Object recordType) {
+    public static StreamValue nativeQuery(ObjectValue client, MapValue<String, Object> paramSQLString,
+                                          Object recordType) {
         Object dbClient = client.getNativeData(Constants.DATABASE_CLIENT);
         if (dbClient != null) {
             SQLDatasource sqlDatasource = (SQLDatasource) dbClient;
             Connection connection = null;
-            Statement statement = null;
+            PreparedStatement statement = null;
             ResultSet resultSet = null;
+            String sqlQuery = null;
             try {
+                sqlQuery = Utils.getSqlQuery(paramSQLString);
                 connection = sqlDatasource.getSQLConnection();
-                statement = connection.createStatement();
-                resultSet = statement.executeQuery(sqlQuery);
+                statement = connection.prepareStatement(sqlQuery);
+                Utils.setParams(connection, statement, paramSQLString);
+                resultSet = statement.executeQuery();
                 List<ColumnDefinition> columnDefinitions;
                 BStructureType streamConstraint;
                 if (recordType == null) {
@@ -100,6 +106,15 @@ public class QueryUtils {
             } catch (ApplicationError applicationError) {
                 Utils.closeResources(resultSet, statement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(applicationError.getMessage());
+                return getErrorStream(recordType, errorValue);
+            } catch (Throwable e) {
+                Utils.closeResources(resultSet, statement, connection);
+                String message = e.getMessage();
+                if (message == null) {
+                    message = e.getClass().getName();
+                }
+                ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(
+                        "Error while executing sql query: " + sqlQuery + ". " + message);
                 return getErrorStream(recordType, errorValue);
             }
         } else {

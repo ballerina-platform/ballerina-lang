@@ -21,8 +21,8 @@ import ballerina/runtime;
 
 # Representation of Authorization Handler for HTTP.
 #
-# + positiveAuthzCache - `Cache` instance, which is cache positive authorizations
-# + negativeAuthzCache - `Cache` instance, which is cache negative authorizations
+# + positiveAuthzCache - The `cache:Cache` instance, which holds positive authorizations
+# + negativeAuthzCache - The `cache:Cache` instance, which holds negative authorizations
 public type AuthzHandler object {
 
     public cache:Cache? positiveAuthzCache;
@@ -30,8 +30,8 @@ public type AuthzHandler object {
 
     # Initializes the `AuthzHandler` object.
     #
-    # + positiveAuthzCache - `Cache` instance, which keeps positive authorizations
-    # + negativeAuthzCache - `Cache` instance, which keeps negative authorizations
+    # + positiveAuthzCache - The `cache:Cache` instance, which holds positive authorizations
+    # + negativeAuthzCache - The `cache:Cache` instance, which holds negative authorizations
     public function __init(cache:Cache? positiveAuthzCache, cache:Cache? negativeAuthzCache) {
         self.positiveAuthzCache = positiveAuthzCache;
         self.negativeAuthzCache = negativeAuthzCache;
@@ -39,8 +39,8 @@ public type AuthzHandler object {
 
     # Checks if the request can be authorized.
     #
-    # + req - `Request` instance
-    # + return - `true` if can be authorized, else `false`, or `AuthorizationError` if error occurred
+    # + req - The `http:Request` instance
+    # + return - `true` if it can be authorized, `false` otherwise, or else an `http:AuthorizationError` if an error occurred
     function canProcess(Request req) returns boolean|AuthorizationError {
         runtime:Principal? principal = runtime:getInvocationContext()?.principal;
         if (principal is runtime:Principal) {
@@ -52,7 +52,7 @@ public type AuthzHandler object {
         return prepareAuthorizationError("runtime:Principal is not set in runtime:InvocationContext. Unable to authorize.");
     }
 
-    # Tries to authorize the request.
+    # Authorizes the request.
     #
     # + scopes - An array of scopes or an array consisting of arrays of scopes of the listener or resource or service
     # + return - `true` if authorization check is a success, else `false`
