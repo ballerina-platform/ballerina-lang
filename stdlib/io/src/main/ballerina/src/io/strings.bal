@@ -20,17 +20,21 @@ public type StringReader object {
 
     # Constructs a channel to read string.
     #
-    # + content - content which should be written
-    # + encoding - encoding of the characters of the content
+    # + content - The content, which should be written
+    # + encoding - Encoding of the characters of the content
     public function __init(string content, public string encoding = "UTF-8") {
         byte[] contentBytes = content.toBytes();
         ReadableByteChannel byteChannel = checkpanic createReadableChannel(contentBytes);
         self.charChannel = new ReadableCharacterChannel(byteChannel, encoding);
     }
 
-    # Reads string as json from reader.
-    #
-    # + return - json or `Error` if any error occurred
+# Reads string as JSON using the reader.
+# ```ballerina
+# io:StringReader reader = new("{\"name\": \"Alice\"}");
+# json|io:Error? person = reader.readJson();
+# ```
+#
+# + return - JSON or else `io:Error` if any error occurred
     public function readJson() returns @tainted json|Error {
         if(self.charChannel is ReadableCharacterChannel){
             var result = <ReadableCharacterChannel> self.charChannel;
@@ -39,9 +43,13 @@ public type StringReader object {
         return ();
     }
 
-    # Reads string as XML from reader
-    #
-    # + return -
+# Reads a string as XML using the reader.
+# ```ballerina
+# io:StringReader reader = new("<Person><Name>Alice</Name></Person>");
+# xml|io:Error? person = reader.readXml();
+# ```
+# 
+# + return - XML or else `io:Error` if any error occurred
     public function readXml() returns @tainted xml|Error? {
         if(self.charChannel is ReadableCharacterChannel){
             var result = <ReadableCharacterChannel> self.charChannel;
@@ -50,10 +58,14 @@ public type StringReader object {
         return ();
     }
 
-    # Reads characters from the given string.
-    #
-    # + nCharacters - read specific number of characters
-    # + return - string or `Error` if any error occurred
+# Reads the characters from the given string.
+# ```ballerina
+# io:StringReader reader = new("Some text");
+# string|io:Error? person = reader.readChar(4);
+# ```
+#
+# + nCharacters - Number of characters to be read
+# + return - String or else `io:Error` if any error occurred
     public function readChar(int nCharacters) returns @tainted string|Error? {
         if(self.charChannel is ReadableCharacterChannel){
             var result = <ReadableCharacterChannel> self.charChannel;
@@ -62,9 +74,12 @@ public type StringReader object {
         return ();
     }
 
-    # Closes reader.
-    #
-    # + return - An `Error` if could not close the channel.
+# Closes the reader.
+# ```ballerina
+# io:Error? err = reader.close();
+# ```
+#
+# + return - An `io:Error` if could not close the channel or else `()`.
     public function close() returns Error? {
         if(self.charChannel is ReadableCharacterChannel){
             var result = <ReadableCharacterChannel> self.charChannel;

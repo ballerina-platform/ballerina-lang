@@ -105,28 +105,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "AuthnFilter",
-      "kind": "Interface",
-      "detail": "Object",
-      "documentation": {
-        "left": "Representation of the Authentication filter.\n"
-      },
-      "sortText": "190",
-      "insertText": "AuthnFilter",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "AuthzFilter",
-      "kind": "Interface",
-      "detail": "Object",
-      "documentation": {
-        "left": "Representation of the Authorization filter.\n"
-      },
-      "sortText": "190",
-      "insertText": "AuthzFilter",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "AuthzHandler",
       "kind": "Interface",
       "detail": "Object",
@@ -194,7 +172,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Configures cache control directives for a `Request`.\n"
+        "left": "Configures the cache control directives for an `http:Request`.\n"
       },
       "sortText": "190",
       "insertText": "RequestCacheControl",
@@ -205,7 +183,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Configures cache control directives for a `Response`.\n"
+        "left": "Configures cache control directives for an `http:Response`.\n"
       },
       "sortText": "190",
       "insertText": "ResponseCacheControl",
@@ -842,7 +820,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Provides a set of HTTP related configurations and failover related configurations.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
+        "left": "Provides a set of HTTP related configurations and failover related configurations.\nFollowing fields are inherited from the other configuration records in addition to the failover client specific\nconfigs.\n\n|                                                         |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration            |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |\n"
       },
       "sortText": "180",
       "insertText": "FailoverClientConfiguration",
@@ -995,7 +973,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "The configurations related to the load balance client endpoint.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
+        "left": "The configurations related to the load balance client endpoint. Following fields are inherited from the other\nconfiguration records in addition to the load balance client specific configs.\n\n|                                                         |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration            |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |\n"
       },
       "sortText": "180",
       "insertText": "LoadBalanceClientConfiguration",
@@ -1163,6 +1141,50 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "WebSocketFailoverClient",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "A WebSocket client endpoint, which provides failover support for multiple WebSocket targets."
+      },
+      "sortText": "190",
+      "insertText": "WebSocketFailoverClient",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "WebSocketFailoverClientConfiguration",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configurations for the WebSocket client endpoint.\n"
+      },
+      "sortText": "180",
+      "insertText": "WebSocketFailoverClientConfiguration",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AuthnFilter",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Representation of the Authentication filter.\n"
+      },
+      "sortText": "190",
+      "insertText": "AuthnFilter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AuthzFilter",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Representation of the Authorization filter.\n"
+      },
+      "sortText": "190",
+      "insertText": "AuthzFilter",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "BasicAuthHandler",
       "kind": "Interface",
       "detail": "Object",
@@ -1185,33 +1207,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "WebSocketFailoverClient",
-      "kind": "Interface",
-      "detail":"Object",
-      "documentation": {
-          "left": "A WebSocket client endpoint, which provides failover support for multiple WebSocket targets."
-      },
-      "sortText": "190",
-      "insertText": "WebSocketFailoverClient",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WebSocketFailoverClientConfiguration",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-          "left": "Configurations for the WebSocket client endpoint.\n"
-      },
-      "sortText": "180",
-      "insertText": "WebSocketFailoverClientConfiguration",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ClientConfiguration",
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\n\nhttpVersion - Copied from CommonClientConfiguration\nhttp1Settings - Copied from CommonClientConfiguration\nhttp2Settings - Copied from CommonClientConfiguration\ntimeoutInMillis - Copied from CommonClientConfiguration\nforwarded - Copied from CommonClientConfiguration\nfollowRedirects - Copied from CommonClientConfiguration\npoolConfig - Copied from CommonClientConfiguration\ncache - Copied from CommonClientConfiguration\ncompression - Copied from CommonClientConfiguration\nauth - Copied from CommonClientConfiguration\ncircuitBreaker - Copied from CommonClientConfiguration\nretryConfig - Copied from CommonClientConfiguration\ncookieConfig - Copied from CommonClientConfiguration"
+        "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\nFollowing fields are inherited from the other configuration records in addition to the Client specific\nconfigs.\n\n|                                                         |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration            |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |"
       },
       "sortText": "180",
       "insertText": "ClientConfiguration",
