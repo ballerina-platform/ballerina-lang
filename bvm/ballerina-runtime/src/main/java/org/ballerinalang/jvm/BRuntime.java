@@ -28,7 +28,6 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.connector.AsyncFunctionCallBack;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
 import java.util.Map;
@@ -36,8 +35,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -80,79 +77,65 @@ public class BRuntime {
     }
 
     /**
-     * Invoke Function Pointer synchronously. This method will only work for function pointers with synchronous code.
-     * Please refer @scheduleFunctionPointer method for schedule function pointer asynchronously.
+     * Invoke Function Pointer asynchronously. This will schedule the function and block the strand.
      *
-     * @param func Function Pointer to be invoked.
-     * @param args Ballerina function arguments.
-     * @param <R>  Return Type.
-     * @return Invoked function result.
+     * @param func                 Function Pointer to be invoked.
+     * @param args                 Ballerina function arguments.
+     * @param resultHandleFunction Function used to process the result received after execution of function.
+     * @return Future Value
      */
-    public <R> R invokeMethodSync(FPValue<Object, R> func, Object[] args) {
-        return func.getFunction().apply(args);
+    public FutureValue invokeFunctionPointerAsync(FPValue<?, ?> func, Object[] args,
+                                           Function<Object, Object> resultHandleFunction) {
+        AsyncFunctionCallback callback = new AsyncFunctionCallback() {
+            @Override
+            public void notifySuccess() {
+                setReturnValues(resultHandleFunction.apply(getFutureResult()));
+            }
+
+            @Override
+            public void notifyFailure(ErrorValue error) {
+                handleRuntimeErrors(error);
+            }
+        };
+        return invokeFunctionPointerAsync(func, args, callback);
     }
 
     /**
      * Invoke Function Pointer asynchronously. This will schedule the function and block the strand.
      *
-     * @param func   Function Pointer to be invoked.
-     * @param strand Strand passed to function.
-     * @param args   Ballerina function arguments.
+     * @param func     Function Pointer to be invoked.
+     * @param args     Ballerina function arguments.
+     * @param callback Asynchronous call back
+     * @return Future value
      */
-    public void invokeFunctionPointerAsync(FPValue<?, ?> func, Strand strand, Object[] args) {
-        AtomicReference<Object> returnVal = new AtomicReference<>();
-        invokeFunctionPointerAsync(func, strand, args, future -> returnVal.set(future.result),
-                                   () -> true, returnVal::get);
-    }
+    public FutureValue invokeFunctionPointerAsync(FPValue<?, ?> func, Object[] args, AsyncFunctionCallback callback) {
 
-    /**
-     * Invoke Function Pointer asynchronously. This will schedule the function and block the strand.
-     *
-     * @param func                   Function Pointer to be invoked.
-     * @param strand                 Strand passed to function.
-     * @param args                   Ballerina function arguments.
-     * @param futureResultConsumer   Consumer used to process the future value received after execution of function.
-     *                               Future value result will have the return object of the function pointer.
-     * @param strandUnblockCondition Suppiler provides condition for unblock the strand and resume the execution.
-     * @param resultSupplier         Suppiler used to set the final return value for the parent function invocation.
-     */
-    public void invokeFunctionPointerAsync(FPValue<?, ?> func, Strand strand, Object[] args,
-                                           Consumer<FutureValue> futureResultConsumer,
-                                           Supplier<Boolean> strandUnblockCondition,
-                                           Supplier<Object> resultSupplier) {
-        AsyncFunctionCallBack callback = new AsyncFunctionCallBack(strand, futureResultConsumer,
-                                                                   strandUnblockCondition, resultSupplier);
-        if (!strand.blockedOnExtern) {
-            strand.blockedOnExtern = true;
-            strand.setState(State.BLOCK_AND_YIELD);
-            strand.setReturnValues(null);
-        }
-        FutureValue future = scheduler.createFuture(strand, callback, null, ((BFunctionType) func.getType()).retType);
-        callback.setFuture(future);
-        strand.scheduler.scheduleLocal(args, func, strand, future);
+        Strand strand = Scheduler.getStrand();
+        return invokeFunctionPointerAsync(func, strand, args, callback);
     }
 
     /**
      * Invoke Function Pointer asynchronously. This will schedule the function and block the strand.
      *
      * @param func                 Function Pointer to be invoked.
-     * @param strand               Strand passed to function.
-     * @param collectionSize       Used to decide the no of iterations need to schedule the function pointer.
-     * @param argsFunction         Used to computer the args for each iteration.
+     * @param noOfIterations Number of iterations need to call the function pointer.
+     * @param argsSupplier Suppiler provides dyanamic arguments to function pointer execution in each iteration.
      * @param futureResultConsumer Consumer used to process the future value received after execution of function.
      *                             Future value result will have the return object of the function pointer.
-     * @param returnValueSupplier  Suppiler used to set the final return value for the parent function invocation.
+     * @param returnValueSupplier Suppiler used to set the final return value for the parent function invocation.
      */
-    public void invokeFunctionPointerAsyncIteratively(FPValue<?, ?> func, Strand strand, int collectionSize,
-                                                      Function<Integer, Object[]> argsFunction,
-                                                      BiConsumer<Integer, FutureValue> futureResultConsumer,
+    public void invokeFunctionPointerAsyncIteratively(FPValue<?, ?> func, int noOfIterations,
+                                                      Supplier<Object[]> argsSupplier,
+                                                      Consumer<Object> futureResultConsumer,
                                                       Supplier<Object> returnValueSupplier) {
-        if (collectionSize <= 0) {
+        if (noOfIterations <= 0) {
             return;
         }
+        Strand strand = Scheduler.getStrand();
+        blockStrand(strand);
         AtomicInteger callCount = new AtomicInteger(0);
-        scheduleNextFunction(func, strand, argsFunction, callCount, 0, collectionSize, futureResultConsumer,
-                             returnValueSupplier);
+        scheduleNextFunction(func, strand, noOfIterations, callCount, argsSupplier,
+                             futureResultConsumer, returnValueSupplier);
     }
 
     /**
@@ -275,17 +258,47 @@ public class BRuntime {
         return futureValue.result;
     }
 
-    private void scheduleNextFunction(FPValue<?, ?> func, Strand strand, Function<Integer, Object[]> argsFunction,
-                                      AtomicInteger callCount, int nextIndex, int dataSetSize,
-                                      BiConsumer<Integer, FutureValue> futureResultConsumer,
+    private void scheduleNextFunction(FPValue<?, ?> func, Strand strand, int noOfIterations,
+                                      AtomicInteger callCount, Supplier<Object[]> argsSupplier,
+                                      Consumer<Object> futureResultConsumer,
                                       Supplier<Object> returnValueSupplier) {
-        invokeFunctionPointerAsync(func, strand, argsFunction.apply(nextIndex), future -> {
-            futureResultConsumer.accept(nextIndex, future);
-            if (callCount.incrementAndGet() != dataSetSize) {
-                scheduleNextFunction(func, strand, argsFunction, callCount, nextIndex + 1, dataSetSize,
-                                     futureResultConsumer, returnValueSupplier);
+        AsyncFunctionCallback callback = new AsyncFunctionCallback() {
+            @Override
+            public void notifySuccess() {
+                futureResultConsumer.accept(getFutureResult());
+                if (callCount.incrementAndGet() != noOfIterations) {
+                    scheduleNextFunction(func, strand, noOfIterations, callCount, argsSupplier,
+                                         futureResultConsumer, returnValueSupplier);
+                } else {
+                    setReturnValues(returnValueSupplier.get());
+                }
             }
-        }, () -> callCount.get() == dataSetSize, returnValueSupplier);
+
+            @Override
+            public void notifyFailure(ErrorValue error) {
+                handleRuntimeErrors(error);
+            }
+        };
+        invokeFunctionPointerAsync(func, strand, argsSupplier.get(), callback);
+    }
+
+    private FutureValue invokeFunctionPointerAsync(FPValue<?, ?> func, Strand strand,
+                                            Object[] args, AsyncFunctionCallback callback) {
+
+        blockStrand(strand);
+        final FutureValue future = scheduler.createFuture(strand, null, null, ((BFunctionType) func.getType()).retType);
+        future.callback = callback;
+        callback.setFuture(future);
+        callback.setStrand(strand);
+        return scheduler.scheduleLocal(args, func, strand, future);
+    }
+
+    private void blockStrand(Strand strand) {
+        if (!strand.blockedOnExtern) {
+            strand.blockedOnExtern = true;
+            strand.setState(State.BLOCK_AND_YIELD);
+            strand.setReturnValues(null);
+        }
     }
 
     private static class Unblocker implements java.util.function.BiConsumer<Object, Throwable> {

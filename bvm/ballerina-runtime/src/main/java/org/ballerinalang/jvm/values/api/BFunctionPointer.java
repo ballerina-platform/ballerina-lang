@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm.values.api;
 
+import org.ballerinalang.jvm.values.FutureValue;
+
 import java.util.function.Function;
 
 /**
@@ -30,6 +32,31 @@ import java.util.function.Function;
  * @since 1.1.0
  */
 public interface BFunctionPointer<T, R> extends BRefValue {
+
+    /**
+     * Execute the {@code Function} with given parameter array.
+     *
+     * @param t {@code Function to be executed}
+     * @return The result of the executed function.
+     */
+    R call(T t);
+
+    /**
+     * Execute the {@code Function} with given parameter array.
+     *
+     * @param args Function arguments.
+     * @return Future value received from invoking asynchronous function.
+     */
+    FutureValue call(Object[] args);
+
+    /**
+     * Execute the {@code Function} with given parameter array.
+     *
+     * @param args                 Function arguments.
+     * @param resultHandleFunction Function used to process the result received after execution of function.
+     * @return Future value received from invoking asynchronous function.
+     */
+    FutureValue call(Object[] args, Function<Object, Object> resultHandleFunction);
 
     /**
      * Returns the {@code Function} the FP is pointed to.
