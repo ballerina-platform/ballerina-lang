@@ -17,9 +17,14 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import io.ballerinalang.compiler.syntax.BLModules;
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.text.StringTextDocument;
+import io.ballerinalang.compiler.text.TextDocument;
 import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiConverterUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
@@ -276,6 +281,35 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
+            logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+        } finally {
+            lock.ifPresent(Lock::unlock);
+        }
+        return CompletableFuture.supplyAsync(() -> reply);
+    }
+
+    @Override
+    public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTree(BallerinaSyntaxTreeRequest request) {
+        BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
+        String fileUri = request.getDocumentIdentifier().getUri();
+        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        if (!filePath.isPresent()) {
+            return CompletableFuture.supplyAsync(() -> reply);
+        }
+        Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
+        Optional<Lock> lock = documentManager.lockFile(compilationPath);
+        try {
+            TextDocument doc = new StringTextDocument(documentManager.getFileContent(compilationPath));
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
+            SyntaxTree syntaxTree = BLModules.parse(doc);
+            Map<String, Object> transform = mapGenerator.transform(syntaxTree.getModulePart());
+            Gson gson = new Gson();
+            JsonElement jsonElement = gson.toJsonTree(transform);
+            reply.setSyntaxTree(jsonElement);
+            reply.setParseSuccess(true);
+        } catch (Throwable e) {
+            reply.setParseSuccess(false);
+            String msg = "Operation 'ballerinaDocument/syntaxTree' failed!";
             logError(msg, e, request.getDocumentIdentifier(), (Position) null);
         } finally {
             lock.ifPresent(Lock::unlock);

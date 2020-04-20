@@ -28,7 +28,7 @@ public class StringTextDocument extends TextDocument {
     private final String text;
     private LineMap textLineMap;
 
-    StringTextDocument(String text) {
+    public StringTextDocument(String text) {
         this.text = text;
     }
 
