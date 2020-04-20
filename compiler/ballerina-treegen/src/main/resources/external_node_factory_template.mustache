@@ -38,7 +38,7 @@ public abstract class {{className}} extends {{superClassName}} {
     {{^isAbstract}}
 
     public static {{externalClassName}} create{{externalClassName}}(
-            {{^syntaxKind}}SyntaxKind kind, &#10;            {{/syntaxKind}}{{#fields}}{{#isList}}NodeList<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}}{{^isLast}}, &#10;            {{/isLast}}{{/fields}}) {
+            {{^syntaxKind}}SyntaxKind kind, &#10;            {{/syntaxKind}}{{#fields}}{{#isList}}{{listClassName}}<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}}{{^isLast}}, &#10;            {{/isLast}}{{/fields}}) {
         {{#fields}}
         {{^isOptional}}
         Objects.requireNonNull({{fieldName}}, "{{fieldName}} must not be null");

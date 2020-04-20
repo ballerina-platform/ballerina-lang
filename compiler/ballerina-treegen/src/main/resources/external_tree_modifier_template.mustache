@@ -21,6 +21,8 @@ package {{packageName}};
 import {{name}};
 {{/imports}}
 
+import java.util.function.Function;
+
 /**
  * Produces a new tree by doing a depth-first traversal of the tree.
  *
@@ -35,7 +37,7 @@ public abstract class {{className}} extends {{superClassName}}<Node> {
     @Override
     public Node transform({{externalClassName}} {{camelCaseExternalClassName}}) {
         {{#fields}}
-        {{#isList}}NodeList<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}} = modify{{#isList}}NodeList{{/isList}}{{^isList}}{{#isToken}}Token{{/isToken}}{{#isNode}}Node{{/isNode}}{{/isList}}({{camelCaseExternalClassName}}.{{fieldName}}(){{#isOptional}}.orElse(null){{/isOptional}});
+        {{#isList}}{{listClassName}}<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}} = modify{{#isList}}{{listClassName}}{{/isList}}{{^isList}}{{#isToken}}Token{{/isToken}}{{#isNode}}Node{{/isNode}}{{/isList}}({{camelCaseExternalClassName}}.{{fieldName}}(){{#isOptional}}.orElse(null){{/isOptional}});
         {{/fields}}
         return {{camelCaseExternalClassName}}.modify(
                 {{^syntaxKind}}{{camelCaseExternalClassName}}.kind(), &#10;                {{/syntaxKind}}{{#fields}}{{fieldName}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}});
@@ -61,6 +63,16 @@ public abstract class {{className}} extends {{superClassName}}<Node> {
     }
 
     protected <T extends Node> NodeList<T> modifyNodeList(NodeList<T> nodeList) {
+        return modifyGenericNodeList(nodeList, NodeList::new);
+    }
+
+    protected <T extends Node> SeparatedNodeList<T> modifySeparatedNodeList(SeparatedNodeList<T> nodeList) {
+        return modifyGenericNodeList(nodeList, SeparatedNodeList::new);
+    }
+
+    private <T extends Node, N extends NodeList<T>> N modifyGenericNodeList(
+            N nodeList,
+            Function<NonTerminalNode, N> nodeListCreator) {
         if (nodeList.isEmpty()) {
             return nodeList;
         }
@@ -81,7 +93,7 @@ public abstract class {{className}} extends {{superClassName}}<Node> {
         }
 
         STNode stNodeList = STNodeFactory.createNodeList(java.util.Arrays.asList(newSTNodes));
-        return new NodeList<>(stNodeList.createUnlinkedFacade());
+        return nodeListCreator.apply(stNodeList.createUnlinkedFacade());
     }
 
     protected <T extends Token> T modifyToken(T token) {
