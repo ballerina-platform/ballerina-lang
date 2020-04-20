@@ -19,7 +19,7 @@ import ballerina/email;
 email:PopConfig popConfig = {
      port: 3995,
      enableSsl: true
- };
+};
 
 function testReceiveSimpleEmail(string host, string username, string password) returns email:Email|email:Error? {
     email:PopClient|email:Error popClient = new (host, username, password, popConfig);

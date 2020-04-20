@@ -34,29 +34,7 @@ $ ballerina run program.bal --b7a.log.level=<LOG_LEVEL>
 
 Log levels can be configured for modules either through a configuration file as `<MODULE_NAME>.loglevel="<LOG_LEVEL>"` or through a CLI parameter as `<MODULE_NAME>.loglevel=<LOG_LEVEL>`.
 
-The following code snippet depicts the usage of all the functions in the log API.
-```ballerina
-// Logs the message at ERROR level
-log:printError("error log");
-
-// Logs the message at ERROR level, along with an error record
-error e = error("error occurred");
-log:printError("error log with cause", err = e);
-
-// Logs the message at WARN level
-log:printWarn("warn log");
-
-// Logs the message at INFO level
-log:printInfo("info log");
-
-// Logs the message at DEBUG level
-log:printDebug("debug log");
-
-// Logs the message at TRACE level
-log:printTrace("trace log");
-```
-
-Suppose that the above code snippet resides in a module named `foo`. We can set the log level of `foo` to `DEBUG` in a configuration file by placing the following entry in it:
+Suppose there is a module named `foo`. We can set the log level of `foo` to `DEBUG` in a configuration file by placing the following entry in it:
 ```toml
 ["<org-name>/foo"]
 loglevel="DEBUG"
@@ -70,3 +48,5 @@ The log level of `foo` can also be configured through the CLI as follows:
 ```bash
 $ ballerina run foo --\"<org-name>/foo.loglevel\"=DEBUG
 ```
+
+For information on the operation, which you can perform with this module, see the below Function. For examples on the usage of the operation, see [Log Api](https://ballerina.io/learn/by-example/log-api.html).

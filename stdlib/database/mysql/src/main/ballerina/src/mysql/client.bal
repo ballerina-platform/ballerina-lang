@@ -50,16 +50,26 @@ public type Client client object {
         return createClient(self, clientConfig, sql:getGlobalConnectionPool());
     }
 
-    # Executes the sql query provided by the user, and returns the result as stream.
+    # Queries the database with the query provided by the user, and returns the result as stream.
     #
-    # + sqlQuery - The query which needs to be executed
+    # + sqlQuery - The query which needs to be executed as `string` or `ParameterizedString` when the SQL query has
+    #              params to be passed in
     # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
     #             column names of the query result set be used for the record attributes
     # + return - Stream of records in the type of `rowType`
-    public remote function query(@untainted string sqlQuery, typedesc<record {}>? rowType = ())
+    public remote function query(@untainted string|sql:ParameterizedString sqlQuery, typedesc<record {}>? rowType = ())
     returns @tainted stream<record{}, sql:Error> {
         if (self.clientActive) {
-            return nativeQuery(self, java:fromString(sqlQuery), rowType);
+            sql:ParameterizedString sqlParamString;
+            if (sqlQuery is string) {
+                sqlParamString = {
+                    parts : [sqlQuery],
+                    insertions: []
+                };
+            } else {
+                sqlParamString = sqlQuery;
+            }
+            return nativeQuery(self, sqlParamString, rowType);
         } else {
             return sql:generateApplicationErrorStream("MySQL Client is already closed,"
                 + "hence further operations are not allowed");
@@ -79,7 +89,6 @@ public type Client client object {
                 + " hence further operations are not allowed");
         }
     }
-
 
     # Close the SQL client.
     #
@@ -149,7 +158,7 @@ function createClient(Client mysqlClient, ClientConfiguration clientConf,
     class: "org.ballerinalang.mysql.NativeImpl"
 } external;
 
-function nativeQuery(Client sqlClient,@untainted handle sqlQuery, typedesc<record {}>? rowtype)
+function nativeQuery(Client sqlClient, sql:ParameterizedString sqlQuery, typedesc<record {}>? rowtype)
 returns stream<record{}, sql:Error> = @java:Method {
     class: "org.ballerinalang.sql.utils.QueryUtils"
 } external;

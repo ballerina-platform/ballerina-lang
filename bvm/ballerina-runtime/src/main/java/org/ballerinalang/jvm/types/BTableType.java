@@ -37,13 +37,6 @@ public class BTableType extends BType {
         this.keyType = null;
     }
 
-    public BTableType(BType constraint, BType keyType) {
-        super(TypeConstants.TABLE_TNAME, null, TableValue.class);
-        this.constraint = constraint;
-        this.keyType = keyType;
-        this.fieldNames = new String[]{};
-    }
-
     public BTableType(BType constraint) {
         super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;

@@ -17,11 +17,14 @@
 import ballerina/java;
 
 # Transforms the single-rooted XML content to another XML/HTML/plain text using XSL transformations.
+# ```ballerina
+# xml|error target = xslt:transform(sourceXml, xsl);
+# ```
 #
 # + input - An XML object, which needs to be transformed
 # + xsl - The XSL style sheet represented in an XML object
-# + return - The transformed result represented in an XML object or the `error` in case of an error
-public function transform(xml input, xml xsl) returns xml|error =
-@java:Method {
+# + return - The transformed result represented in an XML object or else an `error` if the given `XML` object
+#            can't be transformed
+public function transform(xml input, xml xsl) returns xml|error = @java:Method {
     class: "org.ballerinalang.xslt.XsltTransformer"
 } external;

@@ -19,8 +19,8 @@ import ballerina/log;
 
 # Record type to hold the details of an error.
 #
-# + message - Specific error message of the error.
-# + cause - Any other error, which causes this error.
+# + message - The specific error message for the error.
+# + cause - The cause of the error if this error occurred due to another error
 public type Detail record {
     string message;
     error cause?;
@@ -33,10 +33,10 @@ public const JWT_ERROR = "{ballerina/jwt}Error";
 # JWT or any operation related to JWT.
 public type Error error<JWT_ERROR, Detail>;
 
-# Log and prepare `error` as a `Error`.
+# Logs and prepares the `error` as an `Error`.
 #
 # + message - Error message
-# + err - `error` instance
+# + err - An `error` instance
 # + return - Prepared `Error` instance
 function prepareError(string message, error? err = ()) returns Error {
     log:printError(message, err);
@@ -49,10 +49,10 @@ function prepareError(string message, error? err = ()) returns Error {
     return jwtError;
 }
 
-# Log and prepare `error` as a `auth:Error`.
+# Logs and prepares the `error` as an `auth:Error`.
 #
 # + message - Error message
-# + err - `error` instance
+# + err - An `error` instance
 # + return - Prepared `auth:Error` instance
 function prepareAuthError(string message, error? err = ()) returns auth:Error {
     log:printError(message, err);

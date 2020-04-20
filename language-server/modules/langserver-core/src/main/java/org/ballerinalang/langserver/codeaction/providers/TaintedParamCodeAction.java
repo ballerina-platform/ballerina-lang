@@ -24,18 +24,12 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
-import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -78,7 +72,6 @@ public class TaintedParamCodeAction extends AbstractCodeActionProvider {
 
     private static CodeAction getTaintedParamCommand(Diagnostic diagnostic, LSContext context) {
         String diagnosticMessage = diagnostic.getMessage();
-        List<Diagnostic> diagnostics = new ArrayList<>();
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
 
         try {
@@ -86,9 +79,6 @@ public class TaintedParamCodeAction extends AbstractCodeActionProvider {
             if (matcher.find() && matcher.groupCount() > 0) {
                 String param = matcher.group(1);
                 String commandTitle = String.format(CommandConstants.MARK_UNTAINTED_TITLE, param);
-                CodeAction action = new CodeAction(commandTitle);
-                action.setKind(CodeActionKind.QuickFix);
-                action.setDiagnostics(diagnostics);
                 // Extract specific content range
                 Range range = diagnostic.getRange();
                 WorkspaceDocumentManager documentManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
@@ -99,10 +89,7 @@ public class TaintedParamCodeAction extends AbstractCodeActionProvider {
                 // Create text-edit
                 List<TextEdit> edits = new ArrayList<>();
                 edits.add(new TextEdit(range, editText));
-                VersionedTextDocumentIdentifier identifier = new VersionedTextDocumentIdentifier(uri, null);
-                action.setEdit(new WorkspaceEdit(Collections.singletonList(
-                        Either.forLeft(new TextDocumentEdit(identifier, edits)))));
-                return action;
+                return createQuickFixCodeAction(commandTitle, edits, uri);
             }
         } catch (WorkspaceDocumentException | IOException e) {
             //do nothing

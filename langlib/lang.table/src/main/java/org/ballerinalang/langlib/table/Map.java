@@ -44,7 +44,7 @@ public class Map {
     public static TableValueImpl map(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
 
         BType newConstraintType = ((BFunctionType) func.getType()).retType;
-        BTableType newTableType = new BTableType(newConstraintType, ((BTableType) tbl.getType()).getKeyType());
+        BTableType newTableType = new BTableType(newConstraintType, ((BTableType) tbl.getType()).getFieldNames());
 
         TableValueImpl newTable = new TableValueImpl(newTableType);
         for (Object key : tbl.getKeys()) {
