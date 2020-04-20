@@ -1284,5 +1284,14 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 namedWorkerDecl.underlyingListNode().internalNode());
         return stNamedWorkersListNode.createUnlinkedFacade();
     }
+
+    public static DocumentationStringNode createDocumentationStringNode(
+            NodeList<Token> documentationLines) {
+        Objects.requireNonNull(documentationLines, "documentationLines must not be null");
+
+        STNode stDocumentationStringNode = STNodeFactory.createDocumentationStringNode(
+                documentationLines.underlyingListNode().internalNode());
+        return stDocumentationStringNode.createUnlinkedFacade();
+    }
 }
 

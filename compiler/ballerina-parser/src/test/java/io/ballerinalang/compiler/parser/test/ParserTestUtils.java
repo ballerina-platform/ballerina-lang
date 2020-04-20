@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
+import io.ballerinalang.compiler.internal.parser.tree.STDocumentationLineToken;
 import io.ballerinalang.compiler.internal.parser.tree.STIdentifierToken;
 import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
@@ -263,6 +264,8 @@ public class ParserTestUtils {
             case COMMENT:
             case INVALID:
                 return ((SyntaxTrivia) token).text;
+            case DOCUMENTATION_LINE:
+                return ((STDocumentationLineToken) token).text;
             default:
                 return token.kind.toString();
 
@@ -453,8 +456,6 @@ public class ParserTestUtils {
                 return SyntaxKind.PIPE_TOKEN;
             case "AT_TOKEN":
                 return SyntaxKind.AT_TOKEN;
-            case "HASH_TOKEN":
-                return SyntaxKind.HASH_TOKEN;
             case "RIGHT_ARROW_TOKEN":
                 return SyntaxKind.RIGHT_ARROW_TOKEN;
 
@@ -613,6 +614,10 @@ public class ParserTestUtils {
                 return SyntaxKind.NAMED_WORKER_DECLARATION;
             case "NAMED_WORKERS":
                 return SyntaxKind.NAMED_WORKERS;
+            case "DOCUMENTATION_STRING":
+                return SyntaxKind.DOCUMENTATION_STRING;
+            case "DOCUMENTATION_LINE":
+                return SyntaxKind.DOCUMENTATION_LINE;
 
             // Trivia
             case "EOF_TOKEN":

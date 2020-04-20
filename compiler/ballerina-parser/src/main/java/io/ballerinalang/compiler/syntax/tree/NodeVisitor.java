@@ -323,6 +323,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(namedWorkersListNode);
     }
 
+    public void visit(DocumentationStringNode documentationStringNode) {
+        visitSyntaxNode(documentationStringNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

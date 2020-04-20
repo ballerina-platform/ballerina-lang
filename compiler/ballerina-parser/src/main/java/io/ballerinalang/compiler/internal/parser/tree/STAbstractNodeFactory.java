@@ -73,4 +73,8 @@ public abstract class STAbstractNodeFactory {
     public static STNode createSyntaxTrivia(SyntaxKind kind, String text) {
         return new SyntaxTrivia(kind, text);
     }
+
+    public static STToken createDocumentationLineToken(String text, STNode leadingTrivia, STNode trailingTrivia) {
+        return new STDocumentationLineToken(text, leadingTrivia, trailingTrivia);
+    }
 }

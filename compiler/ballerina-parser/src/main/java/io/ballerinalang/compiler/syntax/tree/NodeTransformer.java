@@ -324,6 +324,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(namedWorkersListNode);
     }
 
+    public T transform(DocumentationStringNode documentationStringNode) {
+        return transformSyntaxNode(documentationStringNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

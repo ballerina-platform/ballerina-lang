@@ -420,7 +420,7 @@ public class BallerinaParser {
         switch (tokenKind) {
             case EOF_TOKEN:
                 return consume();
-            case HASH_TOKEN:
+            case DOCUMENTATION_LINE:
             case AT_TOKEN:
                 metadata = parseMetaData(tokenKind);
                 return parseTopLevelNode(metadata);
@@ -3441,7 +3441,7 @@ public class BallerinaParser {
             case LISTENER_KEYWORD:
             case EQUAL_TOKEN:
             case AT_TOKEN:
-            case HASH_TOKEN:
+            case DOCUMENTATION_LINE:
             case AS_KEYWORD:
                 return true;
             default:
@@ -3844,7 +3844,7 @@ public class BallerinaParser {
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
                 metadata = createEmptyMetadata();
                 break;
-            case HASH_TOKEN:
+            case DOCUMENTATION_LINE:
             case AT_TOKEN:
                 metadata = parseMetaData(nextTokenKind);
                 nextTokenKind = peek().kind;
@@ -4480,7 +4480,7 @@ public class BallerinaParser {
         switch (tokenKind) {
             case EOF_TOKEN:
             case AT_TOKEN:
-            case HASH_TOKEN:
+            case DOCUMENTATION_LINE:
             case CLOSE_BRACE_TOKEN:
             case CLOSE_PAREN_TOKEN:
             case CLOSE_BRACKET_TOKEN:
@@ -4887,7 +4887,7 @@ public class BallerinaParser {
             case RESOURCE_KEYWORD:
             case LISTENER_KEYWORD:
             case AT_TOKEN:
-            case HASH_TOKEN:
+            case DOCUMENTATION_LINE:
             case PRIVATE_KEYWORD:
             case RETURNS_KEYWORD:
             case SERVICE_KEYWORD:
@@ -4985,7 +4985,7 @@ public class BallerinaParser {
             case FUNCTION_KEYWORD:
                 metadata = createEmptyMetadata();
                 break;
-            case HASH_TOKEN:
+            case DOCUMENTATION_LINE:
             case AT_TOKEN:
                 metadata = parseMetaData(nextTokenKind);
                 nextTokenKind = peek().kind;
@@ -5525,10 +5525,9 @@ public class BallerinaParser {
         STNode docString;
         STNode annotations;
         switch (nextTokenKind) {
-            case HASH_TOKEN:
+            case DOCUMENTATION_LINE:
                 // TODO:
-                consume();
-                docString = STNodeFactory.createEmptyNode();
+                docString = parseDocumentationString();
                 annotations = parseAnnotations();
                 break;
             case AT_TOKEN:
@@ -6583,5 +6582,26 @@ public class BallerinaParser {
             Solution sol = recover(peek(), ParserRuleContext.WORKER_NAME);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse documentation string.
+     * <p>
+     * <code>DocumentationString := DocumentationLine +</code>
+     * <p>
+     * Refer {@link BallerinaLexer#processDocumentationLine}
+     * 
+     * @return Parsed node
+     */
+    private STNode parseDocumentationString() {
+        List<STNode> docLines = new ArrayList<>();
+        STToken nextToken = peek();
+        while (nextToken.kind == SyntaxKind.DOCUMENTATION_LINE) {
+            docLines.add(consume());
+            nextToken = peek();
+        }
+
+        STNode documentationLines = STNodeFactory.createNodeList(docLines);
+        return STNodeFactory.createDocumentationStringNode(documentationLines);
     }
 }

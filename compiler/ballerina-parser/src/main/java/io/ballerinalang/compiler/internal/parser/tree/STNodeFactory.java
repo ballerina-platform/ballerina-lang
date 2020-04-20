@@ -956,5 +956,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 workerInitStatements,
                 namedWorkerDecl);
     }
+
+    public static STNode createDocumentationStringNode(
+            STNode documentationLines) {
+
+        return new STDocumentationStringNode(
+                documentationLines);
+    }
 }
 

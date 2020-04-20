@@ -946,6 +946,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 namedWorkerDecl);
     }
 
+    @Override
+    public Node transform(DocumentationStringNode documentationStringNode) {
+        NodeList<Token> documentationLines = modifyNodeList(documentationStringNode.documentationLines());
+        return documentationStringNode.modify(
+                documentationLines);
+    }
+
     // Tokens
 
     @Override

@@ -119,6 +119,7 @@ public enum SyntaxKind {
     WHITESPACE_TRIVIA(1500),
     END_OF_LINE_TRIVIA(1501),
     COMMENT(1502),
+    DOCUMENTATION_LINE(1503),
 
     // module-level declarations
     IMPORT_DECLARATION(2000),
@@ -207,6 +208,7 @@ public enum SyntaxKind {
     FUNCTION_BODY_BLOCK(3028),
     NAMED_WORKERS(3029),
     EXPRESSION_FUNCTION_BODY(3030),
+    DOCUMENTATION_STRING(3031),
 
     INVALID(4),
     MODULE_PART(3),

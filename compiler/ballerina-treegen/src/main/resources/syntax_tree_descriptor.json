@@ -1700,6 +1700,18 @@
                     "occurrences": "MULTIPLE"
                 }
             ]
+        },
+        {
+            "name": "DocumentationStringNode",
+            "base": "Node",
+            "kind": "DOCUMENTATION_STRING",
+            "attributes": [
+                {
+                    "name": "documentationLines",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
         }
     ]
 }
