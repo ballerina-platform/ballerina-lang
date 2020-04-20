@@ -29,6 +29,13 @@ public class VersionResolver {
 
     public String resolve(PackageID moduleId, PackageID enclModuleId) {
         String version;
+        // Check if module is an aboslute version
+        // Check if lock file exists
+         // return lock file version
+        // Check ballerina toml
+        // If it is an absolute version return
+        // If it is a range check central
+        // return version returned from central
         version = resolveVersionFromBalLockFile(moduleId, enclModuleId);
         if (version == null) {
             version = resolveModuleFromBalToml(moduleId, enclModuleId);

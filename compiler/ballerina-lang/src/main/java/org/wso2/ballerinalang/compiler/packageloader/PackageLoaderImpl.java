@@ -28,6 +28,9 @@ public class PackageLoaderImpl implements PackageLoader {
 
     @Override public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageID enclPackageId,
             RepoHierarchy encPkgRepoHierarchy) {
+        // resolve the module version -> PackageID = versionresolver.resolve();
+        // resolve module -> ModuleLoader = moduleResolver.resolve(PackageID);
+        // BLangPackage = ModuleLoader.loadModule()
         return null;
     }
 }
