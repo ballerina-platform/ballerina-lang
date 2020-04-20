@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
+import org.ballerinalang.jvm.values.BTable;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BDecimal;
 import org.ballerinalang.jvm.values.api.BError;
@@ -363,6 +364,8 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STREAM:
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.TABLE:
+                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }
@@ -503,6 +506,8 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.STREAM:
                     return this.classLoader.loadClass(BStream.class.getCanonicalName()).isAssignableFrom(jType);
+                case TypeTags.TABLE:
+                    return this.classLoader.loadClass(BTable.class.getCanonicalName()).isAssignableFrom(jType);
                 default:
                     return false;
             }

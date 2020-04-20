@@ -394,6 +394,7 @@ public class JvmPackageGen {
         PackageID langMapModule = new PackageID(ballerinaOrgName, new Name("lang.map"), builtInVersion);
         PackageID langObjectModule = new PackageID(ballerinaOrgName, new Name("lang.object"), builtInVersion);
         PackageID langStreamModule = new PackageID(ballerinaOrgName, new Name("lang.stream"), builtInVersion);
+        PackageID langTableModule = new PackageID(ballerinaOrgName, new Name("lang.table"), builtInVersion);
         PackageID langStringModule = new PackageID(ballerinaOrgName, new Name("lang.string"), builtInVersion);
         PackageID langValueModule = new PackageID(ballerinaOrgName, new Name("lang.value"), builtInVersion);
         PackageID langXmlModule = new PackageID(ballerinaOrgName, new Name("lang.xml"), builtInVersion);
@@ -409,6 +410,7 @@ public class JvmPackageGen {
         dependentModuleArray.add(langMapModule);
         dependentModuleArray.add(langObjectModule);
         dependentModuleArray.add(langStreamModule);
+        dependentModuleArray.add(langTableModule);
         dependentModuleArray.add(langStringModule);
         dependentModuleArray.add(langValueModule);
         dependentModuleArray.add(langXmlModule);
