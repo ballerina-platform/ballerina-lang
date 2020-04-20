@@ -105,3 +105,16 @@ function testShiftOnTupleWithIntRestParamFixedInherantShapeWithInt() {
     [int, int...] a = [1];
     int x = a.shift();
 }
+
+// run time panic no compile time error
+function testShiftOnUnionOfDifferentTuples() {
+    [string, string...]|[string, int] tuples = ["hi", 4];
+    var x = tuples.shift();
+}
+
+function testShiftOnUnionOfDifferentTuplesTypeNarrowed() {
+    [string, string...]|[string, int] tuples = ["hi", 4];
+    if (tuples is [string, int]) {
+        var x = tuples.shift();
+    }
+}

@@ -455,6 +455,14 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                                   "cannot call 'push' on fixed length list(s) of type '([int,int]|[float,float])'",
                                   100, 22);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                                  "cannot call 'shift' on fixed length list(s) of type '[string,int]'",
+                                  118, 24);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
+    }
+
+    @Test
+    public void testShiftOperation() {
+        BRunUtil.invoke(compileResult, "testShiftOperation");
     }
 }
