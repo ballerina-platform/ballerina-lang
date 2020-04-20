@@ -22,8 +22,9 @@ under the License.
 <suite name="ballerina-test-suite">
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" parallel="false">
-        <packages>
-
-        </packages>
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.rabbitmq.RabbitMQServiceCompilationTest"/>
+        </classes>
     </test>
 </suite>
