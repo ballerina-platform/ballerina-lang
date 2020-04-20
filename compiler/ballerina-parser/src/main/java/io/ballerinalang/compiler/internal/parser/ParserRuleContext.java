@@ -98,7 +98,6 @@ public enum ParserRuleContext {
     ANNOT_REFERENCE("annot-reference"),
     ANNOTATIONS("annots"),
     DOC_STRING("doc-string"),
-    IDENTIFIER("identifier"),
     QUALIFIED_IDENTIFIER("qualified-identifier"),
     ANNOTATION_DECL("annotation-decl"),
     ANNOT_DECL_OPTIONAL_TYPE("annot-decl-optional-type"),
@@ -109,16 +108,11 @@ public enum ParserRuleContext {
     ATTACH_POINT_IDENT("attach-point-ident"),
     SINGLE_KEYWORD_ATTACH_POINT_IDENT("single-keyword-attach-point-ident"),
     IDENT_AFTER_OBJECT_IDENT("ident-after-object-ident"),
-    FUNCTION_IDENT("func-ident"),
-    FIELD_IDENT("field-ident"),
-    OBJECT_IDENT("object-ident"),
-    RESOURCE_IDENT("resource-ident"),
-    RECORD_IDENT("record-ident"),
-    ANNOTATION_TAG("annotation-tag"),
-    ATTACH_POINT_END("attach-point-end"),
     XML_NAMESPACE_DECLARATION("xml-namespace-decl"),
     XML_NAMESPACE_PREFIX_DECL("namespace-prefix-decl"),
-    NAMESPACE_PREFIX("namespace-prefix"),
+    DEFAULT_WORKER_INIT("default-worker-init"),
+    NAMED_WORKERS("named-workers"),
+    DEFAULT_WORKER("default-worker-init"),
 
     // Statements
     STATEMENT("statement"),
@@ -147,6 +141,7 @@ public enum ParserRuleContext {
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
     EXPRESSION_STATEMENT("expression-statement"),
     EXPRESSION_STATEMENT_START("expression-statement-start"),
+    NAMED_WORKER_DECL("named-worker-decl"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -181,6 +176,7 @@ public enum ParserRuleContext {
     ANNOTATION_KEYWORD("annotation"),
     SOURCE_KEYWORD("source"),
     XMLNS_KEYWORD("xmlns"),
+    WORKER_KEYWORD("worker"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -215,6 +211,16 @@ public enum ParserRuleContext {
     SERVICE_NAME("service-name"),
     COMPOUND_BINARY_OPERATOR("compound-binary-operator"),
     UNARY_OPERATOR("unary-operator"),
+    FUNCTION_IDENT("func-ident"),
+    FIELD_IDENT("field-ident"),
+    OBJECT_IDENT("object-ident"),
+    RESOURCE_IDENT("resource-ident"),
+    RECORD_IDENT("record-ident"),
+    ANNOTATION_TAG("annotation-tag"),
+    ATTACH_POINT_END("attach-point-end"),
+    IDENTIFIER("identifier"),
+    NAMESPACE_PREFIX("namespace-prefix"),
+    WORKER_NAME("worker-name"),
 
     // Expressions
     EXPRESSION("expression"),

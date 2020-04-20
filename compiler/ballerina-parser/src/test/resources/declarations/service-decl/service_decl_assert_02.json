@@ -124,7 +124,7 @@
                                     "kind": "CLOSE_PAREN_TOKEN"
                                 },
                                 {
-                                    "kind": "BLOCK_STATEMENT",
+                                    "kind": "FUNCTION_BODY_BLOCK",
                                     "children": [
                                         {
                                             "kind": "OPEN_BRACE_TOKEN"
@@ -176,7 +176,7 @@
                                     "kind": "CLOSE_PAREN_TOKEN"
                                 },
                                 {
-                                    "kind": "BLOCK_STATEMENT",
+                                    "kind": "FUNCTION_BODY_BLOCK",
                                     "children": [
                                         {
                                             "kind": "OPEN_BRACE_TOKEN"

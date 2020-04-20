@@ -26,26 +26,30 @@ import java.util.Optional;
  *
  * @since 1.3.0
  */
-public class IfElseStatementNode extends StatementNode {
+public class NamedWorkerDeclarationNode extends NonTerminalNode {
 
-    public IfElseStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public NamedWorkerDeclarationNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token ifKeyword() {
-        return childInBucket(0);
+    public NodeList<AnnotationNode> annotations() {
+        return new NodeList<>(childInBucket(0));
     }
 
-    public ExpressionNode condition() {
+    public Token workerKeyword() {
         return childInBucket(1);
     }
 
-    public BlockStatementNode ifBody() {
+    public IdentifierToken workerName() {
         return childInBucket(2);
     }
 
-    public Optional<Node> elseBody() {
+    public Optional<Node> returnTypeDesc() {
         return optionalChildInBucket(3);
+    }
+
+    public BlockStatementNode workerBody() {
+        return childInBucket(4);
     }
 
     @Override
@@ -61,29 +65,33 @@ public class IfElseStatementNode extends StatementNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "ifKeyword",
-                "condition",
-                "ifBody",
-                "elseBody"};
+                "annotations",
+                "workerKeyword",
+                "workerName",
+                "returnTypeDesc",
+                "workerBody"};
     }
 
-    public IfElseStatementNode modify(
-            Token ifKeyword,
-            ExpressionNode condition,
-            BlockStatementNode ifBody,
-            Node elseBody) {
+    public NamedWorkerDeclarationNode modify(
+            NodeList<AnnotationNode> annotations,
+            Token workerKeyword,
+            IdentifierToken workerName,
+            Node returnTypeDesc,
+            BlockStatementNode workerBody) {
         if (checkForReferenceEquality(
-                ifKeyword,
-                condition,
-                ifBody,
-                elseBody)) {
+                annotations.underlyingListNode(),
+                workerKeyword,
+                workerName,
+                returnTypeDesc,
+                workerBody)) {
             return this;
         }
 
-        return NodeFactory.createIfElseStatementNode(
-                ifKeyword,
-                condition,
-                ifBody,
-                elseBody);
+        return NodeFactory.createNamedWorkerDeclarationNode(
+                annotations,
+                workerKeyword,
+                workerName,
+                returnTypeDesc,
+                workerBody);
     }
 }

@@ -910,5 +910,42 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 namespacePrefix,
                 semicolonToken);
     }
+
+    public static STNode createFunctionBodyBlockNode(
+            STNode openBraceToken,
+            STNode namedWorkers,
+            STNode statements,
+            STNode closeBraceToken) {
+
+        return new STFunctionBodyBlockNode(
+                openBraceToken,
+                namedWorkers,
+                statements,
+                closeBraceToken);
+    }
+
+    public static STNode createNamedWorkerDeclarationNode(
+            STNode annotations,
+            STNode workerKeyword,
+            STNode workerName,
+            STNode returnTypeDesc,
+            STNode workerBody) {
+
+        return new STNamedWorkerDeclarationNode(
+                annotations,
+                workerKeyword,
+                workerName,
+                returnTypeDesc,
+                workerBody);
+    }
+
+    public static STNode createNamedWorkersListNode(
+            STNode workerInitStatements,
+            STNode namedWorkerDecl) {
+
+        return new STNamedWorkersListNode(
+                workerInitStatements,
+                namedWorkerDecl);
+    }
 }
 

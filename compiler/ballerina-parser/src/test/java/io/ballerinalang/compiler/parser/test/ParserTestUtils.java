@@ -539,6 +539,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ACTION_STATEMENT;
 
             // Others
+            case "FUNCTION_BODY_BLOCK":
+                return SyntaxKind.FUNCTION_BODY_BLOCK;
             case "SIMPLE_TYPE":
                 return SyntaxKind.SIMPLE_TYPE;
             case "LIST":

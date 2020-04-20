@@ -34,7 +34,7 @@ public class ElseBlockNode extends StatementNode {
         return childInBucket(0);
     }
 
-    public Node elseBody() {
+    public BlockStatementNode elseBody() {
         return childInBucket(1);
     }
 
@@ -57,7 +57,7 @@ public class ElseBlockNode extends StatementNode {
 
     public ElseBlockNode modify(
             Token elseKeyword,
-            Node elseBody) {
+            BlockStatementNode elseBody) {
         if (checkForReferenceEquality(
                 elseKeyword,
                 elseBody)) {

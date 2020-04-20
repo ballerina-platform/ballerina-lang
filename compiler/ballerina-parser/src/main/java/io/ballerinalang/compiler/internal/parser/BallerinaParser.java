@@ -1860,10 +1860,66 @@ public class BallerinaParser {
     private STNode parseFunctionBodyBlock() {
         startContext(ParserRuleContext.FUNC_BODY_BLOCK);
         STNode openBrace = parseOpenBrace();
-        STNode stmts = parseStatements(); // TODO: allow workers
+        STToken token = peek();
+
+        ArrayList<STNode> firstStmtList = new ArrayList<>();
+        ArrayList<STNode> workers = new ArrayList<>();
+        ArrayList<STNode> secondStmtList = new ArrayList<>();
+
+        ParserRuleContext currentCtx = ParserRuleContext.DEFAULT_WORKER_INIT;
+        boolean hasNamedWorkers = false;
+        while (!isEndOfStatements(token.kind)) {
+            STNode stmt = parseStatement();
+            if (stmt == null) {
+                break;
+            }
+
+            switch (currentCtx) {
+                case DEFAULT_WORKER_INIT:
+                    if (stmt.kind != SyntaxKind.NAMED_WORKER_DECLARATION) {
+                        firstStmtList.add(stmt);
+                        break;
+                    }
+                    // We come here when we find the first named-worker-decl.
+                    // Switch to parsing named-workers.
+                    currentCtx = ParserRuleContext.NAMED_WORKERS;
+                    hasNamedWorkers = true;
+                    // fall through
+                case NAMED_WORKERS:
+                    if (stmt.kind == SyntaxKind.NAMED_WORKER_DECLARATION) {
+                        workers.add(stmt);
+                        break;
+                    }
+                    // Otherwise switch to parsing default-worker
+                    currentCtx = ParserRuleContext.DEFAULT_WORKER;
+                    // fall through
+                case DEFAULT_WORKER:
+                default:
+                    if (stmt.kind == SyntaxKind.NAMED_WORKER_DECLARATION) {
+                        this.errorHandler.reportInvalidNode(null, "named-workers are not allowed here");
+                        break;
+                    }
+                    secondStmtList.add(stmt);
+                    break;
+            }
+            token = peek();
+        }
+
+        STNode namedWorkersList;
+        STNode statements;
+        if (hasNamedWorkers) {
+            STNode workerInitStatements = STNodeFactory.createNodeList(firstStmtList);
+            STNode namedWorkers = STNodeFactory.createNodeList(workers);
+            namedWorkersList = STNodeFactory.createNamedWorkersListNode(workerInitStatements, namedWorkers);
+            statements = STNodeFactory.createNodeList(secondStmtList);
+        } else {
+            namedWorkersList = STNodeFactory.createEmptyNode();
+            statements = STNodeFactory.createNodeList(firstStmtList);
+        }
+
         STNode closeBrace = parseCloseBrace();
         endContext();
-        return STNodeFactory.createBlockStatementNode(openBrace, stmts, closeBrace);
+        return STNodeFactory.createFunctionBodyBlockNode(openBrace, namedWorkersList, statements, closeBrace);
     }
 
     private boolean isEndOfRecordTypeNode(SyntaxKind nextTokenKind) {
@@ -2646,6 +2702,12 @@ public class BallerinaParser {
             if (stmt == null) {
                 break;
             }
+
+            if (stmt.kind == SyntaxKind.NAMED_WORKER_DECLARATION) {
+                this.errorHandler.reportInvalidNode(null, "named-workers are not allowed here");
+                break;
+            }
+
             stmts.add(stmt);
             token = peek();
         }
@@ -2699,6 +2761,10 @@ public class BallerinaParser {
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
             case IDENTIFIER_TOKEN:
+            case TYPE_KEYWORD:
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+
+                // Other statements
             case IF_KEYWORD:
             case WHILE_KEYWORD:
             case PANIC_KEYWORD:
@@ -2707,8 +2773,11 @@ public class BallerinaParser {
             case CONTINUE_KEYWORD:
             case BREAK_KEYWORD:
             case RETURN_KEYWORD:
-            case TYPE_KEYWORD:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+
+                // Even-though worker is not a statement, we parse it as statements.
+                // then validates it based on the context. This is done to provide
+                // better error messages
+            case WORKER_KEYWORD:
                 break;
             default:
                 if (isValidLHSExpression(tokenKind)) {
@@ -2799,6 +2868,11 @@ public class BallerinaParser {
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
                 return parseStatementStartsWithIdentifier(getAnnotations(annots));
+            // Even-though worker is not a statement, we parse it as statements.
+            // then validates it based on the context. This is done to provide
+            // better error messages
+            case WORKER_KEYWORD:
+                return parseNamedWorkerDeclaration(getAnnotations(annots));
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.STATEMENT_WITHOUT_ANNOTS, annots);
@@ -6425,6 +6499,57 @@ public class BallerinaParser {
             return consume();
         } else {
             Solution sol = recover(peek(), ParserRuleContext.NAMESPACE_PREFIX);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse named worker declaration.
+     * <p>
+     * <code>named-worker-decl := [annots] worker worker-name return-type-descriptor { sequence-stmt }</code>
+     * 
+     * @param annots Annotations attached to the worker decl
+     * @return Parsed node
+     */
+    private STNode parseNamedWorkerDeclaration(STNode annots) {
+        startContext(ParserRuleContext.NAMED_WORKER_DECL);
+        STNode workerKeyword = parseWorkerKeywrod();
+        STNode workerName = parseWorkerName();
+        STNode returnTypeDesc = parseReturnTypeDescriptor();
+        STNode workerBody = parseBlockNode();
+        endContext();
+        return STNodeFactory.createNamedWorkerDeclarationNode(annots, workerKeyword, workerName, returnTypeDesc,
+                workerBody);
+    }
+
+    /**
+     * Parse worker keyword.
+     *
+     * @return Parsed node
+     */
+    private STNode parseWorkerKeywrod() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.WORKER_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(peek(), ParserRuleContext.WORKER_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse worker name.
+     * <p>
+     * <code>worker-name := identifier</code>
+     * 
+     * @return Parsed node
+     */
+    private STNode parseWorkerName() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(peek(), ParserRuleContext.WORKER_NAME);
             return sol.recoveredNode;
         }
     }

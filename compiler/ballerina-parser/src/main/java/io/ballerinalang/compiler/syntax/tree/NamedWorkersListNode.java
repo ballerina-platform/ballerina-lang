@@ -19,33 +19,23 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-import java.util.Optional;
-
 /**
  * This is a generated syntax tree node.
  *
  * @since 1.3.0
  */
-public class IfElseStatementNode extends StatementNode {
+public class NamedWorkersListNode extends NonTerminalNode {
 
-    public IfElseStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public NamedWorkersListNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token ifKeyword() {
-        return childInBucket(0);
+    public NodeList<StatementNode> workerInitStatements() {
+        return new NodeList<>(childInBucket(0));
     }
 
-    public ExpressionNode condition() {
-        return childInBucket(1);
-    }
-
-    public BlockStatementNode ifBody() {
-        return childInBucket(2);
-    }
-
-    public Optional<Node> elseBody() {
-        return optionalChildInBucket(3);
+    public NodeList<NamedWorkerDeclarationNode> namedWorkerDecl() {
+        return new NodeList<>(childInBucket(1));
     }
 
     @Override
@@ -61,29 +51,21 @@ public class IfElseStatementNode extends StatementNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "ifKeyword",
-                "condition",
-                "ifBody",
-                "elseBody"};
+                "workerInitStatements",
+                "namedWorkerDecl"};
     }
 
-    public IfElseStatementNode modify(
-            Token ifKeyword,
-            ExpressionNode condition,
-            BlockStatementNode ifBody,
-            Node elseBody) {
+    public NamedWorkersListNode modify(
+            NodeList<StatementNode> workerInitStatements,
+            NodeList<NamedWorkerDeclarationNode> namedWorkerDecl) {
         if (checkForReferenceEquality(
-                ifKeyword,
-                condition,
-                ifBody,
-                elseBody)) {
+                workerInitStatements.underlyingListNode(),
+                namedWorkerDecl.underlyingListNode())) {
             return this;
         }
 
-        return NodeFactory.createIfElseStatementNode(
-                ifKeyword,
-                condition,
-                ifBody,
-                elseBody);
+        return NodeFactory.createNamedWorkersListNode(
+                workerInitStatements,
+                namedWorkerDecl);
     }
 }

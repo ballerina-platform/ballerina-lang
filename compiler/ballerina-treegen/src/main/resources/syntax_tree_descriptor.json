@@ -80,7 +80,7 @@
                 },
                 {
                     "name": "functionBody",
-                    "type": "BlockStatementNode"
+                    "type": "Node"
                 }
             ]
         },
@@ -419,7 +419,7 @@
                 },
                 {
                     "name": "ifBody",
-                    "type": "Node"
+                    "type": "BlockStatementNode"
                 },
                 {
                     "name": "elseBody",
@@ -439,7 +439,7 @@
                 },
                 {
                     "name": "elseBody",
-                    "type": "Node"
+                    "type": "BlockStatementNode"
                 }
             ]
         },
@@ -458,7 +458,7 @@
                 },
                 {
                     "name": "whileBody",
-                    "type": "Node"
+                    "type": "BlockStatementNode"
                 }
             ]
         },
@@ -1608,6 +1608,77 @@
                 {
                     "name": "semicolonToken",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "FunctionBodyBlockNode",
+            "base": "StatementNode",
+            "kind": "FUNCTION_BODY_BLOCK",
+            "attributes": [
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "namedWorkers",
+                    "type": "NamedWorkersListNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "statements",
+                    "type": "StatementNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "NamedWorkerDeclarationNode",
+            "base": "Node",
+            "kind": "NAMED_WORKER_DECLARATION",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "workerKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "workerName",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "returnTypeDesc",
+                    "type": "Node",
+                    "isOptional": true
+                },
+                {
+                    "name": "workerBody",
+                    "type": "BlockStatementNode"
+                }
+            ]
+        },
+        {
+            "name": "NamedWorkersListNode",
+            "base": "Node",
+            "kind": "NAMED_WORKERS_LIST",
+            "attributes": [
+                {
+                    "name": "workerInitStatements",
+                    "type": "StatementNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "namedWorkerDecl",
+                    "type": "NamedWorkerDeclarationNode",
+                    "occurrences": "MULTIPLE"
                 }
             ]
         }

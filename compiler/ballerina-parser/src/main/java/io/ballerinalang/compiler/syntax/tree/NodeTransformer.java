@@ -308,6 +308,18 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(xMLNamespaceDeclarationNode);
     }
 
+    public T transform(FunctionBodyBlockNode functionBodyBlockNode) {
+        return transformSyntaxNode(functionBodyBlockNode);
+    }
+
+    public T transform(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+        return transformSyntaxNode(namedWorkerDeclarationNode);
+    }
+
+    public T transform(NamedWorkersListNode namedWorkersListNode) {
+        return transformSyntaxNode(namedWorkersListNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

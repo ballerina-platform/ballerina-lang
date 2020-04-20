@@ -307,6 +307,18 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLNamespaceDeclarationNode);
     }
 
+    public void visit(FunctionBodyBlockNode functionBodyBlockNode) {
+        visitSyntaxNode(functionBodyBlockNode);
+    }
+
+    public void visit(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+        visitSyntaxNode(namedWorkerDeclarationNode);
+    }
+
+    public void visit(NamedWorkersListNode namedWorkersListNode) {
+        visitSyntaxNode(namedWorkersListNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

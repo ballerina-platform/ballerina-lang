@@ -50,7 +50,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         NodeList<ParameterNode> parameters = modifyNodeList(functionDefinitionNode.parameters());
         Token closeParenToken = modifyToken(functionDefinitionNode.closeParenToken());
         Node returnTypeDesc = modifyNode(functionDefinitionNode.returnTypeDesc().orElse(null));
-        BlockStatementNode functionBody = modifyNode(functionDefinitionNode.functionBody());
+        Node functionBody = modifyNode(functionDefinitionNode.functionBody());
         return functionDefinitionNode.modify(
                 metadata,
                 visibilityQualifier,
@@ -238,7 +238,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(IfElseStatementNode ifElseStatementNode) {
         Token ifKeyword = modifyToken(ifElseStatementNode.ifKeyword());
         ExpressionNode condition = modifyNode(ifElseStatementNode.condition());
-        Node ifBody = modifyNode(ifElseStatementNode.ifBody());
+        BlockStatementNode ifBody = modifyNode(ifElseStatementNode.ifBody());
         Node elseBody = modifyNode(ifElseStatementNode.elseBody().orElse(null));
         return ifElseStatementNode.modify(
                 ifKeyword,
@@ -250,7 +250,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(ElseBlockNode elseBlockNode) {
         Token elseKeyword = modifyToken(elseBlockNode.elseKeyword());
-        Node elseBody = modifyNode(elseBlockNode.elseBody());
+        BlockStatementNode elseBody = modifyNode(elseBlockNode.elseBody());
         return elseBlockNode.modify(
                 elseKeyword,
                 elseBody);
@@ -260,7 +260,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(WhileStatementNode whileStatementNode) {
         Token whileKeyword = modifyToken(whileStatementNode.whileKeyword());
         ExpressionNode condition = modifyNode(whileStatementNode.condition());
-        Node whileBody = modifyNode(whileStatementNode.whileBody());
+        BlockStatementNode whileBody = modifyNode(whileStatementNode.whileBody());
         return whileStatementNode.modify(
                 whileKeyword,
                 condition,
@@ -898,6 +898,43 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 asKeyword,
                 namespacePrefix,
                 semicolonToken);
+    }
+
+    @Override
+    public Node transform(FunctionBodyBlockNode functionBodyBlockNode) {
+        Token openBraceToken = modifyToken(functionBodyBlockNode.openBraceToken());
+        NamedWorkersListNode namedWorkers = modifyNode(functionBodyBlockNode.namedWorkers().orElse(null));
+        NodeList<StatementNode> statements = modifyNodeList(functionBodyBlockNode.statements());
+        Token closeBraceToken = modifyToken(functionBodyBlockNode.closeBraceToken());
+        return functionBodyBlockNode.modify(
+                openBraceToken,
+                namedWorkers,
+                statements,
+                closeBraceToken);
+    }
+
+    @Override
+    public Node transform(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+        NodeList<AnnotationNode> annotations = modifyNodeList(namedWorkerDeclarationNode.annotations());
+        Token workerKeyword = modifyToken(namedWorkerDeclarationNode.workerKeyword());
+        IdentifierToken workerName = modifyNode(namedWorkerDeclarationNode.workerName());
+        Node returnTypeDesc = modifyNode(namedWorkerDeclarationNode.returnTypeDesc().orElse(null));
+        BlockStatementNode workerBody = modifyNode(namedWorkerDeclarationNode.workerBody());
+        return namedWorkerDeclarationNode.modify(
+                annotations,
+                workerKeyword,
+                workerName,
+                returnTypeDesc,
+                workerBody);
+    }
+
+    @Override
+    public Node transform(NamedWorkersListNode namedWorkersListNode) {
+        NodeList<StatementNode> workerInitStatements = modifyNodeList(namedWorkersListNode.workerInitStatements());
+        NodeList<NamedWorkerDeclarationNode> namedWorkerDecl = modifyNodeList(namedWorkersListNode.namedWorkerDecl());
+        return namedWorkersListNode.modify(
+                workerInitStatements,
+                namedWorkerDecl);
     }
 
     // Tokens

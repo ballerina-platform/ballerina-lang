@@ -26,26 +26,26 @@ import java.util.Optional;
  *
  * @since 1.3.0
  */
-public class IfElseStatementNode extends StatementNode {
+public class FunctionBodyBlockNode extends StatementNode {
 
-    public IfElseStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public FunctionBodyBlockNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token ifKeyword() {
+    public Token openBraceToken() {
         return childInBucket(0);
     }
 
-    public ExpressionNode condition() {
-        return childInBucket(1);
+    public Optional<NamedWorkersListNode> namedWorkers() {
+        return optionalChildInBucket(1);
     }
 
-    public BlockStatementNode ifBody() {
-        return childInBucket(2);
+    public NodeList<StatementNode> statements() {
+        return new NodeList<>(childInBucket(2));
     }
 
-    public Optional<Node> elseBody() {
-        return optionalChildInBucket(3);
+    public Token closeBraceToken() {
+        return childInBucket(3);
     }
 
     @Override
@@ -61,29 +61,29 @@ public class IfElseStatementNode extends StatementNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "ifKeyword",
-                "condition",
-                "ifBody",
-                "elseBody"};
+                "openBraceToken",
+                "namedWorkers",
+                "statements",
+                "closeBraceToken"};
     }
 
-    public IfElseStatementNode modify(
-            Token ifKeyword,
-            ExpressionNode condition,
-            BlockStatementNode ifBody,
-            Node elseBody) {
+    public FunctionBodyBlockNode modify(
+            Token openBraceToken,
+            NamedWorkersListNode namedWorkers,
+            NodeList<StatementNode> statements,
+            Token closeBraceToken) {
         if (checkForReferenceEquality(
-                ifKeyword,
-                condition,
-                ifBody,
-                elseBody)) {
+                openBraceToken,
+                namedWorkers,
+                statements.underlyingListNode(),
+                closeBraceToken)) {
             return this;
         }
 
-        return NodeFactory.createIfElseStatementNode(
-                ifKeyword,
-                condition,
-                ifBody,
-                elseBody);
+        return NodeFactory.createFunctionBodyBlockNode(
+                openBraceToken,
+                namedWorkers,
+                statements,
+                closeBraceToken);
     }
 }
