@@ -12,28 +12,18 @@
                     "value": "a"
                 },
                 {
-                    "kind": "SUB_MODULE_NAME",
-                    "children": [
-                        {
-                            "kind": "DOT_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "isMissing": true
-                        }
-                    ]
+                    "kind": "DOT_TOKEN"
                 },
                 {
-                    "kind": "SUB_MODULE_NAME",
-                    "children": [
-                        {
-                            "kind": "DOT_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "isMissing": true
-                        }
-                    ]
+                    "kind": "IDENTIFIER_TOKEN",
+                    "isMissing": true
+                },
+                {
+                    "kind": "DOT_TOKEN"
+                },
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "isMissing": true
                 }
             ]
         },

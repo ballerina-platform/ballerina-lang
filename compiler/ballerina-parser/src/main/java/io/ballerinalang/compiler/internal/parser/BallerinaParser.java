@@ -713,13 +713,9 @@ public class BallerinaParser {
         List<STNode> moduleNameParts = new ArrayList<>();
         moduleNameParts.add(moduleNameStart);
 
-        STNode identifier;
-        STNode dotToken;
         while (!isEndOfImportModuleName(nextTokenKind)) {
-            dotToken = parseDotToken();
-            identifier = parseIdentifier(ParserRuleContext.IMPORT_MODULE_NAME);
-            STNode moduleNamePart = STNodeFactory.createSubModuleNameNode(dotToken, identifier);
-            moduleNameParts.add(moduleNamePart);
+            moduleNameParts.add(parseDotToken());
+            moduleNameParts.add(parseIdentifier(ParserRuleContext.IMPORT_MODULE_NAME));
             nextTokenKind = peek().kind;
         }
 
