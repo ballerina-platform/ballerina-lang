@@ -718,7 +718,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
-            if (!validateTableType(tableConstructorExpr)) {
+            if (!(validateTableType((BTableType) expType, tableConstructorExpr.pos) &&
+                    validateTableConstructorExpr(tableConstructorExpr))) {
                 resultType = symTable.semanticError;
                 return;
             }
@@ -732,35 +733,59 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean validateTableType(BLangTableConstructorExpr tableConstructorExpr) {
-        BTableType tableType = (BTableType) expType;
-        BType constraintType = tableType.constraint;
-        if (!types.isAssignable(constraintType, symTable.mapAnydataType)) {
-            dlog.error(tableConstructorExpr.pos, DiagnosticCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, constraintType);
+    private boolean validateTableType(BTableType tableType, DiagnosticPos pos) {
+        if (!types.isAssignable(tableType.constraint, symTable.mapAnydataType)) {
+            dlog.error(pos, DiagnosticCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, tableType.constraint);
             resultType = symTable.semanticError;
             return false;
         }
 
-        if (tableConstructorExpr.tableKeySpecifier != null) {
-            List<String> fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
-            for (String fieldName : fieldNameList) {
-                BType type = getFieldType(constraintType, fieldName);
-                if (type == null) {
-                    dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
-                            DiagnosticCode.INVALID_FIELD_NAMES_IN_KEY_SPECIFIER,
-                            fieldName, constraintType);
-                    resultType = symTable.semanticError;
-                    return false;
-                }
+        List<String> fieldNameList = tableType.fieldNameList;
+        if (fieldNameList != null) {
+            return validateKeySpecifier(fieldNameList, tableType.constraint, pos);
+        }
+
+        return true;
+    }
+
+    private boolean validateKeySpecifier(List<String> fieldNameList, BType constraint,
+                                         DiagnosticPos pos) {
+        for (String fieldName : fieldNameList) {
+            BField field = getTableConstraintField(constraint, fieldName);
+            if (field == null) {
+                dlog.error(pos,
+                        DiagnosticCode.INVALID_FIELD_NAMES_IN_KEY_SPECIFIER, fieldName, constraint);
+                resultType = symTable.semanticError;
+                return false;
             }
 
-            if (tableType.fieldNameList != null) {
-                if (!tableType.fieldNameList.equals(fieldNameList)) {
-                    dlog.error(tableConstructorExpr.tableKeySpecifier.pos, DiagnosticCode.TABLE_KEY_SPECIFIER_MISMATCH,
-                            tableType.fieldNameList.toString(), fieldNameList.toString());
-                    resultType = symTable.semanticError;
-                    return false;
-                }
+            if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                dlog.error(pos,
+                        DiagnosticCode.KEY_SPECIFIER_FIELD_MUST_BE_READONLY, fieldName, constraint);
+                resultType = symTable.semanticError;
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean validateTableConstructorExpr(BLangTableConstructorExpr tableConstructorExpr) {
+        BTableType tableType = (BTableType) expType;
+        BType constraintType = tableType.constraint;
+
+        if (tableConstructorExpr.tableKeySpecifier != null) {
+            List<String> fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
+
+            if (tableType.fieldNameList == null && !validateKeySpecifier(fieldNameList, constraintType,
+                    tableConstructorExpr.tableKeySpecifier.pos)) {
+                return false;
+            }
+
+            if (tableType.fieldNameList != null && !tableType.fieldNameList.equals(fieldNameList)) {
+                dlog.error(tableConstructorExpr.tableKeySpecifier.pos, DiagnosticCode.TABLE_KEY_SPECIFIER_MISMATCH,
+                        tableType.fieldNameList.toString(), fieldNameList.toString());
+                resultType = symTable.semanticError;
+                return false;
             }
         }
 
@@ -790,12 +815,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
             int index = 0;
             for (BLangIdentifier identifier : fieldNameIdentifierList) {
-                BType fieldType = getFieldType(constraintType, identifier.value);
-                if (fieldType == null) {
+                BField field = getTableConstraintField(constraintType, identifier.value);
+                if (field == null) {
                     //NOT POSSIBLE
                     return false;
                 }
 
+                BType fieldType = field.type;
                 if (memberTypes.get(index).tag != fieldType.tag) {
                     dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
                             DiagnosticCode.KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT,
@@ -810,12 +836,12 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
-    private BType getFieldType(BType constraintType, String fieldName) {
+    private BField getTableConstraintField(BType constraintType, String fieldName) {
         List<BField> fieldList = ((BRecordType) constraintType).getFields();
 
         for (BField field : fieldList) {
             if (field.name.toString().equals(fieldName)) {
-                return field.type;
+                return field;
             }
         }
 
@@ -838,7 +864,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         List<BType> memTypes = new ArrayList<>();
         for (String fieldName : fieldNames) {
-            BType fieldType = getFieldType(constraintType, fieldName);
+            BType fieldType = getTableConstraintField(constraintType, fieldName).type; //null is not possible for field
             memTypes.add(fieldType);
         }
 
