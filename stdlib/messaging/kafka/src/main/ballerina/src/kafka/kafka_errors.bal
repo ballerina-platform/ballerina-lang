@@ -16,29 +16,29 @@
 
 # Represents the details of an error.
 #
-# + message - The error message.
-# + cause - Cause of the error.
+# + message - The description of the error occurred
+# + cause - Cause of the error
 public type Detail record {
     string message;
     error cause?;
 };
 
-# Defines a Kafka consumer related error
+# Used as the error reason for the `kafka:ConsumerError` type.
 public const CONSUMER_ERROR = "{ballerina/kafka}ConsumerError";
 
-# Represents a Kafka consumer related error
+# Error type specific to the `kafka:Consumer` object functions.
 public type ConsumerError error<CONSUMER_ERROR, Detail>;
 
-# Defines a Kafka producer related error
+# Used as the error reason for the `kafka:ProducerError` type.
 public const PRODUCER_ERROR = "{ballerina/kafka}ProducerError";
 
-# Represents a Kafka producer related error
+# Error type specific to the `kafka:Producer` object functions.
 public type ProducerError error<PRODUCER_ERROR, Detail>;
 
-# Defines an Avro serialization / deserialization error
+# Used as the error reason for the `kafka:AvroError` type.
 public const AVRO_ERROR = "{ballerina/kafka}AvroError";
 
-# Represents a Kafka Avro related error
+# Represents a Kafka Avro related error.
 public type AvroError error<AVRO_ERROR, Detail>;
 
 function getValueTypeMismatchError(string expectedType) returns ProducerError {

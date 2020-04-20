@@ -17,26 +17,29 @@
 import ballerina/log;
 import ballerina/java;
 
-# NATS `Producer` would act as a basic client allowing to publish messages to the NATS server.
-# Producer needs the NATS `Connection` to be initialized.
+# The producer provides the capability to publish messages to the NATS server.
+# The `nats:Producer` needs the `nats:Connection` to be initialized.
 public type Producer client object {
 
     private Connection? conn = ();
 
-    # Creates a new NATS `Producer`.
+    # Creates a new `nats:Producer`.
     #
-    # + connection - An already-established connection.
+    # + connection - An established NATS connection
     public function __init(Connection connection) {
         self.conn = connection;
         producerInit(connection);
     }
 
-    # Produces a message to a NATS basic server for the given subject.
-    #
-    # + subject - The subject to send the message to.
-    # + data - Data to publish.
-    # + replyTo - The subject or the callback service the receiver should send the response to.
-    # + return -  A specific error if there is a problem when publishing the message. Returns () otherwise.
+# Publishes data to a given subject.
+# ```ballerina
+# nats:Error? result = producer->publish(subject, <@untainted>message);
+# ```
+#
+# + subject - The subject to send the message 
+# + data - Data to publish
+# + replyTo - The subject or the callback service to which the receiver should send the response 
+# + return -  `()` or else a `nats:Error` if there is a problem when publishing the message
     public remote function publish(string subject, @untainted Content data, (string | service)? replyTo = ())
                     returns Error? {
         string | byte[] | error converted = convertData(data);
@@ -47,12 +50,15 @@ public type Producer client object {
         }
     }
 
-    # Produces a message and would wait for a response.
-    #
-    # + subject - Would represent the topic/queue name.
-    # + data - The message body to publish.
-    # + duration - The time to wait for a response measured in milliseconds.
-    # + return -  The response message or an error.
+# Publishes data to a given subject and waits for a response.
+# ```ballerina
+# nats:Message|nats:Error reqReply = producer->request(subject, <@untainted>message, 5000);
+# ```
+#
+# + subject - The subject to send the message 
+# + data - Data to publish
+# + duration - The time (in milliseconds) to wait for the response
+# + return -  The `nats:Message` response or else a `nats:Error` if an error is encountered
     public remote function request(string subject, @untainted Content data, int? duration = ()) returns Message|Error {
         string | byte[] | error converted = convertData(data);
         if (converted is error) {
@@ -62,9 +68,9 @@ public type Producer client object {
         }
     }
 
-    # Close a given connection.
+    # Closes a given connection.
     #
-    # + return - Retruns () or the error if unable to complete the close operation.
+    # + return - `()` or else a `nats:Error` if unable to complete the close the operation
     public function close() returns Error? {
         closeConnection(self);
         if (self.conn is Connection) {

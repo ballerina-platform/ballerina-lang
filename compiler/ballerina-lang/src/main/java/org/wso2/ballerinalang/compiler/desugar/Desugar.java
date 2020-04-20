@@ -3526,13 +3526,16 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (varRefType.tag == TypeTags.MAP) {
-            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, indexAccessExpr.indexExpr);
+            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
+                                                  indexAccessExpr.indexExpr, indexAccessExpr.isStoreOnCreation);
         } else if (types.isSubTypeOfMapping(types.getSafeType(varRefType, true, false))) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
-                    indexAccessExpr.indexExpr, (BVarSymbol) indexAccessExpr.symbol, false);
+                                                          indexAccessExpr.indexExpr,
+                                                          (BVarSymbol) indexAccessExpr.symbol, false,
+                                                          indexAccessExpr.isStoreOnCreation);
         } else if (types.isSubTypeOfList(varRefType)) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
-                    indexAccessExpr.indexExpr);
+                                                    indexAccessExpr.indexExpr, indexAccessExpr.isStoreOnCreation);
         } else if (types.isAssignable(varRefType, symTable.stringType)) {
             indexAccessExpr.expr = addConversionExprIfRequired(indexAccessExpr.expr, symTable.stringType);
             targetVarRef = new BLangStringAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
@@ -4004,7 +4007,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void checkByteTypeIncompatibleOperations(BLangBinaryExpr binaryExpr) {
-        if (binaryExpr.parent == null || binaryExpr.parent.type == null) {
+        if (binaryExpr.expectedType == null) {
             return;
         }
 
@@ -4014,7 +4017,7 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        int resultTypeTag = binaryExpr.type.tag;
+        int resultTypeTag = binaryExpr.expectedType.tag;
         if (resultTypeTag == TypeTags.INT) {
             if (rhsExprTypeTag == TypeTags.BYTE) {
                 binaryExpr.rhsExpr = addConversionExprIfRequired(binaryExpr.rhsExpr, symTable.intType);
@@ -6460,12 +6463,13 @@ public class Desugar extends BLangNodeVisitor {
                         keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ?
                                 createStringLiteral(pos, ((BLangSimpleVarRef) keyExpr).variableName.value) :
                                 ((BLangLiteral) keyExpr);;
-                addMemberStoreForKeyValuePair(pos, blockStmt, mappingVarRef, indexExpr, keyValueField.valueExpr);
+                addMemberStoreForKeyValuePair(pos, blockStmt, mappingVarRef, indexExpr, keyValueField.valueExpr,
+                                              ((BLangRecordLiteral.BLangRecordKeyValueField) field).type);
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRefField = (BLangSimpleVarRef) field;
                 addMemberStoreForKeyValuePair(pos, blockStmt, mappingVarRef,
                                               createStringLiteral(pos, varRefField.variableName.value),
-                                              varRefField);
+                                              varRefField, ((BLangSimpleVarRef) field).type);
             } else {
                 BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =
                         (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
@@ -6499,7 +6503,8 @@ public class Desugar extends BLangNodeVisitor {
                 valueExpr.indexExpr = rewriteExpr(createIntLiteral(1));
                 valueExpr.type = foreachVarRefType.tupleTypes.get(1);
 
-                addMemberStoreForKeyValuePair(pos, foreachBodyBlock, mappingVarRef, indexExpr, valueExpr);
+                addMemberStoreForKeyValuePair(pos, foreachBodyBlock, mappingVarRef, indexExpr, valueExpr,
+                                              valueExpr.type);
 
                 foreach.body = foreachBodyBlock;
                 blockStmt.addStatement(foreach);
@@ -6513,7 +6518,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void addMemberStoreForKeyValuePair(DiagnosticPos pos, BLangBlockStmt blockStmt,
                                                BLangExpression mappingVarRef, BLangExpression indexExpr,
-                                               BLangExpression value) {
+                                               BLangExpression value, BType accessType) {
         BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         assignmentStmt.expr = rewriteExpr(value);
 
@@ -6521,8 +6526,10 @@ public class Desugar extends BLangNodeVisitor {
         indexAccessNode.pos = pos;
         indexAccessNode.expr = mappingVarRef;
         indexAccessNode.indexExpr = rewriteExpr(indexExpr);
-        indexAccessNode.type = value.type;
+        indexAccessNode.type = accessType != null ? accessType : value.type;
         assignmentStmt.varRef = indexAccessNode;
+
+        indexAccessNode.isStoreOnCreation = true;
     }
 
     private Map<String, BLangExpression> getKeyValuePairs(BLangStatementExpression desugaredMappingConst) {

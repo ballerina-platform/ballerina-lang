@@ -40,4 +40,8 @@ public class ForEach {
     public static void forEach(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
         m.entrySet().forEach(entry -> func.call(new Object[]{strand, entry.getValue(), true}));
     }
+
+    public static void forEach_bstring(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {
+        forEach(strand, m, func);
+    }
 }

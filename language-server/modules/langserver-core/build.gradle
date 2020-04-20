@@ -45,7 +45,6 @@ dependencies {
 
     // Standard libs
     implementation project(':ballerina-auth')
-    implementation project(':ballerina-bir')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-cache')
     implementation project(':ballerina-config-api')
@@ -103,7 +102,6 @@ dependencies {
     implementation 'com.github.jknack:handlebars:4.0.6'
 
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-bir', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
@@ -116,12 +114,11 @@ dependencies {
     baloImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jvm', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-rabbitmq', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-rabbitmq', configuration: 'baloImplementation'/**/)
     baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-nats', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-oauth2', configuration: 'baloImplementation')

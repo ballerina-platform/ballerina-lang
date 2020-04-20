@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTRUCTOR_INTEROP_TYPE;
 
@@ -41,6 +42,7 @@ public class JConstructor implements Cloneable {
     private boolean handleException = false; // identifies if the Java constructor throws an error
 
     private List<JParameter> parameters = new ArrayList<>();
+    private StringBuilder paramTypes = new StringBuilder();
 
     JConstructor(Constructor c) {
         shortClassName = c.getDeclaringClass().getSimpleName();
@@ -51,6 +53,7 @@ public class JConstructor implements Cloneable {
         // Loop through the parameters of the constructor to populate a list.
         for (Parameter param : c.getParameters()) {
             parameters.add(new JParameter(param));
+            paramTypes.append(param.getType().getSimpleName().toLowerCase(Locale.ENGLISH));
             if (param.getType().isArray()) {
                 hasException = true;
             }
@@ -63,9 +66,16 @@ public class JConstructor implements Cloneable {
         }
 
         // Populate fields to identify error return types.
-        if (c.getExceptionTypes().length > 0) {
-            hasException = true;
-            handleException = true;
+        for (Class<?> exceptionType : c.getExceptionTypes()) {
+            try {
+                if (!this.getClass().getClassLoader().loadClass(RuntimeException.class.getCanonicalName())
+                        .isAssignableFrom(exceptionType)) {
+                    hasException = true;
+                    handleException = true;
+                    break;
+                }
+            } catch (ClassNotFoundException ignore) {
+            }
         }
     }
 
@@ -83,5 +93,9 @@ public class JConstructor implements Cloneable {
 
     public String getConstructorName() {
         return constructorName;
+    }
+
+    String getParamTypes() {
+        return paramTypes.toString();
     }
 }

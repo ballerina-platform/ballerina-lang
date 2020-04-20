@@ -59,7 +59,7 @@ jobs:
       name: "Run Build + tests (without integration) - Linux"
       script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew build -x :jballerina-integration-test:test -x :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
+        - ./gradlew build -x :jballerina-integration-test:test -x :examples-test:test -x :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon
         # Killing background sleep loop
         - kill %1
       os: linux
@@ -92,7 +92,7 @@ jobs:
         - export PATH="$PATH;$JAVA_HOME\\bin"
     - script:
         - while sleep 9m; do echo "=====[ $SECONDS seconds still running ]====="; done &
-        - ./gradlew :jballerina-integration-test:test :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --rerun-tasks
+        - ./gradlew :jballerina-integration-test:test :examples-test:test :testerina-integration-test:test -x createJavadoc --stacktrace -scan --console=plain --no-daemon --rerun-tasks
         # Killing background sleep loop
         - kill %1
       os: linux

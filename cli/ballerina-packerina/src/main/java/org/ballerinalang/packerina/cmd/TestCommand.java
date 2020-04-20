@@ -140,6 +140,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--disable-groups", split = ",", description = "test groups to be disabled")
     private List<String> disableGroupList;
 
+    @CommandLine.Option(names = "--test-report", description = "enable test report generation")
+    private boolean testReport;
+
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private boolean coverage;
 
@@ -367,7 +370,8 @@ public class TestCommand implements BLauncherCmd {
                 // tasks to list groups or execute tests. the 'listGroups' boolean is used to decide whether to
                 // skip the task or to execute
                 .addTask(new ListTestGroupsTask(), !listGroups) // list the available test groups
-                .addTask(new RunTestsTask(coverage, args, groupList, disableGroupList), listGroups) // run tests
+                // run tests
+                .addTask(new RunTestsTask(testReport, coverage, args, groupList, disableGroupList), listGroups)
                 .build();
 
         taskExecutor.executeTasks(buildContext);

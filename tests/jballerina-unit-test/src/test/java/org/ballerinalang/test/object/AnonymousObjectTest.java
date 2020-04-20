@@ -162,4 +162,9 @@ public class AnonymousObjectTest {
                 "no implementation found for the function 'test' of non-abstract object " +
                         "'object { public int age; public string name; function test () returns (); }'", 8, 58);
     }
+
+    @Test(description = "Test Code analyzer execution on Anonymous objects")
+    public void testCodeAnalyzerRunningOnAnonymousObjectsForDeprecatedFunctionAnnotation() {
+        BAssertUtil.validateWarning(compileResult, 0, "usage of construct 'Test()' is deprecated", 218, 17);
+    }
 }

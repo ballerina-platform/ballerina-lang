@@ -92,7 +92,7 @@ public class InvalidSyntaxParserTest {
         BAssertUtil.validateError(result, index++, "mismatched input '\"GET\"'. expecting {'service', 'function', " +
                 "'object', 'record', 'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', 'string', " +
                 "'error', 'map', 'json', 'xml', 'stream', 'any', 'typedesc', 'future', 'anydata', 'handle', " +
-                "'(', '[', Identifier}", 6, 18);
+                "'readonly', '(', '[', Identifier}", 6, 18);
         BAssertUtil.validateError(result, index++, "mismatched input ':'. expecting '='", 7, 13);
         BAssertUtil.validateError(result, index++, "invalid token '{'", 9, 29);
         BAssertUtil.validateError(result, index++, "mismatched input '{'. expecting '('", 9, 29);

@@ -304,7 +304,8 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
-                bType.tag == TypeTags.TYPEDESC) {
+                bType.tag == TypeTags.TYPEDESC ||
+                bType.tag == TypeTags.READONLY) {
             mv.visitVarInsn(ALOAD, valueIndex);
         } else if (bType.tag == JTypeTags.JTYPE) {
             generateJVarLoad(mv, (JType) bType, currentPackageName, valueIndex);
@@ -388,7 +389,8 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
-                bType.tag == TypeTags.TYPEDESC) {
+                bType.tag == TypeTags.TYPEDESC ||
+                bType.tag == TypeTags.READONLY) {
             mv.visitVarInsn(ASTORE, valueIndex);
         } else if (bType.tag == JTypeTags.JTYPE) {
             generateJVarStore(mv, (JType) bType, currentPackageName, valueIndex);
@@ -796,7 +798,8 @@ public class JvmInstructionGen {
             this.loadVar(binaryIns.rhsOp1.variableDcl);
             this.loadVar(binaryIns.rhsOp2.variableDcl);
             this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "getAnnotValue",
-                    String.format("(L%s;L%s;)L%s;", TYPEDESC_VALUE, STRING_VALUE, OBJECT), false);
+                    String.format("(L%s;L%s;)L%s;", TYPEDESC_VALUE, isBString ? B_STRING_VALUE : STRING_VALUE,
+                            OBJECT), false);
 
             BType targetType = binaryIns.lhsOp.variableDcl.type;
             addUnboxInsn(this.mv, targetType);
@@ -1119,8 +1122,15 @@ public class JvmInstructionGen {
                         String.format("(L%s;L%s;L%s;)V", OBJECT, isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT),
                         false);
             } else {
-                String signature = String.format("(L%s;L%s;L%s;)V",
+                String signature = String.format("(L%s;L%s;L%s;Z)V",
                         MAP_VALUE, isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT);
+
+                if (mapStoreIns.isStoreOnCreation) {
+                    this.mv.visitInsn(ICONST_1);
+                } else {
+                    this.mv.visitInsn(ICONST_0);
+                }
+
                 this.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore", signature, false);
             }
         }
@@ -1221,14 +1231,8 @@ public class JvmInstructionGen {
                 this.mv.visitInsn(DUP);
                 loadType(this.mv, inst.type);
                 this.loadVar(inst.sizeOp.variableDcl);
-                if (isBString) {
-                    this.mv.visitInsn(ICONST_1);
-                    this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, "<init>",
-                                            String.format("(L%s;JZ)V", ARRAY_TYPE), false);
-                } else {
-                    this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, "<init>",
-                                            String.format("(L%s;J)V", ARRAY_TYPE), false);
-                }
+                this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_VALUE_IMPL, "<init>",
+                                        String.format("(L%s;J)V", ARRAY_TYPE), false);
                 this.storeToVar(inst.lhsOp.variableDcl);
             } else {
                 this.mv.visitTypeInsn(NEW, TUPLE_VALUE_IMPL);
