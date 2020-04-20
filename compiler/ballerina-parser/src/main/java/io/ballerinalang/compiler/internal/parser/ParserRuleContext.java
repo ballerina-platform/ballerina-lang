@@ -127,6 +127,7 @@ public enum ParserRuleContext {
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
     EXPRESSION_STATEMENT("expression-statement"),
     EXPRESSION_STATEMENT_START("expression-statement-start"),
+    LOCK_STMT("lock-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -158,6 +159,7 @@ public enum ParserRuleContext {
     CONST_KEYWORD("const"),
     TYPEOF_KEYWORD("typeof"),
     IS_KEYWORD("is"),
+    LOCK_KEYWORD("lock"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

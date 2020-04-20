@@ -57,6 +57,7 @@ public enum SyntaxKind {
     BREAK_KEYWORD(212,"break"),
     TYPEOF_KEYWORD(213,"typeof"),
     IS_KEYWORD(214, "is"),
+    LOCK_KEYWORD(214, "lock"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -138,6 +139,7 @@ public enum SyntaxKind {
     COMPOUND_ASSIGNMENT_STATEMENT(1211),
     LOCAL_TYPE_DEFINITION_STATEMENT(1212),
     ACTION_STATEMENT(1213),
+    LOCK_STATEMENT(1214),
 
     // Expressions
     BINARY_EXPRESSION(1300),

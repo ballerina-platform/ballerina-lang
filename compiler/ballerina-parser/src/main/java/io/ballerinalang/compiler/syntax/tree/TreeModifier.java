@@ -305,6 +305,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(LockStatementNode lockStatementNode) {
+        Token lockKeyword = modifyToken(lockStatementNode.lockKeyword());
+        StatementNode blockStatement = modifyNode(lockStatementNode.blockStatement());
+        return lockStatementNode.modify(
+                lockKeyword,
+                blockStatement);
+    }
+
+    @Override
     public Node transform(BinaryExpressionNode binaryExpressionNode) {
         Node lhsExpr = modifyNode(binaryExpressionNode.lhsExpr());
         Token operator = modifyToken(binaryExpressionNode.operator());
