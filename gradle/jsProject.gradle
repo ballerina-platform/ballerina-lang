@@ -23,6 +23,7 @@ task npmInstall() {
     dependsOn 'updateVersion'
     inputs.file("package-lock.json")
     outputs.dir("node_modules")
+    outputs.cacheIf { true }
     doFirst {
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
@@ -36,6 +37,7 @@ task npmInstall() {
 }
 
 task npmBuild() {
+    outputs.cacheIf { true }
     dependsOn npmInstall
 }
 
