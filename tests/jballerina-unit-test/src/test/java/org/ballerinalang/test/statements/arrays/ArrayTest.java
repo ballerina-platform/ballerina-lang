@@ -220,15 +220,11 @@ public class ArrayTest {
 
     @Test
     public void testMultidimensionalArrayString() {
-        BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testMultidimensionalArrayString");
-        BString value = (BString) retVals[0];
-        Assert.assertEquals(value.stringValue(), "typedesc int[][2]");
+        BRunUtil.invokeFunction(compileResult, "testMultidimensionalArrayString");
     }
 
     @Test
     public void testArrayMapString() {
-        BValue[] retVals = BRunUtil.invokeFunction(compileResult, "testArrayMapString");
-        BString value = (BString) retVals[0];
-        Assert.assertEquals(value.stringValue(), "typedesc map<Foo>[2][]");
+        BRunUtil.invokeFunction(compileResult, "testArrayMapString");
     }
 }
