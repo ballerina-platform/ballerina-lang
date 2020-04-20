@@ -57,6 +57,7 @@ public enum SyntaxKind {
     BREAK_KEYWORD(212,"break"),
     TYPEOF_KEYWORD(213,"typeof"),
     IS_KEYWORD(214, "is"),
+    MAP_KEYWORD(215,"map"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),

@@ -99,6 +99,7 @@ public enum ParserRuleContext {
     IDENTIFIER("identifier"),
     QUALIFIED_IDENTIFIER("qualified-identifier"),
     EQUAL_OR_RIGHT_ARROW("equal-or-right-arrow"),
+    MAP_TYPE_DESCRIPTOR("map-type-descriptor"),
 
     // Statements
     STATEMENT("statement"),

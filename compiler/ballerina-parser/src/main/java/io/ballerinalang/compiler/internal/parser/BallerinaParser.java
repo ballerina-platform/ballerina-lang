@@ -401,6 +401,7 @@ public class BallerinaParser {
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+            case MAP_KEYWORD: // map type desc
                 // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
                 // TODO: add type binding pattern
                 metadata = createEmptyMetadata();
@@ -469,6 +470,7 @@ public class BallerinaParser {
             case CLIENT_KEYWORD:
             case SERVICE_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+            case MAP_KEYWORD: // map type desc
                 break;
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
@@ -1039,6 +1041,7 @@ public class BallerinaParser {
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+            case MAP_KEYWORD: // map type desc
                 return parseModuleVarDecl(metadata, qualifier);
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
@@ -1685,6 +1688,9 @@ public class BallerinaParser {
             case OPEN_PAREN_TOKEN:
                 // nil type descriptor '()'
                 return parseNilTypeDescriptor();
+            case MAP_KEYWORD:
+                // map type desc
+                return parseMapTypeDescriptor();
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.TYPE_DESCRIPTOR);
@@ -2733,10 +2739,6 @@ public class BallerinaParser {
             case IDENTIFIER_TOKEN:
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
-                if (isComplexTypeDescriptorDeclaration()) {
-                    finalKeyword = STNodeFactory.createEmptyNode();
-                    return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
-                }
                 return parseStatementStartsWithIdentifier(getAnnotations(annots));
             default:
                 // If the next token in the token stream does not match to any of the statements and
@@ -5655,58 +5657,65 @@ public class BallerinaParser {
         }
     }
 
-    private boolean isComplexTypeDescriptorDeclaration() {
-        int k = 2;
-        STNode currentToken;
-        currentToken = peek(k);
+    /**
+     * Parse map type descriptor.
+     * map-type-descriptor := map type-parameter
+     *
+     * @return Parsed node
+     */
+    private STNode parseMapTypeDescriptor(){
+        startContext(ParserRuleContext.MAP_TYPE_DESCRIPTOR);
+        STNode mapKeywordToken = parseMapKeyword();
+        STNode ltToken = parseLTToken();
+        STNode typeNode = parseTypeDescriptor();
+        STNode gtToken = parseGTToken();
 
-        switch (currentToken.kind) {
-            case QUESTION_MARK_TOKEN: //Optional type
-                return true;
-            case OPEN_BRACKET_TOKEN: //Still it can be an assignment statement
-            case PIPE_TOKEN:
-                break;
-            default:
-                return false;
-        }
+        endContext();
+        return STNodeFactory.createMapTypeDescriptorNode(mapKeywordToken, ltToken, typeNode, gtToken);
+    }
 
-        STNode previousToken;
-        previousToken = peek(k - 1);
-
-        boolean equalFound = false;
-        while (currentToken.kind != SyntaxKind.SEMICOLON_TOKEN && currentToken.kind != SyntaxKind.EOF_TOKEN) {
-
-            if (currentToken.kind == SyntaxKind.CLOSE_BRACKET_TOKEN &&
-                    previousToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
-                return true;
-            }
-            switch (currentToken.kind) {
-                case CLOSE_BRACKET_TOKEN:
-                    //If <code>[]<code> found then its array type desc
-                    if (previousToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
-                        return true;
-                    }
-                    break;
-                //If <code>[]<code> found then its member access statement eg foo[4].bar = 4;
-                case DOT_TOKEN:
-                    return false;
-                case EQUAL_TOKEN: //Still it can be assignment statement of complex type desc
-                    equalFound = true;
-                default:
-                    break;
-            }
-            previousToken = currentToken;
-            currentToken = peek(++k);
-        }
-        /**
-         * assumed EQUAL_TOKEN or DOT_TOKEN is a must for assignment statements which are starting
-         * with <code><Identifier>[</code>
-         */
-        if (equalFound) {
-            return false;
+    /**
+     * Parse <code>map</code> keyword token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseMapKeyword() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.MAP_KEYWORD) {
+            return consume();
         } else {
-            return true;
+            Solution sol = recover(nextToken, ParserRuleContext.MAP_TYPE_DESCRIPTOR);
+            return sol.recoveredNode;
         }
     }
 
+    /**
+     * Parse <code> < </code> token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseGTToken() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.GT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(nextToken, ParserRuleContext.MAP_TYPE_DESCRIPTOR);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse <code> > </code> token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseLTToken() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(nextToken, ParserRuleContext.MAP_TYPE_DESCRIPTOR);
+            return sol.recoveredNode;
+        }
+    }
 }
