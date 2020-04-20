@@ -245,7 +245,7 @@ public class CodeActionTest {
 //                {"markUntaintedCodeAction2.json", "taintedVariable.bal"},
                 {"variableAssignmentRequiredCodeAction1.json", "createVariable.bal"},
                 {"variableAssignmentRequiredCodeAction2.json", "createVariable.bal"},
-//                {"variableAssignmentRequiredCodeAction3.json", "createVariable.bal"},
+                {"variableAssignmentRequiredCodeAction3.json", "createVariable.bal"},
                 {"variableAssignmentRequiredCodeAction4.json", "createVariable.bal"},
                 {"variableAssignmentRequiredCodeAction5.json", "createVariable2.bal"},
                 {"variableAssignmentRequiredCodeAction6.json", "createVariable2.bal"},
@@ -288,7 +288,9 @@ public class CodeActionTest {
                 {"typeGuardCodeAction3.json", "typeGuard.bal"},
 //                {"typeGuardCodeAction4.json", "typeGuard.bal"},
                 {"implementFuncObj.json", "implementFuncObj.bal"},
-                {"optimizeImports.json", "optimizeImports.bal"}
+                {"optimizeImports.json", "optimizeImports.bal"},
+                {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
+                {"changeAbstractTypeObj2.json", "changeAbstractType.bal"}
         };
     }
 
@@ -316,9 +318,7 @@ public class CodeActionTest {
                 {"packagePull1.json", "packagePull.bal"},
                 {"packagePull2.json", "packagePull.bal"},
                 {"packagePull3.json", "packagePull2.bal"},
-                {"packagePull4.json", "packagePull2.bal"},
-                {"changeAbstractTypeObj1.json", "changeAbstractType.bal"},
-                {"changeAbstractTypeObj2.json", "changeAbstractType.bal"}
+                {"packagePull4.json", "packagePull2.bal"}
         };
     }
 

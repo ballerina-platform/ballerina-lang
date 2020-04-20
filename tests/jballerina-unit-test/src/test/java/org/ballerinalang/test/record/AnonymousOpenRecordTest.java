@@ -21,6 +21,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -81,5 +82,10 @@ public class AnonymousOpenRecordTest {
 
         returns = BRunUtil.invoke(compileResult, "testAnonRecWithExplicitRestField");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(description = "Test Code analyzer execution on Anonymous records")
+    public void testCodeAnalyzerRunningOnAnonymousRecordsForDeprecatedFunctionAnnotation() {
+        BAssertUtil.validateWarning(compileResult, 0, "usage of construct 'Test()' is deprecated", 69, 17);
     }
 }

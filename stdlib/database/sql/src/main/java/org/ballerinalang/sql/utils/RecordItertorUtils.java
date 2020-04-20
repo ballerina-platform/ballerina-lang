@@ -38,6 +38,8 @@ import java.sql.Struct;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.OffsetDateTime;
+import java.time.OffsetTime;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
@@ -108,13 +110,31 @@ public class RecordItertorUtils {
                 Date date = resultSet.getDate(columnIndex, calendar);
                 return Utils.convert(date, sqlType, ballerinaType);
             case Types.TIME:
-            case Types.TIME_WITH_TIMEZONE:
                 Time time = resultSet.getTime(columnIndex, calendar);
                 return Utils.convert(time, sqlType, ballerinaType);
+            case Types.TIME_WITH_TIMEZONE:
+                try {
+                    time = resultSet.getTime(columnIndex, calendar);
+                    return Utils.convert(time, sqlType, ballerinaType);
+                } catch (SQLException ex) {
+                    //Some database drivers do not support getTime operation,
+                    // therefore falling back to getObject method.
+                    OffsetTime offsetTime = resultSet.getObject(columnIndex, OffsetTime.class);
+                    return Utils.convert(Time.valueOf(offsetTime.toLocalTime()), sqlType, ballerinaType);
+                }
             case Types.TIMESTAMP:
-            case Types.TIMESTAMP_WITH_TIMEZONE:
                 Timestamp timestamp = resultSet.getTimestamp(columnIndex, calendar);
                 return Utils.convert(timestamp, sqlType, ballerinaType);
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+                try {
+                    timestamp = resultSet.getTimestamp(columnIndex, calendar);
+                    return Utils.convert(timestamp, sqlType, ballerinaType);
+                } catch (SQLException ex) {
+                    //Some database drivers do not support getTimestamp operation,
+                    // therefore falling back to getObject method.
+                    OffsetDateTime offsetDateTime = resultSet.getObject(columnIndex, OffsetDateTime.class);
+                    return Utils.convert(Timestamp.valueOf(offsetDateTime.toLocalDateTime()), sqlType, ballerinaType);
+                }
             case Types.ROWID:
                 String rowId = new String(resultSet.getRowId(columnIndex).getBytes(), StandardCharsets.UTF_8);
                 return Utils.convert(rowId, sqlType, ballerinaType);

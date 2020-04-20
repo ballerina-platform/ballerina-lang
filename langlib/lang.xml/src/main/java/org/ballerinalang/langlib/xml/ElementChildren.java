@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.langlib.internal;
+package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
@@ -29,6 +29,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Return lift getChildren over sequences.
@@ -36,28 +37,46 @@ import java.util.ArrayList;
  * @since 1.2
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal",
-        functionName = "children",
-        args = {@Argument(name = "xmlValue", type = TypeKind.XML)},
+        orgName = "ballerina", packageName = "lang.xml",
+        functionName = "elementChildren",
+        args = {@Argument(name = "xmlValue", type = TypeKind.XML), @Argument(name = "nm", type = TypeKind.UNION)},
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
 )
-public class Children {
+public class ElementChildren {
 
-    public static XMLValue children(Strand strand, XMLValue xmlVal) {
+    public static XMLValue elementChildren(Strand strand, XMLValue xmlVal, Object name) {
+        boolean namedQuery = name != null;
         if (xmlVal.getNodeType() == XMLNodeType.ELEMENT) {
-            return ((XMLItem) xmlVal).children();
+            if (namedQuery) {
+                return (XMLValue) ((XMLItem) xmlVal).children().elements((String) name);
+            }
+            return (XMLValue) ((XMLItem) xmlVal).children().elements();
         } else if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE) {
-            ArrayList<BXML> liftedChildren = new ArrayList<>();
+            List<BXML> items = new ArrayList<>();
             XMLSequence sequence = (XMLSequence) xmlVal.elements();
             for (BXML bxml : sequence.getChildrenList()) {
-                liftedChildren.addAll(((XMLItem) bxml).getChildrenSeq().getChildrenList());
+                if (bxml.getNodeType() != XMLNodeType.ELEMENT) {
+                    continue;
+                }
+                for (BXML childElement : ((XMLItem) bxml).getChildrenSeq().getChildrenList()) {
+                    if (childElement.getNodeType() != XMLNodeType.ELEMENT) {
+                        continue;
+                    }
+                    if (namedQuery) {
+                        if (!childElement.getElementName().equals(name)) {
+                            continue;
+                        }
+                    }
+                    items.add(childElement);
+                }
             }
-            return new XMLSequence(liftedChildren);
+            return new XMLSequence(items);
         }
         return new XMLSequence();
     }
-    public static XMLValue children_bstring(Strand strand, XMLValue xmlVal) {
-        return children(strand, xmlVal);
+
+    public static XMLValue elementChildren_bstring(Strand strand, XMLValue xmlVal, Object name) {
+        return elementChildren(strand, xmlVal, name);
     }
 }

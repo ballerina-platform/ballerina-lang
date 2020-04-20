@@ -17,38 +17,56 @@
 # Represents the hub persistence configuration and functions.
 public type HubPersistenceStore abstract object {
 
-    # Function to add or update subscription details.
-    #
-    # + subscriptionDetails - The details of the subscription to add or update
-    # + return - `error` if an error occurred while adding the subscription, `()` otherwise
+# Adds or updates subscription details.
+# ```ballerina
+# error? result = hubPersistenceStore.addSubscription(subscriptionDetails);
+# ```
+#
+# + subscriptionDetails - The details of the subscription to add or update
+# + return - An `error` if an error occurred while adding the subscription or else `()` otherwise
     public function addSubscription(SubscriptionDetails subscriptionDetails) returns error?;
 
-    # Function to remove subscription details.
-    #
-    # + subscriptionDetails - The details of the subscription to remove
-    # + return - `error` if an error occurred while removing the subscription, `()` otherwise
+# Removes subscription details.
+# ```ballerina
+# error? result = hubPersistenceStore.removeSubscription(subscriptionDetails);
+# ```
+#
+# + subscriptionDetails - The details of the subscription to remove
+# + return - An `error` if an error occurred while removing the subscription or else `()` otherwise
     public function removeSubscription(SubscriptionDetails subscriptionDetails) returns error?;
 
-    # Function to add a topic.
-    #
-    # + topic - The topic to add
-    # + return - `error` if an error occurred while adding the topic, `()` otherwise
+# Function to add a topic.
+# ```ballerina
+# error? result = hubPersistenceStore.addTopic("topic");
+# ```
+#
+# + topic - The topic to add
+# + return - An `error` if an error occurred while adding the topic or else `()` otherwise
     public function addTopic(string topic) returns error?;
 
-    # Function to remove a topic.
-    #
-    # + topic - The topic to remove
-    # + return - `error` if an error occurred while removing the topic, `()` otherwise
+# Function to remove a topic.
+# ```ballerina
+# error? result = hubPersistenceStore.removeTopic("topic");
+# ```
+#
+# + topic - The topic to remove
+# + return - An `error` if an error occurred while removing the topic or else `()` otherwise
     public function removeTopic(string topic) returns error?;
 
-    # Function to retrieve subscription details of all subscribers.
-    #
-    # + return - `error` if an error occurred while retrieving the subscriptions, an array of subscriber details
-    #               otherwise
+# Function to retrieve subscription details of all subscribers.
+# ```ballerina
+# SubscriptionDetails[]|error result = hubPersistenceStore.retrieveAllSubscribers();
+# ```
+#
+# + return - An array of subscriber details or else an `error` if an error occurred while retrieving
+#            the subscriptions
     public function retrieveAllSubscribers() returns SubscriptionDetails[]|error;
 
-    # Function to retrieve all registered topics.
-    #
-    # + return - `error` if an error occurred while retrieving the topics, an array of topics otherwise
+# Function to retrieve all registered topics.
+# ```ballerina
+# string[]|error result = hubPersistenceStore.retrieveTopics();
+# ```
+#
+# + return - An array of topics or else `error` if an error occurred while retrieving the topics
     public function retrieveTopics() returns string[]|error;
 };

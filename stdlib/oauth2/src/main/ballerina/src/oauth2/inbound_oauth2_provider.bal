@@ -22,7 +22,15 @@ import ballerina/mime;
 import ballerina/stringutils;
 import ballerina/time;
 
-# Represents inbound OAuth2 provider, which calls the introspection server and validate the received credentials.
+# Represents the inbound OAuth2 provider, which calls the introspection server, validates the received credentials,
+# and performs authentication and authorization. The `oauth2:InboundOAuth2Provider` is an implementation of the
+# `auth:InboundAuthProvider` interface.
+# ```ballerina
+# oauth2:IntrospectionServerConfig introspectionServerConfig = {
+#     url: "https://localhost:9196/oauth2/token/introspect"
+# };
+# oauth2:InboundOAuth2Provider inboundOAuth2Provider = new(introspectionServerConfig);
+# ```
 #
 # + introspectionClient - Introspection client endpoint
 # + tokenTypeHint - A hint about the type of the token submitted for introspection
@@ -35,9 +43,9 @@ public type InboundOAuth2Provider object {
     cache:Cache? inboundOAuth2Cache;
     int defaultTokenExpTimeInSeconds;
 
-    # Provides authentication based on the provided introspection configuration.
+    # Provides authentication based on the provided introspection configurations.
     #
-    # + config - OAuth2 introspection configurations
+    # + config - OAuth2 introspection server configurations
     public function __init(IntrospectionServerConfig config) {
         self.tokenTypeHint = config?.tokenTypeHint;
         self.introspectionClient = new(config.url, config.clientConfig);
@@ -45,10 +53,13 @@ public type InboundOAuth2Provider object {
         self.defaultTokenExpTimeInSeconds = config.defaultTokenExpTimeInSeconds;
     }
 
-    # Attempts to authenticate with credential.
-    #
-    # + credential - Credential to be authenticated
-    # + return - `true` if authentication is successful, otherwise `false` or `auth:Error` if an error occurred
+# Authenticates the provider OAuth2 tokens with an introspection endpoint.
+# ```ballerina
+# boolean|auth:Error result = inboundOAuth2Provider.authenticate("<credential>");
+# ```
+#
+# + credential - OAuth2 token to be authenticated
+# + return - `true` if authentication is successful, `false` otherwise, or else an `auth:Error` if an error occurred
     public function authenticate(string credential) returns boolean|auth:Error {
         if (credential == "") {
             return false;

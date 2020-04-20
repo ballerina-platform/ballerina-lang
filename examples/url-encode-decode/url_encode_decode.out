@@ -1,0 +1,7 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command.
+$ ballerina run url_encode_decode.bal
+Base64 URL encoded value: YWJjMTIzIT8kKiYoKSctPUB-
+Base64 URL decoded value: abc123!?$*&()'-=@~
+URI encoded value: data%3Dvalue
+URI decoded value: data=value

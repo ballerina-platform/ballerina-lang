@@ -878,9 +878,14 @@ public class TypeChecker extends BLangNodeVisitor {
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
 
             if (compatibleTypes.isEmpty()) {
-                dlog.error(listConstructor.pos,
-                           DiagnosticCode.INCOMPATIBLE_TYPES, expType,
-                           getInferredTupleType(listConstructor));
+                BLangListConstructorExpr exprToLog = listConstructor;
+                if (this.nonErrorLoggingCheck) {
+                    listConstructor.cloneAttempt++;
+                    exprToLog = nodeCloner.clone(listConstructor);
+                }
+
+                dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType,
+                           getInferredTupleType(exprToLog));
                 return symTable.semanticError;
             } else if (compatibleTypes.size() != 1) {
                 dlog.error(listConstructor.pos, DiagnosticCode.AMBIGUOUS_TYPES,
@@ -923,8 +928,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
                 return new BTypedescType(listConstructor.typedescType, null);
         }
-        dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, bType,
-                   getInferredTupleType(listConstructor));
+
+        BLangListConstructorExpr exprToLog = listConstructor;
+        if (this.nonErrorLoggingCheck) {
+            listConstructor.cloneAttempt++;
+            exprToLog = nodeCloner.clone(listConstructor);
+        }
+        dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, bType, getInferredTupleType(exprToLog));
         return symTable.semanticError;
     }
 
@@ -1042,7 +1052,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.env = env;
         this.expType = symTable.noType;
         for (BLangExpression e : exprs) {
-            e.accept(this);
+            checkExpr(e, this.env);
             types.add(resultType);
         }
         this.env = prevEnv;
@@ -2461,7 +2471,7 @@ public class TypeChecker extends BLangNodeVisitor {
         SymbolEnv rhsExprEnv;
         BType lhsType = checkExpr(binaryExpr.lhsExpr, env);
         if (binaryExpr.opKind == OperatorKind.AND) {
-            rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env);
+            rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env, true);
         } else if (binaryExpr.opKind == OperatorKind.OR) {
             rhsExprEnv = typeNarrower.evaluateFalsity(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env);
         } else {
