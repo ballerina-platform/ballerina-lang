@@ -1357,7 +1357,12 @@ public class JvmInstructionGen {
         }
 
         public void generateTableStoreIns(FieldAccess inst) {
+            this.loadVar(inst.lhsOp.variableDcl);
+            this.loadVar(inst.keyOp.variableDcl);
+            this.loadVar(inst.rhsOp.variableDcl);
 
+            this.mv.visitMethodInsn(INVOKEINTERFACE, TABLE_VALUE, "put",
+                    String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
         }
 
         void generateNewErrorIns(NewError newErrorIns) {
