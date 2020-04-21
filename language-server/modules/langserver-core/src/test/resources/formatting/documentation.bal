@@ -1,4 +1,3 @@
-import ballerina/http;
  // This is the documentation attachment for function `doThatOnObject`.
   # `doThatOnObject` is an attached function for the object `DummyObject`.
   #
