@@ -52,6 +52,14 @@ public class QualifiedIdentifierNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "modulePrefix",
+                "colon",
+                "identifier"};
+    }
+
     public QualifiedIdentifierNode modify(
             Token modulePrefix,
             Node colon,

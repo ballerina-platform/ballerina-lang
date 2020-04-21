@@ -52,6 +52,14 @@ public class PanicStatementNode extends StatementNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "panicKeyword",
+                "expression",
+                "semicolonToken"};
+    }
+
     public PanicStatementNode modify(
             Token panicKeyword,
             ExpressionNode expression,

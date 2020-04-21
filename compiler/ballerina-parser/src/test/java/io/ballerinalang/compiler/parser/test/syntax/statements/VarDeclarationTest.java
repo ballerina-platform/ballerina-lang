@@ -80,7 +80,7 @@ public class VarDeclarationTest extends AbstractStatementTest {
 
     @Test
     public void testLocalVarDeclWithUserdefinedTypeAndMissingIdentifier() {
-        testFile("var-decl-stmt/local_var_decl_source_09.bal", "var-decl-stmt/local_var_decl_assert_09.json");
+        test("Foo ;", "var-decl-stmt/local_var_decl_assert_09.json");
     }
 
     @Test

@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
@@ -38,11 +40,11 @@ public class DefaultableParameterNode extends ParameterNode {
         return new NodeList<>(childInBucket(1));
     }
 
-    public Token visibilityQualifier() {
-        return childInBucket(2);
+    public Optional<Token> visibilityQualifier() {
+        return optionalChildInBucket(2);
     }
 
-    public Node type() {
+    public Node typeName() {
         return childInBucket(3);
     }
 
@@ -68,11 +70,23 @@ public class DefaultableParameterNode extends ParameterNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "leadingComma",
+                "annotations",
+                "visibilityQualifier",
+                "typeName",
+                "paramName",
+                "equalsToken",
+                "expression"};
+    }
+
     public DefaultableParameterNode modify(
             Token leadingComma,
             NodeList<AnnotationNode> annotations,
             Token visibilityQualifier,
-            Node type,
+            Node typeName,
             Token paramName,
             Token equalsToken,
             Node expression) {
@@ -80,7 +94,7 @@ public class DefaultableParameterNode extends ParameterNode {
                 leadingComma,
                 annotations.underlyingListNode(),
                 visibilityQualifier,
-                type,
+                typeName,
                 paramName,
                 equalsToken,
                 expression)) {
@@ -91,7 +105,7 @@ public class DefaultableParameterNode extends ParameterNode {
                 leadingComma,
                 annotations,
                 visibilityQualifier,
-                type,
+                typeName,
                 paramName,
                 equalsToken,
                 expression);

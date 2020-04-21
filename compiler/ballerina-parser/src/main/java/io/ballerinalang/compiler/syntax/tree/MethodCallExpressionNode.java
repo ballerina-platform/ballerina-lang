@@ -64,6 +64,17 @@ public class MethodCallExpressionNode extends ExpressionNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "expression",
+                "dotToken",
+                "methodName",
+                "openParenToken",
+                "arguments",
+                "closeParenToken"};
+    }
+
     public MethodCallExpressionNode modify(
             ExpressionNode expression,
             Token dotToken,

@@ -1,5 +1,5 @@
 {
-    "kind": "IS_EXPRESSION",
+    "kind": "TYPE_TEST_EXPRESSION",
     "children": [
         {
             "kind": "DECIMAL_INTEGER_LITERAL",

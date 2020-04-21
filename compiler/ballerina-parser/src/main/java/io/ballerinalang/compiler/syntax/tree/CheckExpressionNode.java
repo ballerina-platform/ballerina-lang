@@ -48,7 +48,15 @@ public class CheckExpressionNode extends ExpressionNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "checkKeyword",
+                "expression"};
+    }
+
     public CheckExpressionNode modify(
+            SyntaxKind kind,
             Token checkKeyword,
             ExpressionNode expression) {
         if (checkForReferenceEquality(
@@ -58,6 +66,7 @@ public class CheckExpressionNode extends ExpressionNode {
         }
 
         return NodeFactory.createCheckExpressionNode(
+                kind,
                 checkKeyword,
                 expression);
     }

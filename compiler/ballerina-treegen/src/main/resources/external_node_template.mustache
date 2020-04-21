@@ -20,6 +20,10 @@ package {{packageName}};
 {{#imports}}
 import {{name}};
 {{/imports}}
+{{#optionalFieldExists}}
+
+import java.util.Optional;
+{{/optionalFieldExists}}
 
 /**
  * This is a generated syntax tree node.
@@ -35,16 +39,24 @@ public{{#isAbstract}} abstract{{/isAbstract}} class {{externalClassName}} extend
 
     {{#fields}}
     {{#isList}}
-    public NodeList<{{fieldClassName}}> {{fieldName}}() {
-        return new NodeList<>(childInBucket({{index}}));
+    public {{listClassName}}<{{fieldClassName}}> {{fieldName}}() {
+        return new {{listClassName}}<>(childInBucket({{index}}));
     }
 
     {{/isList}}
     {{^isList}}
+    {{#isOptional}}
+    public Optional<{{fieldClassName}}> {{fieldName}}() {
+        return optionalChildInBucket({{index}});
+    }
+
+    {{/isOptional}}
+    {{^isOptional}}
     public {{fieldClassName}} {{fieldName}}() {
         return childInBucket({{index}});
     }
 
+    {{/isOptional}}
     {{/isList}}
     {{/fields}}
     @Override
@@ -57,8 +69,16 @@ public{{#isAbstract}} abstract{{/isAbstract}} class {{externalClassName}} extend
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+        {{#fields}}
+                {{^isLast}}"{{fieldName}}",{{/isLast}}{{#isLast}}"{{fieldName}}"};{{/isLast}}
+        {{/fields}}
+    }
+
     public {{externalClassName}} modify(
-            {{^syntaxKind}}SyntaxKind kind, &#10;            {{/syntaxKind}}{{#fields}}{{#isList}}NodeList<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}}{{^isLast}}, &#10;            {{/isLast}}{{/fields}}) {
+            {{^syntaxKind}}SyntaxKind kind, &#10;            {{/syntaxKind}}{{#fields}}{{#isList}}{{listClassName}}<{{fieldClassName}}>{{/isList}}{{^isList}}{{fieldClassName}}{{/isList}} {{fieldName}}{{^isLast}}, &#10;            {{/isLast}}{{/fields}}) {
         if (checkForReferenceEquality(
                 {{#fields}}{{#isList}}{{fieldName}}.underlyingListNode(){{/isList}}{{^isList}}{{fieldName}}{{/isList}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}})) {
             return this;

@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
+import java.util.Optional;
+
 /**
  * This is a generated syntax tree node.
  *
@@ -30,8 +32,8 @@ public class MetadataNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public Node documentationString() {
-        return childInBucket(0);
+    public Optional<Node> documentationString() {
+        return optionalChildInBucket(0);
     }
 
     public NodeList<AnnotationNode> annotations() {
@@ -46,6 +48,13 @@ public class MetadataNode extends NonTerminalNode {
     @Override
     public <T> T apply(NodeTransformer<T> visitor) {
         return visitor.transform(this);
+    }
+
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "documentationString",
+                "annotations"};
     }
 
     public MetadataNode modify(

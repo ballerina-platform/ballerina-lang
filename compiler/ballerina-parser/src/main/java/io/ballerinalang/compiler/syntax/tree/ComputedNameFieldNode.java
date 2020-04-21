@@ -64,6 +64,17 @@ public class ComputedNameFieldNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "leadingComma",
+                "openBracket",
+                "fieldNameExpr",
+                "closeBracket",
+                "colonToken",
+                "valueExpr"};
+    }
+
     public ComputedNameFieldNode modify(
             Token leadingComma,
             Token openBracket,

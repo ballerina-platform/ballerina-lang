@@ -30,7 +30,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 public class STObjectFieldNode extends STNode {
     public final STNode metadata;
     public final STNode visibilityQualifier;
-    public final STNode type;
+    public final STNode typeName;
     public final STNode fieldName;
     public final STNode equalsToken;
     public final STNode expression;
@@ -39,7 +39,7 @@ public class STObjectFieldNode extends STNode {
     STObjectFieldNode(
             STNode metadata,
             STNode visibilityQualifier,
-            STNode type,
+            STNode typeName,
             STNode fieldName,
             STNode equalsToken,
             STNode expression,
@@ -47,7 +47,7 @@ public class STObjectFieldNode extends STNode {
         super(SyntaxKind.OBJECT_FIELD);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
-        this.type = type;
+        this.typeName = typeName;
         this.fieldName = fieldName;
         this.equalsToken = equalsToken;
         this.expression = expression;
@@ -56,7 +56,7 @@ public class STObjectFieldNode extends STNode {
         addChildren(
                 metadata,
                 visibilityQualifier,
-                type,
+                typeName,
                 fieldName,
                 equalsToken,
                 expression,

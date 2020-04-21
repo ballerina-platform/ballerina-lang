@@ -21,6 +21,8 @@ import org.testng.annotations.Test;
 
 /**
  * Test parsing check expression.
+ * 
+ * @since 1.3.0
  */
 public class CheckExpressionTest extends AbstractExpressionsTest {
 
@@ -39,5 +41,10 @@ public class CheckExpressionTest extends AbstractExpressionsTest {
     @Test
     public void testCheckWithMissingExpr() {
         testFile("check-expr/check_expr_source_03.bal", "check-expr/check_expr_assert_03.json");
+    }
+
+    @Test
+    public void testCheckWithMissingBinaryOp() {
+        testFile("check-expr/check_expr_source_04.bal", "check-expr/check_expr_assert_04.json");
     }
 }

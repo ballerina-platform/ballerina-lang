@@ -64,6 +64,17 @@ public class RemoteMethodCallActionNode extends ActionNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "expression",
+                "rightArrowToken",
+                "methodName",
+                "openParenToken",
+                "arguments",
+                "closeParenToken"};
+    }
+
     public RemoteMethodCallActionNode modify(
             ExpressionNode expression,
             Token rightArrowToken,

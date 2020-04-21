@@ -56,6 +56,15 @@ public class MemberAccessExpressionNode extends ExpressionNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "containerExpression",
+                "openBracket",
+                "keyExpression",
+                "closeBracket"};
+    }
+
     public MemberAccessExpressionNode modify(
             ExpressionNode containerExpression,
             Token openBracket,

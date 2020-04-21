@@ -126,6 +126,7 @@ public enum ParserRuleContext {
     STMT_START_WITH_IDENTIFIER("stmt-start-with-identifier"),
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
     EXPRESSION_STATEMENT("expression-statement"),
+    EXPRESSION_STATEMENT_START("expression-statement-start"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -157,6 +158,7 @@ public enum ParserRuleContext {
     CONST_KEYWORD("const"),
     TYPEOF_KEYWORD("typeof"),
     IS_KEYWORD("is"),
+    NULL_KEYWORD("null"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -194,6 +196,7 @@ public enum ParserRuleContext {
 
     // Expressions
     EXPRESSION("expression"),
+    TERMINAL_EXPRESSION("terminal-expression"),
     EXPRESSION_RHS("expression-rhs"),
     FUNC_CALL("func-call"),
     BASIC_LITERAL("basic-literal"),
@@ -201,7 +204,7 @@ public enum ParserRuleContext {
     DECIMAL_INTEGER_LITERAL("decimal-int-literal"),
     VARIABLE_REF("var-ref"),
     STRING_LITERAL("string-literal"),
-    MAPPING_CONSTRUCTOR("maping-constructor"),
+    MAPPING_CONSTRUCTOR("mapping-constructor"),
     MAPPING_FIELD("maping-field"),
     MAPPING_FIELD_NAME("maping-field-name"),
     SPECIFIC_FIELD_RHS("specific-field-rhs"),
@@ -209,7 +212,8 @@ public enum ParserRuleContext {
     TYPEOF_EXPRESSION("typeof-expr"),
     UNARY_EXPRESSION("unary-expr"),
     HEX_INTEGER_LITERAL("hex-integer-literal"),
-    IS_EXPRESSION("is-expr"),
+    TYPE_TEST_EXPRESSION("type-test-expr"),
+    NIL_LITERAL("nil-literal"),
     ;
 
     private String value;

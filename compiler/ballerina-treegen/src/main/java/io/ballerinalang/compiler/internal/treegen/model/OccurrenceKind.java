@@ -15,22 +15,15 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.syntax.tree;
+package io.ballerinalang.compiler.internal.treegen.model;
 
-import io.ballerinalang.compiler.internal.parser.tree.STNode;
-
-public class EmptyNode extends NonTerminalNode {
-    public EmptyNode(STNode node, int position, NonTerminalNode parent) {
-        super(node, position, parent);
-    }
-
-    @Override
-    public void accept(NodeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public <T> T apply(NodeTransformer<T> visitor) {
-        return visitor.transform(this);
-    }
+/**
+ * Indicates whether a given attribute repeats or not.
+ *
+ * @since 1.3.0
+ */
+public enum OccurrenceKind {
+    MULTIPLE,
+    MULTIPLE_SEPARATED,
+    SINGLE
 }

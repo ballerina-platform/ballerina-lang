@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.internal.treegen.model.json;
 
+import io.ballerinalang.compiler.internal.treegen.model.OccurrenceKind;
+
 /**
  * Represents a syntax node attribute in the syntax tree descriptor.
  *
@@ -26,11 +28,13 @@ public class SyntaxNodeAttribute {
     private String name;
     private String type;
     private String occurrences;
+    private boolean isOptional;
 
-    public SyntaxNodeAttribute(String name, String type, String occurrences) {
+    public SyntaxNodeAttribute(String name, String type, String occurrences, boolean isOptional) {
         this.name = name;
         this.type = type;
         this.occurrences = occurrences;
+        this.isOptional = isOptional;
     }
 
     public String getName() {
@@ -49,13 +53,8 @@ public class SyntaxNodeAttribute {
         }
     }
 
-    /**
-     * Indicates whether a given attribute repeats or not.
-     *
-     * @since 1.3.0
-     */
-    public enum OccurrenceKind {
-        MULTIPLE,
-        SINGLE
+    public boolean isOptional() {
+        return isOptional;
     }
+
 }

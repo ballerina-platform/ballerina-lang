@@ -24,22 +24,18 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class IsExpressionNode extends ExpressionNode {
+public class NilLiteralNode extends ExpressionNode {
 
-    public IsExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public NilLiteralNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public ExpressionNode expression() {
+    public Token openParenToken() {
         return childInBucket(0);
     }
 
-    public Token isKeyword() {
+    public Token closeParenToken() {
         return childInBucket(1);
-    }
-
-    public Node typeDescriptor() {
-        return childInBucket(2);
     }
 
     @Override
@@ -52,20 +48,24 @@ public class IsExpressionNode extends ExpressionNode {
         return visitor.transform(this);
     }
 
-    public IsExpressionNode modify(
-            ExpressionNode expression,
-            Token isKeyword,
-            Node typeDescriptor) {
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "openParenToken",
+                "closeParenToken"};
+    }
+
+    public NilLiteralNode modify(
+            Token openParenToken,
+            Token closeParenToken) {
         if (checkForReferenceEquality(
-                expression,
-                isKeyword,
-                typeDescriptor)) {
+                openParenToken,
+                closeParenToken)) {
             return this;
         }
 
-        return NodeFactory.createIsExpressionNode(
-                expression,
-                isKeyword,
-                typeDescriptor);
+        return NodeFactory.createNilLiteralNode(
+                openParenToken,
+                closeParenToken);
     }
 }

@@ -48,6 +48,13 @@ public class BreakStatementNode extends StatementNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "breakToken",
+                "semicolonToken"};
+    }
+
     public BreakStatementNode modify(
             Token breakToken,
             Token semicolonToken) {

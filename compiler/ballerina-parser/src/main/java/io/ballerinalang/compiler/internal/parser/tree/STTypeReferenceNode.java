@@ -29,21 +29,21 @@ import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
  */
 public class STTypeReferenceNode extends STNode {
     public final STNode asteriskToken;
-    public final STNode type;
+    public final STNode typeName;
     public final STNode semicolonToken;
 
     STTypeReferenceNode(
             STNode asteriskToken,
-            STNode type,
+            STNode typeName,
             STNode semicolonToken) {
         super(SyntaxKind.TYPE_REFERENCE);
         this.asteriskToken = asteriskToken;
-        this.type = type;
+        this.typeName = typeName;
         this.semicolonToken = semicolonToken;
 
         addChildren(
                 asteriskToken,
-                type,
+                typeName,
                 semicolonToken);
     }
 

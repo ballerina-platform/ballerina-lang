@@ -17,19 +17,33 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.EmptyToken;
+import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
-public class STEmptyNode extends STNode {
+/**
+ * This is a generated internal syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public class STNilLiteralNode extends STExpressionNode {
+    public final STNode openParenToken;
+    public final STNode closeParenToken;
 
-    STEmptyNode() {
-        super(SyntaxKind.NONE);
+    STNilLiteralNode(
+            STNode openParenToken,
+            STNode closeParenToken) {
+        super(SyntaxKind.NIL_LITERAL);
+        this.openParenToken = openParenToken;
+        this.closeParenToken = closeParenToken;
+
+        addChildren(
+                openParenToken,
+                closeParenToken);
     }
 
-    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new EmptyToken(this, position, parent);
+        return new NilLiteralNode(this, position, parent);
     }
 }

@@ -22,19 +22,25 @@ import java.util.Iterator;
 /**
  * Represents a list of {@code Node}s.
  *
- * @param <T> the type of the node instance
+ * @param <T> the type of the constituent node instance
  */
 public class NodeList<T extends Node> implements Iterable<T> {
 
-    private final NonTerminalNode node;
-    private final int size;
+    protected final NonTerminalNode node;
+    protected final int size;
 
-    public NodeList(NonTerminalNode node) {
+    NodeList(NonTerminalNode node) {
         this.node = node;
         this.size = node.bucketCount();
     }
 
+    protected NodeList(NonTerminalNode node, int size) {
+        this.node = node;
+        this.size = size;
+    }
+
     public T get(int index) {
+        rangeCheck(index, size);
         return this.node.childInBucket(index);
     }
 
@@ -46,13 +52,18 @@ public class NodeList<T extends Node> implements Iterable<T> {
         return this.size == 0;
     }
 
-    NonTerminalNode underlyingListNode() {
-        return this.node;
-    }
-
     @Override
     public Iterator<T> iterator() {
         return new NodeListIterator();
+    }
+
+    protected void rangeCheck(int index, int size) {
+        if (index >= size || index < 0)
+            throw new IndexOutOfBoundsException("Index: " + index + ", Size: " + size);
+    }
+
+    NonTerminalNode underlyingListNode() {
+        return this.node;
     }
 
     /**
@@ -60,7 +71,7 @@ public class NodeList<T extends Node> implements Iterable<T> {
      *
      * @since 1.3.0
      */
-    private class NodeListIterator implements Iterator<T> {
+    protected class NodeListIterator implements Iterator<T> {
         private int currentIndex = 0;
 
         @Override

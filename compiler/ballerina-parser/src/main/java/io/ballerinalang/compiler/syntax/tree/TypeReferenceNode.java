@@ -34,7 +34,7 @@ public class TypeReferenceNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Node type() {
+    public Node typeName() {
         return childInBucket(1);
     }
 
@@ -52,20 +52,28 @@ public class TypeReferenceNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "asteriskToken",
+                "typeName",
+                "semicolonToken"};
+    }
+
     public TypeReferenceNode modify(
             Token asteriskToken,
-            Node type,
+            Node typeName,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 asteriskToken,
-                type,
+                typeName,
                 semicolonToken)) {
             return this;
         }
 
         return NodeFactory.createTypeReferenceNode(
                 asteriskToken,
-                type,
+                typeName,
                 semicolonToken);
     }
 }

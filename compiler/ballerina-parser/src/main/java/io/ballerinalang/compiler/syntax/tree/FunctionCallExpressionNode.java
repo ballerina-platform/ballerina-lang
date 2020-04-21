@@ -56,6 +56,15 @@ public class FunctionCallExpressionNode extends ExpressionNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "functionName",
+                "openParenToken",
+                "arguments",
+                "closeParenToken"};
+    }
+
     public FunctionCallExpressionNode modify(
             Node functionName,
             Token openParenToken,

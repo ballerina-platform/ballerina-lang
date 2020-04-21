@@ -56,6 +56,15 @@ public class NamedArgumentNode extends FunctionArgumentNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "leadingComma",
+                "argumentName",
+                "equalsToken",
+                "expression"};
+    }
+
     public NamedArgumentNode modify(
             Token leadingComma,
             Token argumentName,

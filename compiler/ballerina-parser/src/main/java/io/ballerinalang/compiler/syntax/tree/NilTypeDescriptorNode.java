@@ -48,6 +48,13 @@ public class NilTypeDescriptorNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "openParenToken",
+                "closeParenToken"};
+    }
+
     public NilTypeDescriptorNode modify(
             Token openParenToken,
             Token closeParenToken) {

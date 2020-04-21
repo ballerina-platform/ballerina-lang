@@ -40,7 +40,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testFindTokenFromPosition() {
         String sourceFilePath = "find_token_test_1.bal";
-        String sourceText = getSourceText(sourceFilePath);
+        String sourceText = getFileContentAsString(sourceFilePath);
         SyntaxTree syntaxTree = parseFile(sourceFilePath);
         ModulePartNode modulePart = syntaxTree.getModulePart();
 

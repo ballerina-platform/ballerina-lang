@@ -45,6 +45,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils.isSTNodePresent;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
@@ -202,7 +203,7 @@ public class ParserTestUtils {
             // Skip the optional fields that are not present and get the next
             // available node.
             STNode nextChild = tree.childInBucket(j++);
-            while (nextChild.kind == SyntaxKind.NONE) {
+            while (!isSTNodePresent(nextChild)) {
                 nextChild = tree.childInBucket(j++);
             }
 
@@ -215,10 +216,9 @@ public class ParserTestUtils {
         int count = 0;
         for (int i = 0; i < tree.bucketCount(); i++) {
             STNode nextChild = tree.childInBucket(i);
-            if (nextChild.kind == SyntaxKind.NONE) {
-                continue;
+            if (isSTNodePresent(nextChild)) {
+                count++;
             }
-            count++;
         }
 
         return count;
@@ -357,6 +357,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ANNOTATION_KEYWORD;
             case "IS_KEYWORD":
                 return SyntaxKind.IS_KEYWORD;
+            case "NULL_KEYWORD":
+                return SyntaxKind.NULL_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -481,12 +483,18 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPEOF_EXPRESSION;
             case "UNARY_EXPRESSION":
                 return SyntaxKind.UNARY_EXPRESSION;
-            case "IS_EXPRESSION":
-                return SyntaxKind.IS_EXPRESSION;
+            case "TYPE_TEST_EXPRESSION":
+                return SyntaxKind.TYPE_TEST_EXPRESSION;
+            case "NIL_LITERAL":
+                return SyntaxKind.NIL_LITERAL;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
                 return SyntaxKind.REMOTE_METHOD_CALL_ACTION;
+            case "BRACED_ACTION":
+                return SyntaxKind.BRACED_ACTION;
+            case "CHECK_ACTION":
+                return SyntaxKind.CHECK_ACTION;
 
             // Statements
             case "BLOCK_STATEMENT":

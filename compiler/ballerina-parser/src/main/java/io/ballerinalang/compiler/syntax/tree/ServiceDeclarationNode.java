@@ -64,6 +64,17 @@ public class ServiceDeclarationNode extends ModuleMemberDeclarationNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "metadata",
+                "serviceKeyword",
+                "serviceName",
+                "onKeyword",
+                "expressions",
+                "serviceBody"};
+    }
+
     public ServiceDeclarationNode modify(
             MetadataNode metadata,
             Token serviceKeyword,

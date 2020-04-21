@@ -24,18 +24,22 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class SubModuleNameNode extends NonTerminalNode {
+public class TypeTestExpressionNode extends ExpressionNode {
 
-    public SubModuleNameNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public TypeTestExpressionNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token leadingDot() {
+    public ExpressionNode expression() {
         return childInBucket(0);
     }
 
-    public IdentifierToken moduleName() {
+    public Token isKeyword() {
         return childInBucket(1);
+    }
+
+    public Node typeDescriptor() {
+        return childInBucket(2);
     }
 
     @Override
@@ -48,17 +52,28 @@ public class SubModuleNameNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
-    public SubModuleNameNode modify(
-            Token leadingDot,
-            IdentifierToken moduleName) {
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "expression",
+                "isKeyword",
+                "typeDescriptor"};
+    }
+
+    public TypeTestExpressionNode modify(
+            ExpressionNode expression,
+            Token isKeyword,
+            Node typeDescriptor) {
         if (checkForReferenceEquality(
-                leadingDot,
-                moduleName)) {
+                expression,
+                isKeyword,
+                typeDescriptor)) {
             return this;
         }
 
-        return NodeFactory.createSubModuleNameNode(
-                leadingDot,
-                moduleName);
+        return NodeFactory.createTypeTestExpressionNode(
+                expression,
+                isKeyword,
+                typeDescriptor);
     }
 }

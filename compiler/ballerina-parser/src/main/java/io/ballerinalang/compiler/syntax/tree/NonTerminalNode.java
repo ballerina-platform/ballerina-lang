@@ -20,6 +20,14 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import static io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils.isSTNodePresent;
+
 /**
  * Represents a node with children in the syntax tree.
  *
@@ -49,6 +57,22 @@ public abstract class NonTerminalNode extends Node {
         return childNodeList;
     }
 
+    /**
+     * Returns a collection of name and node pairs of the children of this node.
+     *
+     * @return a collection of {@code ChildNodeEntry}
+     */
+    public Collection<ChildNodeEntry> childEntries() {
+        String[] childNames = childNames();
+        return Collections.unmodifiableCollection(
+                IntStream.range(0, bucketCount())
+                        .filter(bucket -> childInBucket(bucket) != null)
+                        .mapToObj(bucket -> new ChildNodeEntry(childNames[bucket], childInBucket(bucket)))
+                        .collect(Collectors.toList()));
+    }
+
+    protected abstract String[] childNames();
+
     protected int bucketCount() {
         return internalNode.bucketCount();
     }
@@ -60,9 +84,15 @@ public abstract class NonTerminalNode extends Node {
         }
 
         STNode internalChild = internalNode.childInBucket(bucket);
-        child = (T) internalChild.createFacade(getChildPosition(bucket), this);
-        childBuckets[bucket] = child;
+        if (isSTNodePresent(internalChild)) {
+            child = (T) internalChild.createFacade(getChildPosition(bucket), this);
+            childBuckets[bucket] = child;
+        }
         return child;
+    }
+
+    protected <T extends Node> Optional<T> optionalChildInBucket(int bucket) {
+        return Optional.ofNullable(childInBucket(bucket));
     }
 
     // TODO Find an efficient implementation which uses the previous children positions
@@ -109,6 +139,9 @@ public abstract class NonTerminalNode extends Node {
         int offset = this.spanWithMinutiae.startOffset();
         for (int bucket = 0; bucket < internalNode.bucketCount(); bucket++) {
             STNode internalChildNode = internalNode.childInBucket(bucket);
+            if (!isSTNodePresent(internalChildNode)) {
+                continue;
+            }
             if (position < offset + internalChildNode.width()) {
                 // Populate the external node.
                 return this.childInBucket(bucket);

@@ -48,6 +48,13 @@ public class ImportVersionNode extends NonTerminalNode {
         return visitor.transform(this);
     }
 
+    @Override
+    protected String[] childNames() {
+        return new String[]{
+                "versionKeyword",
+                "versionNumber"};
+    }
+
     public ImportVersionNode modify(
             Token versionKeyword,
             Node versionNumber) {
