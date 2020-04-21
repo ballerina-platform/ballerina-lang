@@ -210,9 +210,15 @@
                 <table>
                     {{#each module.annotations}}
                         <tr>
-                            <td class="module-title truncate annotations" id="{{name}}" title="{{name}}"><a
-                                    class="annotations" href="annotations.html#{{name}}">{{name}}</a></td>
-                            <td class="module-desc">{{{ editDescription description }}}</td>
+                            <td class="module-title truncate annotations" id="{{name}}" title="{{name}}">
+                                <a class="annotations {{#if isDeprecated}}strike{{/if}}" href="annotations.html#{{name}}">{{name}}</a>
+                            </td>
+                            <td class="module-desc">
+                                {{#if isDeprecated}}
+                                    <span class="stab">Deprecated</span>
+                                {{/if}}
+                                {{{ editDescription description }}}
+                            </td>
                         </tr>
                     {{/each}}
                 </table>
