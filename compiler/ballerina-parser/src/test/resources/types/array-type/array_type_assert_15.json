@@ -21,6 +21,22 @@
                     "kind": "OPEN_BRACKET_TOKEN"
                 },
                 {
+                    "kind": "QUALIFIED_IDENTIFIER",
+                    "children": [
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "b"
+                        },
+                        {
+                            "kind": "COLON_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "c"
+                        }
+                    ]
+                },
+                {
                     "kind": "CLOSE_BRACKET_TOKEN"
                 }
             ]

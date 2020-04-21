@@ -2741,6 +2741,12 @@ public class BallerinaParser {
             case IDENTIFIER_TOKEN:
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
+                STToken nextToken = peek(2);
+                //if the next token is <code>?</code> then it is an optional type descriptor with user defined type
+                if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
+                    finalKeyword = STNodeFactory.createEmptyNode();
+                    return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
+                }
                 return parseStatementStartsWithIdentifier(getAnnotations(annots));
             default:
                 // If the next token in the token stream does not match to any of the statements and
@@ -5292,7 +5298,6 @@ public class BallerinaParser {
      */
     private STNode parseArrayLength() {
         STToken token = peek();
-        STToken nextToken;
         switch (token.kind) {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -5302,12 +5307,7 @@ public class BallerinaParser {
                 return STNodeFactory.createEmptyNode();
             // Parsing variable-reference-expr is same as parsing qualified identifier
             case IDENTIFIER_TOKEN:
-                // If <code>int[ a; </code> then take <code>a</code> as the identifier not a the array length var
-                nextToken = peek(2);
-                if (nextToken.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
-                    return parseQualifiedIdentifier(ParserRuleContext.ARRAY_LENGTH);
-                }
-                return STNodeFactory.createEmptyNode();
+                return parseQualifiedIdentifier(ParserRuleContext.ARRAY_LENGTH);
             default:
                 Solution sol = recover(token, ParserRuleContext.ARRAY_LENGTH);
                 return sol.recoveredNode;
