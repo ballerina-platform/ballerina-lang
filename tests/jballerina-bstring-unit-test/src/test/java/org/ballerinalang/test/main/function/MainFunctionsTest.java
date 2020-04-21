@@ -52,7 +52,7 @@ public class MainFunctionsTest {
     @Test
     public void testNilReturningMain() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_nil_return.bal");
-        String result = runMain_bstring(compileResult, new String[]{});
+        String result = runMain(compileResult, new String[]{});
         assertTrue(result.contains("nil returning main invoked"),
                             "expected the main function to be invoked");
         assertTrue(result.endsWith("nil returning main invoked"), "expected nil to be returned");
@@ -62,7 +62,7 @@ public class MainFunctionsTest {
     public void testErrorOrNilReturningMainReturningError() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                 + "test_main_with_error_or_nil_return.bal");
-        BCompileUtil.ExitDetails result = BCompileUtil.run_bstring(compileResult, new String[]{"error", "1"});
+        BCompileUtil.ExitDetails result = BCompileUtil.run(compileResult, new String[]{"error", "1"});
         assertTrue(result.consoleOutput.contains("error? returning main invoked"),
                             "expected the main function to be invoked");
         assertTrue(result.errorOutput.contains("generic error"), "invalid error reason");
@@ -72,7 +72,7 @@ public class MainFunctionsTest {
     public void testErrorOrNilReturningMainReturningNil() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                 + "test_main_with_error_or_nil_return.bal");
-        String result = runMain_bstring(compileResult, new String[]{"nil", "0"});
+        String result = runMain(compileResult, new String[]{"nil", "0"});
         assertEquals(result, "error? returning main invoked",
                             "expected the main function to be invoked");
         assertTrue(result.endsWith("error? returning main invoked"), "expected nil to be returned");
@@ -82,7 +82,7 @@ public class MainFunctionsTest {
     public void testErrorOrNilReturningMainReturningCustomError() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR
                 + "test_main_with_error_or_nil_return.bal");
-        BCompileUtil.ExitDetails result = BCompileUtil.run_bstring(compileResult, new String[]{"user_def_error", "1"});
+        BCompileUtil.ExitDetails result = BCompileUtil.run(compileResult, new String[]{"user_def_error", "1"});
         assertTrue(result.consoleOutput.startsWith("error? returning main invoked"),
                             "expected the main function to be invoked");
         assertTrue(result.errorOutput.contains("const error reason"), "invalid error reason");
@@ -117,16 +117,16 @@ public class MainFunctionsTest {
     public void testMainWithStackOverflow() {
         CompileResult compileResult = BCompileUtil
                 .compile("test-src/main.function/test_main_with_stackoverflow.bal");
-        BCompileUtil.ExitDetails details = BCompileUtil.run_bstring(compileResult, new String[]{});
+        BCompileUtil.ExitDetails details = BCompileUtil.run(compileResult, new String[]{});
         assertTrue(details.errorOutput.contains("error: {ballerina}StackOverflow \n\tat $value$Foo:__init" +
                 "(test_main_with_stackoverflow.bal:19)\n\t   $value$Foo:__init(test_main_with_stackoverflow.bal:19)" +
                 "\n\t   $value$Foo:__init(test_main_with_stackoverflow.bal:19)"));
     }
 
 
-    private String runMain_bstring(CompileResult compileResult, String[] args) {
+    private String runMain(CompileResult compileResult, String[] args) {
         try {
-            return BCompileUtil.runMain_bstring(compileResult, args);
+            return BCompileUtil.runMain(compileResult, args);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }

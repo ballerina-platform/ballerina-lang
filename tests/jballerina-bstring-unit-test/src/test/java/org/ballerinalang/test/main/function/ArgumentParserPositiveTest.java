@@ -38,7 +38,7 @@ public class ArgumentParserPositiveTest {
     public void testMainWithParams(String intString, String floatString, String expectedString) {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_params.bal");
-        String output = runMain_bstring(compileResult, new String[]{intString, floatString});
+        String output = runMain(compileResult, new String[]{intString, floatString});
         Assert.assertEquals(output, expectedString, "evaluated to invalid value");
     }
 
@@ -46,7 +46,7 @@ public class ArgumentParserPositiveTest {
     public void testMainWithOnlyRestParams() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_function_rest_args.bal");
-        String output = runMain_bstring(compileResult, new String[]{"restArg"});
+        String output = runMain(compileResult, new String[]{"restArg"});
         Assert.assertEquals(output, "restArg", "rest arg parsing failed");
     }
 
@@ -54,7 +54,7 @@ public class ArgumentParserPositiveTest {
     public void testMainWithOnlyRestParamsNotProvided() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_rest_args_missing.bal");
-        String output = runMain_bstring(compileResult, new String[0]);
+        String output = runMain(compileResult, new String[0]);
         Assert.assertEquals(output, "main invoked", "missing rest arg parsing failed");
     }
 
@@ -62,14 +62,14 @@ public class ArgumentParserPositiveTest {
     public void testNoArg() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_no_params.bal");
-        String output = runMain_bstring(compileResult, new String[]{});
+        String output = runMain(compileResult, new String[]{});
         Assert.assertEquals(output, "1", "evaluated to invalid value");
     }
 
     @Test(dataProvider = "intValues")
     public void testIntArg(String specifiedInt, String expectedInt) {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_int_param.bal");
-        String output = runMain_bstring(compileResult, new String[]{specifiedInt});
+        String output = runMain(compileResult, new String[]{specifiedInt});
         Assert.assertEquals(output, expectedInt, "string arg parsed as invalid int");
     }
 
@@ -77,7 +77,7 @@ public class ArgumentParserPositiveTest {
     public void testDecimalArg(String specifiedDecimal, String expectedDecimal) {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_decimal_param.bal");
-        String output = runMain_bstring(compileResult, new String[]{specifiedDecimal});
+        String output = runMain(compileResult, new String[]{specifiedDecimal});
         Assert.assertEquals(output, expectedDecimal, "string arg parsed as invalid decimal");
     }
 
@@ -85,14 +85,14 @@ public class ArgumentParserPositiveTest {
     public void testJsonArg(String arg) {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_json_param.bal");
-        String output = runMain_bstring(compileResult, new String[]{arg});
+        String output = runMain(compileResult, new String[]{arg});
         Assert.assertEquals(output, arg, "string arg parsed as invalid JSON");
     }
 
     @Test
     public void testXmlArg() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_xml_param.bal");
-        String output = runMain_bstring(compileResult, new String[]{"<book status=\"available\" count=\"5\"></book>"});
+        String output = runMain(compileResult, new String[]{"<book status=\"available\" count=\"5\"></book>"});
         Assert.assertTrue(output.contains("<book status=\"available\" count=\"5\"></book>"),
                           "string arg parsed as invalid XML");
     }
@@ -101,7 +101,7 @@ public class ArgumentParserPositiveTest {
     public void testValidArrayArg(String arg, String expectedValue) {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_array_param.bal");
-        String output = runMain_bstring(compileResult, new String[]{arg});
+        String output = runMain(compileResult, new String[]{arg});
         Assert.assertEquals(output, expectedValue, "string arg parsed as invalid array");
     }
 
@@ -109,7 +109,7 @@ public class ArgumentParserPositiveTest {
     public void testTupleArg() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_tuple_param.bal");
-        String output = runMain_bstring(compileResult, new String[]{"[101, {\"name\":\"Maryam\"}, \"finance\"]"});
+        String output = runMain(compileResult, new String[]{"[101, {\"name\":\"Maryam\"}, \"finance\"]"});
         Assert.assertEquals(output, "Id: 101, Name: Maryam, Dept: finance",
                             "string arg parsed as invalid tuple");
     }
@@ -118,7 +118,7 @@ public class ArgumentParserPositiveTest {
     public void testAllNamedArgs() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_defaultable_param.bal");
-        String output = runMain_bstring(compileResult, new String[]{"-i=2", "-s=hi", "-b=false", "-s2=is"});
+        String output = runMain(compileResult, new String[]{"-i=2", "-s=hi", "-b=false", "-s2=is"});
         Assert.assertEquals(output, "2 hi world: is false",
                             "string arg parsed as invalid named arg");
     }
@@ -127,7 +127,7 @@ public class ArgumentParserPositiveTest {
     public void testSingleNamedArg() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_defaultable_param.bal");
-        String output = runMain_bstring(compileResult, new String[]{"1", "false", "-s=hi", "-s2=is"});
+        String output = runMain(compileResult, new String[]{"1", "false", "-s=hi", "-s2=is"});
         Assert.assertEquals(output, "1 hi world: is false",
                             "string arg parsed as invalid named arg");
     }
@@ -136,7 +136,7 @@ public class ArgumentParserPositiveTest {
     public void testNoNamedArg() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_defaultable_param.bal");
-        String output = runMain_bstring(compileResult, new String[]{"1", "true"});
+        String output = runMain(compileResult, new String[]{"1", "true"});
         Assert.assertEquals(output, "1 default hello world: default true",
                             "string args with no named args parsed as invalid args");
     }
@@ -145,7 +145,7 @@ public class ArgumentParserPositiveTest {
     public void testMultipleParam() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_multiple_typed_params.bal");
-        String output = runMain_bstring(compileResult, new String[]{"1000", "1.0", "Hello Ballerina", "255", "true",
+        String output = runMain(compileResult, new String[]{"1000", "1.0", "Hello Ballerina", "255", "true",
                 "{ \"name\": \"Maryam\" }", "<book>Harry Potter</book>",
                 "{ \"name\": \"Em\" }", "just", "the", "rest"});
         Assert.assertEquals(output,
@@ -158,7 +158,7 @@ public class ArgumentParserPositiveTest {
     public void testOneDimArrParam() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_oneD_array_param.bal");
-        String output = runMain_bstring(compileResult, new String[]{"[1, 200, 3]", "[\"hello\", \"ballerina\"]",
+        String output = runMain(compileResult, new String[]{"[1, 200, 3]", "[\"hello\", \"ballerina\"]",
                 "[1.0, 20.4, 30.3]",
                 "[true, true, false]", "[5, \"Maryam\", { \"name\": \"Maryam\" }]",
                 "[{ \"name\": \"Maryam\" }, { \"name\": \"Em\" }, { \"name\": \"Ziyad\" }]"});
@@ -171,7 +171,7 @@ public class ArgumentParserPositiveTest {
     public void testMapParam() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_map_param.bal");
-        String output = runMain_bstring(compileResult, new String[]{"{\"int\":10, \"test\":120}",
+        String output = runMain(compileResult, new String[]{"{\"int\":10, \"test\":120}",
                 "{\"test\":\"Ballerina\", \"string\":\"str\"}",
                 "{\"test\":12.0, \"float\":11.1}",
                 "{\"boolean\":false, \"test\":true}",
@@ -186,7 +186,7 @@ public class ArgumentParserPositiveTest {
     public void testMainWithOptionalParams(String inputValue, String expectedValue) {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_optional_param.bal");
-        String output = runMain_bstring(compileResult, new String[]{inputValue});
+        String output = runMain(compileResult, new String[]{inputValue});
         Assert.assertEquals(output, expectedValue, "evaluated to invalid value");
     }
 
@@ -194,7 +194,7 @@ public class ArgumentParserPositiveTest {
     public void testMainWithOptionalParamsNoneSpecified() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_optional_defaultable_param.bal");
-        String output = runMain_bstring(compileResult, new String[]{});
+        String output = runMain(compileResult, new String[]{});
         Assert.assertEquals(output, "string value: s is nil m is nil", "evaluated to invalid value");
     }
 
@@ -202,7 +202,7 @@ public class ArgumentParserPositiveTest {
     public void testMainWithOptionalDefaultableParamOneArgSpecified(String inputValue, String expectedValue) {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_optional_defaultable_param.bal");
-        String output = runMain_bstring(compileResult, new String[]{inputValue});
+        String output = runMain(compileResult, new String[]{inputValue});
         Assert.assertEquals(output, expectedValue, "evaluated to invalid value");
     }
 
@@ -210,8 +210,8 @@ public class ArgumentParserPositiveTest {
     public void testMainWithOptionalParamsBothSpecified() {
         compileResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
                                                      "test_main_with_optional_defaultable_param.bal");
-        String output = runMain_bstring(compileResult,
-                                        new String[]{"-s=ballerina", "-m={\"eleven\":11,\"twelve\":12}"});
+        String output = runMain(compileResult,
+                                new String[]{"-s=ballerina", "-m={\"eleven\":11,\"twelve\":12}"});
         Assert.assertEquals(output, "string value: ballerina eleven=11 twelve=12",
                             "evaluated to invalid value");
     }
@@ -283,9 +283,9 @@ public class ArgumentParserPositiveTest {
         };
     }
 
-    private String runMain_bstring(CompileResult compileResult, String[] args) {
+    private String runMain(CompileResult compileResult, String[] args) {
         try {
-            return BCompileUtil.runMain_bstring(compileResult, args);
+            return BCompileUtil.runMain(compileResult, args);
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }

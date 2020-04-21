@@ -29,7 +29,7 @@ public class ListenerLifeCycleTest {
     @Test
     public void testListnerGracefulStop() {
         CompileResult result = BCompileUtil.compile("test-src/object/listner-lifecycle-functions.bal");
-        String consoleOutput = BCompileUtil.runMain_bstring(result, new String[] {});
+        String consoleOutput = BCompileUtil.runMain(result, new String[] {});
         Assert.assertEquals(consoleOutput, "running main\nrunning __start\nrunning __gracefulStop",
                             "found: " + consoleOutput);
     }

@@ -78,6 +78,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SIMPLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
@@ -128,12 +129,27 @@ public class JvmCastGen {
         } else if (targetType.jTag == JTypeTags.JDOUBLE) {
             generateCheckCastBToJDouble(mv, sourceType);
         } else if (targetType.jTag == JTypeTags.JREF) {
-            generateCheckCastBToJRef(mv, sourceType, targetType);
+            if (!isBString && ((JType.JRefType) targetType).typeValue.equals(B_STRING_VALUE)) {
+                generateCheckCastBToJString(mv, sourceType);
+            } else {
+                generateCheckCastBToJRef(mv, sourceType, targetType);
+            }
         } else if (targetType.jTag == JTypeTags.JARRAY) {
             generateCheckCastBToJRef(mv, sourceType, targetType);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java %s'",
-                    sourceType, targetType));
+                                                           sourceType, targetType));
+        }
+    }
+
+    private static void generateCheckCastBToJString(MethodVisitor mv, BType sourceType) {
+
+        if (TypeTags.isStringTypeTag(sourceType.tag)) {
+            mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
+                               String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
+        } else {
+            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java byte'",
+                                                           sourceType));
         }
     }
 
