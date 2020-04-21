@@ -18,9 +18,11 @@
 package org.ballerinalang.test.types.lists;
 
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -41,6 +43,22 @@ public class ArrayDestructureTest {
     @Test
     public void simpleArrayDestructureBindingTest() {
         BValue[] result = BRunUtil.invoke(compileResult, "testSimpleListBindingPattern");
+    }
+
+    @Test
+    public void simpleArrayDestructureNegativeTest() {
+        CompileResult negativeTestCompile = BCompileUtil
+                .compile("test-src/types/lists/array_destructure_negative.bal");
+        Assert.assertEquals(negativeTestCompile.getErrorCount(), 2);
+
+        int index = 0;
+        BAssertUtil.validateError(negativeTestCompile, index++
+                , "incompatible types: expected '[int,int,int,int,int]', found 'int[4]'"
+                , 12, 23);
+
+        BAssertUtil.validateError(negativeTestCompile, index++
+                , "incompatible types: expected '[int,int,int,boolean]', found 'int[4]'"
+                , 15, 20);
     }
 
 }
