@@ -1,0 +1,89 @@
+{
+    "kind": "MODULE_PART",
+    "children": [
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "XML_NAMESPACE_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "XMLNS_KEYWORD"
+                        },
+                        {
+                            "kind": "STRING_LITERAL",
+                            "value": "http://ballerinalang.org/ns0"
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                },
+                {
+                    "kind": "XML_NAMESPACE_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "XMLNS_KEYWORD"
+                        },
+                        {
+                            "kind": "STRING_LITERAL",
+                            "value": "http://ballerinalang.org/ns1"
+                        },
+                        {
+                            "kind": "AS_KEYWORD"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "ns1"
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                },
+                {
+                    "kind": "XML_NAMESPACE_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "XMLNS_KEYWORD"
+                        },
+                        {
+                            "kind": "QUALIFIED_IDENTIFIER",
+                            "children": [
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "pkg2"
+                                },
+                                {
+                                    "kind": "COLON_TOKEN"
+                                },
+                                {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "ns2"
+                                }
+                            ]
+                        },
+                        {
+                            "kind": "AS_KEYWORD"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "ns2"
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "EOF_TOKEN"
+        }
+    ]
+}

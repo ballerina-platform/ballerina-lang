@@ -15,26 +15,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.internal.parser;
+package io.ballerinalang.compiler.parser.test.syntax.misc;
+
+import org.testng.annotations.Test;
 
 /**
- * Traces the current position during input tokenization by the {@link BallerinaLexer}.
+ * Test parsing documentations.
  * 
- * @since 1.2.0
+ * @since 1.3.0
  */
-public class PositionTracer {
+public class DocumentationTest extends AbstractMiscTest {
 
-    protected int line = 1;
-    protected int startCol = 1;
-    protected int length = 0;
-
-    public void markTokenEnd() {
-        this.startCol += this.length;
-        this.length = 0;
+    @Test
+    public void testBasicDocumentation() {
+        testFile("documentation/doc_source_01.bal", "documentation/doc_assert_01.json");
     }
 
-    public void markNewLine() {
-        this.line++;
-        this.startCol = 0;
-    }
+    // Recovery tests
+
 }

@@ -131,7 +131,7 @@ public class BallerinaLexer {
                 token = processStringLiteral();
                 break;
             case LexerTerminals.HASH:
-                token = getSyntaxToken(SyntaxKind.HASH_TOKEN);
+                token = processDocumentationLine();
                 break;
             case LexerTerminals.AT:
                 token = getSyntaxToken(SyntaxKind.AT_TOKEN);
@@ -590,7 +590,6 @@ public class BallerinaLexer {
             case LexerTerminals.HANDLE:
             case LexerTerminals.ANY:
             case LexerTerminals.ANYDATA:
-            case LexerTerminals.VAR:
             case LexerTerminals.NEVER:
                 return getTypeToken(tokenText);
 
@@ -665,6 +664,20 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.NULL_KEYWORD);
             case LexerTerminals.LOCK:
                 return getSyntaxToken(SyntaxKind.LOCK_KEYWORD);
+            case LexerTerminals.ANNOTATION:
+                return getSyntaxToken(SyntaxKind.ANNOTATION_KEYWORD);
+            case LexerTerminals.SOURCE:
+                return getSyntaxToken(SyntaxKind.SOURCE_KEYWORD);
+            case LexerTerminals.VAR:
+                return getSyntaxToken(SyntaxKind.VAR_KEYWORD);
+            case LexerTerminals.WORKER:
+                return getSyntaxToken(SyntaxKind.WORKER_KEYWORD);
+            case LexerTerminals.PARAMETER:
+                return getSyntaxToken(SyntaxKind.PARAMETER_KEYWORD);
+            case LexerTerminals.FIELD:
+                return getSyntaxToken(SyntaxKind.FIELD_KEYWORD);
+            case LexerTerminals.XMLNS:
+                return getSyntaxToken(SyntaxKind.XMLNS_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
@@ -957,5 +970,45 @@ public class BallerinaLexer {
             default:
                 return getSyntaxToken(SyntaxKind.PIPE_TOKEN);
         }
+    }
+
+    /**
+     * Process and return documentation line.
+     * <p>
+     * <code>
+     * DocumentationLine := BlankSpace* # [Space] DocumentationContent
+     * <br/>
+     * DocumentationContent := (^ 0xA)* 0xA
+     * <br/>
+     * BlankSpace := Tab | Space
+     * <br/>
+     * Space := 0x20
+     * <br/>
+     * Tab := 0x9
+     * </code>
+     * 
+     * @return Documentation line token
+     */
+    private STToken processDocumentationLine() {
+        // TODO: validate the markdown syntax.
+        reader.advance();
+        int nextToken = peek();
+        while (!reader.isEOF()) {
+            switch (nextToken) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                    break;
+                default:
+                    reader.advance();
+                    nextToken = peek();
+                    continue;
+            }
+            break;
+        }
+
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        String lexeme = getLexeme();
+        STNode trailingTrivia = processTrailingTrivia();
+        return STNodeFactory.createDocumentationLineToken(lexeme, leadingTrivia, trailingTrivia);
     }
 }

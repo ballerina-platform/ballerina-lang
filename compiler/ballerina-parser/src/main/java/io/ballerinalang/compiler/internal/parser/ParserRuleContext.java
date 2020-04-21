@@ -50,6 +50,8 @@ public enum ParserRuleContext {
     RECORD_BODY_START("record-body-start"),
     RECORD_BODY_END("record-body-end"),
     RECORD_FIELD("record-field"),
+    RECORD_FIELD_OR_RECORD_END("record-field-orrecord-end"),
+    RECORD_FIELD_START("record-field-start"),
     RECORD_FIELD_WITHOUT_METADATA("record-field-without-metadata"),
     TYPE_DESCRIPTOR("type-descriptor"),
     RECORD_TYPE_DESCRIPTOR("record-type-desc"),
@@ -96,9 +98,21 @@ public enum ParserRuleContext {
     ANNOT_REFERENCE("annot-reference"),
     ANNOTATIONS("annots"),
     DOC_STRING("doc-string"),
-    IDENTIFIER("identifier"),
     QUALIFIED_IDENTIFIER("qualified-identifier"),
-    EQUAL_OR_RIGHT_ARROW("equal-or-right-arrow"),
+    ANNOTATION_DECL("annotation-decl"),
+    ANNOT_DECL_OPTIONAL_TYPE("annot-decl-optional-type"),
+    ANNOT_DECL_RHS("annot-decl-rhs"),
+    ANNOT_OPTIONAL_ATTACH_POINTS("annot-optional-attach-points"),
+    ANNOT_ATTACH_POINTS_LIST("annot-attach-points-list"),
+    ATTACH_POINT("attach-point"),
+    ATTACH_POINT_IDENT("attach-point-ident"),
+    SINGLE_KEYWORD_ATTACH_POINT_IDENT("single-keyword-attach-point-ident"),
+    IDENT_AFTER_OBJECT_IDENT("ident-after-object-ident"),
+    XML_NAMESPACE_DECLARATION("xml-namespace-decl"),
+    XML_NAMESPACE_PREFIX_DECL("namespace-prefix-decl"),
+    DEFAULT_WORKER_INIT("default-worker-init"),
+    NAMED_WORKERS("named-workers"),
+    DEFAULT_WORKER("default-worker-init"),
 
     // Statements
     STATEMENT("statement"),
@@ -128,6 +142,7 @@ public enum ParserRuleContext {
     EXPRESSION_STATEMENT("expression-statement"),
     EXPRESSION_STATEMENT_START("expression-statement-start"),
     LOCK_STMT("lock-stmt"),
+    NAMED_WORKER_DECL("named-worker-decl"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -161,6 +176,10 @@ public enum ParserRuleContext {
     IS_KEYWORD("is"),
     NULL_KEYWORD("null"),
     LOCK_KEYWORD("lock"),
+    ANNOTATION_KEYWORD("annotation"),
+    SOURCE_KEYWORD("source"),
+    XMLNS_KEYWORD("xmlns"),
+    WORKER_KEYWORD("worker"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -195,6 +214,16 @@ public enum ParserRuleContext {
     SERVICE_NAME("service-name"),
     COMPOUND_BINARY_OPERATOR("compound-binary-operator"),
     UNARY_OPERATOR("unary-operator"),
+    FUNCTION_IDENT("func-ident"),
+    FIELD_IDENT("field-ident"),
+    OBJECT_IDENT("object-ident"),
+    RESOURCE_IDENT("resource-ident"),
+    RECORD_IDENT("record-ident"),
+    ANNOTATION_TAG("annotation-tag"),
+    ATTACH_POINT_END("attach-point-end"),
+    IDENTIFIER("identifier"),
+    NAMESPACE_PREFIX("namespace-prefix"),
+    WORKER_NAME("worker-name"),
 
     // Expressions
     EXPRESSION("expression"),
@@ -216,6 +245,8 @@ public enum ParserRuleContext {
     HEX_INTEGER_LITERAL("hex-integer-literal"),
     TYPE_TEST_EXPRESSION("type-test-expr"),
     NIL_LITERAL("nil-literal"),
+    CONSTANT_EXPRESSION("constant-expr"),
+    CONSTANT_EXPRESSION_START("constant-expr-start"),
     ;
 
     private String value;

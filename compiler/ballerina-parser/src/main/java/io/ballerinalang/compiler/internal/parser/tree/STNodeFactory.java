@@ -870,5 +870,98 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 openParenToken,
                 closeParenToken);
     }
+
+    public static STNode createAnnotationDeclarationNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode constKeyword,
+            STNode annotationKeyword,
+            STNode typeDescriptor,
+            STNode annotationTag,
+            STNode onKeyword,
+            STNode attachPoints,
+            STNode semicolonToken) {
+
+        return new STAnnotationDeclarationNode(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                annotationKeyword,
+                typeDescriptor,
+                annotationTag,
+                onKeyword,
+                attachPoints,
+                semicolonToken);
+    }
+
+    public static STNode createAnnotationAttachPointNode(
+            STNode sourceKeyword,
+            STNode firstIdent,
+            STNode secondIdent) {
+
+        return new STAnnotationAttachPointNode(
+                sourceKeyword,
+                firstIdent,
+                secondIdent);
+    }
+
+    public static STNode createXMLNamespaceDeclarationNode(
+            STNode xmlnsKeyword,
+            STNode namespaceuri,
+            STNode asKeyword,
+            STNode namespacePrefix,
+            STNode semicolonToken) {
+
+        return new STXMLNamespaceDeclarationNode(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken);
+    }
+
+    public static STNode createFunctionBodyBlockNode(
+            STNode openBraceToken,
+            STNode namedWorkerDeclarator,
+            STNode statements,
+            STNode closeBraceToken) {
+
+        return new STFunctionBodyBlockNode(
+                openBraceToken,
+                namedWorkerDeclarator,
+                statements,
+                closeBraceToken);
+    }
+
+    public static STNode createNamedWorkerDeclarationNode(
+            STNode annotations,
+            STNode workerKeyword,
+            STNode workerName,
+            STNode returnTypeDesc,
+            STNode workerBody) {
+
+        return new STNamedWorkerDeclarationNode(
+                annotations,
+                workerKeyword,
+                workerName,
+                returnTypeDesc,
+                workerBody);
+    }
+
+    public static STNode createNamedWorkerDeclarator(
+            STNode workerInitStatements,
+            STNode namedWorkerDeclarations) {
+
+        return new STNamedWorkerDeclarator(
+                workerInitStatements,
+                namedWorkerDeclarations);
+    }
+
+    public static STNode createDocumentationStringNode(
+            STNode documentationLines) {
+
+        return new STDocumentationStringNode(
+                documentationLines);
+    }
 }
 

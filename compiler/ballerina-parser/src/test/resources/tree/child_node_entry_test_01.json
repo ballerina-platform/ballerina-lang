@@ -42,7 +42,7 @@
                     }
                 },
                 "functionBody": {
-                    "kind": "BLOCK_STATEMENT",
+                    "kind": "FUNCTION_BODY_BLOCK",
                     "value": {
                         "openBraceToken": {
                             "kind": "OPEN_BRACE_TOKEN",

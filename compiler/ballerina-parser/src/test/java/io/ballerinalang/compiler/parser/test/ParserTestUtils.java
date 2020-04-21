@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
+import io.ballerinalang.compiler.internal.parser.tree.STDocumentationLineToken;
 import io.ballerinalang.compiler.internal.parser.tree.STIdentifierToken;
 import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
@@ -263,6 +264,8 @@ public class ParserTestUtils {
             case COMMENT:
             case INVALID:
                 return ((SyntaxTrivia) token).text;
+            case DOCUMENTATION_LINE:
+                return ((STDocumentationLineToken) token).text;
             default:
                 return token.kind.toString();
 
@@ -287,6 +290,10 @@ public class ParserTestUtils {
                 return SyntaxKind.CONST_DECLARATION;
             case "MODULE_VAR_DECL":
                 return SyntaxKind.MODULE_VAR_DECL;
+            case "XML_NAMESPACE_DECLARATION":
+                return SyntaxKind.XML_NAMESPACE_DECLARATION;
+            case "ANNOTATION_DECLARATION":
+                return SyntaxKind.ANNOTATION_DECLARATION;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -361,6 +368,18 @@ public class ParserTestUtils {
                 return SyntaxKind.NULL_KEYWORD;
             case "LOCK_KEYWORD":
                 return SyntaxKind.LOCK_KEYWORD;
+            case "VAR_KEYWORD":
+                return SyntaxKind.VAR_KEYWORD;
+            case "SOURCE_KEYWORD":
+                return SyntaxKind.SOURCE_KEYWORD;
+            case "WORKER_KEYWORD":
+                return SyntaxKind.WORKER_KEYWORD;
+            case "PARAMETER_KEYWORD":
+                return SyntaxKind.PARAMETER_KEYWORD;
+            case "FIELD_KEYWORD":
+                return SyntaxKind.FIELD_KEYWORD;
+            case "XMLNS_KEYWORD":
+                return SyntaxKind.XMLNS_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -439,8 +458,6 @@ public class ParserTestUtils {
                 return SyntaxKind.PIPE_TOKEN;
             case "AT_TOKEN":
                 return SyntaxKind.AT_TOKEN;
-            case "HASH_TOKEN":
-                return SyntaxKind.HASH_TOKEN;
             case "RIGHT_ARROW_TOKEN":
                 return SyntaxKind.RIGHT_ARROW_TOKEN;
 
@@ -531,6 +548,8 @@ public class ParserTestUtils {
                 return SyntaxKind.LOCK_STATEMENT;
 
             // Others
+            case "FUNCTION_BODY_BLOCK":
+                return SyntaxKind.FUNCTION_BODY_BLOCK;
             case "SIMPLE_TYPE":
                 return SyntaxKind.SIMPLE_TYPE;
             case "LIST":
@@ -593,6 +612,16 @@ public class ParserTestUtils {
                 return SyntaxKind.METADATA;
             case "ANNOTATION":
                 return SyntaxKind.ANNOTATION;
+            case "ANNOTATION_ATTACH_POINT":
+                return SyntaxKind.ANNOTATION_ATTACH_POINT;
+            case "NAMED_WORKER_DECLARATION":
+                return SyntaxKind.NAMED_WORKER_DECLARATION;
+            case "NAMED_WORKER_DECLARATOR":
+                return SyntaxKind.NAMED_WORKER_DECLARATOR;
+            case "DOCUMENTATION_STRING":
+                return SyntaxKind.DOCUMENTATION_STRING;
+            case "DOCUMENTATION_LINE":
+                return SyntaxKind.DOCUMENTATION_LINE;
 
             // Trivia
             case "EOF_TOKEN":
