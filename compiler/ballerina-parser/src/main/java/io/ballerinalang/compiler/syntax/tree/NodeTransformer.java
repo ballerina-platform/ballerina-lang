@@ -120,6 +120,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(localTypeDefinitionStatementNode);
     }
 
+    public T transform(LockStatementNode lockStatementNode) {
+        return transformSyntaxNode(lockStatementNode);
+    }
+
     public T transform(BinaryExpressionNode binaryExpressionNode) {
         return transformSyntaxNode(binaryExpressionNode);
     }
