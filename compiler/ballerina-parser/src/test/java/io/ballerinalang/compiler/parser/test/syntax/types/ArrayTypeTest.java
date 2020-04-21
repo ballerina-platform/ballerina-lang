@@ -27,6 +27,11 @@ public class ArrayTypeTest extends AbstractTypesTest {
 
     //Valid source test
 
+//    @Test
+//    public void testValidArrayTypeInModule() {
+//        test("int[] a;", "array-type/array_type_assert_01.json");
+//    }
+
     @Test
     public void testValidArrayTypeWithSimpleType() {
         test("int[] a;", "array-type/array_type_assert_01.json");
