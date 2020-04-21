@@ -782,3 +782,17 @@ function externDecryptAesGcm(byte[] input, byte[] key, byte[] iv, handle padding
     name: "decryptAesGcm",
     class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decrypt"
 } external;
+
+# Returns the `crypto:PublicKey` created with modulus and exponent retrieved from JWKs endpoint.
+#
+# + modulus - 'n' parameter, the modulus value for the RSA public key
+# + exponent - 'e' paramenter, the exponent value for the RSA public key
+# + return - Reference to the public key or else a `crypto:Error` if the modulus or exponent is invalid
+public function generatePublicKey(string modulus, string exponent) returns PublicKey|Error {
+    return externGeneratePublicKey(java:fromString(modulus), java:fromString(exponent));
+}
+
+function externGeneratePublicKey(handle modulus, handle exponent) returns PublicKey|Error = @java:Method {
+    name: "generatePublicKey",
+    class: "org.ballerinalang.stdlib.crypto.nativeimpl.Decode"
+} external;
