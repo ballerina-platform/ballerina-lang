@@ -255,6 +255,8 @@ public class ParserTestUtils {
                 return val.substring(1, lastCharPosition);
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
                 return ((STLiteralValueToken) token).text;
             case SIMPLE_TYPE:
                 return ((STTypeToken) token).text;
