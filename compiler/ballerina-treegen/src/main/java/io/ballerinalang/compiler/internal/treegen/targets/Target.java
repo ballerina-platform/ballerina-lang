@@ -45,7 +45,6 @@ public abstract class Target {
     protected static final String SYNTAX_KIND_CN = "SyntaxKind";
     protected static final String EXTERNAL_BASE_NODE_CN = "Node";
     protected static final String EXTERNAL_BASE_NON_TERMINAL_NODE_CN = "NonTerminalNode";
-    protected static final String JAVA_UTIL_OBJECTS_CN = "java.util.Objects";
 
     private static final String DOT = ".";
     private static final String JAVA_EXT = "java";
@@ -110,8 +109,7 @@ public abstract class Target {
             SyntaxNodeAttribute attribute = attributes.get(index);
             boolean isLast = (index + 1) == attributeCount;
             fields.add(new Field(attribute.getType(), attribute.getName(), index,
-                    attribute.getOccurrenceKind() == SyntaxNodeAttribute.OccurrenceKind.MULTIPLE,
-                    attribute.isOptional(), isLast));
+                    attribute.getOccurrenceKind(), attribute.isOptional(), isLast));
         }
         return fields;
     }

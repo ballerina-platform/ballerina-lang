@@ -721,13 +721,9 @@ public class BallerinaParser {
         List<STNode> moduleNameParts = new ArrayList<>();
         moduleNameParts.add(moduleNameStart);
 
-        STNode identifier;
-        STNode dotToken;
         while (!isEndOfImportModuleName(nextTokenKind)) {
-            dotToken = parseDotToken();
-            identifier = parseIdentifier(ParserRuleContext.IMPORT_MODULE_NAME);
-            STNode moduleNamePart = STNodeFactory.createSubModuleNameNode(dotToken, identifier);
-            moduleNameParts.add(moduleNamePart);
+            moduleNameParts.add(parseDotToken());
+            moduleNameParts.add(parseIdentifier(ParserRuleContext.IMPORT_MODULE_NAME));
             nextTokenKind = peek().kind;
         }
 
@@ -2759,6 +2755,12 @@ public class BallerinaParser {
             case IDENTIFIER_TOKEN:
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
+                STToken nextToken = peek(2);
+                //if the next token is <code>?</code> then it is an optional type descriptor with user defined type
+                if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
+                    finalKeyword = STNodeFactory.createEmptyNode();
+                    return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
+                }
                 return parseStatementStartsWithIdentifier(getAnnotations(annots));
             default:
                 // If the next token in the token stream does not match to any of the statements and
@@ -5828,6 +5830,7 @@ public class BallerinaParser {
             return sol.recoveredNode;
         }
     }
+
     /**
      * Parse null-keyword.
      *

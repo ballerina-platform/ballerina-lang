@@ -40,8 +40,8 @@ public class ImportDeclarationNode extends NonTerminalNode {
         return optionalChildInBucket(1);
     }
 
-    public NodeList<IdentifierToken> moduleName() {
-        return new NodeList<>(childInBucket(2));
+    public SeparatedNodeList<IdentifierToken> moduleName() {
+        return new SeparatedNodeList<>(childInBucket(2));
     }
 
     public Optional<Node> version() {
@@ -80,7 +80,7 @@ public class ImportDeclarationNode extends NonTerminalNode {
     public ImportDeclarationNode modify(
             Token importKeyword,
             Node orgName,
-            NodeList<IdentifierToken> moduleName,
+            SeparatedNodeList<IdentifierToken> moduleName,
             Node version,
             Node prefix,
             Token semicolon) {

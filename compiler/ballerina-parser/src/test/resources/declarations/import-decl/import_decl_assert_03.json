@@ -24,28 +24,18 @@
                     "value": "foo"
                 },
                 {
-                    "kind": "SUB_MODULE_NAME",
-                    "children": [
-                        {
-                            "kind": "DOT_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "bar"
-                        }
-                    ]
+                    "kind": "DOT_TOKEN"
                 },
                 {
-                    "kind": "SUB_MODULE_NAME",
-                    "children": [
-                        {
-                            "kind": "DOT_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "baz"
-                        }
-                    ]
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "bar"
+                },
+                {
+                    "kind": "DOT_TOKEN"
+                },
+                {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "baz"
                 }
             ]
         },

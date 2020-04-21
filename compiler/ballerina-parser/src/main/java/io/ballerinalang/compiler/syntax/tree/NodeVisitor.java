@@ -199,10 +199,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(importVersionNode);
     }
 
-    public void visit(SubModuleNameNode subModuleNameNode) {
-        visitSyntaxNode(subModuleNameNode);
-    }
-
     public void visit(SpecificFieldNode specificFieldNode) {
         visitSyntaxNode(specificFieldNode);
     }
