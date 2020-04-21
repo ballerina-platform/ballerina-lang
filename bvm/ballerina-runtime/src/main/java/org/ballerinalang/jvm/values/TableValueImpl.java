@@ -63,7 +63,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private LinkedHashMap<Integer, Map.Entry<K, V>> entries;
     private LinkedHashMap<Integer, V> values;
     private LinkedHashMap<Integer, K> keys;
-    private String[] fieldNames;
+    private String[] fieldNames = null;
     private ValueHolder valueHolder;
 
     public TableValueImpl(BTableType type) {
@@ -79,8 +79,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
     }
 
-    public TableValueImpl(BTableType type, ArrayValue data) {
+    public TableValueImpl(BTableType type, ArrayValue data, ArrayValue fieldNames) {
         this(type);
+        if (this.fieldNames == null) {
+            this.fieldNames = fieldNames.getStringArray();
+        }
         addData(data);
     }
 

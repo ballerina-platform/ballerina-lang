@@ -1333,8 +1333,9 @@ public class JvmInstructionGen {
             this.mv.visitInsn(DUP);
             loadType(this.mv, inst.type);
             this.loadVar(inst.dataOp.variableDcl);
+            this.loadVar(inst.keyColOp.variableDcl);
             this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE_IMPL, "<init>",
-                    String.format("(L%s;L%s;)V", TABLE_TYPE, ARRAY_VALUE), false);
+                    String.format("(L%s;L%s;L%s;)V", TABLE_TYPE, ARRAY_VALUE, ARRAY_VALUE), false);
 
             this.storeToVar(inst.lhsOp.variableDcl);
         }
