@@ -197,6 +197,7 @@ dependencies {
     balDoc project(path: ':ballerina-lang:map', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:object', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:stream', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:table', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:string', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:typedesc', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:value', configuration: 'balDoc')

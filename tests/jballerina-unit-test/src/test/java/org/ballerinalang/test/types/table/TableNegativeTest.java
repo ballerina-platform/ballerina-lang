@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 8);
+        Assert.assertEquals(compileResult.getErrorCount(), 9);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -46,13 +46,15 @@ public class TableNegativeTest {
                 "expected: '1' fields but found '0'", 25, 20);
         validateError(compileResult, index++, "table key specifier '[age]' does not match with " +
                 "key constraint type '[string]'", 30, 26);
-        validateError(compileResult, index++, "field name 'address' used in key specifier is not " +
-                "found in table constraint type 'Customer'", 35, 44);
+        validateError(compileResult, index++, "table key specifier mismatch. expected: '[id]' but " +
+                "found '[address]'", 35, 44);
         validateError(compileResult, index++, "member access is not supported for keyless table " +
                 "'customerTable'", 45, 21);
         validateError(compileResult, index++, "invalid constraint type. expected subtype of " +
                 "'map<anydata|error>' but 'int'", 47, 41);
         validateError(compileResult, index++, "multi key member access is not supported for " +
                 "type 'map'. only support for subtype of 'table'", 52, 13);
+        validateError(compileResult, index++, "field 'name' used in key specifier is not a readonly " +
+                "field", 64, 26);
     }
 }

@@ -1,12 +1,12 @@
 type Customer record {
-  int id;
-  string firstName;
+  readonly int id;
+  readonly  string firstName;
   string lastName;
 };
 
 type Person record {
     string name;
-    int age;
+    readonly int age;
 };
 
 type CustomerTable table<Customer> key(id);
@@ -54,3 +54,14 @@ function testArrayAccessWithMultiKey() returns (string) {
     return keyString;
 }
 
+type Teacher record {
+    string name;
+    int age;
+};
+
+type TeacherTable table<Teacher> key(name);
+
+TeacherTable teacheTab = table [
+    { name: "AAA", age: 31 },
+    { name: "BBB", age: 34 }
+    ];
