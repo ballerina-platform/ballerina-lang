@@ -64,4 +64,9 @@ public class LockStatement extends AbstractStatementTest {
         "lock-stmt/lock_stmt_assert_06.json");
     }
 
+    @Test
+    public void testMissingCloseBrace() {
+        testFile("lock-stmt/lock_stmt_source_07.bal",
+        "lock-stmt/lock_stmt_assert_07.json");
+    }
 }

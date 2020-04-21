@@ -64,4 +64,9 @@ public class BlockStatement extends AbstractStatementTest {
         "block-stmt/block_stmt_assert_06.json");
     }
 
+    @Test
+    public void testMissingCloseBrace() {
+        testFile("block-stmt/block_stmt_source_07.bal",
+        "block-stmt/block_stmt_assert_07.json");
+    }
 }
