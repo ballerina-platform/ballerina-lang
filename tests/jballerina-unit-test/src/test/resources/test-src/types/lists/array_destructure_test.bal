@@ -12,3 +12,15 @@ public function testSimpleListBindingPattern() {
         panic error("Simple List binding pattern didn't work");
     }
 }
+
+public function testSimpleListBindingPatternWithUndefinedSize() {
+    int[] intArray = [1, 2, 3, 4];
+
+    int[] a;
+
+    [...a] = intArray;
+
+    if (a[0] != 1 || a[1] != 2 || a[2] != 3 || a[3] != 4) {
+        panic error("Simple List binding pattern with undefined size didn't work");
+    }
+}

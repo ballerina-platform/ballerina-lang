@@ -137,6 +137,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -1727,55 +1728,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType type = typeChecker.checkExpr(tupleDeStmt.expr, this.env, tupleDeStmt.varRef.type);
 
         if (type.tag != TypeTags.SEMANTIC_ERROR) {
-            checkEquivalencyForListDestructure(tupleDeStmt);
-        }
-    }
-
-    /**
-     * Check the expression of tupleDestructure and process for arrays and tuples separately.
-     *
-     * @param tupleDeStmt Is the tuple destructure statement from the parser.
-     */
-    private void checkEquivalencyForListDestructure(BLangTupleDestructure tupleDeStmt) {
-
-        if (tupleDeStmt.expr.type.tag == TypeTags.ARRAY) {
-            checkArrayVarRefEquivalency(tupleDeStmt);
-        } else {
             checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
                     tupleDeStmt.expr.type, tupleDeStmt.expr.pos);
-        }
-    }
-
-    private void checkArrayVarRefEquivalency(BLangTupleDestructure tupleDeStmt) {
-        BArrayType source = (BArrayType) tupleDeStmt.expr.type;
-        DiagnosticPos rhsPos = tupleDeStmt.expr.pos;
-        DiagnosticPos pos = tupleDeStmt.pos;
-        BLangTupleVarRef target = tupleDeStmt.varRef;
-
-        if (source.size < target.expressions.size()) {
-            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, source);
-        }
-
-        BType souceElementType = source.eType;
-        for (BLangExpression expression : target.expressions) {
-            if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
-                Name varName = names.fromIdNode(simpleVarRef.variableName);
-                if (varName == Names.IGNORE) {
-                    continue;
-                }
-
-                resetTypeNarrowing(simpleVarRef, souceElementType);
-
-                BType targetType = simpleVarRef.type;
-                if (!types.isAssignable(souceElementType, targetType)) {
-                    dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, source);
-                    break;
-                }
-            }
-            else {
-                dlog.error(expression.pos, DiagnosticCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN, expression);
-            }
         }
     }
 
@@ -1958,9 +1912,54 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return ((BUnionType) type).getMemberTypes().stream().anyMatch(this::hasErrorType);
     }
 
+    /**
+     * This method checks destructure patterns when given an array source.
+     *
+     * @param pos diagnostic Pos of the tuple de-structure statement.
+     * @param target target tuple variable.
+     * @param source source type.
+     * @param rhsPos position of source expression.
+     */
+    private void checkArrayVarRefEquivalency(DiagnosticPos pos, BLangTupleVarRef target, BType source,
+            DiagnosticPos rhsPos) {
+        BArrayType arraySource = (BArrayType) source;
+
+        // For unsealed
+        if (arraySource.size < target.expressions.size() && arraySource.state != BArrayState.UNSEALED) {
+            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, arraySource);
+        }
+
+        BType souceElementType = arraySource.eType;
+        for (BLangExpression expression : target.expressions) {
+            if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
+                Name varName = names.fromIdNode(simpleVarRef.variableName);
+                if (varName == Names.IGNORE) {
+                    continue;
+                }
+
+                resetTypeNarrowing(simpleVarRef, souceElementType);
+
+                BType targetType = simpleVarRef.type;
+                if (!types.isAssignable(souceElementType, targetType)) {
+                    dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, arraySource);
+                    break;
+                }
+            }
+            else {
+                dlog.error(expression.pos, DiagnosticCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN, expression);
+            }
+        }
+    }
+
     private void checkTupleVarRefEquivalency(DiagnosticPos pos, BLangTupleVarRef target, BType source,
                                              DiagnosticPos rhsPos) {
-        if (source.tag != TypeTags.TUPLE && source.tag != TypeTags.ARRAY) {
+        if (source.tag == TypeTags.ARRAY) {
+            checkArrayVarRefEquivalency(pos, target, source, rhsPos);
+            return;
+        }
+
+        if (source.tag != TypeTags.TUPLE ) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, source);
             return;
         }

@@ -46,6 +46,11 @@ public class ArrayDestructureTest {
     }
 
     @Test
+    public void simpleArrayDestructureWithUndefinedSizeTest() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testSimpleListBindingPatternWithUndefinedSize");
+    }
+
+    @Test
     public void simpleArrayDestructureNegativeTest() {
         CompileResult negativeTestCompile = BCompileUtil
                 .compile("test-src/types/lists/array_destructure_negative.bal");
