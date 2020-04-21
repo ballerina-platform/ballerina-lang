@@ -2651,6 +2651,7 @@ public class BallerinaParser {
             case RETURN_KEYWORD:
             case TYPE_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+            case LOCK_KEYWORD:
                 break;
             default:
                 if (isValidLHSExpression(tokenKind)) {
