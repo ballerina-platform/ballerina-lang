@@ -76,4 +76,73 @@ service differentStatusCodes on new http:Listener(9223) {
     resource function sendAcceptedWithoutBody(http:Caller caller, http:Request req) {
         checkpanic caller->accepted();
     }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/noContentWithBody"
+    }
+    resource function sendNoContentWithBody(http:Caller caller, http:Request req) {
+        http:Response res = new;
+        res.setHeader("x-custom-header", "custom-header-value");
+        res.setPayload(xml `<test>No Content</test>`);
+        checkpanic caller->noContent(res); //Body will be removed
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/noContentWithoutBody"
+    }
+    resource function sendNoContentWithoutBody(http:Caller caller, http:Request req) {
+        checkpanic caller->noContent();
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/badRequestWithBody"
+    }
+    resource function sendBadRequestWithBody(http:Caller caller, http:Request req) {
+        http:Response res = new;
+        res.setPayload(xml `<test>Bad Request</test>`);
+        checkpanic caller->badRequest(res);
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/badRequestWithoutBody"
+    }
+    resource function sendBadRequestWithoutBody(http:Caller caller, http:Request req) {
+        checkpanic caller->badRequest();
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/notFoundWithBody"
+    }
+    resource function sendNotFoundWithBody(http:Caller caller, http:Request req) {
+        checkpanic caller->notFound(xml `<test>artifacts not found</test>`);
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/notFoundWithoutBody"
+    }
+    resource function sendNotFoundWithoutBody(http:Caller caller, http:Request req) {
+        checkpanic caller->notFound();
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/serverErrWithBody"
+    }
+    resource function sendServerErrWithBody(http:Caller caller, http:Request req) {
+        checkpanic caller->internalServerError(xml `<test>Internal Server Error Occurred</test>`);
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/serverErrWithoutBody"
+    }
+    resource function sendServerErrWithoutBody(http:Caller caller, http:Request req) {
+        checkpanic caller->internalServerError();
+    }
 }
