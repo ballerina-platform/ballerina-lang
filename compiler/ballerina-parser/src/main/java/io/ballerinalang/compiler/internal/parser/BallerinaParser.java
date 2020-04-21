@@ -2733,10 +2733,6 @@ public class BallerinaParser {
             case IDENTIFIER_TOKEN:
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
-                if (isComplexTypeDescriptorDeclaration()) {
-                    finalKeyword = STNodeFactory.createEmptyNode();
-                    return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
-                }
                 return parseStatementStartsWithIdentifier(getAnnotations(annots));
             default:
                 // If the next token in the token stream does not match to any of the statements and
@@ -5654,59 +5650,4 @@ public class BallerinaParser {
                 return false;
         }
     }
-
-    private boolean isComplexTypeDescriptorDeclaration() {
-        int k = 2;
-        STNode currentToken;
-        currentToken = peek(k);
-
-        switch (currentToken.kind) {
-            case QUESTION_MARK_TOKEN: //Optional type
-                return true;
-            case OPEN_BRACKET_TOKEN: //Still it can be an assignment statement
-            case PIPE_TOKEN:
-                break;
-            default:
-                return false;
-        }
-
-        STNode previousToken;
-        previousToken = peek(k - 1);
-
-        boolean equalFound = false;
-        while (currentToken.kind != SyntaxKind.SEMICOLON_TOKEN && currentToken.kind != SyntaxKind.EOF_TOKEN) {
-
-            if (currentToken.kind == SyntaxKind.CLOSE_BRACKET_TOKEN &&
-                    previousToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
-                return true;
-            }
-            switch (currentToken.kind) {
-                case CLOSE_BRACKET_TOKEN:
-                    //If <code>[]<code> found then its array type desc
-                    if (previousToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
-                        return true;
-                    }
-                    break;
-                //If <code>[]<code> found then its member access statement eg foo[4].bar = 4;
-                case DOT_TOKEN:
-                    return false;
-                case EQUAL_TOKEN: //Still it can be assignment statement of complex type desc
-                    equalFound = true;
-                default:
-                    break;
-            }
-            previousToken = currentToken;
-            currentToken = peek(++k);
-        }
-        /**
-         * assumed EQUAL_TOKEN or DOT_TOKEN is a must for assignment statements which are starting
-         * with <code><Identifier>[</code>
-         */
-        if (equalFound) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
 }
