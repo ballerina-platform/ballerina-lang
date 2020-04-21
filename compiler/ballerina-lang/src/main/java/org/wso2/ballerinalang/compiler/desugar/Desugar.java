@@ -5895,8 +5895,7 @@ public class Desugar extends BLangNodeVisitor {
         BLangMatchTypedBindingPatternClause successPattern = null;
         Name field = getFieldName(accessExpr);
         if (field == Names.EMPTY) {
-            successPattern = getSuccessPattern(accessExpr, tempResultVar,
-                    accessExpr.errorSafeNavigation);
+            successPattern = getSuccessPattern(accessExpr, tempResultVar, accessExpr.errorSafeNavigation);
             matchStmt.patternClauses.add(successPattern);
             pushToMatchStatementStack(matchStmt, accessExpr, successPattern);
             return;
@@ -6022,14 +6021,14 @@ public class Desugar extends BLangNodeVisitor {
                         symTable.nilType, Names.NIL_VALUE), false);
         BLangBlockStmt patternBody = ASTBuilderUtil.createBlockStmt(expr.pos, Lists.of(assignmentStmt));
 
-        BLangMatchStaticBindingPatternClause c =
+        BLangMatchStaticBindingPatternClause matchAllPattern =
                 (BLangMatchStaticBindingPatternClause) TreeBuilder.createMatchStatementStaticBindingPattern();
         String matchAllVarName = "_";
-        c.literal = ASTBuilderUtil.createVariableRef(expr.pos, new BVarSymbol(0, names.fromString(matchAllVarName),
-                this.env.scope.owner.pkgID, symTable.anyType, this.env.scope.owner));
-        c.body = patternBody;
+        matchAllPattern.literal = ASTBuilderUtil.createVariableRef(expr.pos, new BVarSymbol(0,
+                names.fromString(matchAllVarName), this.env.scope.owner.pkgID, symTable.anyType, this.env.scope.owner));
+        matchAllPattern.body = patternBody;
 
-        return c;
+        return matchAllPattern;
     }
 
     private BLangMatchTypedBindingPatternClause getSuccessPattern(BLangAccessExpression accessExpr,

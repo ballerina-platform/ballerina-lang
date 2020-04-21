@@ -344,8 +344,13 @@ type Bar1 record {|
     int i2;
 |};
 
+function testOptionalFieldAccessInUnionType() {
+    testOptionalFieldAccessInUnionType1();
+    testOptionalFieldAccessInUnionType2();
+}
+
 function testOptionalFieldAccessInUnionType1() {
-    Foo1 f = { s1: "s", i1: 1};
+    Foo1 f = {s1: "s", i1: 1};
     Foo1|Bar1? fb = f;
 
     string|int? x1 = fb["s1"];
@@ -359,7 +364,7 @@ function testOptionalFieldAccessInUnionType1() {
 }
 
 function testOptionalFieldAccessInUnionType2() {
-    Bar1 b = { s2: "s", i2: 1};
+    Bar1 b = {s2: "s", i2: 1};
     Foo1|Bar1? fb = b;
 
     string|int? x1 = fb["s1"];
