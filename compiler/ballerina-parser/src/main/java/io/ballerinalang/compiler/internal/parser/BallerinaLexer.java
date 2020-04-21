@@ -93,7 +93,7 @@ public class BallerinaLexer {
                 token = getSyntaxToken(SyntaxKind.SEMICOLON_TOKEN);
                 break;
             case LexerTerminals.DOT:
-                token = parseDotOrEllipsis();
+                token = processDot();
                 break;
             case LexerTerminals.COMMA:
                 token = getSyntaxToken(SyntaxKind.COMMA_TOKEN);
@@ -414,14 +414,18 @@ public class BallerinaLexer {
     }
 
     /**
-     * Process dot or ellipsis token.
+     * Process dot, ellipsis or decimal floating point token.
      * 
-     * @return Dot or ellipsis token
+     * @return Dot, ellipsis or decimal floating point token
      */
-    private STToken parseDotOrEllipsis() {
+    private STToken processDot() {
         if (reader.peek() == LexerTerminals.DOT && reader.peek(1) == LexerTerminals.DOT) {
             reader.advance(2);
             return getSyntaxToken(SyntaxKind.ELLIPSIS_TOKEN);
+        }
+        if (isDigit(reader.peek())){
+            reader.retreat();
+            return processDecimalFloatLiteral();
         }
         return getSyntaxToken(SyntaxKind.DOT_TOKEN);
     }
@@ -487,6 +491,8 @@ public class BallerinaLexer {
      * <code>
      * numeric-literal := int-literal | floating-point-literal
      * <br/>
+     * floating-point-literal := DecimalFloatingPointNumber | HexFloatingPointLiteral
+     * <br/>
      * int-literal := DecimalNumber | HexIntLiteral
      * <br/>
      * DecimalNumber := 0 | NonZeroDigit Digit*
@@ -525,7 +531,7 @@ public class BallerinaLexer {
                         break;
                     }
 
-                    return processFloatLiteral();
+                    return processDecimalFloatLiteral();
                 default:
                     if (isDigit(nextChar)) {
                         reader.advance();
@@ -549,23 +555,15 @@ public class BallerinaLexer {
 
     /**
      * <p>
-     * Process and returns a floating point literal.
+     * Process and returns a decimal floating point literal.
      * </p>
      * <code>
-     * floating-point-literal := DecimalFloatingPointNumber | HexFloatingPointLiteral
-     * <br/>
      * DecimalFloatingPointNumber :=
      *    DecimalNumber Exponent [FloatingPointTypeSuffix]
      *    | DottedDecimalNumber [Exponent] [FloatingPointTypeSuffix]
      *    | DecimalNumber FloatingPointTypeSuffix
      * <br/>
      * DottedDecimalNumber := DecimalNumber . Digit* | . Digit+
-     * <br/>
-     * Exponent := ExponentIndicator [Sign] Digit+
-     * <br/>
-     * ExponentIndicator := e | E
-     * <br/>
-     * Sign := + | -
      * <br/>
      * FloatingPointTypeSuffix := DecimalTypeSuffix | FloatTypeSuffix
      * <br/>
@@ -574,9 +572,9 @@ public class BallerinaLexer {
      * FloatTypeSuffix :=  f | F
      * </code>
      *
-     * @return The numeric literal.
+     * @return The decimal floating point literal.
      */
-    private STToken processFloatLiteral() {
+    private STToken processDecimalFloatLiteral() {
         boolean exponent = false;
         boolean dot = false;
         int nextChar;
@@ -632,12 +630,19 @@ public class BallerinaLexer {
      * Process an exponent or hex-exponent and return the process status.
      * </p>
      * <code>
+     * exponent := Exponent | HexExponent
+     * <br/>
      * Exponent := ExponentIndicator [Sign] Digit+
+     * <br/>
      * HexExponent := HexExponentIndicator [Sign] Digit+
+     * <br/>
+     * ExponentIndicator := e | E
      * <br/>
      * HexExponentIndicator := p | P
      * <br/>
      * Sign := + | -
+     * <br/>
+     * Digit := 0 .. 9
      * </code>
      *
      * @return <code>true</code>, if exponent or hex-exponent captured successfully. <code>false</code> otherwise.
@@ -672,32 +677,6 @@ public class BallerinaLexer {
 
     /**
      * <p>
-     * Process and returns a hex integer literal.
-     * </p>
-     * <code>
-     * HexIntLiteral := HexIndicator HexNumber
-     * <br/>
-     * HexNumber := HexDigit+
-     * <br/>
-     * HexIndicator := 0x | 0X
-     * <br/>
-     * HexDigit := Digit | a .. f | A .. F
-     * <br/>
-     * </code>
-     * 
-     * @return
-     */
-//    private STToken processHexIntLiteral() {
-//        reader.advance();
-//        while (isHexDigit(peek())) {
-//            reader.advance();
-//        }
-//
-//        return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL);
-//    }
-
-    /**
-     * <p>
      * Process and returns a hex literal.
      * </p>
      * <code>
@@ -716,18 +695,22 @@ public class BallerinaLexer {
      * HexFloatingPointNumber := HexNumber HexExponent | DottedHexNumber [HexExponent]
      * <br/>
      * DottedHexNumber := HexDigit+ . HexDigit* | . HexDigit+
-     * <br/>
-     * HexExponent := HexExponentIndicator [Sign] Digit+
-     * <br/>
-     * HexExponentIndicator := p | P
-     * <br/>
-     * Sign := + | -
      * </code>
      *
      * @return The hex literal.
      */
     private STToken processHexLiteral() {
         reader.advance();
+
+        // Make sure at least one hex-digit present after dot
+        if (peek()=='.'){
+            if(!isHexDigit(reader.peek(1))){
+                reader.advance();
+                processInvalidToken();
+                return readToken();
+            }
+        }
+
         int nextChar;
         while (isHexDigit(peek())) {
             reader.advance();
@@ -738,7 +721,7 @@ public class BallerinaLexer {
             case 'p':
             case 'P':
                 if (processExponent()){
-                    break;
+                    return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
                 }
                 processInvalidToken();
                 return readToken();
@@ -763,7 +746,6 @@ public class BallerinaLexer {
             default:
                 return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL);
         }
-        return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
     }
 
     /**
