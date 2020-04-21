@@ -1354,6 +1354,7 @@ public class JvmInstructionGen {
             this.loadVar(inst.rhsOp.variableDcl);
             this.mv.visitTypeInsn(CHECKCAST, TABLE_VALUE);
             this.loadVar(inst.keyOp.variableDcl);
+            addBoxInsn(this.mv, inst.keyOp.variableDcl.type);
             BType bType = inst.lhsOp.variableDcl.type;
             this.mv.visitMethodInsn(INVOKEINTERFACE, TABLE_VALUE, "getOrThrow",
                     String.format("(L%s;)L%s;", OBJECT, OBJECT), true);
