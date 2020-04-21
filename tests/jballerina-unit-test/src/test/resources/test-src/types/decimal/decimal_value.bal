@@ -126,26 +126,6 @@ function testDiscriminatedDecimalLiterals() returns [decimal, decimal, decimal, 
     return [a, b, c, d];
 }
 
-// Test assigning positive hexadecimal literal without power and floating point.
-function testHexAssignment1() returns decimal {
-    decimal d = 0x123F0;
-    return d;
-}
-
-// Test assigning negative hexadecimal literal without power and floating point.
-function testHexAssignment7() returns decimal {
-    decimal d = -0x123F0;
-    return d;
-}
-
-// Test a complex expression including hexadecimal literals
-function testHexComplexExpression() returns decimal {
-    decimal d1 = -0x123F0;
-    decimal d2 = -200.5;
-    decimal d3 = (-1 * <decimal>0x1A2F.1C2p-2 + d1) / d2;
-    return d3;
-}
-
 // Test positively signed literal assignment
 function testPositivelySignedLiteralAssignment() returns [decimal, decimal, decimal] {
     decimal d1 = +12.23;
