@@ -312,6 +312,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
+    public static STNode createLockStatementNode(
+            STNode lockKeyword,
+            STNode blockStatement) {
+
+        return new STLockStatementNode(
+                lockKeyword,
+                blockStatement);
+    }
+
     public static STNode createBinaryExpressionNode(
             SyntaxKind kind,
             STNode lhsExpr,

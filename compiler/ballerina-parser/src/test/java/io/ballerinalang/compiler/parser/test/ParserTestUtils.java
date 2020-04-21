@@ -366,6 +366,8 @@ public class ParserTestUtils {
                 return SyntaxKind.IS_KEYWORD;
             case "NULL_KEYWORD":
                 return SyntaxKind.NULL_KEYWORD;
+            case "LOCK_KEYWORD":
+                return SyntaxKind.LOCK_KEYWORD;
             case "VAR_KEYWORD":
                 return SyntaxKind.VAR_KEYWORD;
             case "SOURCE_KEYWORD":
@@ -542,6 +544,8 @@ public class ParserTestUtils {
                 return SyntaxKind.LOCAL_TYPE_DEFINITION_STATEMENT;
             case "ACTION_STATEMENT":
                 return SyntaxKind.ACTION_STATEMENT;
+            case "LOCK_STATEMENT":
+                return SyntaxKind.LOCK_STATEMENT;
 
             // Others
             case "FUNCTION_BODY_BLOCK":

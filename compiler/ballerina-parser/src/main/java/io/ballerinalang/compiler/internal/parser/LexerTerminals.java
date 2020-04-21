@@ -58,6 +58,7 @@ public class LexerTerminals {
     public static final String TYPEOF = "typeof";
     public static final String IS = "is";
     public static final String NULL = "null";
+    public static final String LOCK = "lock";
     public static final String ANNOTATION = "annotation";
     public static final String SOURCE = "source";
     public static final String WORKER = "worker";

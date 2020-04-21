@@ -75,7 +75,8 @@ public class BallerinaParserErrorHandler {
             ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CALL_STMT, ParserRuleContext.PANIC_STMT,
             ParserRuleContext.CONTINUE_STATEMENT, ParserRuleContext.BREAK_STATEMENT, ParserRuleContext.RETURN_STMT,
             ParserRuleContext.COMPOUND_ASSIGNMENT_STMT, ParserRuleContext.LOCAL_TYPE_DEFINITION_STMT,
-            ParserRuleContext.EXPRESSION_STATEMENT, ParserRuleContext.NAMED_WORKER_DECL };
+            ParserRuleContext.EXPRESSION_STATEMENT, ParserRuleContext.LOCK_STMT, ParserRuleContext.BLOCK_STMT,
+            ParserRuleContext.NAMED_WORKER_DECL };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -850,6 +851,9 @@ public class BallerinaParserErrorHandler {
                 case AS_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.AS_KEYWORD;
                     break;
+                case LOCK_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.LOCK_KEYWORD;
+                    break;
                 case BOOLEAN_LITERAL:
                     hasMatch = nextToken.kind == SyntaxKind.TRUE_KEYWORD || nextToken.kind == SyntaxKind.FALSE_KEYWORD;
                     break;
@@ -1042,8 +1046,8 @@ public class BallerinaParserErrorHandler {
                 case WORKER_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.WORKER_KEYWORD;
                     break;
-                    
-                    // Productions (Non-terminals which doesn't have alternative paths)
+
+                // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
                 case FUNC_DEFINITION:
                 case RETURN_TYPE_DESCRIPTOR:
@@ -1106,6 +1110,7 @@ public class BallerinaParserErrorHandler {
                 case TYPE_REFERENCE:
                 case ANNOT_REFERENCE:
                 case NIL_LITERAL:
+                case LOCK_STMT:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1520,6 +1525,7 @@ public class BallerinaParserErrorHandler {
             case LOCAL_TYPE_DEFINITION_STMT:
             case EXPRESSION_STATEMENT:
             case NIL_LITERAL:
+            case LOCK_STMT:
             case ANNOTATION_DECL:
             case ANNOT_ATTACH_POINTS_LIST:
             case XML_NAMESPACE_DECLARATION:
@@ -1901,6 +1907,10 @@ public class BallerinaParserErrorHandler {
                 return getNextRuleForDecimalIntegerLiteral();
             case EXPRESSION_STATEMENT:
                 return ParserRuleContext.EXPRESSION_STATEMENT_START;
+            case LOCK_STMT:
+                return ParserRuleContext.LOCK_KEYWORD;
+            case LOCK_KEYWORD:
+                return ParserRuleContext.BLOCK_STMT;
             case RECORD_FIELD:
                 return ParserRuleContext.RECORD_FIELD_START;
             case ANNOTATION_TAG:
@@ -2177,6 +2187,8 @@ public class BallerinaParserErrorHandler {
                     return ParserRuleContext.STATEMENT;
                 } else if (parentCtx == ParserRuleContext.NAMED_WORKER_DECL) {
                     endContext(); // end named-worker
+                } else if (parentCtx == ParserRuleContext.LOCK_STMT) {
+                    endContext();
                     return ParserRuleContext.STATEMENT;
                 }
                 return ParserRuleContext.STATEMENT;
@@ -2495,6 +2507,7 @@ public class BallerinaParserErrorHandler {
             case LOCAL_TYPE_DEFINITION_STMT:
             case STMT_START_WITH_IDENTIFIER:
             case EXPRESSION_STATEMENT:
+            case LOCK_STMT:
                 return true;
             default:
                 return false;
@@ -2778,6 +2791,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.PLUS_TOKEN;
             case NULL_KEYWORD:
                 return SyntaxKind.NULL_KEYWORD;
+            case LOCK_KEYWORD:
+                return SyntaxKind.LOCK_KEYWORD;
             case ANNOTATION_KEYWORD:
                 return SyntaxKind.ANNOTATION_KEYWORD;
             case ANNOT_DECL_OPTIONAL_TYPE:
@@ -2825,7 +2840,7 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case NIL_LITERAL:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
-                
+
             // TODO:
             case COMP_UNIT:
             case TOP_LEVEL_NODE:
@@ -2886,6 +2901,7 @@ public class BallerinaParserErrorHandler {
             case STMT_START_WITH_IDENTIFIER:
             case TYPE_TEST_EXPRESSION:
             case LOCAL_TYPE_DEFINITION_STMT:
+            case LOCK_STMT:
             case ANNOTATION_DECL:
             case ANNOT_ATTACH_POINTS_LIST:
             case ANNOT_OPTIONAL_ATTACH_POINTS:

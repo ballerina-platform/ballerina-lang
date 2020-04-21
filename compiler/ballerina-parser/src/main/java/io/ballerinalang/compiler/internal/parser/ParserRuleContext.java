@@ -141,6 +141,7 @@ public enum ParserRuleContext {
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
     EXPRESSION_STATEMENT("expression-statement"),
     EXPRESSION_STATEMENT_START("expression-statement-start"),
+    LOCK_STMT("lock-stmt"),
     NAMED_WORKER_DECL("named-worker-decl"),
 
     // Keywords
@@ -174,6 +175,7 @@ public enum ParserRuleContext {
     TYPEOF_KEYWORD("typeof"),
     IS_KEYWORD("is"),
     NULL_KEYWORD("null"),
+    LOCK_KEYWORD("lock"),
     ANNOTATION_KEYWORD("annotation"),
     SOURCE_KEYWORD("source"),
     XMLNS_KEYWORD("xmlns"),

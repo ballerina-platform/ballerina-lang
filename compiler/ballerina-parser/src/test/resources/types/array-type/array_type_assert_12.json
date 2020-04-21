@@ -33,6 +33,10 @@
                     "kind": "OPEN_BRACKET_TOKEN"
                 },
                 {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "a"
+                },
+                {
                     "kind": "CLOSE_BRACKET_TOKEN",
                     "isMissing": true
                 }
@@ -40,7 +44,7 @@
         },
         {
             "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
+            "isMissing": true
         },
         {
             "kind": "SEMICOLON_TOKEN"

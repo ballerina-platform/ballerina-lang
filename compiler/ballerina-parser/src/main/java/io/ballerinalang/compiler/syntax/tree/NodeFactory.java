@@ -19,7 +19,6 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
-
 import java.util.Objects;
 
 /**
@@ -404,6 +403,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 typeDescriptor.internalNode(),
                 semicolonToken.internalNode());
         return stLocalTypeDefinitionStatementNode.createUnlinkedFacade();
+    }
+
+    public static LockStatementNode createLockStatementNode(
+            Token lockKeyword,
+            StatementNode blockStatement) {
+        Objects.requireNonNull(lockKeyword, "lockKeyword must not be null");
+        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+
+        STNode stLockStatementNode = STNodeFactory.createLockStatementNode(
+                lockKeyword.internalNode(),
+                blockStatement.internalNode());
+        return stLockStatementNode.createUnlinkedFacade();
     }
 
     public static BinaryExpressionNode createBinaryExpressionNode(

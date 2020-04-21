@@ -62,7 +62,8 @@ public enum SyntaxKind {
     TYPEOF_KEYWORD(213,"typeof"),
     IS_KEYWORD(214, "is"),
     NULL_KEYWORD(215, "null"),
-    VAR_KEYWORD(215, "var"),
+    LOCK_KEYWORD(216, "lock"),
+    VAR_KEYWORD(217, "var"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -105,7 +106,7 @@ public enum SyntaxKind {
     LOGICAL_AND_TOKEN(570, "&&"),
     LOGICAL_OR_TOKEN(571, "||"),
     NEGATION_TOKEN(572, "~"),
-    RIGHT_ARROW_TOKEN(572, "->"),
+    RIGHT_ARROW_TOKEN(573, "->"),
 
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
@@ -147,7 +148,8 @@ public enum SyntaxKind {
     COMPOUND_ASSIGNMENT_STATEMENT(1211),
     LOCAL_TYPE_DEFINITION_STATEMENT(1212),
     ACTION_STATEMENT(1213),
-    NAMED_WORKER_DECLARATION(1213),
+    LOCK_STATEMENT(1214),
+    NAMED_WORKER_DECLARATION(1215),
 
     // Expressions
     BINARY_EXPRESSION(1300),

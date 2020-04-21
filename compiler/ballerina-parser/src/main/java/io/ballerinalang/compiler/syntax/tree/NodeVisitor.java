@@ -119,6 +119,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(localTypeDefinitionStatementNode);
     }
 
+    public void visit(LockStatementNode lockStatementNode) {
+        visitSyntaxNode(lockStatementNode);
+    }
+
     public void visit(BinaryExpressionNode binaryExpressionNode) {
         visitSyntaxNode(binaryExpressionNode);
     }

@@ -2766,7 +2766,6 @@ public class BallerinaParser {
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
             case IDENTIFIER_TOKEN:
-            case TYPE_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
 
                 // Other statements
@@ -2778,6 +2777,9 @@ public class BallerinaParser {
             case CONTINUE_KEYWORD:
             case BREAK_KEYWORD:
             case RETURN_KEYWORD:
+            case TYPE_KEYWORD:
+            case LOCK_KEYWORD:
+            case OPEN_BRACE_TOKEN:
 
                 // Even-though worker is not a statement, we parse it as statements.
                 // then validates it based on the context. This is done to provide
@@ -2872,11 +2874,21 @@ public class BallerinaParser {
             case IDENTIFIER_TOKEN:
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
+                STToken nextToken = peek(2);
+                // if the next token is question-mark then it is an optional type descriptor with user defined type
+                if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
+                    finalKeyword = STNodeFactory.createEmptyNode();
+                    return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
+                }
                 return parseStatementStartsWithIdentifier(getAnnotations(annots));
-            // Even-though worker is not a statement, we parse it as statements.
-            // then validates it based on the context. This is done to provide
-            // better error messages
+            case LOCK_KEYWORD:
+                return parseLockStatement();
+            case OPEN_BRACE_TOKEN:
+                return parseBlockNode();
             case WORKER_KEYWORD:
+                // Even-though worker is not a statement, we parse it as statements.
+                // then validates it based on the context. This is done to provide
+                // better error messages
                 return parseNamedWorkerDeclaration(getAnnotations(annots));
             default:
                 STToken token = peek();
@@ -5426,7 +5438,6 @@ public class BallerinaParser {
      */
     private STNode parseArrayLength() {
         STToken token = peek();
-        STToken nextToken;
         switch (token.kind) {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -5436,12 +5447,7 @@ public class BallerinaParser {
                 return STNodeFactory.createEmptyNode();
             // Parsing variable-reference-expr is same as parsing qualified identifier
             case IDENTIFIER_TOKEN:
-                // If <code>int[ a; </code> then take <code>a</code> as the identifier not a the array length var
-                nextToken = peek(2);
-                if (nextToken.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
-                    return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
-                }
-                return STNodeFactory.createEmptyNode();
+                return parseQualifiedIdentifier(ParserRuleContext.ARRAY_LENGTH);
             default:
                 Solution sol = recover(token, ParserRuleContext.ARRAY_LENGTH);
                 return sol.recoveredNode;
@@ -6602,5 +6608,34 @@ public class BallerinaParser {
 
         STNode documentationLines = STNodeFactory.createNodeList(docLines);
         return STNodeFactory.createDocumentationStringNode(documentationLines);
+    }
+
+    /**
+     * Parse lock statement.
+     * <code>lock-stmt := lock block-stmt ;</code>
+     *
+     * @return Lock statement
+     */
+    private STNode parseLockStatement() {
+        startContext(ParserRuleContext.LOCK_STMT);
+        STNode lockKeyword = parseLockKeyword();
+        STNode blockStatement = parseBlockNode();
+        endContext();
+        return STNodeFactory.createLockStatementNode(lockKeyword, blockStatement);
+    }
+
+    /**
+     * Parse lock-keyword.
+     *
+     * @return lock-keyword node
+     */
+    private STNode parseLockKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.LOCK_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.LOCK_KEYWORD);
+            return sol.recoveredNode;
+        }
     }
 }
