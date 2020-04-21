@@ -3,6 +3,7 @@ type Person record {
     int age;
 };
 
+//TODO: uncomment all when readonly is supported for complex records also
 //type Foo record {
 //    readonly map<string> m;
 //    int age;
@@ -29,24 +30,24 @@ function testGlobalTableConstructExpr() returns boolean {
 //    return tab2.toString();
 //}
 
-function testTableMemberAccessStore() returns boolean {
-    GlobalTable2 tab = table [
-      { m: {"AAA":"DDDD"}, age: 31 },
-      { m: {"BBB":"DDDD"}, age: 34 }
-    ];
+//function testTableMemberAccessStore() returns boolean {
+//    GlobalTable2 tab = table [
+//      { m: {"AAA":"DDDD"}, age: 31 },
+//      { m: {"BBB":"DDDD"}, age: 34 }
+//    ];
+//
+//    tab[{"CCC":"EEEE"}] = { m: {"CCC":"EEEE"}, age: 34 };
+//    return tab.toString() == "m=AAA=DDDD age=31\nm=BBB=DDDD age=34\nm=CCC=EEEE age=34";
+//}
 
-    tab[{"CCC":"EEEE"}] = { m: {"CCC":"EEEE"}, age: 34 };
-    return tab.toString() == "m=AAA=DDDD age=31\nm=BBB=DDDD age=34\nm=CCC=EEEE age=34";
-}
-
-function testTableMemberAccessLoad() returns boolean {
-    GlobalTable2 tab = table [
-      { m: {"AAA":"DDDD"}, age: 31 },
-      { m: {"BBB":"DDDD"}, age: 34 }
-    ];
-    Foo aaa = tab[{"AAA":"DDDD"}];
-    return aaa.toString() == "m=AAA=DDDD age=31";
-}
+//function testTableMemberAccessLoad() returns boolean {
+//    GlobalTable2 tab = table [
+//      { m: {"AAA":"DDDD"}, age: 31 },
+//      { m: {"BBB":"DDDD"}, age: 34 }
+//    ];
+//    Foo aaa = tab[{"AAA":"DDDD"}];
+//    return aaa.toString() == "m=AAA=DDDD age=31";
+//}
 
 type Customer record {
     readonly int id;
