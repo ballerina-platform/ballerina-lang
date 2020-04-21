@@ -1,15 +1,15 @@
 type Person record {
-    string name;
+    readonly string name;
     int age;
 };
 
-type Foo record {
-    map<string> m;
-    int age;
-};
+//type Foo record {
+//    readonly map<string> m;
+//    int age;
+//};
 
 type GlobalTable1 table<Person> key(name);
-type GlobalTable2 table<Foo> key(m);
+//type GlobalTable2 table<Foo> key(m);
 
 GlobalTable1 tab1 = table [
   { name: "AAA", age: 31 },
@@ -20,14 +20,14 @@ function testGlobalTableConstructExpr() returns boolean {
     return tab1.toString() == "name=AAA age=31\nname=BBB age=34";
 }
 
-function testTableConstructExprWithDuplicateKeys() returns string {
-    GlobalTable2 tab2 = table [
-      { m: {"AAA":"DDDD"}, age: 31 },
-      { m: {"AAA":"DDDD"}, age: 34 }
-    ];
-
-    return tab2.toString();
-}
+//function testTableConstructExprWithDuplicateKeys() returns string {
+//    GlobalTable2 tab2 = table [
+//      { m: {"AAA":"DDDD"}, age: 31 },
+//      { m: {"AAA":"DDDD"}, age: 34 }
+//    ];
+//
+//    return tab2.toString();
+//}
 
 function testTableMemberAccessStore() returns boolean {
     GlobalTable2 tab = table [
@@ -49,8 +49,8 @@ function testTableMemberAccessLoad() returns boolean {
 }
 
 type Customer record {
-    int id;
-    string name;
+    readonly int id;
+    readonly string name;
     string address;
 };
 

@@ -42,6 +42,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -127,6 +128,7 @@ public class SymbolTable {
     public final BType anyServiceType = new BServiceType(null);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BType typeDesc = new BTypedescType(this.anyType, null);
+    public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
@@ -227,6 +229,7 @@ public class SymbolTable {
         initializeType(anyServiceType, TypeKind.SERVICE.typeName());
         initializeType(handleType, TypeKind.HANDLE.typeName());
         initializeType(typeDesc, TypeKind.TYPEDESC.typeName());
+        initializeType(readonlyType, TypeKind.READONLY.typeName());
 
         // Define subtypes
         initializeTSymbol(signed32IntType, Names.SIGNED32, PackageID.INT);

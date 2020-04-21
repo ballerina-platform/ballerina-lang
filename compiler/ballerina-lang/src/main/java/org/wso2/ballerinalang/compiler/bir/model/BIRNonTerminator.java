@@ -273,6 +273,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand rhsOp;
         public boolean optionalFieldAccess = false;
         public boolean fillingRead = false;
+        public boolean isStoreOnCreation = false;
 
         public FieldAccess(DiagnosticPos pos, InstructionKind kind,
                            BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
@@ -280,6 +281,15 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.lhsOp = lhsOp;
             this.keyOp = keyOp;
             this.rhsOp = rhsOp;
+        }
+
+        public FieldAccess(DiagnosticPos pos, InstructionKind kind, BIROperand lhsOp, BIROperand keyOp,
+                           BIROperand rhsOp, boolean isStoreOnCreation) {
+            super(pos, kind);
+            this.lhsOp = lhsOp;
+            this.keyOp = keyOp;
+            this.rhsOp = rhsOp;
+            this.isStoreOnCreation = isStoreOnCreation;
         }
 
         public FieldAccess(DiagnosticPos pos, InstructionKind kind,
