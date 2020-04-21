@@ -57,7 +57,6 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -101,9 +100,8 @@ public class BaloFileWriter {
      *
      * @param module ballerina module
      * @param baloFilePath path to the balo file
-     * @param moduleDependencyList dependent jar path set for module
      */
-    public void write(BLangPackage module, Path baloFilePath, HashSet<Path> moduleDependencyList) {
+    public void write(BLangPackage module, Path baloFilePath) {
         // Get the project directory
         Path projectDirectory = this.sourceDirectory.getPath();
 
@@ -116,7 +114,7 @@ public class BaloFileWriter {
         // Create the archive over write if exists
         try (FileSystem baloFS = createBaloArchive(baloFilePath)) {
             // Now lets put stuff in
-            populateBaloArchive(baloFS, module, moduleDependencyList);
+            populateBaloArchive(baloFS, module);
             buildContext.out().println("\t" + projectDirectory.relativize(baloFilePath));
         } catch (IOException e) {
             // todo Check for permission
@@ -148,8 +146,7 @@ public class BaloFileWriter {
         return FileSystems.newFileSystem(zipDisk, env);
     }
 
-    private void populateBaloArchive(FileSystem baloFS, BLangPackage module,
-                                     HashSet<Path> moduleDependencyList) throws IOException {
+    private void populateBaloArchive(FileSystem baloFS, BLangPackage module) throws IOException {
         Path root = baloFS.getPath("/");
         Path projectDirectory = this.sourceDirectory.getPath();
         Path moduleSourceDir = projectDirectory.resolve(ProjectDirConstants.SOURCE_DIR_NAME)
@@ -175,7 +172,7 @@ public class BaloFileWriter {
         addModuleDoc(root, moduleSourceDir);
         // Add platform libs only if it is not a template module.
         if (!this.manifest.isTemplateModule(moduleName)) {
-            addPlatformLibs(root, projectDirectory, moduleName, moduleDependencyList);
+            addPlatformLibs(root, projectDirectory, moduleName);
         }
     }
     
@@ -298,15 +295,15 @@ public class BaloFileWriter {
         }
     }
 
-    private void addPlatformLibs(Path root, Path projectDirectory, String moduleName,
-                                 HashSet<Path> moduleDependencyList) throws IOException {
+    private void addPlatformLibs(Path root, Path projectDirectory, String moduleName) throws IOException {
         //If platform libs are defined add them to balo
         if (null != manifest.getPlatform().libraries) {
             Path platformLibsDir = root.resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME);
             Files.createDirectory(platformLibsDir);
 
             List<Path> libs = manifest.getPlatform().libraries.stream()
-                    .filter(lib -> lib.getModules() == null || Arrays.asList(lib.getModules()).contains(moduleName))
+                    .filter(lib -> (lib.getModules() == null || Arrays.asList(lib.getModules()).contains(moduleName))
+                            && (lib.getScope() == null || lib.getScope().equals("package")))
                     .map(lib -> Paths.get(lib.getPath())).collect(Collectors.toList());
 
             for (Path lib : libs) {
@@ -316,7 +313,6 @@ public class BaloFileWriter {
                     Path targetPath = platformLibsDir.resolve(libFileName.toString());
                     try {
                         Files.copy(nativeFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                        moduleDependencyList.add(nativeFile);
                     } catch (IOException e) {
                         throw new BLangCompilerException("Dependency jar not found : " + lib.toString());
                     }
@@ -446,4 +442,3 @@ public class BaloFileWriter {
         }
     }
 }
-

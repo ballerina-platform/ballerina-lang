@@ -102,9 +102,11 @@ public class CopyNativeLibTask implements Task {
             if (bLangPackage == null || !buildContext.moduleDependencyPathMap.containsKey(packageID)) {
                 continue;
             }
-            copyImportedLibs(bLangPackage.symbol.imports,
-                             buildContext.moduleDependencyPathMap.get(packageID).moduleLibs,
-                             buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
+            // Copy native libs for modules
+            ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(packageID);
+            copyPlatformLibsForModules(packageID, executableJar, sourceRootPath);
+            copyImportedLibs(bLangPackage.symbol.imports, executableJar.moduleLibs, buildContext, sourceRootPath,
+                    balHomePath, alreadyImportedSet);
             if (skipTests || !bLangPackage.hasTestablePackage()) {
                 continue;
             }
@@ -116,6 +118,26 @@ public class CopyNativeLibTask implements Task {
                 copyImportedLibs(testPkg.symbol.imports,
                                  buildContext.moduleDependencyPathMap.get(testPkg.packageID).testLibs,
                                  buildContext, sourceRootPath, balHomePath, alreadyImportedSet);
+            }
+        }
+    }
+
+    private void copyPlatformLibsForModules(PackageID packageID, ExecutableJar executableJar, Path project) {
+        List<Library> libraries = manifest.getPlatform().libraries;
+        if (null == libraries) {
+            return;
+        }
+        List<Library> libs = libraries.stream().filter(lib -> lib.getModules() == null ||
+                Arrays.asList(lib.getModules()).contains(packageID.name.value)).collect(Collectors.toList());
+        for (Library lib : libs) {
+            String libFilePath = lib.getPath();
+            if (null != libFilePath) {
+                Path nativeFile = project.resolve(Paths.get(libFilePath));
+                if (lib.getScope() != null && lib.getScope().equals("test")) {
+                    executableJar.testLibs.add(nativeFile);
+                    continue;
+                }
+                executableJar.moduleLibs.add(nativeFile);
             }
         }
     }
@@ -147,7 +169,6 @@ public class CopyNativeLibTask implements Task {
             Path importJar = findImportBaloPath(buildContext, importz, project, platform);
             if (importJar != null && Files.exists(importJar)) {
                 copyLibsFromBalo(importJar, moduleDependencySet);
-                return;
             }
         }
 
