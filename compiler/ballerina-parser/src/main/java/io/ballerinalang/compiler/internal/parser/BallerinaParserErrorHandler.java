@@ -1041,7 +1041,8 @@ public class BallerinaParserErrorHandler {
                     break;
                 case WORKER_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.WORKER_KEYWORD;
-
+                    break;
+                    
                     // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
                 case FUNC_DEFINITION:
@@ -2787,6 +2788,7 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.DECIMAL_INTEGER_LITERAL;
             case ATTACH_POINT_IDENT:
             case IDENT_AFTER_OBJECT_IDENT:
+            case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
                 return SyntaxKind.TYPE_KEYWORD;
             case FIELD_IDENT:
                 return SyntaxKind.FIELD_KEYWORD;
@@ -2809,7 +2811,6 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.RECORD_KEYWORD;
             case RESOURCE_IDENT:
                 return SyntaxKind.RESOURCE_KEYWORD;
-            case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
             case XMLNS_KEYWORD:
             case XML_NAMESPACE_DECLARATION:
                 return SyntaxKind.XMLNS_KEYWORD;
@@ -2824,7 +2825,7 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case NIL_LITERAL:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
-
+                
             // TODO:
             case COMP_UNIT:
             case TOP_LEVEL_NODE:

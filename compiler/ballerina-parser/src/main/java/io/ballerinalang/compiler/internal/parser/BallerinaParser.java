@@ -310,6 +310,8 @@ public class BallerinaParser {
                 return parseFunctionIdent();
             case FIELD_IDENT:
                 return parseFieldIdent();
+            case ATTACH_POINT_END:
+                return parseAttachPointEnd();
             case XMLNS_KEYWORD:
                 return parseXMLNSKeyword();
             case XML_NAMESPACE_PREFIX_DECL:
@@ -6143,6 +6145,7 @@ public class BallerinaParser {
             if (attachPoint == null) {
                 this.errorHandler.reportMissingTokenError("missing attach point");
                 attachPoint = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+                attachPoints.add(attachPoint);
                 break;
             }
 
@@ -6232,8 +6235,8 @@ public class BallerinaParser {
                 STNode firstIdent = consume();
                 return parseDualAttachPointIdent(sourceKeyword, firstIdent);
             default:
-                this.errorHandler.removeInvalidToken();
-                return parseAnnotationAttachPoint();
+                Solution solution = recover(peek(), ParserRuleContext.ATTACH_POINT);
+                return solution.recoveredNode;
         }
     }
 
@@ -6405,7 +6408,7 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse xmlns keyword
+     * Parse xmlns keyword.
      * 
      * @return Parsed node
      */
@@ -6492,6 +6495,7 @@ public class BallerinaParser {
             case AS_KEYWORD:
                 asKeyword = parseAsKeyword();
                 namespacePrefix = parseNamespacePrefix();
+                break;
             case SEMICOLON_TOKEN:
                 break;
             default:

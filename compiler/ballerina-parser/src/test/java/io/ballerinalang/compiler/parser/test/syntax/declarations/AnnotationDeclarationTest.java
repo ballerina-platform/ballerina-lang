@@ -74,4 +74,9 @@ public class AnnotationDeclarationTest extends AbstractDeclarationTest {
     public void testMissingSemicolon() {
         testFile("annot-decl/annot_decl_source_09.bal", "annot-decl/annot_decl_assert_09.json");
     }
+    
+    @Test
+    public void testInvalidAttachPointIdent() {
+        testFile("annot-decl/annot_decl_source_10.bal", "annot-decl/annot_decl_assert_10.json");
+    }
 }

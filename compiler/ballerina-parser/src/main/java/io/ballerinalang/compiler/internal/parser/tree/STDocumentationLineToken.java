@@ -24,7 +24,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
  * Represents documentation line in the internal syntax tree.
- * <br/>
+ * <p>
  * TODO: This is a temporary node
  *
  * @since 1.3.0
