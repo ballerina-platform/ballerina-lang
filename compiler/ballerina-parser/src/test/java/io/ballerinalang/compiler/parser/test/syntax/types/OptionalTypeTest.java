@@ -32,10 +32,10 @@ public class OptionalTypeTest extends AbstractTypesTest {
         test("int? a;", "optional-type/optional_type_assert_01.json");
     }
 
-//    @Test
-//    public void testValidOptionalTypeDeclarationWithUserDefinedType() {
-//        test("T? a;", "optional-type/optional_type_assert_04.json");
-//    }
+    @Test
+    public void testValidOptionalTypeDeclarationWithUserDefinedType() {
+        test("T? a;", "optional-type/optional_type_assert_04.json");
+    }
 
     @Test
     public void testValidOptionalTypeDescriptorAsReturnType() {
