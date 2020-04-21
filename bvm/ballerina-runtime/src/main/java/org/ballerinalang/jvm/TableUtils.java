@@ -17,6 +17,7 @@
 
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -24,6 +25,7 @@ import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TupleValueImpl;
 
 import java.util.Map;
 import java.util.Objects;
@@ -57,6 +59,14 @@ public class TableUtils {
             } else if (refType.getTag() == TypeTags.ARRAY_TAG) {
                 ArrayValue arrayValue = (ArrayValue) refValue;
                 result = Objects.hash(refType, arrayValue.getElementType());
+                IteratorValue arrayIterator = arrayValue.getIterator();
+                while (arrayIterator.hasNext()) {
+                    result = 31 * result + hash(arrayIterator.next());
+                }
+                return result;
+            }else if (refType.getTag() == TypeTags.TUPLE_TAG) {
+                TupleValueImpl arrayValue = (TupleValueImpl) refValue;
+                result = Objects.hash(refType, ((BTupleType) refType).getTupleTypes());
                 IteratorValue arrayIterator = arrayValue.getIterator();
                 while (arrayIterator.hasNext()) {
                     result = 31 * result + hash(arrayIterator.next());
