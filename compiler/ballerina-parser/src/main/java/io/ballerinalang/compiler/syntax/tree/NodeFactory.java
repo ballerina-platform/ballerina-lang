@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
+
 import java.util.Objects;
 
 /**
@@ -1163,7 +1164,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Node typeDescriptor,
             Token annotationTag,
             Token onKeyword,
-            Node attachPoints,
+            SeparatedNodeList<Node> attachPoints,
             Token semicolonToken) {
         Objects.requireNonNull(metadata, "metadata must not be null");
         Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
@@ -1183,7 +1184,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 typeDescriptor.internalNode(),
                 annotationTag.internalNode(),
                 onKeyword.internalNode(),
-                attachPoints.internalNode(),
+                attachPoints.underlyingListNode().internalNode(),
                 semicolonToken.internalNode());
         return stAnnotationDeclarationNode.createUnlinkedFacade();
     }
@@ -1226,7 +1227,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static FunctionBodyBlockNode createFunctionBodyBlockNode(
             Token openBraceToken,
-            NamedWorkersListNode namedWorkers,
+            NamedWorkerDeclarator namedWorkerDeclarator,
             NodeList<StatementNode> statements,
             Token closeBraceToken) {
         Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
@@ -1235,7 +1236,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stFunctionBodyBlockNode = STNodeFactory.createFunctionBodyBlockNode(
                 openBraceToken.internalNode(),
-                getOptionalSTNode(namedWorkers),
+                getOptionalSTNode(namedWorkerDeclarator),
                 statements.underlyingListNode().internalNode(),
                 closeBraceToken.internalNode());
         return stFunctionBodyBlockNode.createUnlinkedFacade();
@@ -1261,16 +1262,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stNamedWorkerDeclarationNode.createUnlinkedFacade();
     }
 
-    public static NamedWorkersListNode createNamedWorkersListNode(
+    public static NamedWorkerDeclarator createNamedWorkerDeclarator(
             NodeList<StatementNode> workerInitStatements,
-            NodeList<NamedWorkerDeclarationNode> namedWorkerDecl) {
+            NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations) {
         Objects.requireNonNull(workerInitStatements, "workerInitStatements must not be null");
-        Objects.requireNonNull(namedWorkerDecl, "namedWorkerDecl must not be null");
+        Objects.requireNonNull(namedWorkerDeclarations, "namedWorkerDeclarations must not be null");
 
-        STNode stNamedWorkersListNode = STNodeFactory.createNamedWorkersListNode(
+        STNode stNamedWorkerDeclarator = STNodeFactory.createNamedWorkerDeclarator(
                 workerInitStatements.underlyingListNode().internalNode(),
-                namedWorkerDecl.underlyingListNode().internalNode());
-        return stNamedWorkersListNode.createUnlinkedFacade();
+                namedWorkerDeclarations.underlyingListNode().internalNode());
+        return stNamedWorkerDeclarator.createUnlinkedFacade();
     }
 
     public static DocumentationStringNode createDocumentationStringNode(

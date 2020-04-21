@@ -235,10 +235,10 @@ public class BallerinaParserErrorHandler {
             { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.VARIABLE_NAME };
 
     private static final ParserRuleContext[] ANNOT_DECL_RHS =
-            { ParserRuleContext.ANNOTATION_TAG, ParserRuleContext.ANNOT_OPTIONAL_ATTACH_POINTS };
+            { ParserRuleContext.ANNOTATION_TAG, ParserRuleContext.ON_KEYWORD, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] ANNOT_OPTIONAL_ATTACH_POINTS =
-            { ParserRuleContext.SEMICOLON, ParserRuleContext.ON_KEYWORD };
+            { ParserRuleContext.ON_KEYWORD, ParserRuleContext.SEMICOLON };
 
     private static final ParserRuleContext[] ATTACH_POINT =
             { ParserRuleContext.SOURCE_KEYWORD, ParserRuleContext.ATTACH_POINT_IDENT };
@@ -429,8 +429,9 @@ public class BallerinaParserErrorHandler {
             case CONST_DECL_TYPE:
             case CONST_DECL_RHS:
             case ANNOT_OPTIONAL_ATTACH_POINTS:
-            case ATTACH_POINT_END:
             case XML_NAMESPACE_PREFIX_DECL:
+            case ANNOT_DECL_OPTIONAL_TYPE:
+            case ANNOT_DECL_RHS:
                 return true;
             default:
                 return false;
@@ -1911,7 +1912,8 @@ public class BallerinaParserErrorHandler {
             case FUNCTION_IDENT:
             case IDENT_AFTER_OBJECT_IDENT:
             case SINGLE_KEYWORD_ATTACH_POINT_IDENT:
-                return ParserRuleContext.COMMA;
+            case ATTACH_POINT:
+                return ParserRuleContext.ATTACH_POINT_END;
             case RECORD_FIELD_OR_RECORD_END:
                 return ParserRuleContext.RECORD_BODY_END;
             case SOURCE_KEYWORD:
@@ -1985,7 +1987,7 @@ public class BallerinaParserErrorHandler {
             case ANNOT_DECL_OPTIONAL_TYPE:
             case ANNOT_DECL_RHS:
             case ANNOT_OPTIONAL_ATTACH_POINTS:
-            case ATTACH_POINT:
+
             case ATTACH_POINT_IDENT:
             case ATTACH_POINT_END:
             case CONSTANT_EXPRESSION_START:
@@ -2817,7 +2819,11 @@ public class BallerinaParserErrorHandler {
             case WORKER_KEYWORD:
                 return SyntaxKind.WORKER_KEYWORD;
             case WORKER_NAME:
+            case NAMED_WORKERS:
+            case ANNOTATION_TAG:
                 return SyntaxKind.IDENTIFIER_TOKEN;
+            case NIL_LITERAL:
+                return SyntaxKind.OPEN_PAREN_TOKEN;
 
             // TODO:
             case COMP_UNIT:
@@ -2885,11 +2891,9 @@ public class BallerinaParserErrorHandler {
             case EXPRESSION_STATEMENT:
             case EXPRESSION_STATEMENT_START:
             case RECORD_FIELD_START:
-            case ANNOTATION_TAG:
             case ATTACH_POINT:
             case DEFAULT_WORKER:
             case DEFAULT_WORKER_INIT:
-            case NAMED_WORKERS:
             default:
                 break;
         }

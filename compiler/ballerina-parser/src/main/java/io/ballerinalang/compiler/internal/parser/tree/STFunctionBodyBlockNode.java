@@ -29,24 +29,24 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STFunctionBodyBlockNode extends STStatementNode {
     public final STNode openBraceToken;
-    public final STNode namedWorkers;
+    public final STNode namedWorkerDeclarator;
     public final STNode statements;
     public final STNode closeBraceToken;
 
     STFunctionBodyBlockNode(
             STNode openBraceToken,
-            STNode namedWorkers,
+            STNode namedWorkerDeclarator,
             STNode statements,
             STNode closeBraceToken) {
         super(SyntaxKind.FUNCTION_BODY_BLOCK);
         this.openBraceToken = openBraceToken;
-        this.namedWorkers = namedWorkers;
+        this.namedWorkerDeclarator = namedWorkerDeclarator;
         this.statements = statements;
         this.closeBraceToken = closeBraceToken;
 
         addChildren(
                 openBraceToken,
-                namedWorkers,
+                namedWorkerDeclarator,
                 statements,
                 closeBraceToken);
     }

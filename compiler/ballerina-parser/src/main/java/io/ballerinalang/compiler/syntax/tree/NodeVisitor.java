@@ -315,8 +315,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(namedWorkerDeclarationNode);
     }
 
-    public void visit(NamedWorkersListNode namedWorkersListNode) {
-        visitSyntaxNode(namedWorkersListNode);
+    public void visit(NamedWorkerDeclarator namedWorkerDeclarator) {
+        visitSyntaxNode(namedWorkerDeclarator);
     }
 
     public void visit(DocumentationStringNode documentationStringNode) {

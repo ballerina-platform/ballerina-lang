@@ -862,7 +862,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Node typeDescriptor = modifyNode(annotationDeclarationNode.typeDescriptor());
         Token annotationTag = modifyToken(annotationDeclarationNode.annotationTag());
         Token onKeyword = modifyToken(annotationDeclarationNode.onKeyword());
-        Node attachPoints = modifyNode(annotationDeclarationNode.attachPoints());
+        SeparatedNodeList<Node> attachPoints = modifySeparatedNodeList(annotationDeclarationNode.attachPoints());
         Token semicolonToken = modifyToken(annotationDeclarationNode.semicolonToken());
         return annotationDeclarationNode.modify(
                 metadata,
@@ -905,12 +905,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(FunctionBodyBlockNode functionBodyBlockNode) {
         Token openBraceToken = modifyToken(functionBodyBlockNode.openBraceToken());
-        NamedWorkersListNode namedWorkers = modifyNode(functionBodyBlockNode.namedWorkers().orElse(null));
+        NamedWorkerDeclarator namedWorkerDeclarator = modifyNode(functionBodyBlockNode.namedWorkerDeclarator().orElse(null));
         NodeList<StatementNode> statements = modifyNodeList(functionBodyBlockNode.statements());
         Token closeBraceToken = modifyToken(functionBodyBlockNode.closeBraceToken());
         return functionBodyBlockNode.modify(
                 openBraceToken,
-                namedWorkers,
+                namedWorkerDeclarator,
                 statements,
                 closeBraceToken);
     }
@@ -931,12 +931,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(NamedWorkersListNode namedWorkersListNode) {
-        NodeList<StatementNode> workerInitStatements = modifyNodeList(namedWorkersListNode.workerInitStatements());
-        NodeList<NamedWorkerDeclarationNode> namedWorkerDecl = modifyNodeList(namedWorkersListNode.namedWorkerDecl());
-        return namedWorkersListNode.modify(
+    public Node transform(NamedWorkerDeclarator namedWorkerDeclarator) {
+        NodeList<StatementNode> workerInitStatements = modifyNodeList(namedWorkerDeclarator.workerInitStatements());
+        NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations = modifyNodeList(namedWorkerDeclarator.namedWorkerDeclarations());
+        return namedWorkerDeclarator.modify(
                 workerInitStatements,
-                namedWorkerDecl);
+                namedWorkerDeclarations);
     }
 
     @Override

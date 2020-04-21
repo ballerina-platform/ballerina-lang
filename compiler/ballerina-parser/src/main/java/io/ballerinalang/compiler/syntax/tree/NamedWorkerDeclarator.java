@@ -24,9 +24,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class NamedWorkersListNode extends NonTerminalNode {
+public class NamedWorkerDeclarator extends NonTerminalNode {
 
-    public NamedWorkersListNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public NamedWorkerDeclarator(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -34,7 +34,7 @@ public class NamedWorkersListNode extends NonTerminalNode {
         return new NodeList<>(childInBucket(0));
     }
 
-    public NodeList<NamedWorkerDeclarationNode> namedWorkerDecl() {
+    public NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations() {
         return new NodeList<>(childInBucket(1));
     }
 
@@ -52,20 +52,20 @@ public class NamedWorkersListNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "workerInitStatements",
-                "namedWorkerDecl"};
+                "namedWorkerDeclarations"};
     }
 
-    public NamedWorkersListNode modify(
+    public NamedWorkerDeclarator modify(
             NodeList<StatementNode> workerInitStatements,
-            NodeList<NamedWorkerDeclarationNode> namedWorkerDecl) {
+            NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations) {
         if (checkForReferenceEquality(
                 workerInitStatements.underlyingListNode(),
-                namedWorkerDecl.underlyingListNode())) {
+                namedWorkerDeclarations.underlyingListNode())) {
             return this;
         }
 
-        return NodeFactory.createNamedWorkersListNode(
+        return NodeFactory.createNamedWorkerDeclarator(
                 workerInitStatements,
-                namedWorkerDecl);
+                namedWorkerDeclarations);
     }
 }

@@ -316,8 +316,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(namedWorkerDeclarationNode);
     }
 
-    public T transform(NamedWorkersListNode namedWorkersListNode) {
-        return transformSyntaxNode(namedWorkersListNode);
+    public T transform(NamedWorkerDeclarator namedWorkerDeclarator) {
+        return transformSyntaxNode(namedWorkerDeclarator);
     }
 
     public T transform(DocumentationStringNode documentationStringNode) {

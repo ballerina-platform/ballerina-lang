@@ -36,7 +36,7 @@ public class FunctionBodyBlockNode extends StatementNode {
         return childInBucket(0);
     }
 
-    public Optional<NamedWorkersListNode> namedWorkers() {
+    public Optional<NamedWorkerDeclarator> namedWorkerDeclarator() {
         return optionalChildInBucket(1);
     }
 
@@ -62,19 +62,19 @@ public class FunctionBodyBlockNode extends StatementNode {
     protected String[] childNames() {
         return new String[]{
                 "openBraceToken",
-                "namedWorkers",
+                "namedWorkerDeclarator",
                 "statements",
                 "closeBraceToken"};
     }
 
     public FunctionBodyBlockNode modify(
             Token openBraceToken,
-            NamedWorkersListNode namedWorkers,
+            NamedWorkerDeclarator namedWorkerDeclarator,
             NodeList<StatementNode> statements,
             Token closeBraceToken) {
         if (checkForReferenceEquality(
                 openBraceToken,
-                namedWorkers,
+                namedWorkerDeclarator,
                 statements.underlyingListNode(),
                 closeBraceToken)) {
             return this;
@@ -82,7 +82,7 @@ public class FunctionBodyBlockNode extends StatementNode {
 
         return NodeFactory.createFunctionBodyBlockNode(
                 openBraceToken,
-                namedWorkers,
+                namedWorkerDeclarator,
                 statements,
                 closeBraceToken);
     }

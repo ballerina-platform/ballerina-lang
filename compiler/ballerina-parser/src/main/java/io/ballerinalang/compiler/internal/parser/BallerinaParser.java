@@ -1912,7 +1912,7 @@ public class BallerinaParser {
         if (hasNamedWorkers) {
             STNode workerInitStatements = STNodeFactory.createNodeList(firstStmtList);
             STNode namedWorkers = STNodeFactory.createNodeList(workers);
-            namedWorkersList = STNodeFactory.createNamedWorkersListNode(workerInitStatements, namedWorkers);
+            namedWorkersList = STNodeFactory.createNamedWorkerDeclarator(workerInitStatements, namedWorkers);
             statements = STNodeFactory.createNodeList(secondStmtList);
         } else {
             namedWorkersList = STNodeFactory.createEmptyNode();
@@ -5976,7 +5976,7 @@ public class BallerinaParser {
                                                        STNode annotationKeyword) {
         // We come here if the type name also and identifier.
         // However, if it is a qualified identifier, then it to be the type-desc.
-        STNode typeDescOrAnnotTag = parseStatementStartIdentifier();
+        STNode typeDescOrAnnotTag = parseAnnotationTag();
         if (typeDescOrAnnotTag.kind == SyntaxKind.QUALIFIED_IDENTIFIER) {
             STNode annotTag = parseAnnotationTag();
             return parseAnnotationDeclAttachPoints(metadata, qualifier, constKeyword, annotationKeyword,
@@ -6125,28 +6125,27 @@ public class BallerinaParser {
         }
 
         // Parse first attach-point, that has no leading comma
-        STNode leadingComma = STNodeFactory.createEmptyNode();
-        STNode attachPoint = parseAnnotationAttachPoint(leadingComma);
-        attachPoints.add(leadingComma);
+        STNode attachPoint = parseAnnotationAttachPoint();
         attachPoints.add(attachPoint);
 
         // Parse the remaining attach-points
         nextToken = peek();
+        STNode leadingComma;
         while (!isEndAnnotAttachPointList(nextToken.kind)) {
             leadingComma = parseAttachPointEnd();
             if (leadingComma == null) {
                 break;
             }
+            attachPoints.add(leadingComma);
 
             // Parse attach point. Null represents the end of attach-points.
-            attachPoint = parseAnnotationAttachPoint(leadingComma);
+            attachPoint = parseAnnotationAttachPoint();
             if (attachPoint == null) {
                 this.errorHandler.reportMissingTokenError("missing attach point");
                 attachPoint = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
                 break;
             }
 
-            attachPoints.add(leadingComma);
             attachPoints.add(attachPoint);
             nextToken = peek();
         }
@@ -6168,6 +6167,7 @@ public class BallerinaParser {
     private STNode parseAttachPointEnd(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case SEMICOLON_TOKEN:
+                // null represents the end of attach points.
                 return null;
             case COMMA_TOKEN:
                 return consume();
@@ -6177,7 +6177,7 @@ public class BallerinaParser {
                     return sol.recoveredNode;
                 }
 
-                return parseAttachPointEnd(sol.tokenKind);
+                return sol.tokenKind == SyntaxKind.COMMA_TOKEN ? sol.recoveredNode : null;
         }
     }
 
@@ -6194,14 +6194,13 @@ public class BallerinaParser {
     /**
      * Parse annotation attach point.
      *
-     * @param leadingComma Leading comma
      * @return Parsed node
      */
-    private STNode parseAnnotationAttachPoint(STNode leadingComma) {
-        return parseAnnotationAttachPoint(peek().kind, leadingComma);
+    private STNode parseAnnotationAttachPoint() {
+        return parseAnnotationAttachPoint(peek().kind);
     }
 
-    private STNode parseAnnotationAttachPoint(SyntaxKind nextTokenKind, STNode leadingComma) {
+    private STNode parseAnnotationAttachPoint(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case EOF_TOKEN:
                 return null;
@@ -6234,7 +6233,7 @@ public class BallerinaParser {
                 return parseDualAttachPointIdent(sourceKeyword, firstIdent);
             default:
                 this.errorHandler.removeInvalidToken();
-                return parseAnnotationAttachPoint(leadingComma);
+                return parseAnnotationAttachPoint();
         }
     }
 
@@ -6347,7 +6346,7 @@ public class BallerinaParser {
             case TYPE_KEYWORD:
             case FUNCTION_KEYWORD:
             case FIELD_KEYWORD:
-                return parse();
+                return consume();
             default:
                 Solution sol = recover(token, ParserRuleContext.IDENT_AFTER_OBJECT_IDENT);
                 return sol.recoveredNode;

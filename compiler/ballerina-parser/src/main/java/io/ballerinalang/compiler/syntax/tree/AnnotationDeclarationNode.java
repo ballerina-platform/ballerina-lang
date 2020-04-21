@@ -58,8 +58,8 @@ public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
         return childInBucket(6);
     }
 
-    public Node attachPoints() {
-        return childInBucket(7);
+    public SeparatedNodeList<Node> attachPoints() {
+        return new SeparatedNodeList<>(childInBucket(7));
     }
 
     public Token semicolonToken() {
@@ -98,7 +98,7 @@ public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
             Node typeDescriptor,
             Token annotationTag,
             Token onKeyword,
-            Node attachPoints,
+            SeparatedNodeList<Node> attachPoints,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
@@ -108,7 +108,7 @@ public class AnnotationDeclarationNode extends ModuleMemberDeclarationNode {
                 typeDescriptor,
                 annotationTag,
                 onKeyword,
-                attachPoints,
+                attachPoints.underlyingListNode(),
                 semicolonToken)) {
             return this;
         }

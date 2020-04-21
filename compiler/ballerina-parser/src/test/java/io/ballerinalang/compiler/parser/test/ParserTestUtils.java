@@ -612,8 +612,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ANNOTATION_ATTACH_POINT;
             case "NAMED_WORKER_DECLARATION":
                 return SyntaxKind.NAMED_WORKER_DECLARATION;
-            case "NAMED_WORKERS":
-                return SyntaxKind.NAMED_WORKERS;
+            case "NAMED_WORKER_DECLARATOR":
+                return SyntaxKind.NAMED_WORKER_DECLARATOR;
             case "DOCUMENTATION_STRING":
                 return SyntaxKind.DOCUMENTATION_STRING;
             case "DOCUMENTATION_LINE":

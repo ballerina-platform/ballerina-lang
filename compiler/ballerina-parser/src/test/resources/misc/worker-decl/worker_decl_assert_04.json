@@ -47,7 +47,7 @@
                                     "kind": "OPEN_BRACE_TOKEN"
                                 },
                                 {
-                                    "kind": "NAMED_WORKERS",
+                                    "kind": "NAMED_WORKER_DECLARATOR",
                                     "children": [
                                         {
                                             "kind": "LIST",

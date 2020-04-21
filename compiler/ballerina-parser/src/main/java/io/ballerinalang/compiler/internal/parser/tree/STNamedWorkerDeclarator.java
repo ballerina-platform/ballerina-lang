@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.NamedWorkersListNode;
+import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarator;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,23 +27,23 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STNamedWorkersListNode extends STNode {
+public class STNamedWorkerDeclarator extends STNode {
     public final STNode workerInitStatements;
-    public final STNode namedWorkerDecl;
+    public final STNode namedWorkerDeclarations;
 
-    STNamedWorkersListNode(
+    STNamedWorkerDeclarator(
             STNode workerInitStatements,
-            STNode namedWorkerDecl) {
-        super(SyntaxKind.NAMED_WORKERS);
+            STNode namedWorkerDeclarations) {
+        super(SyntaxKind.NAMED_WORKER_DECLARATOR);
         this.workerInitStatements = workerInitStatements;
-        this.namedWorkerDecl = namedWorkerDecl;
+        this.namedWorkerDeclarations = namedWorkerDeclarations;
 
         addChildren(
                 workerInitStatements,
-                namedWorkerDecl);
+                namedWorkerDeclarations);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new NamedWorkersListNode(this, position, parent);
+        return new NamedWorkerDeclarator(this, position, parent);
     }
 }

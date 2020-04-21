@@ -1561,7 +1561,8 @@
                 },
                 {
                     "name": "attachPoints",
-                    "type": "Node"
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "semicolonToken",
@@ -1625,8 +1626,8 @@
                     "type": "Token"
                 },
                 {
-                    "name": "namedWorkers",
-                    "type": "NamedWorkersListNode",
+                    "name": "namedWorkerDeclarator",
+                    "type": "NamedWorkerDeclarator",
                     "isOptional": true
                 },
                 {
@@ -1670,9 +1671,9 @@
             ]
         },
         {
-            "name": "NamedWorkersListNode",
+            "name": "NamedWorkerDeclarator",
             "base": "Node",
-            "kind": "NAMED_WORKERS",
+            "kind": "NAMED_WORKER_DECLARATOR",
             "attributes": [
                 {
                     "name": "workerInitStatements",
@@ -1680,7 +1681,7 @@
                     "occurrences": "MULTIPLE"
                 },
                 {
-                    "name": "namedWorkerDecl",
+                    "name": "namedWorkerDeclarations",
                     "type": "NamedWorkerDeclarationNode",
                     "occurrences": "MULTIPLE"
                 }

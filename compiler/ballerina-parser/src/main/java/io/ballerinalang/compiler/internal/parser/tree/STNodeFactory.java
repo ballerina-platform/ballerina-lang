@@ -913,13 +913,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createFunctionBodyBlockNode(
             STNode openBraceToken,
-            STNode namedWorkers,
+            STNode namedWorkerDeclarator,
             STNode statements,
             STNode closeBraceToken) {
 
         return new STFunctionBodyBlockNode(
                 openBraceToken,
-                namedWorkers,
+                namedWorkerDeclarator,
                 statements,
                 closeBraceToken);
     }
@@ -939,13 +939,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 workerBody);
     }
 
-    public static STNode createNamedWorkersListNode(
+    public static STNode createNamedWorkerDeclarator(
             STNode workerInitStatements,
-            STNode namedWorkerDecl) {
+            STNode namedWorkerDeclarations) {
 
-        return new STNamedWorkersListNode(
+        return new STNamedWorkerDeclarator(
                 workerInitStatements,
-                namedWorkerDecl);
+                namedWorkerDeclarations);
     }
 
     public static STNode createDocumentationStringNode(
