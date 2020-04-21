@@ -27,7 +27,7 @@ public class FloatLiteralTest extends AbstractExpressionsTest {
     // Valid source tests
 
     @Test
-    public void testDecimalFloatingPointNumber(){
+    public void testDecimalFloatingPointNumber() {
 
         // DecimalNumber Exponent [FloatingPointTypeSuffix]
         testFile("basic-literals/float_literal_source_01.bal", "basic-literals/float_literal_assert_01.json");
@@ -40,7 +40,7 @@ public class FloatLiteralTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testHexFloatingPointLiteral(){
+    public void testHexFloatingPointLiteral() {
 
         // HexIndicator HexNumber HexExponent
         testFile("basic-literals/float_literal_source_04.bal", "basic-literals/float_literal_assert_04.json");

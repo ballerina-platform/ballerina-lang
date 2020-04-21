@@ -423,7 +423,7 @@ public class BallerinaLexer {
             reader.advance(2);
             return getSyntaxToken(SyntaxKind.ELLIPSIS_TOKEN);
         }
-        if (isDigit(reader.peek())){
+        if (isDigit(reader.peek())) {
             reader.retreat();
             return processDecimalFloatLiteral();
         }
@@ -589,9 +589,9 @@ public class BallerinaLexer {
                     break;
                 case 'e':
                 case 'E':
-                    if (!exponent){ // Check whether an exponent has been passed previously
-                        if (processExponent()){
-                            exponent= true;
+                    if (!exponent) { // Check whether an exponent has been passed previously
+                        if (processExponent()) {
+                            exponent = true;
                             continue;
                         }
                     }
@@ -599,10 +599,10 @@ public class BallerinaLexer {
                     processInvalidToken();
                     return readToken();
                 case '.':
-                    if (!dot && !exponent){ // Check whether a dot or exponent has been passed previously
+                    if (!dot && !exponent) { // Check whether a dot or exponent has been passed previously
                         reader.advance();
-                        nextChar=peek();
-                        while(true){
+                        nextChar = peek();
+                        while (true) {
                             if (isDigit(nextChar)) {
                                 reader.advance();
                                 nextChar = peek();
@@ -653,18 +653,18 @@ public class BallerinaLexer {
         int nextChar = peek();
 
         // Capture if there is a sign
-        if (nextChar == '+' || nextChar == '-'){
+        if (nextChar == '+' || nextChar == '-') {
             reader.advance();
             nextChar = peek();
         }
 
         // Make sure at least one digit is present after the indicator
-        if (!isDigit(nextChar)){
+        if (!isDigit(nextChar)) {
             reportLexerError("missing digit after exponent indicator");
             return false;
         }
 
-        while(true){
+        while (true) {
             if (isDigit(nextChar)) {
                 reader.advance();
                 nextChar = peek();
@@ -703,8 +703,8 @@ public class BallerinaLexer {
         reader.advance();
 
         // Make sure at least one hex-digit present after dot
-        if (peek()=='.'){
-            if(!isHexDigit(reader.peek(1))){
+        if (peek() == '.') {
+            if (!isHexDigit(reader.peek(1))) {
                 reader.advance();
                 processInvalidToken();
                 return readToken();
@@ -717,24 +717,24 @@ public class BallerinaLexer {
         }
         nextChar = peek();
 
-        switch (nextChar){
+        switch (nextChar) {
             case 'p':
             case 'P':
-                if (processExponent()){
+                if (processExponent()) {
                     return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
                 }
                 processInvalidToken();
                 return readToken();
             case '.':
                 reader.advance();
-                nextChar=peek();
-                while(true){
+                nextChar = peek();
+                while (true) {
                     if (isHexDigit(nextChar)) {
                         reader.advance();
                         nextChar = peek();
                         continue;
-                    } else if ( nextChar =='p'|| nextChar == 'P'){
-                        if (processExponent()){
+                    } else if (nextChar == 'p' || nextChar == 'P') {
+                        if (processExponent()) {
                             break;
                         }
                         processInvalidToken();
