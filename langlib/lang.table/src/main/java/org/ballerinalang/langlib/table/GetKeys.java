@@ -25,7 +25,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -44,7 +44,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class GetKeys {
 
-    public static ArrayValue keys(Strand strand, TableValue tbl) {
+    public static ArrayValue keys(Strand strand, TableValueImpl tbl) {
         BType tableKeyType = ((BTableType) tbl.getType()).getKeyType();
         tableKeyType = tableKeyType != null ? tableKeyType : BTypes.typeAny;
         return new ArrayValueImpl((Object[]) tbl.getKeys(), new BArrayType(tableKeyType));

@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 public class RemoveAll {
 
-    public static void removeAll(Strand strand, TableValue tbl) {
+    public static void removeAll(Strand strand, TableValueImpl tbl) {
         try {
             tbl.clear();
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {

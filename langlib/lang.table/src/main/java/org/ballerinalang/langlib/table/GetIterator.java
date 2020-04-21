@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -37,7 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 public class GetIterator {
-    public static IteratorValue iterator(Strand strand, TableValue tbl) {
+    public static IteratorValue iterator(Strand strand, TableValueImpl tbl) {
         return tbl.getIterator();
     }
 }

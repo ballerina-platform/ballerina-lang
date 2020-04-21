@@ -149,7 +149,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
@@ -1250,17 +1252,6 @@ public class JvmInstructionGen {
             }
         }
 
-        void generateTableNewIns(NewTable inst) {
-            this.mv.visitTypeInsn(NEW, TABLE_VALUE);
-            this.mv.visitInsn(DUP);
-            loadType(this.mv, inst.type);
-            this.loadVar(inst.dataOp.variableDcl);
-            this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE, "<init>",
-                    String.format("(L%s;L%s;)V", TABLE_TYPE, ARRAY_VALUE), false);
-
-            this.storeToVar(inst.lhsOp.variableDcl);
-        }
-
         void generateArrayStoreIns(FieldAccess inst) {
 
             this.loadVar(inst.lhsOp.variableDcl);
@@ -1346,6 +1337,18 @@ public class JvmInstructionGen {
             this.storeToVar(inst.lhsOp.variableDcl);
         }
 
+        void generateTableNewIns(NewTable inst) {
+            this.mv.visitTypeInsn(NEW, TABLE_VALUE_IMPL);
+            this.mv.visitInsn(DUP);
+            loadType(this.mv, inst.type);
+            this.loadVar(inst.dataOp.variableDcl);
+            this.loadVar(inst.keyColOp.variableDcl);
+            this.mv.visitMethodInsn(INVOKESPECIAL, TABLE_VALUE_IMPL, "<init>",
+                    String.format("(L%s;L%s;L%s;)V", TABLE_TYPE, ARRAY_VALUE, ARRAY_VALUE), false);
+
+            this.storeToVar(inst.lhsOp.variableDcl);
+        }
+
         void generateTableLoadIns(FieldAccess inst) {
 
             this.loadVar(inst.rhsOp.variableDcl);
@@ -1366,7 +1369,15 @@ public class JvmInstructionGen {
         }
 
         public void generateTableStoreIns(FieldAccess inst) {
+            this.loadVar(inst.lhsOp.variableDcl);
+            this.loadVar(inst.keyOp.variableDcl);
 
+            BType valueType = inst.rhsOp.variableDcl.type;
+            this.loadVar(inst.rhsOp.variableDcl);
+            addBoxInsn(this.mv, valueType);
+
+            this.mv.visitMethodInsn(INVOKESTATIC, TABLE_UTILS, "handleTableStore",
+                    String.format("(L%s;L%s;L%s;)V", TABLE_VALUE, OBJECT, OBJECT), false);
         }
 
         void generateNewErrorIns(NewError newErrorIns) {

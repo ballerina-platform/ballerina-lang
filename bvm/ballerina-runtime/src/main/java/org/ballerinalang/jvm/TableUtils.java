@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
+import org.ballerinalang.jvm.values.TableValue;
 
 import java.util.Map;
 import java.util.Objects;
@@ -35,6 +36,11 @@ import java.util.Objects;
 
 public class TableUtils {
 
+    /**
+     * Generates a hash value which is same for the same shape.
+     * @param obj Ballerina value which the hash is generated from
+     * @return The hash value
+     */
     public static Integer hash(Object obj) {
         int result;
         if (obj instanceof RefValue) {
@@ -62,5 +68,15 @@ public class TableUtils {
         } else {
             return obj.hashCode();
         }
+    }
+
+    /**
+     * Handles table insertion/store functionality.
+     * @param tableValue Table value which the values are inserted to
+     * @param key The key associated with the value
+     * @param value The value being inserted
+     */
+    public static void handleTableStore(TableValue<Object, Object> tableValue, Object key, Object value) {
+        tableValue.put(key, value);
     }
 }

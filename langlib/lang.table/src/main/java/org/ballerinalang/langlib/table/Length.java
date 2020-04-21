@@ -19,7 +19,7 @@
 package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -37,10 +37,10 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Length {
 
-    public static long length(Strand strand, TableValue tbl) {
+    public static long length(Strand strand, TableValueImpl tbl) {
         return tbl.size();
     }
-    public static long length_bstring(Strand strand, TableValue tbl) {
+    public static long length_bstring(Strand strand, TableValueImpl tbl) {
         return length(strand, tbl);
     }
 }

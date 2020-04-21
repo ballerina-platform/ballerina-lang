@@ -161,7 +161,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
@@ -584,7 +584,7 @@ public class JvmMethodGen {
                 mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.TABLE) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", TABLE_VALUE));
+                        String.format("L%s;", TABLE_VALUE_IMPL));
                 mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.ARRAY ||
                     bType.tag == TypeTags.TUPLE) {
@@ -605,7 +605,7 @@ public class JvmMethodGen {
                 mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.TABLE) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", TABLE_VALUE));
+                        String.format("L%s;", TABLE_VALUE_IMPL));
                 mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.INVOKABLE) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
@@ -724,7 +724,7 @@ public class JvmMethodGen {
             } else if (bType.tag == TypeTags.TABLE) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", TABLE_VALUE));
+                        String.format("L%s;", TABLE_VALUE_IMPL));
             } else if (bType.tag == TypeTags.ARRAY ||
                     bType.tag == TypeTags.TUPLE) {
                 mv.visitVarInsn(ALOAD, index);
@@ -838,7 +838,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.STREAM) {
             jvmType = String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.TABLE) {
-            jvmType = String.format("L%s;", TABLE_VALUE);
+            jvmType = String.format("L%s;", TABLE_VALUE_IMPL);
         } else if (bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.TUPLE) {
             jvmType = String.format("L%s;", ARRAY_VALUE);
@@ -1556,7 +1556,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.STREAM) {
             return String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.TABLE) {
-            return String.format("L%s;", TABLE_VALUE);
+            return String.format("L%s;", TABLE_VALUE_IMPL);
         } else if (bType.tag == TypeTags.INVOKABLE) {
             return String.format("L%s;", FUNCTION_POINTER);
         } else if (bType.tag == TypeTags.TYPEDESC) {
@@ -1602,7 +1602,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.STREAM) {
             return String.format(")L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.TABLE) {
-            return String.format(")L%s;", TABLE_VALUE);
+            return String.format(")L%s;", TABLE_VALUE_IMPL);
         } else if (bType.tag == TypeTags.FUTURE) {
             return String.format(")L%s;", FUTURE_VALUE);
         } else if (bType.tag == TypeTags.TYPEDESC) {
@@ -2377,7 +2377,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.STREAM) {
             typeSig = String.format("L%s;", STREAM_VALUE);
         } else if (bType.tag == TypeTags.TABLE) {
-            typeSig = String.format("L%s;", TABLE_VALUE);
+            typeSig = String.format("L%s;", TABLE_VALUE_IMPL);
         } else if (bType.tag == TypeTags.RECORD) {
             typeSig = String.format("L%s;", MAP_VALUE);
         } else if (bType.tag == TypeTags.ARRAY ||
