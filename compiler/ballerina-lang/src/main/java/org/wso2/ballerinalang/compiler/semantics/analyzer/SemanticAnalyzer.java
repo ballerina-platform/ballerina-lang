@@ -1724,12 +1724,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BType type = typeChecker.checkExpr(tupleDeStmt.expr, this.env, tupleDeStmt.varRef.type);
 
-        if (tupleDeStmt.expr.type.tag == TypeTags.ARRAY) {
-            // TODO: https://github.com/ballerina-platform/ballerina-lang/issues/17927
-            dlog.error(tupleDeStmt.expr.pos, DiagnosticCode.BINDING_PATTERN_NOT_YET_SUPPORTED, tupleDeStmt.expr.type);
-            return;
-        }
-
         if (type.tag != TypeTags.SEMANTIC_ERROR) {
             checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
                     tupleDeStmt.expr.type, tupleDeStmt.expr.pos);
@@ -1917,7 +1911,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void checkTupleVarRefEquivalency(DiagnosticPos pos, BLangTupleVarRef target, BType source,
                                              DiagnosticPos rhsPos) {
-        if (source.tag != TypeTags.TUPLE) {
+        if (source.tag != TypeTags.TUPLE && source.tag != TypeTags.ARRAY) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, source);
             return;
         }
