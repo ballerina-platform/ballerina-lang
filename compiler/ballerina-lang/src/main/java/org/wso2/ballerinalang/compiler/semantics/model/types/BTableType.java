@@ -19,6 +19,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TableType;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
@@ -51,7 +52,17 @@ public class BTableType extends BType implements TableType {
 
     @Override
     public String toString() {
-        return "";
+        if (constraint == null) {
+            return super.toString();
+        } else {
+            return super.toString() + "<" + constraint + ">"
+                    + ((this.keyTypeConstraint == null) ? "" : ", key<" + this.keyTypeConstraint + ">");
+        }
+    }
+
+    @Override
+    public TypeKind getKind() {
+        return TypeKind.TABLE;
     }
 
     @Override
