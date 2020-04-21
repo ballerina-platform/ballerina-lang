@@ -66,7 +66,7 @@ public class RecordFieldNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "metadata",
-                "type",
+                "typeName",
                 "fieldName",
                 "questionMarkToken",
                 "semicolonToken"};

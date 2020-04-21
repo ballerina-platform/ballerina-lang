@@ -20,6 +20,8 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 
+import java.util.function.Function;
+
 /**
  * Produces a new tree by doing a depth-first traversal of the tree.
  *
@@ -67,7 +69,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(ImportDeclarationNode importDeclarationNode) {
         Token importKeyword = modifyToken(importDeclarationNode.importKeyword());
         Node orgName = modifyNode(importDeclarationNode.orgName().orElse(null));
-        NodeList<IdentifierToken> moduleName = modifyNodeList(importDeclarationNode.moduleName());
+        SeparatedNodeList<IdentifierToken> moduleName = modifySeparatedNodeList(importDeclarationNode.moduleName());
         Node version = modifyNode(importDeclarationNode.version().orElse(null));
         Node prefix = modifyNode(importDeclarationNode.prefix().orElse(null));
         Token semicolon = modifyToken(importDeclarationNode.semicolon());
@@ -554,15 +556,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(SubModuleNameNode subModuleNameNode) {
-        Token leadingDot = modifyToken(subModuleNameNode.leadingDot());
-        IdentifierToken moduleName = modifyNode(subModuleNameNode.moduleName());
-        return subModuleNameNode.modify(
-                leadingDot,
-                moduleName);
-    }
-
-    @Override
     public Node transform(SpecificFieldNode specificFieldNode) {
         Token leadingComma = modifyToken(specificFieldNode.leadingComma());
         IdentifierToken fieldName = modifyNode(specificFieldNode.fieldName());
@@ -878,6 +871,16 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     protected <T extends Node> NodeList<T> modifyNodeList(NodeList<T> nodeList) {
+        return modifyGenericNodeList(nodeList, NodeList::new);
+    }
+
+    protected <T extends Node> SeparatedNodeList<T> modifySeparatedNodeList(SeparatedNodeList<T> nodeList) {
+        return modifyGenericNodeList(nodeList, SeparatedNodeList::new);
+    }
+
+    private <T extends Node, N extends NodeList<T>> N modifyGenericNodeList(
+            N nodeList,
+            Function<NonTerminalNode, N> nodeListCreator) {
         if (nodeList.isEmpty()) {
             return nodeList;
         }
@@ -898,7 +901,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         }
 
         STNode stNodeList = STNodeFactory.createNodeList(java.util.Arrays.asList(newSTNodes));
-        return new NodeList<>(stNodeList.createUnlinkedFacade());
+        return nodeListCreator.apply(stNodeList.createUnlinkedFacade());
     }
 
     protected <T extends Token> T modifyToken(T token) {

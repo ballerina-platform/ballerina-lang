@@ -55,7 +55,7 @@ public class RecordRestDescriptorNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "type",
+                "typeName",
                 "ellipsisToken",
                 "semicolonToken"};
     }
