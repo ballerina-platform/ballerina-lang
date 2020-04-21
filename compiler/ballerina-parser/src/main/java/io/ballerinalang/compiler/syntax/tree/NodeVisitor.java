@@ -203,10 +203,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(importVersionNode);
     }
 
-    public void visit(SubModuleNameNode subModuleNameNode) {
-        visitSyntaxNode(subModuleNameNode);
-    }
-
     public void visit(SpecificFieldNode specificFieldNode) {
         visitSyntaxNode(specificFieldNode);
     }
@@ -287,8 +283,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(moduleVariableDeclarationNode);
     }
 
-    public void visit(IsExpressionNode isExpressionNode) {
-        visitSyntaxNode(isExpressionNode);
+    public void visit(TypeTestExpressionNode typeTestExpressionNode) {
+        visitSyntaxNode(typeTestExpressionNode);
     }
 
     public void visit(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
@@ -297,6 +293,10 @@ public abstract class NodeVisitor {
 
     public void visit(RemoteMethodCallActionNode remoteMethodCallActionNode) {
         visitSyntaxNode(remoteMethodCallActionNode);
+    }
+
+    public void visit(NilLiteralNode nilLiteralNode) {
+        visitSyntaxNode(nilLiteralNode);
     }
 
     // Tokens

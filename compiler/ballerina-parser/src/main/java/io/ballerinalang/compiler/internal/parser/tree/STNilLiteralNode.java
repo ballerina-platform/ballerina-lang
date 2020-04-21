@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.IsExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -27,27 +27,23 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STIsExpressionNode extends STExpressionNode {
-    public final STNode expression;
-    public final STNode isKeyword;
-    public final STNode typeDescriptor;
+public class STNilLiteralNode extends STExpressionNode {
+    public final STNode openParenToken;
+    public final STNode closeParenToken;
 
-    STIsExpressionNode(
-            STNode expression,
-            STNode isKeyword,
-            STNode typeDescriptor) {
-        super(SyntaxKind.IS_EXPRESSION);
-        this.expression = expression;
-        this.isKeyword = isKeyword;
-        this.typeDescriptor = typeDescriptor;
+    STNilLiteralNode(
+            STNode openParenToken,
+            STNode closeParenToken) {
+        super(SyntaxKind.NIL_LITERAL);
+        this.openParenToken = openParenToken;
+        this.closeParenToken = closeParenToken;
 
         addChildren(
-                expression,
-                isKeyword,
-                typeDescriptor);
+                openParenToken,
+                closeParenToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new IsExpressionNode(this, position, parent);
+        return new NilLiteralNode(this, position, parent);
     }
 }

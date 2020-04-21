@@ -57,6 +57,7 @@ public enum SyntaxKind {
     BREAK_KEYWORD(212,"break"),
     TYPEOF_KEYWORD(213,"typeof"),
     IS_KEYWORD(214, "is"),
+    NULL_KEYWORD(215, "null"),
     LOCK_KEYWORD(214, "lock"),
 
     // Separators
@@ -153,7 +154,7 @@ public enum SyntaxKind {
     MAPPING_CONSTRUCTOR(1308),
     TYPEOF_EXPRESSION(1309),
     UNARY_EXPRESSION(1310),
-    IS_EXPRESSION(1311),
+    TYPE_TEST_EXPRESSION(1311),
 
     // Type descriptors
     RECORD_TYPE_DESCRIPTOR(2000),
@@ -195,6 +196,7 @@ public enum SyntaxKind {
     ANNOTATION(3024),
     METADATA(3025),
     ARRAY_DIMENSION(3026),
+    NIL_LITERAL(3027),
 
     INVALID(4),
     MODULE_PART(3),

@@ -204,10 +204,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(importVersionNode);
     }
 
-    public T transform(SubModuleNameNode subModuleNameNode) {
-        return transformSyntaxNode(subModuleNameNode);
-    }
-
     public T transform(SpecificFieldNode specificFieldNode) {
         return transformSyntaxNode(specificFieldNode);
     }
@@ -288,8 +284,8 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(moduleVariableDeclarationNode);
     }
 
-    public T transform(IsExpressionNode isExpressionNode) {
-        return transformSyntaxNode(isExpressionNode);
+    public T transform(TypeTestExpressionNode typeTestExpressionNode) {
+        return transformSyntaxNode(typeTestExpressionNode);
     }
 
     public T transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
@@ -298,6 +294,10 @@ public abstract class NodeTransformer<T> {
 
     public T transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
         return transformSyntaxNode(remoteMethodCallActionNode);
+    }
+
+    public T transform(NilLiteralNode nilLiteralNode) {
+        return transformSyntaxNode(nilLiteralNode);
     }
 
     // Tokens

@@ -19,31 +19,35 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SubModuleNameNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
 
 /**
  * This is a generated internal syntax tree node.
  *
  * @since 1.3.0
  */
-public class STSubModuleNameNode extends STNode {
-    public final STNode leadingDot;
-    public final STNode moduleName;
+public class STTypeTestExpressionNode extends STExpressionNode {
+    public final STNode expression;
+    public final STNode isKeyword;
+    public final STNode typeDescriptor;
 
-    STSubModuleNameNode(
-            STNode leadingDot,
-            STNode moduleName) {
-        super(SyntaxKind.SUB_MODULE_NAME);
-        this.leadingDot = leadingDot;
-        this.moduleName = moduleName;
+    STTypeTestExpressionNode(
+            STNode expression,
+            STNode isKeyword,
+            STNode typeDescriptor) {
+        super(SyntaxKind.TYPE_TEST_EXPRESSION);
+        this.expression = expression;
+        this.isKeyword = isKeyword;
+        this.typeDescriptor = typeDescriptor;
 
         addChildren(
-                leadingDot,
-                moduleName);
+                expression,
+                isKeyword,
+                typeDescriptor);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new SubModuleNameNode(this, position, parent);
+        return new TypeTestExpressionNode(this, position, parent);
     }
 }

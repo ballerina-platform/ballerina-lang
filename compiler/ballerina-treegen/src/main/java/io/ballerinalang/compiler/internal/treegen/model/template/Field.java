@@ -17,12 +17,16 @@
  */
 package io.ballerinalang.compiler.internal.treegen.model.template;
 
+import io.ballerinalang.compiler.internal.treegen.model.OccurrenceKind;
+
 /**
  * Represents a instance field of a syntax tree node.
  *
  * @since 1.3.0
  */
 public class Field {
+    private static final String LIST_CN = "NodeList";
+    private static final String SEPARATED_LIST_CN = "SeparatedNodeList";
     private final String fieldClassName;
     private final String fieldName;
     private final int index;
@@ -33,18 +37,22 @@ public class Field {
     private final boolean isList;
     private final boolean isOptional;
 
+    private final OccurrenceKind occurrenceKind;
+
     public Field(String fieldClassName,
                  String fieldName,
                  int index,
-                 boolean isList,
+                 OccurrenceKind occurrenceKind,
                  boolean isOptional,
                  boolean isLast) {
         this.fieldClassName = fieldClassName;
         this.fieldName = fieldName;
         this.index = index;
+        this.occurrenceKind = occurrenceKind;
         this.isLast = isLast;
 
-        this.isList = isList;
+        this.isList = occurrenceKind == OccurrenceKind.MULTIPLE ||
+                occurrenceKind == OccurrenceKind.MULTIPLE_SEPARATED;
         this.isOptional = isOptional;
         this.isToken = "Token".equals(fieldClassName);
         this.isNode = !(isList || isToken);
@@ -80,5 +88,12 @@ public class Field {
 
     public boolean isOptional() {
         return isOptional;
+    }
+
+    public String listClassName() {
+        if (!isList()) {
+            throw new IllegalStateException("This method should only be invoked when the field type is a list");
+        }
+        return occurrenceKind == OccurrenceKind.MULTIPLE ? LIST_CN : SEPARATED_LIST_CN;
     }
 }

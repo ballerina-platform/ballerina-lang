@@ -159,6 +159,7 @@ public enum ParserRuleContext {
     CONST_KEYWORD("const"),
     TYPEOF_KEYWORD("typeof"),
     IS_KEYWORD("is"),
+    NULL_KEYWORD("null"),
     LOCK_KEYWORD("lock"),
 
     // Syntax tokens
@@ -213,7 +214,8 @@ public enum ParserRuleContext {
     TYPEOF_EXPRESSION("typeof-expr"),
     UNARY_EXPRESSION("unary-expr"),
     HEX_INTEGER_LITERAL("hex-integer-literal"),
-    IS_EXPRESSION("is-expr"),
+    TYPE_TEST_EXPRESSION("type-test-expr"),
+    NIL_LITERAL("nil-literal"),
     ;
 
     private String value;

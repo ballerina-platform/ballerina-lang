@@ -573,15 +573,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 versionNumber);
     }
 
-    public static STNode createSubModuleNameNode(
-            STNode leadingDot,
-            STNode moduleName) {
-
-        return new STSubModuleNameNode(
-                leadingDot,
-                moduleName);
-    }
-
     public static STNode createSpecificFieldNode(
             STNode leadingComma,
             STNode fieldName,
@@ -830,12 +821,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createIsExpressionNode(
+    public static STNode createTypeTestExpressionNode(
             STNode expression,
             STNode isKeyword,
             STNode typeDescriptor) {
 
-        return new STIsExpressionNode(
+        return new STTypeTestExpressionNode(
                 expression,
                 isKeyword,
                 typeDescriptor);
@@ -868,6 +859,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 methodName,
                 openParenToken,
                 arguments,
+                closeParenToken);
+    }
+
+    public static STNode createNilLiteralNode(
+            STNode openParenToken,
+            STNode closeParenToken) {
+
+        return new STNilLiteralNode(
+                openParenToken,
                 closeParenToken);
     }
 }

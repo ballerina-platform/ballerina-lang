@@ -68,7 +68,7 @@ public class RequiredParameterNode extends ParameterNode {
                 "leadingComma",
                 "annotations",
                 "visibilityQualifier",
-                "type",
+                "typeName",
                 "paramName"};
     }
 
