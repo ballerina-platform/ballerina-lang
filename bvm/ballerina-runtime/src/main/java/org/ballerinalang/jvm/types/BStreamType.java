@@ -70,7 +70,8 @@ public class BStreamType extends BType {
         if (constraint == BTypes.typeAny) {
             return super.toString();
         } else {
-            return super.toString() + "<" + constraint + ((TypeConstants.ERROR==null) ? ">" : "," + TypeConstants.ERROR + ">");
+            return super.toString() + "<" + constraint + ((TypeConstants.ERROR == null) ? 
+			">" : "," + TypeConstants.ERROR + ">");
         }
     }
 
