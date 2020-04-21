@@ -27,10 +27,6 @@ function concat(string name) returns string {
     return "hello " + name;
 }
 
-function status() returns boolean {
-    return true;
-}
-
 function add_1(int i, int j) returns int {
     int k = i + j;
     int l = 0;
