@@ -101,7 +101,7 @@
                 {
                     "name": "moduleName",
                     "type": "IdentifierToken",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "version",
@@ -973,21 +973,6 @@
                 {
                     "name": "versionNumber",
                     "type": "Node"
-                }
-            ]
-        },
-        {
-            "name": "SubModuleNameNode",
-            "base": "Node",
-            "kind": "SUB_MODULE_NAME",
-            "attributes": [
-                {
-                    "name": "leadingDot",
-                    "type": "Token"
-                },
-                {
-                    "name": "moduleName",
-                    "type": "IdentifierToken"
                 }
             ]
         },

@@ -63,7 +63,6 @@ public class NodeFactoryTarget extends AbstractNodeVisitorTarget {
         List<String> imports = new ArrayList<>();
         imports.add(getClassFQN(config.getOrThrow(INTERNAL_NODE_PACKAGE_KEY), INTERNAL_BASE_NODE_CN));
         imports.add(getClassFQN(config.getOrThrow(INTERNAL_NODE_PACKAGE_KEY), INTERNAL_NODE_FACTORY_CN));
-        imports.add(JAVA_UTIL_OBJECTS_CN);
         return imports;
     }
 

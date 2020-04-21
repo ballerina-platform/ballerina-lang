@@ -200,10 +200,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(importVersionNode);
     }
 
-    public T transform(SubModuleNameNode subModuleNameNode) {
-        return transformSyntaxNode(subModuleNameNode);
-    }
-
     public T transform(SpecificFieldNode specificFieldNode) {
         return transformSyntaxNode(specificFieldNode);
     }

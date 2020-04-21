@@ -82,7 +82,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ImportDeclarationNode createImportDeclarationNode(
             Token importKeyword,
             Node orgName,
-            NodeList<IdentifierToken> moduleName,
+            SeparatedNodeList<IdentifierToken> moduleName,
             Node version,
             Node prefix,
             Token semicolon) {
@@ -746,18 +746,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 versionKeyword.internalNode(),
                 versionNumber.internalNode());
         return stImportVersionNode.createUnlinkedFacade();
-    }
-
-    public static SubModuleNameNode createSubModuleNameNode(
-            Token leadingDot,
-            IdentifierToken moduleName) {
-        Objects.requireNonNull(leadingDot, "leadingDot must not be null");
-        Objects.requireNonNull(moduleName, "moduleName must not be null");
-
-        STNode stSubModuleNameNode = STNodeFactory.createSubModuleNameNode(
-                leadingDot.internalNode(),
-                moduleName.internalNode());
-        return stSubModuleNameNode.createUnlinkedFacade();
     }
 
     public static SpecificFieldNode createSpecificFieldNode(
