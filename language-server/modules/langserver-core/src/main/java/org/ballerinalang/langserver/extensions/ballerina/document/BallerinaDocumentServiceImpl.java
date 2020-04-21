@@ -23,6 +23,8 @@ import com.google.gson.JsonObject;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.StringTextDocument;
 import io.ballerinalang.compiler.text.TextDocument;
+import io.ballerinalang.compiler.text.TextDocumentChange;
+import io.ballerinalang.compiler.text.TextDocuments;
 import org.ballerinalang.ballerina.openapi.convertor.service.OpenApiConverterUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
@@ -195,10 +197,10 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 TextEdit textEdit = new TextEdit(range, textEditContent);
                 ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
                 TextDocumentEdit textDocumentEdit = new TextDocumentEdit(params.getDocumentIdentifier(),
-                                                                         Collections.singletonList(textEdit));
+                        Collections.singletonList(textEdit));
                 WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections
-                                                                        .singletonList(
-                                                                                Either.forLeft(textDocumentEdit)));
+                        .singletonList(
+                                Either.forLeft(textDocumentEdit)));
                 applyWorkspaceEditParams.setEdit(workspaceEdit);
 
                 ballerinaLanguageServer.getClient().applyEdit(applyWorkspaceEditParams);
@@ -236,8 +238,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
                 List<TopLevelNode> servicePkgs = new ArrayList<>();
                 servicePkgs.addAll(compilationUnit.getTopLevelNodes().stream()
-                                           .filter(topLevelNode -> topLevelNode instanceof ServiceNode)
-                                           .collect(Collectors.toList()));
+                        .filter(topLevelNode -> topLevelNode instanceof ServiceNode)
+                        .collect(Collectors.toList()));
 
                 servicePkgs.forEach(servicepkg -> {
                     if (servicepkg instanceof ServiceNode) {
@@ -273,7 +275,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     .withCommonParams(null, fileUri, documentManager)
                     .build();
             LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class, false,
-                                             false);
+                    false);
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(true);
         } catch (Throwable e) {
@@ -389,7 +391,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             TextEdit textEdit = new TextEdit(range, textEditContent);
             ApplyWorkspaceEditParams applyWorkspaceEditParams = new ApplyWorkspaceEditParams();
             TextDocumentEdit txtDocumentEdit = new TextDocumentEdit(notification.getTextDocumentIdentifier(),
-                                                                    Collections.singletonList(textEdit));
+                    Collections.singletonList(textEdit));
 
             WorkspaceEdit workspaceEdit = new WorkspaceEdit(Collections.singletonList(Either.forLeft(txtDocumentEdit)));
             applyWorkspaceEditParams.setEdit(workspaceEdit);
