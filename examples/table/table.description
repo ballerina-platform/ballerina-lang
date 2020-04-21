@@ -1,2 +1,5 @@
 // The type `table` is a data structure that organizes information in rows and columns. This example demonstrates how to
 // create an in-memory table using a type constraint, insert data to it, and then access/delete the data.
+//
+// For more information on the underlying module, 
+// see [the Table module](https://ballerina.io/learn/api-docs/ballerina/table/index.html).
