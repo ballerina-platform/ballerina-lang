@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
@@ -30,6 +31,7 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -1725,8 +1727,55 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType type = typeChecker.checkExpr(tupleDeStmt.expr, this.env, tupleDeStmt.varRef.type);
 
         if (type.tag != TypeTags.SEMANTIC_ERROR) {
+            checkEquivalencyForListDestructure(tupleDeStmt);
+        }
+    }
+
+    /**
+     * Check the expression of tupleDestructure and process for arrays and tuples separately.
+     *
+     * @param tupleDeStmt Is the tuple destructure statement from the parser.
+     */
+    private void checkEquivalencyForListDestructure(BLangTupleDestructure tupleDeStmt) {
+
+        if (tupleDeStmt.expr.type.tag == TypeTags.ARRAY) {
+            checkArrayVarRefEquivalency(tupleDeStmt);
+        } else {
             checkTupleVarRefEquivalency(tupleDeStmt.pos, tupleDeStmt.varRef,
                     tupleDeStmt.expr.type, tupleDeStmt.expr.pos);
+        }
+    }
+
+    private void checkArrayVarRefEquivalency(BLangTupleDestructure tupleDeStmt) {
+        BArrayType source = (BArrayType) tupleDeStmt.expr.type;
+        DiagnosticPos rhsPos = tupleDeStmt.expr.pos;
+        DiagnosticPos pos = tupleDeStmt.pos;
+        BLangTupleVarRef target = tupleDeStmt.varRef;
+
+        if (source.size < target.expressions.size()) {
+            dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, source);
+        }
+
+        BType souceElementType = source.eType;
+        for (BLangExpression expression : target.expressions) {
+            if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
+                Name varName = names.fromIdNode(simpleVarRef.variableName);
+                if (varName == Names.IGNORE) {
+                    continue;
+                }
+
+                resetTypeNarrowing(simpleVarRef, souceElementType);
+
+                BType targetType = simpleVarRef.type;
+                if (!types.isAssignable(souceElementType, targetType)) {
+                    dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, source);
+                    break;
+                }
+            }
+            else {
+                dlog.error(expression.pos, DiagnosticCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN, expression);
+            }
         }
     }
 
@@ -1958,6 +2007,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 BType targetType;
                 resetTypeNarrowing(simpleVarRef, sourceType);
+                // Check if this is the rest param and get the type of rest param.
                 if ((target.expressions.size() > i)) {
                     targetType = varRefExpr.type;
                 } else {

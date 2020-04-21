@@ -1,10 +1,10 @@
 public function testSimpleListBindingPattern() {
     int[4] intArray = [1, 2, 3, 4];
 
-    int a;
-    int b;
-    int c;
-    int d;
+    int a = 0;
+    int b = 0;
+    int c = 0;
+    int d = 0;
 
     [a, b, c, d] = intArray;
 
