@@ -882,7 +882,8 @@ public class BIRPackageSymbolEnter {
                     BTableType bTableType = new BTableType(TypeTags.TABLE, null, symTable.tableType.tsymbol);
                     bTableType.constraint = readTypeFromCp();
                     boolean hasFieldNameList = inputStream.readByte() == 1;
-                    boolean hasKeyTypeConstraint = inputStream.readByte() == 1;
+                    boolean hasKeyConstraint = inputStream.readByte() == 1;
+
                     if (hasFieldNameList) {
                         bTableType.fieldNameList = new ArrayList<>();
                         int fieldNameListSize = inputStream.readInt();
@@ -890,7 +891,9 @@ public class BIRPackageSymbolEnter {
                             String fieldName = getStringCPEntryValue(inputStream);
                             bTableType.fieldNameList.add(fieldName);
                         }
-                    } else if (hasKeyTypeConstraint) {
+                    }
+
+                    if (hasKeyConstraint) {
                         bTableType.keyTypeConstraint = readTypeFromCp();
                         if (bTableType.keyTypeConstraint.tsymbol == null) {
                             bTableType.keyTypeConstraint.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE,

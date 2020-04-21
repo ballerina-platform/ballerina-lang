@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.table;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -39,7 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Reduce {
 
-    public static Object reduce(Strand strand, TableValue tbl, FPValue<Object, Boolean> func, Object initial) {
+    public static Object reduce(Strand strand, TableValueImpl tbl, FPValue<Object, Boolean> func, Object initial) {
         Object accum = initial;
         for (Object key : tbl.getKeys()) {
             Object value = tbl.get(key);

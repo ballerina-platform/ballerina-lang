@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm.types;
 
-import org.ballerinalang.jvm.values.BTable;
+import org.ballerinalang.jvm.values.TableValue;
 
 /**
  * {@code BTableType} represents tabular data in Ballerina.
@@ -31,21 +31,14 @@ public class BTableType extends BType {
     private String[] fieldNames;
 
     public BTableType(BType constraint, String[] fieldNames) {
-        super(TypeConstants.TABLE_TNAME, null, BTable.class);
+        super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;
         this.fieldNames = fieldNames;
         this.keyType = null;
     }
 
-    public BTableType(BType constraint, BType keyType) {
-        super(TypeConstants.TABLE_TNAME, null, BTable.class);
-        this.constraint = constraint;
-        this.keyType = keyType;
-        this.fieldNames = new String[]{};
-    }
-
     public BTableType(BType constraint) {
-        super(TypeConstants.TABLE_TNAME, null, BTable.class);
+        super(TypeConstants.TABLE_TNAME, null, TableValue.class);
         this.constraint = constraint;
     }
 
