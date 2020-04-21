@@ -48,80 +48,86 @@ public class LangLibTableTest {
         negativeResult = BCompileUtil.compile("test-src/tablelib_test_negative.bal");
     }
 
-//    @Test
+    @Test
     public void testLength() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testTableLength");
         assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
-//    @Test
+    @Test
     public void testIterator() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testIterator");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-//    @Test
+    @Test
     public void getKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "getValueFromKey");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-//    @Test
+    @Test
     public void testMap() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMap");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-//    @Test
+    @Test
     public void testForeach() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testForeach");
         assertEquals(returns[0].stringValue(), "Chiran Granier ");
     }
 
-//    @Test
+    @Test
     public void testFilter() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testFilter");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-//    @Test
+    @Test
     public void testReduce() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReduce");
         assertEquals(((BFloat) returns[0]).floatValue(), 35.5);
     }
 
-//    @Test
+    @Test
     public void testRemoveWithKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "removeWithKey");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-//    @Test
+    @Test
     public void removeIfHasKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "removeIfHasKey");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-//    @Test
+    @Test
     public void testHasKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testHasKey");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     //todo improve when KeyType.type is resolved correctly
-//    @Test
+    @Test
     public void testGetKeyList() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetKeyList");
         assertEquals(returns.length, 4);
     }
 
-//    @Test
+    @Test
+    public void getKeysFromKeyLessTbl() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "getKeysFromKeyLessTbl");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test
     public void testRemoveAllFromTable() {
         BValue[] returns = BRunUtil.invoke(compileResult, "removeAllFromTable");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-//    @Test
+    @Test
     public void testTableToArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "tableToArray");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -138,18 +144,32 @@ public class LangLibTableTest {
                     "\tat ballerina.lang_table:get(table.bal:64)\n" +
                     "\t   tablelib_test_negative:getValueFromKeyNegative(tablelib_test_negative.bal:89)",
             enabled = false)
-    public void getKeyNegative() {
+    public void getValFromKeyNegative() {
         BRunUtil.invoke(negativeResult, "getValueFromKeyNegative");
+        Assert.fail();
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: {ballerina/lang.table}KeyNotFound message=cannot find key 'AAA'\n"
+                    + "\tat ballerina.lang_table:remove(table.bal:111)\n"
+                    + "\t   tablelib_test:removeWithInvalidKey(tablelib_test.bal:162)",
+            enabled = false)
+    public void removeWithInvalidKey() {
+        BRunUtil.invoke(compileResult, "removeWithInvalidKey");
         Assert.fail();
     }
 
     @Test
     public void testCompilerNegativeCases() {
-        validateError(negativeResult, 0, "incompatible types: expected " +
-                "'object { public function next () returns (record {| Employee value; |}?); }', found " +
-                "'object { public function next () returns (record {| Person value; |}?); }'",
-                85, 92);
-        assertEquals(negativeResult.getErrorCount(), 1);
+        validateError(negativeResult, 0, "incompatible types: expected 'table<Employee>', " +
+                "found 'table<Person>, key<other>'", 66, 36);
+        validateError(negativeResult, 1, "incompatible types: expected 'Employee', " +
+                "found 'Person'", 66, 47);
+        validateError(negativeResult, 2, "incompatible types: expected " +
+                        "'object { public function next () returns (record {| Employee value; |}?); }', found " +
+                        "'object { public function next () returns (record {| Person value; |}?); }'",
+                75, 92);
+        assertEquals(negativeResult.getErrorCount(), 3);
     }
 }
 

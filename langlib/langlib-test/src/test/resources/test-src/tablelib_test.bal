@@ -32,6 +32,8 @@ type PersonalTable table<Person> key(name);
 
 type EmployeeTable table<Employee> key(name);
 
+type PersonalKeyLessTable table<Person>;
+
 PersonalTable tab = table key(name)[
   { name: "Chiran", age: 33 },
   { name: "Mohan", age: 37 },
@@ -103,6 +105,11 @@ function testMap() returns boolean {
           return {name: person.name, department : "HR"};
     });
 
+    var personTblKeys = tab.keys();
+    var empTblKeys = empTab.keys();
+    testPassed = testPassed && personTblKeys.length() == empTblKeys.length();
+    //check keys of both tables are equal. Cannot check it until KeyType[] is returned
+
     int index = 0;
     empTab.forEach(function (Employee emp) {
     testPassed = testPassed && emp.name == personList[index].name;
@@ -151,6 +158,11 @@ function removeWithKey() returns boolean {
     return removedPerson == personList[2];
 }
 
+function removeWithInvalidKey() returns boolean {
+    Person removedPerson = tab.remove("AAA");
+    return removedPerson.name == "AAA";
+}
+
 function removeIfHasKey() returns boolean {
     PersonalTable tbl = table key(name) [{ name: "Chiran", age: 33 },
     { name: "Mohan", age: 37 },
@@ -193,3 +205,13 @@ function tableToArray() returns boolean {
 //function testNextKey() returns int {
 //return tab.nextKey();
 //}
+
+function getKeysFromKeyLessTbl() returns boolean {
+    PersonalKeyLessTable keyless = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+    return keyless.keys().length() == 0;
+}
