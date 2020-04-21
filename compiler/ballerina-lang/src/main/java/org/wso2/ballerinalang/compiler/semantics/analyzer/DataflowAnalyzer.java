@@ -273,12 +273,34 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 sortedListOfNodes.add(topLevelNode);
             }
         });
-        sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
+
+        sortedListOfNodes.forEach(topLevelNode -> {
+            if (isModuleInitFunction((BLangNode) topLevelNode)) {
+                analyzeModuleInitFunc((BLangFunction) topLevelNode);
+            } else {
+                analyzeNode((BLangNode) topLevelNode, env);
+            }
+        });
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         this.globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
         this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency);
         checkUnusedImports(pkgNode.imports);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
+    }
+
+    private boolean isModuleInitFunction(BLangNode node) {
+        if (node.getKind() == NodeKind.FUNCTION &&
+                Names.USER_DEFINED_INIT_SUFFIX.value.equals(((BLangFunction) node).name.value)) {
+            return true;
+        }
+        return false;
+    }
+
+    private void analyzeModuleInitFunc(BLangFunction funcNode) {
+        this.currDependentSymbol.push(funcNode.symbol);
+        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        analyzeNode(funcNode.body, funcEnv);
+        this.currDependentSymbol.pop();
     }
 
     @Override
