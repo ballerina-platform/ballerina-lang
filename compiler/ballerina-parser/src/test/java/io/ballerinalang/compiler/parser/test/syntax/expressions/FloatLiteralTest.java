@@ -37,7 +37,6 @@ public class FloatLiteralTest extends AbstractExpressionsTest {
 
         // DecimalNumber FloatingPointTypeSuffix
         testFile("basic-literals/float_literal_source_03.bal", "basic-literals/float_literal_assert_03.json");
-        //TODO: add leading zero tests
     }
 
     @Test
