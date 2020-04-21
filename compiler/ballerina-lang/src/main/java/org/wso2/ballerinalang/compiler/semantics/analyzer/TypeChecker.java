@@ -178,9 +178,14 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
  */
 public class TypeChecker extends BLangNodeVisitor {
 
-    private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY =
-            new CompilerContext.Key<>();
+    private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY = new CompilerContext.Key<>();
+    private static Set<String> modifierFunctions = new HashSet<>();
+
     private static final String TABLE_TNAME = "table";
+    private static final String FUNCTION_NAME_PUSH = "push";
+    private static final String FUNCTION_NAME_POP = "pop";
+    private static final String FUNCTION_NAME_SHIFT = "shift";
+    private static final String FUNCTION_NAME_UNSHIFT = "unshift";
 
     private Names names;
     private SymbolTable symTable;
@@ -196,8 +201,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private BLangAnonymousModelHelper anonymousModelHelper;
     private SemanticAnalyzer semanticAnalyzer;
     private boolean nonErrorLoggingCheck = false;
-
     private int letCount = 0;
+
     /**
      * Expected types or inherited types.
      */
@@ -205,6 +210,13 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType resultType;
 
     private DiagnosticCode diagCode;
+
+    static {
+        modifierFunctions.add(FUNCTION_NAME_PUSH);
+        modifierFunctions.add(FUNCTION_NAME_POP);
+        modifierFunctions.add(FUNCTION_NAME_SHIFT);
+        modifierFunctions.add(FUNCTION_NAME_UNSHIFT);
+    }
 
     public static TypeChecker getInstance(CompilerContext context) {
         TypeChecker typeChecker = context.get(TYPE_CHECKER_KEY);
@@ -1821,7 +1833,86 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!langLibMethodExists) {
             dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_TYPE, iExpr.name.value, iExpr.expr.type);
             resultType = symTable.semanticError;
+            return;
         }
+
+        checkIllegalStorageSizeChangeMethodCall(iExpr, varRefType);
+    }
+
+    private boolean isFixedLengthList(BType type) {
+        switch(type.tag) {
+            case TypeTags.ARRAY:
+                return (((BArrayType) type).state != BArrayState.UNSEALED);
+            case TypeTags.TUPLE:
+                return (((BTupleType) type).restType == null);
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) type;
+                for (BType member : unionType.getMemberTypes()) {
+                    if (!isFixedLengthList(member)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private void checkIllegalStorageSizeChangeMethodCall(BLangInvocation iExpr, BType varRefType) {
+        String invocationName = iExpr.name.getValue();
+        if (!modifierFunctions.contains(invocationName)) {
+            return;
+        }
+
+        if (isFixedLengthList(varRefType)) {
+            dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_LIST_SIZE, invocationName, varRefType);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        if (isShiftOnIncompatibleTuples(varRefType, invocationName)) {
+            dlog.error(iExpr.name.pos, DiagnosticCode.ILLEGAL_FUNCTION_CHANGE_TUPLE_SHAPE, invocationName,
+                       varRefType);
+            resultType = symTable.semanticError;
+            return;
+        }
+    }
+
+    private boolean isShiftOnIncompatibleTuples(BType varRefType, String invocationName) {
+        if ((varRefType.tag == TypeTags.TUPLE) && (invocationName.compareTo(FUNCTION_NAME_SHIFT) == 0) &&
+                hasDifferentTypeThanRest((BTupleType) varRefType)) {
+            return true;
+        }
+
+        if ((varRefType.tag == TypeTags.UNION) && (invocationName.compareTo(FUNCTION_NAME_SHIFT) == 0)) {
+            BUnionType unionVarRef = (BUnionType) varRefType;
+            boolean allMemberAreFixedShapeTuples = true;
+            for (BType member : unionVarRef.getMemberTypes()) {
+                if (member.tag != TypeTags.TUPLE) {
+                    allMemberAreFixedShapeTuples = false;
+                    break;
+                }
+                if (!hasDifferentTypeThanRest((BTupleType) member)) {
+                    allMemberAreFixedShapeTuples = false;
+                    break;
+                }
+            }
+            return allMemberAreFixedShapeTuples;
+        }
+        return false;
+    }
+
+    private boolean hasDifferentTypeThanRest(BTupleType tupleType) {
+        if (tupleType.restType == null) {
+            return false;
+        }
+
+        for (BType member : tupleType.getTupleTypes()) {
+            if (!types.isSameType(tupleType.restType, member)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean checkFieldFunctionPointer(BLangInvocation iExpr, SymbolEnv env) {
