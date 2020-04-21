@@ -106,6 +106,20 @@ function testTwoDimensionalSealedArrayFill() {
     }
 }
 
+const FOO_ZERO = 0;
+type FOO_FOUR_THREE  4 | 3;
+type BarMultiple FOO_ZERO | 1 | FOO_FOUR_THREE;
+function createMultipleConstLiteralAutoFilledSealedArray() {
+    BarMultiple a = 1;
+    BarMultiple[5] sealedArray = [a, a];
+    sealedArray[3] = a;
+    assertEqualPanic(1, sealedArray[0]);
+    assertEqualPanic(1, sealedArray[1]);
+    // TODO : enable this after fixing - does not get filled
+    //assertEqualPanic(0, sealedArray[2]);
+    assertEqualPanic(1, sealedArray[3]);
+}
+
 public function main() {
     testObjectDynamicArrayFilling();
     testRecordTypeWithOptionalFieldsArrayFill();
@@ -113,6 +127,7 @@ public function main() {
     testObjectRetNullableDynamicArrayFilling();
     testObjectNoRetDynamicArrayFilling();
     testTwoDimensionalSealedArrayFill();
+    createMultipleConstLiteralAutoFilledSealedArray();
 }
 
 function assertEqualPanic(anydata expected, anydata actual, string message = "Value mismatch") {

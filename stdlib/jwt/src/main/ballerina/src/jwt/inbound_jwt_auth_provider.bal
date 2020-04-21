@@ -20,7 +20,21 @@ import ballerina/log;
 import ballerina/stringutils;
 import ballerina/time;
 
-# Represents inbound JWT auth provider.
+# Represents the inbound JWT auth provider, which authenticates by validating a JWT.
+# The `jwt:InboundJwtAuthProvider` is another implementation of the `auth:InboundAuthProvider` interface.
+# ```ballerina
+# jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new({
+#     issuer: "example",
+#     audience: "ballerina",
+#     trustStoreConfig: {
+#         certificateAlias: "ballerina",
+#         trustStore: {
+#             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+#             password: "ballerina"
+#         }
+#     }
+# });
+# ```
 #
 # + jwtValidatorConfig - JWT validator configurations
 public type InboundJwtAuthProvider object {
@@ -38,10 +52,13 @@ public type InboundJwtAuthProvider object {
         self.inboundJwtCache = jwtValidatorConfig.jwtCache;
     }
 
-    # Authenticate with a JWT token.
-    #
-    # + credential - Jwt token extracted from the authentication header
-    # + return - `true` if authentication is successful, othewise `false` or `auth:Error` occurred during JWT validation
+# Authenticates provided JWT against `jwt:JwtValidatorConfig`.
+#```ballerina
+# boolean|auth:Error result = inboundJwtAuthProvider.authenticate("<credential>");
+# ```
+#
+# + credential - JWT to be authenticated
+# + return - `true` if authentication is successful, `false` otherwise or else an `auth:Error` if JWT validation failed
     public function authenticate(string credential) returns @tainted (boolean|auth:Error) {
         string[] jwtComponents = stringutils:split(credential, "\\.");
         if (jwtComponents.length() != 3) {

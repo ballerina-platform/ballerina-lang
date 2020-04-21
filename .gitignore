@@ -32,6 +32,7 @@ results
 velocity.log
 /composer/modules/web/dist-electron
 extractedDistribution
+misc/testerina/modules/report-tools/node_modules/
 
 # gradle
 .gradle

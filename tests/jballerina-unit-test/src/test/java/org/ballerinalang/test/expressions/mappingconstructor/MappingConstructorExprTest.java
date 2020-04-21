@@ -134,7 +134,7 @@ public class MappingConstructorExprTest {
     public void testSpreadOpFieldSemanticAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/spread_op_field_semantic_analysis_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 19);
+        Assert.assertEquals(result.getErrorCount(), 21);
         validateError(result, 0, "incompatible types: expected a map or a record, found 'string'", 33, 17);
         validateError(result, 1, "incompatible types: expected a map or a record, found 'boolean'", 33, 32);
         validateError(result, 2, "incompatible types: expected 'int' for field 'i', found 'float'", 41, 17);
@@ -154,6 +154,8 @@ public class MappingConstructorExprTest {
         validateError(result, 16, "incompatible types: expected 'json', found 'anydata'", 82, 30);
         validateError(result, 17, "incompatible types: expected 'json', found 'any'", 83, 30);
         validateError(result, 18, "incompatible types: expected 'json', found 'anydata'", 83, 36);
+        validateError(result, 19, "incompatible types: expected 'int', found 'string'", 96, 18);
+        validateError(result, 20, "incompatible types: expected '(int|float)', found 'string'", 97, 32);
     }
 
     @Test

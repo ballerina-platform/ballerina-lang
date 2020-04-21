@@ -697,6 +697,9 @@ public class JvmCastGen {
         } else if (targetType.tag == TypeTags.JSON) {
             generateCheckCastToJSON(mv, sourceType);
             return;
+        } else if (targetType.tag == TypeTags.READONLY) {
+            generateCheckCastToReadonlyType(mv, sourceType, targetType);
+            return;
         } else if (TypeTags.isXMLTypeTag(sourceType.tag) && targetType.tag == TypeTags.MAP) {
             generateXMLToAttributesMap(mv, sourceType);
             return;
@@ -1098,6 +1101,13 @@ public class JvmCastGen {
     }
 
     private static void generateCheckCastToFiniteType(MethodVisitor mv, BType sourceType, BFiniteType targetType) {
+
+        generateCastToAny(mv, sourceType);
+        checkCast(mv, targetType);
+    }
+
+
+    private static void generateCheckCastToReadonlyType(MethodVisitor mv, BType sourceType, BType targetType) {
 
         generateCastToAny(mv, sourceType);
         checkCast(mv, targetType);

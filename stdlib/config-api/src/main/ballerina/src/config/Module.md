@@ -1,4 +1,4 @@
-## Module overview
+## Module Overview
 
 This module provides the Config API to read configurations from environment variables, TOML files, and command-line parameters and build a consolidated set of configurations.
 
@@ -66,39 +66,7 @@ config:setConfig("john.country", "USA");
  
 ### Reading configurations
 
-The API provides functions to read configs in their original type.
-
-```ballerina
-// Reads a configuration as a string.
-// Returns “” (i.e., empty string) if the configuration is not available.
-string host = config:getAsString("host"); 
-
-// Reads a configuration as an integer.
-// Returns 0 if the configuration is not available.
-int port = config:getAsInt("port"); 
-
-// Reads a configuration as a float.
-// Returns 0.0 if the configuration is not available.
-float rate = config:getAsFloat("rate"); 
-
-// Reads a configuration as a boolean.
-// Returns ‘false’ if the configuration is not available.
-boolean enabled = config:getAsBoolean("service.enabled"); 
-```
-When reading a configuration, a default value can be specified as well. If a default value is specified, it is returned if a configuration entry cannot be found for the specified key.
-
-```ballerina
-// Reads a configuration as a string, and if it does not exist, 
-// returns “localhost”.
-string host  = config:getAsString("host", defaultValue = "localhost");
-```
-
-The `contains()` function is used to check whether a configuration entry exists for the specified key. 
-
-```ballerina
-// Checks whether the configuration is available.
-boolean configAvailable = config:contains("host"); 
-```
+The API provides functions to read configurations in their original type. Check function descriptors for example usages.
 
 A set of configurations belonging to a particular namespace can be retrieved as a `map` using the `getAsMap()` function. Here is an example:
 
@@ -119,7 +87,7 @@ The configurations for HTTP trace logs can be retrieved as a `map` as follows:
 ```ballerina
 // Reads a configuration section as a map.
 // Here, the map’s key-value pairs represent config key-value pairs.
-map<any> serverAlphaMap  = config:getAsMap("b7a.http.tracelog");
+map<anydata> serverAlphaMap  = config:getAsMap("b7a.http.tracelog");
 ```
 
 In the above configuration file, the `host` is specified as `@env:{TRACE_LOG_READER_HOST}`. When resolving the configurations, Ballerina looks for a variable named `TRACE_LOG_READER_HOST` in the environment variables and maps `b7a.http.tracelog.host` to its value.

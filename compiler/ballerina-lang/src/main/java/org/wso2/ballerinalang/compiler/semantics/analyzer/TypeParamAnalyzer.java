@@ -38,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -253,6 +254,8 @@ public class TypeParamAnalyzer {
                 return new BAnyType(type.tag, null, name, flag);
             case TypeTags.ANYDATA:
                 return new BAnydataType(type.tag, null, name, flag);
+            case TypeTags.READONLY: // TODO: 4/5/20 validate for cloneXxx
+                return new BReadonlyType(type.tag, null, name, flag);
         }
         // For others, we will use TSymbol.
         return type;
