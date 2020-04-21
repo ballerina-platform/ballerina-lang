@@ -1,1 +1,4 @@
-map<string> a;
+public function foo(){
+    map<string> a;
+    map<T> a;
+}

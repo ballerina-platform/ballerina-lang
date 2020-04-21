@@ -28,27 +28,27 @@ public class MapTypeTest extends AbstractTypesTest {
     //Valid source test
 
     @Test
-    public void testValidModuleLevelMapType() {
+    public void testValidLocalLevelMapType() {
         testFile("map-type/map_type_assert_01.bal", "map-type/map_type_assert_01.json");
     }
 
     @Test
-    public void testValidLocalLevelMapType() {
+    public void testValidModuleLevelMapType() {
         test("map<string> a;", "map-type/map_type_assert_02.json");
     }
 
     @Test
-    public void testValidLocalLevelMapTypeWithUserDefinedType() {
+    public void testValidModuleLevelMapTypeWithUserDefinedType() {
         test("map<T> a;", "map-type/map_type_assert_03.json");
     }
 
     @Test
-    public void testValidLocalLevelMapTypeWithOptionalType() {
+    public void testValidModuleLevelMapTypeWithOptionalType() {
         test("map<string?> a;", "map-type/map_type_assert_04.json");
     }
 
     @Test
-    public void testValidLocalLevelMapTypeWithArrayType() {
+    public void testValidModuleLevelMapTypeWithArrayType() {
         test("map<int[][]> a;", "map-type/map_type_assert_05.json");
     }
 
@@ -60,32 +60,32 @@ public class MapTypeTest extends AbstractTypesTest {
     //Recovery tests
 
     @Test
-    public void testInValidLocalLevelMapTypeWithMissingGT() {
+    public void testInValidModuleLevelMapTypeWithMissingGT() {
         test("map<int a;", "map-type/map_type_assert_06.json");
     }
 
     @Test
-    public void testInValidLocalLevelMapTypeWithUserDefinedTypeMissingGT() {
+    public void testInValidModuleLevelMapTypeWithUserDefinedTypeMissingGT() {
         test("map<T a;", "map-type/map_type_assert_07.json");
     }
 
     @Test
-    public void testInValidLocalLevelMapTypeWithMissingLT() {
+    public void testInValidModuleLevelMapTypeWithMissingLT() {
         test("map int> a;", "map-type/map_type_assert_08.json");
     }
 
     @Test
-    public void testInValidLocalLevelMapTypeWithMissingLTAndGT() {
+    public void testInValidModuleLevelMapTypeWithMissingLTAndGT() {
         test("map int a;", "map-type/map_type_assert_09.json");
     }
 
     @Test
-    public void testInValidLocalLevelMapTypeWithMissingtype() {
+    public void testInValidModuleLevelMapTypeWithMissingtype() {
         test("map<> a;", "map-type/map_type_assert_10.json");
     }
 
     @Test
-    public void testInValidLocalLevelMapTypeWithInvalidTokenInside() {
+    public void testInValidModuleLevelMapTypeWithInvalidTokenInside() {
         test("map<%> a;", "map-type/map_type_assert_10.json");
     }
 }
