@@ -78,8 +78,8 @@ public function validateJwt(string jwt, JwtValidatorConfig config) returns @tain
 # + return - The JWT header and payload tuple or else a `jwt:Error` if token decoding fails
 public function decodeJwt(string jwt) returns @tainted ([JwtHeader, JwtPayload]|Error) {
     string[] encodedJwtComponents = check getJwtComponents(jwt);
-    JwtHeader jwtHeader = getJwtHeader(encodedJwtComponents[0]);
-    JwtPayload jwtPayload = check getJwtHeader(encodedJwtComponents[1]);
+    JwtHeader jwtHeader = check getJwtHeader(encodedJwtComponents[0]);
+    JwtPayload jwtPayload = check getJwtPayload(encodedJwtComponents[1]);
     return [jwtHeader, jwtPayload];
 }
 
@@ -91,7 +91,7 @@ function getJwtComponents(string jwt) returns string[]|Error {
     return jwtComponents;
 }
 
-function getJwtHeader(string encodedHeader) returns @tainted JwtHeader {
+function getJwtHeader(string encodedHeader) returns @tainted JwtHeader|Error {
     byte[]|error decodeResult = encoding:decodeBase64Url(encodedHeader);
     if (decodeResult is byte[]) {
         string|error result = strings:fromBytes(decodeResult);
@@ -220,7 +220,8 @@ function validateJwtRecords(string jwt, JwtHeader jwtHeader, JwtPayload jwtPaylo
     }
     JwtTrustStoreConfig? trustStoreConfig = config?.trustStoreConfig;
     if (trustStoreConfig is JwtTrustStoreConfig) {
-        _ = check validateSignature(jwt, trustStoreConfig);
+        JwtSigningAlgorithm alg = <JwtSigningAlgorithm>jwtHeader?.alg;  // The `()` value is already validated.
+        _ = check validateSignature(jwt, alg, trustStoreConfig);
     }
     string? iss = config?.issuer;
     if (iss is string) {
@@ -251,7 +252,7 @@ function validateMandatoryJwtHeaderFields(JwtHeader jwtHeader) returns boolean {
     return alg is JwtSigningAlgorithm;
 }
 
-function validateCertificate(crypto:PublicKey publicKey) returns boolean {
+function validateCertificate(crypto:PublicKey publicKey) returns boolean|Error {
     time:Time|error result = time:toTimeZone(time:currentTime(), "GMT");
     if (result is error) {
         return prepareError(result.reason(), result);
@@ -271,16 +272,17 @@ function validateCertificate(crypto:PublicKey publicKey) returns boolean {
     return false;
 }
 
-function validateSignature(string jwt, JwtTrustStoreConfig trustStoreConfig) returns Error? {
+function validateSignature(string jwt, JwtSigningAlgorithm alg, JwtTrustStoreConfig trustStoreConfig) returns Error? {
     crypto:PublicKey|crypto:Error publicKey = crypto:decodePublicKey(trustStoreConfig.trustStore,
                                                                      trustStoreConfig.certificateAlias);
     if (publicKey is crypto:Error) {
        return prepareError("Public key decode failed.", publicKey);
     }
-    if (!validateCertificate(<crypto:PublicKey>publicKey)) {
+
+    if (!check validateCertificate(<crypto:PublicKey>publicKey)) {
        return prepareError("Public key certificate validity period has passed.");
     }
-    JwtSigningAlgorithm alg = <JwtSigningAlgorithm>jwtHeader?.alg;  // The `()` value is already validated.
+
     match (alg) {
         NONE => {
             return prepareError("Not a valid JWS. Signature algorithm is NONE.");
@@ -292,13 +294,15 @@ function validateSignature(string jwt, JwtTrustStoreConfig trustStoreConfig) ret
             }
             byte[]|encoding:Error signaturePart = encoding:decodeBase64Url(encodedJwtComponents[2]);
             if (signaturePart is byte[]) {
-                byte[] assertion = (encodedJwtComponents[0] + "." + encodedJwtComponents[1]).toBytes();
-                boolean signatureValidationResult = verifySignature(alg, assertion, signaturePart, publicKey);
+                string jwtHeaderPayloadPart = encodedJwtComponents[0] + "." + encodedJwtComponents[1];
+                byte[] assertion = jwtHeaderPayloadPart.toBytes();
+                boolean signatureValidationResult = check verifySignature(alg, assertion, signaturePart,
+                                                                          <crypto:PublicKey>publicKey);
                 if (!signatureValidationResult) {
                    return prepareError("JWT signature validation has failed.");
                 }
             } else {
-                return prepareError("Base64 url decode failed for JWT signature.", signPart);
+                return prepareError("Base64 url decode failed for JWT signature.", signaturePart);
             }
         }
     }
