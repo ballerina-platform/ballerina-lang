@@ -958,8 +958,8 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         BTypeSymbol typeSymbol = type.tsymbol;
-        tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)), typeSymbol.name,
-                env.enclPkg.symbol.pkgID, tableType, env.scope.owner);
+        tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
+                typeSymbol.name, env.enclPkg.symbol.pkgID, tableType, env.scope.owner);
 
         if (tableTypeNode.tableKeyTypeConstraint != null) {
             tableType.keyTypeConstraint = resolveTypeNode(tableTypeNode.tableKeyTypeConstraint.keyType, env);
