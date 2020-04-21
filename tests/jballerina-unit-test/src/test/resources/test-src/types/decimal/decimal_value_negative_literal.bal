@@ -21,6 +21,8 @@ function testInvlaidDecimalValue() {
     decimal b = 0x4fp1;
     decimal c = 0x12bc;
     decimal d = -0x12b;
+    decimal e = 0X1abc;
+    decimal f = -0X1ab;
     decimal[] ds1 = [12.3f, 22.4];
     decimal[] ds2 = [0x3ap-1, 0x4bp3];
     int|decimal md1 = 0x33p0;
