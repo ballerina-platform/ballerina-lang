@@ -32,14 +32,19 @@ public class OptionalTypeTest extends AbstractTypesTest {
         test("int? a;", "optional-type/optional_type_assert_01.json");
     }
 
-//    @Test
-//    public void testValidOptionalTypeDeclarationWithUserDefinedType() {
-//        test("T? a;", "optional-type/optional_type_assert_04.json");
-//    }
+    @Test
+    public void testValidOptionalTypeDeclarationWithUserDefinedType() {
+        test("T? a;", "optional-type/optional_type_assert_04.json");
+    }
 
     @Test
     public void testValidOptionalTypeDescriptorAsReturnType() {
         testFile("optional-type/optional_type_assert_01.bal", "optional-type/optional_type_assert_02.json");
+    }
+
+    @Test
+    public void testLocalValidOptionalTypeDescriptor() {
+        testFile("optional-type/optional_type_assert_02.bal", "optional-type/optional_type_assert_05.json");
     }
 
     //Recovery test
@@ -54,4 +59,8 @@ public class OptionalTypeTest extends AbstractTypesTest {
         test("int? a", "optional-type/optional_type_assert_03.json");
     }
 
+    @Test
+    public void testLocalInValidOptionalTypeDescriptor() {
+        testFile("optional-type/optional_type_assert_03.bal", "optional-type/optional_type_assert_05.json");
+    }
 }

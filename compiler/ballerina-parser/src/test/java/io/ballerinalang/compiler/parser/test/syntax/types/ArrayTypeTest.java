@@ -27,20 +27,15 @@ public class ArrayTypeTest extends AbstractTypesTest {
 
     //Valid source test
 
-//    @Test
-//    public void testValidArrayTypeInModule() {
-//        test("int[] a;", "array-type/array_type_assert_01.json");
-//    }
-
     @Test
     public void testValidArrayTypeWithSimpleType() {
         test("int[] a;", "array-type/array_type_assert_01.json");
     }
 
-//    @Test
-//    public void testValidArrayTypeDeclarationWithUserDefinedType() {
-//        test("T[] a;", "array-type/array_type_assert_03.json");
-//    }
+    @Test
+    public void testValidArrayTypeDeclarationWithUserDefinedType() {
+        test("T[] a;", "array-type/array_type_assert_03.json");
+    }
 
     @Test
     public void testValidArrayTypeDescriptorAsReturnType() {
@@ -62,10 +57,10 @@ public class ArrayTypeTest extends AbstractTypesTest {
         test("int[][] a;", "array-type/array_type_assert_06.json");
     }
 
-//    @Test
-//    public void testValidTwoDimensionalArrayTypeDeclarationWithUserDefinedType() {
-//        test("T[][] a;", "array-type/array_type_assert_07.json");
-//    }
+    @Test
+    public void testValidTwoDimensionalArrayTypeDeclarationWithUserDefinedType() {
+        test("T[][] a;", "array-type/array_type_assert_07.json");
+    }
 
     @Test
     public void testValidTwoDimensionalArrayTypeDescriptorAsReturnType() {
@@ -92,6 +87,11 @@ public class ArrayTypeTest extends AbstractTypesTest {
         test("int[b:c] a;", "array-type/array_type_assert_15.json");
     }
 
+    @Test
+    public void testLocalValidArrayType() {
+        testFile("array-type/array_type_assert_03.bal", "array-type/array_type_assert_16.json");
+    }
+
     //Recovery test
 
     @Test
@@ -114,9 +114,14 @@ public class ArrayTypeTest extends AbstractTypesTest {
         test("int[{%] a;", "array-type/array_type_assert_01.json");
     }
 
-//    @Test
-//    public void testInvalidTwoDimensionalArrayTypeMissingCloseBracket() {
-//        test("T[][ a;", "array-type/array_type_assert_12.json");
-//    }
+    @Test
+    public void testInvalidTwoDimensionalArrayTypeMissingCloseBracket() {
+        test("T[][ a;", "array-type/array_type_assert_12.json");
+    }
+
+    @Test
+    public void testLocalInValidArrayType() {
+        testFile("array-type/array_type_assert_04.bal", "array-type/array_type_assert_17.json");
+    }
 
 }
