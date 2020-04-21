@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 9);
+        Assert.assertEquals(compileResult.getErrorCount(), 10);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -54,7 +54,9 @@ public class TableNegativeTest {
                 "'map<anydata|error>' but 'int'", 47, 41);
         validateError(compileResult, index++, "multi key member access is not supported for " +
                 "type 'map'. only support for subtype of 'table'", 52, 13);
-        validateError(compileResult, index++, "field 'name' used in key specifier is not a readonly " +
+        validateError(compileResult, index++, "field 'name' used in key specifier must be a readonly " +
                 "field", 64, 26);
+        validateError(compileResult, index++, "field 'name' used in key specifier must be a required " +
+                "field", 77, 21);
     }
 }

@@ -415,6 +415,8 @@ public enum DiagnosticCode {
     INVALID_FIELD_NAMES_IN_KEY_SPECIFIER("invalid.field.name.in.key.specifier"),
     MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED("multi.key.member.access.not.supported"),
     KEY_SPECIFIER_FIELD_MUST_BE_READONLY("key.specifier.field.must.be.readonly"),
+    KEY_SPECIFIER_FIELD_MUST_BE_REQUIRED("key.specifier.field.must.be.required"),
+    KEY_SPECIFIER_FIELD_MUST_BE_ANYDATA("key.specifier.field.must.be.anydata"),
 
 
     // Taint checking related codes
