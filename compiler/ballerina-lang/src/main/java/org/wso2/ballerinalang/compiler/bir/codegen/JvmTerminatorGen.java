@@ -1220,7 +1220,8 @@ public class JvmTerminatorGen {
                     bType.tag == TypeTags.INVOKABLE ||
                     bType.tag == TypeTags.HANDLE ||
                     bType.tag == TypeTags.FINITE ||
-                    bType.tag == TypeTags.TYPEDESC) {
+                    bType.tag == TypeTags.TYPEDESC ||
+                    bType.tag == TypeTags.READONLY) {
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
             } else if (bType.tag == TypeTags.UNION) {

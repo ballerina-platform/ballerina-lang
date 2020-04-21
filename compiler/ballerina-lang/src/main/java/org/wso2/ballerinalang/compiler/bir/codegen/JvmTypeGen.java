@@ -753,8 +753,9 @@ class JvmTypeGen {
             mv.visitInsn(AASTORE);
             i += 1;
         }
-        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE, "setAttachedFuncsAndProcessAnnots",
-                String.format("(L%s;L%s;L%s;[L%s;)V", MAP_VALUE, STRAND, SERVICE_TYPE, ATTACHED_FUNCTION), false);
+        String funcName = isBString ? "setAttachedFuncsAndProcessAnnots_bstring" : "setAttachedFuncsAndProcessAnnots";
+        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE, funcName, String.format(
+                "(L%s;L%s;L%s;[L%s;)V", MAP_VALUE, STRAND, SERVICE_TYPE, ATTACHED_FUNCTION), false);
     }
 
     /**
@@ -1076,6 +1077,8 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.FUTURE) {
             loadFutureType(mv, (BFutureType) bType);
             return;
+        } else if (bType.tag == TypeTags.READONLY) {
+            typeFieldName = "typeReadonly";
         } else {
             // TODO Fix properly - rajith
             return;
@@ -1390,7 +1393,8 @@ class JvmTypeGen {
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.UNION ||
                 bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.FINITE) {
+                bType.tag == TypeTags.FINITE ||
+                bType.tag == TypeTags.READONLY) {
             return String.format("L%s;", OBJECT);
         } else if (bType.tag == TypeTags.INVOKABLE) {
             return String.format("L%s;", FUNCTION_POINTER);

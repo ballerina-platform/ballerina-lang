@@ -77,7 +77,7 @@ public type Response object {
     #
     # + headerName - The header name
     # + position - Represents the position of the header as an optional parameter
-    # + return - Returns true if the specified header key exists
+    # + return - `true` if the specified header key exists
     public function hasHeader(string headerName, public mime:HeaderPosition position = mime:LEADING) returns boolean {
         mime:Entity entity = self.getEntityWithoutBody();
         return entity.hasHeader(headerName, position);
@@ -288,7 +288,7 @@ public type Response object {
 
     # Extracts body parts from the response. If the content type is not a composite media type, an error is returned.
     #
-    # + return - Returns the body parts as an array of entities or an `http:ClientError` if there were any errors in
+    # + return - The body parts as an array of entities or else an `http:ClientError` if there were any errors in
     #            constructing the body parts from the response
     public function getBodyParts() returns mime:Entity[]|ClientError {
         var result = self.getEntity();

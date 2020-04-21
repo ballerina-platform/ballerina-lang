@@ -218,7 +218,8 @@ public class JSONUtils {
      */
     private static Object getMappingElement(Object json, BString elementName, boolean returnNilOnMissingKey) {
         if (!isJSONObject(json)) {
-            return BallerinaErrors.createError(JSON_OPERATION_ERROR, "JSON value is not a mapping");
+            return BallerinaErrors.createError(StringUtils.fromString(JSON_OPERATION_ERROR),
+                                               StringUtils.fromString("JSON value is not a mapping"));
         }
 
         MapValueImpl<BString, Object> jsonObject = (MapValueImpl<BString, Object>) json;
@@ -228,8 +229,9 @@ public class JSONUtils {
                 return null;
             }
 
-            return BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR,
-                    "Key '" + elementName + "' not found in JSON mapping");
+            return BallerinaErrors.createError(StringUtils.fromString(MAP_KEY_NOT_FOUND_ERROR),
+                                               StringUtils.fromString(
+                                                       "Key '" + elementName + "' not found in JSON mapping"));
         }
 
         try {
@@ -665,7 +667,7 @@ public class JSONUtils {
                     BTypes.typeInt, getTypeName(json));
         }
 
-        return ((Long) json).longValue();
+        return (Long) json;
     }
 
     /**
@@ -678,7 +680,7 @@ public class JSONUtils {
         if (json instanceof Integer) {
             return ((Integer) json).longValue();
         } else if (json instanceof Double) {
-            return ((Double) json).doubleValue();
+            return (Double) json;
         } else {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeFloat, getTypeName(json));
@@ -692,11 +694,11 @@ public class JSONUtils {
      * @return BDecimal value of the JSON, if it's a valid convertible JSON node. Error, otherwise.
      */
     private static DecimalValue jsonNodeToDecimal(Object json) {
-        BigDecimal decimal = null;
+        BigDecimal decimal;
         if (json instanceof Integer) {
             decimal = new BigDecimal(((Integer) json).longValue());
         } else if (json instanceof Double) {
-            decimal = new BigDecimal(((Double) json).doubleValue());
+            decimal = BigDecimal.valueOf((Double) json);
         } else if (json instanceof BigDecimal) {
             decimal = (BigDecimal) json;
         } else {
@@ -718,7 +720,7 @@ public class JSONUtils {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeBoolean, getTypeName(json));
         }
-        return ((Boolean) json).booleanValue();
+        return (Boolean) json;
     }
 
     private static ArrayValue jsonArrayToBIntArray(ArrayValue arrayNode) {
@@ -810,7 +812,7 @@ public class JSONUtils {
         ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < intArray.size(); i++) {
             long value = intArray.getInt(i);
-            json.append(new Long(value));
+            json.append(value);
         }
         return json;
     }
@@ -825,7 +827,7 @@ public class JSONUtils {
         ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < floatArray.size(); i++) {
             double value = floatArray.getFloat(i);
-            json.append(new Double(value));
+            json.append(value);
         }
         return json;
     }
@@ -854,7 +856,7 @@ public class JSONUtils {
         ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < booleanArray.size(); i++) {
             boolean value = booleanArray.getBoolean(i);
-            json.append(Boolean.valueOf(value));
+            json.append(value);
         }
         return json;
     }
