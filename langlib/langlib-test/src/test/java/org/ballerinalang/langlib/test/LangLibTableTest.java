@@ -57,8 +57,7 @@ public class LangLibTableTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    //todo disabling since hash is not matched for retrieval
-    @Test(enabled = false)
+    @Test
     public void getKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "getValueFromKey");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -88,22 +87,19 @@ public class LangLibTableTest {
         assertEquals(((BFloat) returns[0]).floatValue(), 35.5);
     }
 
-    //todo disabling since hash is not matched for removal
-    @Test(enabled = false)
+    @Test
     public void testRemoveWithKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "removeWithKey");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    //todo disabling since hash is not matched for removal
-    @Test(enabled = false)
+    @Test
     public void removeIfHasKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "removeIfHasKey");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    //todo disabling since key is not matched
-    @Test(enabled = false)
+    @Test
     public void testHasKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testHasKey");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
