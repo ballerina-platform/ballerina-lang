@@ -55,18 +55,6 @@
                                             "kind": "LIST",
                                             "children": [
                                                 {
-                                                    "kind": "INVALID",
-                                                    "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "A"
-                                                        },
-                                                        {
-                                                            "kind": "SEMICOLON_TOKEN"
-                                                        }
-                                                    ]
-                                                },
-                                                {
                                                     "kind": "LOCAL_VAR_DECL",
                                                     "children": [
                                                         {
@@ -166,18 +154,6 @@
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
                                                             "value": "score"
-                                                        },
-                                                        {
-                                                            "kind": "SEMICOLON_TOKEN"
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "INVALID",
-                                                    "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "B"
                                                         },
                                                         {
                                                             "kind": "SEMICOLON_TOKEN"

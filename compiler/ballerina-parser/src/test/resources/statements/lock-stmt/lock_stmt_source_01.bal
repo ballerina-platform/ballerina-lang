@@ -1,15 +1,11 @@
 public function foo() {
     lock {
 
-        *A;
-
         int age = 10 * 2;
         string name;
         int status = 0;
         float score;
         
-        *B;
-
         type typeN object {
             *A;
             int age = 10 * 2;
