@@ -72,7 +72,7 @@ public class BallerinaParserErrorHandler {
             ParserRuleContext.WHILE_BLOCK, ParserRuleContext.CALL_STMT, ParserRuleContext.PANIC_STMT,
             ParserRuleContext.CONTINUE_STATEMENT, ParserRuleContext.BREAK_STATEMENT, ParserRuleContext.RETURN_STMT,
             ParserRuleContext.COMPOUND_ASSIGNMENT_STMT, ParserRuleContext.LOCAL_TYPE_DEFINITION_STMT,
-            ParserRuleContext.EXPRESSION_STATEMENT };
+            ParserRuleContext.EXPRESSION_STATEMENT, ParserRuleContext.LOCK_STMT, ParserRuleContext.BLOCK_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -789,6 +789,9 @@ public class BallerinaParserErrorHandler {
                 case AS_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.AS_KEYWORD;
                     break;
+                case LOCK_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.LOCK_KEYWORD;
+                    break;
                 case BOOLEAN_LITERAL:
                     hasMatch = nextToken.kind == SyntaxKind.TRUE_KEYWORD || nextToken.kind == SyntaxKind.FALSE_KEYWORD;
                     break;
@@ -967,6 +970,7 @@ public class BallerinaParserErrorHandler {
                 case TYPE_REFERENCE:
                 case ANNOT_REFERENCE:
                 case NIL_LITERAL:
+                case LOCK_STMT:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1368,6 +1372,7 @@ public class BallerinaParserErrorHandler {
             case EXPRESSION_STATEMENT:
             case MAP_TYPE_DESCRIPTOR:
             case NIL_LITERAL:
+            case LOCK_STMT:
                 startContext(currentCtx);
                 break;
             default:
@@ -1734,6 +1739,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.EXPRESSION_RHS;
             case NIL_LITERAL:
                 return ParserRuleContext.OPEN_PARENTHESIS;
+            case LOCK_STMT:
+                return ParserRuleContext.LOCK_KEYWORD;
+            case LOCK_KEYWORD:
+                return ParserRuleContext.BLOCK_STMT;
             case GT:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.MAP_TYPE_DESCRIPTOR) {
@@ -1953,6 +1962,9 @@ public class BallerinaParserErrorHandler {
                     return ParserRuleContext.ELSE_BLOCK;
                 } else if (parentCtx == ParserRuleContext.WHILE_BLOCK) {
                     endContext(); // end while-block
+                    return ParserRuleContext.STATEMENT;
+                } else if (parentCtx == ParserRuleContext.LOCK_STMT) {
+                    endContext();
                     return ParserRuleContext.STATEMENT;
                 }
                 return ParserRuleContext.STATEMENT;
@@ -2245,6 +2257,7 @@ public class BallerinaParserErrorHandler {
             case LOCAL_TYPE_DEFINITION_STMT:
             case STMT_START_WITH_IDENTIFIER:
             case EXPRESSION_STATEMENT:
+            case LOCK_STMT:
                 return true;
             default:
                 return false;
@@ -2533,6 +2546,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.LT_TOKEN;
             case NULL_KEYWORD:
                 return SyntaxKind.NULL_KEYWORD;
+            case LOCK_KEYWORD:
+                return SyntaxKind.LOCK_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
@@ -2594,6 +2609,7 @@ public class BallerinaParserErrorHandler {
             case STMT_START_WITH_IDENTIFIER:
             case TYPE_TEST_EXPRESSION:
             case LOCAL_TYPE_DEFINITION_STMT:
+            case LOCK_STMT:
             default:
                 break;
         }

@@ -58,6 +58,7 @@ public class LexerTerminals {
     public static final String TYPEOF = "typeof";
     public static final String IS = "is";
     public static final String NULL = "null";
+    public static final String LOCK = "lock";
 
     // Types
     public static final String INT = "int";

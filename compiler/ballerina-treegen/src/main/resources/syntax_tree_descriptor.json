@@ -530,6 +530,21 @@
             ]
         },
         {
+            "name": "LockStatementNode",
+            "base": "StatementNode",
+            "kind": "LOCK_STATEMENT",
+            "attributes": [
+                {
+                    "name": "lockKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "blockStatement",
+                    "type": "StatementNode"
+                }
+            ]
+        },
+        {
             "name": "ExpressionNode",
             "base": "Node",
             "isAbstract": true

@@ -405,6 +405,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stLocalTypeDefinitionStatementNode.createUnlinkedFacade();
     }
 
+    public static LockStatementNode createLockStatementNode(
+            Token lockKeyword,
+            StatementNode blockStatement) {
+        Objects.requireNonNull(lockKeyword, "lockKeyword must not be null");
+        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+
+        STNode stLockStatementNode = STNodeFactory.createLockStatementNode(
+                lockKeyword.internalNode(),
+                blockStatement.internalNode());
+        return stLockStatementNode.createUnlinkedFacade();
+    }
+
     public static BinaryExpressionNode createBinaryExpressionNode(
             SyntaxKind kind,
             Node lhsExpr,
