@@ -61,32 +61,32 @@ public type InboundJwtCacheEntry record {|
 # jwt:JwtPayload|jwt:error result = jwt:validateJwt(jwt, validatorConfig);
 # ```
 #
-# + jwtToken - JWT that needs to be validated
+# + jwt - JWT that needs to be validated
 # + config - JWT validator config record
 # + return - JWT payload or else a `jwt:Error` if token validation fails
-public function validateJwt(string jwtToken, JwtValidatorConfig config) returns @tainted (JwtPayload|Error) {
-    [JwtHeader, JwtPayload] [header, payload] = check decodeJwt(jwtToken);
-    return validateJwtRecords(jwtToken, header, payload, config) ?: payload;
+public function validateJwt(string jwt, JwtValidatorConfig config) returns @tainted (JwtPayload|Error) {
+    [JwtHeader, JwtPayload] [header, payload] = check decodeJwt(jwt);
+    return validateJwtRecords(jwt, header, payload, config) ?: payload;
 }
 
 # Decodes the given JWT string.
 # ```ballerina
-# [jwt:JwtHeader, jwt:JwtPayload]|jwt:Error [header, payload] = jwt:decodeJwt(jwtToken);
+# [jwt:JwtHeader, jwt:JwtPayload]|jwt:Error [header, payload] = jwt:decodeJwt(jwt);
 # ```
 #
-# + jwtToken - JWT that needs to be decoded
+# + jwt - JWT that needs to be decoded
 # + return - The JWT header and payload tuple or else a `jwt:Error` if token decoding fails
-public function decodeJwt(string jwtToken) returns @tainted ([JwtHeader, JwtPayload]|Error) {
-    string[] encodedJwtComponents = check getJwtComponents(jwtToken);
+public function decodeJwt(string jwt) returns @tainted ([JwtHeader, JwtPayload]|Error) {
+    string[] encodedJwtComponents = check getJwtComponents(jwt);
     JwtHeader jwtHeader = getJwtHeader(encodedJwtComponents[0]);
     JwtPayload jwtPayload = check getJwtHeader(encodedJwtComponents[1]);
     return [jwtHeader, jwtPayload];
 }
 
-function getJwtComponents(string jwtToken) returns string[]|Error {
-    string[] jwtComponents = stringutils:split(jwtToken, "\\.");
+function getJwtComponents(string jwt) returns string[]|Error {
+    string[] jwtComponents = stringutils:split(jwt, "\\.");
     if (jwtComponents.length() < 2 || jwtComponents.length() > 3) {
-        return prepareError("Invalid JWT token.");
+        return prepareError("Invalid JWT.");
     }
     return jwtComponents;
 }
@@ -213,14 +213,14 @@ function parsePayload(map<json> jwtPayloadJson) returns JwtPayload|Error {
     return jwtPayload;
 }
 
-function validateJwtRecords(string jwtToken, JwtHeader jwtHeader, JwtPayload jwtPayload,
+function validateJwtRecords(string jwt, JwtHeader jwtHeader, JwtPayload jwtPayload,
                             JwtValidatorConfig config) returns Error? {
     if (!validateMandatoryJwtHeaderFields(jwtHeader)) {
         return prepareError("Mandatory field signing algorithm(alg) is empty in the given JWT.");
     }
     JwtTrustStoreConfig? trustStoreConfig = config?.trustStoreConfig;
     if (trustStoreConfig is JwtTrustStoreConfig) {
-        _ = check validateSignature(jwtToken, trustStoreConfig);
+        _ = check validateSignature(jwt, trustStoreConfig);
     }
     string? iss = config?.issuer;
     if (iss is string) {
@@ -233,13 +233,13 @@ function validateJwtRecords(string jwtToken, JwtHeader jwtHeader, JwtPayload jwt
     int? exp = jwtPayload?.exp;
     if (exp is int) {
         if (!validateExpirationTime(exp, config.clockSkewInSeconds)) {
-            return prepareError("JWT token is expired.");
+            return prepareError("JWT is expired.");
         }
     }
     int? nbf = jwtPayload?.nbf;
     if (nbf is int) {
         if (!validateNotBeforeTime(nbf)) {
-            return prepareError("JWT token is used before Not_Before_Time.");
+            return prepareError("JWT is used before Not_Before_Time.");
         }
     }
     //TODO : Need to validate jwt id (jti) and custom claims.
@@ -271,7 +271,7 @@ function validateCertificate(crypto:PublicKey publicKey) returns boolean {
     return false;
 }
 
-function validateSignature(string jwtToken, JwtTrustStoreConfig trustStoreConfig) returns Error? {
+function validateSignature(string jwt, JwtTrustStoreConfig trustStoreConfig) returns Error? {
     crypto:PublicKey|crypto:Error publicKey = crypto:decodePublicKey(trustStoreConfig.trustStore,
                                                                      trustStoreConfig.certificateAlias);
     if (publicKey is crypto:Error) {
@@ -286,7 +286,7 @@ function validateSignature(string jwtToken, JwtTrustStoreConfig trustStoreConfig
             return prepareError("Not a valid JWS. Signature algorithm is NONE.");
         }
         _ => {
-            string[] encodedJwtComponents = check getJwtComponents(jwtToken);
+            string[] encodedJwtComponents = check getJwtComponents(jwt);
             if (encodedJwtComponents.length() == 2) {
                 return prepareError("Not a valid JWS. Signature is required.");
             }
