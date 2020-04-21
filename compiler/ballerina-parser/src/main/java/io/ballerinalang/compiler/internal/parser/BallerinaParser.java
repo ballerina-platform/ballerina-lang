@@ -2741,6 +2741,12 @@ public class BallerinaParser {
             case IDENTIFIER_TOKEN:
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
+                STToken nextToken = peek(2);
+                //if the next token is <code>?</code> then it is an optional type descriptor with user defined type
+                if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
+                    finalKeyword = STNodeFactory.createEmptyNode();
+                    return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
+                }
                 return parseStatementStartsWithIdentifier(getAnnotations(annots));
             default:
                 // If the next token in the token stream does not match to any of the statements and

@@ -44,7 +44,7 @@ public class OptionalTypeTest extends AbstractTypesTest {
 
     @Test
     public void testLocalValidOptionalTypeDescriptor() {
-        testFile("optional-type/optional_type_assert_02.bal", "optional-type/optional_type_assert_05.json");
+        testFile("optional-type/optional_type_assert_02.bal", "optional-type/optional_type_assert_06.json");
     }
 
     //Recovery test

@@ -1,4 +1,4 @@
 public function foo() {
     int? a;
-    //T? a;
+    T? a;
 }
