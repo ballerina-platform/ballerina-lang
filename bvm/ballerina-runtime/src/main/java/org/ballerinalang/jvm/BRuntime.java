@@ -105,7 +105,7 @@ public class BRuntime {
      *
      * @param func     Function Pointer to be invoked.
      * @param args     Ballerina function arguments.
-     * @param callback Asynchronous call back
+     * @param callback Asynchronous call back.
      * @return Future value
      */
     public FutureValue invokeFunctionPointerAsync(FPValue<?, ?> func, Object[] args, AsyncFunctionCallback callback) {

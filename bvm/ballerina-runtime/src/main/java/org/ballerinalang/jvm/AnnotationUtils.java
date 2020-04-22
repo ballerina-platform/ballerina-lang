@@ -121,7 +121,7 @@ public class AnnotationUtils {
             annotationKey = attachedFunction.getAnnotationKey();
             if (globalAnnotMap.containsKey(annotationKey)) {
                 attachedFunction.setAnnotations((MapValue<String, Object>)
-                                                        ((FPValue) globalAnnotMap.get(annotationKey)).
+                                                        ((FPValue) globalAnnotMap.get(annotationKey))
                                                                 .call(new Object[]{strand}));
             }
         }
