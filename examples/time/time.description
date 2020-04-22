@@ -1,2 +1,4 @@
 // The Ballerina time API manipulates information with relation to
-// date and time.
+// date and time.<br/><br/>
+// For more information on the underlying module, 
+// see [the Time module](https://ballerina.io/learn/api-docs/ballerina/time/index.html).

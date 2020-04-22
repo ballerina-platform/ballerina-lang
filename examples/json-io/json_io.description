@@ -1,2 +1,4 @@
 // This sample demonstrates how to read JSON content from a file and write JSON content
-// to a file using the character channel, `readJson()`, and `writeJson()` of the I/O API.
+// to a file using the character channel, `readJson()`, and `writeJson()` of the I/O API.<br/><br/>
+// For more information on the underlying module, 
+// see [the IO module](https://ballerina.io/learn/api-docs/ballerina/io/index.html).

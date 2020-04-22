@@ -1,1 +1,3 @@
-// The Ballerina File API contains functions to perform file-system operations.
+// The Ballerina File API contains functions to perform file-system operations.<br/><br/>
+// For more information on the underlying module, 
+// see [the File module](https://ballerina.io/learn/api-docs/ballerina/file/index.html).

@@ -4,4 +4,6 @@
 // The service that is being attached must contain the `onTrigger()` resource function.
 // Additionally, a user can pass a set of `any` values to the resource using
 // the `attach()` function, which then can be used inside the `onTrigger()`
-// function. The Listener can be stopped by calling the `stop()` function.
+// function. The Listener can be stopped by calling the `stop()` function.<br/><br/>
+// For more information on the underlying module, 
+// see [the Task module](https://ballerina.io/learn/api-docs/ballerina/task/index.html).
