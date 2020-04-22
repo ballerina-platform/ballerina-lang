@@ -461,6 +461,28 @@ function testFiniteTypesWithDiscriminatedMembers() returns [any, any, any, any, 
     return [a, b, c, d, e];
 }
 
+type d +3|+5;
+
+function testFiniteTypesWithPositiveIntegers() returns d {
+    d n = +3;
+    d comparator = +3;
+    if (n == comparator) {
+       n = +5;
+    }
+    return n;
+}
+
+type f +1.2|+1.5;
+
+function testFiniteTypesWithPositiveFloats() returns f {
+    f n = +1.2;
+    f comparator = +1.2;
+    if (n == comparator) {
+       n = +1.5;
+    }
+    return n;
+}
+
 //public const '\- = "-";
 //public const d = "d";
 //public const s = "s";

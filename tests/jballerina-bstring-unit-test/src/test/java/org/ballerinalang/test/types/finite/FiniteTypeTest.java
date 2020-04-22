@@ -318,6 +318,23 @@ public class FiniteTypeTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 5.0, "Value mismatch");
     }
 
+    @Test()
+    public void testFiniteTypesWithPositiveIntegers() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithPositiveIntegers");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+    @Test()
+    public void testFiniteTypesWithPositiveFloats() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithPositiveFloats");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1.5);
+    }
+
     @Test
     public void testDifferentPrecisionDecimalAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testDifferentPrecisionDecimalAssignment");
