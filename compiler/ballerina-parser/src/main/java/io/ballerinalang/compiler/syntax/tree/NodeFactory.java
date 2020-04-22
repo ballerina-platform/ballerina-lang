@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
+
 import java.util.Objects;
 
 /**
@@ -1292,6 +1293,18 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stDocumentationStringNode = STNodeFactory.createDocumentationStringNode(
                 documentationLines.underlyingListNode().internalNode());
         return stDocumentationStringNode.createUnlinkedFacade();
+    }
+
+    public static TrapExpressionNode createTrapExpressionNode(
+            Token trapKeyword,
+            ExpressionNode expression) {
+        Objects.requireNonNull(trapKeyword, "trapKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stTrapExpressionNode = STNodeFactory.createTrapExpressionNode(
+                trapKeyword.internalNode(),
+                expression.internalNode());
+        return stTrapExpressionNode.createUnlinkedFacade();
     }
 }
 

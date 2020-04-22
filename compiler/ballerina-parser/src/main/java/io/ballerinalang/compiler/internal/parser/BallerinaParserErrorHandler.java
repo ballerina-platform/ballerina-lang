@@ -193,7 +193,8 @@ public class BallerinaParserErrorHandler {
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.NIL_LITERAL, ParserRuleContext.VARIABLE_REF,
                     ParserRuleContext.ACCESS_EXPRESSION, ParserRuleContext.TYPEOF_EXPRESSION,
                     ParserRuleContext.UNARY_EXPRESSION, ParserRuleContext.TYPE_TEST_EXPRESSION,
-                    ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS };
+                    ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS,
+                    ParserRuleContext.TRAP_EXPRESSION };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -1052,6 +1053,9 @@ public class BallerinaParserErrorHandler {
                 case HEX_FLOATING_POINT_LITERAL:
                     hasMatch = nextToken.kind == SyntaxKind.HEX_FLOATING_POINT_LITERAL;
                     break;
+                case TRAP_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.TRAP_KEYWORD;
+                    break;
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1109,6 +1113,7 @@ public class BallerinaParserErrorHandler {
                 case DEFAULT_WORKER:
                 case NAMED_WORKERS:
                 case NAMED_WORKER_DECL:
+                case TRAP_EXPRESSION:
 
                     // start a context, so that we know where to fall back, and continue
                     // having the qualified-identifier as the next rule.
@@ -1957,6 +1962,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.WORKER_NAME;
             case WORKER_NAME:
                 return ParserRuleContext.RETURN_TYPE_DESCRIPTOR;
+            case TRAP_EXPRESSION:
+                return ParserRuleContext.TRAP_KEYWORD;
+            case TRAP_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
 
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
@@ -2850,6 +2859,10 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
             case HEX_FLOATING_POINT_LITERAL:
                 return SyntaxKind.HEX_FLOATING_POINT_LITERAL;
+            case TRAP_KEYWORD:
+                return SyntaxKind.TRAP_KEYWORD;
+            case TRAP_EXPRESSION:
+                return SyntaxKind.TRAP_KEYWORD;
 
             // TODO:
             case COMP_UNIT:

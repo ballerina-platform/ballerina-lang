@@ -64,6 +64,7 @@ public enum SyntaxKind {
     NULL_KEYWORD(215, "null"),
     LOCK_KEYWORD(216, "lock"),
     VAR_KEYWORD(217, "var"),
+    TRAP_KEYWORD(218,"trap"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -164,6 +165,7 @@ public enum SyntaxKind {
     TYPEOF_EXPRESSION(1309),
     UNARY_EXPRESSION(1310),
     TYPE_TEST_EXPRESSION(1311),
+    TRAP_EXPRESSION(1312),
 
     // Type descriptors
     RECORD_TYPE_DESCRIPTOR(2000),

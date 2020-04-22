@@ -326,6 +326,8 @@ public class BallerinaParser {
                 return parseDecimalFloatingPointLiteral();
             case HEX_FLOATING_POINT_LITERAL:
                 return parseHexFloatingPointLiteral();
+            case TRAP_KEYWORD:
+                return parseTrapKeyword();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -3179,6 +3181,8 @@ public class BallerinaParser {
             case NEGATION_TOKEN:
             case EXCLAMATION_MARK_TOKEN:
                 return parseUnaryExpression(isRhsExpr);
+            case TRAP_KEYWORD:
+                return parseTrapExpression(isRhsExpr);
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
@@ -6678,6 +6682,40 @@ public class BallerinaParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.HEX_FLOATING_POINT_LITERAL);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse trap expression.
+     * <p>
+     * <code>
+     * trap-expr := trap expression
+     * </code>
+     *
+     * @param isRhsExpr
+     * @return Trap expression node
+     */
+    private STNode parseTrapExpression(boolean isRhsExpr) {
+        STNode trapKeyword = parseTrapKeyword();
+
+        // allow-actions flag is always false, since there will not be any actions
+        // within the trap-expression, due to the precedence.
+        STNode expr = parseExpression(OperatorPrecedence.UNARY, isRhsExpr, false);
+        return STNodeFactory.createTrapExpressionNode(trapKeyword, expr);
+    }
+
+    /**
+     * Parse trap-keyword.
+     *
+     * @return Trap-keyword node
+     */
+    private STNode parseTrapKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.TRAP_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.TRAP_KEYWORD);
             return sol.recoveredNode;
         }
     }

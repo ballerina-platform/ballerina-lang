@@ -1713,6 +1713,21 @@
                     "occurrences": "MULTIPLE"
                 }
             ]
+        },
+        {
+            "name": "TrapExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "TRAP_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "trapKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
         }
     ]
 }

@@ -955,6 +955,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 documentationLines);
     }
 
+    @Override
+    public Node transform(TrapExpressionNode trapExpressionNode) {
+        Token trapKeyword = modifyToken(trapExpressionNode.trapKeyword());
+        ExpressionNode expression = modifyNode(trapExpressionNode.expression());
+        return trapExpressionNode.modify(
+                trapKeyword,
+                expression);
+    }
+
     // Tokens
 
     @Override

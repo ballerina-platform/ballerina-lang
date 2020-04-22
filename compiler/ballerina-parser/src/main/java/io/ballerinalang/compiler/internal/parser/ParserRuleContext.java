@@ -180,6 +180,7 @@ public enum ParserRuleContext {
     SOURCE_KEYWORD("source"),
     XMLNS_KEYWORD("xmlns"),
     WORKER_KEYWORD("worker"),
+    TRAP_KEYWORD("trap"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -249,6 +250,7 @@ public enum ParserRuleContext {
     CONSTANT_EXPRESSION_START("constant-expr-start"),
     DECIMAL_FLOATING_POINT_LITERAL("decimal-floating-point-literal"),
     HEX_FLOATING_POINT_LITERAL("hex-floating-point-literal"),
+    TRAP_EXPRESSION("trap-expr"),
     ;
 
     private String value;

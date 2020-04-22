@@ -963,5 +963,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STDocumentationStringNode(
                 documentationLines);
     }
+
+    public static STNode createTrapExpressionNode(
+            STNode trapKeyword,
+            STNode expression) {
+
+        return new STTrapExpressionNode(
+                trapKeyword,
+                expression);
+    }
 }
 
