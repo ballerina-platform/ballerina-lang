@@ -17,22 +17,42 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerinalang.compiler.internal.parser.BallerinaParser;
+import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.text.TextDocument;
+import io.ballerinalang.compiler.text.TextDocumentChange;
 
+/**
+ * The {@code SyntaxTree} represents a parsed Ballerina source file.
+ *
+ * @since 2.0.0
+ */
 public class SyntaxTree {
-    private TextDocument textDocument;
-    private ModulePartNode modulePart;
+    private final TextDocument textDocument;
+    private final ModulePartNode modulePart;
 
-    public SyntaxTree(ModulePartNode modulePart, TextDocument textDocument) {
+    SyntaxTree(ModulePartNode modulePart, TextDocument textDocument) {
         this.modulePart = modulePart;
         this.textDocument = textDocument;
     }
 
-    public TextDocument getTextDocument() {
+    public static SyntaxTree from(TextDocument textDocument) {
+        BallerinaParser parser = ParserFactory.getParser(textDocument);
+        return new SyntaxTree((ModulePartNode) parser.parse().createFacade(0, null), textDocument);
+    }
+
+    public static SyntaxTree from(SyntaxTree oldTree, TextDocumentChange textDocumentChange) {
+        // TODO Improve the logic behind the creation of the new document
+        TextDocument newTextDocument = oldTree.textDocument().apply(textDocumentChange);
+        BallerinaParser parser = ParserFactory.getParser(oldTree, newTextDocument, textDocumentChange);
+        return new SyntaxTree((ModulePartNode) parser.parse().createFacade(0, null), newTextDocument);
+    }
+
+    public TextDocument textDocument() {
         return textDocument;
     }
 
-    public ModulePartNode getModulePart() {
+    public ModulePartNode modulePart() {
         return modulePart;
     }
 
@@ -40,6 +60,4 @@ public class SyntaxTree {
     public String toString() {
         return modulePart.toString();
     }
-
-    // TODO Add STModulePart
 }
