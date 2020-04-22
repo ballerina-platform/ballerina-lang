@@ -405,6 +405,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (isPublicInvokableNode(funcNode)) {
             analyzeNode(funcNode.returnTypeNode, invokableEnv);
         }
+
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
             analyzeNode(funcNode.body, invokableEnv);
