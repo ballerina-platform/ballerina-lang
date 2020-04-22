@@ -165,6 +165,20 @@ function testKeylessTable() {
     assertEquality(expectedValues, customerTable.toString());
 }
 
+function testMemberAccessWithInvalidSingleKey() {
+    table<Customer> key(id) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" , lname: "Clark" }];
+
+    Customer customer = customerTable[18];
+}
+
+function testMemberAccessWithInvalidMultiKey() {
+    table<Customer> key(id, name) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" , lname: "Clark" }];
+
+    Customer customer = customerTable[18, "Mohan"];
+}
+
 type AssertionError error<ASSERTION_ERROR_REASON>;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
