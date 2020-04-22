@@ -52,10 +52,10 @@ function testGlobalTableConstructExpr() returns boolean {
 type Customer record {
     readonly int id;
     readonly string name;
-    string address;
+    string lname;
 };
 
-string cutomerListString = "id=13 name=Sanjiva address=Weerawarana\nid=23 name=James address=Clark";
+string cutomerListString = "id=13 name=Sanjiva lname=Weerawarana\nid=23 name=James lname=Clark";
 
 type CustomerTableWithKS table<Customer> key(id);
 
@@ -69,15 +69,15 @@ function runKeySpecifierTestCases() {
 }
 
 function testTableTypeWithKeySpecifier() {
-    CustomerTableWithKS tab = table [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
-                                    { id: 23 , name: "James" , address: "Clark" }];
+    CustomerTableWithKS tab = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                    { id: 23 , name: "James" , lname: "Clark" }];
 
     assertEquality(cutomerListString, tab.toString());
 }
 
 function testTableConstructorWithKeySpecifier() {
-    CustomerTableWithKS tab = table key(id) [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
-                                    { id: 23 , name: "James" , address: "Clark" }];
+    CustomerTableWithKS tab = table key(id) [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                    { id: 23 , name: "James" , lname: "Clark" }];
 
     assertEquality(cutomerListString, tab.toString());
 }
@@ -85,15 +85,15 @@ function testTableConstructorWithKeySpecifier() {
 type CustomerTableWithCKS table<Customer> key(id, name);
 
 function testTableTypeWithCompositeKeySpecifier() {
-    CustomerTableWithCKS tab = table [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
-                                    { id: 23 , name: "James" , address: "Clark" }];
+    CustomerTableWithCKS tab = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                    { id: 23 , name: "James" , lname: "Clark" }];
 
     assertEquality(cutomerListString, tab.toString());
 }
 
 function testTableConstructorWithCompositeKeySpecifier() {
-    CustomerTableWithCKS tab = table key(id, name) [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
-                                    { id: 23 , name: "James" , address: "Clark" }];
+    CustomerTableWithCKS tab = table key(id, name) [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                    { id: 23 , name: "James" , lname: "Clark" }];
 
     assertEquality(cutomerListString, tab.toString());
 }
@@ -101,8 +101,8 @@ function testTableConstructorWithCompositeKeySpecifier() {
 type CustomerTableWithKTC table<Customer> key<int>;
 
 function testTableTypeWithKeyTypeConstraint() {
-    CustomerTableWithKTC tab = table key(id) [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
-                                    { id: 23 , name: "James" , address: "Clark" }];
+    CustomerTableWithKTC tab = table key(id) [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                    { id: 23 , name: "James" , lname: "Clark" }];
 
     assertEquality(cutomerListString, tab.toString());
 }
@@ -110,10 +110,73 @@ function testTableTypeWithKeyTypeConstraint() {
 type CustomerTableWithCKTC table<Customer> key<[int, string]>;
 
 function testTableTypeWithCompositeKeyTypeConstraint() {
-    CustomerTableWithCKTC tab = table key(id, name) [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
-                                    { id: 23 , name: "James" , address: "Clark" }];
+    CustomerTableWithCKTC tab = table key(id, name) [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                    { id: 23 , name: "James" , lname: "Clark" }];
 
     assertEquality(cutomerListString, tab.toString());
+}
+
+function runMemberAccessTestCases() {
+    testMemberAccessWithSingleStringKey();
+    testMemberAccessWithSingleIntKey();
+    testMemberAccessWithMultiKeyAsTuple();
+    testMemberAccessWithMultiKey();
+}
+
+function testMemberAccessWithSingleStringKey() {
+    table<Customer> key(name) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" , lname: "Clark" }];
+
+    Customer customer = customerTable["Sanjiva"];
+    assertEquality("Weerawarana", customer["lname"]);
+}
+
+function testMemberAccessWithSingleIntKey() {
+    table<Customer> key(id) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" , lname: "Clark" }];
+
+    Customer customer = customerTable[13];
+    assertEquality("Weerawarana", customer["lname"]);
+}
+
+function testMemberAccessWithMultiKeyAsTuple() {
+    table<Customer> key(id, name) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" , lname: "Clark" }];
+
+    Customer customer = customerTable[[13, "Sanjiva"]];
+    assertEquality("Weerawarana", customer["lname"]);
+}
+
+function testMemberAccessWithMultiKey() {
+    table<Customer> key(id, name) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" , lname: "Clark" }];
+
+    Customer customer = customerTable[13, "Sanjiva"];
+    assertEquality("Weerawarana", customer["lname"]);
+}
+
+function testKeylessTable() {
+    table<Customer> customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" , lname: "Clark" },
+                                        { id: 23 , name: "James" , lname: "Clark" }];
+
+    assertEquality(3, customerTable.length());
+    string expectedValues = "id=13 name=Sanjiva lname=Weerawarana\nid=23 name=James lname=Clark\nid=23 name=James lname=Clark";
+    assertEquality(expectedValues, customerTable.toString());
+}
+
+function testMemberAccessWithInvalidSingleKey() {
+    table<Customer> key(id) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" , lname: "Clark" }];
+
+    Customer customer = customerTable[18];
+}
+
+function testMemberAccessWithInvalidMultiKey() {
+    table<Customer> key(id, name) customerTable = table [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" , lname: "Clark" }];
+
+    Customer customer = customerTable[18, "Mohan"];
 }
 
 type AssertionError error<ASSERTION_ERROR_REASON>;

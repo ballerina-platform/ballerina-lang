@@ -65,3 +65,19 @@ TeacherTable teacheTab = table [
     { name: "AAA", age: 31 },
     { name: "BBB", age: 34 }
     ];
+
+type User record {
+    readonly int id;
+    readonly string name?;
+    string address;
+};
+
+type UserTable table<User> key(id, name);
+
+UserTable userTab = table [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
+                                                   { id: 45 , name: "James" , address: "Clark" }];
+
+int idValue = 15;
+table<Customer> key(id) cusTable = table [{ id: 13 , firstName: "Sanjiva", lastName: "Weerawarana"},
+                                        {id: idValue, firstName: "James" , lastName: "Clark"}];
+

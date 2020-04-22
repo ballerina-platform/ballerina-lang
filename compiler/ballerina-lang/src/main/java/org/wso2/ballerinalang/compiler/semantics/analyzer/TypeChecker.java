@@ -704,6 +704,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
+            if (tableConstructorExpr.tableKeySpecifier != null &&
+                    !(validateTableConstructorRecordLiterals(getTableKeyNameList(tableConstructorExpr.
+                            tableKeySpecifier), tableConstructorExpr.recordLiteralList))) {
+                resultType = symTable.semanticError;
+                return;
+            }
+
             resultType = new BTableType(TypeTags.TABLE, memTypes.get(0), null);
         } else if (expType.tag == TypeTags.TABLE) {
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
@@ -714,22 +721,20 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
 
-            if (!(validateTableType((BTableType) expType, tableConstructorExpr.pos) &&
-                    validateTableConstructorExpr(tableConstructorExpr))) {
+            if (!(validateTableType((BTableType) expType, tableConstructorExpr.pos,
+                    tableConstructorExpr.recordLiteralList) && validateTableConstructorExpr(tableConstructorExpr))) {
                 resultType = symTable.semanticError;
                 return;
             }
 
-            if (tableConstructorExpr.tableKeySpecifier != null) {
-                ((BTableType) expType).fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
-            }
             resultType = expType;
         } else {
             resultType = symTable.semanticError;
         }
     }
 
-    private boolean validateTableType(BTableType tableType, DiagnosticPos pos) {
+    private boolean validateTableType(BTableType tableType, DiagnosticPos pos,
+                                      List<BLangRecordLiteral> recordLiterals) {
         if (!types.isAssignable(tableType.constraint, symTable.mapAnydataType)) {
             dlog.error(pos, DiagnosticCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, tableType.constraint);
             resultType = symTable.semanticError;
@@ -738,10 +743,48 @@ public class TypeChecker extends BLangNodeVisitor {
 
         List<String> fieldNameList = tableType.fieldNameList;
         if (fieldNameList != null) {
-            return validateKeySpecifier(fieldNameList, tableType.constraint, pos);
+            return validateKeySpecifier(fieldNameList, tableType.constraint, pos) &&
+                    validateTableConstructorRecordLiterals(fieldNameList, recordLiterals);
         }
 
         return true;
+    }
+
+    private boolean validateTableConstructorRecordLiterals(List<String> keySpecifierFieldNames,
+                                                           List<BLangRecordLiteral> recordLiterals) {
+        for (String fieldName : keySpecifierFieldNames) {
+            for (BLangRecordLiteral recordLiteral : recordLiterals) {
+                BLangRecordKeyValueField recordKeyValueField = getRecordKeyValueField(recordLiteral, fieldName);
+                if (recordKeyValueField.getValue().getKind() == NodeKind.LITERAL ||
+                        recordKeyValueField.getValue().getKind() == NodeKind.NUMERIC_LITERAL ||
+                        recordKeyValueField.getValue().getKind() == NodeKind.RECORD_LITERAL_EXPR ||
+                        recordKeyValueField.getValue().getKind() == NodeKind.ARRAY_LITERAL_EXPR ||
+                        recordKeyValueField.getValue().getKind() == NodeKind.TUPLE_LITERAL_EXPR ||
+                        recordKeyValueField.getValue().getKind() == NodeKind.XML_ELEMENT_LITERAL ||
+                        recordKeyValueField.getValue().getKind() == NodeKind.XML_TEXT_LITERAL) {
+                    continue;
+                }
+
+                dlog.error(recordLiteral.pos,
+                        DiagnosticCode.KEY_SPECIFIER_FIELD_VALUE_MUST_BE_CONSTANT, fieldName);
+                resultType = symTable.semanticError;
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private BLangRecordKeyValueField getRecordKeyValueField(BLangRecordLiteral recordLiteral,
+                                                            String fieldName) {
+        for (RecordLiteralNode.RecordField recordField : recordLiteral.fields) {
+            BLangRecordKeyValueField recordKeyValueField = (BLangRecordKeyValueField) recordField;
+            if (fieldName.equals(recordKeyValueField.key.toString())) {
+                return recordKeyValueField;
+            }
+        }
+
+        return null;
     }
 
     private boolean validateKeySpecifier(List<String> fieldNameList, BType constraint,
@@ -758,6 +801,20 @@ public class TypeChecker extends BLangNodeVisitor {
             if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
                 dlog.error(pos,
                         DiagnosticCode.KEY_SPECIFIER_FIELD_MUST_BE_READONLY, fieldName, constraint);
+                resultType = symTable.semanticError;
+                return false;
+            }
+
+            if (!Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+                dlog.error(pos,
+                        DiagnosticCode.KEY_SPECIFIER_FIELD_MUST_BE_REQUIRED, fieldName, constraint);
+                resultType = symTable.semanticError;
+                return false;
+            }
+
+            if (!types.isAssignable(field.type, symTable.anydataType)) {
+                dlog.error(pos,
+                        DiagnosticCode.KEY_SPECIFIER_FIELD_MUST_BE_ANYDATA, fieldName, constraint);
                 resultType = symTable.semanticError;
                 return false;
             }

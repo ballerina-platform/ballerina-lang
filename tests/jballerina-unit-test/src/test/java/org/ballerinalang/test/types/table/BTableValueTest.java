@@ -51,6 +51,32 @@ public class BTableValueTest {
         BRunUtil.invoke(result, "runKeySpecifierTestCases");
     }
 
+    @Test(description = "Test member access")
+    public void testMemberAccessExpr() {
+        BRunUtil.invoke(result, "runMemberAccessTestCases");
+    }
+
+    @Test(description = "Test keyless table")
+    public void testKeylessTable() {
+        BRunUtil.invoke(result, "testKeylessTable");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
+                    "find key '18'.*")
+    public void testMemberAccessWithInvalidSingleKey() {
+        BRunUtil.invoke(result, "testMemberAccessWithInvalidSingleKey");
+        Assert.fail();
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
+                    "find key '18 Mohan'.*")
+    public void testMemberAccessWithInvalidMultiKey() {
+        BRunUtil.invoke(result, "testMemberAccessWithInvalidMultiKey");
+        Assert.fail();
+    }
+
     //TODO Readonly support is not available for field which is complex type (i.e, record)
     @Test(expectedExceptions = {BLangRuntimeException.class}, enabled = false)
     public void testGlobalTableConstructExpr2() {
