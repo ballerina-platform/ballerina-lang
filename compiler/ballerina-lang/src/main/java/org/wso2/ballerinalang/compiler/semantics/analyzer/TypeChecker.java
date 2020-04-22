@@ -1580,7 +1580,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             // TODO: call to isInLocallyDefinedRecord() is a temporary fix done to disallow local var references in
             //  locally defined record type defs. This check should be removed once local var referencing is supported.
-            if (((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) && !isInLocallyDefinedRecord(symbol, env)) {
+            if (((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE)) {
                 BVarSymbol varSym = (BVarSymbol) symbol;
                 checkSefReferences(varRefExpr.pos, env, varSym);
                 varRefExpr.symbol = varSym;
@@ -1873,6 +1873,23 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (env.enclInvokable != null && env.enclInvokable == encInvokable) {
             return findEnclosingInvokableEnv(env.enclEnv, encInvokable);
+        }
+        return env;
+    }
+
+    private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangRecordTypeNode recordTypeNode) {
+        if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.ARROW_EXPR) {
+            // if enclosing env's node is arrow expression
+            return env.enclEnv;
+        }
+
+        if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.TRANSACTION) {
+            // if enclosing env's node is a transaction
+            return env.enclEnv;
+        }
+
+        if (env.enclType != null && env.enclType == recordTypeNode) {
+            return findEnclosingInvokableEnv(env.enclEnv, recordTypeNode);
         }
         return env;
     }
@@ -3627,17 +3644,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean isInLocallyDefinedRecord(BSymbol symbol, SymbolEnv env) {
-        boolean isLocalSym = (symbol.owner.tag & SymTag.PACKAGE) != SymTag.PACKAGE;
-        boolean isInLetExpr = (symbol.owner.tag & SymTag.LET) == SymTag.LET;
-
-        // Skipping let expressions here since they're not allowed as record fields' default values currently and the
-        // error message related to that gets logged at a later stage. If we don't skip it here, the error message
-        // about let expressions not being allowed will not be logged.
-        return isLocalSym && !isInLetExpr &&
-                (env.enclType != null && env.enclType.getKind() == NodeKind.RECORD_TYPE);
-    }
-
     public List<BType> getListWithErrorTypes(int count) {
         List<BType> list = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
@@ -3725,6 +3731,14 @@ public class TypeChecker extends BLangNodeVisitor {
             if (resolvedSymbol != symTable.notFoundSymbol) {
                 resolvedSymbol.closure = true;
                 ((BLangArrowFunction) env.node).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+            }
+        }
+        if (env.enclType != null && env.enclType.getKind() == NodeKind.RECORD_TYPE) {
+            SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, (BLangRecordTypeNode) env.enclType);
+            BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name, SymTag.VARIABLE);
+            if (resolvedSymbol != symTable.notFoundSymbol && !encInvokable.flagSet.contains(Flag.ATTACHED)) {
+                resolvedSymbol.closure = true;
+                ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
             }
         }
 
