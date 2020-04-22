@@ -38,7 +38,7 @@ public class WhileStatementNode extends StatementNode {
         return childInBucket(1);
     }
 
-    public Node whileBody() {
+    public BlockStatementNode whileBody() {
         return childInBucket(2);
     }
 
@@ -63,7 +63,7 @@ public class WhileStatementNode extends StatementNode {
     public WhileStatementNode modify(
             Token whileKeyword,
             ExpressionNode condition,
-            Node whileBody) {
+            BlockStatementNode whileBody) {
         if (checkForReferenceEquality(
                 whileKeyword,
                 condition,

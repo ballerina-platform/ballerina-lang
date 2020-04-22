@@ -1,0 +1,62 @@
+{
+    "kind": "MODULE_PART",
+    "children": [
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "XML_NAMESPACE_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "XMLNS_KEYWORD"
+                        },
+                        {
+                            "kind": "DECIMAL_INTEGER_LITERAL",
+                            "value": "5"
+                        },
+                        {
+                            "kind": "AS_KEYWORD"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "ns0"
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                },
+                {
+                    "kind": "XML_NAMESPACE_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "XMLNS_KEYWORD"
+                        },
+                        {
+                            "kind": "STRING_LITERAL",
+                            "value": "hello"
+                        },
+                        {
+                            "kind": "AS_KEYWORD"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "ns1"
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "EOF_TOKEN"
+        }
+    ]
+}

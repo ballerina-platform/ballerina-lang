@@ -59,6 +59,12 @@ public class LexerTerminals {
     public static final String IS = "is";
     public static final String NULL = "null";
     public static final String LOCK = "lock";
+    public static final String ANNOTATION = "annotation";
+    public static final String SOURCE = "source";
+    public static final String WORKER = "worker";
+    public static final String PARAMETER = "parameter";
+    public static final String FIELD = "field";
+    public static final String XMLNS = "xmlns";
 
     // Types
     public static final String INT = "int";
@@ -75,7 +81,7 @@ public class LexerTerminals {
     public static final String VAR = "var";
     public static final String NEVER = "never";
     public static final String MAP = "map";
-    
+
     // Separators
     public static final char SEMICOLON = ';';
     public static final char COLON = ':';

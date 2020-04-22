@@ -292,7 +292,7 @@
             ]
         },
         {
-            "kind": "BLOCK_STATEMENT",
+            "kind": "FUNCTION_BODY_BLOCK",
             "children": [
                 {
                     "kind": "OPEN_BRACE_TOKEN"

@@ -64,7 +64,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(7);
     }
 
-    public BlockStatementNode functionBody() {
+    public Node functionBody() {
         return childInBucket(8);
     }
 
@@ -101,7 +101,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
             NodeList<ParameterNode> parameters,
             Token closeParenToken,
             Node returnTypeDesc,
-            BlockStatementNode functionBody) {
+            Node functionBody) {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,

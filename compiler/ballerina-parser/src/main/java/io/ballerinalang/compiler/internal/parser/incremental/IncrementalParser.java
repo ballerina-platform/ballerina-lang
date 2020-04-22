@@ -65,8 +65,9 @@ public class IncrementalParser extends BallerinaParser {
             kind == SyntaxKind.TYPE_DEFINITION;
 
     private Predicate<SyntaxKind> isFunctionBody = kind ->
-            kind == SyntaxKind.BLOCK_STATEMENT || // TODO I am not too sure about this.
-                    kind == SyntaxKind.EXTERNAL_FUNCTION_BODY;
+            kind == SyntaxKind.FUNCTION_BODY_BLOCK ||
+            kind == SyntaxKind.EXTERNAL_FUNCTION_BODY ||
+            kind == SyntaxKind.EXPRESSION_FUNCTION_BODY;
 
     private Predicate<SyntaxKind> isStatement = kind -> kind == SyntaxKind.BLOCK_STATEMENT ||
             kind == SyntaxKind.IF_ELSE_STATEMENT ||

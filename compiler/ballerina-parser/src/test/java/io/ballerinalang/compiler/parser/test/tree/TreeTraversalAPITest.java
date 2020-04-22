@@ -92,7 +92,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
                 SyntaxKind.IDENTIFIER_TOKEN,
                 SyntaxKind.OPEN_PAREN_TOKEN,
                 SyntaxKind.CLOSE_PAREN_TOKEN,
-                SyntaxKind.BLOCK_STATEMENT);
+                SyntaxKind.FUNCTION_BODY_BLOCK);
 
         for (Node child : funcDef.children()) {
             if (child.kind() == SyntaxKind.NONE) {

@@ -123,7 +123,7 @@ public class SyntaxTreeJSONGenerator {
         int size = tree.bucketCount();
         for (int i = 0; i < size; i++) {
             STNode childNode = tree.childInBucket(i);
-            if (childNode.kind == SyntaxKind.NONE) {
+            if (childNode == null || childNode.kind == SyntaxKind.NONE) {
                 continue;
             }
 

@@ -304,6 +304,34 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(nilLiteralNode);
     }
 
+    public T transform(AnnotationDeclarationNode annotationDeclarationNode) {
+        return transformSyntaxNode(annotationDeclarationNode);
+    }
+
+    public T transform(AnnotationAttachPointNode annotationAttachPointNode) {
+        return transformSyntaxNode(annotationAttachPointNode);
+    }
+
+    public T transform(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {
+        return transformSyntaxNode(xMLNamespaceDeclarationNode);
+    }
+
+    public T transform(FunctionBodyBlockNode functionBodyBlockNode) {
+        return transformSyntaxNode(functionBodyBlockNode);
+    }
+
+    public T transform(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+        return transformSyntaxNode(namedWorkerDeclarationNode);
+    }
+
+    public T transform(NamedWorkerDeclarator namedWorkerDeclarator) {
+        return transformSyntaxNode(namedWorkerDeclarator);
+    }
+
+    public T transform(DocumentationStringNode documentationStringNode) {
+        return transformSyntaxNode(documentationStringNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

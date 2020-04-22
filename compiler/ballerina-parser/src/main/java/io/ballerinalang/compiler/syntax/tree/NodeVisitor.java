@@ -303,6 +303,34 @@ public abstract class NodeVisitor {
         visitSyntaxNode(nilLiteralNode);
     }
 
+    public void visit(AnnotationDeclarationNode annotationDeclarationNode) {
+        visitSyntaxNode(annotationDeclarationNode);
+    }
+
+    public void visit(AnnotationAttachPointNode annotationAttachPointNode) {
+        visitSyntaxNode(annotationAttachPointNode);
+    }
+
+    public void visit(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {
+        visitSyntaxNode(xMLNamespaceDeclarationNode);
+    }
+
+    public void visit(FunctionBodyBlockNode functionBodyBlockNode) {
+        visitSyntaxNode(functionBodyBlockNode);
+    }
+
+    public void visit(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+        visitSyntaxNode(namedWorkerDeclarationNode);
+    }
+
+    public void visit(NamedWorkerDeclarator namedWorkerDeclarator) {
+        visitSyntaxNode(namedWorkerDeclarator);
+    }
+
+    public void visit(DocumentationStringNode documentationStringNode) {
+        visitSyntaxNode(documentationStringNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

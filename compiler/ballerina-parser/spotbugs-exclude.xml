@@ -30,4 +30,9 @@
         <Method name="getNextRuleForCloseBrace" />
         <Bug pattern="SF_SWITCH_FALLTHROUGH" />
     </Match>
+    <Match>
+        <Class name="io.ballerinalang.compiler.internal.parser.BallerinaParser" />
+        <Method name="parseFunctionBodyBlock" />
+        <Bug pattern="SF_SWITCH_FALLTHROUGH" />
+    </Match>
 </FindBugsFilter>
