@@ -322,6 +322,10 @@ public class BallerinaParser {
                 return parseWorkerKeyword();
             case WORKER_NAME:
                 return parseWorkerName();
+            case DECIMAL_FLOATING_POINT_LITERAL:
+                return parseDecimalFloatingPointLiteral();
+            case HEX_FLOATING_POINT_LITERAL:
+                return parseHexFloatingPointLiteral();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -3146,6 +3150,8 @@ public class BallerinaParser {
             case HEX_INTEGER_LITERAL:
             case STRING_LITERAL:
             case NULL_KEYWORD:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
                 return parseLiteral();
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
@@ -3614,6 +3620,8 @@ public class BallerinaParser {
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
             case NULL_KEYWORD:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
             default:
                 expr = parseExpression();
                 arg = STNodeFactory.createPositionalArgumentNode(leadingComma, expr);
@@ -3653,6 +3661,8 @@ public class BallerinaParser {
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
             case NULL_KEYWORD:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
             default:
                 expr = parseExpression();
                 return STNodeFactory.createPositionalArgumentNode(leadingComma, expr);
@@ -5860,6 +5870,8 @@ public class BallerinaParser {
             case TYPEOF_KEYWORD:
             case NEGATION_TOKEN:
             case EXCLAMATION_MARK_TOKEN:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
                 return true;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
@@ -6464,6 +6476,7 @@ public class BallerinaParser {
             case HEX_FLOATING_POINT_LITERAL:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
+            case NULL_KEYWORD:
                 expr = consume();
                 break;
             case IDENTIFIER_TOKEN:
@@ -6635,6 +6648,36 @@ public class BallerinaParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.LOCK_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse decimal floating point literal.
+     *
+     * @return Parsed node
+     */
+    private STNode parseDecimalFloatingPointLiteral() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse hex floating point literal.
+     *
+     * @return Parsed node
+     */
+    private STNode parseHexFloatingPointLiteral() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.HEX_FLOATING_POINT_LITERAL) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.HEX_FLOATING_POINT_LITERAL);
             return sol.recoveredNode;
         }
     }
