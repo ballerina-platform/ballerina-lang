@@ -762,14 +762,14 @@ public class TypeChecker extends BLangNodeVisitor {
                 return false;
             }
 
-            if(!Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+            if (!Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
                 dlog.error(pos,
                         DiagnosticCode.KEY_SPECIFIER_FIELD_MUST_BE_REQUIRED, fieldName, constraint);
                 resultType = symTable.semanticError;
                 return false;
             }
 
-            if(!types.isAssignable(field.type, symTable.anydataType)) {
+            if (!types.isAssignable(field.type, symTable.anydataType)) {
                 dlog.error(pos,
                         DiagnosticCode.KEY_SPECIFIER_FIELD_MUST_BE_ANYDATA, fieldName, constraint);
                 resultType = symTable.semanticError;
