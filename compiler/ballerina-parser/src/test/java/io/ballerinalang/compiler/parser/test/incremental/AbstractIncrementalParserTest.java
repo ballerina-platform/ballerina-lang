@@ -20,7 +20,6 @@ package io.ballerinalang.compiler.parser.test.incremental;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils;
 import io.ballerinalang.compiler.parser.test.ParserTestUtils;
-import io.ballerinalang.compiler.syntax.BLModules;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
@@ -51,7 +50,7 @@ public class AbstractIncrementalParserTest {
 
     public static SyntaxTree parse(SyntaxTree oldTree, String sourceFilePath) {
         Path sourcePath = Paths.get("incremental", sourceFilePath);
-        return BLModules.parse(oldTree, getTextChange(oldTree, sourcePath));
+        return SyntaxTree.from(oldTree, getTextChange(oldTree, sourcePath));
     }
 
     public static TextDocumentChange getTextChange(SyntaxTree oldTree, Path newSourceFilePath) {
@@ -67,10 +66,10 @@ public class AbstractIncrementalParserTest {
 
     public static Node[] populateNewNodes(SyntaxTree oldTree, SyntaxTree newTree) {
         Set<STNode> oldNodeSet = new HashSet<>();
-        populateNodes(oldTree.getModulePart(), oldNodeSet);
+        populateNodes(oldTree.modulePart(), oldNodeSet);
 
         List<Node> newNodeList = new ArrayList<>();
-        populateNewNodes(oldNodeSet, newTree.getModulePart(), newNodeList);
+        populateNewNodes(oldNodeSet, newTree.modulePart(), newNodeList);
         return newNodeList.toArray(new Node[0]);
     }
 

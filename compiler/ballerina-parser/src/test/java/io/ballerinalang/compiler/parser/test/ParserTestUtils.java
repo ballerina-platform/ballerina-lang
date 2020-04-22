@@ -32,7 +32,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.STTypeToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
-import io.ballerinalang.compiler.syntax.BLModules;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -116,7 +115,7 @@ public class ParserTestUtils {
     public static SyntaxTree parseFile(Path sourceFilePath) {
         String text = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(text);
-        return BLModules.parse(textDocument);
+        return SyntaxTree.from(textDocument);
     }
 
     private static JsonObject readAssertFile(Path filePath) {

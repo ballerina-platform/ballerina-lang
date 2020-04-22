@@ -52,7 +52,7 @@ public class HybridNodeStorage {
                              BallerinaLexer lexer,
                              TextDocumentChange textDocumentChange) {
         this.hybridNodeList = new ArrayList<>(20);
-        this.hybridNodeList.add(createInitialNode(oldTree.getModulePart(), lexer, textDocumentChange));
+        this.hybridNodeList.add(createInitialNode(oldTree.modulePart(), lexer, textDocumentChange));
         consumedNodeIndex++;
         peekedNodeIndex++;
     }

@@ -42,7 +42,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         String sourceFilePath = "find_token_test_1.bal";
         String sourceText = getFileContentAsString(sourceFilePath);
         SyntaxTree syntaxTree = parseFile(sourceFilePath);
-        ModulePartNode modulePart = syntaxTree.getModulePart();
+        ModulePartNode modulePart = syntaxTree.modulePart();
 
         String expectedLexeme = sourceText.substring(115, 116);
         Token actualToken = modulePart.findToken(115);
@@ -56,7 +56,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     @Test(enabled = false)
     public void testGetParentOfToken() {
         SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
-        ModulePartNode modulePart = syntaxTree.getModulePart();
+        ModulePartNode modulePart = syntaxTree.modulePart();
         Token token = modulePart.findToken(115);
 
         Node parent = token.parent();
@@ -69,7 +69,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testGetParentOfFunctionDef() {
         SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
-        ModulePartNode modulePart = syntaxTree.getModulePart();
+        ModulePartNode modulePart = syntaxTree.modulePart();
         Token funcToken = modulePart.findToken(50);
 
         Node funcDef = funcToken.parent();
@@ -80,7 +80,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testGenChildrenOfFunctionDef() {
         SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
-        ModulePartNode modulePart = syntaxTree.getModulePart();
+        ModulePartNode modulePart = syntaxTree.modulePart();
         Token funcToken = modulePart.findToken(50);
         NonTerminalNode funcDef = funcToken.parent();
 
