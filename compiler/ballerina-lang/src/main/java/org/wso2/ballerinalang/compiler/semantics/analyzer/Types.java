@@ -1365,7 +1365,7 @@ public class Types {
                 if (nextMethodReturnType != null) {
                     fromClause.resultType = getRecordType(nextMethodReturnType);
                     fromClause.nillableResultType = nextMethodReturnType;
-                    fromClause.varType = ((BRecordType) fromClause.resultType).fields.get(0).type;
+                    fromClause.varType = ((BRecordType) fromClause.resultType).fields.get("value").type;
                     return;
                 }
                 dlogHelper.error(fromClause.collection.pos, DiagnosticCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);

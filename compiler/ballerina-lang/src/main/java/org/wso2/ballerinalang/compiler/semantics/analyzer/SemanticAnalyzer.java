@@ -157,7 +157,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
