@@ -117,6 +117,12 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] TYPE_DESCRIPTORS =
             { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.RECORD_TYPE_DESCRIPTOR,
                     ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR,
+                    ParserRuleContext.MAP_TYPE_DESCRIPTOR, ParserRuleContext.ARRAY_TYPE_DESCRIPTOR,
+                    ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR};
+
+    private static final ParserRuleContext[] TYPE_DESCRIPTORS_WITHOUT_COMPLEX =
+            { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.RECORD_TYPE_DESCRIPTOR,
+                    ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR,
                     ParserRuleContext.MAP_TYPE_DESCRIPTOR };
 
     private static final ParserRuleContext[] RECORD_FIELD =
@@ -705,7 +711,16 @@ public class BallerinaParserErrorHandler {
                 case RECORD_BODY_START:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RECORD_BODY_START);
                 case TYPE_DESCRIPTOR:
-                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPE_DESCRIPTORS);
+                    parentCtx = getParentContext();
+                    switch (parentCtx) {
+                        case ARRAY_TYPE_DESCRIPTOR:
+                        case OPTIONAL_TYPE_DESCRIPTOR:
+                            return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                                    TYPE_DESCRIPTORS_WITHOUT_COMPLEX);
+                        default:
+                            return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                                    TYPE_DESCRIPTORS);
+                    }
                 case RECORD_FIELD:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RECORD_FIELD);
                 case RECORD_FIELD_WITHOUT_METADATA:
@@ -1535,7 +1550,7 @@ public class BallerinaParserErrorHandler {
                 }
                 return ParserRuleContext.VARIABLE_NAME;
             case QUESTION_MARK:
-                return getNextRuleForQuestionMark();
+                return getNextRuleForQuestionMark(nextLookahead);
             case RECORD_KEYWORD:
                 return ParserRuleContext.RECORD_BODY_START;
             case TYPE_KEYWORD:
@@ -2156,21 +2171,22 @@ public class BallerinaParserErrorHandler {
      *
      * @return Next parser context
      */
-    private ParserRuleContext getNextRuleForQuestionMark() {
+    private ParserRuleContext getNextRuleForQuestionMark(int nextLookahead) {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
             case OPTIONAL_TYPE_DESCRIPTOR:
-                endContext();
-                parentCtx = getParentContext();
-                switch (parentCtx) {
-                    case MODULE_TYPE_DEFINITION:
-                        return ParserRuleContext.SEMICOLON;
-                    case RETURN_TYPE_DESCRIPTOR:
-                        return ParserRuleContext.FUNC_BODY;
-                    default:
-                        return ParserRuleContext.VARIABLE_NAME;
+                STToken nextToken = this.tokenReader.peek(nextLookahead);
+                //int?[] scenario
+                if (nextToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
+                    switchContext(ParserRuleContext.ARRAY_TYPE_DESCRIPTOR);
+                    return ParserRuleContext.OPEN_BRACKET;
                 }
-
+                //int????.. scenarios
+                if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
+                    return ParserRuleContext.QUESTION_MARK;
+                }
+                endContext();
+                return getNextRuleForTypeDescriptor();
             default:
                 return ParserRuleContext.SEMICOLON;
         }
@@ -2201,10 +2217,12 @@ public class BallerinaParserErrorHandler {
         STToken nextToken = this.tokenReader.peek(nextLookahead);
         switch (parentCtx) {
             case ARRAY_TYPE_DESCRIPTOR:
+                //int[][][]... scenario
                 if (nextToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
                     return ParserRuleContext.OPEN_BRACKET;
-                } else if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
-                    return ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR;
+                } else if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) { //int[]? scenario
+                    switchContext(ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR);
+                    return ParserRuleContext.QUESTION_MARK;
                 } else {
                     endContext(); // End array type descriptor context
                     return getNextRuleForTypeDescriptor();
