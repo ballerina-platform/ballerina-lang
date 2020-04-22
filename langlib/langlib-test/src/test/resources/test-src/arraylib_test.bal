@@ -513,6 +513,25 @@ function testInvalidPushOnUnionOfSameBasicType() {
     assertValueEquality("incompatible types: expected 'int', found 'string'", err.detail()?.message);
 }
 
+function testShiftOperation() {
+    testShiftOnTupleWithoutValuesForRestParameter();
+}
+
+function testShiftOnTupleWithoutValuesForRestParameter() {
+    [int, int...] intTupleWithRest = [0];
+
+    var fn = function () {
+        var x = intTupleWithRest.shift();
+    };
+
+    error? res = trap fn();
+    assertTrue(res is error);
+
+    error err = <error> res;
+    assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.reason());
+    assertValueEquality("shift() not supported on type 'null'", err.detail()?.message);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

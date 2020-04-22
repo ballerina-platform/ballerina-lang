@@ -19,8 +19,8 @@ import ballerina/log;
 
 # Record type to hold the details of an error.
 #
-# + message - Specific error message of the error.
-# + cause - Any other error, which causes this error.
+# + message - Specific error message of the error
+# + cause - Any other error, which causes this error
 public type Detail record {
     string message;
     error cause?;
@@ -32,7 +32,7 @@ public const OAUTH2_ERROR = "{ballerina/oauth2}Error";
 # Represents the OAuth2 error type with details.
 public type Error error<OAUTH2_ERROR, Detail>;
 
-# Log and prepare `error` as a `Error`.
+# Logs and prepares the `error` as an `oauth2:Error`.
 #
 # + message - Error message
 # + err - `error` instance
