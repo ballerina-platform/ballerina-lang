@@ -87,7 +87,11 @@ public type helloWorldServerStreamingClient client object {
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR_23, getDescriptorMap23());
     }
 
-    public remote function lotsOfReplies(HelloRequest req, service msgListener, grpc:Headers? headers = ()) returns (grpc:Error?) {
+    public remote function lotsOfReplies(HelloRequest req, service msgListener, grpc:ClientContext? context = ()) returns (grpc:Error?) {
+        grpc:Headers? headers = ();
+        if context is grpc:ClientContext {
+            headers = context.getContextHeaders();
+        }
         return self.grpcClient->nonBlockingExecute("helloWorldServerStreaming/lotsOfReplies", req, msgListener, headers);
     }
 

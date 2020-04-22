@@ -17,7 +17,7 @@
 import ballerina/grpc;
 import ballerina/log;
 
-listener grpc:Listener ep23 = new (9113);
+listener grpc:Listener ep23 = new (9114);
 
 @grpc:ServiceConfig {name:"HealthServer"}
 @grpc:ServiceDescriptor {

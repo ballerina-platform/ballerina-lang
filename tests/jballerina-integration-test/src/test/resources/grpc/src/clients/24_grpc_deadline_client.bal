@@ -17,7 +17,7 @@
 import ballerina/grpc;
 import ballerina/time;
 
-HealthServerBlockingClient healthServicelockingEp = new ("http://localhost:9113");
+HealthServerBlockingClient healthServicelockingEp = new ("http://localhost:9114");
 
 // Uncomment when you need to run this locally
 // public function main(string... args) {

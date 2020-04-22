@@ -44,7 +44,7 @@ public class GrpcDeadlineTestCase {
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",
-                "23_grpc_deadline_client.bal");
+                "24_grpc_deadline_client.bal");
         result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
     }
 
