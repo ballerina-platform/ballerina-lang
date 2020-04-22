@@ -250,9 +250,14 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return sj.toString();
     }
 
-    private BField getTableConstraintField(BType constraintType, String fieldName) {
-        Map<String, BField> fieldList = ((BRecordType) constraintType).getFields();
-        return fieldList.get(fieldName);
+    private BType getTableConstraintField(BType constraintType, String fieldName) {
+        if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+            Map<String, BField> fieldList = ((BRecordType) constraintType).getFields();
+            return fieldList.get(fieldName).getFieldType();
+        } else if (constraintType.getTag() == TypeTags.MAP_TAG) {
+            return ((BMapType) constraintType).getConstrainedType();
+        }
+        return null;
     }
 
     @Override
@@ -403,8 +408,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         private class DefaultKeyWrapper {
 
             public DefaultKeyWrapper() {
-                BField keyField = getTableConstraintField(type.getConstrainedType(), fieldNames[0]);
-                if (keyField != null && keyField.getFieldType().getTag() == TypeTags.INT_TAG) {
+                BType keyFieldType = getTableConstraintField(type.getConstrainedType(), fieldNames[0]);
+                if (keyFieldType != null && keyFieldType.getTag() == TypeTags.INT_TAG) {
                     nextKeySupported = true;
                 }
             }
