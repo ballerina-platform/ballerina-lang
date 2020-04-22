@@ -92,9 +92,9 @@ function getJwtComponents(string jwt) returns string[]|Error {
 }
 
 function getJwtHeader(string encodedHeader) returns @tainted JwtHeader|Error {
-    byte[]|error decodeResult = encoding:decodeBase64Url(encodedHeader);
-    if (decodeResult is byte[]) {
-        string|error result = strings:fromBytes(decodeResult);
+    byte[]|error header = encoding:decodeBase64Url(encodedHeader);
+    if (header is byte[]) {
+        string|error result = strings:fromBytes(header);
         if (result is error) {
             return prepareError(result.reason(), result);
         }
@@ -107,14 +107,14 @@ function getJwtHeader(string encodedHeader) returns @tainted JwtHeader|Error {
         }
         return parseHeader(<map<json>>jsonHeader);
     } else {
-        return prepareError("Base64 url decode failed for JWT header.", decodeResult);
+        return prepareError("Base64 url decode failed for JWT header.", header);
     }
 }
 
 function getJwtPayload(string encodedPayload) returns @tainted JwtPayload|Error {
-    byte[]|error decodeResult = encoding:decodeBase64Url(encodedPayload);
-    if (decodeResult is byte[]) {
-        string|error result = strings:fromBytes(decodeResult);
+    byte[]|error payload = encoding:decodeBase64Url(encodedPayload);
+    if (payload is byte[]) {
+        string|error result = strings:fromBytes(payload);
         if (result is error) {
             return prepareError(result.reason(), result);
         }
@@ -127,7 +127,7 @@ function getJwtPayload(string encodedPayload) returns @tainted JwtPayload|Error 
         }
         return parsePayload(<map<json>>jsonPayload);
     } else {
-        return prepareError("Base64 url decode failed for JWT payload.", decodeResult);
+        return prepareError("Base64 url decode failed for JWT payload.", payload);
     }
 }
 
@@ -216,7 +216,7 @@ function parsePayload(map<json> jwtPayloadJson) returns JwtPayload|Error {
 function validateJwtRecords(string jwt, JwtHeader jwtHeader, JwtPayload jwtPayload,
                             JwtValidatorConfig config) returns Error? {
     if (!validateMandatoryJwtHeaderFields(jwtHeader)) {
-        return prepareError("Mandatory field signing algorithm(alg) is empty in the given JWT.");
+        return prepareError("Mandatory field signing algorithm (alg) is not provided in JOSE header.");
     }
     JwtTrustStoreConfig? trustStoreConfig = config?.trustStoreConfig;
     if (trustStoreConfig is JwtTrustStoreConfig) {
@@ -240,7 +240,7 @@ function validateJwtRecords(string jwt, JwtHeader jwtHeader, JwtPayload jwtPaylo
     int? nbf = jwtPayload?.nbf;
     if (nbf is int) {
         if (!validateNotBeforeTime(nbf)) {
-            return prepareError("JWT is used before Not_Before_Time.");
+            return prepareError("JWT is used before Not_Before_Time (nbf).");
         }
     }
     //TODO : Need to validate jwt id (jti) and custom claims.
