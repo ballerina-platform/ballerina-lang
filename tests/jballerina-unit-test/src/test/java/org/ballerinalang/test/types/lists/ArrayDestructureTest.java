@@ -69,16 +69,20 @@ public class ArrayDestructureTest {
     public void testSimpleArrayDestructureNegative() {
         CompileResult negativeTestCompile = BCompileUtil
                 .compile("test-src/types/lists/array_destructure_negative.bal");
-        Assert.assertEquals(negativeTestCompile.getErrorCount(), 2);
+        Assert.assertEquals(negativeTestCompile.getErrorCount(), 3);
 
         int index = 0;
         BAssertUtil.validateError(negativeTestCompile, index++
                 , "incompatible types: expected '[int,int,int,int,int]', found 'int[4]'"
-                , 12, 23);
+                , 20, 23);
 
         BAssertUtil.validateError(negativeTestCompile, index++
                 , "incompatible types: expected '[int,int,int,boolean]', found 'int[4]'"
-                , 15, 20);
+                , 23, 20);
+
+        BAssertUtil.validateError(negativeTestCompile, index++
+                , "incompatible types: expected '[int,int...]', found 'int[]'",
+                26, 17);
     }
 
 }

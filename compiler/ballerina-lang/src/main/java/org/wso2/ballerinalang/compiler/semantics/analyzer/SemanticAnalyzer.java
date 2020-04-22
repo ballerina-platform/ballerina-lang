@@ -1931,7 +1931,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         BType souceElementType = arraySource.eType;
         for (BLangExpression expression : target.expressions) {
-            if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            if (NodeKind.RECORD_VARIABLE_REF == expression.getKind()) {
+                BLangRecordVarRef recordVarRef = (BLangRecordVarRef) expression;
+                checkRecordVarRefEquivalency(pos, recordVarRef, souceElementType, rhsPos);
+            } else if (NodeKind.TUPLE_VARIABLE_REF == expression.getKind()) {
+                BLangTupleVarRef tupleVarRef = (BLangTupleVarRef) expression;
+                checkTupleVarRefEquivalency(pos, tupleVarRef, souceElementType, rhsPos);
+            } else if (NodeKind.ERROR_VARIABLE_REF == expression.getKind()) {
+                BLangErrorVarRef errorVarRef = (BLangErrorVarRef) expression;
+                checkErrorVarRefEquivalency(pos, errorVarRef, souceElementType, rhsPos);
+            } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
                 Name varName = names.fromIdNode(simpleVarRef.variableName);
                 if (varName == Names.IGNORE) {
