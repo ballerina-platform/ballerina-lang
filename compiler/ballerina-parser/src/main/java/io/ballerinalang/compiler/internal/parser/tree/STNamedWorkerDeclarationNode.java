@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SubModuleNameNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,23 +27,35 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STSubModuleNameNode extends STNode {
-    public final STNode leadingDot;
-    public final STNode moduleName;
+public class STNamedWorkerDeclarationNode extends STNode {
+    public final STNode annotations;
+    public final STNode workerKeyword;
+    public final STNode workerName;
+    public final STNode returnTypeDesc;
+    public final STNode workerBody;
 
-    STSubModuleNameNode(
-            STNode leadingDot,
-            STNode moduleName) {
-        super(SyntaxKind.SUB_MODULE_NAME);
-        this.leadingDot = leadingDot;
-        this.moduleName = moduleName;
+    STNamedWorkerDeclarationNode(
+            STNode annotations,
+            STNode workerKeyword,
+            STNode workerName,
+            STNode returnTypeDesc,
+            STNode workerBody) {
+        super(SyntaxKind.NAMED_WORKER_DECLARATION);
+        this.annotations = annotations;
+        this.workerKeyword = workerKeyword;
+        this.workerName = workerName;
+        this.returnTypeDesc = returnTypeDesc;
+        this.workerBody = workerBody;
 
         addChildren(
-                leadingDot,
-                moduleName);
+                annotations,
+                workerKeyword,
+                workerName,
+                returnTypeDesc,
+                workerBody);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new SubModuleNameNode(this, position, parent);
+        return new NamedWorkerDeclarationNode(this, position, parent);
     }
 }

@@ -68,7 +68,7 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "metadata",
-                "type",
+                "typeName",
                 "fieldName",
                 "equalsToken",
                 "expression",

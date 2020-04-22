@@ -120,6 +120,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(localTypeDefinitionStatementNode);
     }
 
+    public T transform(LockStatementNode lockStatementNode) {
+        return transformSyntaxNode(lockStatementNode);
+    }
+
     public T transform(BinaryExpressionNode binaryExpressionNode) {
         return transformSyntaxNode(binaryExpressionNode);
     }
@@ -198,10 +202,6 @@ public abstract class NodeTransformer<T> {
 
     public T transform(ImportVersionNode importVersionNode) {
         return transformSyntaxNode(importVersionNode);
-    }
-
-    public T transform(SubModuleNameNode subModuleNameNode) {
-        return transformSyntaxNode(subModuleNameNode);
     }
 
     public T transform(SpecificFieldNode specificFieldNode) {
@@ -298,6 +298,34 @@ public abstract class NodeTransformer<T> {
 
     public T transform(NilLiteralNode nilLiteralNode) {
         return transformSyntaxNode(nilLiteralNode);
+    }
+
+    public T transform(AnnotationDeclarationNode annotationDeclarationNode) {
+        return transformSyntaxNode(annotationDeclarationNode);
+    }
+
+    public T transform(AnnotationAttachPointNode annotationAttachPointNode) {
+        return transformSyntaxNode(annotationAttachPointNode);
+    }
+
+    public T transform(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {
+        return transformSyntaxNode(xMLNamespaceDeclarationNode);
+    }
+
+    public T transform(FunctionBodyBlockNode functionBodyBlockNode) {
+        return transformSyntaxNode(functionBodyBlockNode);
+    }
+
+    public T transform(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+        return transformSyntaxNode(namedWorkerDeclarationNode);
+    }
+
+    public T transform(NamedWorkerDeclarator namedWorkerDeclarator) {
+        return transformSyntaxNode(namedWorkerDeclarator);
+    }
+
+    public T transform(DocumentationStringNode documentationStringNode) {
+        return transformSyntaxNode(documentationStringNode);
     }
 
     // Tokens

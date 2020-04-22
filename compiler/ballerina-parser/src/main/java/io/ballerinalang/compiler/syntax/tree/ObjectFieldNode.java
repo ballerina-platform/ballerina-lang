@@ -73,7 +73,7 @@ public class ObjectFieldNode extends NonTerminalNode {
         return new String[]{
                 "metadata",
                 "visibilityQualifier",
-                "type",
+                "typeName",
                 "fieldName",
                 "equalsToken",
                 "expression",

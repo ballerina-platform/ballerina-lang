@@ -119,6 +119,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(localTypeDefinitionStatementNode);
     }
 
+    public void visit(LockStatementNode lockStatementNode) {
+        visitSyntaxNode(lockStatementNode);
+    }
+
     public void visit(BinaryExpressionNode binaryExpressionNode) {
         visitSyntaxNode(binaryExpressionNode);
     }
@@ -197,10 +201,6 @@ public abstract class NodeVisitor {
 
     public void visit(ImportVersionNode importVersionNode) {
         visitSyntaxNode(importVersionNode);
-    }
-
-    public void visit(SubModuleNameNode subModuleNameNode) {
-        visitSyntaxNode(subModuleNameNode);
     }
 
     public void visit(SpecificFieldNode specificFieldNode) {
@@ -297,6 +297,34 @@ public abstract class NodeVisitor {
 
     public void visit(NilLiteralNode nilLiteralNode) {
         visitSyntaxNode(nilLiteralNode);
+    }
+
+    public void visit(AnnotationDeclarationNode annotationDeclarationNode) {
+        visitSyntaxNode(annotationDeclarationNode);
+    }
+
+    public void visit(AnnotationAttachPointNode annotationAttachPointNode) {
+        visitSyntaxNode(annotationAttachPointNode);
+    }
+
+    public void visit(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {
+        visitSyntaxNode(xMLNamespaceDeclarationNode);
+    }
+
+    public void visit(FunctionBodyBlockNode functionBodyBlockNode) {
+        visitSyntaxNode(functionBodyBlockNode);
+    }
+
+    public void visit(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+        visitSyntaxNode(namedWorkerDeclarationNode);
+    }
+
+    public void visit(NamedWorkerDeclarator namedWorkerDeclarator) {
+        visitSyntaxNode(namedWorkerDeclarator);
+    }
+
+    public void visit(DocumentationStringNode documentationStringNode) {
+        visitSyntaxNode(documentationStringNode);
     }
 
     // Tokens

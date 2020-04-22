@@ -171,8 +171,6 @@ public class BallerinaParser {
                 return parseFieldDescriptorRhs((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             case NAMED_OR_POSITIONAL_ARG_RHS:
                 return parseNamedOrPositionalArg((STNode) args[0]);
-            case RECORD_BODY_END:
-                return parseRecordBodyCloseDelimiter();
             case RECORD_BODY_START:
                 return parseRecordBodyStartDelimiter();
             case TYPE_DESCRIPTOR:
@@ -287,10 +285,43 @@ public class BallerinaParser {
                 return parseConstDecl((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             case STMT_START_WITH_IDENTIFIER:
                 return parseStatementStartsWithIdentifier((STNode) args[0], (STNode) args[1]);
-            case NULL_KEYWORD:
-                return parseNullKeyword();
             case NIL_LITERAL:
                 return parseNilLiteral();
+            case RECORD_FIELD_OR_RECORD_END:
+                return parseFieldOrRestDescriptor((boolean) args[0]);
+            case ANNOTATION_KEYWORD:
+                return parseAnnotationKeyword();
+            case ANNOT_DECL_OPTIONAL_TYPE:
+                return parseAnnotationDeclFromType((STNode) args[0], (STNode) args[1], (STNode) args[2],
+                        (STNode) args[3]);
+            case ANNOT_DECL_RHS:
+                return parseAnnotationDeclRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3],
+                        (STNode) args[4]);
+            case ANNOT_OPTIONAL_ATTACH_POINTS:
+                return parseAnnotationDeclAttachPoints((STNode) args[0], (STNode) args[1], (STNode) args[2],
+                        (STNode) args[3], (STNode) args[4], (STNode) args[5]);
+            case SOURCE_KEYWORD:
+                return parseSourceKeyword();
+            case ATTACH_POINT_IDENT:
+                return parseAttachPointIdent((STNode) args[0]);
+            case IDENT_AFTER_OBJECT_IDENT:
+                return parseIdentAfterObjectIdent();
+            case FUNCTION_IDENT:
+                return parseFunctionIdent();
+            case FIELD_IDENT:
+                return parseFieldIdent();
+            case ATTACH_POINT_END:
+                return parseAttachPointEnd();
+            case XMLNS_KEYWORD:
+                return parseXMLNSKeyword();
+            case XML_NAMESPACE_PREFIX_DECL:
+                return parseXMLDeclRhs((STNode) args[0], (STNode) args[1]);
+            case NAMESPACE_PREFIX:
+                return parseNamespacePrefix();
+            case WORKER_KEYWORD:
+                return parseWorkerKeyword();
+            case WORKER_NAME:
+                return parseWorkerName();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -391,19 +422,23 @@ public class BallerinaParser {
         switch (tokenKind) {
             case EOF_TOKEN:
                 return consume();
-            case HASH_TOKEN:
+            case DOCUMENTATION_LINE:
             case AT_TOKEN:
                 metadata = parseMetaData(tokenKind);
                 return parseTopLevelNode(metadata);
             case IMPORT_KEYWORD:
-            case SERVICE_KEYWORD:
             case FINAL_KEYWORD:
             case PUBLIC_KEYWORD:
             case FUNCTION_KEYWORD:
             case TYPE_KEYWORD:
             case LISTENER_KEYWORD:
             case CONST_KEYWORD:
+            case ANNOTATION_KEYWORD:
+            case XMLNS_KEYWORD:
+
+            case SERVICE_KEYWORD:
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
@@ -424,6 +459,14 @@ public class BallerinaParser {
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE);
+
+                if (solution.action == Action.KEEP) {
+                    // If the solution is {@link Action#KEEP}, that means next immediate token is
+                    // at the correct place, but some token after that is not. There only one such
+                    // cases here, which is the `case IDENTIFIER_TOKEN`. So accept it, and continue.
+                    metadata = STNodeFactory.createNodeList(new ArrayList<>());
+                    break;
+                }
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -467,10 +510,13 @@ public class BallerinaParser {
             case CONST_KEYWORD:
             case FINAL_KEYWORD:
             case IMPORT_KEYWORD:
+            case ANNOTATION_KEYWORD:
+            case XMLNS_KEYWORD:
 
                 // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
                 // TODO: add type binding pattern
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
@@ -495,6 +541,14 @@ public class BallerinaParser {
                 // to continue the parsing.
                 if (solution.action == Action.REMOVE) {
                     return solution.recoveredNode;
+                }
+
+                if (solution.action == Action.KEEP) {
+                    // If the solution is {@link Action#KEEP}, that means next immediate token is
+                    // at the correct place, but some token after that is not. There only one such
+                    // cases here, which is the `case IDENTIFIER_TOKEN`. So accept it, and continue.
+                    qualifier = STNodeFactory.createEmptyNode();
+                    break;
                 }
 
                 return parseTopLevelNode(solution.tokenKind, metadata);
@@ -713,13 +767,9 @@ public class BallerinaParser {
         List<STNode> moduleNameParts = new ArrayList<>();
         moduleNameParts.add(moduleNameStart);
 
-        STNode identifier;
-        STNode dotToken;
         while (!isEndOfImportModuleName(nextTokenKind)) {
-            dotToken = parseDotToken();
-            identifier = parseIdentifier(ParserRuleContext.IMPORT_MODULE_NAME);
-            STNode moduleNamePart = STNodeFactory.createSubModuleNameNode(dotToken, identifier);
-            moduleNameParts.add(moduleNamePart);
+            moduleNameParts.add(parseDotToken());
+            moduleNameParts.add(parseIdentifier(ParserRuleContext.IMPORT_MODULE_NAME));
             nextTokenKind = peek().kind;
         }
 
@@ -1023,10 +1073,17 @@ public class BallerinaParser {
                 return parseListenerDeclaration(metadata, getQualifier(qualifier));
             case CONST_KEYWORD:
                 return parseConstantDeclaration(metadata, getQualifier(qualifier));
+            case ANNOTATION_KEYWORD:
+                STNode constKeyword = STNodeFactory.createEmptyNode();
+                return parseAnnotationDeclaration(metadata, getQualifier(qualifier), constKeyword);
             case IMPORT_KEYWORD:
                 reportInvalidQualifier(qualifier);
                 // TODO log error for metadata
                 return parseImportDecl();
+            case XMLNS_KEYWORD:
+                reportInvalidQualifier(qualifier);
+                // TODO log error for metadata
+                return parseXMLNamepsaceDeclaration();
 
             // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             // TODO: add type binding pattern
@@ -1042,6 +1099,7 @@ public class BallerinaParser {
 
                 return parseModuleVarDecl(metadata, qualifier);
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
@@ -1065,6 +1123,13 @@ public class BallerinaParser {
                 // to continue the parsing.
                 if (solution.action == Action.REMOVE) {
                     return solution.recoveredNode;
+                }
+
+                if (solution.action == Action.KEEP) {
+                    // If the solution is {@link Action#KEEP}, that means next immediate token is
+                    // at the correct place, but some token after that is not. There only one such
+                    // cases here, which is the `case IDENTIFIER_TOKEN`. So accept it, and continue.
+                    return parseModuleVarDecl(metadata, qualifier);
                 }
 
                 return parseTopLevelNode(solution.tokenKind, metadata, qualifier);
@@ -1285,6 +1350,7 @@ public class BallerinaParser {
 
                 // Type starting tokens. That means actual param starting
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
             case SERVICE_KEYWORD:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
@@ -1342,6 +1408,7 @@ public class BallerinaParser {
                 qualifier = parseQualifier();
                 break;
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
             case SERVICE_KEYWORD:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
@@ -1678,6 +1745,7 @@ public class BallerinaParser {
 
         switch (tokenKind) {
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
             case SERVICE_KEYWORD:
                 // simple type descriptor
                 return parseSimpleTypeDescriptor();
@@ -1718,6 +1786,7 @@ public class BallerinaParser {
         STToken node = peek();
         switch (node.kind) {
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
             case SERVICE_KEYWORD:
                 return consume();
             default:
@@ -1795,50 +1864,69 @@ public class BallerinaParser {
     private STNode parseFunctionBodyBlock() {
         startContext(ParserRuleContext.FUNC_BODY_BLOCK);
         STNode openBrace = parseOpenBrace();
-        STNode stmts = parseStatements(); // TODO: allow workers
+        STToken token = peek();
+
+        ArrayList<STNode> firstStmtList = new ArrayList<>();
+        ArrayList<STNode> workers = new ArrayList<>();
+        ArrayList<STNode> secondStmtList = new ArrayList<>();
+
+        ParserRuleContext currentCtx = ParserRuleContext.DEFAULT_WORKER_INIT;
+        boolean hasNamedWorkers = false;
+        while (!isEndOfStatements(token.kind)) {
+            STNode stmt = parseStatement();
+            if (stmt == null) {
+                break;
+            }
+
+            switch (currentCtx) {
+                case DEFAULT_WORKER_INIT:
+                    if (stmt.kind != SyntaxKind.NAMED_WORKER_DECLARATION) {
+                        firstStmtList.add(stmt);
+                        break;
+                    }
+                    // We come here when we find the first named-worker-decl.
+                    // Switch to parsing named-workers.
+                    currentCtx = ParserRuleContext.NAMED_WORKERS;
+                    hasNamedWorkers = true;
+                    // fall through
+                case NAMED_WORKERS:
+                    if (stmt.kind == SyntaxKind.NAMED_WORKER_DECLARATION) {
+                        workers.add(stmt);
+                        break;
+                    }
+                    // Otherwise switch to parsing default-worker
+                    currentCtx = ParserRuleContext.DEFAULT_WORKER;
+                    // fall through
+                case DEFAULT_WORKER:
+                default:
+                    if (stmt.kind == SyntaxKind.NAMED_WORKER_DECLARATION) {
+                        this.errorHandler.reportInvalidNode(null, "named-workers are not allowed here");
+                        break;
+                    }
+                    secondStmtList.add(stmt);
+                    break;
+            }
+            token = peek();
+        }
+
+        STNode namedWorkersList;
+        STNode statements;
+        if (hasNamedWorkers) {
+            STNode workerInitStatements = STNodeFactory.createNodeList(firstStmtList);
+            STNode namedWorkers = STNodeFactory.createNodeList(workers);
+            namedWorkersList = STNodeFactory.createNamedWorkerDeclarator(workerInitStatements, namedWorkers);
+            statements = STNodeFactory.createNodeList(secondStmtList);
+        } else {
+            namedWorkersList = STNodeFactory.createEmptyNode();
+            statements = STNodeFactory.createNodeList(firstStmtList);
+        }
+
         STNode closeBrace = parseCloseBrace();
         endContext();
-        return STNodeFactory.createBlockStatementNode(openBrace, stmts, closeBrace);
-    }
-
-    /**
-     * Check whether the given token is an end of a block.
-     *
-     * @param tokenKind STToken to check
-     * @return <code>true</code> if the token represents an end of a block. <code>false</code> otherwise
-     */
-    private boolean isEndOfBlockNode(SyntaxKind tokenKind) {
-        return isEndOfBlockNode(tokenKind, 1);
-    }
-
-    private boolean isEndOfBlockNode(SyntaxKind tokenKind, int lookahead) {
-        switch (tokenKind) {
-            case EOF_TOKEN:
-            case HASH_TOKEN:
-            case CLOSE_BRACE_TOKEN:
-            case CLOSE_BRACE_PIPE_TOKEN:
-            case PUBLIC_KEYWORD:
-            case LISTENER_KEYWORD:
-            case FUNCTION_KEYWORD:
-            case IMPORT_KEYWORD:
-                // TODO: statements can also start from function-keyword. handle
-                // this case similar to service-keyword.
-            case ELSE_KEYWORD:
-            case RESOURCE_KEYWORD:
-                return true;
-            case SERVICE_KEYWORD:
-                return isServiceDeclStart(ParserRuleContext.STATEMENT, lookahead);
-            case AT_TOKEN:
-                lookahead = getNumberOfTokensToAnnotsEnd();
-                return isEndOfBlockNode(peek(lookahead).kind, lookahead);
-            // TODO: check what's the construct after the annotation
-            default:
-                return false;
-        }
+        return STNodeFactory.createFunctionBodyBlockNode(openBrace, namedWorkersList, statements, closeBrace);
     }
 
     private boolean isEndOfRecordTypeNode(SyntaxKind nextTokenKind) {
-        STToken nexNextToken = peek(2);
         switch (nextTokenKind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
@@ -1852,49 +1940,21 @@ public class BallerinaParser {
             case SERVICE_KEYWORD:
                 return isServiceDeclStart(ParserRuleContext.RECORD_FIELD, 1);
             default:
-                switch (nexNextToken.kind) {
-                    case EOF_TOKEN:
-                    case CLOSE_BRACE_TOKEN:
-                    case CLOSE_BRACE_PIPE_TOKEN:
-                    case TYPE_KEYWORD:
-                    case FUNCTION_KEYWORD:
-                    case PUBLIC_KEYWORD:
-                    case LISTENER_KEYWORD:
-                    case IMPORT_KEYWORD:
-                        return true;
-                    case SERVICE_KEYWORD:
-                        return isServiceDeclStart(ParserRuleContext.RECORD_FIELD, 2);
-                    default:
-                        return false;
-                }
+                return false;
         }
     }
 
-    private boolean isEndOfObjectTypeNode(SyntaxKind tokenKind, SyntaxKind nextNextTokenKind) {
+    private boolean isEndOfObjectTypeNode(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
             case CLOSE_BRACE_PIPE_TOKEN:
-            case TYPE_KEYWORD:
-            case LISTENER_KEYWORD:
             case IMPORT_KEYWORD:
                 return true;
             case SERVICE_KEYWORD:
                 return isServiceDeclStart(ParserRuleContext.OBJECT_MEMBER, 1);
             default:
-                switch (nextNextTokenKind) {
-                    case EOF_TOKEN:
-                    case CLOSE_BRACE_TOKEN:
-                    case CLOSE_BRACE_PIPE_TOKEN:
-                    case TYPE_KEYWORD:
-                    case LISTENER_KEYWORD:
-                    case IMPORT_KEYWORD:
-                        return true;
-                    case SERVICE_KEYWORD:
-                        return isServiceDeclStart(ParserRuleContext.OBJECT_MEMBER, 2);
-                    default:
-                        return false;
-                }
+                return false;
         }
     }
 
@@ -2234,7 +2294,7 @@ public class BallerinaParser {
         boolean isInclusive = bodyStartDelimiter.kind == SyntaxKind.OPEN_BRACE_TOKEN;
         STNode fields = parseFieldDescriptors(isInclusive);
 
-        STNode bodyEndDelimiter = parseRecordBodyCloseDelimiter();
+        STNode bodyEndDelimiter = parseRecordBodyCloseDelimiter(bodyStartDelimiter.kind);
         endContext();
 
         return STNodeFactory.createRecordTypeDescriptorNode(recordKeyword, bodyStartDelimiter, fields,
@@ -2292,18 +2352,15 @@ public class BallerinaParser {
      *
      * @return Parsed node
      */
-    private STNode parseRecordBodyCloseDelimiter() {
-        STToken token = peek();
-        return parseRecordBodyCloseDelimiter(token.kind);
-    }
-
-    private STNode parseRecordBodyCloseDelimiter(SyntaxKind kind) {
-        switch (kind) {
-            case CLOSE_BRACE_PIPE_TOKEN:
+    private STNode parseRecordBodyCloseDelimiter(SyntaxKind startingDelimeter) {
+        switch (startingDelimeter) {
+            case OPEN_BRACE_PIPE_TOKEN:
                 return parseClosedRecordBodyEnd();
-            case CLOSE_BRACE_TOKEN:
+            case OPEN_BRACE_TOKEN:
                 return parseCloseBrace();
             default:
+                // Ideally should never reach here.
+
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.RECORD_BODY_END);
 
@@ -2358,8 +2415,13 @@ public class BallerinaParser {
     private STNode parseFieldDescriptors(boolean isInclusive) {
         ArrayList<STNode> recordFields = new ArrayList<>();
         STToken token = peek();
+        boolean endOfFields = false;
         while (!isEndOfRecordTypeNode(token.kind)) {
             STNode field = parseFieldOrRestDescriptor(isInclusive);
+            if (field == null) {
+                endOfFields = true;
+                break;
+            }
             recordFields.add(field);
             token = peek();
 
@@ -2370,7 +2432,7 @@ public class BallerinaParser {
 
         // Following loop will only run if there are more fields after the rest type descriptor.
         // Try to parse them and mark as invalid.
-        while (!isEndOfRecordTypeNode(token.kind)) {
+        while (!endOfFields && !isEndOfRecordTypeNode(token.kind)) {
             parseFieldOrRestDescriptor(isInclusive);
             // TODO: Mark these nodes as error/invalid nodes.
             this.errorHandler.reportInvalidNode(token, "cannot have more fields after the rest type descriptor");
@@ -2397,31 +2459,68 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseFieldOrRestDescriptor(boolean isInclusive) {
-        startContext(ParserRuleContext.RECORD_FIELD);
+        return parseFieldOrRestDescriptor(peek().kind, isInclusive);
+    }
 
-        // record-type-reference
-        STToken token = peek();
-        if (token.kind == SyntaxKind.ASTERISK_TOKEN) {
-            STNode asterisk = consume();
-            STNode type = parseTypeReference();
-            STNode semicolonToken = parseSemicolon();
-            endContext();
-            return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
+    private STNode parseFieldOrRestDescriptor(SyntaxKind nextTokenKind, boolean isInclusive) {
+        switch (nextTokenKind) {
+            case CLOSE_BRACE_TOKEN:
+            case CLOSE_BRACE_PIPE_TOKEN:
+                return null;
+            case ASTERISK_TOKEN:
+                // record-type-reference
+                startContext(ParserRuleContext.RECORD_FIELD);
+                STNode asterisk = consume();
+                STNode type = parseTypeReference();
+                STNode semicolonToken = parseSemicolon();
+                endContext();
+                return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
+            case AT_TOKEN:
+                startContext(ParserRuleContext.RECORD_FIELD);
+                STNode metadata = parseMetaData(nextTokenKind);
+                type = parseTypeDescriptor();
+                STNode fieldOrRestDesc = parseFieldDescriptor(isInclusive, type, metadata);
+                endContext();
+                return fieldOrRestDesc;
+            // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
+            case SIMPLE_TYPE:
+            case VAR_KEYWORD:
+            case SERVICE_KEYWORD:
+            case RECORD_KEYWORD:
+            case OBJECT_KEYWORD:
+            case ABSTRACT_KEYWORD:
+            case CLIENT_KEYWORD:
+            case IDENTIFIER_TOKEN:
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+                // individual-field-descriptor
+                startContext(ParserRuleContext.RECORD_FIELD);
+                metadata = createEmptyMetadata();
+                type = parseTypeDescriptor(nextTokenKind);
+                fieldOrRestDesc = parseFieldDescriptor(isInclusive, type, metadata);
+                endContext();
+                return fieldOrRestDesc;
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.RECORD_FIELD_OR_RECORD_END, isInclusive);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseFieldOrRestDescriptor(solution.tokenKind, isInclusive);
         }
+    }
 
-        // individual-field-descriptor
-        STNode metadata = parseMetaData();
-        STNode type = parseTypeDescriptor();
-        STNode fieldOrRestDesc;
+    private STNode parseFieldDescriptor(boolean isInclusive, STNode type, STNode metadata) {
         if (isInclusive) {
             STNode fieldName = parseVariableName();
-            fieldOrRestDesc = parseFieldDescriptorRhs(metadata, type, fieldName);
+            return parseFieldDescriptorRhs(metadata, type, fieldName);
         } else {
-            fieldOrRestDesc = parseFieldOrRestDescriptorRhs(metadata, type);
+            return parseFieldOrRestDescriptorRhs(metadata, type);
         }
-
-        endContext();
-        return fieldOrRestDesc;
     }
 
     /**
@@ -2603,16 +2702,34 @@ public class BallerinaParser {
         STToken token = peek();
 
         ArrayList<STNode> stmts = new ArrayList<>();
-        while (!isEndOfBlockNode(token.kind)) {
+        while (!isEndOfStatements(token.kind)) {
             STNode stmt = parseStatement();
             if (stmt == null) {
                 break;
             }
+
+            if (stmt.kind == SyntaxKind.NAMED_WORKER_DECLARATION) {
+                this.errorHandler.reportInvalidNode(null, "named-workers are not allowed here");
+                break;
+            }
+
             stmts.add(stmt);
             token = peek();
         }
 
         return STNodeFactory.createNodeList(stmts);
+    }
+
+    private boolean isEndOfStatements(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case EOF_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+                return true;
+            case SERVICE_KEYWORD:
+                return isServiceDeclStart(ParserRuleContext.STATEMENT, 1);
+            default:
+                return false;
+        }
     }
 
     /**
@@ -2628,6 +2745,9 @@ public class BallerinaParser {
     private STNode parseStatement(SyntaxKind tokenKind) {
         STNode annots = null;
         switch (tokenKind) {
+            case CLOSE_BRACE_TOKEN:
+                // Returning null marks the end of statements
+                return null;
             case SEMICOLON_TOKEN:
                 this.errorHandler.removeInvalidToken();
                 return parseStatement();
@@ -2639,12 +2759,16 @@ public class BallerinaParser {
 
                 // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
             case SERVICE_KEYWORD:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
             case IDENTIFIER_TOKEN:
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+
+                // Other statements
             case IF_KEYWORD:
             case WHILE_KEYWORD:
             case PANIC_KEYWORD:
@@ -2654,17 +2778,17 @@ public class BallerinaParser {
             case BREAK_KEYWORD:
             case RETURN_KEYWORD:
             case TYPE_KEYWORD:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+            case LOCK_KEYWORD:
+            case OPEN_BRACE_TOKEN:
+
+                // Even-though worker is not a statement, we parse it as statements.
+                // then validates it based on the context. This is done to provide
+                // better error messages
+            case WORKER_KEYWORD:
                 break;
             default:
                 if (isValidLHSExpression(tokenKind)) {
                     break;
-                }
-
-                // If the next token in the token stream does not match to any of the statements and
-                // if it is not the end of statement, then try to fix it and continue.
-                if (isEndOfBlockNode(tokenKind)) {
-                    return null;
                 }
 
                 STToken token = peek();
@@ -2704,6 +2828,10 @@ public class BallerinaParser {
     private STNode parseStatement(SyntaxKind tokenKind, STNode annots) {
         // TODO: validate annotations: not every statement supports annots
         switch (tokenKind) {
+            case CLOSE_BRACE_TOKEN:
+                this.errorHandler.reportInvalidNode(null, "invalid annotations");
+                // Returning null marks the end of statements
+                return null;
             case SEMICOLON_TOKEN:
                 this.errorHandler.removeInvalidToken();
                 return parseStatement(tokenKind, annots);
@@ -2712,6 +2840,7 @@ public class BallerinaParser {
                 return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
             // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
             case SERVICE_KEYWORD:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
@@ -2745,14 +2874,23 @@ public class BallerinaParser {
             case IDENTIFIER_TOKEN:
                 // If the statement starts with an identifier, it could be a var-decl-stmt
                 // with a user defined type, or some statement starts with an expression
-                return parseStatementStartsWithIdentifier(getAnnotations(annots));
-            default:
-                // If the next token in the token stream does not match to any of the statements and
-                // if it is not the end of statement, then try to fix it and continue.
-                if (isEndOfBlockNode(tokenKind)) {
-                    return null;
+                STToken nextToken = peek(2);
+                // if the next token is question-mark then it is an optional type descriptor with user defined type
+                if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
+                    finalKeyword = STNodeFactory.createEmptyNode();
+                    return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
                 }
-
+                return parseStatementStartsWithIdentifier(getAnnotations(annots));
+            case LOCK_KEYWORD:
+                return parseLockStatement();
+            case OPEN_BRACE_TOKEN:
+                return parseBlockNode();
+            case WORKER_KEYWORD:
+                // Even-though worker is not a statement, we parse it as statements.
+                // then validates it based on the context. This is done to provide
+                // better error messages
+                return parseNamedWorkerDeclaration(getAnnotations(annots));
+            default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.STATEMENT_WITHOUT_ANNOTS, annots);
 
@@ -3007,9 +3145,10 @@ public class BallerinaParser {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
             case STRING_LITERAL:
+            case NULL_KEYWORD:
                 return parseLiteral();
             case IDENTIFIER_TOKEN:
-                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_NAME);
+                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
             case OPEN_PAREN_TOKEN:
                 STToken nextNextToken = peek(2);
                 // parse nil literal '()'
@@ -3034,8 +3173,6 @@ public class BallerinaParser {
             case NEGATION_TOKEN:
             case EXCLAMATION_MARK_TOKEN:
                 return parseUnaryExpression(isRhsExpr);
-            case NULL_KEYWORD:
-                return parseNullKeyword();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
@@ -3309,11 +3446,13 @@ public class BallerinaParser {
             case FUNCTION_KEYWORD:
             case EOF_TOKEN:
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
             case CONST_KEYWORD:
             case LISTENER_KEYWORD:
             case EQUAL_TOKEN:
             case AT_TOKEN:
-            case HASH_TOKEN:
+            case DOCUMENTATION_LINE:
+            case AS_KEYWORD:
                 return true;
             default:
                 return false;
@@ -3321,7 +3460,7 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse expressions that references variable or functions at the start of the expression.
+     * Parse basic literals. It is assmued that we come here after validation.
      *
      * @return Parsed node
      */
@@ -3668,19 +3807,18 @@ public class BallerinaParser {
      */
     private STNode parseObjectMembers() {
         ArrayList<STNode> objectMembers = new ArrayList<>();
-        STToken nextToken = peek(1);
-        STToken nextNextToken = peek(2);
-        while (!isEndOfObjectTypeNode(nextToken.kind, nextNextToken.kind)) {
+        STToken nextToken = peek();
+        while (!isEndOfObjectTypeNode(nextToken.kind)) {
             startContext(ParserRuleContext.OBJECT_MEMBER);
-            STNode field = parseObjectMember(nextToken.kind);
+            STNode member = parseObjectMember(nextToken.kind);
             endContext();
 
-            if (field == null) {
+            // Null member indicates the end of object members
+            if (member == null) {
                 break;
             }
-            objectMembers.add(field);
-            nextToken = peek(1);
-            nextNextToken = peek(2);
+            objectMembers.add(member);
+            nextToken = peek();
         }
 
         return STNodeFactory.createNodeList(objectMembers);
@@ -3694,6 +3832,10 @@ public class BallerinaParser {
     private STNode parseObjectMember(SyntaxKind nextTokenKind) {
         STNode metadata;
         switch (nextTokenKind) {
+            case EOF_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+                // Null return indicates the end of object members
+                return null;
             case ASTERISK_TOKEN:
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
@@ -3703,6 +3845,7 @@ public class BallerinaParser {
                 // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             case IDENTIFIER_TOKEN:
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
             case SERVICE_KEYWORD:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
@@ -3711,7 +3854,7 @@ public class BallerinaParser {
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
                 metadata = createEmptyMetadata();
                 break;
-            case HASH_TOKEN:
+            case DOCUMENTATION_LINE:
             case AT_TOKEN:
                 metadata = parseMetaData(nextTokenKind);
                 nextTokenKind = peek().kind;
@@ -3726,9 +3869,6 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                if (isEndOfObjectTypeNode(solution.tokenKind, nextTokenKind)) {
-                    return null;
-                }
                 return parseObjectMember(solution.tokenKind);
         }
 
@@ -3738,6 +3878,10 @@ public class BallerinaParser {
     private STNode parseObjectMember(SyntaxKind nextTokenKind, STNode metadata) {
         STNode member;
         switch (nextTokenKind) {
+            case EOF_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+                // TODO report metadata
+                return null;
             case ASTERISK_TOKEN:
                 STNode asterisk = consume();
                 STNode type = parseTypeReference();
@@ -3759,6 +3903,7 @@ public class BallerinaParser {
             // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             case IDENTIFIER_TOKEN:
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
             case SERVICE_KEYWORD:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
@@ -3777,9 +3922,6 @@ public class BallerinaParser {
                     return solution.recoveredNode;
                 }
 
-                if (isEndOfObjectTypeNode(solution.tokenKind, nextTokenKind)) {
-                    return null;
-                }
                 return parseObjectMember(solution.tokenKind);
         }
 
@@ -3822,6 +3964,7 @@ public class BallerinaParser {
             // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             case IDENTIFIER_TOKEN:
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
             case SERVICE_KEYWORD:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
@@ -4347,7 +4490,7 @@ public class BallerinaParser {
         switch (tokenKind) {
             case EOF_TOKEN:
             case AT_TOKEN:
-            case HASH_TOKEN:
+            case DOCUMENTATION_LINE:
             case CLOSE_BRACE_TOKEN:
             case CLOSE_PAREN_TOKEN:
             case CLOSE_BRACKET_TOKEN:
@@ -4364,6 +4507,7 @@ public class BallerinaParser {
             case FINAL_KEYWORD:
             case RESOURCE_KEYWORD:
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
                 return true;
             default:
                 return false;
@@ -4753,7 +4897,7 @@ public class BallerinaParser {
             case RESOURCE_KEYWORD:
             case LISTENER_KEYWORD:
             case AT_TOKEN:
-            case HASH_TOKEN:
+            case DOCUMENTATION_LINE:
             case PRIVATE_KEYWORD:
             case RETURNS_KEYWORD:
             case SERVICE_KEYWORD:
@@ -4761,6 +4905,7 @@ public class BallerinaParser {
             case CONST_KEYWORD:
             case FINAL_KEYWORD:
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
                 return true;
             default:
                 return false;
@@ -4850,7 +4995,7 @@ public class BallerinaParser {
             case FUNCTION_KEYWORD:
                 metadata = createEmptyMetadata();
                 break;
-            case HASH_TOKEN:
+            case DOCUMENTATION_LINE:
             case AT_TOKEN:
                 metadata = parseMetaData(nextTokenKind);
                 nextTokenKind = peek().kind;
@@ -4946,15 +5091,8 @@ public class BallerinaParser {
                 // Then this is a service decl.
                 return true;
             default:
-                // If not any of above, this is not a valid syntax. Hence try to recover
-                // silently and find what's the best token. From that recovered token try
-                // to determine whether the next construct is a service decl or not.
-
-                Solution sol = recover(peek(), ParserRuleContext.STATEMENT);
-
-                // If the recovered token is an end-of block, then
-                // next construct must be a service decl.
-                return sol.tokenKind == SyntaxKind.CLOSE_BRACE_TOKEN;
+                this.errorHandler.removeInvalidToken();
+                return false;
         }
     }
 
@@ -5026,8 +5164,13 @@ public class BallerinaParser {
     private STNode parseConstDeclFromType(SyntaxKind nextTokenKind, STNode metadata, STNode qualifier,
                                           STNode constKeyword) {
         switch (nextTokenKind) {
+            case ANNOTATION_KEYWORD:
+                switchContext(ParserRuleContext.ANNOTATION_DECL);
+                return parseAnnotationDeclaration(metadata, qualifier, constKeyword);
+
             // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             case SIMPLE_TYPE:
+            case VAR_KEYWORD:
             case SERVICE_KEYWORD:
             case RECORD_KEYWORD:
             case OBJECT_KEYWORD:
@@ -5062,7 +5205,6 @@ public class BallerinaParser {
     private STNode parseConstantDeclWithOptionalType(STNode metadata, STNode qualifier, STNode constKeyword) {
         STNode varNameOrTypeName = parseStatementStartIdentifier();
         STNode constDecl = parseConstantDeclRhs(metadata, qualifier, constKeyword, varNameOrTypeName);
-
         return constDecl;
     }
 
@@ -5296,7 +5438,6 @@ public class BallerinaParser {
      */
     private STNode parseArrayLength() {
         STToken token = peek();
-        STToken nextToken;
         switch (token.kind) {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -5306,12 +5447,7 @@ public class BallerinaParser {
                 return STNodeFactory.createEmptyNode();
             // Parsing variable-reference-expr is same as parsing qualified identifier
             case IDENTIFIER_TOKEN:
-                // If <code>int[ a; </code> then take <code>a</code> as the identifier not a the array length var
-                nextToken = peek(2);
-                if (nextToken.kind == SyntaxKind.CLOSE_BRACKET_TOKEN) {
-                    return parseQualifiedIdentifier(ParserRuleContext.ARRAY_LENGTH);
-                }
-                return STNodeFactory.createEmptyNode();
+                return parseQualifiedIdentifier(ParserRuleContext.ARRAY_LENGTH);
             default:
                 Solution sol = recover(token, ParserRuleContext.ARRAY_LENGTH);
                 return sol.recoveredNode;
@@ -5356,7 +5492,12 @@ public class BallerinaParser {
      */
     private STNode parseAnnotation() {
         STNode atToken = parseAtToken();
-        STNode annotReference = parseQualifiedIdentifier(ParserRuleContext.ANNOT_REFERENCE);
+        STNode annotReference;
+        if (peek().kind != SyntaxKind.IDENTIFIER_TOKEN) {
+            annotReference = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+        } else {
+            annotReference = parseQualifiedIdentifier(ParserRuleContext.ANNOT_REFERENCE);
+        }
         STNode annotValue = parseMappingConstructorExpr();
         return STNodeFactory.createAnnotationNode(atToken, annotReference, annotValue);
     }
@@ -5384,19 +5525,13 @@ public class BallerinaParser {
      *
      * @return Parse node
      */
-    private STNode parseMetaData() {
-        STToken nextToken = peek();
-        return parseMetaData(nextToken.kind);
-    }
-
     private STNode parseMetaData(SyntaxKind nextTokenKind) {
         STNode docString;
         STNode annotations;
         switch (nextTokenKind) {
-            case HASH_TOKEN:
+            case DOCUMENTATION_LINE:
                 // TODO:
-                consume();
-                docString = STNodeFactory.createEmptyNode();
+                docString = parseDocumentationString();
                 annotations = parseAnnotations();
                 break;
             case AT_TOKEN:
@@ -5418,37 +5553,6 @@ public class BallerinaParser {
     private STNode createEmptyMetadata() {
         return STNodeFactory.createMetadataNode(STNodeFactory.createEmptyNode(),
                 STNodeFactory.createNodeList(new ArrayList<>()));
-    }
-
-    /**
-     * Get the number of tokens to skip to reach the end of annotations.
-     *
-     * @return Number of tokens to skip to reach the end of annotations
-     */
-    private int getNumberOfTokensToAnnotsEnd() {
-        STToken nextToken;
-        int lookahead = 0;
-        while (true) {
-            nextToken = peek(lookahead);
-            switch (nextToken.kind) {
-                case EOF_TOKEN:
-                case FUNCTION_KEYWORD:
-                case TYPE_KEYWORD:
-                case LISTENER_KEYWORD:
-                case CONST_KEYWORD:
-                case IMPORT_KEYWORD:
-                case SERVICE_KEYWORD:
-                    return lookahead;
-                case IDENTIFIER_TOKEN:
-                    if (isModuleVarDeclStart(lookahead)) {
-                        return lookahead;
-                    }
-                    // fall through
-                default:
-                    lookahead++;
-                    break;
-            }
-        }
     }
 
     /**
@@ -5704,6 +5808,14 @@ public class BallerinaParser {
         }
     }
 
+    /**
+     * Parse remote method call action, given the starting expression.
+     * <p>
+     * <code>remote-method-call-action := expression -> method-name ( arg-list )</code>
+     * 
+     * @param expression LHS expression
+     * @return
+     */
     private STNode parseRemoteMethodCallAction(STNode expression) {
         STNode rightArrow = parseRightArrow();
         STNode methodName = parseFunctionName();
@@ -5745,7 +5857,6 @@ public class BallerinaParser {
             case FALSE_KEYWORD:
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
-            case OPEN_BRACE_TOKEN:
             case TYPEOF_KEYWORD:
             case NEGATION_TOKEN:
             case EXCLAMATION_MARK_TOKEN:
@@ -5760,21 +5871,6 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse null-keyword.
-     *
-     * @return null-keyword node
-     */
-    private STNode parseNullKeyword() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.NULL_KEYWORD) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.NULL_KEYWORD);
-            return sol.recoveredNode;
-        }
-    }
-
-    /**
      * Parse nil literal. Here nil literal is only referred to ( ).
      *
      * @return Parsed node
@@ -5785,5 +5881,761 @@ public class BallerinaParser {
         STNode closeParenthesisToken = parseCloseParenthesis();
         endContext();
         return STNodeFactory.createNilLiteralNode(openParenthesisToken, closeParenthesisToken);
+    }
+
+    /**
+     * Parse annotation declaration, given the qualifier.
+     *
+     * @param metadata Metadata
+     * @param qualifier Qualifier that precedes the listener declaration
+     * @param constKeyword Const keyword
+     * @return Parsed node
+     */
+    private STNode parseAnnotationDeclaration(STNode metadata, STNode qualifier, STNode constKeyword) {
+        startContext(ParserRuleContext.ANNOTATION_DECL);
+        STNode annotationKeyword = parseAnnotationKeyword();
+        STNode annotDecl = parseAnnotationDeclFromType(metadata, qualifier, constKeyword, annotationKeyword);
+        endContext();
+        return annotDecl;
+    }
+
+    /**
+     * Parse annotation keyword.
+     *
+     * @return Parsed node
+     */
+    private STNode parseAnnotationKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.ANNOTATION_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.ANNOTATION_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse the components that follows after the annotation keyword of a annotation declaration.
+     *
+     * @param metadata Metadata
+     * @param qualifier Qualifier that precedes the constant decl
+     * @param constKeyword Const keyword
+     * @param annotationKeyword
+     * @return Parsed node
+     */
+    private STNode parseAnnotationDeclFromType(STNode metadata, STNode qualifier, STNode constKeyword,
+                                               STNode annotationKeyword) {
+        STToken nextToken = peek();
+        return parseAnnotationDeclFromType(nextToken.kind, metadata, qualifier, constKeyword, annotationKeyword);
+    }
+
+    private STNode parseAnnotationDeclFromType(SyntaxKind nextTokenKind, STNode metadata, STNode qualifier,
+                                               STNode constKeyword, STNode annotationKeyword) {
+        switch (nextTokenKind) {
+            // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
+            case SIMPLE_TYPE:
+            case VAR_KEYWORD:
+            case SERVICE_KEYWORD:
+            case RECORD_KEYWORD:
+            case OBJECT_KEYWORD:
+            case ABSTRACT_KEYWORD:
+            case CLIENT_KEYWORD:
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+                STNode typeDesc = parseTypeDescriptor();
+                STNode annotTag = parseAnnotationTag();
+                STNode equalsToken = parseAssignOp();
+                STNode initializer = parseExpression();
+                STNode semicolonToken = parseSemicolon();
+                return STNodeFactory.createConstantDeclarationNode(metadata, qualifier, constKeyword, typeDesc,
+                        annotTag, equalsToken, initializer, semicolonToken);
+            case IDENTIFIER_TOKEN:
+                return parseAnnotationDeclWithOptionalType(metadata, qualifier, constKeyword, annotationKeyword);
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.ANNOT_DECL_OPTIONAL_TYPE, metadata, qualifier,
+                        constKeyword, annotationKeyword);
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseAnnotationDeclFromType(solution.tokenKind, metadata, qualifier, constKeyword,
+                        annotationKeyword);
+        }
+    }
+
+    /**
+     * Parse annotation tag.
+     * <p>
+     * <code>annot-tag := identifier</code>
+     * 
+     * @return
+     */
+    private STNode parseAnnotationTag() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(peek(), ParserRuleContext.ANNOTATION_TAG);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseAnnotationDeclWithOptionalType(STNode metadata, STNode qualifier, STNode constKeyword,
+                                                       STNode annotationKeyword) {
+        // We come here if the type name also and identifier.
+        // However, if it is a qualified identifier, then it to be the type-desc.
+        STNode typeDescOrAnnotTag = parseAnnotationTag();
+        if (typeDescOrAnnotTag.kind == SyntaxKind.QUALIFIED_IDENTIFIER) {
+            STNode annotTag = parseAnnotationTag();
+            return parseAnnotationDeclAttachPoints(metadata, qualifier, constKeyword, annotationKeyword,
+                    typeDescOrAnnotTag, annotTag);
+        }
+
+        return parseAnnotationDeclRhs(metadata, qualifier, constKeyword, annotationKeyword, typeDescOrAnnotTag);
+    }
+
+    /**
+     * Parse the component that follows the first identifier in an annotation decl. The identifier
+     * can be either the type-name (a user defined type) or the annot-tag, where the type-name
+     * is not present.
+     * 
+     * @param metadata Metadata
+     * @param qualifier Qualifier that precedes the annotation decl
+     * @param constKeyword Const keyword
+     * @param annotationKeyword Annotation keyword
+     * @param typeDescOrAnnotTag Identifier that follows the annotation-keyword
+     * @return Parsed node
+     */
+    private STNode parseAnnotationDeclRhs(STNode metadata, STNode qualifier, STNode constKeyword,
+                                          STNode annotationKeyword, STNode typeDescOrAnnotTag) {
+        STToken token = peek();
+        return parseAnnotationDeclRhs(token.kind, metadata, qualifier, constKeyword, annotationKeyword,
+                typeDescOrAnnotTag);
+    }
+
+    private STNode parseAnnotationDeclRhs(SyntaxKind nextTokenKind, STNode metadata, STNode qualifier,
+                                          STNode constKeyword, STNode annotationKeyword, STNode typeDescOrAnnotTag) {
+        STNode typeDesc;
+        STNode annotTag;
+        switch (nextTokenKind) {
+            case IDENTIFIER_TOKEN:
+                typeDesc = typeDescOrAnnotTag;
+                annotTag = parseAnnotationTag();
+                break;
+            case SEMICOLON_TOKEN:
+            case ON_KEYWORD:
+                typeDesc = STNodeFactory.createEmptyNode();
+                annotTag = typeDescOrAnnotTag;
+                break;
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.ANNOT_DECL_RHS, metadata, qualifier, constKeyword,
+                        annotationKeyword, typeDescOrAnnotTag);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseAnnotationDeclRhs(solution.tokenKind, metadata, qualifier, constKeyword, annotationKeyword,
+                        typeDescOrAnnotTag);
+        }
+
+        return parseAnnotationDeclAttachPoints(metadata, qualifier, constKeyword, annotationKeyword, typeDesc,
+                annotTag);
+    }
+
+    private STNode parseAnnotationDeclAttachPoints(STNode metadata, STNode qualifier, STNode constKeyword,
+                                                   STNode annotationKeyword, STNode typeDesc, STNode annotTag) {
+        STToken nextToken = peek();
+        return parseAnnotationDeclAttachPoints(nextToken.kind, metadata, qualifier, constKeyword, annotationKeyword,
+                typeDesc, annotTag);
+
+    }
+
+    private STNode parseAnnotationDeclAttachPoints(SyntaxKind nextTokenKind, STNode metadata, STNode qualifier,
+                                                   STNode constKeyword, STNode annotationKeyword, STNode typeDesc,
+                                                   STNode annotTag) {
+        STNode onKeyword;
+        STNode attachPoints;
+        switch (nextTokenKind) {
+            case SEMICOLON_TOKEN:
+                onKeyword = STNodeFactory.createEmptyNode();
+                attachPoints = STNodeFactory.createEmptyNode();
+                break;
+            case ON_KEYWORD:
+                onKeyword = parseOnKeyword();
+                attachPoints = parseAnnotationAttachPoints();
+                break;
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.ANNOT_OPTIONAL_ATTACH_POINTS, metadata, qualifier,
+                        constKeyword, annotationKeyword, typeDesc, annotTag);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseAnnotationDeclAttachPoints(solution.tokenKind, metadata, qualifier, constKeyword,
+                        annotationKeyword, typeDesc, annotTag);
+        }
+
+        STNode semicolonToken = parseSemicolon();
+        return STNodeFactory.createAnnotationDeclarationNode(metadata, qualifier, constKeyword, annotationKeyword,
+                typeDesc, annotTag, onKeyword, attachPoints, semicolonToken);
+    }
+
+    /**
+     * Parse annotation attach points.
+     * <p>
+     * <code>
+     * annot-attach-points := annot-attach-point (, annot-attach-point)*
+     * <br/><br/>
+     * annot-attach-point := dual-attach-point | source-only-attach-point
+     * <br/><br/>
+     * dual-attach-point := [source] dual-attach-point-ident
+     * <br/><br/>
+     * dual-attach-point-ident :=
+     *     [object] type
+     *     | [object|resource] function
+     *     | parameter
+     *     | return
+     *     | service
+     *     | [object|record] field
+     * <br/><br/>
+     * source-only-attach-point := source source-only-attach-point-ident
+     * <br/><br/>
+     * source-only-attach-point-ident :=
+     *     annotation
+     *     | external
+     *     | var
+     *     | const
+     *     | listener
+     *     | worker
+     * </code>
+     * 
+     * @return Parsed node
+     */
+    private STNode parseAnnotationAttachPoints() {
+        startContext(ParserRuleContext.ANNOT_ATTACH_POINTS_LIST);
+        List<STNode> attachPoints = new ArrayList<>();
+
+        STToken nextToken = peek();
+        if (isEndAnnotAttachPointList(nextToken.kind)) {
+            endContext();
+            this.errorHandler.reportMissingTokenError("missing attach point");
+            return STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+        }
+
+        // Parse first attach-point, that has no leading comma
+        STNode attachPoint = parseAnnotationAttachPoint();
+        attachPoints.add(attachPoint);
+
+        // Parse the remaining attach-points
+        nextToken = peek();
+        STNode leadingComma;
+        while (!isEndAnnotAttachPointList(nextToken.kind)) {
+            leadingComma = parseAttachPointEnd();
+            if (leadingComma == null) {
+                break;
+            }
+            attachPoints.add(leadingComma);
+
+            // Parse attach point. Null represents the end of attach-points.
+            attachPoint = parseAnnotationAttachPoint();
+            if (attachPoint == null) {
+                this.errorHandler.reportMissingTokenError("missing attach point");
+                attachPoint = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+                attachPoints.add(attachPoint);
+                break;
+            }
+
+            attachPoints.add(attachPoint);
+            nextToken = peek();
+        }
+
+        endContext();
+        return STNodeFactory.createNodeList(attachPoints);
+    }
+
+    /**
+     * Parse annotation attach point end.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseAttachPointEnd() {
+        STToken nextToken = peek();
+        return parseAttachPointEnd(nextToken.kind);
+    }
+
+    private STNode parseAttachPointEnd(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case SEMICOLON_TOKEN:
+                // null represents the end of attach points.
+                return null;
+            case COMMA_TOKEN:
+                return consume();
+            default:
+                Solution sol = recover(peek(), ParserRuleContext.ATTACH_POINT_END);
+                if (sol.action == Action.REMOVE) {
+                    return sol.recoveredNode;
+                }
+
+                return sol.tokenKind == SyntaxKind.COMMA_TOKEN ? sol.recoveredNode : null;
+        }
+    }
+
+    private boolean isEndAnnotAttachPointList(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case EOF_TOKEN:
+            case SEMICOLON_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Parse annotation attach point.
+     *
+     * @return Parsed node
+     */
+    private STNode parseAnnotationAttachPoint() {
+        return parseAnnotationAttachPoint(peek().kind);
+    }
+
+    private STNode parseAnnotationAttachPoint(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case EOF_TOKEN:
+                return null;
+
+            // These are source only annotations, but without the source keyword.
+            case ANNOTATION_KEYWORD:
+            case EXTERNAL_KEYWORD:
+            case VAR_KEYWORD:
+            case CONST_KEYWORD:
+            case LISTENER_KEYWORD:
+            case WORKER_KEYWORD:
+                // fall through
+
+            case SOURCE_KEYWORD:
+                STNode sourceKeyword = parseSourceKeyword();
+                return parseAttachPointIdent(sourceKeyword);
+
+            // Dual attach points
+            case OBJECT_KEYWORD:
+            case TYPE_KEYWORD:
+            case RESOURCE_KEYWORD:
+            case FUNCTION_KEYWORD:
+            case PARAMETER_KEYWORD:
+            case RETURN_KEYWORD:
+            case SERVICE_KEYWORD:
+            case FIELD_KEYWORD:
+            case RECORD_KEYWORD:
+                sourceKeyword = STNodeFactory.createEmptyNode();
+                STNode firstIdent = consume();
+                return parseDualAttachPointIdent(sourceKeyword, firstIdent);
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.ATTACH_POINT);
+                return solution.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse source keyword.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseSourceKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.SOURCE_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.SOURCE_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse attach point ident gievn.
+     * <p>
+     * <code>
+     * source-only-attach-point-ident := annotation | external | var | const | listener | worker
+     * <br/><br/>
+     * dual-attach-point-ident := [object] type | [object|resource] function | parameter
+     *                            | return | service | [object|record] field
+     * </code>
+     * 
+     * @param sourceKeyword Source keyword
+     * @return Parsed node
+     */
+    private STNode parseAttachPointIdent(STNode sourceKeyword) {
+        return parseAttachPointIdent(peek().kind, sourceKeyword);
+    }
+
+    private STNode parseAttachPointIdent(SyntaxKind nextTokenKind, STNode sourceKeyword) {
+        switch (nextTokenKind) {
+            case ANNOTATION_KEYWORD:
+            case EXTERNAL_KEYWORD:
+            case VAR_KEYWORD:
+            case CONST_KEYWORD:
+            case LISTENER_KEYWORD:
+            case WORKER_KEYWORD:
+                STNode firstIdent = consume();
+                STNode secondIdent = STNodeFactory.createEmptyNode();
+                return STNodeFactory.createAnnotationAttachPointNode(sourceKeyword, firstIdent, secondIdent);
+            case OBJECT_KEYWORD:
+            case RESOURCE_KEYWORD:
+            case RECORD_KEYWORD:
+            case TYPE_KEYWORD:
+            case FUNCTION_KEYWORD:
+            case PARAMETER_KEYWORD:
+            case RETURN_KEYWORD:
+            case SERVICE_KEYWORD:
+            case FIELD_KEYWORD:
+                firstIdent = consume();
+                return parseDualAttachPointIdent(sourceKeyword, firstIdent);
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.ATTACH_POINT_IDENT, sourceKeyword);
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                firstIdent = solution.recoveredNode;
+                return parseDualAttachPointIdent(sourceKeyword, firstIdent);
+        }
+    }
+
+    /**
+     * Parse dual-attach-point ident.
+     * 
+     * @param sourceKeyword Source keyword
+     * @param firstIdent first part of the dual attach-point
+     * @return Parsed node
+     */
+    private STNode parseDualAttachPointIdent(STNode sourceKeyword, STNode firstIdent) {
+        STNode secondIdent;
+        switch (firstIdent.kind) {
+            case OBJECT_KEYWORD:
+                secondIdent = parseIdentAfterObjectIdent();
+                break;
+            case RESOURCE_KEYWORD:
+                secondIdent = parseFunctionIdent();
+                break;
+            case RECORD_KEYWORD:
+                secondIdent = parseFieldIdent();
+                break;
+            case TYPE_KEYWORD:
+            case FUNCTION_KEYWORD:
+            case PARAMETER_KEYWORD:
+            case RETURN_KEYWORD:
+            case SERVICE_KEYWORD:
+            case FIELD_KEYWORD:
+            default: // default case should never be reached.
+                secondIdent = STNodeFactory.createEmptyNode();
+                break;
+        }
+
+        return STNodeFactory.createAnnotationAttachPointNode(sourceKeyword, firstIdent, secondIdent);
+    }
+
+    /**
+     * Parse the idents that are supported after object-ident.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseIdentAfterObjectIdent() {
+        STToken token = peek();
+        switch (token.kind) {
+            case TYPE_KEYWORD:
+            case FUNCTION_KEYWORD:
+            case FIELD_KEYWORD:
+                return consume();
+            default:
+                Solution sol = recover(token, ParserRuleContext.IDENT_AFTER_OBJECT_IDENT);
+                return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse function ident.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseFunctionIdent() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.FUNCTION_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.FUNCTION_IDENT);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse field ident.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseFieldIdent() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.FIELD_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.FIELD_IDENT);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse XML namespace declaration.
+     * <p>
+     * <code>xmlns-decl := xmlns xml-namespace-uri [ as xml-namespace-prefix ] ;
+     * <br/>
+     * xml-namespace-uri := simple-const-expr
+     * <br/>
+     * xml-namespace-prefix := identifier
+     * </code>
+     * 
+     * @return
+     */
+    private STNode parseXMLNamepsaceDeclaration() {
+        startContext(ParserRuleContext.XML_NAMESPACE_DECLARATION);
+        STNode xmlnsKeyword = parseXMLNSKeyword();
+        STNode namespaceUri = parseXMLNamespaceUri();
+        STNode xmlnsDecl = parseXMLDeclRhs(xmlnsKeyword, namespaceUri);
+        endContext();
+        return xmlnsDecl;
+    }
+
+    /**
+     * Parse xmlns keyword.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseXMLNSKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.XMLNS_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.XMLNS_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse namespace uri.
+     * 
+     * @return Parsed node
+     */
+    private STNode parseXMLNamespaceUri() {
+        STNode expr = parseConstExpr();
+        switch (expr.kind) {
+            case STRING_LITERAL:
+            case IDENTIFIER_TOKEN:
+            case QUALIFIED_IDENTIFIER:
+                break;
+            default:
+                this.errorHandler.reportInvalidNode(null, "namespace uri must be a subtype of string");
+        }
+
+        return expr;
+    }
+
+    /**
+     * Parse constants expr.
+     *
+     * @return Parsed node
+     */
+    private STNode parseConstExpr() {
+        startContext(ParserRuleContext.CONSTANT_EXPRESSION);
+        STToken nextToken = peek();
+        STNode expr;
+        switch (nextToken.kind) {
+            case STRING_LITERAL:
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+                expr = consume();
+                break;
+            case IDENTIFIER_TOKEN:
+                expr = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
+                break;
+            case OPEN_BRACE_TOKEN:
+                // TODO: nil-literal
+            default:
+                STToken token = peek();
+                Solution solution = recover(token, ParserRuleContext.CONSTANT_EXPRESSION_START);
+                expr = solution.recoveredNode;
+                break;
+        }
+
+        endContext();
+        return expr;
+    }
+
+    /**
+     * Parse the portion after the namsepsace-uri of an XML declaration.
+     * 
+     * @param xmlnsKeyword XMLNS keyword
+     * @param namespaceUri Namespace URI
+     * @return Parsed node
+     */
+    private STNode parseXMLDeclRhs(STNode xmlnsKeyword, STNode namespaceUri) {
+        return parseXMLDeclRhs(peek().kind, xmlnsKeyword, namespaceUri);
+    }
+
+    private STNode parseXMLDeclRhs(SyntaxKind nextTokenKind, STNode xmlnsKeyword, STNode namespaceUri) {
+        STNode asKeyword = STNodeFactory.createEmptyNode();
+        STNode namespacePrefix = STNodeFactory.createEmptyNode();
+
+        switch (nextTokenKind) {
+            case AS_KEYWORD:
+                asKeyword = parseAsKeyword();
+                namespacePrefix = parseNamespacePrefix();
+                break;
+            case SEMICOLON_TOKEN:
+                break;
+            default:
+                STToken token = peek();
+                Solution solution =
+                        recover(token, ParserRuleContext.XML_NAMESPACE_PREFIX_DECL, xmlnsKeyword, namespaceUri);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseXMLDeclRhs(solution.tokenKind, xmlnsKeyword, namespaceUri);
+        }
+        STNode semicolon = parseSemicolon();
+        return STNodeFactory.createXMLNamespaceDeclarationNode(xmlnsKeyword, namespaceUri, asKeyword, namespacePrefix,
+                semicolon);
+    }
+
+    /**
+     * Parse import prefix.
+     *
+     * @return Parsed node
+     */
+    private STNode parseNamespacePrefix() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(peek(), ParserRuleContext.NAMESPACE_PREFIX);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse named worker declaration.
+     * <p>
+     * <code>named-worker-decl := [annots] worker worker-name return-type-descriptor { sequence-stmt }</code>
+     * 
+     * @param annots Annotations attached to the worker decl
+     * @return Parsed node
+     */
+    private STNode parseNamedWorkerDeclaration(STNode annots) {
+        startContext(ParserRuleContext.NAMED_WORKER_DECL);
+        STNode workerKeyword = parseWorkerKeyword();
+        STNode workerName = parseWorkerName();
+        STNode returnTypeDesc = parseReturnTypeDescriptor();
+        STNode workerBody = parseBlockNode();
+        endContext();
+        return STNodeFactory.createNamedWorkerDeclarationNode(annots, workerKeyword, workerName, returnTypeDesc,
+                workerBody);
+    }
+
+    /**
+     * Parse worker keyword.
+     *
+     * @return Parsed node
+     */
+    private STNode parseWorkerKeyword() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.WORKER_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(peek(), ParserRuleContext.WORKER_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse worker name.
+     * <p>
+     * <code>worker-name := identifier</code>
+     * 
+     * @return Parsed node
+     */
+    private STNode parseWorkerName() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(peek(), ParserRuleContext.WORKER_NAME);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse documentation string.
+     * <p>
+     * <code>DocumentationString := DocumentationLine +</code>
+     * <p>
+     * Refer {@link BallerinaLexer#processDocumentationLine}
+     * 
+     * @return Parsed node
+     */
+    private STNode parseDocumentationString() {
+        List<STNode> docLines = new ArrayList<>();
+        STToken nextToken = peek();
+        while (nextToken.kind == SyntaxKind.DOCUMENTATION_LINE) {
+            docLines.add(consume());
+            nextToken = peek();
+        }
+
+        STNode documentationLines = STNodeFactory.createNodeList(docLines);
+        return STNodeFactory.createDocumentationStringNode(documentationLines);
+    }
+
+    /**
+     * Parse lock statement.
+     * <code>lock-stmt := lock block-stmt ;</code>
+     *
+     * @return Lock statement
+     */
+    private STNode parseLockStatement() {
+        startContext(ParserRuleContext.LOCK_STMT);
+        STNode lockKeyword = parseLockKeyword();
+        STNode blockStatement = parseBlockNode();
+        endContext();
+        return STNodeFactory.createLockStatementNode(lockKeyword, blockStatement);
+    }
+
+    /**
+     * Parse lock-keyword.
+     *
+     * @return lock-keyword node
+     */
+    private STNode parseLockKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.LOCK_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.LOCK_KEYWORD);
+            return sol.recoveredNode;
+        }
     }
 }

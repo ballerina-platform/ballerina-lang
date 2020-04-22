@@ -20,6 +20,8 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 
+import java.util.function.Function;
+
 /**
  * Produces a new tree by doing a depth-first traversal of the tree.
  *
@@ -50,7 +52,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         NodeList<ParameterNode> parameters = modifyNodeList(functionDefinitionNode.parameters());
         Token closeParenToken = modifyToken(functionDefinitionNode.closeParenToken());
         Node returnTypeDesc = modifyNode(functionDefinitionNode.returnTypeDesc().orElse(null));
-        BlockStatementNode functionBody = modifyNode(functionDefinitionNode.functionBody());
+        Node functionBody = modifyNode(functionDefinitionNode.functionBody());
         return functionDefinitionNode.modify(
                 metadata,
                 visibilityQualifier,
@@ -67,7 +69,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(ImportDeclarationNode importDeclarationNode) {
         Token importKeyword = modifyToken(importDeclarationNode.importKeyword());
         Node orgName = modifyNode(importDeclarationNode.orgName().orElse(null));
-        NodeList<IdentifierToken> moduleName = modifyNodeList(importDeclarationNode.moduleName());
+        SeparatedNodeList<IdentifierToken> moduleName = modifySeparatedNodeList(importDeclarationNode.moduleName());
         Node version = modifyNode(importDeclarationNode.version().orElse(null));
         Node prefix = modifyNode(importDeclarationNode.prefix().orElse(null));
         Token semicolon = modifyToken(importDeclarationNode.semicolon());
@@ -238,7 +240,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(IfElseStatementNode ifElseStatementNode) {
         Token ifKeyword = modifyToken(ifElseStatementNode.ifKeyword());
         ExpressionNode condition = modifyNode(ifElseStatementNode.condition());
-        Node ifBody = modifyNode(ifElseStatementNode.ifBody());
+        BlockStatementNode ifBody = modifyNode(ifElseStatementNode.ifBody());
         Node elseBody = modifyNode(ifElseStatementNode.elseBody().orElse(null));
         return ifElseStatementNode.modify(
                 ifKeyword,
@@ -250,7 +252,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(ElseBlockNode elseBlockNode) {
         Token elseKeyword = modifyToken(elseBlockNode.elseKeyword());
-        Node elseBody = modifyNode(elseBlockNode.elseBody());
+        BlockStatementNode elseBody = modifyNode(elseBlockNode.elseBody());
         return elseBlockNode.modify(
                 elseKeyword,
                 elseBody);
@@ -260,7 +262,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(WhileStatementNode whileStatementNode) {
         Token whileKeyword = modifyToken(whileStatementNode.whileKeyword());
         ExpressionNode condition = modifyNode(whileStatementNode.condition());
-        Node whileBody = modifyNode(whileStatementNode.whileBody());
+        BlockStatementNode whileBody = modifyNode(whileStatementNode.whileBody());
         return whileStatementNode.modify(
                 whileKeyword,
                 condition,
@@ -302,6 +304,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 typeName,
                 typeDescriptor,
                 semicolonToken);
+    }
+
+    @Override
+    public Node transform(LockStatementNode lockStatementNode) {
+        Token lockKeyword = modifyToken(lockStatementNode.lockKeyword());
+        StatementNode blockStatement = modifyNode(lockStatementNode.blockStatement());
+        return lockStatementNode.modify(
+                lockKeyword,
+                blockStatement);
     }
 
     @Override
@@ -551,15 +562,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return importVersionNode.modify(
                 versionKeyword,
                 versionNumber);
-    }
-
-    @Override
-    public Node transform(SubModuleNameNode subModuleNameNode) {
-        Token leadingDot = modifyToken(subModuleNameNode.leadingDot());
-        IdentifierToken moduleName = modifyNode(subModuleNameNode.moduleName());
-        return subModuleNameNode.modify(
-                leadingDot,
-                moduleName);
     }
 
     @Override
@@ -860,6 +862,99 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 closeParenToken);
     }
 
+    @Override
+    public Node transform(AnnotationDeclarationNode annotationDeclarationNode) {
+        MetadataNode metadata = modifyNode(annotationDeclarationNode.metadata());
+        Token visibilityQualifier = modifyToken(annotationDeclarationNode.visibilityQualifier());
+        Token constKeyword = modifyToken(annotationDeclarationNode.constKeyword());
+        Token annotationKeyword = modifyToken(annotationDeclarationNode.annotationKeyword());
+        Node typeDescriptor = modifyNode(annotationDeclarationNode.typeDescriptor());
+        Token annotationTag = modifyToken(annotationDeclarationNode.annotationTag());
+        Token onKeyword = modifyToken(annotationDeclarationNode.onKeyword());
+        SeparatedNodeList<Node> attachPoints = modifySeparatedNodeList(annotationDeclarationNode.attachPoints());
+        Token semicolonToken = modifyToken(annotationDeclarationNode.semicolonToken());
+        return annotationDeclarationNode.modify(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                annotationKeyword,
+                typeDescriptor,
+                annotationTag,
+                onKeyword,
+                attachPoints,
+                semicolonToken);
+    }
+
+    @Override
+    public Node transform(AnnotationAttachPointNode annotationAttachPointNode) {
+        Token sourceKeyword = modifyToken(annotationAttachPointNode.sourceKeyword());
+        Token firstIdent = modifyToken(annotationAttachPointNode.firstIdent());
+        Token secondIdent = modifyToken(annotationAttachPointNode.secondIdent());
+        return annotationAttachPointNode.modify(
+                sourceKeyword,
+                firstIdent,
+                secondIdent);
+    }
+
+    @Override
+    public Node transform(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {
+        Token xmlnsKeyword = modifyToken(xMLNamespaceDeclarationNode.xmlnsKeyword());
+        ExpressionNode namespaceuri = modifyNode(xMLNamespaceDeclarationNode.namespaceuri());
+        Token asKeyword = modifyToken(xMLNamespaceDeclarationNode.asKeyword());
+        IdentifierToken namespacePrefix = modifyNode(xMLNamespaceDeclarationNode.namespacePrefix());
+        Token semicolonToken = modifyToken(xMLNamespaceDeclarationNode.semicolonToken());
+        return xMLNamespaceDeclarationNode.modify(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken);
+    }
+
+    @Override
+    public Node transform(FunctionBodyBlockNode functionBodyBlockNode) {
+        Token openBraceToken = modifyToken(functionBodyBlockNode.openBraceToken());
+        NamedWorkerDeclarator namedWorkerDeclarator = modifyNode(functionBodyBlockNode.namedWorkerDeclarator().orElse(null));
+        NodeList<StatementNode> statements = modifyNodeList(functionBodyBlockNode.statements());
+        Token closeBraceToken = modifyToken(functionBodyBlockNode.closeBraceToken());
+        return functionBodyBlockNode.modify(
+                openBraceToken,
+                namedWorkerDeclarator,
+                statements,
+                closeBraceToken);
+    }
+
+    @Override
+    public Node transform(NamedWorkerDeclarationNode namedWorkerDeclarationNode) {
+        NodeList<AnnotationNode> annotations = modifyNodeList(namedWorkerDeclarationNode.annotations());
+        Token workerKeyword = modifyToken(namedWorkerDeclarationNode.workerKeyword());
+        IdentifierToken workerName = modifyNode(namedWorkerDeclarationNode.workerName());
+        Node returnTypeDesc = modifyNode(namedWorkerDeclarationNode.returnTypeDesc().orElse(null));
+        BlockStatementNode workerBody = modifyNode(namedWorkerDeclarationNode.workerBody());
+        return namedWorkerDeclarationNode.modify(
+                annotations,
+                workerKeyword,
+                workerName,
+                returnTypeDesc,
+                workerBody);
+    }
+
+    @Override
+    public Node transform(NamedWorkerDeclarator namedWorkerDeclarator) {
+        NodeList<StatementNode> workerInitStatements = modifyNodeList(namedWorkerDeclarator.workerInitStatements());
+        NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations = modifyNodeList(namedWorkerDeclarator.namedWorkerDeclarations());
+        return namedWorkerDeclarator.modify(
+                workerInitStatements,
+                namedWorkerDeclarations);
+    }
+
+    @Override
+    public Node transform(DocumentationStringNode documentationStringNode) {
+        NodeList<Token> documentationLines = modifyNodeList(documentationStringNode.documentationLines());
+        return documentationStringNode.modify(
+                documentationLines);
+    }
+
     // Tokens
 
     @Override
@@ -878,6 +973,16 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     protected <T extends Node> NodeList<T> modifyNodeList(NodeList<T> nodeList) {
+        return modifyGenericNodeList(nodeList, NodeList::new);
+    }
+
+    protected <T extends Node> SeparatedNodeList<T> modifySeparatedNodeList(SeparatedNodeList<T> nodeList) {
+        return modifyGenericNodeList(nodeList, SeparatedNodeList::new);
+    }
+
+    private <T extends Node, N extends NodeList<T>> N modifyGenericNodeList(
+            N nodeList,
+            Function<NonTerminalNode, N> nodeListCreator) {
         if (nodeList.isEmpty()) {
             return nodeList;
         }
@@ -898,7 +1003,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         }
 
         STNode stNodeList = STNodeFactory.createNodeList(java.util.Arrays.asList(newSTNodes));
-        return new NodeList<>(stNodeList.createUnlinkedFacade());
+        return nodeListCreator.apply(stNodeList.createUnlinkedFacade());
     }
 
     protected <T extends Token> T modifyToken(T token) {

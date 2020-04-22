@@ -40,7 +40,7 @@ public class IfElseStatementNode extends StatementNode {
         return childInBucket(1);
     }
 
-    public Node ifBody() {
+    public BlockStatementNode ifBody() {
         return childInBucket(2);
     }
 
@@ -70,7 +70,7 @@ public class IfElseStatementNode extends StatementNode {
     public IfElseStatementNode modify(
             Token ifKeyword,
             ExpressionNode condition,
-            Node ifBody,
+            BlockStatementNode ifBody,
             Node elseBody) {
         if (checkForReferenceEquality(
                 ifKeyword,

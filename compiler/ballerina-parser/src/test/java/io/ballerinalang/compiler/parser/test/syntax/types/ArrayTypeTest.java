@@ -82,6 +82,16 @@ public class ArrayTypeTest extends AbstractTypesTest {
         test("int?[]? a;", "array-type/array_type_assert_14.json");
     }
 
+    @Test
+    public void testValidArrayTypeDescWithQualifiedIdentifier() {
+        test("int[b:c] a;", "array-type/array_type_assert_15.json");
+    }
+
+    @Test
+    public void testLocalValidArrayType() {
+        testFile("array-type/array_type_assert_03.bal", "array-type/array_type_assert_16.json");
+    }
+
     //Recovery test
 
     @Test
@@ -107,6 +117,11 @@ public class ArrayTypeTest extends AbstractTypesTest {
     @Test
     public void testInvalidTwoDimensionalArrayTypeMissingCloseBracket() {
         test("T[][ a;", "array-type/array_type_assert_12.json");
+    }
+
+    @Test
+    public void testLocalInValidArrayType() {
+        testFile("array-type/array_type_assert_04.bal", "array-type/array_type_assert_17.json");
     }
 
 }

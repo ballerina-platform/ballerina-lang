@@ -1,0 +1,57 @@
+{
+    "kind": "MODULE_PART",
+    "children": [
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "XML_NAMESPACE_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "XMLNS_KEYWORD"
+                        },
+                        {
+                            "kind": "STRING_LITERAL",
+                            "value": "http://ballerinalang.org/ns0"
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN",
+                            "isMissing": true
+                        }
+                    ]
+                },
+                {
+                    "kind": "XML_NAMESPACE_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "XMLNS_KEYWORD"
+                        },
+                        {
+                            "kind": "STRING_LITERAL",
+                            "value": "http://ballerinalang.org/ns1"
+                        },
+                        {
+                            "kind": "AS_KEYWORD"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "ns1"
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN",
+                            "isMissing": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "EOF_TOKEN"
+        }
+    ]
+}

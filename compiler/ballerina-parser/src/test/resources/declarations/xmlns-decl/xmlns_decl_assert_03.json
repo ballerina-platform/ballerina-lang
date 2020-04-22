@@ -1,0 +1,41 @@
+{
+    "kind": "MODULE_PART",
+    "children": [
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "XML_NAMESPACE_DECLARATION",
+                    "children": [
+                        {
+                            "kind": "XMLNS_KEYWORD"
+                        },
+                        {
+                            "kind": "STRING_LITERAL",
+                            "value": "http://ballerinalang.org/ns1"
+                        },
+                        {
+                            "kind": "AS_KEYWORD"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "isMissing": true
+                        },
+                        {
+                            "kind": "SEMICOLON_TOKEN",
+                            "isMissing": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "EOF_TOKEN"
+        }
+    ]
+}

@@ -41,6 +41,10 @@ public enum SyntaxKind {
     ON_KEYWORD(112, "on"),
     RESOURCE_KEYWORD(113, "resource"),
     FINAL_KEYWORD(114, "final"),
+    SOURCE_KEYWORD(115, "source"),
+    WORKER_KEYWORD(117, "worker"),
+    PARAMETER_KEYWORD(118, "parameter"),
+    FIELD_KEYWORD(119, "field"),
 
     RETURNS_KEYWORD(200, "returns"),
     RETURN_KEYWORD(201, "return"),
@@ -58,6 +62,8 @@ public enum SyntaxKind {
     TYPEOF_KEYWORD(213,"typeof"),
     IS_KEYWORD(214, "is"),
     NULL_KEYWORD(215, "null"),
+    LOCK_KEYWORD(216, "lock"),
+    VAR_KEYWORD(217, "var"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -100,7 +106,7 @@ public enum SyntaxKind {
     LOGICAL_AND_TOKEN(570, "&&"),
     LOGICAL_OR_TOKEN(571, "||"),
     NEGATION_TOKEN(572, "~"),
-    RIGHT_ARROW_TOKEN(572, "->"),
+    RIGHT_ARROW_TOKEN(573, "->"),
 
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
@@ -114,6 +120,7 @@ public enum SyntaxKind {
     WHITESPACE_TRIVIA(1500),
     END_OF_LINE_TRIVIA(1501),
     COMMENT(1502),
+    DOCUMENTATION_LINE(1503),
 
     // module-level declarations
     IMPORT_DECLARATION(2000),
@@ -123,6 +130,8 @@ public enum SyntaxKind {
     MODULE_VAR_DECL(2004),
     LISTENER_DECLARATION(2005),
     CONST_DECLARATION(2006),
+    ANNOTATION_DECLARATION(2007),
+    XML_NAMESPACE_DECLARATION(2008),
 
     // Statements
     BLOCK_STATEMENT(1200),
@@ -139,6 +148,8 @@ public enum SyntaxKind {
     COMPOUND_ASSIGNMENT_STATEMENT(1211),
     LOCAL_TYPE_DEFINITION_STATEMENT(1212),
     ACTION_STATEMENT(1213),
+    LOCK_STATEMENT(1214),
+    NAMED_WORKER_DECLARATION(1215),
 
     // Expressions
     BINARY_EXPRESSION(1300),
@@ -195,6 +206,11 @@ public enum SyntaxKind {
     METADATA(3025),
     ARRAY_DIMENSION(3026),
     NIL_LITERAL(3027),
+    ANNOTATION_ATTACH_POINT(3027),
+    FUNCTION_BODY_BLOCK(3028),
+    NAMED_WORKER_DECLARATOR(3029),
+    EXPRESSION_FUNCTION_BODY(3030),
+    DOCUMENTATION_STRING(3031),
 
     INVALID(4),
     MODULE_PART(3),

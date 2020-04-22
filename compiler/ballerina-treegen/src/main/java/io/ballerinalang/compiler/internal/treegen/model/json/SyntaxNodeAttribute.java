@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.internal.treegen.model.json;
 
+import io.ballerinalang.compiler.internal.treegen.model.OccurrenceKind;
+
 /**
  * Represents a syntax node attribute in the syntax tree descriptor.
  *
@@ -55,13 +57,4 @@ public class SyntaxNodeAttribute {
         return isOptional;
     }
 
-    /**
-     * Indicates whether a given attribute repeats or not.
-     *
-     * @since 1.3.0
-     */
-    public enum OccurrenceKind {
-        MULTIPLE,
-        SINGLE
-    }
 }

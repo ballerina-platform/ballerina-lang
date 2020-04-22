@@ -80,7 +80,7 @@
                 },
                 {
                     "name": "functionBody",
-                    "type": "BlockStatementNode"
+                    "type": "Node"
                 }
             ]
         },
@@ -101,7 +101,7 @@
                 {
                     "name": "moduleName",
                     "type": "IdentifierToken",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "version",
@@ -420,7 +420,7 @@
                 },
                 {
                     "name": "ifBody",
-                    "type": "Node"
+                    "type": "BlockStatementNode"
                 },
                 {
                     "name": "elseBody",
@@ -440,7 +440,7 @@
                 },
                 {
                     "name": "elseBody",
-                    "type": "Node"
+                    "type": "BlockStatementNode"
                 }
             ]
         },
@@ -459,7 +459,7 @@
                 },
                 {
                     "name": "whileBody",
-                    "type": "Node"
+                    "type": "BlockStatementNode"
                 }
             ]
         },
@@ -526,6 +526,21 @@
                 {
                     "name": "semicolonToken",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "LockStatementNode",
+            "base": "StatementNode",
+            "kind": "LOCK_STATEMENT",
+            "attributes": [
+                {
+                    "name": "lockKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "blockStatement",
+                    "type": "StatementNode"
                 }
             ]
         },
@@ -973,21 +988,6 @@
                 {
                     "name": "versionNumber",
                     "type": "Node"
-                }
-            ]
-        },
-        {
-            "name": "SubModuleNameNode",
-            "base": "Node",
-            "kind": "SUB_MODULE_NAME",
-            "attributes": [
-                {
-                    "name": "leadingDot",
-                    "type": "Token"
-                },
-                {
-                    "name": "moduleName",
-                    "type": "IdentifierToken"
                 }
             ]
         },
@@ -1538,6 +1538,179 @@
                 {
                     "name": "closeParenToken",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "AnnotationDeclarationNode",
+            "base": "ModuleMemberDeclarationNode",
+            "kind": "ANNOTATION_DECLARATION",
+            "attributes": [
+                {
+                    "name": "metadata",
+                    "type": "MetadataNode"
+                },
+                {
+                    "name": "visibilityQualifier",
+                    "type": "Token"
+                },
+                {
+                    "name": "constKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "annotationKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeDescriptor",
+                    "type": "Node"
+                },
+                {
+                    "name": "annotationTag",
+                    "type": "Token"
+                },
+                {
+                    "name": "onKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "attachPoints",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "semicolonToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "AnnotationAttachPointNode",
+            "base": "Node",
+            "kind": "ANNOTATION_ATTACH_POINT",
+            "attributes": [
+                {
+                    "name": "sourceKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "firstIdent",
+                    "type": "Token"
+                },
+                {
+                    "name": "secondIdent",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "XMLNamespaceDeclarationNode",
+            "base": "Node",
+            "kind": "XML_NAMESPACE_DECLARATION",
+            "attributes": [
+                {
+                    "name": "xmlnsKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "namespaceuri",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "asKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "namespacePrefix",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "semicolonToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "FunctionBodyBlockNode",
+            "base": "StatementNode",
+            "kind": "FUNCTION_BODY_BLOCK",
+            "attributes": [
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "namedWorkerDeclarator",
+                    "type": "NamedWorkerDeclarator",
+                    "isOptional": true
+                },
+                {
+                    "name": "statements",
+                    "type": "StatementNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "NamedWorkerDeclarationNode",
+            "base": "Node",
+            "kind": "NAMED_WORKER_DECLARATION",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "workerKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "workerName",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "returnTypeDesc",
+                    "type": "Node",
+                    "isOptional": true
+                },
+                {
+                    "name": "workerBody",
+                    "type": "BlockStatementNode"
+                }
+            ]
+        },
+        {
+            "name": "NamedWorkerDeclarator",
+            "base": "Node",
+            "kind": "NAMED_WORKER_DECLARATOR",
+            "attributes": [
+                {
+                    "name": "workerInitStatements",
+                    "type": "StatementNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "namedWorkerDeclarations",
+                    "type": "NamedWorkerDeclarationNode",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
+        },
+        {
+            "name": "DocumentationStringNode",
+            "base": "Node",
+            "kind": "DOCUMENTATION_STRING",
+            "attributes": [
+                {
+                    "name": "documentationLines",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
                 }
             ]
         }

@@ -56,7 +56,7 @@ public class ChildNodeListTest extends AbstractSyntaxTreeAPITest {
         Collections.addAll(expectedKinds, SyntaxKind.METADATA, SyntaxKind.PUBLIC_KEYWORD,
                 SyntaxKind.FUNCTION_KEYWORD, SyntaxKind.IDENTIFIER_TOKEN, SyntaxKind.OPEN_PAREN_TOKEN,
                 SyntaxKind.REQUIRED_PARAM, SyntaxKind.REQUIRED_PARAM, SyntaxKind.CLOSE_PAREN_TOKEN,
-                SyntaxKind.RETURN_TYPE_DESCRIPTOR, SyntaxKind.BLOCK_STATEMENT);
+                SyntaxKind.RETURN_TYPE_DESCRIPTOR, SyntaxKind.FUNCTION_BODY_BLOCK);
 
         SyntaxTree syntaxTree = parseFile("child_node_list_test_01.bal");
         FunctionDefinitionNode firstFunctionNode = (FunctionDefinitionNode)

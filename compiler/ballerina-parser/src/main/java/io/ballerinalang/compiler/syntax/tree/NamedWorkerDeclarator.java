@@ -24,18 +24,18 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class SubModuleNameNode extends NonTerminalNode {
+public class NamedWorkerDeclarator extends NonTerminalNode {
 
-    public SubModuleNameNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public NamedWorkerDeclarator(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token leadingDot() {
-        return childInBucket(0);
+    public NodeList<StatementNode> workerInitStatements() {
+        return new NodeList<>(childInBucket(0));
     }
 
-    public IdentifierToken moduleName() {
-        return childInBucket(1);
+    public NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations() {
+        return new NodeList<>(childInBucket(1));
     }
 
     @Override
@@ -51,21 +51,21 @@ public class SubModuleNameNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "leadingDot",
-                "moduleName"};
+                "workerInitStatements",
+                "namedWorkerDeclarations"};
     }
 
-    public SubModuleNameNode modify(
-            Token leadingDot,
-            IdentifierToken moduleName) {
+    public NamedWorkerDeclarator modify(
+            NodeList<StatementNode> workerInitStatements,
+            NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations) {
         if (checkForReferenceEquality(
-                leadingDot,
-                moduleName)) {
+                workerInitStatements.underlyingListNode(),
+                namedWorkerDeclarations.underlyingListNode())) {
             return this;
         }
 
-        return NodeFactory.createSubModuleNameNode(
-                leadingDot,
-                moduleName);
+        return NodeFactory.createNamedWorkerDeclarator(
+                workerInitStatements,
+                namedWorkerDeclarations);
     }
 }
