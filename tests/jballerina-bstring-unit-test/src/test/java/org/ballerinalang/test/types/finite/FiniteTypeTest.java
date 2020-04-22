@@ -318,23 +318,6 @@ public class FiniteTypeTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 5.0, "Value mismatch");
     }
 
-    @Test()
-    public void testFiniteTypesWithPositiveIntegers() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithPositiveIntegers");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
-    }
-    @Test()
-    public void testFiniteTypesWithPositiveFloats() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithPositiveFloats");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BFloat);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 1.5);
-    }
-
     @Test
     public void testDifferentPrecisionDecimalAssignment() {
         BValue[] returns = BRunUtil.invoke(result, "testDifferentPrecisionDecimalAssignment");
@@ -383,5 +366,15 @@ public class FiniteTypeTest {
     public void testEscapedTypeName() {
         BValue[] returns = BRunUtil.invoke(result, "testEscapedTypeName");
         Assert.assertEquals(returns[0].stringValue(), "-");
+    }
+
+    @Test(description = "Test finite type where integer literals with positive sign as members")
+    public void testFiniteTypesWithPositiveIntegers() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithPositiveIntegers");
+    }
+
+    @Test(description = "Test finite type where float literals with positive sign as members")
+    public void testFiniteTypesWithPositiveFloats() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithPositiveFloats");
     }
 }

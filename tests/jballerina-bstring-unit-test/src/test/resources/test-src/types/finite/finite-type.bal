@@ -463,24 +463,28 @@ function testFiniteTypesWithDiscriminatedMembers() returns [any, any, any, any, 
 
 type d +3|+5;
 
-function testFiniteTypesWithPositiveIntegers() returns d {
+function testFiniteTypesWithPositiveIntegers() {
     d n = +3;
     d comparator = +3;
     if (n == comparator) {
        n = +5;
     }
-    return n;
+    if (n != 5){
+        panic error("Type mismatch");
+    }
 }
 
 type f +1.2|+1.5;
 
-function testFiniteTypesWithPositiveFloats() returns f {
+function testFiniteTypesWithPositiveFloats() {
     f n = +1.2;
     f comparator = +1.2;
     if (n == comparator) {
        n = +1.5;
     }
-    return n;
+    if (n != 1.5){
+        panic error("Type mismatch");
+    }
 }
 //public const '\- = "-";
 //public const d = "d";
