@@ -41,17 +41,27 @@ public class ArrayDestructureTest {
     }
 
     @Test
-    public void simpleArrayDestructureBindingTest() {
+    public void testSimpleArrayDestructureBinding() {
         BValue[] result = BRunUtil.invoke(compileResult, "testSimpleListBindingPattern");
     }
 
     @Test
-    public void simpleArrayDestructureWithUndefinedSizeTest() {
+    public void testSimpleArrayDestructureWithUndefinedSize() {
         BValue[] result = BRunUtil.invoke(compileResult, "testSimpleListBindingPatternWithUndefinedSize");
     }
 
     @Test
-    public void simpleArrayDestructureNegativeTest() {
+    public void testReferenceArrayDestructure() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testReferenceListBindingPattern");
+    }
+
+    @Test
+    public void testReferenceArrayDestructureWithUndefinedSize() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithUndefinedSize");
+    }
+
+    @Test
+    public void testSimpleArrayDestructureNegative() {
         CompileResult negativeTestCompile = BCompileUtil
                 .compile("test-src/types/lists/array_destructure_negative.bal");
         Assert.assertEquals(negativeTestCompile.getErrorCount(), 2);
