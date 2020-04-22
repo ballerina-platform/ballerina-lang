@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.IteratorUtils;
 import org.ballerinalang.jvm.TableUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTableType;
@@ -358,8 +359,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 throw BallerinaErrors.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR, "A value found for key '" +
                         key + "'");
             }
-            if (nextKeySupported && maxUsed < ((Long) key).intValue()) {
-                maxUsed = ((Long) key).intValue();
+            if (nextKeySupported && maxUsed < TypeChecker.anyToInt(key)) {
+                maxUsed = ((Long) TypeChecker.anyToInt(key)).intValue();
             }
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
             Integer hash = TableUtils.hash(key);
