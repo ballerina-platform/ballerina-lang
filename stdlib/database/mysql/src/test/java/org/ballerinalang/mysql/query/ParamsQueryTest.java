@@ -145,18 +145,6 @@ public class ParamsQueryTest {
     }
 
     @Test
-    public void testQueryTypeLongVarcharStringParam() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeLongVarcharStringParam");
-        validateDataTableResult(returns);
-    }
-
-    @Test
-    public void testQueryTypeLongNVarcharStringParam() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeLongNVarcharStringParam");
-        validateDataTableResult(returns);
-    }
-
-    @Test
     public void testQueryTypeNVarCharStringParam() {
         BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeNVarCharStringParam");
         validateDataTableResult(returns);
@@ -322,12 +310,6 @@ public class ParamsQueryTest {
     @Test
     public void testQueryTypeVarBinaryReadableByteChannelParam() {
         BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeVarBinaryReadableByteChannelParam");
-        validateComplexTableResult(returns);
-    }
-
-    @Test
-    public void testQueryTypeLongVarBinaryReadableByteChannelParam() {
-        BValue[] returns = BRunUtil.invokeFunction(result, "queryTypeLongVarBinaryReadableByteChannelParam");
         validateComplexTableResult(returns);
     }
 

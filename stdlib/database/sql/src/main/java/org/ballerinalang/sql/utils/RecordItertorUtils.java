@@ -28,11 +28,11 @@ import org.ballerinalang.sql.exception.ApplicationError;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLXML;
 import java.sql.Statement;
 import java.sql.Struct;
 import java.sql.Time;
@@ -97,7 +97,7 @@ public class RecordItertorUtils {
             case Types.BINARY:
             case Types.VARBINARY:
             case Types.LONGVARBINARY:
-                return Utils.convert(resultSet.getBytes(columnIndex), sqlType, ballerinaType);
+                return Utils.convert(resultSet.getBytes(columnIndex), sqlType, "SQL Binary", ballerinaType);
             case Types.BLOB:
                 return Utils.convert(resultSet.getBlob(columnIndex), sqlType, ballerinaType);
             case Types.CLOB:
@@ -136,8 +136,7 @@ public class RecordItertorUtils {
                     return Utils.convert(Timestamp.valueOf(offsetDateTime.toLocalDateTime()), sqlType, ballerinaType);
                 }
             case Types.ROWID:
-                String rowId = new String(resultSet.getRowId(columnIndex).getBytes(), StandardCharsets.UTF_8);
-                return Utils.convert(rowId, sqlType, ballerinaType);
+                return Utils.convert(resultSet.getRowId(columnIndex).getBytes(), sqlType, "SQL RowID", ballerinaType);
             case Types.TINYINT:
             case Types.SMALLINT:
                 long iValue = resultSet.getInt(columnIndex);
@@ -161,9 +160,13 @@ public class RecordItertorUtils {
             case Types.BOOLEAN:
                 boolean boolValue = resultSet.getBoolean(columnIndex);
                 return Utils.convert(boolValue, sqlType, ballerinaType, resultSet.wasNull());
+            case Types.REF:
             case Types.STRUCT:
                 Struct structData = (Struct) resultSet.getObject(columnIndex);
                 return Utils.convert(structData, sqlType, ballerinaType);
+            case Types.SQLXML:
+                SQLXML sqlxml = resultSet.getSQLXML(columnIndex);
+                return Utils.convert(sqlxml, sqlType, ballerinaType);
             default:
                 throw new ApplicationError("unsupported sql type " + sqlType
                         + " found for the column index: " + columnIndex);

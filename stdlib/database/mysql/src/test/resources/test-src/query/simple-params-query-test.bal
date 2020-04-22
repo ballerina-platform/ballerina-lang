@@ -125,7 +125,7 @@ function getUntaintedData(record {}|error? value, string fieldName) returns @unt
 
 function queryTypeVarcharStringParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_VARCHAR,
+        sqlType: sql:VARCHAR,
         value: "Hello"
     };
     sql:ParameterizedString sqlQuery = {
@@ -137,31 +137,7 @@ function queryTypeVarcharStringParam() returns @tainted record {}|error? {
 
 function queryTypeCharStringParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_CHAR,
-        value: "Hello"
-    };
-    sql:ParameterizedString sqlQuery = {
-        parts: ["SELECT * from DataTable WHERE string_type = ", ""],
-        insertions: [typeVal]
-    };
-    return queryMysqlClient(sqlQuery);
-}
-
-function queryTypeLongNVarcharStringParam() returns @tainted record {}|error? {
-    sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_LONGNVARCHAR,
-        value: "Hello"
-    };
-    sql:ParameterizedString sqlQuery = {
-        parts: ["SELECT * from DataTable WHERE string_type = ", ""],
-        insertions: [typeVal]
-    };
-    return queryMysqlClient(sqlQuery);
-}
-
-function queryTypeLongVarcharStringParam() returns @tainted record {}|error? {
-    sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_LONGVARCHAR,
+        sqlType: sql:CHAR,
         value: "Hello"
     };
     sql:ParameterizedString sqlQuery = {
@@ -173,7 +149,7 @@ function queryTypeLongVarcharStringParam() returns @tainted record {}|error? {
 
 function queryTypeNCharStringParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_NCHAR,
+        sqlType: sql:NCHAR,
         value: "Hello"
     };
     sql:ParameterizedString sqlQuery = {
@@ -185,7 +161,7 @@ function queryTypeNCharStringParam() returns @tainted record {}|error? {
 
 function queryTypeNVarCharStringParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_NVARCHAR,
+        sqlType: sql:NVARCHAR,
         value: "Hello"
     };
     sql:ParameterizedString sqlQuery = {
@@ -197,7 +173,7 @@ function queryTypeNVarCharStringParam() returns @tainted record {}|error? {
 
 function queryTypeVarCharIntegerParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_VARCHAR,
+        sqlType: sql:VARCHAR,
         value: 1
     };
     sql:ParameterizedString sqlQuery = {
@@ -209,7 +185,7 @@ function queryTypeVarCharIntegerParam() returns @tainted record {}|error? {
 
 function queryTypBooleanBooleanParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_BOOLEAN,
+        sqlType: sql:BOOLEAN,
         value: true
     };
     sql:ParameterizedString sqlQuery = {
@@ -221,7 +197,7 @@ function queryTypBooleanBooleanParam() returns @tainted record {}|error? {
 
 function queryTypBooleanIntParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_BOOLEAN,
+        sqlType: sql:BOOLEAN,
         value: 1
     };
     sql:ParameterizedString sqlQuery = {
@@ -233,7 +209,7 @@ function queryTypBooleanIntParam() returns @tainted record {}|error? {
 
 function queryTypBitIntParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_BIT,
+        sqlType: sql:BIT,
         value: 1
     };
     sql:ParameterizedString sqlQuery = {
@@ -245,7 +221,7 @@ function queryTypBitIntParam() returns @tainted record {}|error? {
 
 function queryTypBitStringParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_BIT,
+        sqlType: sql:BIT,
         value: "true"
     };
     sql:ParameterizedString sqlQuery = {
@@ -257,7 +233,7 @@ function queryTypBitStringParam() returns @tainted record {}|error? {
 
 function queryTypBitInvalidIntParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_BIT,
+        sqlType: sql:BIT,
         value: 12
     };
     sql:ParameterizedString sqlQuery = {
@@ -269,7 +245,7 @@ function queryTypBitInvalidIntParam() returns @tainted record {}|error? {
 
 function queryTypBitDoubleParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_BIT,
+        sqlType: sql:BIT,
         value: 1.0
     };
     sql:ParameterizedString sqlQuery = {
@@ -281,7 +257,7 @@ function queryTypBitDoubleParam() returns @tainted record {}|error? {
 
 function queryTypeIntIntParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_INTEGER,
+        sqlType: sql:INTEGER,
         value: 2147483647
     };
     sql:ParameterizedString sqlQuery = {
@@ -293,7 +269,7 @@ function queryTypeIntIntParam() returns @tainted record {}|error? {
 
 function queryTypeTinyIntIntParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_TINYINT,
+        sqlType: sql:INTEGER,
         value: 127
     };
     sql:ParameterizedString sqlQuery = {
@@ -305,7 +281,7 @@ function queryTypeTinyIntIntParam() returns @tainted record {}|error? {
 
 function queryTypeSmallIntIntParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_SMALLINT,
+        sqlType: sql:SMALLINT,
         value: 32767
     };
     sql:ParameterizedString sqlQuery = {
@@ -317,7 +293,7 @@ function queryTypeSmallIntIntParam() returns @tainted record {}|error? {
 
 function queryTypeBigIntIntParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_BIGINT,
+        sqlType: sql:BIGINT,
         value: 9223372036854774807
     };
     sql:ParameterizedString sqlQuery = {
@@ -329,11 +305,11 @@ function queryTypeBigIntIntParam() returns @tainted record {}|error? {
 
 function queryTypeDoubleDoubleParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_DOUBLE,
+        sqlType: sql:DOUBLE,
         value: 1234.567
     };
     sql:TypedValue typeVal2 = {
-        sqlType: sql:TYPE_DOUBLE,
+        sqlType: sql:DOUBLE,
         value: 1234.57
     };
     sql:ParameterizedString sqlQuery = {
@@ -345,7 +321,7 @@ function queryTypeDoubleDoubleParam() returns @tainted record {}|error? {
 
 function queryTypeDoubleIntParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_DOUBLE,
+        sqlType: sql:DOUBLE,
         value: 1234
     };
     sql:ParameterizedString sqlQuery = {
@@ -359,11 +335,11 @@ function queryTypeDoubleDecimalParam() returns @tainted record {}|error? {
     decimal decimalVal = 1234.567;
     decimal decimalVal2 = 1234.57;
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_DOUBLE,
+        sqlType: sql:DOUBLE,
         value: decimalVal
     };
     sql:TypedValue typeVal2 = {
-            sqlType: sql:TYPE_DOUBLE,
+            sqlType: sql:DOUBLE,
             value: decimalVal2
     };
 
@@ -376,12 +352,12 @@ function queryTypeDoubleDecimalParam() returns @tainted record {}|error? {
 
 function queryTypeFloatDoubleParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal1 = {
-        sqlType: sql:TYPE_DOUBLE,
+        sqlType: sql:DOUBLE,
         value: 1234.567
     };
 
     sql:TypedValue typeVal2 = {
-            sqlType: sql:TYPE_DOUBLE,
+            sqlType: sql:DOUBLE,
             value: 1234.57
     };
     sql:ParameterizedString sqlQuery = {
@@ -393,7 +369,7 @@ function queryTypeFloatDoubleParam() returns @tainted record {}|error? {
 
 function queryTypeRealDoubleParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_REAL,
+        sqlType: sql:REAL,
         value: 1234.567
     };
     sql:ParameterizedString sqlQuery = {
@@ -405,7 +381,7 @@ function queryTypeRealDoubleParam() returns @tainted record {}|error? {
 
 function queryTypeNumericDoubleParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_NUMERIC,
+        sqlType: sql:NUMERIC,
         value: 1234.567
     };
     sql:ParameterizedString sqlQuery = {
@@ -417,7 +393,7 @@ function queryTypeNumericDoubleParam() returns @tainted record {}|error? {
 
 function queryTypeNumericIntParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_NUMERIC,
+        sqlType: sql:NUMERIC,
         value: 1234
     };
     sql:ParameterizedString sqlQuery = {
@@ -430,7 +406,7 @@ function queryTypeNumericIntParam() returns @tainted record {}|error? {
 function queryTypeNumericDecimalParam() returns @tainted record {}|error? {
     decimal decimalVal = 1234.567;
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_NUMERIC,
+        sqlType: sql:NUMERIC,
         value: decimalVal
     };
     sql:ParameterizedString sqlQuery = {
@@ -442,7 +418,7 @@ function queryTypeNumericDecimalParam() returns @tainted record {}|error? {
 
 function queryTypeDecimalDoubleParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_DECIMAL,
+        sqlType: sql:DECIMAL,
         value: 1234.567
     };
     sql:ParameterizedString sqlQuery = {
@@ -455,7 +431,7 @@ function queryTypeDecimalDoubleParam() returns @tainted record {}|error? {
 function queryTypeDecimalDecimalParam() returns @tainted record {}|error? {
     decimal decimalVal = 1234.567;
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_DECIMAL,
+        sqlType: sql:DECIMAL,
         value: decimalVal
     };
     sql:ParameterizedString sqlQuery = {
@@ -469,7 +445,7 @@ function queryTypeBinaryByteParam() returns @tainted record {}|error? {
     record {}|error? value = queryMysqlClient("Select * from ComplexTypes where row_id = 1");
     byte[] binaryData = <byte[]>getUntaintedData(value, "binary_type");
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_BINARY,
+        sqlType: sql:BINARY,
         value: binaryData
     };
     sql:ParameterizedString sqlQuery = {
@@ -482,7 +458,7 @@ function queryTypeBinaryByteParam() returns @tainted record {}|error? {
 function queryTypeBinaryReadableByteChannelParam() returns @tainted record {}|error? {
     io:ReadableByteChannel byteChannel = check getByteColumnChannel();
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_BINARY,
+        sqlType: sql:BINARY,
         value: byteChannel
     };
     sql:ParameterizedString sqlQuery = {
@@ -495,20 +471,7 @@ function queryTypeBinaryReadableByteChannelParam() returns @tainted record {}|er
 function queryTypeVarBinaryReadableByteChannelParam() returns @tainted record {}|error? {
     io:ReadableByteChannel byteChannel = check getByteColumnChannel();
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_VARBINARY,
-        value: byteChannel
-    };
-    sql:ParameterizedString sqlQuery = {
-        parts: ["SELECT * from ComplexTypes WHERE var_binary_type = ", ""],
-        insertions: [typeVal]
-    };
-    return queryMysqlClient(sqlQuery);
-}
-
-function queryTypeLongVarBinaryReadableByteChannelParam() returns @tainted record {}|error? {
-    io:ReadableByteChannel byteChannel = check getByteColumnChannel();
-    sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_LONGVARBINARY,
+        sqlType: sql:VARBINARY,
         value: byteChannel
     };
     sql:ParameterizedString sqlQuery = {
@@ -522,7 +485,7 @@ function queryTypeBlobByteParam() returns @tainted record {}|error? {
     record {}|error? value = queryMysqlClient("Select * from ComplexTypes where row_id = 1");
     byte[] binaryData = <byte[]>getUntaintedData(value, "blob_type");
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_BLOB,
+        sqlType: sql:BLOB,
         value: binaryData
     };
     sql:ParameterizedString sqlQuery = {
@@ -535,7 +498,7 @@ function queryTypeBlobByteParam() returns @tainted record {}|error? {
 function queryTypeBlobReadableByteChannelParam() returns @tainted record {}|error? {
     io:ReadableByteChannel byteChannel = check getBlobColumnChannel();
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_BLOB,
+        sqlType: sql:BLOB,
         value: byteChannel
     };
     sql:ParameterizedString sqlQuery = {
@@ -547,7 +510,7 @@ function queryTypeBlobReadableByteChannelParam() returns @tainted record {}|erro
 
 function queryTypeClobStringParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_CLOB,
+        sqlType: sql:CLOB,
         value: "very long text"
     };
     sql:ParameterizedString sqlQuery = {
@@ -560,7 +523,7 @@ function queryTypeClobStringParam() returns @tainted record {}|error? {
 function queryTypeClobReadableCharChannelParam() returns @tainted record {}|error? {
     io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_CLOB,
+        sqlType: sql:CLOB,
         value: clobChannel
     };
     sql:ParameterizedString sqlQuery = {
@@ -573,7 +536,7 @@ function queryTypeClobReadableCharChannelParam() returns @tainted record {}|erro
 function queryTypeNClobReadableCharChannelParam() returns @tainted record {}|error? {
     io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_NCLOB,
+        sqlType: sql:NCLOB,
         value: clobChannel
     };
     sql:ParameterizedString sqlQuery = {
@@ -586,7 +549,7 @@ function queryTypeNClobReadableCharChannelParam() returns @tainted record {}|err
 function queryDateStringParam() returns @tainted record {}|error? {
     //Setting this as var char since the test database seems not working with date type.
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_VARCHAR,
+        sqlType: sql:VARCHAR,
         value: "2017-02-03"
     };
     sql:ParameterizedString sqlQuery = {
@@ -598,7 +561,7 @@ function queryDateStringParam() returns @tainted record {}|error? {
 
 function queryDateString2Param() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_VARCHAR,
+        sqlType: sql:VARCHAR,
         value: "2017-2-3"
     };
     sql:ParameterizedString sqlQuery = {
@@ -610,7 +573,7 @@ function queryDateString2Param() returns @tainted record {}|error? {
 
 function queryTimeStringParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_VARCHAR,
+        sqlType: sql:VARCHAR,
         value: "11:35:45"
     };
     sql:ParameterizedString sqlQuery = {
@@ -622,7 +585,7 @@ function queryTimeStringParam() returns @tainted record {}|error? {
 
 function queryTimeStringInvalidParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_TIME,
+        sqlType: sql:TIME,
         value: "11-35-45"
     };
     sql:ParameterizedString sqlQuery = {
@@ -634,7 +597,7 @@ function queryTimeStringInvalidParam() returns @tainted record {}|error? {
 
 function queryTimestampStringParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_VARCHAR,
+        sqlType: sql:VARCHAR,
         value: "2017-02-03 11:53:00"
     };
     sql:ParameterizedString sqlQuery = {
@@ -646,7 +609,7 @@ function queryTimestampStringParam() returns @tainted record {}|error? {
 
 function queryTimestampStringInvalidParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:TYPE_TIMESTAMP,
+        sqlType: sql:TIMESTAMP,
         value: "2017/02/03 11:53:00"
     };
     sql:ParameterizedString sqlQuery = {

@@ -105,19 +105,12 @@ public final class Constants {
     public static final class SqlTypes {
         public static final String VARCHAR = "VARCHAR";
         public static final String CHAR = "CHAR";
-        public static final String TINYTEXT = "TINYTEXT";
-        public static final String MEDIUMTEXT = "MEDIUMTEXT";
         public static final String TEXT = "TEXT";
-        public static final String LONGTEXT = "LONGTEXT";
-        public static final String LONGVARCHAR = "LONGVARCHAR";
+        public static final String CLOB = "CLOB";
         public static final String NCHAR = "NCHAR";
-        public static final String LONGNVARCHAR = "LONGNVARCHAR";
         public static final String NVARCHAR = "NVARCHAR";
-        public static final String BIT = "BIT";
-        public static final String BOOLEAN = "BOOLEAN";
-        public static final String TINYINT = "TINYINT";
+        public static final String NCLOB = "NCLOB";
         public static final String SMALLINT = "SMALLINT";
-        public static final String MEDIUMINT = "MEDIUMINT";
         public static final String INTEGER = "INTEGER";
         public static final String BIGINT = "BIGINT";
         public static final String NUMERIC = "NUMERIC";
@@ -125,25 +118,20 @@ public final class Constants {
         public static final String REAL = "REAL";
         public static final String FLOAT = "FLOAT";
         public static final String DOUBLE = "DOUBLE";
+        public static final String BIT = "BIT";
+        public static final String BOOLEAN = "BOOLEAN";
         public static final String BINARY = "BINARY";
-        public static final String LONGVARBINARY = "LONGVARBINARY";
         public static final String VARBINARY = "VARBINARY";
-        public static final String TINYBLOB = "TINYBLOB";
-        public static final String MEDIUMBLOB = "MEDIUMBLOB";
         public static final String BLOB = "BLOB";
-        public static final String LONGBLOB = "LONGBLOB";
-        public static final String CLOB = "CLOB";
-        public static final String NCLOB = "NCLOB";
-        public static final String YEAR = "YEAR";
         public static final String DATE = "DATE";
         public static final String TIME = "TIME";
         public static final String DATETIME = "DATETIME";
         public static final String TIMESTAMP = "TIMESTAMP";
         public static final String ARRAY = "ARRAY";
-        public static final String STRUCT = "STRUCT";
-        public static final String ENUM = "ENUM";
-        public static final String SET = "SET";
-        public static final String REFCURSOR = "REFCURSOR";;
+        public static final String REF = "REF";
+        public static final String ROW = "ROW";
+        public static final String STRUCT = "USER_DEFINED_TYPE";
+
     }
 
     /**

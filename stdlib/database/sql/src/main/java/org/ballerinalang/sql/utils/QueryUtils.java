@@ -230,7 +230,6 @@ public class QueryUtils {
             case Types.TIMESTAMP:
             case Types.TIMESTAMP_WITH_TIMEZONE:
             case Types.TIME_WITH_TIMEZONE:
-            case Types.ROWID:
                 return BTypes.typeString;
             case Types.TINYINT:
             case Types.SMALLINT:
@@ -251,9 +250,13 @@ public class QueryUtils {
             case Types.BINARY:
             case Types.VARBINARY:
             case Types.LONGVARBINARY:
+            case Types.ROWID:
                 return new BArrayType(BTypes.typeByte);
+            case Types.REF:
             case Types.STRUCT:
                 return getDefaultStreamConstraint();
+            case Types.SQLXML:
+                return BTypes.typeXML;
             default:
                 return BTypes.typeAnydata;
         }
