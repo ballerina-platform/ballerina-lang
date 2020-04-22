@@ -55,7 +55,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         Assert.assertNotEquals(newFuncNode, oldFuncNode);
         Assert.assertNotEquals(newStmt, oldStmt);
         Assert.assertEquals(newStmt.variableName().text(), oldStmt.variableName().text() + "new");
-        Assert.assertEquals(newStmt.spanWithMinutiae().width(), oldStmt.spanWithMinutiae().width() + 2);
+        Assert.assertEquals(newStmt.textRangeWithMinutiae().length(), oldStmt.textRangeWithMinutiae().length() + 2);
     }
 
     @Test

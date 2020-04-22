@@ -82,7 +82,7 @@ public class AbstractIncrementalParserTest {
             if (SyntaxUtils.isToken(child)) {
                 if (!oldNodeSet.contains(child.internalNode())) {
                     // TODO Checking for width seems not correct in this situation. Double check!!!
-                    if (child.spanWithMinutiae().width() != 0) {
+                    if (child.textRangeWithMinutiae().length() != 0) {
                         newNodeList.add(child);
                     }
                 }
@@ -91,7 +91,7 @@ public class AbstractIncrementalParserTest {
             }
         }
 
-        if (node.spanWithMinutiae().width() != 0) {
+        if (node.textRangeWithMinutiae().length() != 0) {
             newNodeList.add(node);
         }
     }
@@ -100,14 +100,14 @@ public class AbstractIncrementalParserTest {
         for (Node child : node.children()) {
             if (SyntaxUtils.isToken(child)) {
                 // TODO Checking for width seems not correct in this situation. Double check!!!
-                if (child.spanWithMinutiae().width() != 0) {
+                if (child.textRangeWithMinutiae().length() != 0) {
                     nodeSet.add(child.internalNode());
                 }
             } else {
                 populateNodes((NonTerminalNode) child, nodeSet);
             }
         }
-        if (node.spanWithMinutiae().width() != 0) {
+        if (node.textRangeWithMinutiae().length() != 0) {
             nodeSet.add(node.internalNode());
         }
     }
@@ -147,7 +147,8 @@ public class AbstractIncrementalParserTest {
         return textEditList.toArray(new TextEdit[0]);
     }
 
-    private static TextEdit getTextEdit(DiffMatchPatch.Diff deleteDiff, DiffMatchPatch.Diff insertDiff, int diffStart) {
+    private static TextEdit getTextEdit(DiffMatchPatch.Diff deleteDiff,
+                                        DiffMatchPatch.Diff insertDiff, int diffStart) {
         String newTextChange;
         int diffEnd;
         if (deleteDiff != null && insertDiff != null) {
@@ -160,6 +161,6 @@ public class AbstractIncrementalParserTest {
             newTextChange = insertDiff.text;
             diffEnd = diffStart;
         }
-        return new TextEdit(new TextRange(diffStart, diffEnd), newTextChange);
+        return new TextEdit(new TextRange(diffStart, diffEnd - diffStart), newTextChange);
     }
 }

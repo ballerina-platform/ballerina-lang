@@ -32,20 +32,20 @@ public class SyntaxTree {
     private final ModulePartNode modulePart;
 
     SyntaxTree(ModulePartNode modulePart, TextDocument textDocument) {
-        this.modulePart = modulePart;
+        this.modulePart = cloneWithMe(modulePart);
         this.textDocument = textDocument;
     }
 
     public static SyntaxTree from(TextDocument textDocument) {
         BallerinaParser parser = ParserFactory.getParser(textDocument);
-        return new SyntaxTree((ModulePartNode) parser.parse().createFacade(0, null), textDocument);
+        return new SyntaxTree(parser.parse().createUnlinkedFacade(), textDocument);
     }
 
     public static SyntaxTree from(SyntaxTree oldTree, TextDocumentChange textDocumentChange) {
         // TODO Improve the logic behind the creation of the new document
         TextDocument newTextDocument = oldTree.textDocument().apply(textDocumentChange);
         BallerinaParser parser = ParserFactory.getParser(oldTree, newTextDocument, textDocumentChange);
-        return new SyntaxTree((ModulePartNode) parser.parse().createFacade(0, null), newTextDocument);
+        return new SyntaxTree(parser.parse().createUnlinkedFacade(), newTextDocument);
     }
 
     public TextDocument textDocument() {
@@ -59,5 +59,11 @@ public class SyntaxTree {
     @Override
     public String toString() {
         return modulePart.toString();
+    }
+
+    private <T extends Node> T cloneWithMe(T node) {
+        T clonedNode = node.internalNode().createUnlinkedFacade();
+        clonedNode.setSyntaxTree(this);
+        return clonedNode;
     }
 }

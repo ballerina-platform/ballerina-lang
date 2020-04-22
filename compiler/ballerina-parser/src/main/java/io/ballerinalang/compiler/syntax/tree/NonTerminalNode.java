@@ -122,7 +122,7 @@ public abstract class NonTerminalNode extends Node {
 
     // TODO Can we optimize this algo?
     public Token findToken(int position) {
-        if (!spanWithMinutiae.contains(position)) {
+        if (!textRangeWithMinutiae().contains(position)) {
             // TODO Fix with a proper error message
             throw new IllegalArgumentException();
         }
@@ -136,7 +136,7 @@ public abstract class NonTerminalNode extends Node {
     }
 
     private Node findChildNode(int position) {
-        int offset = this.spanWithMinutiae.startOffset();
+        int offset = textRangeWithMinutiae().startOffset();
         for (int bucket = 0; bucket < internalNode.bucketCount(); bucket++) {
             STNode internalChildNode = internalNode.childInBucket(bucket);
             if (!isSTNodePresent(internalChildNode)) {

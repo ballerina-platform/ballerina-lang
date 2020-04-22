@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.text.TextRange;
 
 /**
  * This class represents a node in the syntax tree.
@@ -29,10 +30,9 @@ public abstract class Node {
     protected final int position;
     protected final NonTerminalNode parent;
 
-    // Span - starting startOffset and width
-    protected final Span span;
-    // SpanWithMinutiae - starting startOffset and widthWithMinutiae
-    protected final Span spanWithMinutiae;
+    // TextRange - starting startOffset and width
+    private final TextRange textRange;
+    private final TextRange textRangeWithMinutiae;
 
     /**
      * A reference to the syntaxTree to which this node belongs.
@@ -45,8 +45,8 @@ public abstract class Node {
         this.parent = parent;
 
         // TODO Set the width excluding the minutiae.
-        this.span = new Span(position, internalNode.width());
-        this.spanWithMinutiae = new Span(position, internalNode.width());
+        this.textRange = new TextRange(position, internalNode.width());
+        this.textRangeWithMinutiae = new TextRange(position, internalNode.width());
     }
 
     public int position() {
@@ -57,12 +57,12 @@ public abstract class Node {
         return parent;
     }
 
-    public Span span() {
-        return span;
+    public TextRange textRange() {
+        return textRange;
     }
 
-    public Span spanWithMinutiae() {
-        return spanWithMinutiae;
+    public TextRange textRangeWithMinutiae() {
+        return textRangeWithMinutiae;
     }
 
     public SyntaxKind kind() {
@@ -113,7 +113,11 @@ public abstract class Node {
         if (parent == null) {
             throw new IllegalStateException("SyntaxTree instance cannot be null");
         }
-        syntaxTree = parent.populateSyntaxTree();
+        setSyntaxTree(parent.populateSyntaxTree());
         return syntaxTree;
+    }
+
+    void setSyntaxTree(SyntaxTree syntaxTree) {
+        this.syntaxTree = syntaxTree;
     }
 }
