@@ -30,8 +30,8 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PR
 public class EmailConstants {
 
     // Common constants
-    public static final BPackage EMAIL_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "email");
-
+    public static final String CONNECTOR_NAME = "email";
+    public static final BPackage EMAIL_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, CONNECTOR_NAME);
     public static final String PROPS_PORT = "port";
     public static final String PROPS_USERNAME = "username";
     public static final String MESSAGE_TO = "to";
@@ -48,13 +48,28 @@ public class EmailConstants {
     public static final String PROPS_SSL = "enableSsl";
     public static final String PROPS_HOST = "host";
     public static final String PROPS_PASSWORD = "password";
+    public static final String PROPS_PROTOCOL = "protocol";
     public static final String PROPS_STORE = "store";
     public static final String MAIL_STORE_PROTOCOL = "mail.store.protocol";
     public static final String MIME_CONTENT_TYPE_PATTERN = "multipart/*";
     public static final String READ_CLIENT_INIT_ERROR = "{ballerina/email}ReadClientInitError";
     public static final String READ_ERROR = "{ballerina/email}ReadError";
+    public static final String ENDPOINT_CONFIG_SECURE_SOCKET = "secureSocket";
+    public static final String ENDPOINT_CONFIG_PRIVATE_KEY = "privateKey";
+    public static final String ENDPOINT_CONFIG_PATH = "path";
+    public static final String ENDPOINT_CONFIG_PASS_KEY = "password";
+    public static final String IDENTITY = "IDENTITY";
+    public static final String IDENTITY_PASS_PHRASE = "IDENTITY_PASS_PHRASE";
+    public static final String URI = "uri";
+    public static final String EMAIL_SERVER_CONNECTOR = "serverConnector";
+    public static final String PROTOCOL_CONFIG = "protocolConfig";
+    public static final String DEFAULT_STORE_LOCATION = "INBOX";
+    public static final String ON_MESSAGE = "onMessage";
+    public static final String ON_ERROR = "onError";
 
     // POP related constants
+    public static final String POP = "POP";
+    public static final String POP_CLIENT = "PopClient";
     public static final String POP_PROTOCOL = "pop3";
     public static final String PROPS_POP_HOST = "mail.pop3.host";
     public static final String PROPS_POP_PORT = "mail.pop3.port";
@@ -63,6 +78,8 @@ public class EmailConstants {
     public static final String PROPS_POP_SSL_ENABLE = "mail.pop3.ssl.enable";
 
     // IMAP related constants
+    public static final String IMAP = "IMAP";
+    public static final String IMAP_CLIENT = "ImapClient";
     public static final String IMAP_PROTOCOL = "imap";
     public static final String PROPS_IMAP_HOST = "mail.imap.host";
     public static final String PROPS_IMAP_PORT = "mail.imap.port";
@@ -79,7 +96,8 @@ public class EmailConstants {
     public static final String PROPS_SMTP_STARTTLS = "mail.smtp.starttls.enable";
     public static final String SEND_ERROR = "{ballerina/email}SendError";
 
-    static final String EMAIL = "Email";
+    public static final String EMAIL = "Email";
+    public static final String ERROR = "Error";
 
     private EmailConstants() {
         // private constructor

@@ -213,9 +213,13 @@ public class SmtpUtil {
     }
 
     private static String[] getNullCheckedStringArray(MapValue mapValue, String parameter) {
-        ArrayValue arrayValue = mapValue.getArrayValue(parameter);
-        if (arrayValue != null) {
-            return arrayValue.getStringArray();
+        if (mapValue != null) {
+            ArrayValue arrayValue = mapValue.getArrayValue(parameter);
+            if (arrayValue != null) {
+                return arrayValue.getStringArray();
+            } else {
+                return new String[0];
+            }
         } else {
             return new String[0];
         }

@@ -114,21 +114,28 @@ public class EmailAccessClient {
         String username = (String) clientConnector.getNativeData(EmailConstants.PROPS_USERNAME);
         String password = (String) clientConnector.getNativeData(EmailConstants.PROPS_PASSWORD);
         try (Store store = (Store) clientConnector.getNativeData(EmailConstants.PROPS_STORE)) {
+            log.debug("Going to access email server with properties, host: " + host + " username: " + username
+                    + " folder: " + folder);
             store.connect(host, username, password);
             Folder emailFolder = store.getFolder(folder);
-            emailFolder.open(Folder.READ_WRITE);
-            Message[] messages = emailFolder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
             MapValue mapValue = null;
-            if (messages.length > 0) {
-                Flags flags = new Flags();
-                flags.add(Flags.Flag.SEEN);
-                emailFolder.setFlags(new int[] {messages[0].getMessageNumber()}, flags, true);
-                mapValue = EmailAccessUtil.getMapValue(messages[0]);
+            if (emailFolder == null) {
+                log.error("Email store folder is not found.");
+            } else {
+                emailFolder.open(Folder.READ_WRITE);
+                Message[] messages = emailFolder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+                if (messages.length > 0) {
+                    log.debug("Emails are available in the store.");
+                    Flags flags = new Flags();
+                    flags.add(Flags.Flag.SEEN);
+                    emailFolder.setFlags(new int[] {messages[0].getMessageNumber()}, flags, true);
+                    mapValue = EmailAccessUtil.getMapValue(messages[0]);
+                }
+                if (log.isDebugEnabled()) {
+                    log.debug("Got the messages. Email count = " + messages.length);
+                }
+                emailFolder.close(false);
             }
-            if (log.isDebugEnabled()) {
-                log.debug("[EmailAccessClient][Read] Got the messages. Email count = " + messages.length);
-            }
-            emailFolder.close(false);
             return mapValue;
         } catch (MessagingException | IOException e) {
             log.error("Failed to read message : ", e);

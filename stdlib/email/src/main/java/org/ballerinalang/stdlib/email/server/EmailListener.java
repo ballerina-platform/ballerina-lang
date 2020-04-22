@@ -1,0 +1,86 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+package org.ballerinalang.stdlib.email.server;
+
+import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.stdlib.email.util.EmailConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Email connector listener for Ballerina.
+ *
+ * @since 1.3.0
+ */
+public class EmailListener {
+
+    private static final Logger log = LoggerFactory.getLogger(EmailListener.class);
+    private final BRuntime runtime;
+    private final ObjectValue service;
+
+    /**
+     * Constructor for listener class for email.
+     * @param runtime Current Ballerina runtime
+     * @param service Ballerina service to be listened
+     */
+    public EmailListener(BRuntime runtime, ObjectValue service) {
+        this.runtime = runtime;
+        this.service = service;
+    }
+
+    /**
+     * Place an email in Ballerina when received.
+     * @param emailEvent Email object to be received
+     * @return If successful return true
+     */
+    public boolean onMessage(EmailEvent emailEvent) {
+        Object email = emailEvent.getEmailObject();
+        if (runtime != null) {
+            runtime.invokeMethodSync(service, EmailConstants.ON_MESSAGE, email, true);
+        } else {
+            log.error("Runtime should not be null.");
+        }
+        return true;
+    }
+
+    /**
+     * Place an error in Ballerina when received.
+     * @param throwable Email object to be received
+     */
+    public void onError(Throwable throwable) {
+        log.error(throwable.getMessage(), throwable);
+        Map<String, Object> args = new HashMap<>();
+        String errorMessage =  throwable.getMessage();
+        args.put("0", errorMessage);
+        MapValue errorValue = BallerinaValues.createRecordValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.ERROR,
+                args);
+        if (runtime != null) {
+            runtime.invokeMethodAsync(service, EmailConstants.ON_ERROR, errorValue);
+        } else {
+            log.error("Runtime should not be null.");
+        }
+    }
+
+}
