@@ -382,6 +382,8 @@ public class ParserTestUtils {
                 return SyntaxKind.FIELD_KEYWORD;
             case "XMLNS_KEYWORD":
                 return SyntaxKind.XMLNS_KEYWORD;
+            case "TRAP_KEYWORD":
+                return SyntaxKind.TRAP_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -508,6 +510,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_TEST_EXPRESSION;
             case "NIL_LITERAL":
                 return SyntaxKind.NIL_LITERAL;
+            case "TRAP_EXPRESSION":
+                return SyntaxKind.TRAP_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
