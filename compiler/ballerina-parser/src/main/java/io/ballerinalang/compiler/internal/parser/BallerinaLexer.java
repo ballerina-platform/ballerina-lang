@@ -423,7 +423,7 @@ public class BallerinaLexer {
             reader.advance(2);
             return getSyntaxToken(SyntaxKind.ELLIPSIS_TOKEN);
         }
-        if (isDigit(reader.peek())) {
+        if (this.mode != ParserMode.IMPORT && isDigit(reader.peek())) {
             reader.retreat();
             return processDecimalFloatLiteral();
         }
@@ -520,15 +520,15 @@ public class BallerinaLexer {
                 case 'F':
                 case 'd':
                 case 'D':
+                    // In sem-var mode, only decimal integer literals are supported
+                    if (this.mode == ParserMode.IMPORT) {
+                        break;
+                    }
+
                     // Integer part of the float cannot have a leading zero
                     if (startChar == '0' && len > 1) {
                         processInvalidToken();
                         return readToken();
-                    }
-
-                    // In sem-var mode, only decimal integer literals are supported
-                    if (this.mode == ParserMode.IMPORT) {
-                        break;
                     }
 
                     return processDecimalFloatLiteral();
@@ -702,7 +702,7 @@ public class BallerinaLexer {
     private STToken processHexLiteral() {
         reader.advance();
 
-        // Make sure at least one hex-digit present after dot
+        // Make sure at least one hex-digit present if processing started from a dot
         if (peek() == '.') {
             if (!isHexDigit(reader.peek(1))) {
                 reader.advance();
