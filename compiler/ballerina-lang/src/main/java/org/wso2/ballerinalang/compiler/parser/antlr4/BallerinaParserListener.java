@@ -522,6 +522,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitObjectTypeNameLabel(BallerinaParser.ObjectTypeNameLabelContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code intersectionTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterIntersectionTypeNameLabel(BallerinaParser.IntersectionTypeNameLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code intersectionTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitIntersectionTypeNameLabel(BallerinaParser.IntersectionTypeNameLabelContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code groupTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree

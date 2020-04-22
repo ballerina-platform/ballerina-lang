@@ -616,6 +616,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterIntersectionTypeNameLabel(BallerinaParser.IntersectionTypeNameLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIntersectionTypeNameLabel(BallerinaParser.IntersectionTypeNameLabelContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterGroupTypeNameLabel(BallerinaParser.GroupTypeNameLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
