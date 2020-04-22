@@ -430,7 +430,7 @@ class JvmValueGen {
             }
 
             mv.visitMethodInsn(INVOKEVIRTUAL, objClassName, func.name.value, methodSig, false);
-            if (retType == null || retType.tag == TypeTags.NIL) {
+            if (retType == null || retType.tag == TypeTags.NIL || retType.tag == TypeTags.NEVER) {
                 mv.visitInsn(ACONST_NULL);
             } else {
                 addBoxInsn(mv, retType);
