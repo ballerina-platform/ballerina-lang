@@ -25,7 +25,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  * @since 1.3.0
  */
 public abstract class Node {
-
     protected final STNode internalNode;
     protected final int position;
     protected final NonTerminalNode parent;
@@ -34,6 +33,11 @@ public abstract class Node {
     protected final Span span;
     // SpanWithMinutiae - starting startOffset and widthWithMinutiae
     protected final Span spanWithMinutiae;
+
+    /**
+     * A reference to the syntaxTree to which this node belongs.
+     */
+    private SyntaxTree syntaxTree;
 
     public Node(STNode internalNode, int position, NonTerminalNode parent) {
         this.internalNode = internalNode;
@@ -65,6 +69,14 @@ public abstract class Node {
         return internalNode.kind;
     }
 
+    public NodeLocation location() {
+        return new NodeLocation(this);
+    }
+
+    public SyntaxTree syntaxTree() {
+        return populateSyntaxTree();
+    }
+
     /**
      * Accepts an instance of the {@code NodeVisitor}, which can be used to
      * traverse the syntax tree.
@@ -83,7 +95,6 @@ public abstract class Node {
      */
     public abstract <T> T apply(NodeTransformer<T> transformer);
 
-    // TODO Temp method. We need to find a way to get the green node from a red node.
     public STNode internalNode() {
         return internalNode;
     }
@@ -91,5 +102,18 @@ public abstract class Node {
     @Override
     public String toString() {
         return internalNode.toString();
+    }
+
+    private SyntaxTree populateSyntaxTree() {
+        if (syntaxTree != null) {
+            return syntaxTree;
+        }
+
+        Node parent = this.parent;
+        if (parent == null) {
+            throw new IllegalStateException("SyntaxTree instance cannot be null");
+        }
+        syntaxTree = parent.populateSyntaxTree();
+        return syntaxTree;
     }
 }
