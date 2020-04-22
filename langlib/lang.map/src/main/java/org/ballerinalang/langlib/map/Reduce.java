@@ -49,8 +49,10 @@ public class Reduce {
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, size, () -> new Object[]{strand, accum.get(), true,
-                        m.get(m.getKeys()[index.incrementAndGet()]), true}, accum::set, accum::get);
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                                                       () -> new Object[]{strand, accum.get(), true,
+                                                               m.get(m.getKeys()[index.incrementAndGet()]), true},
+                                                       accum::set, accum::get);
         return accum.get();
     }
 

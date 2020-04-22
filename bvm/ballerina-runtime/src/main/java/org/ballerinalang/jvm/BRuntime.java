@@ -115,7 +115,9 @@ public class BRuntime {
     }
 
     /**
-     * Invoke Function Pointer asynchronously. This will schedule the function and block the strand.
+     * Invoke Function Pointer asynchronously given number of times. This will schedule the function and block the
+     * strand. This method can be used with collection of data where we need to invoke the function pointer for each
+     * item of the collection.
      *
      * @param func                 Function Pointer to be invoked.
      * @param noOfIterations Number of iterations need to call the function pointer.
