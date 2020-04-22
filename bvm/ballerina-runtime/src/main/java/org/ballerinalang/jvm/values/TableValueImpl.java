@@ -408,9 +408,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         private class DefaultKeyWrapper {
 
             public DefaultKeyWrapper() {
-                BType keyFieldType = getTableConstraintField(type.getConstrainedType(), fieldNames[0]);
-                if (keyFieldType != null && keyFieldType.getTag() == TypeTags.INT_TAG) {
-                    nextKeySupported = true;
+                if (fieldNames.length == 1) {
+                    BType keyFieldType = getTableConstraintField(type.getConstrainedType(), fieldNames[0]);
+                    if (keyFieldType != null && keyFieldType.getTag() == TypeTags.INT_TAG) {
+                        nextKeySupported = true;
+                    }
                 }
             }
             public Object wrapKey(MapValue data) {
