@@ -133,10 +133,21 @@ public class LangLibTableTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    //@Test
+    @Test
     public void testNextKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNextKey");
-        assertEquals(((BInteger) returns[0]).intValue(), 0);
+        assertEquals(((BInteger) returns[0]).intValue(), 101);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: OperationNotSupported message=Defined key sequence is not "
+                    + "supported with nextKey(). The key sequence should only have an Integer field.\n" +
+                    "\tat ballerina.lang_table:nextKey(table.bal:155)\n" +
+                    "\t   tablelib_test:testNextKeyNegative(tablelib_test.bal:224)",
+            enabled = false)
+    public void testNextKeyNegative() {
+        BRunUtil.invoke(compileResult, "testNextKeyNegative");
+        Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

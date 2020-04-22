@@ -23,6 +23,12 @@ type PersonValue record {|
   Person value;
 |};
 
+type Customer record {
+  readonly int id;
+  string firstName;
+  string lastName;
+};
+
 type Employee record {|
   readonly string name;
   string department;
@@ -33,6 +39,8 @@ type PersonalTable table<Person> key(name);
 type EmployeeTable table<Employee> key(name);
 
 type PersonalKeyLessTable table<Person>;
+
+type CustomerTable table<Customer> key(id);
 
 PersonalTable tab = table key(name)[
   { name: "Chiran", age: 33 },
@@ -202,9 +210,19 @@ function tableToArray() returns boolean {
     return testPassed;
 }
 
-//function testNextKey() returns int {
-//return tab.nextKey();
-//}
+function testNextKey() returns int {
+    CustomerTable custTbl = table key(id) [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 2, firstName: "James", lastName: "Clark" },
+      { id: 100, firstName: "Chiran", lastName: "Fernando" },
+      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
+    ];
+    return custTbl.nextKey();
+}
+
+function testNextKeyNegative() returns int {
+    return tab.nextKey();
+}
 
 function getKeysFromKeyLessTbl() returns boolean {
     PersonalKeyLessTable keyless = table [

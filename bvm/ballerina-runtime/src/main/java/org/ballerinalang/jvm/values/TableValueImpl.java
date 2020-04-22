@@ -47,6 +47,7 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
 
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
 
@@ -68,6 +69,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private LinkedHashMap<Integer, K> keys;
     private String[] fieldNames = null;
     private ValueHolder valueHolder;
+    private int maxUsed = 0;
+    private boolean nextKeySupported;
 
     public TableValueImpl(BTableType type) {
         this.type = type;
@@ -172,6 +175,15 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         return this.remove(key);
     }
 
+    public int getNextKey() {
+        if (!nextKeySupported) {
+            throw BallerinaErrors.createError(OPERATION_NOT_SUPPORTED_IDENTIFIER,
+                    "Defined key sequence is not supported with nextKey(). "
+                            + "The key sequence should only have an Integer field.");
+        }
+        return this.maxUsed == 0 ? this.maxUsed : (this.maxUsed + 1);
+    }
+
     @Override
     public V fillAndGet(Object key) {
         return null;
@@ -235,6 +247,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             sj.add(struct.getValue().getValue().toString());
         }
         return sj.toString();
+    }
+
+    private BField getTableConstraintField(BType constraintType, String fieldName) {
+        Map<String, BField> fieldList = ((BRecordType) constraintType).getFields();
+        return fieldList.get(fieldName);
     }
 
     @Override
@@ -341,7 +358,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 throw BallerinaErrors.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR, "A value found for key '" +
                         key + "'");
             }
-
+            if (nextKeySupported && maxUsed < ((Long) key).intValue()) {
+                maxUsed = ((Long) key).intValue();
+            }
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
             Integer hash = TableUtils.hash(key);
             keys.put(hash, (K) key);
@@ -381,6 +400,13 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         private class DefaultKeyWrapper {
+
+            public DefaultKeyWrapper() {
+                BField keyField = getTableConstraintField(type.getConstrainedType(), fieldNames[0]);
+                if (keyField != null && keyField.getFieldType().getTag() == TypeTags.INT_TAG) {
+                    nextKeySupported = true;
+                }
+            }
             public Object wrapKey(MapValue data) {
                 return data.get(fieldNames[0]);
             }
