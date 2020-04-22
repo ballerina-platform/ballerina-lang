@@ -24,5 +24,7 @@ package io.ballerinalang.compiler.internal.parser;
  */
 public enum ParserMode {
     DEFAULT,
-    IMPORT
+    IMPORT,
+    XML_ELEMENT,
+    XML_TEXT
 }

@@ -64,6 +64,7 @@ public enum SyntaxKind {
     NULL_KEYWORD(215, "null"),
     LOCK_KEYWORD(216, "lock"),
     VAR_KEYWORD(217, "var"),
+    XML_KEYWORD(216, "xml"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -81,6 +82,7 @@ public enum SyntaxKind {
     CLOSE_BRACE_PIPE_TOKEN(512, "|}"),
     AT_TOKEN(513, "@"),
     HASH_TOKEN(514, "#"),
+    BACKTICK_TOKEN(515, "`"),
 
     // Operators
     EQUAL_TOKEN(550, "="),

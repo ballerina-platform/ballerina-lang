@@ -48,7 +48,17 @@ public class BallerinaLexer {
      */
     public STToken nextToken() {
         processLeadingTrivia();
-        return readToken();
+        switch (this.mode) {
+            case DEFAULT:
+            case IMPORT:
+                return readToken();
+            case XML_ELEMENT:
+            case XML_TEXT:
+                return readXMLToken();
+            default:
+                // should never reach here.
+                return null;
+        }
     }
 
     public void reset(int offset) {
@@ -193,6 +203,9 @@ public class BallerinaLexer {
                 break;
             case LexerTerminals.NEGATION:
                 token = getSyntaxToken(SyntaxKind.NEGATION_TOKEN);
+                break;
+            case LexerTerminals.BACKTICK:
+                token = getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
                 break;
 
             // Numbers
@@ -585,7 +598,6 @@ public class BallerinaLexer {
             case LexerTerminals.STRING:
             case LexerTerminals.BOOLEAN:
             case LexerTerminals.DECIMAL:
-            case LexerTerminals.XML:
             case LexerTerminals.JSON:
             case LexerTerminals.HANDLE:
             case LexerTerminals.ANY:
@@ -678,6 +690,8 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.FIELD_KEYWORD);
             case LexerTerminals.XMLNS:
                 return getSyntaxToken(SyntaxKind.XMLNS_KEYWORD);
+            case LexerTerminals.XML:
+                return getSyntaxToken(SyntaxKind.XML_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
@@ -1010,5 +1024,70 @@ public class BallerinaLexer {
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createDocumentationLineToken(lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    /*
+     * XML lexing
+     */
+
+    private STToken readXMLToken() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        int c = reader.peek();
+        reader.advance();
+        STToken token = null;
+        switch (c) {
+            // Separators
+            case LexerTerminals.LT:
+                token = getSyntaxToken(SyntaxKind.LT_TOKEN);
+                break;
+            case LexerTerminals.GT:
+                token = getSyntaxToken(SyntaxKind.GT_TOKEN);
+                break;
+            case LexerTerminals.SLASH:
+                token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+                break;
+            default:
+                token = processXMLName(c);
+                break;
+        }
+
+        return token;
+    }
+
+    private STToken processXMLName(int startChar) {
+        if (!isXMLNameStartChar(startChar)) {
+            reportLexerError("invalid xml name");
+        }
+
+        while (isIdentifierFollowingChar(peek())) {
+            reader.advance();
+        }
+
+        return getIdentifierToken(getLexeme());
+    }
+
+    private boolean isXMLNameStartChar(int c) {
+        // TODO: properly add this.
+        if ('A' <= c && c <= 'Z') {
+            return true;
+        }
+
+        if ('a' <= c && c <= 'z') {
+            return true;
+        }
+
+        if (c == '_') {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean isXMLNameChar(int c) {
+        return isIdentifierInitialChar(c) || isDigit(c);
     }
 }

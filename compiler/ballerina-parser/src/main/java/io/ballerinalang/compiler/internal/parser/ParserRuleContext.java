@@ -180,6 +180,7 @@ public enum ParserRuleContext {
     SOURCE_KEYWORD("source"),
     XMLNS_KEYWORD("xmlns"),
     WORKER_KEYWORD("worker"),
+    XML_KEYWORD("xml"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -201,6 +202,9 @@ public enum ParserRuleContext {
     SLASH("/"),
     AT("@"),
     RIGHT_ARROW("->"),
+    BACKTICK_TOKEN("`"),
+    LT_TOKEN("<"),
+    GT_TOKEN(">"),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -247,6 +251,9 @@ public enum ParserRuleContext {
     NIL_LITERAL("nil-literal"),
     CONSTANT_EXPRESSION("constant-expr"),
     CONSTANT_EXPRESSION_START("constant-expr-start"),
+
+    // XML 
+    XML_NAME("xml-name"),
     ;
 
     private String value;

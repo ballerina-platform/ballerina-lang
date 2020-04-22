@@ -97,6 +97,7 @@ public class LexerTerminals {
     public static final char DOUBLE_QUOTE = '"';
     public static final char HASH = '#';
     public static final char AT = '@';
+    public static final char BACKTICK = '`';
 
     // Arithmetic operators
     public static final char EQUAL = '=';

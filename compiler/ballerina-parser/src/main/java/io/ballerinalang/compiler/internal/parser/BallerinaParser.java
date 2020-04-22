@@ -2905,7 +2905,7 @@ public class BallerinaParser {
         }
     }
 
-    private STNode getNextNextToken(SyntaxKind tokenKind) {
+    private STToken getNextNextToken(SyntaxKind tokenKind) {
         return peek(1).kind == tokenKind ? peek(2) : peek(1);
     }
 
@@ -3150,7 +3150,7 @@ public class BallerinaParser {
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
             case OPEN_PAREN_TOKEN:
-                STToken nextNextToken = peek(2);
+                STToken nextNextToken = getNextNextToken(kind);
                 // parse nil literal '()'
                 if (nextNextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
                     return parseNilLiteral();
@@ -3173,6 +3173,12 @@ public class BallerinaParser {
             case NEGATION_TOKEN:
             case EXCLAMATION_MARK_TOKEN:
                 return parseUnaryExpression(isRhsExpr);
+            case XML_KEYWORD:
+                nextNextToken = getNextNextToken(kind);
+                if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
+                    return parseXMLTemplateLiteral();
+                }
+                // fall through
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
@@ -6635,6 +6641,138 @@ public class BallerinaParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.LOCK_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseXMLTemplateLiteral() {
+        STNode xmlKeyword = parseXMLKeyword();
+        STNode startingBackTick = parseBacktickToken();
+        STNode content = parseXMLContent();
+        STNode endingBackTick = parseBacktickToken();
+        return null;
+    }
+
+    private STNode parseXMLContent() {
+        STToken nextToken = peek(1);
+        STToken nextNextToken = peek(2);
+        switch (nextToken.kind) {
+            case LT_TOKEN:
+                switch (nextNextToken.kind) {
+                    case EXCLAMATION_MARK_TOKEN:
+                        // TODO: xml-comment
+                        break;
+                    case QUESTION_MARK_TOKEN:
+                        // TODO: XML-PI
+                        break;
+                    case SLASH_TOKEN:
+                        // this is the end token.
+                        return STNodeFactory.createEmptyNode();
+                    default:
+                        return parseXMLElement();
+                }
+                break;
+            default:
+                // TODO: xml text
+                break;
+        }
+
+        return null;
+    }
+
+    /**
+     * Parse xml keyword.
+     *
+     * @return xml keyword node
+     */
+    private STNode parseXMLKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.XML_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.XML_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse back-tick token.
+     *
+     * @return Back-tick token
+     */
+    private STNode parseBacktickToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.BACKTICK_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.BACKTICK_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseXMLElement() {
+        this.tokenReader.switchMode(ParserMode.XML_ELEMENT);
+        STNode startTag = parseXMLElementStartTag();
+        STNode content = parseXMLContent();
+        STNode endTag = parseXMLElementEndTag();
+        this.tokenReader.resetMode();
+        return null;
+    }
+
+    private STNode parseXMLElementStartTag() {
+        STNode tagOpen = parseLTToken();
+        STNode name = parseXMLNCName();
+        STNode tagClose = parseGTToken();
+        System.out.println(tagOpen + "" + name + "" + tagClose);
+        return null;
+    }
+
+    private STNode parseXMLElementEndTag() {
+        STNode tagOpen = parseLTToken();
+        STNode slash = parseSlashToken();
+        STNode name = parseXMLNCName();
+        STNode tagClose = parseGTToken();
+        System.out.println(tagOpen + "" + slash + "" + name + "" + tagClose);
+        return null;
+    }
+
+    /**
+     * Parse 'less-than' token (<).
+     *
+     * @return Less-than token
+     */
+    private STNode parseLTToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.LT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.LT_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse 'greater-than' token (>).
+     *
+     * @return greater-than token
+     */
+    private STNode parseGTToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.GT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.GT_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseXMLNCName() {
+        // TODO:
+        STToken token = peek();
+        if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.XML_NAME);
             return sol.recoveredNode;
         }
     }
