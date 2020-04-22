@@ -47,7 +47,7 @@ public interface BFunctionPointer<T, R> extends BRefValue {
      * @param args Function arguments.
      * @return Future value received from invoking asynchronous function.
      */
-    FutureValue call(Object[] args);
+    FutureValue asyncCall(Object[] args);
 
     /**
      * Execute the {@code Function} with given parameter array.
@@ -56,7 +56,7 @@ public interface BFunctionPointer<T, R> extends BRefValue {
      * @param resultHandleFunction Function used to process the result received after execution of function.
      * @return Future value received from invoking asynchronous function.
      */
-    FutureValue call(Object[] args, Function<Object, Object> resultHandleFunction);
+    FutureValue asyncCall(Object[] args, Function<Object, Object> resultHandleFunction);
 
     /**
      * Returns the {@code Function} the FP is pointed to.

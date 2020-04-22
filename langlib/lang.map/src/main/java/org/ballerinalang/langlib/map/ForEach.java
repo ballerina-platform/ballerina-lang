@@ -44,9 +44,11 @@ public class ForEach {
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, size, () -> new Object[]{strand,
-                        m.get(m.getKeys()[index.incrementAndGet()]), true}, result -> {
-                }, () -> null);
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                                                       () -> new Object[]{strand,
+                                                               m.get(m.getKeys()[index.incrementAndGet()]), true},
+                                                       result -> {
+                                                       }, () -> null);
     }
 
     public static void forEach_bstring(Strand strand, MapValue<?, ?> m, FPValue<Object, Object> func) {

@@ -51,24 +51,28 @@ public class Filter {
     public static XMLValue filter(Strand strand, XMLValue x, FPValue<Object, Boolean> func) {
         if (x.isSingleton()) {
             Object[] args = new Object[]{strand, x, true};
-            func.call(args, result -> {
-                if ((Boolean) result) {
-                    return new XMLSequence(x);
-                }
-                return new XMLSequence();
-            });
+            func.asyncCall(args,
+                      result -> {
+                          if ((Boolean) result) {
+                              return new XMLSequence(x);
+                          }
+                          return new XMLSequence();
+                      });
             return new XMLSequence();
         }
 
         List<BXML> elements = new ArrayList<>();
         int size = x.size();
         AtomicInteger index = new AtomicInteger(-1);
-        BRuntime.getCurrentRuntime().invokeFunctionPointerAsyncIteratively(func, size, () -> new Object[]{strand,
-                x.getItem(index.incrementAndGet()), true}, result -> {
-            if ((Boolean) result) {
-                elements.add(x.getItem(index.get()));
-            }
-        }, () -> new XMLSequence(elements));
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                                                       () -> new Object[]{strand,
+                                                               x.getItem(index.incrementAndGet()), true},
+                                                       result -> {
+                                                           if ((Boolean) result) {
+                                                               elements.add(x.getItem(index.get()));
+                                                           }
+                                                       }, () -> new XMLSequence(elements));
 
         return new XMLSequence(elements);
     }

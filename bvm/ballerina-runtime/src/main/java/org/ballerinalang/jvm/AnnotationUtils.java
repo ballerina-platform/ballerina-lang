@@ -98,14 +98,14 @@ public class AnnotationUtils {
         BString annotationKey = StringUtils.fromString(bType.getAnnotationKey());
         if (globalAnnotMap.containsKey(annotationKey)) {
             bType.setAnnotations_bstring((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(annotationKey))
-                    .getFunction().apply(new Object[]{strand}));
+                    .call(new Object[]{strand}));
         }
 
         for (AttachedFunction attachedFunction : bType.getAttachedFunctions()) {
             annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
             if (globalAnnotMap.containsKey(annotationKey)) {
                 attachedFunction.setAnnotations_bstring((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(
-                        annotationKey)).getFunction().apply(new Object[]{strand}));
+                        annotationKey)).call(new Object[]{strand}));
             }
         }
     }
@@ -114,16 +114,15 @@ public class AnnotationUtils {
         String annotationKey = bType.getAnnotationKey();
         if (globalAnnotMap.containsKey(annotationKey)) {
             bType.setAnnotations((MapValue<String, Object>)
-                                         ((FPValue) globalAnnotMap.get(annotationKey)).getFunction()
-                                                 .apply(new Object[]{strand}));
+                                         ((FPValue) globalAnnotMap.get(annotationKey)).call(new Object[]{strand}));
         }
 
         for (AttachedFunction attachedFunction : bType.getAttachedFunctions()) {
             annotationKey = attachedFunction.getAnnotationKey();
             if (globalAnnotMap.containsKey(annotationKey)) {
                 attachedFunction.setAnnotations((MapValue<String, Object>)
-                                                        ((FPValue) globalAnnotMap.get(annotationKey)).getFunction()
-                                                                .apply(new Object[]{strand}));
+                                                        ((FPValue) globalAnnotMap.get(annotationKey)).
+                                                                .call(new Object[]{strand}));
             }
         }
     }

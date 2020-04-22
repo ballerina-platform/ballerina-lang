@@ -44,14 +44,14 @@ public class ForEach {
 
     public static void forEach(Strand strand, XMLValue x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
-            Object[] args = new Object[]{strand, x, true};
-            func.call(args);
+            func.asyncCall(new Object[]{strand, x, true});
             return;
         }
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, x.size(), () -> new Object[]{strand,
-                                                               x.getItem(index.incrementAndGet()), true},
+                .invokeFunctionPointerAsyncIteratively(func, x.size(),
+                                                       () -> new Object[]{strand, x.getItem(index.incrementAndGet()),
+                                                               true},
                                                        result -> {
                                                        }, () -> null);
     }

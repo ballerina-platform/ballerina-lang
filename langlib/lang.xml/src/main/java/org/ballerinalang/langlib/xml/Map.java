@@ -50,8 +50,7 @@ public class Map {
 
     public static XMLValue map(Strand strand, XMLValue x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
-            Object[] args = new Object[]{strand, x, true};
-            func.call(args);
+            func.asyncCall(new Object[]{strand, x, true});
             return null;
         }
         List<BXML> elements = new ArrayList<>();
@@ -59,7 +58,8 @@ public class Map {
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, x.size(),
                                                        () -> new Object[]{strand, x.getItem(index.incrementAndGet()),
-                                                               true}, result -> elements.add((XMLValue) result),
+                                                               true},
+                                                       result -> elements.add((XMLValue) result),
                                                        () -> new XMLSequence(elements));
         return new XMLSequence(elements);
     }
