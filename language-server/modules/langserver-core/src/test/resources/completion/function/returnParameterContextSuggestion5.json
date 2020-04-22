@@ -1233,7 +1233,7 @@
     {
       "label": "table",
       "kind": "Unit",
-      "detail": "Other",
+      "detail": "Table",
       "sortText": "230",
       "insertText": "table",
       "insertTextFormat": "Snippet"
