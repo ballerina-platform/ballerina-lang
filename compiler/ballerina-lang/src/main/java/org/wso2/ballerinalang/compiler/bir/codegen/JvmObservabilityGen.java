@@ -82,6 +82,8 @@ class JvmObservabilityGen {
     private static final String NEW_BB_PREFIX = "obsDesugaredBB";
     private static final String SERVICE_IDENTIFIER = "$$service$";
     private static final String ANONYMOUS_SERVICE_IDENTIFIER = "$anonService$";
+    private static final String INVOCATION_INSTRUMENTATION_TYPE = "invocation";
+    private static final String FUNC_BODY_INSTRUMENTATION_TYPE = "func_body";
 
     // Observability tags related constants
     private static final String SRC_TAG_KEYS_PREFIX = "source.";
@@ -150,7 +152,7 @@ class JvmObservabilityGen {
             swapBasicBlockContent(startBB, newStartBB);
 
             injectObserveStartCall(startBB, func.localVars, pkg, null, func.pos, isResourceObservation,
-                    serviceName, resourceOrAction, additionalTags);
+                    serviceName, resourceOrAction, additionalTags, FUNC_BODY_INSTRUMENTATION_TYPE);
 
             // Fix the Basic Blocks links
             startBB.terminator.thenBB = newStartBB;
@@ -170,8 +172,9 @@ class JvmObservabilityGen {
                     swapBasicBlockContent(currentBB, newCurrentBB);
 
                     injectCheckErrorCalls(currentBB, errorReportBB, observeEndBB, func.localVars, null,
-                            returnValOperand);
-                    injectReportErrorCall(errorReportBB, func.localVars, null, returnValOperand);
+                            returnValOperand, FUNC_BODY_INSTRUMENTATION_TYPE);
+                    injectReportErrorCall(errorReportBB, func.localVars, null, returnValOperand,
+                            FUNC_BODY_INSTRUMENTATION_TYPE);
                     injectObserveEndCall(observeEndBB, null);
 
                     // Fix the Basic Blocks links
@@ -194,7 +197,8 @@ class JvmObservabilityGen {
                 BIRBasicBlock newCurrentBB = insertBasicBlock(func, i + 2);
                 swapBasicBlockTerminator(currentBB, newCurrentBB);
 
-                injectReportErrorCall(currentBB, func.localVars, currentTerminator.pos, panicCall.errorOp);
+                injectReportErrorCall(currentBB, func.localVars, currentTerminator.pos, panicCall.errorOp,
+                        FUNC_BODY_INSTRUMENTATION_TYPE);
                 injectObserveEndCall(observeEndBB, currentTerminator.pos);
 
                 // Fix the Basic Blocks links
@@ -220,8 +224,9 @@ class JvmObservabilityGen {
                     BIROperand trappedErrorOperand = new BIROperand(trappedErrorVariableDcl);
 
                     injectCheckErrorCalls(errorCheckBB, errorReportBB, currentBB.terminator.thenBB, func.localVars,
-                            currentTerminator.pos, trappedErrorOperand);
-                    injectReportErrorCall(errorReportBB, func.localVars, currentTerminator.pos, trappedErrorOperand);
+                            currentTerminator.pos, trappedErrorOperand, FUNC_BODY_INSTRUMENTATION_TYPE);
+                    injectReportErrorCall(errorReportBB, func.localVars, currentTerminator.pos, trappedErrorOperand,
+                            FUNC_BODY_INSTRUMENTATION_TYPE);
                     injectObserveEndCall(observeEndBB, currentTerminator.pos);
                     rePanicBB.terminator = new Panic(currentTerminator.pos, trappedErrorOperand);
 
@@ -297,10 +302,11 @@ class JvmObservabilityGen {
                             swapBasicBlockContent(currentBB, newCurrentBB);
 
                             injectObserveStartCall(currentBB, func.localVars, pkg, desugaredInsPosition, callIns.pos,
-                                    false, connectorName, action, tags);
+                                    false, connectorName, action, tags, INVOCATION_INSTRUMENTATION_TYPE);
                             injectCheckErrorCalls(errorCheckBB, errorReportBB, observeEndBB, func.localVars,
-                                    desugaredInsPosition, callIns.lhsOp);
-                            injectReportErrorCall(errorReportBB, func.localVars, desugaredInsPosition, callIns.lhsOp);
+                                    desugaredInsPosition, callIns.lhsOp, INVOCATION_INSTRUMENTATION_TYPE);
+                            injectReportErrorCall(errorReportBB, func.localVars, desugaredInsPosition, callIns.lhsOp,
+                                    INVOCATION_INSTRUMENTATION_TYPE);
                             injectObserveEndCall(observeEndBB, desugaredInsPosition);
 
                             // Fix the Basic Blocks links
@@ -315,7 +321,7 @@ class JvmObservabilityGen {
                             swapBasicBlockContent(currentBB, newCurrentBB);
 
                             injectObserveStartCall(currentBB, func.localVars, pkg, desugaredInsPosition, callIns.pos,
-                                    false, connectorName, action, tags);
+                                    false, connectorName, action, tags, INVOCATION_INSTRUMENTATION_TYPE);
                             injectObserveEndCall(observeEndBB, desugaredInsPosition);
 
                             // Fix the Basic Blocks links
@@ -345,8 +351,9 @@ class JvmObservabilityGen {
                             swapBasicBlockContent(errorEntry.targetBB, newTargetBB);
 
                             injectCheckErrorCalls(errorEntry.targetBB, errorReportBB, newTargetBB, func.localVars,
-                                    desugaredInsPos, errorEntry.errorOp);
-                            injectReportErrorCall(errorReportBB, func.localVars, desugaredInsPos, errorEntry.errorOp);
+                                    desugaredInsPos, errorEntry.errorOp, INVOCATION_INSTRUMENTATION_TYPE);
+                            injectReportErrorCall(errorReportBB, func.localVars, desugaredInsPos, errorEntry.errorOp,
+                                    INVOCATION_INSTRUMENTATION_TYPE);
                             injectObserveEndCall(observeEndBB, desugaredInsPos);
 
                             // Fix the Basic Blocks links
@@ -367,9 +374,10 @@ class JvmObservabilityGen {
                             BIROperand trappedErrorOperand = new BIROperand(trappedErrorVariableDcl);
 
                             injectCheckErrorCalls(errorCheckBB, errorReportBB, currentTerminator.thenBB,
-                                    func.localVars, currentTerminator.pos, trappedErrorOperand);
+                                    func.localVars, currentTerminator.pos, trappedErrorOperand,
+                                    INVOCATION_INSTRUMENTATION_TYPE);
                             injectReportErrorCall(errorReportBB, func.localVars, currentTerminator.pos,
-                                    trappedErrorOperand);
+                                    trappedErrorOperand, INVOCATION_INSTRUMENTATION_TYPE);
                             injectObserveEndCall(observeEndBB, currentTerminator.pos);
                             rePanicBB.terminator = new Panic(currentTerminator.pos, trappedErrorOperand);
 
@@ -402,23 +410,24 @@ class JvmObservabilityGen {
      * @param serviceOrConnector The service or connector name to which the instruction was attached to
      * @param resourceOrAction The name of the resource or action which will be observed
      * @param additionalTags The map of additional tags to be added to the observation
+     * @param uniqueId A unique ID to identify the observe start call
      */
     private static void injectObserveStartCall(BIRBasicBlock observeStartBB, List<BIRVariableDcl> scopeVarList,
                                                BIRPackage pkg, DiagnosticPos desugaredInsPos,
                                                DiagnosticPos originalInsPos, boolean isResourceObservation,
                                                String serviceOrConnector, String resourceOrAction,
-                                               Map<String, String> additionalTags) {
+                                               Map<String, String> additionalTags, String uniqueId) {
         BIROperand connectorNameOperand = generateConstantOperand(
-                String.format("%s_service_or_connector", observeStartBB.id.value), serviceOrConnector, scopeVarList,
-                observeStartBB, desugaredInsPos);
-        BIROperand actionNameOperand = generateConstantOperand(String.format("%s_resource_or_action",
+                String.format("%s_%s_service_or_connector", uniqueId, observeStartBB.id.value), serviceOrConnector,
+                scopeVarList, observeStartBB, desugaredInsPos);
+        BIROperand actionNameOperand = generateConstantOperand(String.format("%s_%s_resource_or_action", uniqueId,
                 observeStartBB.id.value), resourceOrAction, scopeVarList, observeStartBB, desugaredInsPos);
         Map<String, String> tags = new HashMap<>();
         tags.put(INVOCATION_FQN_TAG_KEY, String.format("%s:%s:%s:%s:%d:%d", pkg.org.value, pkg.name.value,
                 pkg.version.value, originalInsPos.src.cUnitName, originalInsPos.sLine, originalInsPos.sCol));
         tags.putAll(additionalTags);
-        BIROperand tagsMapOperand = generateMapOperand(String.format("%s_tags", observeStartBB.id.value), tags,
-                scopeVarList, observeStartBB, desugaredInsPos);
+        BIROperand tagsMapOperand = generateMapOperand(String.format("%s_%s_tags", uniqueId, observeStartBB.id.value),
+                tags, scopeVarList, observeStartBB, desugaredInsPos);
 
         String stringType = isBString ? I_STRING_VALUE : STRING_VALUE;
         JIMethodCall observeStartCallTerminator = new JIMethodCall(desugaredInsPos);
@@ -440,12 +449,14 @@ class JvmObservabilityGen {
      * @param scopeVarList The variables list in the scope
      * @param pos The position of all instructions, variables declarations, terminators, etc.
      * @param valueOperand Operand for passing the value which should be checked if it is an error
+     * @param uniqueId A unique ID to identify the check error call
      */
     private static void injectCheckErrorCalls(BIRBasicBlock errorCheckBB, BIRBasicBlock isErrorBB,
                                               BIRBasicBlock noErrorBB, List<BIRVariableDcl> scopeVarList,
-                                              DiagnosticPos pos, BIROperand valueOperand) {
+                                              DiagnosticPos pos, BIROperand valueOperand, String uniqueId) {
         BIRVariableDcl isErrorVariableDcl = new BIRVariableDcl(symbolTable.booleanType,
-                new Name(String.format("$_%s_is_error_$", errorCheckBB.id.value)), VarScope.FUNCTION, VarKind.TEMP);
+                new Name(String.format("$_%s_%s_is_error_$", uniqueId, errorCheckBB.id.value)), VarScope.FUNCTION,
+                VarKind.TEMP);
         scopeVarList.add(isErrorVariableDcl);
         BIROperand isErrorOperand = new BIROperand(isErrorVariableDcl);
         BIRNonTerminator.TypeTest errorTypeTestInstruction = new BIRNonTerminator.TypeTest(pos, symbolTable.errorType,
@@ -461,11 +472,12 @@ class JvmObservabilityGen {
      * @param scopeVarList The variables list in the scope
      * @param pos The position of all instructions, variables declarations, terminators, etc.
      * @param errorOperand Operand for passing the error
+     * @param uniqueId A unique ID to identify the check error call
      */
     private static void injectReportErrorCall(BIRBasicBlock errorReportBB, List<BIRVariableDcl> scopeVarList,
-                                              DiagnosticPos pos, BIROperand errorOperand) {
+                                              DiagnosticPos pos, BIROperand errorOperand, String uniqueId) {
         BIRVariableDcl castedErrorVariableDcl = new BIRVariableDcl(symbolTable.errorType,
-                new Name(String.format("$_%s_casted_error_$", errorReportBB.id.value)), VarScope.FUNCTION,
+                new Name(String.format("$_%s_%s_casted_error_$", uniqueId, errorReportBB.id.value)), VarScope.FUNCTION,
                 VarKind.TEMP);
         scopeVarList.add(castedErrorVariableDcl);
         BIROperand castedErrorOperand = new BIROperand(castedErrorVariableDcl);
