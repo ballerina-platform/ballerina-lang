@@ -86,6 +86,7 @@ public class EmailListenerHelper {
     /**
      * Polls emails from the email server endpoint.
      * @param config Configuration for connecting to the email server endpoint
+     * @throws Exception If an error occurs during the polling operations
      */
     public static void poll(MapValue<Object, Object> config) throws Exception {
         EmailConnector connector = (EmailConnector) config.getNativeData(EmailConstants.EMAIL_SERVER_CONNECTOR);
