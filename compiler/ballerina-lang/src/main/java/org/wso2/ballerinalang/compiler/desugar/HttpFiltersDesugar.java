@@ -321,7 +321,7 @@ public class HttpFiltersDesugar {
         filterContextName.type = symTable.stringType;
         filterContextName.pos = resourceNode.pos;
 
-        BField filterContextVal = ((BObjectType) endpointVar.type).fields.get(FILTER_CONTEXT_FIELD_INDEX);
+        BField filterContextVal = ((BObjectType) endpointVar.type).fields.get(HTTP_FILTERCONTEXT_VAR);
         BLangIndexBasedAccess.BLangStructFieldAccessExpr filterContextField =
                 new BLangIndexBasedAccess.BLangStructFieldAccessExpr(
                         resourceNode.pos, callerRef, filterContextName, filterContextVal.symbol, false);
@@ -340,8 +340,8 @@ public class HttpFiltersDesugar {
         //Assignment statement END
 
         //forEach statement START
-        BField configVal = ((BObjectType) endpointVar.type).fields.get(ENDPOINT_CONFIG_INDEX);
-        BField filtersVal = ((BRecordType) configVal.type).fields.get(FILTERS_CONFIG_INDEX);
+        BField configVal = ((BObjectType) endpointVar.type).fields.get(HTTP_ENDPOINT_CONFIG);
+        BField filtersVal = ((BRecordType) configVal.type).fields.get(HTTP_FILTERS_VAR);
         BType filtersType = filtersVal.type;
         BUnionType filterUnionType = (BUnionType) ((BArrayType) filtersType).eType;
         BLangIdentifier pkgAlias =

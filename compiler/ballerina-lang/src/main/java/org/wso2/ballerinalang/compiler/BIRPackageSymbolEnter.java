@@ -832,7 +832,7 @@ public class BIRPackageSymbolEnter {
                         defineMarkDownDocAttachment(varSymbol, docBytes);
 
                         BField structField = new BField(varSymbol.name, null, varSymbol);
-                        recordType.fields.add(structField);
+                        recordType.fields.put(structField.name.value, structField);
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                     }
 
@@ -1055,7 +1055,7 @@ public class BIRPackageSymbolEnter {
                         defineMarkDownDocAttachment(objectVarSymbol, docBytes);
 
                         BField structField = new BField(objectVarSymbol.name, null, objectVarSymbol);
-                        objectType.fields.add(structField);
+                        objectType.fields.put(structField.name.value, structField);
                         objectSymbol.scope.define(objectVarSymbol.name, objectVarSymbol);
                     }
                     boolean generatedConstructorPresent = inputStream.readBoolean();

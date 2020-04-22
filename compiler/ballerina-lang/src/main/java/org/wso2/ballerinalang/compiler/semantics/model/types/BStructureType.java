@@ -20,8 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
 
 /**
  * {@code BStructureType} represents structure type in Ballerina.
@@ -30,11 +29,11 @@ import java.util.List;
  */
 public abstract class BStructureType extends BType {
 
-    public List<BField> fields;
+    public LinkedHashMap<String, BField> fields;
 
     public BStructureType(int tag, BTypeSymbol tSymbol) {
         super(tag, tSymbol);
-        this.fields = new ArrayList<>();
+        this.fields = new LinkedHashMap<>();
     }
 
     public BStructureType(int tag, BTypeSymbol tSymbol, int flags) {
@@ -42,7 +41,7 @@ public abstract class BStructureType extends BType {
         this.fields = new ArrayList<>();
     }
 
-    public List<BField> getFields() {
+    public LinkedHashMap<String, BField> getFields() {
         return fields;
     }
 

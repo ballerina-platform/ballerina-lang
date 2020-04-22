@@ -56,8 +56,10 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -192,7 +194,7 @@ public class TypeParamAnalyzer {
                         containsTypeParam(((BTableType) type).keyTypeConstraint, resolvedTypes);
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
-                for (BField field : recordType.fields) {
+                for (BField field : recordType.fields.values()) {
                     BType bFieldType = field.getType();
                     if (containsTypeParam(bFieldType, resolvedTypes)) {
                         return true;
@@ -213,7 +215,7 @@ public class TypeParamAnalyzer {
                 }
 
                 BObjectType objectType = (BObjectType) type;
-                for (BField field : objectType.fields) {
+                for (BField field : objectType.fields.values()) {
                     BType bFieldType = field.getType();
                     if (containsTypeParam(bFieldType, resolvedTypes)) {
                         return true;
@@ -474,22 +476,17 @@ public class TypeParamAnalyzer {
     private void findTypeParamInRecord(DiagnosticPos pos, BRecordType expType, BRecordType actualType, SymbolEnv env,
                                        HashSet<BType> resolvedTypes, FindTypeParamResult result) {
 
-        for (BField exField : expType.fields) {
-            BType actualFieldType = actualType.fields.stream()
-                    .filter(acField -> exField.name.equals(acField.name))
-                    .findFirst()
-                    .map(acField -> acField.type).orElse(null);
-            if (actualFieldType == null) {
-                // This is an error, which is logged already.
-                continue;
+        for (BField exField : expType.fields.values()) {
+            if (actualType.fields.containsKey(exField.name.value)) {
+                findTypeParam(pos, exField.type, actualType.fields.get(exField.name.value).type, env, resolvedTypes,
+                              result);
             }
-            findTypeParam(pos, exField.type, actualFieldType, env, resolvedTypes, result);
         }
     }
 
     private void findTypeParamInMapForRecord(DiagnosticPos pos, BMapType expType, BRecordType actualType, SymbolEnv env,
                                              HashSet<BType> resolvedTypes, FindTypeParamResult result) {
-        LinkedHashSet<BType> fields = actualType.fields.stream().map(f -> f.type)
+        LinkedHashSet<BType> fields = actualType.fields.values().stream().map(f -> f.type)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
         LinkedHashSet<BType> reducedTypeSet;
         BType commonFieldType;
@@ -531,16 +528,11 @@ public class TypeParamAnalyzer {
                                        HashSet<BType> resolvedTypes, FindTypeParamResult result) {
 
         // Not needed now.
-        for (BField exField : expType.fields) {
-            BType actualFieldType = actualType.fields.stream()
-                    .filter(acField -> exField.name.equals(acField.name))
-                    .findFirst()
-                    .map(acField -> acField.type).orElse(null);
-            if (actualFieldType == null) {
-                // This is an error, which is logged already.
-                continue;
+        for (BField exField : expType.fields.values()) {
+            if (actualType.fields.containsKey(exField.name.value)) {
+                findTypeParam(pos, exField.type, actualType.fields.get(exField.name.value).type, env, resolvedTypes,
+                              result);
             }
-            findTypeParam(pos, exField.type, actualFieldType, env, resolvedTypes, result);
         }
         List<BAttachedFunction> expAttFunctions = ((BObjectTypeSymbol) expType.tsymbol).attachedFuncs;
         List<BAttachedFunction> actualAttFunctions = ((BObjectTypeSymbol) actualType.tsymbol).attachedFuncs;
@@ -652,16 +644,18 @@ public class TypeParamAnalyzer {
 
         BRecordTypeSymbol expTSymbol = (BRecordTypeSymbol) expType.tsymbol;
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(expTSymbol.flags, expTSymbol.name,
-                expTSymbol.pkgID, null, expType.tsymbol.scope.owner);
+                                                                    expTSymbol.pkgID, null,
+                                                                    expType.tsymbol.scope.owner);
         recordSymbol.scope = new Scope(recordSymbol);
         recordSymbol.initializerFunc = expTSymbol.initializerFunc;
 
-        List<BField> fields = new ArrayList<>();
-        for (BField expField : expType.fields) {
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+        for (BField expField : expType.fields.values()) {
             BField field = new BField(expField.name, expField.pos,
-                    new BVarSymbol(0, expField.name, env.enclPkg.packageID,
-                            getMatchingBoundType(expField.type, env, resolvedTypes), env.scope.owner));
-            fields.add(field);
+                                      new BVarSymbol(0, expField.name, env.enclPkg.packageID,
+                                                     getMatchingBoundType(expField.type, env, resolvedTypes),
+                                                     env.scope.owner));
+            fields.put(field.name.value, field);
             recordSymbol.scope.define(expField.name, field.symbol);
         }
 
@@ -698,11 +692,12 @@ public class TypeParamAnalyzer {
         actObjectSymbol.scope = new Scope(actObjectSymbol);
         actObjectSymbol.methodScope = new Scope(actObjectSymbol);
 
-        for (BField expField : expType.fields) {
+        for (BField expField : expType.fields.values()) {
             BField field = new BField(expField.name, expField.pos,
-                    new BVarSymbol(expField.symbol.flags, expField.name, env.enclPkg.packageID,
-                            getMatchingBoundType(expField.type, env, resolvedTypes), env.scope.owner));
-            objectType.fields.add(field);
+                                      new BVarSymbol(expField.symbol.flags, expField.name, env.enclPkg.packageID,
+                                                     getMatchingBoundType(expField.type, env, resolvedTypes),
+                                                     env.scope.owner));
+            objectType.fields.put(field.name.value, field);
             objectType.tsymbol.scope.define(expField.name, field.symbol);
         }
 

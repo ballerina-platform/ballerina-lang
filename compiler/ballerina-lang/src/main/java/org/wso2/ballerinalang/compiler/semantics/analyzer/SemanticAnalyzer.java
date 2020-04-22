@@ -150,12 +150,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.model.tree.NodeKind.LITERAL;
@@ -1200,7 +1202,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                             names.fromString(ANONYMOUS_RECORD_NAME), env.enclPkg.symbol.pkgID, null, env.scope.owner);
                     recordVarType = (BRecordType) symTable.recordType;
 
-                    List<BField> fields = populateAndGetPossibleFieldsForRecVar(recordVar, possibleTypes, recordSymbol);
+                    LinkedHashMap<String, BField> fields =
+                            populateAndGetPossibleFieldsForRecVar(recordVar, possibleTypes, recordSymbol);
 
                     if (recordVar.restParam != null) {
                         LinkedHashSet<BType> memberTypes = possibleTypes.stream()
@@ -1252,8 +1255,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 return false;
         }
 
-        Map<String, BField> recordVarTypeFields = recordVarType.fields.stream()
-                .collect(Collectors.toMap(field -> field.getName().getValue(), field -> field));
+        LinkedHashMap<String, BField> recordVarTypeFields = recordVarType.fields;
 
         boolean validRecord = true;
         int ignoredCount = 0;
@@ -1397,8 +1399,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         BRecordType recordType = (BRecordType) errorType.detailType;
-        Map<String, BField> detailFields =
-                recordType.fields.stream().collect(Collectors.toMap(f -> f.name.value, f -> f));
+        LinkedHashMap<String, BField> detailFields = recordType.fields;
         Set<String> matchedDetailFields = new HashSet<>();
         for (BLangErrorVariable.BLangErrorDetailEntry errorDetailEntry : errorVariable.detail) {
             String entryName = errorDetailEntry.key.getValue();
@@ -1512,28 +1513,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
      * @param recordSymbol symbol of the record type to be used in creating fields
      * @return the list of fields
      */
-    private List<BField> populateAndGetPossibleFieldsForRecVar(BLangRecordVariable recordVar, List<BType> possibleTypes,
-                                                               BRecordTypeSymbol recordSymbol) {
-        List<BField> fields = new ArrayList<>();
+    private LinkedHashMap<String, BField> populateAndGetPossibleFieldsForRecVar(BLangRecordVariable recordVar,
+                                                                                List<BType> possibleTypes,
+                                                                                BRecordTypeSymbol recordSymbol) {
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
         for (BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {
             String fieldName = bLangRecordVariableKeyValue.key.value;
             LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
             for (BType possibleType : possibleTypes) {
                 if (possibleType.tag == TypeTags.RECORD) {
                     BRecordType possibleRecordType = (BRecordType) possibleType;
-                    Optional<BField> optionalField = possibleRecordType.fields.stream()
-                            .filter(field -> field.getName().getValue().equals(fieldName))
-                            .findFirst();
-                    if (optionalField.isPresent()) {
-                        BField bField = optionalField.get();
-                        if (Symbols.isOptional(bField.symbol)) {
+
+                    if (possibleRecordType.fields.containsKey(fieldName)) {
+                        BField field = possibleRecordType.fields.get(fieldName);
+                        if (Symbols.isOptional(field.symbol)) {
                             memberTypes.add(symTable.nilType);
                         }
-                        memberTypes.add(bField.type);
+                        memberTypes.add(field.type);
                     } else {
                         memberTypes.add(possibleRecordType.restFieldType);
                         memberTypes.add(symTable.nilType);
                     }
+
                     continue;
                 }
                 if (possibleType.tag == TypeTags.MAP) {
@@ -1546,9 +1547,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             BType fieldType = memberTypes.size() > 1 ?
                     BUnionType.create(null, memberTypes) : memberTypes.iterator().next();
-            fields.add(new BField(names.fromString(fieldName), recordVar.pos,
-                    new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
-                            fieldType, recordSymbol)));
+            BField field = new BField(names.fromString(fieldName), recordVar.pos,
+                                      new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                                                     fieldType, recordSymbol));
+            fields.put(field.name.value, field);
         }
         return fields;
     }
@@ -1564,11 +1566,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString(ANONYMOUS_RECORD_NAME),
                 env.enclPkg.symbol.pkgID, null, env.scope.owner);
         //TODO check below field position
-        List<BField> fields = recordVar.variableList.stream()
-                .map(bLangRecordVariableKeyValue -> bLangRecordVariableKeyValue.key.value)
-                .map(fieldName -> new BField(names.fromString(fieldName), recordVar.pos, new BVarSymbol(0,
-                        names.fromString(fieldName), env.enclPkg.symbol.pkgID, fieldType, recordSymbol)))
-                .collect(Collectors.toList());
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+        for (BLangRecordVariableKeyValue bLangRecordVariableKeyValue : recordVar.variableList) {
+            String fieldName = bLangRecordVariableKeyValue.key.value;
+            BField bField = new BField(names.fromString(fieldName), recordVar.pos,
+                                       new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                                                      fieldType, recordSymbol));
+            fields.put(fieldName, bField);
+        }
 
         BRecordType recordVarType = (BRecordType) symTable.recordType;
         recordVarType.fields = fields;
@@ -1591,12 +1596,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return false;
         }
         BRecordType recordVarType = (BRecordType) varType;
-        Map<String, BField> recordVarTypeFields = recordVarType.fields
-                .stream()
-                .collect(Collectors.toMap(
-                        field -> field.getName().getValue(),
-                        field -> field
-                ));
+        Map<String, BField> recordVarTypeFields = recordVarType.fields;
 
         for (BLangRecordVariableKeyValue var : variableList) {
             if (!recordVarTypeFields.containsKey(var.key.value) && recordVarType.sealed) {
@@ -1823,13 +1823,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BRecordType rhsRecordType = (BRecordType) rhsType;
 
         // check if all fields in record var ref are found in rhs record type
-        lhsVarRef.recordRefFields.stream()
-                .filter(lhsField -> rhsRecordType.fields.stream()
-                        .noneMatch(rhsField -> lhsField.variableName.value.equals(rhsField.name.toString())))
-                .forEach(lhsField -> dlog.error(pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
-                        lhsField.variableName.value, rhsType));
+        for (BLangRecordVarRefKeyValue lhsField : lhsVarRef.recordRefFields) {
+            if (!rhsRecordType.fields.containsKey(lhsField.variableName.value)) {
+                dlog.error(pos, DiagnosticCode.INVALID_FIELD_IN_RECORD_BINDING_PATTERN,
+                           lhsField.variableName.value, rhsType);
+            }
+        }
 
-        for (BField rhsField : rhsRecordType.fields) {
+        for (BField rhsField : rhsRecordType.fields.values()) {
+            // TOOD 22/04/2020: Refactor this. No need to do this in each iteration.
             List<BLangRecordVarRefKeyValue> expField = lhsVarRef.recordRefFields.stream()
                     .filter(field -> field.variableName.value.equals(rhsField.name.toString()))
                     .collect(Collectors.toList());
@@ -1885,22 +1887,33 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean hasOnlyAnydataTypedFields(BRecordType recordType) {
-        boolean allAnydataFields = recordType.fields.stream()
-                .map(field -> field.type)
-                .allMatch(fieldType -> fieldType.isAnydata());
-        return allAnydataFields && (recordType.sealed || recordType.restFieldType.isAnydata());
+        for (BField field : recordType.fields.values()) {
+            BType fieldType = field.type;
+            if (!fieldType.isAnydata()) {
+                return false;
+            }
+        }
+        return recordType.sealed || recordType.restFieldType.isAnydata();
     }
 
     private boolean hasOnlyPureTypedFields(BRecordType recordType) {
-        boolean allPureFields = recordType.fields.stream()
-                .map(field -> field.type)
-                .allMatch(fieldType -> fieldType.isPureType());
-        return allPureFields && (recordType.sealed || recordType.restFieldType.isPureType());
+        for (BField field : recordType.fields.values()) {
+            BType fieldType = field.type;
+            if (!fieldType.isPureType()) {
+                return false;
+            }
+        }
+        return recordType.sealed || recordType.restFieldType.isPureType();
     }
 
     private boolean hasErrorTypedField(BRecordType recordType) {
-        return hasErrorType(recordType.restFieldType) ||
-                recordType.fields.stream().map(field -> field.type).anyMatch(this::hasErrorType);
+        for (BField field : recordType.fields.values()) {
+            BType type = field.type;
+            if (hasErrorType(type)) {
+                return true;
+            }
+        }
+        return hasErrorType(recordType.restFieldType);
     }
 
     private boolean hasErrorType(BType type) {
@@ -2057,8 +2070,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         BRecordType rhsDetailType = (BRecordType) rhsErrorType.detailType;
-        Map<String, BField> fields = rhsDetailType.fields.stream()
-                .collect(Collectors.toMap(field -> field.name.value, field -> field));
+        Map<String, BField> fields = rhsDetailType.fields;
 
         BType wideType = interpolateWideType(rhsDetailType, lhsRef.detail);
         for (BLangNamedArgsExpression detailItem : lhsRef.detail) {
@@ -2101,7 +2113,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         Set<String> extractedKeys = detailType.stream().map(detail -> detail.name.value).collect(Collectors.toSet());
 
         BUnionType wideType = BUnionType.create(null);
-        for (BField field : rhsDetailType.fields) {
+        for (BField field : rhsDetailType.fields.values()) {
             // avoid fields extracted from binding pattern
             if (!extractedKeys.contains(field.name.value)) {
                 wideType.add(field.type);

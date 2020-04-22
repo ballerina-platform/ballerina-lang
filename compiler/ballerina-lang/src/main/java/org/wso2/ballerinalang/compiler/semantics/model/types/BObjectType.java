@@ -27,8 +27,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.ArrayList;
-
 /**
  * {@code BObjectType} represents object type in Ballerina.
  *
@@ -47,7 +45,6 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     public BObjectType(BTypeSymbol tSymbol) {
         super(TypeTags.OBJECT, tSymbol);
-        this.fields = new ArrayList<>();
     }
 
     public BObjectType(BTypeSymbol tSymbol, int flags) {
@@ -76,7 +73,7 @@ public class BObjectType extends BStructureType implements ObjectType {
         if (tsymbol.name.value.startsWith(DOLLAR)) {
             StringBuilder sb = new StringBuilder();
             sb.append(OBJECT).append(SPACE).append(LEFT_CURL);
-            for (BField field : fields) {
+            for (BField field : fields.values()) {
                 if (Symbols.isFlagOn(field.symbol.flags, Flags.PUBLIC)) {
                     sb.append(SPACE).append(PUBLIC);
                 } else if (Symbols.isFlagOn(field.symbol.flags, Flags.PRIVATE)) {

@@ -958,7 +958,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         boolean isFirstUninitializedField = true;
         StringBuilder uninitializedFields = new StringBuilder();
-        for (BField field : objType.fields) {
+        for (BField field : objType.fields.values()) {
             if (this.uninitializedVars.containsKey(field.symbol)) {
                 if (isFirstUninitializedField) {
                     uninitializedFields = new StringBuilder(field.symbol.getName().value);

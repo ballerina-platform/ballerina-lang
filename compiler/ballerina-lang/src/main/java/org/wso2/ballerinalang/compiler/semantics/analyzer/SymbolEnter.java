@@ -120,12 +120,16 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1124,7 +1128,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         .peek(field -> defineNode(field, env))
                         .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
                         .map(field -> new BField(names.fromIdNode(field.name), field.pos, field.symbol))
-                        .collect(Collectors.toList());
+                        .collect(getFieldCollector());
 
         recordType.sealed = recordTypeNode.sealed;
         if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
@@ -1142,6 +1146,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, env);
+    }
+
+    private Collector<BField, ?, LinkedHashMap<String, BField>> getFieldCollector() {
+        BinaryOperator<BField> mergeFunc = (u, v) -> {
+            throw new IllegalStateException(String.format("Duplicate key %s", u));
+        };
+        return Collectors.toMap(field -> field.name.value, Function.identity(), mergeFunc, LinkedHashMap::new);
     }
 
     // Private methods
@@ -1361,7 +1372,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                             .peek(field -> defineNode(field, typeDefEnv))
                             .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
                             .map(field -> new BField(names.fromIdNode(field.name), field.pos, field.symbol))
-                            .collect(Collectors.toList());
+                            .collect(getFieldCollector());
 
             if (typeDef.symbol.kind != SymbolKind.RECORD) {
                 continue;
@@ -1811,12 +1822,22 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 BObjectType objectType = (BObjectType) referredType;
                 if (structureTypeNode.type.tsymbol.owner != referredType.tsymbol.owner) {
-                    if (objectType.fields.stream().anyMatch(field -> !Symbols.isPublic(field.symbol)) ||
-                            ((BObjectTypeSymbol) objectType.tsymbol).attachedFuncs.stream()
-                                    .anyMatch(func -> !Symbols.isPublic(func.symbol))) {
-                        dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS, typeRef);
-                        invalidTypeRefs.add(typeRef);
-                        return Stream.empty();
+                    for (BField field : objectType.fields.values()) {
+                        if (!Symbols.isPublic(field.symbol)) {
+                            dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS,
+                                       typeRef);
+                            invalidTypeRefs.add(typeRef);
+                            return Stream.empty();
+                        }
+                    }
+
+                    for (BAttachedFunction func : ((BObjectTypeSymbol) objectType.tsymbol).attachedFuncs) {
+                        if (!Symbols.isPublic(func.symbol)) {
+                            dlog.error(typeRef.pos, DiagnosticCode.INCOMPATIBLE_TYPE_REFERENCE_NON_PUBLIC_MEMBERS,
+                                       typeRef);
+                            invalidTypeRefs.add(typeRef);
+                            return Stream.empty();
+                        }
                     }
                 }
             }
@@ -1832,7 +1853,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             // by the time we reach here. It is achieved by ordering the typeDefs according
             // to the precedence.
             // Default values of fields are not inherited.
-            return ((BStructureType) referredType).fields.stream().map(field -> {
+            return ((BStructureType) referredType).fields.values().stream().map(field -> {
                 BLangSimpleVariable var = ASTBuilderUtil.createVariable(typeRef.pos, field.name.value, field.type);
                 var.flagSet = field.symbol.getFlags();
                 return var;
