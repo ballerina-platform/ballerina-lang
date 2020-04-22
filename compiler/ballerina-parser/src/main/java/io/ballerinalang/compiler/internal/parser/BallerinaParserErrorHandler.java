@@ -116,8 +116,8 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] TYPE_DESCRIPTORS =
             { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.RECORD_TYPE_DESCRIPTOR,
-                    ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR
-                    /*ParserRuleContext.MAP_TYPE_DESCRIPTOR*/};
+                    ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR,
+                    ParserRuleContext.MAP_TYPE_DESCRIPTOR };
 
     private static final ParserRuleContext[] RECORD_FIELD =
             { ParserRuleContext.ANNOTATIONS, ParserRuleContext.ASTERISK, ParserRuleContext.TYPE_DESCRIPTOR };
@@ -1747,7 +1747,7 @@ public class BallerinaParserErrorHandler {
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.MAP_TYPE_DESCRIPTOR) {
                     endContext();
-                    return ParserRuleContext.VARIABLE_NAME;
+                    return getNextRuleForTypeDescriptor();
                 }
                 // fall through
             case OBJECT_FUNC_OR_FIELD:
@@ -2051,10 +2051,8 @@ public class BallerinaParserErrorHandler {
             return ParserRuleContext.CLOSE_BRACKET;
         } else if (parentCtx == ParserRuleContext.MAP_TYPE_DESCRIPTOR) {
             return ParserRuleContext.GT;
-        } else if (parentCtx == ParserRuleContext.RETURN_TYPE_DESCRIPTOR) {
-            return ParserRuleContext.FUNC_BODY;
         } else {
-            throw new IllegalStateException("In getNextRuleForVarName " + parentCtx);
+            throw new IllegalStateException();
         }
     }
 
