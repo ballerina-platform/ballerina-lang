@@ -941,8 +941,8 @@ formalParameterList
     ;
 
 simpleLiteral
-    :   SUB? integerLiteral
-    |   SUB? floatingPointLiteral
+    :   (ADD|SUB)? integerLiteral
+    |   (ADD|SUB)? floatingPointLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   nilLiteral
