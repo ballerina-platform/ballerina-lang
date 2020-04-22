@@ -64,7 +64,7 @@ public class TableUtils {
                     result = 31 * result + hash(arrayIterator.next());
                 }
                 return result;
-            }else if (refType.getTag() == TypeTags.TUPLE_TAG) {
+            } else if (refType.getTag() == TypeTags.TUPLE_TAG) {
                 TupleValueImpl arrayValue = (TupleValueImpl) refValue;
                 result = Objects.hash(refType, ((BTupleType) refType).getTupleTypes());
                 IteratorValue arrayIterator = arrayValue.getIterator();
