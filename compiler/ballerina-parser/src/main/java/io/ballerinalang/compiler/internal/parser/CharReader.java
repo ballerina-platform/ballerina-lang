@@ -71,13 +71,6 @@ public class CharReader {
         offset++;
     }
 
-    /**
-     *
-     */
-    public void retreat() {
-        offset--;
-    }
-
     public void advance(int k) {
         offset += k;
     }

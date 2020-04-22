@@ -2861,8 +2861,6 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.HEX_FLOATING_POINT_LITERAL;
             case TRAP_KEYWORD:
                 return SyntaxKind.TRAP_KEYWORD;
-            case TRAP_EXPRESSION:
-                return SyntaxKind.TRAP_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
@@ -2934,6 +2932,7 @@ public class BallerinaParserErrorHandler {
             case ATTACH_POINT:
             case DEFAULT_WORKER:
             case DEFAULT_WORKER_INIT:
+            case TRAP_EXPRESSION:
             default:
                 break;
         }
