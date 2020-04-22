@@ -2442,8 +2442,9 @@ public class BallerinaParserErrorHandler {
                     return getNextRuleForTypeDescriptor();
                 }
             case COMPUTED_FIELD_NAME:
-            default:
                 endContext(); // end computed-field-name
+                return ParserRuleContext.COLON;
+            default:
                 return getNextRuleForExpr();
         }
     }
