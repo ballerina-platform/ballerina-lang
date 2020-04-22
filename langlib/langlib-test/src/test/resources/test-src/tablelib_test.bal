@@ -104,6 +104,10 @@ function getValueFromKey() returns boolean {
     return testPassed;
 }
 
+function getWithInvalidKey() returns boolean {
+     Person person = tab.get("AAA");
+     return person.name == "AAA";
+}
 
 function testMap() returns boolean {
     boolean testPassed = true;

@@ -140,31 +140,24 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: OperationNotSupported message=Defined key sequence is not "
-                    + "supported with nextKey(). The key sequence should only have an Integer field.\n" +
-                    "\tat ballerina.lang_table:nextKey(table.bal:155)\n" +
-                    "\t   tablelib_test:testNextKeyNegative(tablelib_test.bal:224)",
-            enabled = false)
+            expectedExceptionsMessageRegExp = "error: OperationNotSupported message=Defined key sequence "
+                    + "is not supported with nextKey\\(\\). The key sequence should only have an Integer field.*")
     public void testNextKeyNegative() {
         BRunUtil.invoke(compileResult, "testNextKeyNegative");
         Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".* KeyNotFound message=cannot find key 'AAA'\n" +
-                    "\tat ballerina.lang_table:get(table.bal:64)\n" +
-                    "\t   tablelib_test_negative:getValueFromKeyNegative(tablelib_test_negative.bal:89)",
-            enabled = false)
-    public void getValFromKeyNegative() {
-        BRunUtil.invoke(negativeResult, "getValueFromKeyNegative");
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot find key 'AAA'.*")
+    public void getWithInvalidKey() {
+        BRunUtil.invoke(compileResult, "getWithInvalidKey");
         Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: {ballerina/lang.table}KeyNotFound message=cannot find key 'AAA'\n"
-                    + "\tat ballerina.lang_table:remove(table.bal:111)\n"
-                    + "\t   tablelib_test:removeWithInvalidKey(tablelib_test.bal:162)",
-            enabled = false)
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot find key 'AAA'.*")
     public void removeWithInvalidKey() {
         BRunUtil.invoke(compileResult, "removeWithInvalidKey");
         Assert.fail();
