@@ -424,8 +424,7 @@ public class BallerinaLexer {
             return getSyntaxToken(SyntaxKind.ELLIPSIS_TOKEN);
         }
         if (this.mode != ParserMode.IMPORT && isDigit(reader.peek())) {
-            reader.retreat();
-            return processDecimalFloatLiteral();
+            return processDecimalFloatLiteral(true);
         }
         return getSyntaxToken(SyntaxKind.DOT_TOKEN);
     }
@@ -513,7 +512,7 @@ public class BallerinaLexer {
         int len = 1;
         while (true) {
             switch (nextChar) {
-                case '.':
+                case LexerTerminals.DOT:
                 case 'e':
                 case 'E':
                 case 'f':
@@ -531,7 +530,7 @@ public class BallerinaLexer {
                         return readToken();
                     }
 
-                    return processDecimalFloatLiteral();
+                    return processDecimalFloatLiteral(false);
                 default:
                     if (isDigit(nextChar)) {
                         reader.advance();
@@ -572,54 +571,50 @@ public class BallerinaLexer {
      * FloatTypeSuffix :=  f | F
      * </code>
      *
+     * @param isDotStart Whether process starts from a dot
      * @return The decimal floating point literal.
      */
-    private STToken processDecimalFloatLiteral() {
-        boolean exponent = false;
-        boolean dot = false;
-        int nextChar;
-        while (true) {
-            nextChar = peek();
-            switch (nextChar) {
-                case 'f':
-                case 'F':
-                case 'd':
-                case 'D':
-                    reader.advance();
-                    break;
-                case 'e':
-                case 'E':
-                    if (!exponent) { // Check whether an exponent has been passed previously
-                        if (processExponent()) {
-                            exponent = true;
-                            continue;
-                        }
-                    }
+    private STToken processDecimalFloatLiteral(boolean isDotStart) {
+        int nextChar = peek();
 
-                    processInvalidToken();
-                    return readToken();
-                case '.':
-                    if (!dot && !exponent) { // Check whether a dot or exponent has been passed previously
+        // Direct process to the dot switch case
+        if (isDotStart) {
+            nextChar = LexerTerminals.DOT;
+        }
+
+        switch (nextChar) {
+            case LexerTerminals.DOT:
+                if (!isDotStart) { // Advance only if it is not already validated
+                    reader.advance();
+                }
+                nextChar = peek();
+                while (true) {
+                    if (isDigit(nextChar)) {
                         reader.advance();
                         nextChar = peek();
-                        while (true) {
-                            if (isDigit(nextChar)) {
-                                reader.advance();
-                                nextChar = peek();
-                                continue;
-                            }
-                            dot = true;
-                            break;
-                        }
                         continue;
                     }
-
-                    processInvalidToken();
-                    return readToken();
-                default:
                     break;
-            }
-            break;
+                }
+                switch (nextChar) {
+                    case 'e':
+                    case 'E':
+                        return processExponent(false);
+                    case 'f':
+                    case 'F':
+                    case 'd':
+                    case 'D':
+                        return parseFloatingPointTypeSuffix();
+                }
+                break;
+            case 'e':
+            case 'E':
+                return processExponent(false);
+            case 'f':
+            case 'F':
+            case 'd':
+            case 'D':
+                return parseFloatingPointTypeSuffix();
         }
 
         return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
@@ -627,7 +622,7 @@ public class BallerinaLexer {
 
     /**
      * <p>
-     * Process an exponent or hex-exponent and return the process status.
+     * Process an exponent or hex-exponent.
      * </p>
      * <code>
      * exponent := Exponent | HexExponent
@@ -645,23 +640,24 @@ public class BallerinaLexer {
      * Digit := 0 .. 9
      * </code>
      *
-     * @return <code>true</code>, if exponent or hex-exponent captured successfully. <code>false</code> otherwise.
+     * @param isHex HexExponent or not
+     * @return The decimal floating point literal.
      */
-    private boolean processExponent() {
+    private STToken processExponent(boolean isHex) {
         // Advance reader as exponent indicator is already validated
         reader.advance();
         int nextChar = peek();
 
         // Capture if there is a sign
-        if (nextChar == '+' || nextChar == '-') {
+        if (nextChar == LexerTerminals.PLUS || nextChar == LexerTerminals.MINUS) {
             reader.advance();
             nextChar = peek();
         }
 
         // Make sure at least one digit is present after the indicator
         if (!isDigit(nextChar)) {
-            reportLexerError("missing digit after exponent indicator");
-            return false;
+            processInvalidToken();
+            return readToken();
         }
 
         while (true) {
@@ -672,7 +668,39 @@ public class BallerinaLexer {
             }
             break;
         }
-        return true;
+
+        if (isHex) {
+            return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
+        }
+
+        switch (nextChar) {
+            case 'f':
+            case 'F':
+            case 'd':
+            case 'D':
+                return parseFloatingPointTypeSuffix();
+        }
+
+        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+    }
+
+    /**
+     * <p>
+     * Parse floating point type suffix.
+     * </p>
+     * <code>
+     * FloatingPointTypeSuffix := DecimalTypeSuffix | FloatTypeSuffix
+     * <br/>
+     * DecimalTypeSuffix := d | D
+     * <br/>
+     * FloatTypeSuffix :=  f | F
+     * </code>
+     *
+     * @return The decimal floating point literal.
+     */
+    private STToken parseFloatingPointTypeSuffix() {
+        reader.advance();
+        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
     }
 
     /**
@@ -703,7 +731,7 @@ public class BallerinaLexer {
         reader.advance();
 
         // Make sure at least one hex-digit present if processing started from a dot
-        if (peek() == '.') {
+        if (peek() == LexerTerminals.DOT) {
             if (!isHexDigit(reader.peek(1))) {
                 reader.advance();
                 processInvalidToken();
@@ -718,14 +746,7 @@ public class BallerinaLexer {
         nextChar = peek();
 
         switch (nextChar) {
-            case 'p':
-            case 'P':
-                if (processExponent()) {
-                    return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
-                }
-                processInvalidToken();
-                return readToken();
-            case '.':
+            case LexerTerminals.DOT:
                 reader.advance();
                 nextChar = peek();
                 while (true) {
@@ -733,19 +754,23 @@ public class BallerinaLexer {
                         reader.advance();
                         nextChar = peek();
                         continue;
-                    } else if (nextChar == 'p' || nextChar == 'P') {
-                        if (processExponent()) {
-                            break;
-                        }
-                        processInvalidToken();
-                        return readToken();
                     }
                     break;
                 }
-                return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
+                switch (nextChar) {
+                    case 'p':
+                    case 'P':
+                        return processExponent(true);
+                }
+                break;
+            case 'p':
+            case 'P':
+                return processExponent(true);
             default:
                 return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL);
         }
+
+        return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
     }
 
     /**
