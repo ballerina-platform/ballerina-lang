@@ -136,9 +136,7 @@ public function hasKey(table<Type> key<KeyType> t, KeyType k) returns boolean = 
 #
 # + t - the table
 # + return - a new list of all keys
-public function keys(table<any|error> key<KeyType> t) returns any[] = external;
-//todo use KeyType[] as return type, fix NPE at doc gen
-//public function keys(table<any|error> key<KeyType> t) returns KeyType[] = external;
+public function keys(table<any|error> key<KeyType> t) returns KeyType[] = external;
 
 # Returns a list of all the members of a table.
 #
