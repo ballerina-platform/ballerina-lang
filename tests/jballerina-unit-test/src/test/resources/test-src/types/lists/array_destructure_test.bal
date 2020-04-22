@@ -54,3 +54,18 @@ public function testReferenceListBindingPatternWithUndefinedSize() {
     }
 
 }
+
+public function testReferenceListBindingPatternWithRecordDestructure() {
+    Foo[2] fooArray = [{a : 1, b : "1"}, {a: 2, b : "2"}];
+
+    Foo a;
+
+    int b;
+    string c;
+
+    [{b : a, c : b}, a] = fooArray;
+
+    if (b != 1 || c != "1" || a.a != 2 || a.b != "2") {
+        panic error("Reference list binding pattern error with record destructure");
+    }
+}

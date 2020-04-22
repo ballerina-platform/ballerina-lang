@@ -61,6 +61,11 @@ public class ArrayDestructureTest {
     }
 
     @Test
+    public void testReferenceArrayDestructureWithRecordDestructure() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithRecordDestructure");
+    }
+
+    @Test
     public void testSimpleArrayDestructureNegative() {
         CompileResult negativeTestCompile = BCompileUtil
                 .compile("test-src/types/lists/array_destructure_negative.bal");
