@@ -70,7 +70,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private LinkedHashMap<Integer, K> keys;
     private String[] fieldNames = null;
     private ValueHolder valueHolder;
-    private int maxUsed = 0;
+    private int maxIntKey = 0;
     private boolean nextKeySupported;
 
     public TableValueImpl(BTableType type) {
@@ -182,7 +182,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                     "Defined key sequence is not supported with nextKey(). "
                             + "The key sequence should only have an Integer field.");
         }
-        return this.maxUsed == 0 ? this.maxUsed : (this.maxUsed + 1);
+        return this.maxIntKey == 0 ? this.maxIntKey : (this.maxIntKey + 1);
     }
 
     @Override
@@ -359,8 +359,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 throw BallerinaErrors.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR, "A value found for key '" +
                         key + "'");
             }
-            if (nextKeySupported && maxUsed < TypeChecker.anyToInt(key)) {
-                maxUsed = ((Long) TypeChecker.anyToInt(key)).intValue();
+            if (nextKeySupported && maxIntKey < TypeChecker.anyToInt(key)) {
+                maxIntKey = ((Long) TypeChecker.anyToInt(key)).intValue();
             }
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
             Integer hash = TableUtils.hash(key);

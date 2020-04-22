@@ -176,4 +176,3 @@ public class LangLibTableTest {
         assertEquals(negativeResult.getErrorCount(), 3);
     }
 }
-
