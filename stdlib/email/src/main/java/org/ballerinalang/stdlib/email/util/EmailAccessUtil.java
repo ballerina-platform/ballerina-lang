@@ -133,16 +133,16 @@ public class EmailAccessUtil {
         String fromAddress = extractFromAddressFromMessage(message);
         String senderAddress = getSenderAddress(message);
         BArray attachments = extractAttachmentsFromMessage(message);
-        valueMap.put(EmailConstants.MESSAGE_TO, toAddressArrayValue);
-        valueMap.put(EmailConstants.MESSAGE_CC, ccAddressArrayValue);
-        valueMap.put(EmailConstants.MESSAGE_BCC, bccAddressArrayValue);
-        valueMap.put(EmailConstants.MESSAGE_REPLY_TO, replyToAddressArrayValue);
-        valueMap.put(EmailConstants.MESSAGE_SUBJECT, subject);
-        valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY, messageBody);
-        valueMap.put(EmailConstants.MESSAGE_FROM, fromAddress);
-        valueMap.put(EmailConstants.MESSAGE_SENDER, senderAddress);
+        valueMap.put(EmailConstants.MESSAGE_TO.getValue(), toAddressArrayValue);
+        valueMap.put(EmailConstants.MESSAGE_CC.getValue(), ccAddressArrayValue);
+        valueMap.put(EmailConstants.MESSAGE_BCC.getValue(), bccAddressArrayValue);
+        valueMap.put(EmailConstants.MESSAGE_REPLY_TO.getValue(), replyToAddressArrayValue);
+        valueMap.put(EmailConstants.MESSAGE_SUBJECT.getValue(), subject);
+        valueMap.put(EmailConstants.MESSAGE_MESSAGE_BODY.getValue(), messageBody);
+        valueMap.put(EmailConstants.MESSAGE_FROM.getValue(), fromAddress);
+        valueMap.put(EmailConstants.MESSAGE_SENDER.getValue(), senderAddress);
         if (attachments != null && attachments.size() > 0) {
-            valueMap.put(EmailConstants.MESSAGE_ATTACHMENTS, attachments);
+            valueMap.put(EmailConstants.MESSAGE_ATTACHMENTS.getValue(), attachments);
         }
         return BallerinaValues.createRecordValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.EMAIL, valueMap);
     }

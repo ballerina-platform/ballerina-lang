@@ -210,7 +210,8 @@ public class WebSocketObservabilityUtil {
                         getNativeData(WebSocketConstants.FAILOVER_CONTEXT);
                 return failoverConfig.getTargetUrls().get(failoverConfig.getCurrentIndex());
             } else {
-                return connectionInfo.getWebSocketEndpoint().getStringValue(WebSocketConstants.CLIENT_URL_CONFIG);
+                return connectionInfo.getWebSocketEndpoint().getStringValue(WebSocketConstants.CLIENT_URL_CONFIG)
+                        .getValue();
             }
         }
     }

@@ -137,17 +137,6 @@ public class JvmCastGen {
         }
     }
 
-    private static void generateCheckCastBToJString(MethodVisitor mv, BType sourceType) {
-
-        if (TypeTags.isStringTypeTag(sourceType.tag)) {
-            mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
-                               String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
-        } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java byte'",
-                                                           sourceType));
-        }
-    }
-
     private static void generateCheckCastBToJByte(MethodVisitor mv, BType sourceType) {
 
         if (sourceType.tag == TypeTags.BYTE) {
@@ -321,8 +310,6 @@ public class JvmCastGen {
             generateCheckCastJToBInt(mv, sourceType);
         } else if (targetType.tag == TypeTags.FLOAT) {
             generateCheckCastJToBFloat(mv, sourceType);
-        } else if (TypeTags.isStringTypeTag(targetType.tag)) {
-            generateCheckCastJToBString(mv, sourceType);
         } else if (targetType.tag == TypeTags.DECIMAL) {
             generateCheckCastJToBDecimal(mv, sourceType);
         } else if (targetType.tag == TypeTags.BOOLEAN) {
@@ -414,24 +401,6 @@ public class JvmCastGen {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'float'",
                     sourceType));
         }
-    }
-
-    private static void generateCheckCastJToBString(MethodVisitor mv, JType sourceType) {
-
-        if (sourceType.jTag == JTypeTags.JREF) {
-            String typeValue = ((JType.JRefType) sourceType).typeValue;
-            if (typeValue.equals(I_STRING_VALUE)) {
-                mv.visitMethodInsn(INVOKEINTERFACE, I_STRING_VALUE, "getValue", String.format("()L%s;",
-                        STRING_VALUE), true);
-                return;
-            } else if (typeValue.equals(B_STRING_VALUE)) {
-                mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;",
-                        STRING_VALUE), true);
-                return;
-            }
-        }
-        throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'string'",
-                sourceType));
     }
 
     private static void generateCheckCastJToBDecimal(MethodVisitor mv, JType sourceType) {

@@ -477,7 +477,7 @@ public class JSONUtils {
             return new ArrayValueImpl(new BArrayType(BTypes.typeString));
         }
 
-        String[] keys = ((MapValueImpl<String, ?>) json).getKeys();
+        BString[] keys = ((MapValueImpl<BString, ?>) json).getKeys();
         return new ArrayValueImpl(keys);
     }
 

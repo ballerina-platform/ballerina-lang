@@ -37,7 +37,7 @@ public class Submit extends Execute {
     public static Object submit(ObjectValue httpClient, String httpVerb, String path,
                                       ObjectValue requestObj) {
         Strand strand = Scheduler.getStrand();
-        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
+        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).getValue();
         MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
         HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, config, path, requestObj);

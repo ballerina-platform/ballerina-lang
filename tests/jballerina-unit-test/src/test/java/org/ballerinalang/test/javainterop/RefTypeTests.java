@@ -238,10 +238,10 @@ public class RefTypeTests {
         BValue[] returns = BRunUtil.invoke(result, "testAcceptMixTypes");
         Assert.assertTrue(returns[0] instanceof BInteger);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
-        Assert.assertTrue(returns[1] instanceof BHandleValue);
-        Assert.assertEquals(((BHandleValue) returns[1]).getValue(), "hello");
+        Assert.assertTrue(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "hello");
         Assert.assertTrue(returns[2] instanceof BBoolean);
-        Assert.assertEquals(((BBoolean) returns[2]).booleanValue(), false);
+        Assert.assertFalse(((BBoolean) returns[2]).booleanValue());
     }
 
     @Test

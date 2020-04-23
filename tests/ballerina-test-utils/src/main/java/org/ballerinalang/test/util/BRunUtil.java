@@ -515,7 +515,7 @@ public class BRunUtil {
                 for (Map.Entry<String, BValue> entry : objVal.getMap().entrySet()) {
                     BValue entryVal = entry.getValue();
                     Object jvmVal = entryVal == null ? null : getJVMValue(entryVal.getType(), entryVal);
-                    jvmObject.set(entry.getKey(), jvmVal);
+                    jvmObject.set(StringUtils.fromString(entry.getKey()), jvmVal);
                 }
                 HashMap<String, Object> nativeData = ((BMap) value).getNativeData();
                 if (nativeData == null) {
@@ -924,7 +924,7 @@ public class BRunUtil {
                 for (String key : jvmObjectType.getFields().keySet()) {
                     Object val;
                     try {
-                        val = jvmObject.get(key);
+                        val = jvmObject.get(StringUtils.fromString(key));
                     } catch (AbstractMethodError error) {
                         val = jvmObject.get(StringUtils.fromString(key));
                     }

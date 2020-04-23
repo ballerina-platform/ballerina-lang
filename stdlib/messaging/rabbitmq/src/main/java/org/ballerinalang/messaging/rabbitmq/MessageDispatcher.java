@@ -86,7 +86,7 @@ public class MessageDispatcher {
         @SuppressWarnings(RabbitMQConstants.UNCHECKED)
         MapValue<Strand, Object> queueConfig =
                 (MapValue) serviceConfig.getMapValue(RabbitMQConstants.ALIAS_QUEUE_CONFIG);
-        return queueConfig.getStringValue(RabbitMQConstants.QUEUE_NAME);
+        return queueConfig.getStringValue(RabbitMQConstants.QUEUE_NAME).getValue();
     }
 
     /**
@@ -115,7 +115,7 @@ public class MessageDispatcher {
         ArrayList<ObjectValue> startedServices =
                 (ArrayList<ObjectValue>) listener.getNativeData(RabbitMQConstants.STARTED_SERVICES);
         startedServices.add(service);
-        service.addNativeData(RabbitMQConstants.QUEUE_NAME, queueName);
+        service.addNativeData(RabbitMQConstants.QUEUE_NAME.getValue(), queueName);
     }
 
     private void handleDispatch(byte[] message, long deliveryTag, AMQP.BasicProperties properties) {

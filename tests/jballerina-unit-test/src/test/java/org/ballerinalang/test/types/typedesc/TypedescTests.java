@@ -77,7 +77,7 @@ public class TypedescTests {
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "Person");
         Assert.assertTrue(returns[1] instanceof BTypeDescValue);
-        Assert.assertTrue(((BTypeDescValue) returns[1]).value().getTag() == TypeTags.OBJECT_TYPE_TAG);
+        Assert.assertEquals(TypeTags.OBJECT_TYPE_TAG, ((BTypeDescValue) returns[1]).value().getTag());
     }
 
     @Test(description = "Test array types")
@@ -108,7 +108,7 @@ public class TypedescTests {
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(returns[0].stringValue(), "RecordA");
         Assert.assertTrue(returns[1] instanceof BTypeDescValue);
-        Assert.assertTrue(((BTypeDescValue) returns[1]).value().getTag() == TypeTags.RECORD_TYPE_TAG);
+        Assert.assertEquals(TypeTags.RECORD_TYPE_TAG, ((BTypeDescValue) returns[1]).value().getTag());
     }
 
     @Test(description = "Test any to typedesc cast")

@@ -105,35 +105,35 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         return super.get(key);
     }
 
-    public Long getIntValue(String key) {
+    public Long getIntValue(BString key) {
         return (Long) get(key);
     }
 
-    public Double getFloatValue(String key) {
+    public Double getFloatValue(BString key) {
         return (Double) get(key);
     }
 
-    public String getStringValue(String key) {
-        return (String) get(key);
+    public BString getStringValue(BString key) {
+        return (BString) get(key);
     }
 
-    public Boolean getBooleanValue(String key) {
+    public Boolean getBooleanValue(BString key) {
         return (Boolean) get(key);
     }
 
-    public MapValueImpl<?, ?> getMapValue(String key) {
+    public MapValueImpl<?, ?> getMapValue(BString key) {
         return (MapValueImpl<?, ?>) get(key);
     }
 
-    public ObjectValue getObjectValue(String key) {
+    public ObjectValue getObjectValue(BString key) {
         return (ObjectValue) get(key);
     }
 
-    public ArrayValue getArrayValue(String key) {
+    public ArrayValue getArrayValue(BString key) {
         return (ArrayValue) get(key);
     }
 
-    public long getDefaultableIntValue(String key) {
+    public long getDefaultableIntValue(BString key) {
         if (get(key) != null) {
             return getIntValue(key);
         }
@@ -299,10 +299,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
     @SuppressWarnings("unchecked")
     public K[] getKeys() {
         Set<K> keys = super.keySet();
-        String bStringProp = System.getProperty("ballerina.bstring");
-        boolean isBString = (bStringProp != null && !"".equals(bStringProp));
-        int size = keys.size();
-        return (K[]) (isBString ? keys.toArray(new BString[size]) : keys.toArray(new String[size]));
+        return (K[]) (keys.toArray(new BString[keys.size()]));
     }
 
     /**

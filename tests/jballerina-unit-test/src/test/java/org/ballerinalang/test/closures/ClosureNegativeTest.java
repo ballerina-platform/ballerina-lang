@@ -46,7 +46,7 @@ public class ClosureNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 84, 40);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 84, 44);
         BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 87, 36);
-        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 98, 24);
+        BAssertUtil.validateError(compileResult, index, "undefined symbol 'm'", 98, 24);
     }
 
     @Test(description = "Test private field access")

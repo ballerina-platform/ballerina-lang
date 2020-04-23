@@ -120,6 +120,9 @@ public class StringUtils {
     }
 
     public static BString fromString(String s) {
+        if (s == null) {
+            return null;
+        }
         List<Integer> highSurrogates = null;
         for (int i = 0; i < s.length(); i++) {
             char c = s.charAt(i);

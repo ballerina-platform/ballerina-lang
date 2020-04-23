@@ -73,7 +73,7 @@ public class StreamingListener implements MessageHandler {
                 Constants.NATS_PACKAGE_ID, NATS_STREAMING_MESSAGE_OBJ_NAME, msg.getSubject(),
                 BValueCreator.createArrayValue(msg.getData()), msg.getReplyTo());
         ballerinaNatsMessage.addNativeData(Constants.NATS_STREAMING_MSG, msg);
-        ballerinaNatsMessage.addNativeData(Constants.NATS_STREAMING_MANUAL_ACK, manualAck);
+        ballerinaNatsMessage.addNativeData(Constants.NATS_STREAMING_MANUAL_ACK.getValue(), manualAck);
         AttachedFunction onMessageResource = getAttachedFunction(service, "onMessage");
         BType[] parameterTypes = onMessageResource.getParameterType();
         if (parameterTypes.length == 1) {

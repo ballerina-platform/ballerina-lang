@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -93,7 +95,7 @@ public class StaticMethods {
     public static ArrayValue getArrayValueFromMap(String key, MapValue mapValue) {
         ArrayValue arrayValue = (ArrayValue) BValueCreator.createArrayValue(intArrayType);
         arrayValue.add(0, 1);
-        long fromMap = mapValue.getIntValue(key);
+        long fromMap = (long) mapValue.get(StringUtils.fromString(key));
         arrayValue.add(1, fromMap);
         return arrayValue;
     }
@@ -116,7 +118,7 @@ public class StaticMethods {
     }
 
     public static ErrorValue acceptStringErrorReturn(String msg) {
-        return new ErrorValue(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
+        return BallerinaErrors.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     public static Object acceptIntUnionReturn(int flag) {
@@ -133,12 +135,12 @@ public class StaticMethods {
     }
 
     public static ObjectValue acceptObjectAndObjectReturn(ObjectValue p, int newVal) {
-        p.set("age", newVal);
+        p.set(StringUtils.fromString("age"), newVal);
         return p;
     }
 
     public static MapValue acceptRecordAndRecordReturn(MapValue e, String newVal) {
-        e.put("name", newVal);
+        e.put(StringUtils.fromString("name"), StringUtils.fromString(newVal));
         return e;
     }
 
@@ -207,7 +209,7 @@ public class StaticMethods {
         return (int) (a + 5);
     }
 
-    public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(String key, MapValue mapValue)
+    public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(BString key, MapValue mapValue)
             throws JavaInteropTestCheckedException {
         ArrayValue arrayValue = (ArrayValue) BValueCreator.createArrayValue(intArrayType);
         arrayValue.add(0, 1);
@@ -232,7 +234,7 @@ public class StaticMethods {
 
     public static ErrorValue acceptStringErrorReturnWhichThrowsCheckedException(String msg)
             throws JavaInteropTestCheckedException {
-        return new ErrorValue(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
+        return BallerinaErrors.createError(msg, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
     public static Object acceptIntUnionReturnWhichThrowsCheckedException(int flag)
@@ -251,7 +253,7 @@ public class StaticMethods {
 
     public static ObjectValue acceptObjectAndObjectReturnWhichThrowsCheckedException(ObjectValue p, int newVal)
             throws JavaInteropTestCheckedException {
-        p.set("age", newVal);
+        p.set(StringUtils.fromString("age"), newVal);
         return p;
     }
 
@@ -263,18 +265,18 @@ public class StaticMethods {
 
     public static MapValue getMapOrError(String swaggerFilePath, MapValue apiDef)
             throws JavaInteropTestCheckedException {
-        String finalBasePath = "basePath";
+        BString finalBasePath = StringUtils.fromString("basePath");
         AtomicLong runCount = new AtomicLong(0L);
         ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BallerinaValues.createRecordValue(new BPackage(
                 "", "."), "ResourceDefinition").getType()));
-        MapValue<String, Object> apiDefinitions = BallerinaValues.createRecordValue(new BPackage("",
-                                                                                                 "."), "ApiDefinition");
-        MapValue<String, Object> resource = BallerinaValues.createRecordValue(new BPackage("",
-                                                                                           "."), "ResourceDefinition");
-        resource.put("path", finalBasePath);
-        resource.put("method", "Method string");
+        MapValue apiDefinitions = BallerinaValues.createRecordValue(new BPackage("",
+                                                                                 "."), "ApiDefinition");
+        MapValue resource = BallerinaValues.createRecordValue(new BPackage("",
+                                                                           "."), "ResourceDefinition");
+        resource.put(StringUtils.fromString("path"), finalBasePath);
+        resource.put(StringUtils.fromString("method"), StringUtils.fromString("Method string"));
         arrayValue.add(runCount.getAndIncrement(), resource);
-        apiDefinitions.put("resources", arrayValue);
+        apiDefinitions.put(StringUtils.fromString("resources"), arrayValue);
         return apiDefinitions;
     }
 
@@ -324,7 +326,7 @@ public class StaticMethods {
 
 
     public static TupleValueImpl mockedNativeFuncWithOptionalParams(long a, double b, String c,
-                                                                long d, String e) {
+                                                                    long d, String e) {
         TupleValueImpl tuple = (TupleValueImpl) BValueCreator.createTupleValue(tupleType);
         tuple.add(0, Long.valueOf(a));
         tuple.add(1, Double.valueOf(b));

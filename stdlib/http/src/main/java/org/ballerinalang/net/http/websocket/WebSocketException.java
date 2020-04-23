@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.websocket;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.api.BString;
@@ -43,12 +44,12 @@ public class WebSocketException extends ErrorValue {
     }
 
     public WebSocketException(ErrorCode errorCode, String message) {
-        super(errorCode.errorCode(), createDetailRecord(message));
+        super(StringUtils.fromString(errorCode.errorCode()), createDetailRecord(message));
         this.message = message;
     }
 
     public WebSocketException(ErrorCode errorCode, String message, ErrorValue cause) {
-        super(errorCode.errorCode(), createDetailRecord(message, cause));
+        super(StringUtils.fromString(errorCode.errorCode()), createDetailRecord(message, cause));
         this.message = message;
     }
 

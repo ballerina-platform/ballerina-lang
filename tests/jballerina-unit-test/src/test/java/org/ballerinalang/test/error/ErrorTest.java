@@ -302,9 +302,9 @@ public class ErrorTest {
     @Test()
     public void indirectErrorCtorTest() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "indirectErrorCtor");
-        Assert.assertEquals(((BString) returns[0]).stringValue(), "foo");
-        Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
-        Assert.assertEquals(((BError) returns[2]).stringValue(), "foo {code:3456}");
+        Assert.assertEquals(returns[0].stringValue(), "foo");
+        Assert.assertTrue(((BBoolean) returns[1]).booleanValue());
+        Assert.assertEquals(returns[2].stringValue(), "foo {code:3456}");
     }
 
     @Test()
@@ -316,13 +316,13 @@ public class ErrorTest {
     @Test()
     public void testOptionalErrorReturn() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testOptionalErrorReturn");
-        Assert.assertEquals(((BError) returns[0]).stringValue(), "this is broken {message:\"too bad\"}");
+        Assert.assertEquals(returns[0].stringValue(), "this is broken {message:\"too bad\"}");
     }
 
     @Test()
     public void testIndirectErrorReturn() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testIndirectErrorReturn");
-        Assert.assertEquals(((BError) returns[0]).stringValue(), "Foo {message:\"error msg\"}");
+        Assert.assertEquals(returns[0].stringValue(), "Foo {message:\"error msg\"}");
     }
 
     @Test
@@ -335,7 +335,7 @@ public class ErrorTest {
         }
 
         Assert.assertNotNull(expectedException);
-        String message = ((BLangRuntimeException) expectedException).getMessage();
+        String message = expectedException.getMessage();
         Assert.assertEquals(message,
                 "error: array index out of range: index: 4, size: 2 \n\t" +
                         "at ballerina.lang_array:slice(array.bal:106)\n\t" +

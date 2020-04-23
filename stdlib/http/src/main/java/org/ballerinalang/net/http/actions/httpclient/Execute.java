@@ -39,7 +39,7 @@ public class Execute extends AbstractHTTPAction {
     @SuppressWarnings("unchecked")
     public static Object execute(ObjectValue httpClient, String verb, String path,
                                        ObjectValue requestObj) {
-        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI);
+        String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).getValue();
         Strand strand = Scheduler.getStrand();
         MapValue<String, Object> config = (MapValue<String, Object>) httpClient.get(CLIENT_ENDPOINT_CONFIG);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);

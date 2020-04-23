@@ -123,7 +123,7 @@ public class CloneOperationTest {
         BValue[] results = BRunUtil.invoke(result, "cloneXML");
         testCloneOnXMLs((BXMLItem) results[0], "Charlos");
         testCloneOnXMLs((BXMLItem) results[1], "Alex");
-        Assert.assertTrue(results[0] != results[1]);
+        Assert.assertNotSame(results[0], results[1]);
     }
 
     private void testCloneOnXMLs(BXMLItem bxmlItem, String name) {

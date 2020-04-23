@@ -91,8 +91,9 @@ public class AnnotationUtils {
      */
     public static void processFPValueAnnotations(FPValue fpValue, MapValue globalAnnotMap, String name) {
         AnnotatableType type = (AnnotatableType) fpValue.getType();
-        if (globalAnnotMap.containsKey(name)) {
-            type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(name));
+        BString nameKey = StringUtils.fromString(name);
+        if (globalAnnotMap.containsKey(nameKey)) {
+            type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(nameKey));
         }
     }
 

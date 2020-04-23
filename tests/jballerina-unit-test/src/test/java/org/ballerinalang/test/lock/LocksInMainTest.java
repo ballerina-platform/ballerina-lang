@@ -189,7 +189,7 @@ public class LocksInMainTest {
         assertSame(returns[0].getClass(), BBoolean.class);
         assertSame(returns[1].getClass(), BValueArray.class);
 
-        assertEquals(((BBoolean) returns[0]).booleanValue(), true);
+        assertTrue(((BBoolean) returns[0]).booleanValue());
         ByteArrayUtils.assertJBytesWithBBytes(((BValueArray) returns[1]).getBytes(), "sample blob output".getBytes());
 
     }

@@ -37,11 +37,11 @@ public class AnnotationUtils {
      * @param annot annotation name.
      * @return annotation value object.
      */
-    public static Object externGetResourceAnnotations(ObjectValue service, String resourceName, BString annot) {
+    public static Object externGetResourceAnnotations(ObjectValue service, BString resourceName, BString annot) {
         AttachedFunction[] functions = service.getType().getAttachedFunctions();
 
         for (AttachedFunction function : functions) {
-            if (function.funcName.equals(resourceName)) {
+            if (function.funcName.equals(resourceName.getValue())) {
                 return function.getAnnotation(annot);
             }
         }

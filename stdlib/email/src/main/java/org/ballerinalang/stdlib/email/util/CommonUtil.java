@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.email.util;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.mime.util.MimeConstants;
 import org.slf4j.Logger;
@@ -99,9 +100,10 @@ public class CommonUtil {
         if (customProperties != null) {
             for (Object propertyName : customProperties.getKeys()) {
                 if (propertyName instanceof String) {
-                    properties.put(propertyName, customProperties.getStringValue((String) propertyName));
+                    properties.put(propertyName,
+                                   customProperties.getStringValue(StringUtils.fromString((String) propertyName)));
                     log.debug("Added custom SMTP property with Name: " + propertyName + ", Value: "
-                            + customProperties.getStringValue((String) propertyName));
+                                      + customProperties.getStringValue(StringUtils.fromString((String) propertyName)));
                 }
             }
         }

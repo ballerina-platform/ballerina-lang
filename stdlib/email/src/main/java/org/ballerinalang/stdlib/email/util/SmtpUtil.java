@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.mime.nativeimpl.EntityHeaders;
 import org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -103,13 +104,13 @@ public class SmtpUtil {
         Address[] ccAddressArray = extractAddressLists(message, EmailConstants.MESSAGE_CC);
         Address[] bccAddressArray = extractAddressLists(message, EmailConstants.MESSAGE_BCC);
         Address[] replyToAddressArray = extractAddressLists(message, EmailConstants.MESSAGE_REPLY_TO);
-        String subject = message.getStringValue(EmailConstants.MESSAGE_SUBJECT);
-        String messageBody = message.getStringValue(EmailConstants.MESSAGE_MESSAGE_BODY);
-        String fromAddress = message.getStringValue(EmailConstants.MESSAGE_FROM);
+        String subject = message.getStringValue(EmailConstants.MESSAGE_SUBJECT).getValue();
+        String messageBody = message.getStringValue(EmailConstants.MESSAGE_MESSAGE_BODY).getValue();
+        String fromAddress = message.getStringValue(EmailConstants.MESSAGE_FROM).getValue();
         if (fromAddress == null || fromAddress.isEmpty()) {
             fromAddress = username;
         }
-        String senderAddress = getNullCheckedString(message.getStringValue(EmailConstants.MESSAGE_SENDER));
+        String senderAddress = getNullCheckedString(message.getStringValue(EmailConstants.MESSAGE_SENDER).getValue());
         MimeMessage emailMessage = new MimeMessage(session);
         emailMessage.setRecipients(Message.RecipientType.TO, toAddressArray);
         if (ccAddressArray.length > 0) {
@@ -212,7 +213,7 @@ public class SmtpUtil {
         }
     }
 
-    private static Address[] extractAddressLists(MapValue message, String addressType) throws AddressException {
+    private static Address[] extractAddressLists(MapValue message, BString addressType) throws AddressException {
         String[] address =  getNullCheckedStringArray(message, addressType);
         int addressArrayLength = address.length;
         Address[] addressArray = new Address[addressArrayLength];
@@ -222,7 +223,7 @@ public class SmtpUtil {
         return addressArray;
     }
 
-    private static String[] getNullCheckedStringArray(MapValue mapValue, String parameter) {
+    private static String[] getNullCheckedStringArray(MapValue mapValue, BString parameter) {
         if (mapValue != null) {
             ArrayValue arrayValue = mapValue.getArrayValue(parameter);
             if (arrayValue != null) {

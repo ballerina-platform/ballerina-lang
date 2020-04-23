@@ -482,12 +482,12 @@ public class XMLFactory {
         }
 
         ArrayValue textArrayNode = null;
-        if (textArray.size() > 0) { // Text nodes are converted into json array
+        if (!textArray.isEmpty()) { // Text nodes are converted into json array
             textArrayNode = processTextArray(textArray);
         }
 
         MapValueImpl<String, Object> jsonNode = new MapValueImpl<>(jsonMapType);
-        if (childArray.size() > 0) {
+        if (!childArray.isEmpty()) {
             processChildelements(jsonNode, childArray, attributePrefix, preserveNamespaces);
             if (textArrayNode != null) {
                 // When text nodes and elements are mixed, they will set into an array
@@ -582,27 +582,27 @@ public class XMLFactory {
         int nsPrefixBeginIndex = XMLItem.XMLNS_URL_PREFIX.length() - 1;
         LinkedHashMap<String, String> attributeMap = new LinkedHashMap<>();
         Map<String, String> nsPrefixMap = new HashMap<>();
-        for (Map.Entry<String, String> entry : element.getAttributesMap().entrySet()) {
-            if (entry.getKey().startsWith(XMLItem.XMLNS_URL_PREFIX)) {
-                String prefix = entry.getKey().substring(nsPrefixBeginIndex);
-                String ns = entry.getValue();
+        for (Map.Entry<BString, BString> entry : element.getAttributesMap().entrySet()) {
+            if (entry.getKey().getValue().startsWith(XMLItem.XMLNS_URL_PREFIX)) {
+                String prefix = entry.getKey().getValue().substring(nsPrefixBeginIndex);
+                String ns = entry.getValue().getValue();
                 nsPrefixMap.put(ns, prefix);
                 if (preserveNamespaces) {
                     attributeMap.put(XML_NAMESPACE_PREFIX + prefix, ns);
                 }
             }
         }
-        for (Map.Entry<String, String> entry : element.getAttributesMap().entrySet()) {
-            String key = entry.getKey();
+        for (Map.Entry<BString, BString> entry : element.getAttributesMap().entrySet()) {
+            String key = entry.getKey().getValue();
             if (preserveNamespaces && !key.startsWith(XMLItem.XMLNS_URL_PREFIX)) {
                 int nsEndIndex = key.lastIndexOf('}');
                 String ns = key.substring(1, nsEndIndex);
                 String local = key.substring(nsEndIndex);
                 String nsPrefix = nsPrefixMap.get(ns);
                 if (nsPrefix != null) {
-                    attributeMap.put(nsPrefix + ":" + local, entry.getValue());
+                    attributeMap.put(nsPrefix + ":" + local, entry.getValue().getValue());
                 } else {
-                    attributeMap.put(local, entry.getValue());
+                    attributeMap.put(local, entry.getValue().getValue());
                 }
             }
         }

@@ -69,9 +69,9 @@ public class EmailListenerHelper {
         if (secureSocket != null) {
             final MapValue privateKey = secureSocket.getMapValue(EmailConstants.ENDPOINT_CONFIG_PRIVATE_KEY);
             if (privateKey != null) {
-                final String privateKeyPath = privateKey.getStringValue(EmailConstants.ENDPOINT_CONFIG_PATH);
+                final String privateKeyPath = privateKey.getStringValue(EmailConstants.ENDPOINT_CONFIG_PATH).getValue();
                 final String privateKeyPassword =
-                        privateKey.getStringValue(EmailConstants.ENDPOINT_CONFIG_PASS_KEY);
+                        privateKey.getStringValue(EmailConstants.ENDPOINT_CONFIG_PASS_KEY).getValue();
                 if (privateKeyPath != null && !privateKeyPath.isEmpty() && privateKeyPassword != null
                         && !privateKeyPassword.isEmpty()) {
                     params.put(EmailConstants.IDENTITY, privateKeyPath);
@@ -81,12 +81,16 @@ public class EmailListenerHelper {
         }
         MapValue protocolConfig = serviceEndpointConfig.getMapValue(EmailConstants.PROTOCOL_CONFIG);
         if (protocolConfig != null) {
-            params.put(EmailConstants.PROTOCOL_CONFIG, protocolConfig);
+            params.put(EmailConstants.PROTOCOL_CONFIG.getValue(), protocolConfig);
         }
-        params.put(EmailConstants.PROPS_HOST, serviceEndpointConfig.getStringValue(EmailConstants.PROPS_HOST));
-        params.put(EmailConstants.PROPS_USERNAME, serviceEndpointConfig.getStringValue(EmailConstants.PROPS_USERNAME));
-        params.put(EmailConstants.PROPS_PASSWORD, serviceEndpointConfig.getStringValue(EmailConstants.PROPS_PASSWORD));
-        params.put(EmailConstants.PROPS_PROTOCOL, serviceEndpointConfig.getStringValue(EmailConstants.PROPS_PROTOCOL));
+        params.put(EmailConstants.PROPS_HOST.getValue(),
+                   serviceEndpointConfig.getStringValue(EmailConstants.PROPS_HOST));
+        params.put(EmailConstants.PROPS_USERNAME.getValue(),
+                   serviceEndpointConfig.getStringValue(EmailConstants.PROPS_USERNAME));
+        params.put(EmailConstants.PROPS_PASSWORD.getValue(),
+                   serviceEndpointConfig.getStringValue(EmailConstants.PROPS_PASSWORD));
+        params.put(EmailConstants.PROPS_PROTOCOL.getValue(),
+                   serviceEndpointConfig.getStringValue(EmailConstants.PROPS_PROTOCOL));
         return params;
     }
 

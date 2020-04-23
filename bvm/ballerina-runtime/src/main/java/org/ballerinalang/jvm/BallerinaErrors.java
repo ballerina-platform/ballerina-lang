@@ -98,7 +98,7 @@ public class BallerinaErrors {
 
     @Deprecated
     public static ErrorValue createError(String reason, MapValue detailMap) {
-        return new ErrorValue(reason, detailMap);
+        return createError(StringUtils.fromString(reason), detailMap);
     }
 
     public static ErrorValue createError(BString reason, MapValue detailMap) {

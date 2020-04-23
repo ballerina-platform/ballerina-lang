@@ -22,6 +22,7 @@ import org.apache.axiom.om.OMNode;
 import org.ballerinalang.jvm.BallerinaXMLSerializer;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.Status;
@@ -56,12 +57,12 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
-    public String getAttribute(String localName, String namespace) {
+    public BString getAttribute(String localName, String namespace) {
         return null;
     }
 
     @Override
-    public String getAttribute(String localName, String namespace, String prefix) {
+    public BString getAttribute(String localName, String namespace, String prefix) {
         return null;
     }
 
@@ -71,7 +72,7 @@ public abstract class XMLNonElementItem extends XMLValue {
     }
 
     @Override
-    public MapValue<String, String> getAttributesMap() {
+    public MapValue<BString, BString> getAttributesMap() {
         return null;
     }
 

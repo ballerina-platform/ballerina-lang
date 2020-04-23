@@ -110,20 +110,10 @@ public class StackTrace {
         }
 
         @Override
-        public Object get(String fieldName) {
-            if (fieldName.equals("callStack")) {
+        public Object get(BString fieldName) {
+            if (fieldName.getValue().equals("callStack")) {
                 return callStack;
             }
-            throw new BLangRuntimeException("No such field or method: callStack");
-        }
-
-        @Override
-        public Object get(BString fieldName) {
-            return get(fieldName.getValue());
-        }
-
-        @Override
-        public void set(String fieldName, Object value) {
             throw new BLangRuntimeException("No such field or method: callStack");
         }
 

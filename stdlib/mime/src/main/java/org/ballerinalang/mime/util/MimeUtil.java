@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -192,18 +193,19 @@ public class MimeUtil {
      */
     public static ObjectValue parseMediaType(ObjectValue mediaType, String contentType) {
         try {
-            MapValueImpl<String, String> parameterMap =
+            MapValueImpl<BString, BString> parameterMap =
                     new MapValueImpl<>(new org.ballerinalang.jvm.types.BMapType(BTypes.typeString));
-            String suffix, primaryType, subType;
+            BString suffix, primaryType, subType;
 
             if (contentType != null) {
                 MimeType mimeType = new MimeType(contentType);
-                primaryType = mimeType.getPrimaryType();
+                primaryType = org.ballerinalang.jvm.StringUtils.fromString(mimeType.getPrimaryType());
 
                 String subTypeStr = mimeType.getSubType();
-                subType = subTypeStr;
+                subType = org.ballerinalang.jvm.StringUtils.fromString(subTypeStr);
                 if (subTypeStr != null && subTypeStr.contains(SUFFIX_ATTACHMENT)) {
-                    suffix = subTypeStr.substring(subTypeStr.lastIndexOf(SUFFIX_ATTACHMENT) + 1);
+                    suffix = org.ballerinalang.jvm.StringUtils.fromString(
+                            subTypeStr.substring(subTypeStr.lastIndexOf(SUFFIX_ATTACHMENT) + 1));
                 } else {
                     suffix = BTypes.typeString.getZeroValue();
                 }
@@ -213,8 +215,8 @@ public class MimeUtil {
 
                 while (keys.hasMoreElements()) {
                     String key = (String) keys.nextElement();
-                    String value = parameterList.get(key);
-                    parameterMap.put(key, value);
+                    BString value = org.ballerinalang.jvm.StringUtils.fromString(parameterList.get(key));
+                    parameterMap.put(org.ballerinalang.jvm.StringUtils.fromString(key), value);
                 }
             } else {
                 primaryType = suffix = subType = BTypes.typeString.getZeroValue();
@@ -225,7 +227,7 @@ public class MimeUtil {
             mediaType.set(SUFFIX_FIELD, suffix);
             mediaType.set(PARAMETER_MAP_FIELD, parameterMap);
         } catch (MimeTypeParseException e) {
-            throw new ErrorValue(INVALID_CONTENT_TYPE, e.getMessage());
+            BallerinaErrors.createError(INVALID_CONTENT_TYPE, e.getMessage());
         }
         return mediaType;
     }

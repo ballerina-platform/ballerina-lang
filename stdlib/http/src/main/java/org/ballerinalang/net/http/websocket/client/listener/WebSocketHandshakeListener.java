@@ -124,10 +124,11 @@ public class WebSocketHandshakeListener implements ExtendedHandshakeListener {
     }
 
     private boolean isFirstConnectionEstablished(ObjectValue webSocketClient) {
-        return (webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).getMapValue(WebSocketConstants.
-                RETRY_CONTEXT) != null && ((RetryContext) webSocketClient.getNativeData(WebSocketConstants.
-                RETRY_CONTEXT)).isFirstConnectionEstablished()) || (WebSocketUtil.isFailoverClient(webSocketClient) &&
-                ((FailoverContext) webSocketClient.getNativeData(WebSocketConstants.FAILOVER_CONTEXT)).
-                        isFirstConnectionEstablished());
+        return (webSocketClient.getMapValue(CLIENT_ENDPOINT_CONFIG).getMapValue(
+                WebSocketConstants.RETRY_CONTEXT) != null && ((RetryContext) webSocketClient.getNativeData(
+                WebSocketConstants.RETRY_CONTEXT.getValue())).isFirstConnectionEstablished()) ||
+                (WebSocketUtil.isFailoverClient(webSocketClient) &&
+                        ((FailoverContext) webSocketClient.getNativeData(WebSocketConstants.FAILOVER_CONTEXT)).
+                                isFirstConnectionEstablished());
     }
 }

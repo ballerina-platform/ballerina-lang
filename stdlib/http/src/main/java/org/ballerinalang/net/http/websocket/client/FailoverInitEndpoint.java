@@ -18,9 +18,11 @@
 
 package org.ballerinalang.net.http.websocket.client;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
@@ -42,11 +44,11 @@ import java.util.List;
 public class FailoverInitEndpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(FailoverInitEndpoint.class);
-    private static final String FAILOVER_INTERVAL = "failoverIntervalInMillis";
+    private static final BString FAILOVER_INTERVAL = StringUtils.fromString("failoverIntervalInMillis");
 
     public static void initEndpoint(ObjectValue failoverClient) {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        MapValue<String, Object> clientEndpointConfig = (MapValue<String, Object>) failoverClient.getMapValue(
+        MapValue<BString, Object> clientEndpointConfig = (MapValue<BString, Object>) failoverClient.getMapValue(
                 WebSocketConstants.CLIENT_ENDPOINT_CONFIG);
         List<String> newTargetUrls = getValidUrls(clientEndpointConfig.getArrayValue(WebSocketConstants.TARGET_URLS));
         // Sets the failover config values.
@@ -66,7 +68,7 @@ public class FailoverInitEndpoint {
      * @param failoverClientConnectorConfig - a failover client connector config
      * @param targetUrls - target URLs
      */
-    private static void populateFailoverContext(MapValue<String, Object> failoverConfig,
+    private static void populateFailoverContext(MapValue<BString, Object> failoverConfig,
                                                 FailoverContext failoverClientConnectorConfig,
                                                 List<String> targetUrls) {
         failoverClientConnectorConfig.setFailoverInterval(WebSocketUtil.getIntValue(failoverConfig, FAILOVER_INTERVAL,

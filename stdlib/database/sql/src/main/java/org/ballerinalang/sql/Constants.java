@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.sql;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.UUID;
 
@@ -61,9 +63,9 @@ public final class Constants {
      * Constants related connection pool.
      */
     public static final class ConnectionPool {
-        public static final String MAX_OPEN_CONNECTIONS = "maxOpenConnections";
+        public static final BString MAX_OPEN_CONNECTIONS = StringUtils.fromString(("maxOpenConnections");
         public static final String MAX_CONNECTION_LIFE_TIME_SECONDS = "maxConnectionLifeTimeInSeconds";
-        public static final String MIN_IDLE_CONNECTIONS = "minIdleConnections";
+        public static final BString MIN_IDLE_CONNECTIONS = StringUtils.fromString("minIdleConnections");
     }
 
     /**
@@ -87,8 +89,8 @@ public final class Constants {
      * Constants related to parameterized string fields.
      */
     public static final class ParameterizedStingFields {
-        public static final String PARTS = "parts";
-        public static final String INSERTIONS = "insertions";
+        public static final BString PARTS = StringUtils.fromString(("parts");
+        public static final BString INSERTIONS = StringUtils.fromString("insertions");
     }
 
     /**
@@ -138,8 +140,8 @@ public final class Constants {
      * Constants for SQL Params.
      */
     public static final class SQLParamsFields {
-        public static final String URL = "url";
-        public static final String USER = "user";
+        public static final BString URL = StringUtils.fromString("url");
+        public static final BString USER = "user";
         public static final String PASSWORD = "password";
         public static final String DATASOURCE_NAME = "datasourceName";
         public static final String OPTIONS = "options";

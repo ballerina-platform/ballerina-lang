@@ -124,16 +124,6 @@ import javax.xml.namespace.QName;
       * @param values initial array values
       * @return string array
       */
-     public static BArray createArrayValue(String[] values) {
-         return new ArrayValueImpl(values);
-     }
-
-     /**
-      * Creates a new string array.
-      *
-      * @param values initial array values
-      * @return string array
-      */
      public static BArray createArrayValue(BString[] values) {
          return new ArrayValueImpl(values);
      }

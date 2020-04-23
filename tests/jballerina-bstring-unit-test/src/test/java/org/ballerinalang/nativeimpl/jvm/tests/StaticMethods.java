@@ -208,7 +208,7 @@ public class StaticMethods {
         return (int) (a + 5);
     }
 
-    public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(String key, MapValue mapValue)
+    public static ArrayValue getArrayValueFromMapWhichThrowsCheckedException(BString key, MapValue mapValue)
             throws JavaInteropTestCheckedException {
         ArrayValue arrayValue = (ArrayValue) BValueCreator.createArrayValue(intArrayType);
         arrayValue.add(0, 1);

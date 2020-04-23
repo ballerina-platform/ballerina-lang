@@ -94,10 +94,10 @@ public class TypeConverter {
                 return anyToByte(inputValue, () ->
                         BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeByte));
             default:
-                throw new ErrorValue(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                                     BLangExceptionHelper.getErrorMessage(
-                                             RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                             inputType, inputValue, targetType));
+                throw BallerinaErrors.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                                                  BLangExceptionHelper.getErrorMessage(
+                                                          RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
+                                                          inputType, inputValue, targetType));
         }
     }
 

@@ -99,10 +99,10 @@ public class MimeUtilityFunctionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetMediaType", args);
         Assert.assertEquals(returns.length, 1);
         BMap<String, BValue> mediaType = (BMap<String, BValue>) returns[0];
-        Assert.assertEquals(mediaType.get(PRIMARY_TYPE_FIELD).stringValue(), "multipart");
-        Assert.assertEquals(mediaType.get(SUBTYPE_FIELD).stringValue(), "form-data");
-        Assert.assertEquals(mediaType.get(SUFFIX_FIELD).stringValue(), "");
-        BMap map = (BMap) mediaType.get(PARAMETER_MAP_FIELD);
+        Assert.assertEquals(mediaType.get(PRIMARY_TYPE_FIELD.getValue()).stringValue(), "multipart");
+        Assert.assertEquals(mediaType.get(SUBTYPE_FIELD.getValue()).stringValue(), "form-data");
+        Assert.assertEquals(mediaType.get(SUFFIX_FIELD.getValue()).stringValue(), "");
+        BMap map = (BMap) mediaType.get(PARAMETER_MAP_FIELD.getValue());
         Assert.assertEquals(map.get("boundary").stringValue(), "032a1ab685934650abbe059cb45d6ff3");
     }
 
@@ -148,13 +148,13 @@ public class MimeUtilityFunctionTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetContentDispositionObject", args);
         Assert.assertEquals(returns.length, 1);
         BMap<String, BValue> contentDisposition = (BMap<String, BValue>) returns[0];
-        Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_FILENAME_FIELD).stringValue(),
+        Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_FILENAME_FIELD.getValue()).stringValue(),
                             "file-01.txt");
-        Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_NAME_FIELD).stringValue(),
+        Assert.assertEquals(contentDisposition.get(CONTENT_DISPOSITION_NAME_FIELD.getValue()).stringValue(),
                             "filepart");
-        Assert.assertEquals(contentDisposition.get(DISPOSITION_FIELD).stringValue(),
+        Assert.assertEquals(contentDisposition.get(DISPOSITION_FIELD.getValue()).stringValue(),
                             "form-data");
-        BMap map = (BMap) contentDisposition.get(PARAMETER_MAP_FIELD);
+        BMap map = (BMap) contentDisposition.get(PARAMETER_MAP_FIELD.getValue());
         Assert.assertEquals(map.size(), 0);
     }
 

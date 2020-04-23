@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.jvm.values.freeze.FreezeUtils;
 import org.ballerinalang.jvm.values.freeze.State;
@@ -34,7 +35,6 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.jvm.util.BLangConstants.STRING_EMPTY_VALUE;
-import static org.ballerinalang.jvm.util.BLangConstants.STRING_NULL_VALUE;
 import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
 
 /**
@@ -115,7 +115,7 @@ public final class XMLSequence extends XMLValue {
         if (isSingleton()) {
             return children.get(0).getElementName();
         }
-        return STRING_EMPTY_VALUE;
+        return STRING_EMPTY_VALUE.getValue();
     }
 
     /**
@@ -136,24 +136,24 @@ public final class XMLSequence extends XMLValue {
      * {@inheritDoc}
      */
     @Override
-    public String getAttribute(String localName, String namespace) {
+    public BString getAttribute(String localName, String namespace) {
         if (isSingleton()) {
             return children.get(0).getAttribute(localName, namespace);
         }
 
-        return STRING_NULL_VALUE;
+        return BLangConstants.BSTRING_NULL_VALUE;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public String getAttribute(String localName, String namespace, String prefix) {
+    public BString getAttribute(String localName, String namespace, String prefix) {
         if (isSingleton()) {
             return children.get(0).getAttribute(localName, namespace, prefix);
         }
 
-        return STRING_NULL_VALUE;
+        return BLangConstants.BSTRING_NULL_VALUE;
     }
 
     /**
@@ -170,9 +170,9 @@ public final class XMLSequence extends XMLValue {
      * {@inheritDoc}
      */
     @Override
-    public MapValue<String, String> getAttributesMap() {
+    public MapValue<BString, BString> getAttributesMap() {
         if (isSingleton()) {
-            return (MapValue<String, String>) children.get(0).getAttributesMap();
+            return (MapValue<BString, BString>) children.get(0).getAttributesMap();
         }
 
         return null;

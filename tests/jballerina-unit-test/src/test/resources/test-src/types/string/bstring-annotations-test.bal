@@ -1,7 +1,7 @@
-// Copyright [c] 2018 WSO2 Inc. [http://www.wso2.org] All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
-// Version 2.0 [the "License"]; you may not use this file except
+// Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
 // You may obtain a copy of the License at
 //
@@ -14,16 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testDuplicateBinding1() returns [int, int] {
-    [int, int] x = [1, 2];
-    int a;
-    [a, a] = x;
-    return [a, a];
+@Greeting {
+    salutation: "Hey🧑🏿‍✈️"
+}
+type MyRecord record {
+
+};
+
+public function testAnnotation() returns int {
+    MyRecord rec = {};
+    typedesc<any> t = typeof rec;
+    return t.@Greeting?.salutation.toString().length();
 }
 
-function testDuplicateBinding2() returns [int, int, int] {
-    [int, [int, int]] x = [1, [2, 3]];
-    int a;
-    [a, [a, a]] = x;
-    return [a, a, a];
-}
+public type HelloConfiguration record {|
+    string salutation = "Hello!";
+|};
+
+public annotation HelloConfiguration Greeting on type;
