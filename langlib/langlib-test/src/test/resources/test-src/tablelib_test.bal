@@ -23,6 +23,12 @@ type PersonValue record {|
   Person value;
 |};
 
+type Customer record {
+  readonly int id;
+  string firstName;
+  string lastName;
+};
+
 type Employee record {|
   readonly string name;
   string department;
@@ -31,6 +37,10 @@ type Employee record {|
 type PersonalTable table<Person> key(name);
 
 type EmployeeTable table<Employee> key(name);
+
+type PersonalKeyLessTable table<Person>;
+
+type CustomerTable table<Customer> key(id);
 
 PersonalTable tab = table key(name)[
   { name: "Chiran", age: 33 },
@@ -94,6 +104,10 @@ function getValueFromKey() returns boolean {
     return testPassed;
 }
 
+function getWithInvalidKey() returns boolean {
+     Person person = tab.get("AAA");
+     return person.name == "AAA";
+}
 
 function testMap() returns boolean {
     boolean testPassed = true;
@@ -102,6 +116,11 @@ function testMap() returns boolean {
     EmployeeTable empTab = tab.'map(function (Person person) returns Employee {
           return {name: person.name, department : "HR"};
     });
+
+    var personTblKeys = tab.keys();
+    var empTblKeys = empTab.keys();
+    testPassed = testPassed && personTblKeys.length() == empTblKeys.length();
+    //check keys of both tables are equal. Cannot check it until KeyType[] is returned
 
     int index = 0;
     empTab.forEach(function (Employee emp) {
@@ -151,6 +170,11 @@ function removeWithKey() returns boolean {
     return removedPerson == personList[2];
 }
 
+function removeWithInvalidKey() returns boolean {
+    Person removedPerson = tab.remove("AAA");
+    return removedPerson.name == "AAA";
+}
+
 function removeIfHasKey() returns boolean {
     PersonalTable tbl = table key(name) [{ name: "Chiran", age: 33 },
     { name: "Mohan", age: 37 },
@@ -190,6 +214,26 @@ function tableToArray() returns boolean {
     return testPassed;
 }
 
-//function testNextKey() returns int {
-//return tab.nextKey();
-//}
+function testNextKey() returns int {
+    CustomerTable custTbl = table key(id) [
+      { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+      { id: 2, firstName: "James", lastName: "Clark" },
+      { id: 100, firstName: "Chiran", lastName: "Fernando" },
+      { id: 5, firstName: "Gimantha", lastName: "Bandara" }
+    ];
+    return custTbl.nextKey();
+}
+
+function testNextKeyNegative() returns int {
+    return tab.nextKey();
+}
+
+function getKeysFromKeyLessTbl() returns boolean {
+    PersonalKeyLessTable keyless = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+    return keyless.keys().length() == 0;
+}

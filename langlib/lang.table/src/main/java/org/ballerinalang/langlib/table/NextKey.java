@@ -37,8 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         isPublic = true
 )
 public class NextKey {
-
     public static long nextKey(Strand strand, TableValueImpl tbl) {
-        return 0;
+        return tbl.getNextKey();
     }
 }

@@ -25,10 +25,12 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -38,11 +40,12 @@ import static org.testng.Assert.assertEquals;
  */
 public class LangLibTableTest {
 
-    private CompileResult compileResult;
+    private CompileResult compileResult, negativeResult;
 
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/tablelib_test.bal");
+        negativeResult = BCompileUtil.compile("test-src/tablelib_test_negative.bal");
     }
 
     @Test
@@ -57,8 +60,7 @@ public class LangLibTableTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    //todo disabling since hash is not matched for retrieval
-    @Test(enabled = false)
+    @Test
     public void getKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "getValueFromKey");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -88,22 +90,19 @@ public class LangLibTableTest {
         assertEquals(((BFloat) returns[0]).floatValue(), 35.5);
     }
 
-    //todo disabling since hash is not matched for removal
-    @Test(enabled = false)
+    @Test
     public void testRemoveWithKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "removeWithKey");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    //todo disabling since hash is not matched for removal
-    @Test(enabled = false)
+    @Test
     public void removeIfHasKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "removeIfHasKey");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    //todo disabling since key is not matched
-    @Test(enabled = false)
+    @Test
     public void testHasKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testHasKey");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -114,6 +113,12 @@ public class LangLibTableTest {
     public void testGetKeyList() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetKeyList");
         assertEquals(returns.length, 4);
+    }
+
+    @Test
+    public void getKeysFromKeyLessTbl() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "getKeysFromKeyLessTbl");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
     @Test
@@ -128,9 +133,46 @@ public class LangLibTableTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    //@Test
+    @Test
     public void testNextKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNextKey");
-        assertEquals(((BInteger) returns[0]).intValue(), 0);
+        assertEquals(((BInteger) returns[0]).intValue(), 101);
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: OperationNotSupported message=Defined key sequence "
+                    + "is not supported with nextKey\\(\\). The key sequence should only have an Integer field.*")
+    public void testNextKeyNegative() {
+        BRunUtil.invoke(compileResult, "testNextKeyNegative");
+        Assert.fail();
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot find key 'AAA'.*")
+    public void getWithInvalidKey() {
+        BRunUtil.invoke(compileResult, "getWithInvalidKey");
+        Assert.fail();
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp =
+                    "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot find key 'AAA'.*")
+    public void removeWithInvalidKey() {
+        BRunUtil.invoke(compileResult, "removeWithInvalidKey");
+        Assert.fail();
+    }
+
+    @Test
+    public void testCompilerNegativeCases() {
+        validateError(negativeResult, 0, "incompatible types: expected 'table<Employee>', " +
+                "found 'table<Person>, key<other>'", 66, 36);
+        validateError(negativeResult, 1, "incompatible types: expected 'Employee', " +
+                "found 'Person'", 66, 47);
+        validateError(negativeResult, 2, "incompatible types: expected " +
+                        "'object { public function next () returns (record {| Employee value; |}?); }', found " +
+                        "'object { public function next () returns (record {| Person value; |}?); }'",
+                75, 92);
+        assertEquals(negativeResult.getErrorCount(), 3);
     }
 }
