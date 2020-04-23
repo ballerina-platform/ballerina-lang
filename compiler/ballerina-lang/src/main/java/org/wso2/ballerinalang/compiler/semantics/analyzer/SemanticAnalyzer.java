@@ -2856,7 +2856,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (annotationName.equals(Names.ANNOTATION_TYPE_PARAM.value)) {
                 dlog.error(attachment.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
             } else if (annotationName.equals(Names.ANNOTATION_BUILTIN_SUBTYPE.value)) {
-                dlog.error(attachment.pos, DiagnosticCode.TYPE_PARAM_OUTSIDE_LANG_MODULE);
+                dlog.error(attachment.pos, DiagnosticCode.BUILTIN_SUBTYPE_OUTSIDE_LANG_MODULE);
             }
         }
     }

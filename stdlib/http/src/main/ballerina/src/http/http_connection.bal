@@ -172,11 +172,86 @@ public type Caller client object {
         response.statusCode = STATUS_ACCEPTED;
         return self->respond(response);
     }
+
+# Sends the outbound response to the caller with the status 204 No Content. If the given response contains a body
+# that will be removed.
+# ```ballerina
+# http:ListenerError? err = caller->noContent();
+# ```
+#
+# + message - The outbound response, which is optional
+# + return - An `http:ListenerError` if failed to respond or else `()`
+    public remote function noContent(Response? message = ()) returns ListenerError? {
+        Response newResponse = new;
+        if message is Response {
+            newResponse = message;
+        }
+        newResponse.statusCode = STATUS_NO_CONTENT;
+        return self->respond(newResponse);
+    }
+
+# Sends the outbound response to the caller with the status 400 Bad Request.
+# ```ballerina
+# http:ListenerError? err = caller->badRequest();
+# ```
+#
+# + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`,
+#             or `mime:Entity[]`
+# + return - An `http:ListenerError` if failed to respond or else `()`
+    public remote function badRequest(ResponseMessage message = ()) returns ListenerError? {
+        Response response = buildResponse(message);
+        response.statusCode = STATUS_BAD_REQUEST;
+        return self->respond(response);
+    }
+
+# Sends the outbound response to the caller with the status 404 Not Found.
+# ```ballerina
+# http:ListenerError? err = caller->notFound();
+# ```
+#
+# + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`,
+#             or `mime:Entity[]`
+# + return - An `http:ListenerError` if failed to respond or else `()`
+    public remote function notFound(ResponseMessage message = ()) returns ListenerError? {
+        Response response = buildResponse(message);
+        response.statusCode = STATUS_NOT_FOUND;
+        return self->respond(response);
+    }
+
+# Sends the outbound response to the caller with the status 500 Internal Server Error.
+# ```ballerina
+# http:ListenerError? err = caller->internalServerError();
+# ```
+#
+# + message - The outbound response or any payload of type `string`, `xml`, `json`, `byte[]`, `io:ByteChannel`,
+#             or `mime:Entity[]`
+# + return - An `http:ListenerError` if failed to respond or else `()`
+    public remote function internalServerError(ResponseMessage message = ()) returns ListenerError? {
+        Response response = buildResponse(message);
+        response.statusCode = STATUS_INTERNAL_SERVER_ERROR;
+        return self->respond(response);
+    }
+
+# Gets the hostname from the remote address. This method may trigger a DNS reverse lookup if the address was created
+# with a literal IP address.
+# ```ballerina
+# string? remoteHost = caller.getRemoteHostName();
+# ```
+#
+# + return - The hostname of the address or else `()` if it is unresolved
+    public function getRemoteHostName() returns string? {
+        return java:toString(nativeGetRemoteHostName(self));
+    }
 };
 
 function nativeRespond(Caller caller, Response response) returns ListenerError? = @java:Method {
     class: "org.ballerinalang.net.http.nativeimpl.connection.Respond",
     name: "nativeRespond"
+} external;
+
+function nativeGetRemoteHostName(Caller caller) returns handle = @java:Method {
+    class: "org.ballerinalang.net.http.nativeimpl.connection.GetRemoteHostName",
+    name: "nativeGetRemoteHostName"
 } external;
 
 
