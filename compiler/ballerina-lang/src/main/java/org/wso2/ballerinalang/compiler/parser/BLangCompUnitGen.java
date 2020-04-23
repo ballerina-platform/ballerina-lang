@@ -38,6 +38,7 @@ import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
+import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
 import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -103,6 +104,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -747,9 +749,9 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
             bLUserDefinedType.pos = emptyPos;
             return NodeTransformerOut.of(bLUserDefinedType);
         } else if (type.kind() == SyntaxKind.RECORD_TYPE_DESC) {
-            // Inline-record type
-            NodeTransformerOut structOut = type.apply(this);
-            BLangStructureTypeNode structTypeNode = (BLangStructureTypeNode) structOut.node;
+            // Inclusive type
+            NodeTransformerOut typeOut = type.apply(this);
+            BLangType typeNode = (BLangType) typeOut.node;
             BLangTypeDefinition bLTypeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
 
             // Generate a name for the anonymous object
@@ -759,7 +761,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
             bLTypeDef.flagSet.add(Flag.PUBLIC);
             bLTypeDef.flagSet.add(Flag.ANONYMOUS);
 
-            bLTypeDef.typeNode = structTypeNode;
+            bLTypeDef.typeNode = typeNode;
             bLTypeDef.pos = emptyPos;
 
             // Create UserDefinedType
@@ -768,8 +770,22 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
             bLUserDefinedType.typeName = bLTypeDef.name;
             bLUserDefinedType.pos = emptyPos;
 
-            structOut.others.add(bLTypeDef);
-            return NodeTransformerOut.of(bLUserDefinedType, structOut.others);
+            typeOut.others.add(bLTypeDef);
+            return NodeTransformerOut.of(bLUserDefinedType, typeOut.others);
+        } else if (type.kind() == SyntaxKind.OPTIONAL_TYPE) {
+            OptionalTypeDescriptorNode optTypeDescriptor = (OptionalTypeDescriptorNode) type;
+            NodeTransformerOut typeOut = createTypeNode(optTypeDescriptor.typeDescriptor());
+
+            BLangValueType nilTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+            nilTypeNode.pos = emptyPos;
+            nilTypeNode.typeKind = TypeKind.NIL;
+
+            BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+            unionTypeNode.memberTypeNodes.add((BLangType) typeOut.node);
+            unionTypeNode.memberTypeNodes.add(nilTypeNode);
+
+            unionTypeNode.pos = emptyPos;
+            return new NodeTransformerOut(unionTypeNode, typeOut.others);
         }
         return NodeTransformerOut.EMPTY;
     }
