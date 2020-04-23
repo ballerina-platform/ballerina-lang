@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 11);
+        Assert.assertEquals(compileResult.getErrorCount(), 13);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -60,5 +60,9 @@ public class TableNegativeTest {
                 "field", 77, 21);
         validateError(compileResult, index++, "field 'id' used in key specifier must have a literal " +
                 "value", 82, 41);
+        validateError(compileResult, index++, "member access is not supported for keyless table " +
+                "'keylessCusTab'", 87, 27);
+        validateError(compileResult, index++, "field 'id' used in key specifier must have a " +
+                "literal value", 90, 33);
     }
 }

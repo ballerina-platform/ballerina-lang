@@ -81,3 +81,11 @@ int idValue = 15;
 table<Customer> key(id) cusTable = table [{ id: 13 , firstName: "Sanjiva", lastName: "Weerawarana"},
                                         {id: idValue, firstName: "James" , lastName: "Clark"}];
 
+table<Customer> keylessCusTab  = table [{ id: 222, firstName: "Sanjiva", lastName: "Weerawarana" },
+                                    { id: 111, firstName: "James", lastName: "Clark" }];
+
+Customer customerRecord = keylessCusTab[222];
+
+var invalidCusTable = table key(id) [{ id: 13 , firstName: "Sanjiva", lastName: "Weerawarana"},
+                                {id: idValue, firstName: "James" , lastName: "Clark"}];
+
