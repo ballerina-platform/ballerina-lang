@@ -322,6 +322,8 @@ public class BallerinaParser {
                 return parseWorkerKeyword();
             case WORKER_NAME:
                 return parseWorkerName();
+            case FORK_KEYWORD:
+                return parseForkKeyword();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -2780,6 +2782,7 @@ public class BallerinaParser {
             case TYPE_KEYWORD:
             case LOCK_KEYWORD:
             case OPEN_BRACE_TOKEN:
+            case FORK_KEYWORD:
 
                 // Even-though worker is not a statement, we parse it as statements.
                 // then validates it based on the context. This is done to provide
@@ -2890,6 +2893,8 @@ public class BallerinaParser {
                 // then validates it based on the context. This is done to provide
                 // better error messages
                 return parseNamedWorkerDeclaration(getAnnotations(annots));
+            case FORK_KEYWORD:
+                return parseForkStatement();
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.STATEMENT_WITHOUT_ANNOTS, annots);
@@ -6637,5 +6642,68 @@ public class BallerinaParser {
             Solution sol = recover(token, ParserRuleContext.LOCK_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse fork-keyword.
+     *
+     * @return Fork-keyword node
+     */
+    private STNode parseForkKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.FORK_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.FORK_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+    * Parse multiple named worker declarations.
+    *
+    * @return named-worker-declarations node array
+    */
+    private STNode parseMultileNamedWorkerDeclarations() {
+
+        STToken token = peek();
+
+        ArrayList<STNode> workers = new ArrayList<>();
+
+        while (!isEndOfStatements(token.kind)) {
+            STNode stmt = parseStatement();
+            if (stmt == null) {
+                break;
+            }
+
+            switch (stmt.kind) {
+                case NAMED_WORKER_DECLARATION:
+                    workers.add(stmt);
+                    break;
+                default:
+                    this.errorHandler.reportInvalidNode(null, "Only named-workers are allowed here");
+                    break;
+            }
+            token = peek();
+        }
+
+        STNode namedWorkers = STNodeFactory.createNodeList(workers);
+        return namedWorkers;
+    }
+
+    /**
+     * Parse fork statement.
+     * <code>fork-stmt := fork { named-worker-decl+ }</code>
+     *
+     * @return Fork statement
+     */
+    private STNode parseForkStatement() {
+        startContext(ParserRuleContext.FORK_STMT);
+        STNode forkKeyword = parseForkKeyword();
+        STNode openBrace = parseOpenBrace();
+        STNode namedWorkerDeclarations = parseMultileNamedWorkerDeclarations();
+        STNode closeBrace = parseCloseBrace();
+        endContext();
+        return STNodeFactory.createForkStatementNode(forkKeyword, openBrace, namedWorkerDeclarations, closeBrace);
     }
 }

@@ -64,6 +64,7 @@ public enum SyntaxKind {
     NULL_KEYWORD(215, "null"),
     LOCK_KEYWORD(216, "lock"),
     VAR_KEYWORD(217, "var"),
+    FORK_KEYWORD(218, "fork"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -150,6 +151,7 @@ public enum SyntaxKind {
     ACTION_STATEMENT(1213),
     LOCK_STATEMENT(1214),
     NAMED_WORKER_DECLARATION(1215),
+    FORK_STATEMENT(1216),
 
     // Expressions
     BINARY_EXPRESSION(1300),

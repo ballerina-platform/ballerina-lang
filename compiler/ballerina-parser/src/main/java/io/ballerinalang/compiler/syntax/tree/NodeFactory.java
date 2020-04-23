@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
+
 import java.util.Objects;
 
 /**
@@ -415,6 +416,24 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 lockKeyword.internalNode(),
                 blockStatement.internalNode());
         return stLockStatementNode.createUnlinkedFacade();
+    }
+
+    public static ForkStatementNode createForkStatementNode(
+            Token forkKeyword,
+            Token openBraceToken,
+            NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations,
+            Token closeBraceToken) {
+        Objects.requireNonNull(forkKeyword, "forkKeyword must not be null");
+        Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+        Objects.requireNonNull(namedWorkerDeclarations, "namedWorkerDeclarations must not be null");
+        Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+
+        STNode stForkStatementNode = STNodeFactory.createForkStatementNode(
+                forkKeyword.internalNode(),
+                openBraceToken.internalNode(),
+                namedWorkerDeclarations.underlyingListNode().internalNode(),
+                closeBraceToken.internalNode());
+        return stForkStatementNode.createUnlinkedFacade();
     }
 
     public static BinaryExpressionNode createBinaryExpressionNode(
