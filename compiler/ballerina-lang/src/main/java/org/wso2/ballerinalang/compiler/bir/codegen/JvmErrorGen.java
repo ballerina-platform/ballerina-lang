@@ -19,12 +19,12 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.InstructionGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.CatchIns;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.JErrorEntry;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.InstructionGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.TerminatorGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.CatchIns;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -65,8 +65,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.gene
  */
 public class JvmErrorGen {
 
-    private static @Nilable
-    BIRErrorEntry findErrorEntry(@Nilable List<BIRErrorEntry> errors, BIRBasicBlock currentBB) {
+    private static BIRErrorEntry findErrorEntry(List<BIRErrorEntry> errors, BIRBasicBlock currentBB) {
 
         for (BIRErrorEntry err : errors) {
             if (err != null && err.endBB.id.value.equals(currentBB.id.value)) {
@@ -84,17 +83,17 @@ public class JvmErrorGen {
     public static class ErrorHandlerGenerator {
 
         MethodVisitor mv;
-        BalToJVMIndexMap indexMap;
+        BIRVarToJVMIndexMap indexMap;
         String currentPackageName;
 
-        public ErrorHandlerGenerator(MethodVisitor mv, BalToJVMIndexMap indexMap, String currentPackageName) {
+        public ErrorHandlerGenerator(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, String currentPackageName) {
 
             this.mv = mv;
             this.indexMap = indexMap;
             this.currentPackageName = currentPackageName;
         }
 
-        void printStackTraceFromFutureValue(MethodVisitor mv, BalToJVMIndexMap indexMap) {
+        void printStackTraceFromFutureValue(MethodVisitor mv, BIRVarToJVMIndexMap indexMap) {
 
             mv.visitInsn(DUP);
             mv.visitInsn(DUP);
@@ -113,7 +112,7 @@ public class JvmErrorGen {
             mv.visitLabel(labelIf);
         }
 
-        void genPanic(Panic panicTerm) {
+        public void genPanic(Panic panicTerm) {
 
             BIRVariableDcl varDcl = panicTerm.errorOp.variableDcl;
             int errorIndex = this.getJVMIndexOfVarRef(varDcl);
@@ -124,7 +123,7 @@ public class JvmErrorGen {
         void generateTryCatch(BIRFunction func, String funcName, BIRBasicBlock currentBB,
                               InstructionGenerator instGen, TerminatorGenerator termGen, LabelGenerator labelGen) {
 
-            @Nilable BIRErrorEntry currentEE = findErrorEntry(func.errorTable, currentBB);
+            BIRErrorEntry currentEE = findErrorEntry(func.errorTable, currentBB);
             if (currentEE == null) {
                 return;
             }

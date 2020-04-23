@@ -15,21 +15,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.wso2.ballerinalang.compiler.bir.codegen;
+package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.wso2.ballerinalang.compiler.semantics.model.types.NamedNode;
-
-import java.util.Comparator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRFunctionWrapper;
 
 /**
- * BIR Param name comparator to sort according its hash code.
+ * Wrapper of Java class fields.
  *
  * @since 1.2.0
  */
-public class NameHashComparator implements Comparator<NamedNode> {
+class JFieldFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
 
-    @Override
-    public int compare(NamedNode o1, NamedNode o2) {
-        return Integer.compare(o1.getName().value.hashCode(), o2.getName().value.hashCode());
+    JavaField jField;
+
+    JFieldFunctionWrapper(BIRFunctionWrapper functionWrapper, JavaField jField) {
+
+        super(functionWrapper.orgName, functionWrapper.moduleName, functionWrapper.version, functionWrapper.func,
+                functionWrapper.fullQualifiedClassName, functionWrapper.jvmMethodDescription,
+                functionWrapper.jvmMethodDescriptionBString);
+        this.jField = jField;
     }
 }

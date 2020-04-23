@@ -31,9 +31,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
  *
  * @since 1.2.0
  */
-class JvmObservabilityGen {
+public class JvmObservabilityGen {
 
-    static void emitStopObservationInvocation(MethodVisitor mv, int strandIndex) {
+    public static void emitStopObservationInvocation(MethodVisitor mv, int strandIndex) {
 
         mv.visitVarInsn(ALOAD, strandIndex);
         mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "stopObservation",

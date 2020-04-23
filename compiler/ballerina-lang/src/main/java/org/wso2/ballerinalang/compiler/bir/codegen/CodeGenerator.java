@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -61,7 +62,7 @@ public class CodeGenerator {
 
     //TODO: remove static
     static SymbolTable symbolTable;
-    static PackageCache packageCache;
+    public static PackageCache packageCache;
 
     private Map<String, BIRNode.BIRPackage> compiledPkgCache = new HashMap<>();
 
@@ -93,7 +94,7 @@ public class CodeGenerator {
         JvmPackageGen.symbolTable = symbolTable;
         JvmMethodGen.errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
         compiledPkgCache.put(entryMod.org.value + entryMod.name.value, entryMod);
-        JvmPackageGen.JarFile jarFile = new JvmPackageGen.JarFile();
+        JarFile jarFile = new JarFile();
         populateExternalMap();
 
         ClassLoader classLoader = makeClassLoader(moduleDependencies);
@@ -145,7 +146,7 @@ public class CodeGenerator {
         }
     }
 
-    private static void writeJarFile(JvmPackageGen.JarFile entries, Path targetPath) {
+    private static void writeJarFile(JarFile entries, Path targetPath) {
 
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");

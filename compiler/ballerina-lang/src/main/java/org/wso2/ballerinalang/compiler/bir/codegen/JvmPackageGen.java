@@ -25,10 +25,14 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.ObjectGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.ObjectGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarFile;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -107,7 +111,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMainFu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.TerminatorGenerator.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.internal.TerminatorGenerator.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateCreateTypesMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateUserDefinedTypeFields;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateValueCreatorMethods;
@@ -131,7 +135,7 @@ public class JvmPackageGen {
     public static String currentClass;
     public static SymbolTable symbolTable;
 
-    static int lambdaIndex;
+    public static int lambdaIndex;
     static Map<String, String> externalMapCache;
 
     private static Map<String, String> globalVarClassNames;
@@ -151,27 +155,7 @@ public class JvmPackageGen {
         isBString = (bStringProp != null && !"".equals(bStringProp));
     }
 
-    static class JarFile {
-
-        Map<String, String> manifestEntries = new HashMap<>();
-        Map<String, byte[]> pkgEntries = new HashMap<>();
-    }
-
-    static class JavaClass {
-
-        String sourceFileName;
-        String moduleClass;
-        @Nilable
-        List<BIRFunction> functions = new ArrayList<>();
-
-        JavaClass(String sourceFileName, String moduleClass) {
-
-            this.sourceFileName = sourceFileName;
-            this.moduleClass = moduleClass;
-        }
-    }
-
-    static BType lookupTypeDef(NewInstance objectNewIns) {
+    public static BType lookupTypeDef(NewInstance objectNewIns) {
 
         if (!objectNewIns.isExternalDef) {
             return objectNewIns.def.type;
@@ -191,7 +175,7 @@ public class JvmPackageGen {
         }
     }
 
-    static BIRFunctionWrapper getBIRFunctionWrapper(@Nilable BIRFunctionWrapper wrapper) {
+    static BIRFunctionWrapper getBIRFunctionWrapper(BIRFunctionWrapper wrapper) {
 
         if (wrapper == null) {
             throw new BLangCompilerException("invalid bir function linking");
@@ -200,7 +184,7 @@ public class JvmPackageGen {
         return wrapper;
     }
 
-    static String lookupGlobalVarClassName(String pkgName, String varName) {
+    public static String lookupGlobalVarClassName(String pkgName, String varName) {
 
         String key = pkgName + varName;
         if (!globalVarClassNames.containsKey(key)) {
@@ -296,7 +280,7 @@ public class JvmPackageGen {
                     }
                 }
 
-                @Nilable BIRFunction mainFunc = getMainFunc(module.functions);
+                BIRFunction mainFunc = getMainFunc(module.functions);
                 String mainClass = "";
                 if (mainFunc != null) {
                     mainClass = getModuleLevelClassName(orgName, moduleName,
@@ -483,12 +467,12 @@ public class JvmPackageGen {
         }
     }
 
-    static String computeLockNameFromString(String varName) {
+    public static String computeLockNameFromString(String varName) {
 
         return "$lock" + varName;
     }
 
-    static String getModuleLevelClassName(String orgName, String moduleName, String sourceFileName) {
+    public static String getModuleLevelClassName(String orgName, String moduleName, String sourceFileName) {
 
         String className = cleanupSourceFileName(sourceFileName);
         // handle source file path start with '/'.
@@ -506,7 +490,7 @@ public class JvmPackageGen {
         return className;
     }
 
-    static String getPackageName(Name orgName, Name moduleName) {
+    public static String getPackageName(Name orgName, Name moduleName) {
 
         return getPackageName(orgName.getValue(), moduleName.getValue());
     }
@@ -579,7 +563,7 @@ public class JvmPackageGen {
 
         globalVarClassNames.put(pkgName + "LOCK_STORE", initClass);
         // filter out functions.
-        @Nilable List<BIRFunction> functions = module.functions;
+        List<BIRFunction> functions = module.functions;
         if (functions.size() > 0) {
             int funcSize = functions.size();
             int count = 0;
@@ -587,7 +571,7 @@ public class JvmPackageGen {
             // function.
             BIRFunction initFunc = functions.get(0);
             String functionName = initFunc.name.value;
-            JavaClass klass = new JavaClass(initFunc.pos.src.cUnitName, initClass);
+            JavaClass klass = new JavaClass(initFunc.pos.src.cUnitName);
             klass.functions.add(0, initFunc);
             addInitAndTypeInitInstructions(module, initFunc);
             jvmClassMap.put(initClass, klass);
@@ -633,7 +617,7 @@ public class JvmPackageGen {
                     if (javaClass != null) {
                         javaClass.functions.add(birFunc);
                     } else {
-                        klass = new JavaClass(balFileName, birModuleClassName);
+                        klass = new JavaClass(balFileName);
                         klass.functions.add(0, birFunc);
                         jvmClassMap.put(birModuleClassName, klass);
                     }
@@ -662,7 +646,7 @@ public class JvmPackageGen {
         }
 
         // link typedef - object attached native functions
-        @Nilable List<BIRTypeDefinition> typeDefs = module.typeDefs;
+        List<BIRTypeDefinition> typeDefs = module.typeDefs;
 
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
@@ -671,7 +655,7 @@ public class JvmPackageGen {
             if ((bType.tag == TypeTags.OBJECT &&
                     !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) ||
                     bType instanceof BServiceType) {
-                @Nilable List<BIRFunction> attachedFuncs = getFunctions(typeDef.attachedFuncs);
+                List<BIRFunction> attachedFuncs = getFunctions(typeDef.attachedFuncs);
                 String typeName = toNameString(bType);
                 for (BIRFunction func : attachedFuncs) {
 
@@ -689,7 +673,7 @@ public class JvmPackageGen {
 
                     String jClassName = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
                     if (jClassName != null) {
-                        ExternalMethodGen.OldStyleExternalFunctionWrapper wrapper =
+                        OldStyleExternalFunctionWrapper wrapper =
                                 ExternalMethodGen.createOldStyleExternalFunctionWrapper(currentFunc, orgName,
                                                                                         moduleName, version,
                                                                                         jClassName, jClassName,
@@ -709,8 +693,8 @@ public class JvmPackageGen {
                                                         String version, String moduleClass) {
 
         BInvokableType functionTypeDesc = currentFunc.type;
-        @Nilable BIRVariableDcl receiver = currentFunc.receiver;
-        @Nilable BType attachedType = receiver != null ? receiver.type : null;
+        BIRVariableDcl receiver = currentFunc.receiver;
+        BType attachedType = receiver != null ? receiver.type : null;
         String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
                 attachedType, false);
         String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
@@ -725,8 +709,7 @@ public class JvmPackageGen {
         return new PackageID(mod.org, mod.name, mod.version);
     }
 
-    public static @Nilable
-    String lookupExternClassName(String pkgName, String functionName) {
+    public static String lookupExternClassName(String pkgName, String functionName) {
         return externalMapCache.get(cleanupName(pkgName) + "/" + functionName);
     }
 
@@ -806,33 +789,4 @@ public class JvmPackageGen {
         throw new IllegalStateException("cannot find function: '" + funcName + "'");
     }
 
-    /**
-     * A wrapper used with JInterop to wrap BFuntions with JFunc description and data.
-     *
-     * @since 1.2.0
-     */
-    public static class BIRFunctionWrapper {
-
-        public String orgName;
-        public String moduleName;
-        public String version;
-        public BIRFunction func;
-        public String fullQualifiedClassName;
-        public String jvmMethodDescription;
-        @Nilable
-        public String jvmMethodDescriptionBString;
-
-        protected BIRFunctionWrapper(String orgName, String moduleName, String version, BIRFunction func,
-                                     String fullQualifiedClassName, String jvmMethodDescription,
-                                     String jvmMethodDescriptionBString) {
-
-            this.orgName = orgName;
-            this.moduleName = moduleName;
-            this.version = version;
-            this.func = func;
-            this.fullQualifiedClassName = fullQualifiedClassName;
-            this.jvmMethodDescription = jvmMethodDescription;
-            this.jvmMethodDescriptionBString = jvmMethodDescriptionBString;
-        }
-    }
 }
