@@ -6648,35 +6648,82 @@ public class BallerinaParser {
     private STNode parseXMLTemplateLiteral() {
         STNode xmlKeyword = parseXMLKeyword();
         STNode startingBackTick = parseBacktickToken();
-        STNode content = parseXMLContent();
+        STNode content = parseXMLContent(ParserMode.DEFAULT);
         STNode endingBackTick = parseBacktickToken();
         return null;
     }
 
-    private STNode parseXMLContent() {
-        STToken nextToken = peek(1);
-        STToken nextNextToken = peek(2);
+    private STNode parseXMLContent(ParserMode currentMode) {
+        List<STNode> items = new ArrayList<>();
+        STToken nextToken = peek();
+        while (!isEndOfXMLContent(nextToken.kind)) {
+            STNode contentItem = parseXMLContentItem(currentMode);
+            items.add(contentItem);
+            nextToken = peek();
+        }
+        return STNodeFactory.createNodeList(items);
+    }
+
+    /**
+     * Check whether the parser has reached the end of the backtick literal.
+     * 
+     * @param kind Next token kind
+     * @return <code>true</code> if this is the end of the backtick literal. <code>false</code> otherwise
+     */
+    private boolean isEndOfXMLContent(SyntaxKind kind) {
+        switch (kind) {
+            case EOF_TOKEN:
+            case BACKTICK_TOKEN:
+                return true;
+            case LT_TOKEN:
+                STToken nextNextToken = getNextNextToken(kind);
+                if (nextNextToken.kind == SyntaxKind.SLASH_TOKEN) {
+                    return true;
+                }
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    private STNode parseXMLContentItem(ParserMode currentMode) {
+        // Switch to xml-content parsing
+        this.tokenReader.switchMode(ParserMode.XML_CONTENT);
+        STToken nextToken = peek();
+        STNode content = null;
         switch (nextToken.kind) {
             case LT_TOKEN:
-                switch (nextNextToken.kind) {
-                    case EXCLAMATION_MARK_TOKEN:
-                        // TODO: xml-comment
-                        break;
-                    case QUESTION_MARK_TOKEN:
-                        // TODO: XML-PI
-                        break;
-                    case SLASH_TOKEN:
-                        // this is the end token.
-                        return STNodeFactory.createEmptyNode();
-                    default:
-                        return parseXMLElement();
-                }
+                content = parseXMLElement(ParserMode.XML_CONTENT);
+                break;
+            case XML_COMMENT_START_TOKEN:
+                break;
+            case XML_PI_START_TOKEN:
+                break;
+            case INTERPOLATION_START_TOKEN:
+                content = parseInterpolation(ParserMode.XML_CONTENT);
                 break;
             default:
-                // TODO: xml text
+                content = parseXMLText();
                 break;
         }
 
+        // Reset mode
+        this.tokenReader.switchMode(currentMode);
+        return content;
+    }
+
+    private STNode parseInterpolation(ParserMode currentMode) {
+        STNode interpolStart = parseInterpolationStart();
+
+        // switch to default mode and parse expressions.
+        this.tokenReader.resetMode();
+        STNode expr = parseExpression();
+
+        // Revert back the to previous mode
+        this.tokenReader.switchMode(currentMode);
+
+        STNode closeBrace = parseCloseBrace();
+        System.out.println(interpolStart + "" + expr + " (" + expr.kind + ")" + closeBrace);
         return null;
     }
 
@@ -6710,12 +6757,12 @@ public class BallerinaParser {
         }
     }
 
-    private STNode parseXMLElement() {
+    private STNode parseXMLElement(ParserMode currentMode) {
         this.tokenReader.switchMode(ParserMode.XML_ELEMENT);
         STNode startTag = parseXMLElementStartTag();
-        STNode content = parseXMLContent();
+        STNode content = parseXMLContent(ParserMode.XML_ELEMENT);
         STNode endTag = parseXMLElementEndTag();
-        this.tokenReader.resetMode();
+        this.tokenReader.switchMode(currentMode);
         return null;
     }
 
@@ -6767,13 +6814,56 @@ public class BallerinaParser {
     }
 
     private STNode parseXMLNCName() {
-        // TODO:
         STToken token = peek();
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-            return consume();
+            return parseQualifiedIdentifier(consume());
         } else {
             Solution sol = recover(token, ParserRuleContext.XML_NAME);
             return sol.recoveredNode;
         }
+    }
+
+    private STNode parseInterpolationStart() {
+        // TODO:
+        STToken token = peek();
+        if (token.kind == SyntaxKind.INTERPOLATION_START_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.INTERPOLATION_START_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseXMLText() {
+        this.tokenReader.switchMode(ParserMode.XML_TEXT);
+        List<STNode> items = new ArrayList<>();
+        STToken nextToken = peek();
+        while (true) {
+            switch (nextToken.kind) {
+                case INTERPOLATION_START_TOKEN:
+                    items.add(parseInterpolation(ParserMode.XML_TEXT));
+                    nextToken = peek();
+                    continue;
+                case EOF_TOKEN:
+                case BACKTICK_TOKEN:
+                case LT_TOKEN:
+                    break;
+                default:
+                    STNode content = parseCharData();
+                    items.add(content);
+                    nextToken = peek();
+                    continue;
+            }
+
+            break;
+        }
+        this.tokenReader.resetMode();
+        return STNodeFactory.createNodeList(items);
+    }
+
+    private STNode parseCharData() {
+        STToken text = consume();
+        System.out.println(text);
+        return text;
     }
 }

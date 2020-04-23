@@ -98,6 +98,7 @@ public class LexerTerminals {
     public static final char HASH = '#';
     public static final char AT = '@';
     public static final char BACKTICK = '`';
+    public static final char DOLLAR = '$';
 
     // Arithmetic operators
     public static final char EQUAL = '=';

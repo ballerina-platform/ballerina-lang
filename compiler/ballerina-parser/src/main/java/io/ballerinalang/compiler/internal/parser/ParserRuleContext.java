@@ -254,6 +254,7 @@ public enum ParserRuleContext {
 
     // XML 
     XML_NAME("xml-name"),
+    INTERPOLATION_START_TOKEN("interpolation-start-token"),
     ;
 
     private String value;

@@ -24,6 +24,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.prefs.BackingStoreException;
 
 /**
  * A LL(k) lexer for ballerina.
@@ -52,9 +53,12 @@ public class BallerinaLexer {
             case DEFAULT:
             case IMPORT:
                 return readToken();
+            case XML_CONTENT:
+                return readXMLContentToken();
             case XML_ELEMENT:
+                return readXMLElementToken();
             case XML_TEXT:
-                return readXMLToken();
+                return readXMLTextToken();
             default:
                 // should never reach here.
                 return null;
@@ -281,6 +285,7 @@ public class BallerinaLexer {
             // Other
             default:
                 // Process invalid token as trivia, and continue to next token
+                System.out.println(String.valueOf((char)c));
                 processInvalidToken();
                 token = readToken();
                 break;
@@ -1027,10 +1032,60 @@ public class BallerinaLexer {
     }
 
     /*
-     * XML lexing
+     * ------------------------------------------------------------------------------------------------------------
+     * XML_CONTENT Mode
+     * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readXMLToken() {
+    private STToken readXMLContentToken() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        int nextChar = reader.peek();
+        reader.advance();
+        switch (nextChar) {
+            case LexerTerminals.BACKTICK:
+                return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+            case LexerTerminals.LT:
+                nextChar = reader.peek();
+                switch (nextChar) {
+                    case LexerTerminals.EXCLAMATION_MARK:
+                        // TODO: xml-comment
+                        break;
+                    case LexerTerminals.QUESTION_MARK:
+                        // TODO: XML-PI
+                        break;
+                    case LexerTerminals.SLASH:
+                        // this is the end token.
+                    default:
+                        return getSyntaxToken(SyntaxKind.LT_TOKEN);
+                }
+            case LexerTerminals.DOLLAR:
+                if (peek() != LexerTerminals.OPEN_BRACE) {
+                    break;
+                }
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+            case LexerTerminals.GT:
+                reportLexerError("invalid token: " + String.valueOf(nextChar));
+                break;
+            default:
+                break;
+        }
+
+        // Everything else treat as charData
+        return getXMLCharacterData();
+    }
+
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * XML_ELEMENT Mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
+
+    private STToken readXMLElementToken() {
         reader.mark();
         if (reader.isEOF()) {
             return getSyntaxToken(SyntaxKind.EOF_TOKEN);
@@ -1038,7 +1093,7 @@ public class BallerinaLexer {
 
         int c = reader.peek();
         reader.advance();
-        STToken token = null;
+        STToken token;
         switch (c) {
             // Separators
             case LexerTerminals.LT:
@@ -1050,6 +1105,16 @@ public class BallerinaLexer {
             case LexerTerminals.SLASH:
                 token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
                 break;
+            case LexerTerminals.COLON:
+                token = getSyntaxToken(SyntaxKind.COLON_TOKEN);
+                break;
+            case LexerTerminals.DOLLAR:
+                if (peek() == LexerTerminals.OPEN_BRACE) {
+                    reader.advance();
+                    token = getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+                    break;
+                }
+                // fall through
             default:
                 token = processXMLName(c);
                 break;
@@ -1059,35 +1124,92 @@ public class BallerinaLexer {
     }
 
     private STToken processXMLName(int startChar) {
-        if (!isXMLNameStartChar(startChar)) {
-            reportLexerError("invalid xml name");
+        boolean isValid = true;
+        if (!XMLValidator.isNCNameStart(startChar)) {
+            isValid = false;
         }
 
-        while (isIdentifierFollowingChar(peek())) {
+        while (XMLValidator.isNCName(peek())) {
             reader.advance();
         }
 
-        return getIdentifierToken(getLexeme());
+        String text = getLexeme();
+        if (!isValid) {
+            reportLexerError("invalid xml name: " + text);
+        }
+
+        return getIdentifierToken(text);
     }
 
-    private boolean isXMLNameStartChar(int c) {
-        // TODO: properly add this.
-        if ('A' <= c && c <= 'Z') {
-            return true;
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * XML_TEXT Mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
+
+    private STToken readXMLTextToken() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
 
-        if ('a' <= c && c <= 'z') {
-            return true;
+        int nextChar = reader.peek();
+        STToken token;
+        switch (nextChar) {
+            case LexerTerminals.LT:
+                reader.advance();
+                token = getSyntaxToken(SyntaxKind.LT_TOKEN);
+                break;
+            case LexerTerminals.DOLLAR:
+                if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                    reader.advance(2);
+                    token = getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+                    break;
+                }
+                // fall through
+            default:
+                reader.advance();
+                token = getXMLCharacterData();
+                break;
         }
 
-        if (c == '_') {
-            return true;
-        }
-
-        return false;
+        return token;
     }
 
-    private boolean isXMLNameChar(int c) {
-        return isIdentifierInitialChar(c) || isDigit(c);
+    private STToken getXMLCharacterData() {
+        boolean done = false;
+        int nextChar = this.reader.peek();
+        while (!reader.isEOF()) {
+            switch (nextChar) {
+                case LexerTerminals.BACKTICK:
+                case LexerTerminals.LT:
+                    done = true;
+                    break;
+                case LexerTerminals.DOLLAR:
+                    if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                        done = true;
+                        break;
+                    }
+                    reader.advance();
+                    break;
+                case LexerTerminals.BITWISE_AND:
+                    // The ampersand character is not allowed in Report error, but continue.
+                    reportLexerError("invalid token in xml text: " + nextChar);
+                    reader.advance();
+                    break;
+                default:
+                    // TODO: ]]> should also terminate the charData
+                    reader.advance();
+                    break;
+            }
+
+            if (done) {
+                break;
+            }
+            nextChar = this.reader.peek();
+            continue;
+        }
+
+        return getLiteral(SyntaxKind.XML_TEXT);
     }
 }
