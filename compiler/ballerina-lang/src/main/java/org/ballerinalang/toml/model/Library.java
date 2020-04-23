@@ -28,7 +28,7 @@ public class Library {
     public String path;
     public String groupId;
     public String[] modules;
-    public String scope;
+    private String scope;
 
     public String getVersion() {
         return version;
@@ -72,9 +72,5 @@ public class Library {
 
     public String getScope() {
         return scope;
-    }
-
-    public void setScope(String scope) {
-        this.scope = scope;
     }
 }

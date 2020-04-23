@@ -124,14 +124,15 @@ public class CopyNativeLibTask implements Task {
 
     private void copyPlatformLibsForModules(PackageID packageID, ExecutableJar executableJar, Path project) {
         List<Library> libraries = manifest.getPlatform().libraries;
-        if (null == libraries) {
+        if (libraries == null) {
             return;
         }
-        List<Library> libs = libraries.stream().filter(lib -> lib.getModules() == null ||
-                Arrays.asList(lib.getModules()).contains(packageID.name.value)).collect(Collectors.toList());
-        for (Library lib : libs) {
-            String libFilePath = lib.getPath();
-            if (null != libFilePath) {
+        for (Library lib : libraries) {
+            if (lib.getModules() == null || Arrays.asList(lib.getModules()).contains(packageID.name.value)) {
+                String libFilePath = lib.getPath();
+                if (libFilePath == null) {
+                    continue;
+                }
                 Path nativeFile = project.resolve(Paths.get(libFilePath));
                 if (lib.getScope() != null && lib.getScope().equals("test")) {
                     executableJar.testLibs.add(nativeFile);

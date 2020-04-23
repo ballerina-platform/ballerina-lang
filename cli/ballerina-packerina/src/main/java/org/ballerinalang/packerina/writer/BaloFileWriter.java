@@ -61,7 +61,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Generator and writer for module balo file.
@@ -297,25 +296,27 @@ public class BaloFileWriter {
 
     private void addPlatformLibs(Path root, Path projectDirectory, String moduleName) throws IOException {
         //If platform libs are defined add them to balo
-        if (null != manifest.getPlatform().libraries) {
-            Path platformLibsDir = root.resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME);
-            Files.createDirectory(platformLibsDir);
+        List<Library> platformLibs = manifest.getPlatform().libraries;
+        if (platformLibs == null) {
+            return;
+        }
+        Path platformLibsDir = root.resolve(ProjectDirConstants.BALO_PLATFORM_LIB_DIR_NAME);
+        Files.createDirectory(platformLibsDir);
 
-            List<Path> libs = manifest.getPlatform().libraries.stream()
-                    .filter(lib -> (lib.getModules() == null || Arrays.asList(lib.getModules()).contains(moduleName))
-                            && (lib.getScope() == null || lib.getScope().equals("package")))
-                    .map(lib -> Paths.get(lib.getPath())).collect(Collectors.toList());
-
-            for (Path lib : libs) {
-                Path nativeFile = projectDirectory.resolve(lib);
-                Path libFileName = lib.getFileName();
-                if (null != libFileName) {
-                    Path targetPath = platformLibsDir.resolve(libFileName.toString());
-                    try {
-                        Files.copy(nativeFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
-                    } catch (IOException e) {
-                        throw new BLangCompilerException("Dependency jar not found : " + lib.toString());
-                    }
+        for (Library lib : platformLibs) {
+            if ((lib.getModules() == null || Arrays.asList(lib.getModules()).contains(moduleName))
+                    && (lib.getScope() == null || lib.getScope().equals("package"))) {
+                Path libPath = Paths.get(lib.getPath());
+                Path nativeFile = projectDirectory.resolve(libPath);
+                Path libFileName = libPath.getFileName();
+                if (libFileName == null) {
+                    continue;
+                }
+                Path targetPath = platformLibsDir.resolve(libFileName.toString());
+                try {
+                    Files.copy(nativeFile, targetPath, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    throw new BLangCompilerException("Dependency jar not found : " + lib.toString());
                 }
             }
         }

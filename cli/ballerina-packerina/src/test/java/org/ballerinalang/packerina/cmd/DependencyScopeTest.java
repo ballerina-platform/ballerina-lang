@@ -32,8 +32,6 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Enumeration;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
@@ -49,6 +47,15 @@ public class DependencyScopeTest extends CommandTest {
     private Path testResources;
     private URI testResourcesURI;
 
+    private Path balo;
+    private Path scopeToml;
+    private File baloFile;
+    private File baloZipFile;
+
+    private BuildCommand buildCommand;
+
+    String storedJarPath = "platform-libs/storedJar.jar";
+
     @BeforeClass
     public void setup() throws IOException {
         super.setup();
@@ -58,37 +65,37 @@ public class DependencyScopeTest extends CommandTest {
             Path storedJarDependencyProject = Paths.get(testResourcesURI).resolve("stored-jar-dependency-project");
             Files.walkFileTree(storedJarDependencyProject, new BuildCommandTest.Copy(storedJarDependencyProject,
                     this.testResources));
+
+            String baloFileName = "mymodule-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
+                    + BLANG_COMPILED_PKG_BINARY_EXT;
+            String[] compileArgs = {"--all", "--skip-tests"};
+
+            buildCommand = new BuildCommand(this.testResources, printStream, printStream, false,
+                    true);
+            new CommandLine(buildCommand).parse(compileArgs);
+
+            balo = this.testResources.resolve(ProjectDirConstants.TARGET_DIR_NAME).
+                    resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY);
+            baloFile = new File(balo.toString() + File.separator + baloFileName);
+            baloZipFile = new File(balo.toString() + File.separator + baloFileName.concat(".zip"));
+            scopeToml = Paths.get(testResourcesURI).resolve("scope-toml");
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
         }
     }
 
-    @Test(description = "Test if platform libs are packed with the balo based on the scope.")
-    public void testBuildCommandWithStoredJarDependency() throws IOException {
-        String baloFileName = "mymodule-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-0.1.0"
-                + BLANG_COMPILED_PKG_BINARY_EXT;
-        Path balo = this.testResources.resolve(ProjectDirConstants.TARGET_DIR_NAME).
-                resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY);
-        File baloFile = new File(balo.toString() + File.separator + baloFileName);
-        File baloZipFile = new File(balo.toString() + File.separator +
-                baloFileName.concat(".zip"));
-        Path scopeToml = Paths.get(testResourcesURI).resolve("scope-toml");
-        String storedJarPath = "platform-libs/storedJar.jar";
-
-        // Build the project
-        String[] compileArgs = {"--all", "--skip-tests"};
-        BuildCommand buildCommand = new BuildCommand(this.testResources, printStream, printStream,
-                false, true);
-        new CommandLine(buildCommand).parse(compileArgs);
-        // default scope
+    @Test(description = "Test if platform libs are packed with the balo for default scope.")
+    public void testDefaultScope() throws IOException {
         buildCommand.execute();
         Assert.assertTrue(Files.exists(balo), "Check if balo directory exists");
 
         // Check whether dependency jars getting packed to balo
         Assert.assertTrue(renameFile(baloFile, baloZipFile));
         Assert.assertTrue(isJarExists(baloZipFile, storedJarPath));
+    }
 
-        // package scope
+    @Test(description = "Test if platform libs are packed with the balo for package scope.", priority = 1)
+    public void testPackageScope() throws IOException {
         copy(scopeToml.resolve("case1").resolve(ProjectDirConstants.MANIFEST_FILE_NAME),
                 this.testResources.resolve(ProjectDirConstants.MANIFEST_FILE_NAME));
         buildCommand.execute();
@@ -97,8 +104,10 @@ public class DependencyScopeTest extends CommandTest {
         // Check whether dependency jars getting packed to balo
         Assert.assertTrue(renameFile(baloFile, baloZipFile));
         Assert.assertTrue(isJarExists(baloZipFile, storedJarPath));
+    }
 
-        // package scope
+    @Test(description = "Test if platform libs are packed with the balo for compile scope.", priority = 2)
+    public void testCompileScope() throws IOException {
         copy(scopeToml.resolve("case2").resolve(ProjectDirConstants.MANIFEST_FILE_NAME),
                 this.testResources.resolve(ProjectDirConstants.MANIFEST_FILE_NAME));
         buildCommand.execute();
@@ -107,8 +116,10 @@ public class DependencyScopeTest extends CommandTest {
         // Check whether dependency jars getting packed to balo
         Assert.assertTrue(renameFile(baloFile, baloZipFile));
         Assert.assertFalse(isJarExists(baloZipFile, storedJarPath));
+    }
 
-        // compile scope
+    @Test(description = "Test if platform libs are packed with the balo for test scope.", priority = 3)
+    public void testTestScope() throws IOException {
         copy(scopeToml.resolve("case3").resolve(ProjectDirConstants.MANIFEST_FILE_NAME),
                 this.testResources.resolve(ProjectDirConstants.MANIFEST_FILE_NAME));
         buildCommand.execute();
@@ -125,14 +136,8 @@ public class DependencyScopeTest extends CommandTest {
 
     private boolean isJarExists (File file, String jarEntry) throws IOException {
         try (ZipFile zipFile = new ZipFile(file)) {
-            Enumeration<? extends ZipEntry> entries = zipFile.entries();
-            while (entries.hasMoreElements()) {
-                if (entries.nextElement().getName().equals(jarEntry)) {
-                    return true;
-                }
-            }
+            return zipFile.getEntry(jarEntry) != null;
         }
-        return false;
     }
 
     private void copy(Path source, Path dest) throws IOException {
