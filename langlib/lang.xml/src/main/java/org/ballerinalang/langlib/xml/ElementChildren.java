@@ -75,8 +75,4 @@ public class ElementChildren {
         }
         return new XMLSequence();
     }
-
-    public static XMLValue elementChildren_bstring(Strand strand, XMLValue xmlVal, Object name) {
-        return elementChildren(strand, xmlVal, name);
-    }
 }

@@ -53,6 +53,7 @@ import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamingJsonValue;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -470,7 +471,7 @@ public class HttpUtil {
      * @return Error value
      */
     public static ErrorValue getError(String errMsg) {
-        MapValue<String, Object> httpErrorRecord = createHttpErrorDetailRecord(errMsg, null);
+        MapValue<BString, Object> httpErrorRecord = createHttpErrorDetailRecord(errMsg, null);
         httpErrorRecord.put(HTTP_ERROR_MESSAGE, errMsg);
         return BallerinaErrors.createError(HTTP_ERROR_CODE, httpErrorRecord);
     }
@@ -523,18 +524,18 @@ public class HttpUtil {
     public static ErrorValue createHttpError(String message, HttpErrorType errorType) {
         Map<String, Object> values = new HashMap<>();
         values.put(BallerinaErrors.ERROR_MESSAGE_FIELD, message);
-        MapValue<String, Object> detail =
+        MapValue<BString, Object> detail =
                 BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID, HTTP_ERROR_DETAIL_RECORD, values);
         return BallerinaErrors.createError(errorType.getReason(), detail);
     }
 
     public static ErrorValue createHttpError(String message, HttpErrorType errorType, ErrorValue cause) {
-        MapValue<String, Object> detailRecord = createHttpErrorDetailRecord(message, cause);
+        MapValue<BString, Object> detailRecord = createHttpErrorDetailRecord(message, cause);
         return BallerinaErrors.createError(errorType.getReason(), detailRecord);
     }
 
-    private static MapValue<String, Object> createHttpErrorDetailRecord(String message, ErrorValue cause) {
-        MapValue<String, Object> detail = BallerinaValues.
+    private static MapValue<BString, Object> createHttpErrorDetailRecord(String message, ErrorValue cause) {
+        MapValue<BString, Object> detail = BallerinaValues.
                 createRecordValue(PROTOCOL_HTTP_PKG_ID, HTTP_ERROR_DETAIL_RECORD);
         return cause == null ? BallerinaValues.createRecord(detail, message) :
                 BallerinaValues.createRecord(detail, message, cause);
@@ -585,8 +586,8 @@ public class HttpUtil {
 
     private static ErrorValue createErrorCause(String message, String reason, BPackage packageName, String recordName) {
 
-        MapValue<String, Object> detailRecordType = BallerinaValues.createRecordValue(packageName, recordName);
-        MapValue<String, Object> detailRecord = BallerinaValues.createRecord(detailRecordType, message, null);
+        MapValue<BString, Object> detailRecordType = BallerinaValues.createRecordValue(packageName, recordName);
+        MapValue<BString, Object> detailRecord = BallerinaValues.createRecord(detailRecordType, message, null);
         return BallerinaErrors.createError(reason, detailRecord);
     }
 
@@ -722,8 +723,8 @@ public class HttpUtil {
      */
     public static void enrichHttpCallerWithConnectionInfo(ObjectValue httpCaller, HttpCarbonMessage inboundMsg,
                                                           HttpResource httpResource, MapValue config) {
-        MapValue<String, Object> remote = ValueCreatorUtils.createHTTPRecordValue(HttpConstants.REMOTE);
-        MapValue<String, Object> local = ValueCreatorUtils.createHTTPRecordValue(HttpConstants.LOCAL);
+        MapValue<BString, Object> remote = ValueCreatorUtils.createHTTPRecordValue(HttpConstants.REMOTE);
+        MapValue<BString, Object> local = ValueCreatorUtils.createHTTPRecordValue(HttpConstants.LOCAL);
 
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
         if (remoteSocketAddress instanceof InetSocketAddress) {

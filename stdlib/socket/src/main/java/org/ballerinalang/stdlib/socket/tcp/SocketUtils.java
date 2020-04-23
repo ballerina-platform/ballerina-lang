@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.socket.SocketConstants;
 
 import java.net.Socket;
@@ -75,8 +76,9 @@ public class SocketUtils {
         return BallerinaErrors.createError(code.errorCode(), createDetailRecord(errMsg, null));
     }
 
-    private static MapValue<String, Object> createDetailRecord(Object... values) {
-        MapValue<String, Object> detail = BallerinaValues.createRecordValue(SOCKET_PACKAGE_ID, DETAIL_RECORD_TYPE_NAME);
+    private static MapValue<BString, Object> createDetailRecord(Object... values) {
+        MapValue<BString, Object> detail = BallerinaValues.createRecordValue(SOCKET_PACKAGE_ID,
+                                                                             DETAIL_RECORD_TYPE_NAME);
         return BallerinaValues.createRecord(detail, values);
     }
 

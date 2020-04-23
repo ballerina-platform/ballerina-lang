@@ -79,7 +79,7 @@ public class AssignStmtTest {
 
         // String assignment test
         args = new BValue[] { new BString("Test Value") };
-        returns = BRunUtil.invoke_bstring(result, "testStringAssignStmt", args);
+        returns = BRunUtil.invoke(result, "testStringAssignStmt", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);

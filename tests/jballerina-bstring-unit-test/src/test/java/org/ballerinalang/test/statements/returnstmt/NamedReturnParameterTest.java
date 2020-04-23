@@ -41,7 +41,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test single named return parameter")
     public void testSingleNamedReturnParam() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BRunUtil.invoke_bstring(compileResult, "testSingleNamedReturnParam", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSingleNamedReturnParam", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -52,7 +52,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test single named return parameter, zero return arguments")
     public void testSingleNamedReturnParamZeroReturnArgs() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BRunUtil.invoke_bstring(compileResult, "testSingleNamedReturnParamZeroReturnArgs", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSingleNamedReturnParamZeroReturnArgs", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -63,7 +63,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test two named return parameters")
     public void testTwoNamedReturnParam() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BRunUtil.invoke_bstring(compileResult, "testTwoNamedReturnParam", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTwoNamedReturnParam", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -76,7 +76,7 @@ public class NamedReturnParameterTest {
     @Test(description = "Test two named return parameters")
     public void testTwoNamedReturnParamZeroReturnArgs() {
         BValue[] args = {new BInteger(10), new BString("test")};
-        BValue[] returns = BRunUtil.invoke_bstring(compileResult, "testTwoNamedReturnParamZeroReturnArgs", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testTwoNamedReturnParamZeroReturnArgs", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BInteger.class);

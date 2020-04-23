@@ -21,7 +21,9 @@ package org.ballerinalang.messaging.kafka.utils;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.avro.util.Utf8;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.List;
 
@@ -38,23 +40,23 @@ public class AvroUtils {
      */
     private AvroUtils(){}
 
-    protected static void populateBallerinaGenericAvroRecord(MapValue<String, Object> genericAvroRecord,
+    protected static void populateBallerinaGenericAvroRecord(MapValue<BString, Object> genericAvroRecord,
                                                              GenericRecord record) {
         List<Schema.Field> fields = record.getSchema().getFields();
         for (Schema.Field field : fields) {
             if (record.get(field.name()) instanceof Utf8) {
-                genericAvroRecord.put(field.name(), record.get(field.name()).toString());
+                genericAvroRecord.put(StringUtils.fromString(field.name()), record.get(field.name()).toString());
             } else if (record.get(field.name()) instanceof GenericRecord) {
                 populateBallerinaGenericAvroRecord(genericAvroRecord, (GenericRecord) record.get(field.name()));
             } else {
-                genericAvroRecord.put(field.name(), record.get(field.name()));
+                genericAvroRecord.put(StringUtils.fromString(field.name()), record.get(field.name()));
             }
         }
     }
 
-    protected static MapValue<String, Object> handleAvroConsumer(Object value) {
+    protected static MapValue<BString, Object> handleAvroConsumer(Object value) {
         if (value instanceof GenericRecord) {
-            MapValue<String, Object> genericAvroRecord = getAvroGenericRecord();
+            MapValue<BString, Object> genericAvroRecord = getAvroGenericRecord();
             populateBallerinaGenericAvroRecord(genericAvroRecord, (GenericRecord) value);
             return genericAvroRecord;
         } else {

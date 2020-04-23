@@ -36,6 +36,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BError;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
 import org.ballerinalang.messaging.kafka.observability.KafkaObservabilityConstants;
@@ -94,7 +95,7 @@ public class KafkaUtils {
 
         if (service.getType().getAttachedFunctions()[0].getParameterType().length == 2) {
             for (Object record : records) {
-                MapValue<String, Object> consumerRecord = populateConsumerRecord((ConsumerRecord) record, keyType,
+                MapValue<BString, Object> consumerRecord = populateConsumerRecord((ConsumerRecord) record, keyType,
                                                                                  valueType);
                 consumerRecordsArray.append(consumerRecord);
             }
@@ -104,10 +105,10 @@ public class KafkaUtils {
                     BValueCreator.createArrayValue(new BArrayType(getPartitionOffsetRecord().getType()));
             for (Object record : records) {
                 ConsumerRecord kafkaRecord = (ConsumerRecord) record;
-                MapValue<String, Object> consumerRecord = populateConsumerRecord(kafkaRecord, keyType, valueType);
-                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(kafkaRecord.topic(),
+                MapValue<BString, Object> consumerRecord = populateConsumerRecord(kafkaRecord, keyType, valueType);
+                MapValue<BString, Object> topicPartition = populateTopicPartitionRecord(kafkaRecord.topic(),
                                                                                        kafkaRecord.partition());
-                MapValue<String, Object> partitionOffset = populatePartitionOffsetRecord(topicPartition,
+                MapValue<BString, Object> partitionOffset = populatePartitionOffsetRecord(topicPartition,
                                                                                          kafkaRecord.offset());
                 consumerRecordsArray.append(consumerRecord);
                 partitionOffsetsArray.append(partitionOffset);
@@ -507,17 +508,17 @@ public class KafkaUtils {
      * @param partition value of the partition offset
      * @return {@code MapValue} of the record
      */
-    public static MapValue<String, Object> populateTopicPartitionRecord(String topic, int partition) {
+    public static MapValue<BString, Object> populateTopicPartitionRecord(String topic, int partition) {
         return createRecord(getTopicPartitionRecord(), topic, partition);
     }
 
-    public static MapValue<String, Object> populatePartitionOffsetRecord(MapValue<String, Object> topicPartition,
-                                                                         long offset) {
+    public static MapValue<BString, Object> populatePartitionOffsetRecord(MapValue<BString, Object> topicPartition,
+                                                                          long offset) {
         return createRecord(getPartitionOffsetRecord(), topicPartition, offset);
     }
 
-    public static MapValue<String, Object> populateConsumerRecord(ConsumerRecord record, String keyType,
-                                                                  String valueType) {
+    public static MapValue<BString, Object> populateConsumerRecord(ConsumerRecord record, String keyType,
+                                                                   String valueType) {
         Object key = null;
         if (Objects.nonNull(record.key())) {
             key = getBValues(record.key(), keyType);
@@ -563,42 +564,42 @@ public class KafkaUtils {
         throw createKafkaError("Unexpected type found for consumer record", CONSUMER_ERROR);
     }
 
-    public static MapValue<String, Object> getConsumerRecord() {
+    public static MapValue<BString, Object> getConsumerRecord() {
         return createKafkaRecord(KafkaConstants.CONSUMER_RECORD_STRUCT_NAME);
     }
 
-    public static MapValue<String, Object> getAvroGenericRecord() {
+    public static MapValue<BString, Object> getAvroGenericRecord() {
         return createKafkaRecord(KafkaConstants.AVRO_GENERIC_RECORD_NAME);
     }
 
-    public static MapValue<String, Object> getPartitionOffsetRecord() {
+    public static MapValue<BString, Object> getPartitionOffsetRecord() {
         return createKafkaRecord(KafkaConstants.OFFSET_STRUCT_NAME);
     }
 
-    public static MapValue<String, Object> getTopicPartitionRecord() {
+    public static MapValue<BString, Object> getTopicPartitionRecord() {
         return createKafkaRecord(KafkaConstants.TOPIC_PARTITION_STRUCT_NAME);
     }
 
     public static BError createKafkaError(String message, String reason) {
-        MapValue<String, Object> detail = createKafkaDetailRecord(message);
+        MapValue<BString, Object> detail = createKafkaDetailRecord(message);
         return BValueCreator.createErrorValue(StringUtils.fromString(reason), detail);
     }
 
     public static BError createKafkaError(String message, String reason, BError cause) {
-        MapValue<String, Object> detail = createKafkaDetailRecord(message, cause);
+        MapValue<BString, Object> detail = createKafkaDetailRecord(message, cause);
         return BValueCreator.createErrorValue(StringUtils.fromString(reason), detail);
     }
 
-    private static MapValue<String, Object> createKafkaDetailRecord(String message) {
+    private static MapValue<BString, Object> createKafkaDetailRecord(String message) {
         return createKafkaDetailRecord(message, null);
     }
 
-    private static MapValue<String, Object> createKafkaDetailRecord(String message, BError cause) {
-        MapValue<String, Object> detail = createKafkaRecord(KafkaConstants.DETAIL_RECORD_NAME);
+    private static MapValue<BString, Object> createKafkaDetailRecord(String message, BError cause) {
+        MapValue<BString, Object> detail = createKafkaRecord(KafkaConstants.DETAIL_RECORD_NAME);
         return BallerinaValues.createRecord(detail, message, cause);
     }
 
-    public static MapValue<String, Object> createKafkaRecord(String recordName) {
+    public static MapValue<BString, Object> createKafkaRecord(String recordName) {
         return BallerinaValues.createRecordValue(KafkaConstants.KAFKA_PROTOCOL_PACKAGE_ID, recordName);
     }
 
@@ -609,8 +610,8 @@ public class KafkaUtils {
             for (Map.Entry<TopicPartition, Long> entry : offsetMap.entrySet()) {
                 TopicPartition tp = entry.getKey();
                 Long offset = entry.getValue();
-                MapValue<String, Object> topicPartition = populateTopicPartitionRecord(tp.topic(), tp.partition());
-                MapValue<String, Object> partition = populatePartitionOffsetRecord(topicPartition, offset);
+                MapValue<BString, Object> topicPartition = populateTopicPartitionRecord(tp.topic(), tp.partition());
+                MapValue<BString, Object> partition = populatePartitionOffsetRecord(topicPartition, offset);
                 partitionOffsetArray.append(partition);
             }
         }

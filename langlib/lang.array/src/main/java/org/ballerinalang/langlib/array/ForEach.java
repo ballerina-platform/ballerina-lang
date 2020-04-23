@@ -56,8 +56,4 @@ public class ForEach {
                                                        result -> {
                                                        }, () -> null);
     }
-
-    public static void forEach_bstring(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
-        forEach(strand, arr, func);
-    }
 }

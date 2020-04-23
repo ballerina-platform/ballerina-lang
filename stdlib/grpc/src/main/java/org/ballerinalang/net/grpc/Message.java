@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.api.BMap;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
@@ -127,7 +128,7 @@ public class Message {
             }
         }
 
-        BMap<String, Object> bMapValue = null;
+        BMap<BString, Object> bMapValue = null;
         if (bType.getTag() == TypeTags.RECORD_TYPE_TAG) {
             bMapValue = BValueCreator.createRecordValue(bType.getPackage(), bType.getName());
             bMessage = bMapValue;
@@ -139,10 +140,10 @@ public class Message {
                     if (entry.getValue().getType().toProto().getNumber() ==
                             DescriptorProtos.FieldDescriptorProto.Type.TYPE_MESSAGE_VALUE &&
                             !entry.getValue().isRepeated()) {
-                        bMapValue.put(entry.getValue().getName(), null);
+                        bMapValue.put(org.ballerinalang.jvm.StringUtils.fromString(entry.getValue().getName()), null);
                     } else if (entry.getValue().getType().toProto().getNumber() ==
                             DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE) {
-                        bMapValue.put(entry.getValue().getName(),
+                        bMapValue.put(org.ballerinalang.jvm.StringUtils.fromString(entry.getValue().getName()),
                                 entry.getValue().getEnumType().findValueByNumber(0).toString());
                     }
                 }
@@ -188,7 +189,7 @@ public class Message {
                 done = true;
             } else if (fieldDescriptors.containsKey(tag)) {
                 Descriptors.FieldDescriptor fieldDescriptor = fieldDescriptors.get(tag);
-                String name = fieldDescriptor.getName();
+                BString name = org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName());
                 switch (fieldDescriptor.getType().toProto().getNumber()) {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE: {
                         if (bMapValue != null) {
@@ -424,7 +425,7 @@ public class Message {
                             if (fieldDescriptor.isRepeated()) {
                                 ArrayValue structArray = bMapValue.get(name) != null ?
                                         (ArrayValue) bMapValue.get(name) : null;
-                                BType fieldType = recordType.getFields().get(name).getFieldType();
+                                BType fieldType = recordType.getFields().get(name.getValue()).getFieldType();
                                 if (structArray == null || structArray.size() == 0) {
                                     structArray = new ArrayValueImpl((BArrayType) fieldType);
                                     bMapValue.put(name, structArray);
@@ -432,15 +433,15 @@ public class Message {
                                 structArray.add(structArray.size(), readMessage(fieldDescriptor,
                                         ((BArrayType) fieldType).getElementType(), input).bMessage);
                             } else if (fieldDescriptor.getContainingOneof() != null) {
-                                BType fieldType = recordType.getFields().get(name).getFieldType();
+                                BType fieldType = recordType.getFields().get(name.getValue()).getFieldType();
                                 Object bValue = readMessage(fieldDescriptor, fieldType, input).bMessage;
                                 updateBMapValue(bMapValue, fieldDescriptor, bValue);
                             } else {
-                                BType fieldType = recordType.getFields().get(name).getFieldType();
+                                BType fieldType = recordType.getFields().get(name.getValue()).getFieldType();
                                 bMapValue.put(name, readMessage(fieldDescriptor, fieldType, input).bMessage);
                             }
                         } else {
-                            BType fieldType = recordType.getFields().get(name).getFieldType();
+                            BType fieldType = recordType.getFields().get(name.getValue()).getFieldType();
                             bMessage = readMessage(fieldDescriptor, fieldType, input).bMessage;
                         }
                         break;
@@ -454,9 +455,9 @@ public class Message {
         }
     }
 
-    private void updateBMapValue(BMap<String, Object> bMapValue,
+    private void updateBMapValue(BMap<BString, Object> bMapValue,
                                  Descriptors.FieldDescriptor fieldDescriptor, Object bValue) {
-        bMapValue.put(fieldDescriptor.getName(), bValue);
+        bMapValue.put(org.ballerinalang.jvm.StringUtils.fromString(fieldDescriptor.getName()), bValue);
     }
 
     public com.google.protobuf.Descriptors.Descriptor getDescriptor() {

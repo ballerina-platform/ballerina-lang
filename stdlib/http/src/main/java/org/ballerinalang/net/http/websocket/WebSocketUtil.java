@@ -33,6 +33,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpErrorType;
@@ -259,9 +260,9 @@ public class WebSocketUtil {
 
     private static ErrorValue createErrorCause(String message, String reason, BPackage packageName) {
 
-        MapValue<String, Object> detailRecordType = BallerinaValues.createRecordValue(
+        MapValue<BString, Object> detailRecordType = BallerinaValues.createRecordValue(
                 packageName, WebSocketConstants.WEBSOCKET_ERROR_DETAILS);
-        MapValue<String, Object> detailRecord = BallerinaValues.createRecord(detailRecordType, message, null);
+        MapValue<BString, Object> detailRecord = BallerinaValues.createRecord(detailRecordType, message, null);
         return BallerinaErrors.createError(reason, detailRecord);
     }
 

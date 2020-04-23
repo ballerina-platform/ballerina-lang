@@ -33,10 +33,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 )
 public class FromString {
 
-    public static HandleValue fromString(Strand strand, String strValue) {
-        return new HandleValue(strValue);
-    }
-    public static HandleValue fromString_bstring(Strand strand, BString strValue) {
+    public static HandleValue fromString(Strand strand, BString strValue) {
         return new HandleValue(strValue.getValue());
     }
 }

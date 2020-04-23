@@ -101,55 +101,55 @@ public class TernaryExpressionTest {
     @Test
     public void testInStructLiteral() {
         BValue[] args = {new BString("admin")};
-        BValue[] results = BRunUtil.invoke_bstring(compileResult, "test6", args);
+        BValue[] results = BRunUtil.invoke(compileResult, "test6", args);
         Assert.assertEquals(results[0].stringValue(), "super");
 
         args = new BValue[]{new BString("no user")};
-        results = BRunUtil.invoke_bstring(compileResult, "test6", args);
+        results = BRunUtil.invoke(compileResult, "test6", args);
         Assert.assertEquals(results[0].stringValue(), "tom");
     }
 
     @Test
     public void testInMapLiteral() {
         BValue[] args = {new BString("one")};
-        BValue[] results = BRunUtil.invoke_bstring(compileResult, "test7", args);
+        BValue[] results = BRunUtil.invoke(compileResult, "test7", args);
         Assert.assertEquals(((BInteger) results[0]).intValue(), 1);
 
         args = new BValue[]{new BString("two")};
-        results = BRunUtil.invoke_bstring(compileResult, "test7", args);
+        results = BRunUtil.invoke(compileResult, "test7", args);
         Assert.assertEquals(((BInteger) results[0]).intValue(), 2);
     }
 
     @Test
     public void testInStringTemplateLiteral() {
         BValue[] args = {new BString("world")};
-        BValue[] results = BRunUtil.invoke_bstring(compileResult, "test8", args);
+        BValue[] results = BRunUtil.invoke(compileResult, "test8", args);
         Assert.assertEquals(results[0].stringValue(), "hello world...!!");
 
         args = new BValue[]{new BString("foo")};
-        results = BRunUtil.invoke_bstring(compileResult, "test8", args);
+        results = BRunUtil.invoke(compileResult, "test8", args);
         Assert.assertEquals(results[0].stringValue(), "hello everyone..!");
     }
 
     @Test
     public void testInInvocationExpressions() {
         BValue[] args = {new BString("a")};
-        BValue[] results = BRunUtil.invoke_bstring(compileResult, "test9", args);
+        BValue[] results = BRunUtil.invoke(compileResult, "test9", args);
         Assert.assertEquals(results[0].stringValue(), "bax");
 
         args = new BValue[]{new BString("b")};
-        results = BRunUtil.invoke_bstring(compileResult, "test9", args);
+        results = BRunUtil.invoke(compileResult, "test9", args);
         Assert.assertEquals(results[0].stringValue(), "bar");
     }
 
     @Test
     public void testInReferenceType() {
         BValue[] args = {new BString("tom")};
-        BValue[] results = BRunUtil.invoke_bstring(compileResult, "test10", args);
+        BValue[] results = BRunUtil.invoke(compileResult, "test10", args);
         Assert.assertEquals(results[0].stringValue(), "{name:\"tom\", location:\"US\"}");
 
         args = new BValue[]{new BString("bob")};
-        results = BRunUtil.invoke_bstring(compileResult, "test10", args);
+        results = BRunUtil.invoke(compileResult, "test10", args);
         Assert.assertEquals(results[0].stringValue(), "{name:\"bob\", location:\"UK\"}");
     }
 

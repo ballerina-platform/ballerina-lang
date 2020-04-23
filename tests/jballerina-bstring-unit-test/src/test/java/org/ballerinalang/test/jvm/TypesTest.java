@@ -78,14 +78,14 @@ public class TypesTest {
 
     @Test
     public void testString2() {
-        BValue[] result = BRunUtil.invoke_bstring(compileResult, "testStringWithArgs",
-                                                  new BValue[]{new BString("World")});
+        BValue[] result = BRunUtil.invoke(compileResult, "testStringWithArgs",
+                                          new BValue[]{new BString("World")});
         Assert.assertEquals((result[0]).stringValue(), "HelloWorld");
     }
 
     @Test
     public void testArray() {
-        BValue[] result = BRunUtil.invoke_bstring(compileResult, "testArray", new BValue[]{new BString("World")});
+        BValue[] result = BRunUtil.invoke(compileResult, "testArray", new BValue[]{new BString("World")});
         Assert.assertEquals((result[0]).stringValue(), "3");
     }
 

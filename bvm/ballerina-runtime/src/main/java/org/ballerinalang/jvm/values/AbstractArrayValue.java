@@ -380,11 +380,8 @@ public abstract class AbstractArrayValue implements ArrayValue {
                     FreezeUtils.handleInvalidUpdate(freezeStatus.getState(), ARRAY_LANG_LIB);
                 }
             } catch (BLangFreezeException e) {
-                if (ArrayValueImpl.USE_BSTRING) {
-                    throw BallerinaErrors.createError(StringUtils.fromString(e.getMessage()),
-                                                      StringUtils.fromString(e.getDetail()));
-                }
-                throw BallerinaErrors.createError(e.getMessage(), e.getDetail());
+                throw BallerinaErrors.createError(StringUtils.fromString(e.getMessage()),
+                                                  StringUtils.fromString(e.getDetail()));
             }
         }
     }

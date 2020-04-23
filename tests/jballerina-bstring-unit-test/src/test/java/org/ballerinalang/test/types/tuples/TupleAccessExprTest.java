@@ -62,17 +62,17 @@ public class TupleAccessExprTest {
     @Test(description = "Test tuple index based access with a function as the index")
     public void tupleIndexAsFunction() {
         BValue[] args = {new BString("0")};
-        BValue[] returns = BRunUtil.invoke_bstring(compileResult, "tupleIndexAsFunction", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "tupleIndexAsFunction", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "string");
 
         BValue[] args2 = {new BString("1")};
-        returns = BRunUtil.invoke_bstring(compileResult, "tupleIndexAsFunction", args2);
+        returns = BRunUtil.invoke(compileResult, "tupleIndexAsFunction", args2);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "9.0");
 
         BValue[] args3 = {new BString("2")};
-        returns = BRunUtil.invoke_bstring(compileResult, "tupleIndexAsFunction", args3);
+        returns = BRunUtil.invoke(compileResult, "tupleIndexAsFunction", args3);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "true");
     }
@@ -83,7 +83,7 @@ public class TupleAccessExprTest {
                     "out of range: index: -1, size: 3.*")
     public void tupleInvalidIndexAsFunction() {
         BValue[] args = {new BString("-1")};
-        BRunUtil.invoke_bstring(compileResult, "tupleIndexAsFunction", args);
+        BRunUtil.invoke(compileResult, "tupleIndexAsFunction", args);
     }
 
     @Test(description = "Test accessing tuple which includes a union")

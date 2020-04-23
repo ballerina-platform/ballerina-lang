@@ -100,7 +100,7 @@ public class VariableDefinitionTest {
                 new BInteger(v1), new BBoolean(v3), new BString(v4), new BFloat(v5)
         };
 
-        BValue[] returns = BRunUtil.invoke_bstring(result, "updateVarValue", args);
+        BValue[] returns = BRunUtil.invoke(result, "updateVarValue", args);
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertSame(returns[0].getClass(), BInteger.class);
@@ -131,7 +131,7 @@ public class VariableDefinitionTest {
                 new BInteger(v1), new BBoolean(v3), new BString(v4), new BFloat(v5)
         };
 
-        BValue[] returns = BRunUtil.invoke_bstring(result, "updateVarValue", args);
+        BValue[] returns = BRunUtil.invoke(result, "updateVarValue", args);
         Assert.assertEquals(returns.length, 4);
 
         Assert.assertSame(returns[0].getClass(), BInteger.class);

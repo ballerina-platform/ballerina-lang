@@ -63,9 +63,6 @@ public class ArgumentParser {
     private static final String FALSE = "FALSE";
     private static final String HEX_PREFIX = "0X";
 
-    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
-    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
-
     /**
      * Method to retrieve the {@link Object} array containing the arguments to invoke the function specified as the
      * entry function. First element is ignored to keep the strand.
@@ -184,10 +181,7 @@ public class ArgumentParser {
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.ANY_TAG:
-                if (ArrayValueImpl.USE_BSTRING) {
-                    return StringUtils.fromString(value);
-                }
-                return value;
+                return StringUtils.fromString(value);
             case TypeTags.INT_TAG:
                 return getIntegerValue(value);
             case TypeTags.FLOAT_TAG:
@@ -212,9 +206,6 @@ public class ArgumentParser {
                 }
             case TypeTags.RECORD_TYPE_TAG:
                 try {
-                    if (USE_BSTRING) {
-                        return JSONUtils.convertJSONToRecord_bstring(JSONParser.parse(value), (BStructureType) type);
-                    }
                     return JSONUtils.convertJSONToRecord(JSONParser.parse(value), (BStructureType) type);
                 } catch (BallerinaException e) {
                     throw BallerinaErrors.createError("invalid argument '" + value

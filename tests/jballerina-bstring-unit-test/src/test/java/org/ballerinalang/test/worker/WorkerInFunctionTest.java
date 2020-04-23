@@ -35,7 +35,7 @@ public class WorkerInFunctionTest {
     public void testWorkerInFunction() {
         CompileResult result = BCompileUtil.compile("test-src/workers/worker-in-function-test.bal");
         BValue[] args = {new BString("hello")};
-        BValue[] returns = BRunUtil.invoke_bstring(result, "testSimpleWorker", args);
+        BValue[] returns = BRunUtil.invoke(result, "testSimpleWorker", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "hello");
     }

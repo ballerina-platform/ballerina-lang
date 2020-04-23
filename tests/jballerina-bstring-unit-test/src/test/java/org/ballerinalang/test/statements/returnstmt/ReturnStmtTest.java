@@ -123,7 +123,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpperUtil() {
         BValue[] args = {new BString("section")};
-        BValue[] returns = BRunUtil.invoke_bstring(compileResult, "testToUpperUtil", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testToUpperUtil", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals("SECTION", returns[0].stringValue());
@@ -132,7 +132,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpperUtilDouble() {
         BValue[] args = {new BString("name1"), new BString("name2")};
-        BValue[] returns = BRunUtil.invoke_bstring(compileResult, "testToUpperUtilDouble", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testToUpperUtilDouble", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals("NAME1", returns[0].stringValue());
@@ -142,7 +142,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper() {
         BValue[] args = {new BString("section")};
-        BValue[] returns = BRunUtil.invoke_bstring(compileResult, "testToUpper", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testToUpper", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals("SECTION", returns[0].stringValue());
@@ -151,7 +151,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper1() {
         BValue[] args = {new BString("name1"), new BString("name2")};
-        BValue[] returns = BRunUtil.invoke_bstring(compileResult, "testToUpper1", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testToUpper1", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals("SECTION", returns[0].stringValue());
@@ -161,7 +161,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper2() {
         BValue[] args = {new BString("name1"), new BString("name2")};
-        BValue[] returns = BRunUtil.invoke_bstring(compileResult, "testToUpper2", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testToUpper2", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals("name1", returns[0].stringValue());
@@ -171,7 +171,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper3() {
         BValue[] args = {new BString("name1"), new BString("name2")};
-        BValue[] returns = BRunUtil.invoke_bstring(compileResult, "testToUpper3", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testToUpper3", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals("SECTION", returns[0].stringValue());
@@ -181,7 +181,7 @@ public class ReturnStmtTest {
     @Test(description = "Test one parameter and one return value")
     public void testToUpper4() {
         BValue[] args = {new BString("name1"), new BString("name2")};
-        BValue[] returns = BRunUtil.invoke_bstring(compileResult, "testToUpper4", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testToUpper4", args);
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals("NAME1", returns[0].stringValue());

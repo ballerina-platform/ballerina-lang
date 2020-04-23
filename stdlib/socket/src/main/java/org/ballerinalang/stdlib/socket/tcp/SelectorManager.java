@@ -24,9 +24,11 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.TupleValueImpl;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.socket.SocketConstants;
 import org.ballerinalang.stdlib.socket.exceptions.SelectorInitializeException;
 import org.slf4j.Logger;
@@ -409,9 +411,9 @@ public class SelectorManager {
 
     private TupleValueImpl createUdpSocketReturnValue(ReadPendingCallback callback, byte[] bytes,
             InetSocketAddress remoteAddress) {
-        MapValue<String, Object> address = BallerinaValues.createRecordValue(SOCKET_PACKAGE_ID, "Address");
-        address.put("port", remoteAddress.getPort());
-        address.put("host", remoteAddress.getHostName());
+        MapValue<BString, Object> address = BallerinaValues.createRecordValue(SOCKET_PACKAGE_ID, "Address");
+        address.put(new BmpStringValue("port"), remoteAddress.getPort());
+        address.put(new BmpStringValue("host"), remoteAddress.getHostName());
         TupleValueImpl contentTuple = new TupleValueImpl(receiveFromResultTuple);
         contentTuple.add(0, new ArrayValueImpl(bytes));
         contentTuple.add(1, Long.valueOf(callback.getCurrentLength()));

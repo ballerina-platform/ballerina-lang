@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.File;
 import java.io.IOException;
@@ -85,7 +86,7 @@ public class SystemUtils {
     }
 
     public static ObjectValue getFileInfo(File inputFile) throws IOException {
-        MapValue<String, Object> lastModifiedInstance;
+        MapValue<BString, Object> lastModifiedInstance;
         FileTime lastModified = Files.getLastModifiedTime(inputFile.toPath());
         ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
         lastModifiedInstance = createTimeRecord(getTimeZoneRecord(), getTimeRecord(),

@@ -22,6 +22,7 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BPackage;
@@ -78,7 +79,8 @@ public class ServicesBuilderUtils {
     }
 
     private static String getServiceName(ObjectValue service) {
-        Object serviceConfigData = service.getType().getAnnotation("ballerina/grpc:ServiceConfig");
+        Object serviceConfigData = service.getType().getAnnotation(
+                StringUtils.fromString("ballerina/grpc:ServiceConfig"));
         if (serviceConfigData != null) {
             MapValue configMap = (MapValue) serviceConfigData;
             String providedName = configMap.getStringValue("name");

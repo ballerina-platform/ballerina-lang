@@ -70,10 +70,6 @@ public class StackTrace {
         return callStack;
     }
 
-    public static ObjectValue stackTrace_bstring(Strand strand, ErrorValue value) {
-        return stackTrace(strand, value);
-    }
-
     private static ArrayValue getCallStackArray(StackTraceElement[] stackTrace) {
         BType recordType = BallerinaValues.createRecordValue(BALLERINA_LANG_ERROR_PKG_ID, CALL_STACK_ELEMENT).getType();
         Object[] array = new Object[stackTrace.length];
@@ -83,7 +79,7 @@ public class StackTrace {
         return new ArrayValueImpl(array, new BArrayType(recordType));
     }
 
-    static MapValue<String, Object> getStackFrame(StackTraceElement stackTraceElement) {
+    static MapValue<BString, Object> getStackFrame(StackTraceElement stackTraceElement) {
         Object[] values = new Object[4];
         values[0] = stackTraceElement.getMethodName();
         values[1] = stackTraceElement.getClassName();

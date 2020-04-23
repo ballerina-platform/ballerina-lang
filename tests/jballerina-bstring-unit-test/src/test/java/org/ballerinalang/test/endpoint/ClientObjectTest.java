@@ -86,7 +86,7 @@ public class ClientObjectTest {
         Assert.assertEquals(result.length, 1);
         Assert.assertEquals(result[0].stringValue(), "i1 {}");
 
-        result = BRunUtil.invoke_bstring(compileResult, "testNewEP", new BValue[] { new BString("done") });
+        result = BRunUtil.invoke(compileResult, "testNewEP", new BValue[] { new BString("done") });
         Assert.assertEquals(result.length, 1);
         Assert.assertEquals(result[0].stringValue(), "donedone");
     }

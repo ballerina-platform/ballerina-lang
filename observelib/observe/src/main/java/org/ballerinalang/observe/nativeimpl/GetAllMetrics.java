@@ -34,8 +34,10 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -85,14 +87,14 @@ public class GetAllMetrics {
                 metricType = MetricConstants.GAUGE;
             }
             if (metricValue != null) {
-                MapValue<String, Object> metricStruct = BallerinaValues.createRecordValue(
+                MapValue<BString, Object> metricStruct = BallerinaValues.createRecordValue(
                         ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.METRIC);
-                metricStruct.put("name", metricId.getName());
-                metricStruct.put("desc", metricId.getDescription());
-                metricStruct.put("tags", getTags(metricId));
-                metricStruct.put("metricType", metricType);
-                metricStruct.put("value", metricValue);
-                metricStruct.put("summary", summary);
+                metricStruct.put(new BmpStringValue("name"), metricId.getName());
+                metricStruct.put(new BmpStringValue("desc"), metricId.getDescription());
+                metricStruct.put(new BmpStringValue("tags"), getTags(metricId));
+                metricStruct.put(new BmpStringValue("metricType"), metricType);
+                metricStruct.put(new BmpStringValue("value"), metricValue);
+                metricStruct.put(new BmpStringValue("summary"), summary);
                 bMetrics.add(metricIndex, metricStruct);
                 metricIndex++;
             }

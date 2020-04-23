@@ -69,7 +69,7 @@ public class AddOperationTest {
     @Test(description = "Test two string add expression")
     public void testStringAddExpr() {
         BValue[] args = { new BString("WSO2"), new BString(" Inc.")};
-        BValue[] returns = BRunUtil.invoke_bstring(result, "stringAdd", args);
+        BValue[] returns = BRunUtil.invoke(result, "stringAdd", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
@@ -104,7 +104,7 @@ public class AddOperationTest {
 
         BValue[] args = {new BString(a), new BInteger(b)};
 
-        BValue[] returns = BRunUtil.invoke_bstring(result, "stringAndIntAdd", args);
+        BValue[] returns = BRunUtil.invoke(result, "stringAndIntAdd", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BString.class);
         String actualResult = returns[0].stringValue();

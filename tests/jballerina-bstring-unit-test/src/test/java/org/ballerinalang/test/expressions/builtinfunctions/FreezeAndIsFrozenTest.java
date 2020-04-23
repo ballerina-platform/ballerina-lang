@@ -122,7 +122,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(dataProvider = "stringValues")
     public void testStringFreeze(String i) {
-        BValue[] returns = BRunUtil.invoke_bstring(result, "testStringFreeze", new BValue[]{new BString(i)});
+        BValue[] returns = BRunUtil.invoke(result, "testStringFreeze", new BValue[]{new BString(i)});
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected strings to be the same");

@@ -87,7 +87,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.I_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
@@ -129,11 +128,7 @@ public class JvmCastGen {
         } else if (targetType.jTag == JTypeTags.JDOUBLE) {
             generateCheckCastBToJDouble(mv, sourceType);
         } else if (targetType.jTag == JTypeTags.JREF) {
-            if (!isBString && ((JType.JRefType) targetType).typeValue.equals(B_STRING_VALUE)) {
-                generateCheckCastBToJString(mv, sourceType);
-            } else {
-                generateCheckCastBToJRef(mv, sourceType, targetType);
-            }
+            generateCheckCastBToJRef(mv, sourceType, targetType);
         } else if (targetType.jTag == JTypeTags.JARRAY) {
             generateCheckCastBToJRef(mv, sourceType, targetType);
         } else {
@@ -937,11 +932,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.JSON ||
                 sourceType.tag == TypeTags.FINITE) {
             checkCast(mv, symbolTable.stringType);
-            if (isBString) {
-                mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-            } else {
-                mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-            }
+            mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
             return;
         } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", String.format("(J)L%s;", STRING_VALUE), false);
@@ -1205,11 +1196,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON) {
-            if (isBString) {
-                mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-            } else {
-                mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
-            }
+            mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'string'",
                     sourceType));

@@ -98,7 +98,7 @@ public class BreakStmtTest {
     @Test
     public void testBreakWithForeach() {
         BValue[] args = {new BString("break")};
-        BValue[] returns = BRunUtil.invoke_bstring(positiveCompileResult, "testBreakWithForeach", args);
+        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "testBreakWithForeach", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(),
                 "start->foreach0->foreachEnd0->foreach1->foreachEnd1->foreach2->foreachEnd2->foreach3->break->end");

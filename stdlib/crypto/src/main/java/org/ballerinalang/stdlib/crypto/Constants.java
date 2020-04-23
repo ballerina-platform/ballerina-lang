@@ -19,6 +19,8 @@
 package org.ballerinalang.stdlib.crypto;
 
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.BmpStringValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
@@ -59,37 +61,37 @@ public class Constants {
     public static final String KEY_STORE_RECORD_PASSWORD_FIELD = "password";
 
     // Algorithm field in PRIVATE_KEY_RECORD.
-    public static final String PRIVATE_KEY_RECORD_ALGORITHM_FIELD = "algorithm";
+    public static final BString PRIVATE_KEY_RECORD_ALGORITHM_FIELD = new BmpStringValue("algorithm");
 
     // Algorithm field in PUBLIC_KEY_RECORD.
-    public static final String PUBLIC_KEY_RECORD_ALGORITHM_FIELD = "algorithm";
+    public static final BString PUBLIC_KEY_RECORD_ALGORITHM_FIELD = new BmpStringValue("algorithm");
 
     // Algorithm field in PUBLIC_KEY_RECORD.
-    public static final String PUBLIC_KEY_RECORD_CERTIFICATE_FIELD = "certificate";
+    public static final BString PUBLIC_KEY_RECORD_CERTIFICATE_FIELD = new BmpStringValue("certificate");
 
     // Version field in CERTIFICATE_RECORD.
-    public static final String CERTIFICATE_RECORD_VERSION_FIELD = "version0";
+    public static final BString CERTIFICATE_RECORD_VERSION_FIELD = new BmpStringValue("version0");
 
     // Serial field in CERTIFICATE_RECORD.
-    public static final String CERTIFICATE_RECORD_SERIAL_FIELD = "serial";
+    public static final BString CERTIFICATE_RECORD_SERIAL_FIELD = new BmpStringValue("serial");
 
     // Issuer field in CERTIFICATE_RECORD.
-    public static final String CERTIFICATE_RECORD_ISSUER_FIELD = "issuer";
+    public static final BString CERTIFICATE_RECORD_ISSUER_FIELD = new BmpStringValue("issuer");
 
     // Subject field in CERTIFICATE_RECORD.
-    public static final String CERTIFICATE_RECORD_SUBJECT_FIELD = "subject";
+    public static final BString CERTIFICATE_RECORD_SUBJECT_FIELD = new BmpStringValue("subject");
 
     // NotBefore field in CERTIFICATE_RECORD.
-    public static final String CERTIFICATE_RECORD_NOT_BEFORE_FIELD = "notBefore";
+    public static final BString CERTIFICATE_RECORD_NOT_BEFORE_FIELD = new BmpStringValue("notBefore");
 
     // NotAfter field in CERTIFICATE_RECORD.
-    public static final String CERTIFICATE_RECORD_NOT_AFTER_FIELD = "notAfter";
+    public static final BString CERTIFICATE_RECORD_NOT_AFTER_FIELD = new BmpStringValue("notAfter");
 
     // Signature field in CERTIFICATE_RECORD.
-    public static final String CERTIFICATE_RECORD_SIGNATURE_FIELD = "signature";
+    public static final BString CERTIFICATE_RECORD_SIGNATURE_FIELD = new BmpStringValue("signature");
 
     // SigningAlgorithm field in CERTIFICATE_RECORD.
-    public static final String CERTIFICATE_RECORD_SIGNATURE_ALG_FIELD = "signingAlgorithm";
+    public static final BString CERTIFICATE_RECORD_SIGNATURE_ALG_FIELD = new BmpStringValue("signingAlgorithm");
 
     // Error record for crypto module.
     public static final String CRYPTO_ERROR = "CryptoError";

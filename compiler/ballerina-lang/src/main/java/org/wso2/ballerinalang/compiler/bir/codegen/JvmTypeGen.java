@@ -136,7 +136,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getObjectField;
@@ -753,8 +752,7 @@ class JvmTypeGen {
             mv.visitInsn(AASTORE);
             i += 1;
         }
-        String funcName = isBString ? "setAttachedFuncsAndProcessAnnots_bstring" : "setAttachedFuncsAndProcessAnnots";
-        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE, funcName, String.format(
+        mv.visitMethodInsn(INVOKEVIRTUAL, SERVICE_TYPE, "setAttachedFuncsAndProcessAnnots", String.format(
                 "(L%s;L%s;L%s;[L%s;)V", MAP_VALUE, STRAND, SERVICE_TYPE, ATTACHED_FUNCTION), false);
     }
 
@@ -1364,7 +1362,7 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.FLOAT) {
             return "D";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            return String.format("L%s;", isBString ? B_STRING_VALUE : STRING_VALUE);
+            return String.format("L%s;", B_STRING_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
             return "Z";
         } else if (bType.tag == TypeTags.NIL) {

@@ -19,6 +19,8 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.BmpStringValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
@@ -211,7 +213,7 @@ public class HttpConstants {
 
     public static final String HTTP_ERROR_CODE = "{ballerina/http}HTTPError";
     public static final String HTTP_ERROR_RECORD = "HTTPError";
-    public static final String HTTP_ERROR_MESSAGE = "message";
+    public static final BString HTTP_ERROR_MESSAGE = new BmpStringValue("message");
 
     // ServeConnector struct indices
     public static final String HTTP_CONNECTOR_CONFIG_FIELD = "config";
@@ -414,14 +416,14 @@ public class HttpConstants {
 
     //Remote struct field names
     public static final String REMOTE_STRUCT_FIELD = "remoteAddress";
-    public static final String REMOTE_HOST_FIELD = "host";
-    public static final String REMOTE_PORT_FIELD = "port";
+    public static final BString REMOTE_HOST_FIELD = new BmpStringValue("host");
+    public static final BString REMOTE_PORT_FIELD = new BmpStringValue("port");
     public static final String REMOTE_SOCKET_ADDRESS = "remoteSocketAddress";
 
     //Local struct field names
     public static final String LOCAL_STRUCT_INDEX = "localAddress";
-    public static final String LOCAL_HOST_FIELD = "host";
-    public static final String LOCAL_PORT_FIELD = "port";
+    public static final BString LOCAL_HOST_FIELD = new BmpStringValue("host");
+    public static final BString LOCAL_PORT_FIELD = new BmpStringValue("port");
 
     //WebSocket Related constants for WebSocket upgrade
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER = "NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER";

@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.messaging.kafka.impl.KafkaTransactionContext;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
@@ -212,7 +213,7 @@ public class ProducerActions {
             BArray topicPartitionArray =
                     BValueCreator.createArrayValue(new BArrayType(getTopicPartitionRecord().getType()));
             for (PartitionInfo info : partitionInfoList) {
-                MapValue<String, Object> partition = populateTopicPartitionRecord(info.topic(), info.partition());
+                MapValue<BString, Object> partition = populateTopicPartitionRecord(info.topic(), info.partition());
                 topicPartitionArray.append(partition);
             }
             return topicPartitionArray;

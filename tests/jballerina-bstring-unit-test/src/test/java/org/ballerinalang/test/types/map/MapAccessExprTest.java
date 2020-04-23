@@ -75,7 +75,7 @@ public class MapAccessExprTest {
     @Test(description = "Test map return value")
     public void testArrayReturnValueTest() {
         BValue[] args = {new BString("Chanaka"), new BString("Fernando")};
-        BValue[] returns = BRunUtil.invoke_bstring(compileResult, "mapReturnTest", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "mapReturnTest", args);
 
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BMap.class);

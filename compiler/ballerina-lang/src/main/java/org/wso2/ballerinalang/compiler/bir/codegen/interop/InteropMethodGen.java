@@ -740,8 +740,7 @@ public class InteropMethodGen {
         JMethodFunctionWrapper(BIRFunctionWrapper functionWrapper, JMethod jMethod) {
 
             super(functionWrapper.orgName, functionWrapper.moduleName, functionWrapper.version, functionWrapper.func,
-                    functionWrapper.fullQualifiedClassName, functionWrapper.jvmMethodDescription,
-                    functionWrapper.jvmMethodDescriptionBString);
+                  functionWrapper.fullQualifiedClassName, functionWrapper.jvmMethodDescription);
             this.jMethod = jMethod;
         }
     }
@@ -758,8 +757,7 @@ public class InteropMethodGen {
         JFieldFunctionWrapper(BIRFunctionWrapper functionWrapper, JavaField jField) {
 
             super(functionWrapper.orgName, functionWrapper.moduleName, functionWrapper.version, functionWrapper.func,
-                    functionWrapper.fullQualifiedClassName, functionWrapper.jvmMethodDescription,
-                    functionWrapper.jvmMethodDescriptionBString);
+                  functionWrapper.fullQualifiedClassName, functionWrapper.jvmMethodDescription);
             this.jField = jField;
         }
     }

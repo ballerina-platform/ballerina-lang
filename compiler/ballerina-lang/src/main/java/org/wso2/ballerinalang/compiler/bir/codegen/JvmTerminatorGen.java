@@ -123,7 +123,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addJ
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarLoad;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarStore;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmLabelGen.LabelGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.BalToJVMIndexMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupBalExt;
@@ -498,9 +497,7 @@ public class JvmTerminatorGen {
             }
 
             String jClassName = callIns.jClassName;
-            String jMethodName = callIns.name + (isBString ? "_bstring" : "");
-            String jMethodVMSig = isBString ? callIns.jMethodVMSigBString : callIns.jMethodVMSig;
-            this.mv.visitMethodInsn(INVOKESTATIC, jClassName, jMethodName, jMethodVMSig, false);
+            this.mv.visitMethodInsn(INVOKESTATIC, jClassName, callIns.name, callIns.jMethodVMSig, false);
 
             if (callIns.lhsOp != null && callIns.lhsOp.variableDcl != null) {
                 this.storeToVar(callIns.lhsOp.variableDcl);
@@ -706,8 +703,7 @@ public class JvmTerminatorGen {
             String jvmClass;
             if (functionWrapper != null) {
                 jvmClass = functionWrapper.fullQualifiedClassName;
-                methodDesc = isBString ? functionWrapper.jvmMethodDescriptionBString :
-                             functionWrapper.jvmMethodDescription;
+                methodDesc = functionWrapper.jvmMethodDescription;
             } else {
                 BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
                 BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(methodName)).symbol;

@@ -138,19 +138,19 @@ public class RecordAccessWithIndexTest {
     @Test(description = "Test using expression as the index")
     public void testDynamicIndexAccessTypesWithRestParam() {
         BValue[] args = {new BString("fieldOne")};
-        BValue[] returns = BRunUtil.invoke_bstring(compileResult, "testDynamicIndexAccessTypesWithRestParam", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithRestParam", args);
         Assert.assertEquals(returns[0].stringValue(), ":int:50");
 
         BValue[] args1 = {new BString("fieldTwo")};
-        returns = BRunUtil.invoke_bstring(compileResult, "testDynamicIndexAccessTypesWithRestParam", args1);
+        returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithRestParam", args1);
         Assert.assertEquals(returns[0].stringValue(), ":string:string");
 
         BValue[] args2 = {new BString("fieldThree")};
-        returns = BRunUtil.invoke_bstring(compileResult, "testDynamicIndexAccessTypesWithRestParam", args2);
+        returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithRestParam", args2);
         Assert.assertEquals(returns[0].stringValue(), ":boolean:true");
 
         BValue[] args3 = {new BString("fieldFour")};
-        returns = BRunUtil.invoke_bstring(compileResult, "testDynamicIndexAccessTypesWithRestParam", args3);
+        returns = BRunUtil.invoke(compileResult, "testDynamicIndexAccessTypesWithRestParam", args3);
         Assert.assertEquals(returns[0].stringValue(), "()");
     }
 

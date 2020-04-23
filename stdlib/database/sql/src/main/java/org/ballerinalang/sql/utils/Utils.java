@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValue;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.sql.Constants;
@@ -303,7 +304,7 @@ class Utils {
                 } else if (value instanceof Long) {
                     date = new Date((Long) value);
                 } else if (value instanceof MapValue) {
-                    MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
+                    MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
                     if (dateTimeStruct.getType().getName()
                             .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
                         ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
@@ -323,7 +324,7 @@ class Utils {
                 } else if (value instanceof Long) {
                     time = new Time((Long) value);
                 } else if (value instanceof MapValue) {
-                    MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
+                    MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
                     if (dateTimeStruct.getType().getName()
                             .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
                         ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
@@ -344,7 +345,7 @@ class Utils {
                 } else if (value instanceof Long) {
                     timestamp = new Timestamp((Long) value);
                 } else if (value instanceof MapValue) {
-                    MapValue<String, Object> dateTimeStruct = (MapValue<String, Object>) value;
+                    MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
                     if (dateTimeStruct.getType().getName()
                             .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
                         ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
@@ -852,9 +853,9 @@ class Utils {
     }
 
 
-    private static MapValue<String, Object> createTimeStruct(long millis) {
+    private static MapValue<BString, Object> createTimeStruct(long millis) {
         return TimeUtils.createTimeRecord(TimeUtils.getTimeZoneRecord(), TimeUtils.getTimeRecord(), millis,
-                Constants.TIMEZONE_UTC);
+                                          Constants.TIMEZONE_UTC);
     }
 
     private static String getString(java.util.Date value) {

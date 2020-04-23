@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.reflect;
 
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 /**
  * Utility class represents annotation related functionality.
@@ -36,7 +37,7 @@ public class AnnotationUtils {
      * @param annot annotation name.
      * @return annotation value object.
      */
-    public static Object externGetResourceAnnotations(ObjectValue service, String resourceName, String annot) {
+    public static Object externGetResourceAnnotations(ObjectValue service, String resourceName, BString annot) {
         AttachedFunction[] functions = service.getType().getAttachedFunctions();
 
         for (AttachedFunction function : functions) {
@@ -54,7 +55,7 @@ public class AnnotationUtils {
      * @param annot annotation name.
      * @return annotation value object.
      */
-    public static Object externGetServiceAnnotations(ObjectValue service, String annot) {
+    public static Object externGetServiceAnnotations(ObjectValue service, BString annot) {
         return service.getType().getAnnotation(annot);
     }
 }

@@ -41,6 +41,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.messaging.rabbitmq.observability.RabbitMQMetricsUtil;
@@ -220,7 +221,7 @@ public class MessageDispatcher {
             String contentType = properties.getContentType();
             String contentEncoding = properties.getContentEncoding();
             String correlationId = properties.getCorrelationId();
-            MapValue<String, Object> basicProperties =
+            MapValue<BString, Object> basicProperties =
                     BallerinaValues.createRecordValue(RabbitMQConstants.PACKAGE_ID_RABBITMQ,
                                                       RabbitMQConstants.RECORD_BASIC_PROPERTIES);
             Object[] values = new Object[4];

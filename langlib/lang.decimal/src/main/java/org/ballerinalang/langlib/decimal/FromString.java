@@ -42,16 +42,12 @@ import java.math.BigDecimal;
 )
 public class FromString {
 
-    public static Object fromString(Strand strand, String s) {
+    public static Object fromString(Strand strand, BString s) {
         try {
-            return new DecimalValue(new BigDecimal(s));
+            return new DecimalValue(new BigDecimal(s.getValue()));
         } catch (NumberFormatException e) {
             // TODO: 6/21/19 Improve this error value
             return new ErrorValue(e.getMessage(), null);
         }
-    }
-
-    public static Object fromString_bstring(Strand strand, BString s) {
-        return fromString(strand, s.getValue());
     }
 }

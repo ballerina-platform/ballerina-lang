@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.types;
 
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.jvm.values.BmpStringValue;
 
 /**
  * {@code BStringType} represents a String type in ballerina.
@@ -45,12 +46,12 @@ public class BStringType extends BType {
     }
 
     public <V extends Object> V getZeroValue() {
-        return (V) new String(BLangConstants.STRING_EMPTY_VALUE);
+        return (V) new BmpStringValue(BLangConstants.STRING_EMPTY_VALUE);
     }
 
     @Override
     public <V extends Object> V getEmptyValue() {
-        return (V) new String(BLangConstants.STRING_EMPTY_VALUE);
+        return (V) new BmpStringValue(BLangConstants.STRING_EMPTY_VALUE);
     }
 
     @Override

@@ -200,7 +200,6 @@ public class JvmInstructionGen {
     public static final String I_STRING_VALUE = "org/ballerinalang/jvm/values/StringValue";
     public static final String B_STRING_VALUE = "org/ballerinalang/jvm/values/api/BString";
     public static final String NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
-    public static boolean isBString = false;
 
     static void addBoxInsn(MethodVisitor mv, @Nilable BType bType) {
 
@@ -797,8 +796,7 @@ public class JvmInstructionGen {
             this.loadVar(binaryIns.rhsOp1.variableDcl);
             this.loadVar(binaryIns.rhsOp2.variableDcl);
             this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "getAnnotValue",
-                    String.format("(L%s;L%s;)L%s;", TYPEDESC_VALUE, isBString ? B_STRING_VALUE : STRING_VALUE,
-                            OBJECT), false);
+                                    String.format("(L%s;L%s;)L%s;", TYPEDESC_VALUE, B_STRING_VALUE, OBJECT), false);
 
             BType targetType = binaryIns.lhsOp.variableDcl.type;
             addUnboxInsn(this.mv, targetType);
@@ -814,13 +812,8 @@ public class JvmInstructionGen {
             } else if (bType.tag == TypeTags.BYTE) {
                 this.mv.visitInsn(IADD);
             } else if (TypeTags.isStringTypeTag(bType.tag)) {
-                if (isBString) {
-                    this.mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "concat",
-                                            String.format("(L%s;)L%s;", B_STRING_VALUE, B_STRING_VALUE), true);
-                } else {
-                    this.mv.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "concat",
-                            String.format("(L%s;)L%s;", STRING_VALUE, STRING_VALUE), false);
-                }
+                this.mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "concat",
+                                        String.format("(L%s;)L%s;", B_STRING_VALUE, B_STRING_VALUE), true);
             } else if (bType.tag == TypeTags.DECIMAL) {
                 this.mv.visitMethodInsn(INVOKEVIRTUAL, DECIMAL_VALUE, "add",
                         String.format("(L%s;)L%s;", DECIMAL_VALUE, DECIMAL_VALUE), false);
@@ -1090,11 +1083,10 @@ public class JvmInstructionGen {
 
             if (varRefType.tag == TypeTags.JSON) {
                 this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "setElement",
-                        String.format("(L%s;L%s;L%s;)V", OBJECT, isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT),
-                        false);
+                                        String.format("(L%s;L%s;L%s;)V", OBJECT, B_STRING_VALUE), false);
             } else {
                 String signature = String.format("(L%s;L%s;L%s;Z)V",
-                        MAP_VALUE, isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT);
+                                                 MAP_VALUE, B_STRING_VALUE, OBJECT);
 
                 if (mapStoreIns.isStoreOnCreation) {
                     this.mv.visitInsn(ICONST_1);
@@ -1118,15 +1110,13 @@ public class JvmInstructionGen {
             if (varRefType.tag == TypeTags.JSON) {
 
                 if (mapLoadIns.optionalFieldAccess) {
-                    this.mv.visitTypeInsn(CHECKCAST, isBString ? B_STRING_VALUE : STRING_VALUE);
+                    this.mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
                     this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElementOrNil",
-                            String.format("(L%s;L%s;)L%s;", OBJECT, isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT),
-                            false);
+                                            String.format("(L%s;L%s;)L%s;", OBJECT, B_STRING_VALUE, OBJECT), false);
                 } else {
-                    this.mv.visitTypeInsn(CHECKCAST, isBString ? B_STRING_VALUE : STRING_VALUE);
+                    this.mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
                     this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "getElement",
-                            String.format("(L%s;L%s;)L%s;", OBJECT, isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT),
-                            false);
+                                            String.format("(L%s;L%s;)L%s;", OBJECT, B_STRING_VALUE, OBJECT), false);
                 }
             } else {
                 if (mapLoadIns.fillingRead) {
@@ -1153,7 +1143,7 @@ public class JvmInstructionGen {
 
             // invoke get() method, and unbox if needed
             this.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "get",
-                    String.format("(L%s;)L%s;", isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), true);
+                                    String.format("(L%s;)L%s;", B_STRING_VALUE, OBJECT), true);
             BType targetType = objectLoadIns.lhsOp.variableDcl.type;
             addUnboxInsn(this.mv, targetType);
 
@@ -1175,8 +1165,7 @@ public class JvmInstructionGen {
 
             // invoke set() method
             this.mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "set",
-                                    String.format("(L%s;L%s;)V", isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT),
-                                    true);
+                                    String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT), true);
         }
 
         void generateStringLoadIns(FieldAccess stringLoadIns) {
@@ -1186,10 +1175,9 @@ public class JvmInstructionGen {
             // visit the key expr
             this.loadVar(stringLoadIns.keyOp.variableDcl);
 
-            String consVal = isBString ? B_STRING_VALUE : STRING_VALUE;
             // invoke the `getStringAt()` method
             this.mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "getStringAt",
-                                    String.format("(L%s;J)L%s;", consVal, consVal), false);
+                                    String.format("(L%s;J)L%s;", B_STRING_VALUE, B_STRING_VALUE), false);
 
             // store in the target reg
             this.storeToVar(stringLoadIns.lhsOp.variableDcl);
@@ -1237,8 +1225,8 @@ public class JvmInstructionGen {
             } else if (valueType.tag == TypeTags.FLOAT) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JD)V", true);
             } else if (TypeTags.isStringTypeTag(valueType.tag)) {
-                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add",
-                                        String.format("(JL%s;)V", isBString ? B_STRING_VALUE : STRING_VALUE), true);
+                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", String.format("(JL%s;)V", B_STRING_VALUE),
+                                        true);
             } else if (valueType.tag == TypeTags.BOOLEAN) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JZ)V", true);
             } else if (valueType.tag == TypeTags.BYTE) {
@@ -1269,13 +1257,8 @@ public class JvmInstructionGen {
             } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getInt", "(J)J", true);
             } else if (TypeTags.isStringTypeTag(bType.tag)) {
-                if (isBString) {
-                    this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBString",
-                                            String.format("(J)L%s;", B_STRING_VALUE), true);
-                } else {
-                    this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getString",
-                                            String.format("(J)L%s;", STRING_VALUE), true);
-                }
+                this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBString",
+                                        String.format("(J)L%s;", B_STRING_VALUE), true);
             } else if (bType.tag == TypeTags.BOOLEAN) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
             } else if (bType.tag == TypeTags.BYTE) {
@@ -1310,8 +1293,7 @@ public class JvmInstructionGen {
             this.loadVar(newErrorIns.reasonOp.variableDcl);
             this.loadVar(newErrorIns.detailOp.variableDcl);
             this.mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, "<init>",
-                                    String.format("(L%s;L%s;L%s;)V", BTYPE,
-                                                  isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT), false);
+                                    String.format("(L%s;L%s;L%s;)V", BTYPE, B_STRING_VALUE, OBJECT), false);
             this.storeToVar(newErrorIns.lhsOp.variableDcl);
         }
 
@@ -1448,8 +1430,7 @@ public class JvmInstructionGen {
             this.mv.visitTypeInsn(CHECKCAST, XML_QNAME);
             this.loadVar(newXMLElement.defaultNsURIOp.variableDcl);
             this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLElement",
-                                    String.format("(L%s;L%s;)L%s;", XML_QNAME,
-                                                  isBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE), false);
+                                    String.format("(L%s;L%s;)L%s;", XML_QNAME, B_STRING_VALUE, XML_VALUE), false);
             this.storeToVar(newXMLElement.lhsOp.variableDcl);
         }
 
@@ -1460,9 +1441,9 @@ public class JvmInstructionGen {
             this.loadVar(newXMLQName.localnameOp.variableDcl);
             this.loadVar(newXMLQName.nsURIOp.variableDcl);
             this.loadVar(newXMLQName.prefixOp.variableDcl);
-            String consVal = isBString ? B_STRING_VALUE : STRING_VALUE;
             this.mv.visitMethodInsn(INVOKESPECIAL, XML_QNAME, "<init>",
-                                    String.format("(L%s;L%s;L%s;)V", consVal, consVal, consVal), false);
+                                    String.format("(L%s;L%s;L%s;)V", B_STRING_VALUE, B_STRING_VALUE, B_STRING_VALUE),
+                                    false);
             this.storeToVar(newXMLQName.lhsOp.variableDcl);
         }
 
@@ -1480,7 +1461,7 @@ public class JvmInstructionGen {
 
             this.loadVar(newXMLText.textOp.variableDcl);
             this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLText",
-                                    String.format("(L%s;)L%s;", isBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE),
+                                    String.format("(L%s;)L%s;", B_STRING_VALUE, XML_VALUE),
                                     false);
             this.storeToVar(newXMLText.lhsOp.variableDcl);
         }
@@ -1489,7 +1470,7 @@ public class JvmInstructionGen {
 
             this.loadVar(newXMLComment.textOp.variableDcl);
             this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLComment",
-                                    String.format("(L%s;)L%s;", isBString ? B_STRING_VALUE : STRING_VALUE, XML_VALUE),
+                                    String.format("(L%s;)L%s;", B_STRING_VALUE, XML_VALUE),
                                     false);
             this.storeToVar(newXMLComment.lhsOp.variableDcl);
         }
@@ -1498,9 +1479,8 @@ public class JvmInstructionGen {
 
             this.loadVar(newXMLPI.targetOp.variableDcl);
             this.loadVar(newXMLPI.dataOp.variableDcl);
-            String consVal = isBString ? B_STRING_VALUE : STRING_VALUE;
             this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXMLProcessingInstruction",
-                                    String.format("(L%s;L%s;)L%s;", consVal, consVal, XML_VALUE), false);
+                                    String.format("(L%s;L%s;)L%s;", B_STRING_VALUE, B_STRING_VALUE, XML_VALUE), false);
             this.storeToVar(newXMLPI.lhsOp.variableDcl);
         }
 
@@ -1549,7 +1529,7 @@ public class JvmInstructionGen {
             this.loadVar(xmlAttrStoreIns.rhsOp.variableDcl);
 
             // invoke setAttribute() method
-            String signature = String.format("(L%s;L%s;)V", BXML_QNAME, isBString ? B_STRING_VALUE : STRING_VALUE);
+            String signature = String.format("(L%s;L%s;)V", BXML_QNAME, B_STRING_VALUE);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "setAttribute", signature, false);
         }
 
@@ -1689,28 +1669,24 @@ public class JvmInstructionGen {
             mv.visitLdcInsn(booleanVal);
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             String val = String.valueOf(constVal);
-            if (isBString) {
-                int[] highSurrogates = listHighSurrogates(val);
+            int[] highSurrogates = listHighSurrogates(val);
 
-                mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
+            mv.visitTypeInsn(NEW, NON_BMP_STRING_VALUE);
+            mv.visitInsn(DUP);
+            mv.visitLdcInsn(val);
+            mv.visitIntInsn(BIPUSH, highSurrogates.length);
+            mv.visitIntInsn(NEWARRAY, T_INT);
+
+            int i = 0;
+            for (int ch : highSurrogates) {
                 mv.visitInsn(DUP);
-                mv.visitLdcInsn(val);
-                mv.visitIntInsn(BIPUSH, highSurrogates.length);
-                mv.visitIntInsn(NEWARRAY, T_INT);
-
-                int i = 0;
-                for (int ch : highSurrogates) {
-                    mv.visitInsn(DUP);
-                    mv.visitIntInsn(BIPUSH, i);
-                    mv.visitIntInsn(BIPUSH, ch);
-                    i = i + 1;
-                    mv.visitInsn(IASTORE);
-                }
-                mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, "<init>",
-                        String.format("(L%s;[I)V", STRING_VALUE), false);
-            } else {
-                mv.visitLdcInsn(val);
+                mv.visitIntInsn(BIPUSH, i);
+                mv.visitIntInsn(BIPUSH, ch);
+                i = i + 1;
+                mv.visitInsn(IASTORE);
             }
+            mv.visitMethodInsn(INVOKESPECIAL, NON_BMP_STRING_VALUE, "<init>",
+                               String.format("(L%s;[I)V", STRING_VALUE), false);
         } else if (bType.tag == TypeTags.DECIMAL) {
             mv.visitTypeInsn(NEW, DECIMAL_VALUE);
             mv.visitInsn(DUP);

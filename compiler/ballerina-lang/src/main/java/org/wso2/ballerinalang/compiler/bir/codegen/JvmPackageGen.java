@@ -86,7 +86,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.addInitAndTypeInitInstructions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupBalExt;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupPathSeperators;
@@ -147,8 +146,6 @@ public class JvmPackageGen {
         currentClass = "";
         lambdaIndex = 0;
         symbolTable = null;
-        String bStringProp = System.getProperty("ballerina.bstring");
-        isBString = (bStringProp != null && !"".equals(bStringProp));
     }
 
     static class JarFile {
@@ -716,8 +713,7 @@ public class JvmPackageGen {
         String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
                 attachedType, false);
 
-        return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass, jvmMethodDescription,
-                jvmMethodDescriptionBString);
+        return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass, jvmMethodDescription);
     }
 
     static PackageID packageToModuleId(BIRPackage mod) {
@@ -819,12 +815,9 @@ public class JvmPackageGen {
         public BIRFunction func;
         public String fullQualifiedClassName;
         public String jvmMethodDescription;
-        @Nilable
-        public String jvmMethodDescriptionBString;
 
         protected BIRFunctionWrapper(String orgName, String moduleName, String version, BIRFunction func,
-                                     String fullQualifiedClassName, String jvmMethodDescription,
-                                     String jvmMethodDescriptionBString) {
+                                     String fullQualifiedClassName, String jvmMethodDescription) {
 
             this.orgName = orgName;
             this.moduleName = moduleName;
@@ -832,7 +825,6 @@ public class JvmPackageGen {
             this.func = func;
             this.fullQualifiedClassName = fullQualifiedClassName;
             this.jvmMethodDescription = jvmMethodDescription;
-            this.jvmMethodDescriptionBString = jvmMethodDescriptionBString;
         }
     }
 }

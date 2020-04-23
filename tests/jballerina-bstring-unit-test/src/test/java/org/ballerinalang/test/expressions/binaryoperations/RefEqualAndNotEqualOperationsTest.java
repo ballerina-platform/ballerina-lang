@@ -133,7 +133,7 @@ public class RefEqualAndNotEqualOperationsTest {
     @Test(dataProvider = "equalStringValues")
     public void testStringRefEqualityPositive(String i, String j) {
         BValue[] args = {new BString(i), new BString(j)};
-        BValue[] returns = BRunUtil.invoke_bstring(result, "testStringRefEquality", args);
+        BValue[] returns = BRunUtil.invoke(result, "testStringRefEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(),
@@ -143,7 +143,7 @@ public class RefEqualAndNotEqualOperationsTest {
     @Test(dataProvider = "unequalStringValues")
     public void testStringRefEqualityNegative(String i, String j) {
         BValue[] args = {new BString(i), new BString(j)};
-        BValue[] returns = BRunUtil.invoke_bstring(result, "testStringRefEquality", args);
+        BValue[] returns = BRunUtil.invoke(result, "testStringRefEquality", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),

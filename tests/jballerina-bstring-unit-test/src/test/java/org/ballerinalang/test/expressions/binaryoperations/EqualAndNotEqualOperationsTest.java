@@ -130,7 +130,7 @@ public class EqualAndNotEqualOperationsTest {
     @Test(description = "Test equals/unequals operation with two equal strings", dataProvider = "equalStringValues")
     public void testStringEqualityPositive(String i, String j) {
         BValue[] args = {new BString(i), new BString(j)};
-        BValue[] returns = BRunUtil.invoke_bstring(result, "checkStringEqualityPositive", args);
+        BValue[] returns = BRunUtil.invoke(result, "checkStringEqualityPositive", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected strings to be identified as equal");
@@ -140,7 +140,7 @@ public class EqualAndNotEqualOperationsTest {
           dataProvider = "unequalStringValues")
     public void testStringEqualityNegative(String i, String j) {
         BValue[] args = {new BString(i), new BString(j)};
-        BValue[] returns = BRunUtil.invoke_bstring(result, "checkStringEqualityNegative", args);
+        BValue[] returns = BRunUtil.invoke(result, "checkStringEqualityNegative", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected strings to be identified as not equal");
@@ -250,7 +250,7 @@ public class EqualAndNotEqualOperationsTest {
     @Test(description = "Test equals/unequals operation with two equal arrays", dataProvider = "equalArrayValues")
     public void test1DArrayEqualityPositive(BNewArray i, BNewArray j) {
         BValue[] args = {i, j};
-        BValue[] returns = BRunUtil.invoke_bstring(result, "check1DArrayEqualityPositive", args);
+        BValue[] returns = BRunUtil.invoke(result, "check1DArrayEqualityPositive", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected array values to be identified as equal");
@@ -260,7 +260,7 @@ public class EqualAndNotEqualOperationsTest {
             "unequalArrayValues")
     public void test1DArrayEqualityNegative(BValue i, BValue j) {
         BValue[] args = {i, j};
-        BValue[] returns = BRunUtil.invoke_bstring(result, "check1DArrayEqualityNegative", args);
+        BValue[] returns = BRunUtil.invoke(result, "check1DArrayEqualityNegative", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),
@@ -503,7 +503,7 @@ public class EqualAndNotEqualOperationsTest {
     @Test(description = "Test equals/unequals operation with two equal json arrays", dataProvider = "equalArrayValues")
     public void test1DJsonArrayEqualityPositive(BNewArray i, BNewArray j) {
         BValue[] args = {i, j};
-        BValue[] returns = BRunUtil.invoke_bstring(result, "checkJsonEqualityPositive", args);
+        BValue[] returns = BRunUtil.invoke(result, "checkJsonEqualityPositive", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected array values to be identified as equal");
@@ -513,7 +513,7 @@ public class EqualAndNotEqualOperationsTest {
             "unequalArrayValues")
     public void test1DJsonArrayEqualityNegative(BValue i, BValue j) {
         BValue[] args = {i, j};
-        BValue[] returns = BRunUtil.invoke_bstring(result, "checkJsonEqualityNegative", args);
+        BValue[] returns = BRunUtil.invoke(result, "checkJsonEqualityNegative", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(),

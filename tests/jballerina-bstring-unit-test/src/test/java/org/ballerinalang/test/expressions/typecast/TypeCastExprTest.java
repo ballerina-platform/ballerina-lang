@@ -94,7 +94,7 @@ public class TypeCastExprTest {
     @Test
     public void testStringToInt() {
         BValue[] args = {new BString("100")};
-        BValue[] returns = BRunUtil.invoke_bstring(result, "stringtoint", args);
+        BValue[] returns = BRunUtil.invoke(result, "stringtoint", args);
         Assert.assertTrue(returns[0] instanceof BInteger);
         final String expected = "100";
         Assert.assertEquals(returns[0].stringValue(), expected);
@@ -103,7 +103,7 @@ public class TypeCastExprTest {
     @Test
     public void testStringToFloat() {
         BValue[] args = {new BString("2222.333f")};
-        BValue[] returns = BRunUtil.invoke_bstring(result, "stringtofloat", args);
+        BValue[] returns = BRunUtil.invoke(result, "stringtofloat", args);
         Assert.assertTrue(returns[0] instanceof BFloat);
         double expected = 2222.333;
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), expected, DELTA);
@@ -112,7 +112,7 @@ public class TypeCastExprTest {
     @Test
     public void testStringToJSON() {
         BValue[] args = {new BString("{\"name\":\"chanaka\"}")};
-        BValue[] returns = BRunUtil.invoke_bstring(result, "testStringToJson", args);
+        BValue[] returns = BRunUtil.invoke(result, "testStringToJson", args);
         Assert.assertTrue(returns[0] instanceof BString);
         final String expected = "{\"name\":\"chanaka\"}";
         Assert.assertEquals(returns[0].stringValue(), expected);

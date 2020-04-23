@@ -28,6 +28,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.messaging.kafka.observability.KafkaMetricsUtil;
@@ -71,8 +72,8 @@ public class Poll {
             ConsumerRecords recordsRetrieved = kafkaConsumer.poll(duration);
             if (!recordsRetrieved.isEmpty()) {
                 for (Object record : recordsRetrieved) {
-                    MapValue<String, Object> recordValue = populateConsumerRecord((ConsumerRecord) record, keyType,
-                                                                                  valueType);
+                    MapValue<BString, Object> recordValue = populateConsumerRecord((ConsumerRecord) record, keyType,
+                                                                                   valueType);
                     consumerRecordsArray.append(recordValue);
                     KafkaMetricsUtil.reportConsume(consumerObject, recordValue.getStringValue(ALIAS_TOPIC),
                                                    recordValue.get(ALIAS_VALUE));

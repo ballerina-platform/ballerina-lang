@@ -56,7 +56,7 @@ public class OverloadedMethodTests {
         BValue[] args = new BValue[1];
         String strValue = "BALLERINA";
         args[0] = new BString(strValue);
-        BValue[] returns = BRunUtil.invoke_bstring(result, "testOverloadedMethodsWithByteArrayParams", args);
+        BValue[] returns = BRunUtil.invoke(result, "testOverloadedMethodsWithByteArrayParams", args);
         Assert.assertEquals(returns.length, 1);
 
         byte[] bytes = strValue.getBytes();

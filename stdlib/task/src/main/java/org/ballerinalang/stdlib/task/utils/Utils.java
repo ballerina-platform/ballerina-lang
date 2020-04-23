@@ -24,6 +24,7 @@ import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.task.exceptions.SchedulingException;
 import org.ballerinalang.stdlib.task.objects.Appointment;
 import org.ballerinalang.stdlib.task.objects.ServiceInformation;
@@ -65,16 +66,16 @@ public class Utils {
     }
 
     public static ErrorValue createTaskError(String reason, String message) {
-        MapValue<String, Object> detail = createTaskDetailRecord(message);
+        MapValue<BString, Object> detail = createTaskDetailRecord(message);
         return BallerinaErrors.createError(reason, detail);
     }
 
-    private static MapValue<String, Object> createTaskDetailRecord(String message) {
+    private static MapValue<BString, Object> createTaskDetailRecord(String message) {
         return createTaskDetailRecord(message, null);
     }
 
-    private static MapValue<String, Object> createTaskDetailRecord(String message, ErrorValue cause) {
-        MapValue<String, Object> detail = BallerinaValues.createRecordValue(TASK_PACKAGE_ID, DETAIL_RECORD_NAME);
+    private static MapValue<BString, Object> createTaskDetailRecord(String message, ErrorValue cause) {
+        MapValue<BString, Object> detail = BallerinaValues.createRecordValue(TASK_PACKAGE_ID, DETAIL_RECORD_NAME);
         return BallerinaValues.createRecord(detail, message, cause);
     }
 

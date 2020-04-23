@@ -38,8 +38,8 @@ public class AnnotationUtils {
     /**
      * Method to retrieve annotations of the type from the global annotation map and set it to the type.
      *
-     * @param globalAnnotMap    The global annotation map
-     * @param bType             The type for which annotations need to be set
+     * @param globalAnnotMap The global annotation map
+     * @param bType          The type for which annotations need to be set
      */
     public static void processAnnotations(MapValue globalAnnotMap, BType bType) {
         if (!(bType instanceof AnnotatableType)) {
@@ -47,37 +47,9 @@ public class AnnotationUtils {
         }
 
         AnnotatableType type = (AnnotatableType) bType;
-        String annotationKey = type.getAnnotationKey();
-        if (globalAnnotMap.containsKey(annotationKey)) {
-            type.setAnnotations((MapValue<String, Object>) globalAnnotMap.get(annotationKey));
-        }
-
-        if (type.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            BObjectType objectType = (BObjectType) type;
-            for (AttachedFunction attachedFunction : objectType.getAttachedFunctions()) {
-                annotationKey = attachedFunction.getAnnotationKey();
-                if (globalAnnotMap.containsKey(annotationKey)) {
-                    attachedFunction.setAnnotations((MapValue<String, Object>) globalAnnotMap.get(annotationKey));
-                }
-            }
-        }
-    }
-
-    /**
-     * Method to retrieve annotations of the type from the global annotation map and set it to the type.
-     *
-     * @param globalAnnotMap The global annotation map
-     * @param bType          The type for which annotations need to be set
-     */
-    public static void processAnnotations_bstring(MapValue globalAnnotMap, BType bType) {
-        if (!(bType instanceof AnnotatableType)) {
-            return;
-        }
-
-        AnnotatableType type = (AnnotatableType) bType;
         BString annotationKey = StringUtils.fromString(type.getAnnotationKey());
         if (globalAnnotMap.containsKey(annotationKey)) {
-            type.setAnnotations_bstring((MapValue<BString, Object>) globalAnnotMap.get(annotationKey));
+            type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(annotationKey));
         }
 
         if (type.getTag() != TypeTags.OBJECT_TYPE_TAG) {
@@ -87,42 +59,25 @@ public class AnnotationUtils {
         for (AttachedFunction attachedFunction : objectType.getAttachedFunctions()) {
             annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
             if (globalAnnotMap.containsKey(annotationKey)) {
-                attachedFunction.setAnnotations_bstring((MapValue<BString, Object>)
-                                                                globalAnnotMap.get(annotationKey));
+                attachedFunction.setAnnotations((MapValue<BString, Object>)
+                                                        globalAnnotMap.get(annotationKey));
             }
         }
 
     }
 
-    public static void processServiceAnnotations_bstring(MapValue globalAnnotMap, BServiceType bType, Strand strand) {
+    public static void processServiceAnnotations(MapValue globalAnnotMap, BServiceType bType, Strand strand) {
         BString annotationKey = StringUtils.fromString(bType.getAnnotationKey());
         if (globalAnnotMap.containsKey(annotationKey)) {
-            bType.setAnnotations_bstring((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(annotationKey))
+            bType.setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(annotationKey))
                     .call(new Object[]{strand}));
         }
 
         for (AttachedFunction attachedFunction : bType.getAttachedFunctions()) {
             annotationKey = StringUtils.fromString(attachedFunction.getAnnotationKey());
             if (globalAnnotMap.containsKey(annotationKey)) {
-                attachedFunction.setAnnotations_bstring((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(
+                attachedFunction.setAnnotations((MapValue<BString, Object>) ((FPValue) globalAnnotMap.get(
                         annotationKey)).call(new Object[]{strand}));
-            }
-        }
-    }
-
-    public static void processServiceAnnotations(MapValue globalAnnotMap, BServiceType bType, Strand strand) {
-        String annotationKey = bType.getAnnotationKey();
-        if (globalAnnotMap.containsKey(annotationKey)) {
-            bType.setAnnotations((MapValue<String, Object>)
-                                         ((FPValue) globalAnnotMap.get(annotationKey)).call(new Object[]{strand}));
-        }
-
-        for (AttachedFunction attachedFunction : bType.getAttachedFunctions()) {
-            annotationKey = attachedFunction.getAnnotationKey();
-            if (globalAnnotMap.containsKey(annotationKey)) {
-                attachedFunction.setAnnotations((MapValue<String, Object>)
-                                                        ((FPValue) globalAnnotMap.get(annotationKey))
-                                                                .call(new Object[]{strand}));
             }
         }
     }
@@ -137,7 +92,7 @@ public class AnnotationUtils {
     public static void processFPValueAnnotations(FPValue fpValue, MapValue globalAnnotMap, String name) {
         AnnotatableType type = (AnnotatableType) fpValue.getType();
         if (globalAnnotMap.containsKey(name)) {
-            type.setAnnotations((MapValue<String, Object>) globalAnnotMap.get(name));
+            type.setAnnotations((MapValue<BString, Object>) globalAnnotMap.get(name));
         }
     }
 

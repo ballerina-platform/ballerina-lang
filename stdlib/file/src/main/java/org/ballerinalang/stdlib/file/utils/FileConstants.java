@@ -19,6 +19,8 @@
 package org.ballerinalang.stdlib.file.utils;
 
 import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.values.BmpStringValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
@@ -57,9 +59,9 @@ public class FileConstants {
     public static final int DEFAULT_MAX_DEPTH = -1;
 
     // FileEvent struct field names
-    public static final String FILE_EVENT_NAME = "name";
+    public static final BString FILE_EVENT_NAME = new BmpStringValue("name");
 
-    public static final String FILE_EVENT_OPERATION = "operation";
+    public static final BString FILE_EVENT_OPERATION = new BmpStringValue("operation");
 
     private FileConstants() {
     }

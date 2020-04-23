@@ -47,9 +47,6 @@ import java.util.Deque;
 @SuppressWarnings("unchecked")
 public class JSONParser {
 
-    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
-    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
-
     private static ThreadLocal<StateMachine> tlStateMachine = new ThreadLocal<StateMachine>() {
         @Override
         public StateMachine initialValue() {
@@ -99,29 +96,27 @@ public class JSONParser {
     }
 
     private static Object changeForBString(Object jsonObj) {
-        if (USE_BSTRING) {
-            BType type = TypeChecker.getType(jsonObj);
-            switch (type.getTag()) {
-                case TypeTags.STRING_TAG:
-                    if (jsonObj instanceof String) {
-                        return StringUtils.fromString((String) jsonObj);
-                    }
-                    break;
-                case TypeTags.MAP_TAG:
-                    MapValueImpl<String, Object> map = (MapValueImpl<String, Object>) jsonObj;
-                    MapValueImpl<BString, Object> resultMap = new MapValueImpl<>(type);
-                    map.forEach((key, value) -> resultMap.put(StringUtils.fromString(key), changeForBString(value)));
-                    return resultMap;
-                case TypeTags.ARRAY_TAG:
-                    ArrayValue arrayValue = (ArrayValue) jsonObj;
-                    ArrayValue resultArrayValue = new ArrayValueImpl((BArrayType) type);
-                    for (int i = 0; i < arrayValue.size(); i++) {
-                        resultArrayValue.add(i, changeForBString(arrayValue.get(i)));
-                    }
-                    return resultArrayValue;
-            }
+        BType type = TypeChecker.getType(jsonObj);
+        switch (type.getTag()) {
+            case TypeTags.STRING_TAG:
+                if (jsonObj instanceof String) {
+                    return StringUtils.fromString((String) jsonObj);
+                }
+                break;
+            case TypeTags.MAP_TAG:
+                MapValueImpl<String, Object> map = (MapValueImpl<String, Object>) jsonObj;
+                MapValueImpl<BString, Object> resultMap = new MapValueImpl<>(type);
+                map.forEach((key, value) -> resultMap.put(StringUtils.fromString(key), changeForBString(value)));
+                return resultMap;
+            case TypeTags.ARRAY_TAG:
+                ArrayValue arrayValue = (ArrayValue) jsonObj;
+                ArrayValue resultArrayValue = new ArrayValueImpl((BArrayType) type);
+                for (int i = 0; i < arrayValue.size(); i++) {
+                    resultArrayValue.add(i, changeForBString(arrayValue.get(i)));
+                }
+                return resultArrayValue;
         }
-        return jsonObj;
+    return jsonObj;
     }
 
     /**

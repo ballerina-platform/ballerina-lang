@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.internal;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.XMLQName;
-import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
@@ -46,13 +45,13 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OP
 )
 public class GetAttribute {
 
-    public static Object getAttribute(Strand strand, XMLValue xmlVal, String attrName, boolean optionalFiledAccess) {
-        if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE && ((XMLSequence) xmlVal).size() == 0) {
+    public static Object getAttribute(Strand strand, XMLValue xmlVal, BString attrName, boolean optionalFiledAccess) {
+        if (xmlVal.getNodeType() == XMLNodeType.SEQUENCE && xmlVal.size() == 0) {
             return null;
         }
         if (!IsElement.isElement(xmlVal)) {
             return createError(XML_OPERATION_ERROR,
-                    "Invalid xml attribute access on xml " + xmlVal.getNodeType().value());
+                               "Invalid xml attribute access on xml " + xmlVal.getNodeType().value());
         }
         XMLQName qname = new XMLQName(attrName);
         String attrVal = xmlVal.getAttribute(qname.getLocalName(), qname.getUri());
@@ -62,8 +61,4 @@ public class GetAttribute {
         return attrVal;
     }
 
-    public static Object getAttribute_bstring(Strand strand, XMLValue xmlVal, BString attrName,
-                                              boolean optionalFiledAccess) {
-        return getAttribute(strand, xmlVal, attrName.getValue(), optionalFiledAccess);
-    }
 }

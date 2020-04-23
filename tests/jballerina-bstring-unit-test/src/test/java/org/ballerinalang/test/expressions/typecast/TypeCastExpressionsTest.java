@@ -202,7 +202,7 @@ public class TypeCastExpressionsTest {
 
     @Test(dataProvider = "stringAsStringTests")
     public void testStringAsString(String functionName, String s) {
-        BValue[] returns = BRunUtil.invoke_bstring(result, functionName, new BValue[]{new BString(s)});
+        BValue[] returns = BRunUtil.invoke(result, functionName, new BValue[]{new BString(s)});
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "expected strings to be the same");

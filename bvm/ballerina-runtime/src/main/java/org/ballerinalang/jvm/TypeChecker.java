@@ -89,9 +89,6 @@ import static org.ballerinalang.jvm.util.BLangConstants.UNSIGNED8_MAX_VALUE;
 @SuppressWarnings({"rawtypes"})
 public class TypeChecker {
 
-    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
-    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
-
     public static Object checkCast(Object sourceVal, BType targetType) {
 
         if (checkIsType(sourceVal, targetType)) {
@@ -540,7 +537,7 @@ public class TypeChecker {
         if (!(describingType instanceof AnnotatableType)) {
             return null;
         }
-        return ((AnnotatableType) describingType).getAnnotation(annotTag);
+        return ((AnnotatableType) describingType).getAnnotation(StringUtils.fromString(annotTag));
     }
 
     public static Object getAnnotValue(TypedescValue typedescValue, BString annotTag) {
@@ -548,7 +545,7 @@ public class TypeChecker {
         if (!(describingType instanceof AnnotatableType)) {
             return null;
         }
-        return ((AnnotatableType) describingType).getAnnotation_bstring(annotTag);
+        return ((AnnotatableType) describingType).getAnnotation(annotTag);
     }
 
     /**
@@ -1647,12 +1644,7 @@ public class TypeChecker {
         }
 
         for (Map.Entry targetTypeEntry : targetTypeField.entrySet()) {
-            Object fieldName;
-            if (USE_BSTRING) {
-                fieldName = StringUtils.fromString(targetTypeEntry.getKey().toString());
-            } else {
-                fieldName = targetTypeEntry.getKey().toString();
-            }
+            Object fieldName = StringUtils.fromString(targetTypeEntry.getKey().toString());
             if (!(((MapValueImpl) sourceValue).containsKey(fieldName)) &&
                     !Flags.isFlagOn(targetType.getFields().get(fieldName.toString()).flags, Flags.OPTIONAL)) {
                 return false;

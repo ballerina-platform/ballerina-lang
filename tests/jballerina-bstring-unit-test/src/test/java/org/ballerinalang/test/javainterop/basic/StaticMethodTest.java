@@ -87,7 +87,7 @@ public class StaticMethodTest {
     public void testStringParamAndReturn() {
         BValue[] args = new BValue[1];
         args[0] = new BString("Royce");
-        BValue[] returns = BRunUtil.invoke_bstring(result, "stringParamAndReturn", args);
+        BValue[] returns = BRunUtil.invoke(result, "stringParamAndReturn", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "Royce and Hadrian");
     }

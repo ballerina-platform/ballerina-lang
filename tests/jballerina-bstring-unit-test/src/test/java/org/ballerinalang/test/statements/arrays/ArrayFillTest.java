@@ -144,7 +144,7 @@ public class ArrayFillTest {
     public void testStringArrayFill() {
         final String value = "Hello World!";
         BValue[] args = new BValue[]{new BInteger(index), new BString(value)};
-        BValue[] returns = BRunUtil.invokeFunction_bstring(compileResult, "testStringArrayFill", args);
+        BValue[] returns = BRunUtil.invokeFunction(compileResult, "testStringArrayFill", args);
         BValueArray stringArr = (BValueArray) returns[0];
         assertEquals(stringArr.size(), index + 1);
 
