@@ -46,7 +46,7 @@ public class GetKeys {
 
     public static ArrayValue keys(Strand strand, TableValueImpl tbl) {
         BType tableKeyType = ((BTableType) tbl.getType()).getKeyType();
-        tableKeyType = tableKeyType != null ? tableKeyType : BTypes.typeAny;
+        tableKeyType = tableKeyType != null ? tableKeyType : BTypes.typeAnydata;
         return new ArrayValueImpl((Object[]) tbl.getKeys(), new BArrayType(tableKeyType));
     }
 }
