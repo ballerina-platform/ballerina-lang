@@ -514,21 +514,23 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
 
         // Set Return Type
         Optional<Node> retNode = funcDefNode.returnTypeDesc();
-        NodeTransformerOut typeOut;
         if (retNode.isPresent()) {
             VariableDeclarationNode returnType = (VariableDeclarationNode) retNode.get();
-            typeOut = createTypeNode(returnType.typeName());
+            NodeTransformerOut typeOut = createTypeNode(returnType.typeName());
+            otherNodes.addAll(typeOut.others);
+            bLFunction.setReturnTypeNode((BLangType) typeOut.node);
         } else {
-            typeOut = createTypeNode(null);
+            BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
+            bLValueType.pos = emptyPos;
+            bLValueType.typeKind = TypeKind.NIL;
+            bLFunction.setReturnTypeNode(bLValueType);
         }
-        otherNodes.addAll(typeOut.others);
-        bLFunction.setReturnTypeNode((BLangType) typeOut.node);
         return NodeTransformerOut.of(bLFunction, otherNodes);
     }
 
     private NodeTransformerOut createExpression(Node expression) {
         if (isSimpleLiteral(expression.kind())) {
-            return createSimpleLiteral((Token) expression);
+            return createSimpleLiteral(expression);
         } else if (expression.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
             // Variable Reference
             IdentifierToken identifier = (IdentifierToken) expression;
@@ -644,38 +646,39 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
         return bLIdentifer;
     }
 
-    private NodeTransformerOut createSimpleLiteral(Token literal) {
+    private NodeTransformerOut createSimpleLiteral(Node literal) {
         BLangLiteral bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         SyntaxKind type = literal.kind();
         int typeTag = -1;
         Object value = null;
         String originalValue = null;
+        String textValue = (literal instanceof Token) ? ((Token) literal).text() : "";
 
         //TODO: Verify all types, only string type tested
         if (type == SyntaxKind.DECIMAL_INTEGER_LITERAL || type == SyntaxKind.HEX_INTEGER_LITERAL) {
             typeTag = TypeTags.INT;
-            value = getIntegerLiteral(type, literal.text());
-            originalValue = literal.text();
+            value = getIntegerLiteral(type, textValue);
+            originalValue = textValue;
             bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
         } else if (type == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL) {
             //TODO: Check effect of mapping negative(-) numbers as unary-expr
-            typeTag = NumericLiteralSupport.isDecimalDiscriminated(literal.text()) ? TypeTags.DECIMAL : TypeTags.FLOAT;
-            value = literal.text();
-            originalValue = literal.text();
+            typeTag = NumericLiteralSupport.isDecimalDiscriminated(textValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
+            value = textValue;
+            originalValue = textValue;
             bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
         } else if (type == SyntaxKind.HEX_FLOATING_POINT_LITERAL) {
             //TODO: Check effect of mapping negative(-) numbers as unary-expr
             typeTag = TypeTags.FLOAT;
-            value = getHexNodeValue(literal.text());
-            originalValue = literal.text();
+            value = getHexNodeValue(textValue);
+            originalValue = textValue;
             bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
         } else if (type == SyntaxKind.TRUE_KEYWORD || type == SyntaxKind.FALSE_KEYWORD) {
             typeTag = TypeTags.BOOLEAN;
-            value = Boolean.parseBoolean(literal.text());
-            originalValue = literal.text();
+            value = Boolean.parseBoolean(textValue);
+            originalValue = textValue;
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         } else if (type == SyntaxKind.STRING_LITERAL) {
-            String text = literal.text();
+            String text = textValue;
             Matcher matcher = UNICODE_PATTERN.matcher(text);
             int position = 0;
             while (matcher.find(position)) {
@@ -694,22 +697,22 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
 
             typeTag = TypeTags.STRING;
             value = text;
-            originalValue = literal.text();
+            originalValue = textValue;
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        } else if (type == SyntaxKind.NONE) {
+        } else if (type == SyntaxKind.NULL_KEYWORD) {
             typeTag = TypeTags.NIL;
             value = null;
             originalValue = "null";
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        } else if (type == SyntaxKind.NIL_TYPE_DESC) {
+        } else if (type == SyntaxKind.NIL_LITERAL) {
             typeTag = TypeTags.NIL;
             value = null;
             originalValue = "()";
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         } else if (type == SyntaxKind.BINARY_EXPRESSION) { // Should be base16 and base64
             typeTag = TypeTags.BYTE_ARRAY;
-            value = literal.text();
-            originalValue = literal.text();
+            value = textValue;
+            originalValue = textValue;
 
             // If numeric literal create a numeric literal expression; otherwise create a literal expression
             if (isNumericLiteral(type)) {
@@ -728,26 +731,21 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
     }
 
     private NodeTransformerOut createTypeNode(Node type) {
-        if (type == null) {
+        if (type instanceof Token || type.kind() == SyntaxKind.NIL_TYPE) {
+            // Default type
             BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
-            TypeKind typeKind = TypeKind.NIL;
+            String typeText = (type.kind() != SyntaxKind.NIL_TYPE) ? ((Token) type).text() : "()";
+            bLValueType.typeKind = TreeUtils.stringToTypeKind(typeText.replaceAll("\\s+", ""));
             bLValueType.pos = emptyPos;
-            bLValueType.typeKind = typeKind;
             return NodeTransformerOut.of(bLValueType);
         } else if (type.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE || type.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+            // Exclusive type
             BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
             BLangNameReference nameReference = getBLangNameReference(type);
             bLUserDefinedType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
             bLUserDefinedType.typeName = (BLangIdentifier) nameReference.name;
             bLUserDefinedType.pos = emptyPos;
             return NodeTransformerOut.of(bLUserDefinedType);
-        } else if (type instanceof Token) {
-            BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
-            String typeText = ((Token) type).text();
-            TypeKind typeKind = (TreeUtils.stringToTypeKind(typeText.replaceAll("\\s+", "")));
-            bLValueType.pos = emptyPos;
-            bLValueType.typeKind = typeKind;
-            return NodeTransformerOut.of(bLValueType);
         } else if (type.kind() == SyntaxKind.RECORD_TYPE_DESC) {
             // Inline-record type
             NodeTransformerOut structOut = type.apply(this);
@@ -876,8 +874,8 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
             case HEX_FLOATING_POINT_LITERAL:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
-            case NIL_TYPE_DESC:
-            case NONE:
+            case NIL_LITERAL:
+            case NULL_KEYWORD:
                 return true;
             default:
                 return false;
