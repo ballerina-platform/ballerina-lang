@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/io;
-
 type Student record {
     string name;
     int age;
@@ -46,6 +44,24 @@ type Person object {
     public Person? parent = ();
     private string email = "default@abc.com";
     string address = "No 20, Palm grove";
+};
+
+public type AnonPerson record {
+    string name;
+    int age;
+    object {
+        public string city;
+        public string country;
+
+        public function __init(string city, string country) {
+            self.city = city;
+            self.country = country;
+        }
+
+        public function value() returns string {
+            return self.city + ", " + self.country;
+        }
+    } address;
 };
 
 type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET"|"TIMER";
@@ -105,23 +121,23 @@ public function variables() {
 
     Person objectVar = new;
 
-    Person anonObjectVar = {
+    AnonPerson anonObjectVar = {
         name: "John Doe",
         age: 25,
         address: new ("Colombo", "Sri Lanka")
     };
 
-    service serviceVar = service {
-        resource function onMessage(string message) {
-            io:println("Response received from server: " + message);
-        }
-        resource function onError(error err) {
-            io:println("Error reported from server: " + err.reason() + " - " + <string>err.detail()["message"]);
-        }
-        resource function onComplete() {
-            io:println("Server Complete Sending Responses.");
-        }
-    };
+    //service serviceVar = service {
+    //    resource function onMessage(string message) {
+    //        io:println("Response received from server: " + message);
+    //    }
+    //    resource function onError(error err) {
+    //        io:println("Error reported from server: " + err.reason() + " - " + <string>err.detail()["message"]);
+    //    }
+    //    resource function onComplete() {
+    //        io:println("Server Complete Sending Responses.");
+    //    }
+    //};
 
     typedesc<int> typedescVar = int;
 

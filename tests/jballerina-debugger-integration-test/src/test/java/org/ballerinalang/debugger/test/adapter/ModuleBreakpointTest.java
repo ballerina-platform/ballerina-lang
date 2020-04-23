@@ -15,12 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.debugadapter.test.adapter;
+package org.ballerinalang.debugger.test.adapter;
 
-import org.ballerinalang.debugadapter.test.DebugAdapterBaseTestCase;
-import org.ballerinalang.debugadapter.test.utils.BallerinaTestBreakPoint;
-import org.ballerinalang.debugadapter.test.utils.DebugUtils;
-import org.ballerinalang.debugadapter.test.utils.TestBreakPointListener;
+import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
+import org.ballerinalang.debugger.test.utils.BallerinaTestBreakPoint;
+import org.ballerinalang.debugger.test.utils.DebugUtils;
+import org.ballerinalang.debugger.test.utils.TestBreakPointListener;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -32,14 +32,14 @@ import java.util.List;
 import java.util.Timer;
 
 /**
- *
+ * Test class for ballerina breakpoints related test scenarios.
  */
-public class JBalModuleBreakpointTest extends DebugAdapterBaseTestCase {
+public class ModuleBreakpointTest extends DebugAdapterBaseTestCase {
 
     @BeforeClass
     public void setup() {
         testModuleName = "advanced";
-        testSingleFileName = "main.bal";
+        testModuleFileName = "main.bal";
         testSingleFileName = "hello_world.bal";
     }
 

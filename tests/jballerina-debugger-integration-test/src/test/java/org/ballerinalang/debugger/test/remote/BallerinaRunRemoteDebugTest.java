@@ -15,9 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.debugadapter.test.remote;
+package org.ballerinalang.debugger.test.remote;
 
-import org.ballerinalang.debugadapter.test.BaseTestCase;
+import org.ballerinalang.debugger.test.BaseTestCase;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
@@ -26,7 +26,7 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Paths;
 
-import static org.ballerinalang.debugadapter.test.utils.DebugUtils.findFreePort;
+import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
 /**
  * Test class to test positive scenarios of remote debugging ballerina run command.

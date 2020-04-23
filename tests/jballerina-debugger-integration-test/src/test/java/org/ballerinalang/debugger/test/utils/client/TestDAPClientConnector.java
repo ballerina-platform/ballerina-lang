@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.test.utils.client;
+package org.ballerinalang.debugger.test.utils.client;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.debugadapter.test.utils.DebugServerEventHolder;
-import org.ballerinalang.debugadapter.test.utils.DebugUtils;
-import org.ballerinalang.debugadapter.test.utils.client.connection.TestSocketStreamConnectionProvider;
-import org.ballerinalang.debugadapter.test.utils.client.connection.TestStreamConnectionProvider;
+import org.ballerinalang.debugger.test.utils.DebugServerEventHolder;
+import org.ballerinalang.debugger.test.utils.DebugUtils;
+import org.ballerinalang.debugger.test.utils.client.connection.TestSocketStreamConnectionProvider;
+import org.ballerinalang.debugger.test.utils.client.connection.TestStreamConnectionProvider;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.Constant;
 import org.ballerinalang.test.context.Utils;
@@ -45,8 +45,8 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
-import static org.ballerinalang.debugadapter.test.utils.DebugUtils.JBAL_DEBUG_CMD_NAME;
-import static org.ballerinalang.debugadapter.test.utils.DebugUtils.findFreePort;
+import static org.ballerinalang.debugger.test.utils.DebugUtils.JBAL_DEBUG_CMD_NAME;
+import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
 /**
  * Used to communicate with debug server.

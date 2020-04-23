@@ -15,11 +15,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.debugadapter.test;
+package org.ballerinalang.debugger.test;
 
-import org.ballerinalang.debugadapter.test.utils.BallerinaTestBreakPoint;
-import org.ballerinalang.debugadapter.test.utils.DebugUtils;
-import org.ballerinalang.debugadapter.test.utils.client.TestDAPClientConnector;
+import org.ballerinalang.debugger.test.utils.BallerinaTestBreakPoint;
+import org.ballerinalang.debugger.test.utils.DebugUtils;
+import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
@@ -36,7 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.debugadapter.test.utils.DebugUtils.findFreePort;
+import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
 /**
  * Parent test class for all of the debug adapter integration test cases. This will provide basic functionality for

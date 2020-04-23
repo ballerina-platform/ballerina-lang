@@ -15,9 +15,9 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.debugadapter.test;
+package org.ballerinalang.debugger.test;
 
-import org.ballerinalang.debugadapter.test.utils.FileUtils;
+import org.ballerinalang.debugger.test.utils.FileUtils;
 import org.ballerinalang.test.context.BalServer;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.testng.annotations.AfterSuite;
