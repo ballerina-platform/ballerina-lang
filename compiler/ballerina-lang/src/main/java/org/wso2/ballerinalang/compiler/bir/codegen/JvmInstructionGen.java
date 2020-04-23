@@ -151,6 +151,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TUPLE_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_QNAME;
@@ -1645,11 +1646,11 @@ public class JvmInstructionGen {
 
         void generateNewTypedescIns(NewTypeDesc newTypeDesc) {
 
-            this.mv.visitTypeInsn(NEW, TYPEDESC_VALUE);
+            this.mv.visitTypeInsn(NEW, TYPEDESC_VALUE_IMPL);
             this.mv.visitInsn(DUP);
             loadType(this.mv, newTypeDesc.type);
-            this.mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE, "<init>",
-                    String.format("(L%s;)V", BTYPE), false);
+            this.mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE_IMPL, "<init>",
+                                    String.format("(L%s;)V", BTYPE), false);
             this.storeToVar(newTypeDesc.lhsOp.variableDcl);
         }
 
