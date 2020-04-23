@@ -15,7 +15,7 @@
 // under the License.
 
 public function createPipeline((any|error)[]|map<any|error>|record{}|string|xml|stream collection)
-        returns _StreamPipeline{
+        returns _StreamPipeline {
     return new _StreamPipeline(collection);
 }
 
@@ -50,4 +50,13 @@ public function createDoFunction(function(_Frame frame) doFunc) returns _StreamF
 
 public function addStreamFunction(@tainted _StreamPipeline pipeline, @tainted _StreamFunction streamFunction) {
     pipeline.addStreamFunction(streamFunction);
+}
+
+public function addToFrame(_Frame frame, string key, any|error value) returns _Frame {
+    frame[key] = value;
+    return frame;
+}
+
+function lambdaTemplate(_Frame frame) returns _Frame|error? {
+    return frame;
 }

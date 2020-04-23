@@ -116,6 +116,17 @@ public class Names {
     public static final Name CREATE_INT_RANGE = new Name("createIntRange");
     public static final Name CONSTRUCT_STREAM = new Name("construct");
 
+    // Names related to streams/query.
+    public static final Name QUERY_CREATE_PIPELINE_FUNCTION = new Name("createPipeline");
+    public static final Name QUERY_CREATE_FROM_FUNCTION = new Name("createFromFunction");
+    public static final Name QUERY_CREATE_LET_FUNCTION = new Name("createLetFunction");
+    public static final Name QUERY_CREATE_JOIN_FUNCTION = new Name("createJoinFunction");
+    public static final Name QUERY_CREATE_FILTER_FUNCTION = new Name("createFilterFunction");
+    public static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
+    public static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
+    public static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
+    public static final Name QUERY_ADD_TO_FRAME_FUNCTION = new Name("addToFrame");
+
     public CompilerContext context;
 
     public static Names getInstance(CompilerContext context) {
