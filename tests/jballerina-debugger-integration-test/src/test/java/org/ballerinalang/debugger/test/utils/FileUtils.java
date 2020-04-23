@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.debugadapter.test.utils;
+package org.ballerinalang.debugger.test.utils;
 
 import java.io.IOException;
 import java.nio.file.Files;

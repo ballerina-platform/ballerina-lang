@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.debugadapter.test.utils.client.connection;
+package org.ballerinalang.debugger.test.utils.client.connection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +51,7 @@ public class TestProcessStreamConnectionProvider implements TestStreamConnection
         }
         ProcessBuilder builder = createProcessBuilder();
         LOG.info("Starting server process with commands " + commands + " and workingDir " + workingDir);
+        // builder.environment().put("BAL_JAVA_DEBUG", "5006");
         process = builder.start();
         if (!process.isAlive()) {
             throw new IOException("Unable to start debug server: " + this.toString());

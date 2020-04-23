@@ -30,10 +30,10 @@ under the License.
             </run>
         </groups>
         <classes>
-<!--            <class name="org.ballerinalang.debugadapter.test.remote.BallerinaRunRemoteDebugTest"/>-->
-<!--            <class name="org.ballerinalang.debugadapter.test.remote.BallerinaTestRemoteDebugTest"/>-->
-<!--            <class name="org.ballerinalang.debugadapter.test.remote.BallerinaBuildRemoteDebugTest"/>-->
-            <class name="org.ballerinalang.debugadapter.test.adapter.JBalModuleBreakpointTest"/>
+            <class name="org.ballerinalang.debugger.test.remote.BallerinaRunRemoteDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.remote.BallerinaTestRemoteDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.remote.BallerinaBuildRemoteDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.ModuleBreakpointTest"/>
         </classes>
     </test>
 </suite>

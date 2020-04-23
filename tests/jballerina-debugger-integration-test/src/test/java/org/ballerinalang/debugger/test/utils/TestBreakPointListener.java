@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package org.ballerinalang.debugadapter.test.utils;
+package org.ballerinalang.debugger.test.utils;
 
-import org.ballerinalang.debugadapter.test.utils.client.TestDAPClientConnector;
+import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
 import org.eclipse.lsp4j.debug.ContinueArguments;
 import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.StackTraceArguments;
@@ -70,7 +70,7 @@ public class TestBreakPointListener extends TimerTask {
 
         // If the debuggee program execution is already finished, cancels the timer task immediately.
         if (!connector.getServerEventHolder().getTerminatedEvents().isEmpty() ||
-                !connector.getServerEventHolder().getExitedEventArguments().isEmpty()) {
+                !connector.getServerEventHolder().getExitedEvents().isEmpty()) {
             this.cancel();
         }
     }

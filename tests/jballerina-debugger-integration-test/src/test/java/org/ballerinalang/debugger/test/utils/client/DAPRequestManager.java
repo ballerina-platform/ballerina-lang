@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.debugadapter.test.utils.client;
+package org.ballerinalang.debugger.test.utils.client;
 
 import org.eclipse.lsp4j.debug.BreakpointEventArguments;
 import org.eclipse.lsp4j.debug.Capabilities;
@@ -213,7 +213,7 @@ public class DAPRequestManager {
     }
 
     public void stopped(StoppedEventArguments args) {
-        clientConnector.getServerEventHolder().getStoppedEvents().add(args);
+        clientConnector.getServerEventHolder().addStoppedEvent(args);
     }
 
     public void continued(ContinuedEventArguments args) {
@@ -221,11 +221,11 @@ public class DAPRequestManager {
     }
 
     public void exited(ExitedEventArguments args) {
-        clientConnector.getServerEventHolder().getExitedEventArguments().add(args);
+        clientConnector.getServerEventHolder().addExitedEvent(args);
     }
 
     public void terminated(TerminatedEventArguments args) {
-        clientConnector.getServerEventHolder().getTerminatedEvents().add(args);
+        clientConnector.getServerEventHolder().addTerminatedEvent(args);
     }
 
     public void thread(ThreadEventArguments args) {
@@ -233,7 +233,7 @@ public class DAPRequestManager {
     }
 
     public void output(OutputEventArguments args) {
-        // Todo
+        clientConnector.getServerEventHolder().addOutputEvent(args);
     }
 
     public void breakpoint(BreakpointEventArguments args) {

@@ -13,7 +13,7 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.debugadapter.test.utils.client.connection;
+package org.ballerinalang.debugger.test.utils.client.connection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
