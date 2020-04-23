@@ -2151,7 +2151,6 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.IDENTIFIER;
             case PARAMETERIZED_TYPE_DESCRIPTOR:
                 return ParserRuleContext.GT;
-
             default:
                 if (isStatement(parentCtx) || isParameter(parentCtx)) {
                     return ParserRuleContext.VARIABLE_NAME;
