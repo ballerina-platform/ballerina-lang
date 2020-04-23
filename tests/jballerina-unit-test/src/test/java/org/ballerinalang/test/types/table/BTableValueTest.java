@@ -77,6 +77,19 @@ public class BTableValueTest {
         Assert.fail();
     }
 
+    @Test(description = "Test Table with var type")
+    public void testTableWithVarType() {
+        BRunUtil.invoke(result, "runMemberAccessTestCases");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
+                    "find key '18 Mohan'.*")
+    public void testVarTypeTableInvalidMemberAccess() {
+        BRunUtil.invoke(result, "testVarTypeTableInvalidMemberAccess");
+        Assert.fail();
+    }
+
     //TODO Readonly support is not available for field which is complex type (i.e, record)
     @Test(expectedExceptions = {BLangRuntimeException.class}, enabled = false)
     public void testGlobalTableConstructExpr2() {
