@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.debugadapter.test.utils.DebugUtils.findFreePort;
 
 /**
- * Test class to test positive scenarios of remote debugging ballerina run command.
+ * Test class to test positive scenarios of remote debugging ballerina test command.
  */
 public class BallerinaTestRemoteDebugTest extends BaseTestCase {
 
@@ -37,7 +37,7 @@ public class BallerinaTestRemoteDebugTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = testProjectDirPath.toString();
+        projectPath = testProjectPath.toString();
     }
 
     @Test
@@ -45,7 +45,7 @@ public class BallerinaTestRemoteDebugTest extends BaseTestCase {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.debugMain("test", new String[]{"--debug", String.valueOf(port), TEST_MODULE_NAME}, null,
+        balClient.debugMain("test", new String[]{"--debug", String.valueOf(port), testModuleName}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 10);
         clientLeecher.waitForText(20000);
     }

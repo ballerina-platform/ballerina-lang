@@ -17,9 +17,9 @@
  */
 package org.ballerinalang.debugadapter.test;
 
+import org.ballerinalang.debugadapter.test.utils.FileUtils;
 import org.ballerinalang.test.context.BalServer;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.debugadapter.test.utils.FileUtils;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
@@ -29,16 +29,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Parent test class for all integration test cases. This will provide basic functionality for integration tests. This
- * will initialize a single ballerina instance which will be used by all the test cases throughout.
+ * Parent test class for all debugger integration test cases. This will provide basic functionality for integration
+ * tests. This will initialize a single ballerina instance which will be used by all the test cases throughout.
  */
 public class BaseTestCase {
 
-    public static BalServer balServer;
-    protected static Path testProjectDirPath;
-    protected static Path testSingleFileDirPath;
-    protected static final String TEST_MODULE_NAME = "hello-world";
-    protected static final String TEST_FILE_NAME = "hello_world.bal";
+    protected static BalServer balServer;
+    protected static Path testProjectPath;
+    protected static Path testSingleFileBaseDir;
+    protected static String testModuleName;
+    protected static String testModuleFileName;
+    protected static String testSingleFileName;
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException, IOException {
@@ -48,13 +49,17 @@ public class BaseTestCase {
         // Copy all the test resources to a temp dir.
         Path originalSingleFilesProj = Paths.get("src", "test", "resources", "single-file-tests")
                 .toAbsolutePath();
-        testSingleFileDirPath = tempProjectDirectory.resolve("single-file-tests");
-        FileUtils.copyFolder(originalSingleFilesProj, testSingleFileDirPath);
+        testSingleFileBaseDir = tempProjectDirectory.resolve("single-file-tests");
+        FileUtils.copyFolder(originalSingleFilesProj, testSingleFileBaseDir);
 
         Path originalMultiModulesProj = Paths.get("src", "test", "resources", "project-based-tests/basic-project")
                 .toAbsolutePath();
-        testProjectDirPath = tempProjectDirectory.resolve("basic-project");
-        FileUtils.copyFolder(originalMultiModulesProj, testProjectDirPath);
+        testProjectPath = tempProjectDirectory.resolve("basic-project");
+        FileUtils.copyFolder(originalMultiModulesProj, testProjectPath);
+
+        testModuleName = "hello-world";
+        testModuleFileName = "hello_world.bal";
+        testSingleFileName = "hello_world.bal";
     }
 
     @AfterSuite(alwaysRun = true)

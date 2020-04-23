@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinalang.debugadapter.test.remote;
 
 import org.ballerinalang.debugadapter.test.BaseTestCase;
@@ -41,8 +40,8 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = testProjectDirPath.toString();
-        singleFilePath = Paths.get(testSingleFileDirPath.toString(), TEST_FILE_NAME).toString();
+        projectPath = testProjectPath.toString();
+        singleFilePath = Paths.get(testSingleFileBaseDir.toString(), testSingleFileName).toString();
     }
 
     @Test
@@ -50,7 +49,7 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port), TEST_MODULE_NAME}, null,
+        balClient.debugMain("run", new String[]{"--debug", String.valueOf(port), testModuleName}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 10);
         clientLeecher.waitForText(20000);
     }
