@@ -46,6 +46,7 @@ import javax.mail.search.FlagTerm;
 public class EmailAccessClient {
 
     private static final Logger log = LoggerFactory.getLogger(EmailAccessClient.class);
+    private static final FlagTerm UNSEEN_FLAG = new FlagTerm(new Flags(Flags.Flag.SEEN), false);
 
     private EmailAccessClient() {
         // A Singleton class.
@@ -114,18 +115,17 @@ public class EmailAccessClient {
         String username = (String) clientConnector.getNativeData(EmailConstants.PROPS_USERNAME);
         String password = (String) clientConnector.getNativeData(EmailConstants.PROPS_PASSWORD);
         try (Store store = (Store) clientConnector.getNativeData(EmailConstants.PROPS_STORE)) {
-            log.debug("Going to access email server with properties, host: " + host + " username: " + username
+            log.debug("Access email server with properties, host: " + host + " username: " + username
                     + " folder: " + folder);
             store.connect(host, username, password);
             Folder emailFolder = store.getFolder(folder);
             MapValue mapValue = null;
             if (emailFolder == null) {
-                log.error("Email store folder is not found.");
+                log.error("Email store folder, " + folder + " is not found.");
             } else {
                 emailFolder.open(Folder.READ_WRITE);
-                Message[] messages = emailFolder.search(new FlagTerm(new Flags(Flags.Flag.SEEN), false));
+                Message[] messages = emailFolder.search(UNSEEN_FLAG);
                 if (messages.length > 0) {
-                    log.debug("Emails are available in the store.");
                     Flags flags = new Flags();
                     flags.add(Flags.Flag.SEEN);
                     emailFolder.setFlags(new int[] {messages[0].getMessageNumber()}, flags, true);

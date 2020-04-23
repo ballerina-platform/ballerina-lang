@@ -19,15 +19,11 @@
 package org.ballerinalang.stdlib.email.server;
 
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.BallerinaValues;
-import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.stdlib.email.util.EmailConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Email connector listener for Ballerina.
@@ -67,17 +63,12 @@ public class EmailListener {
 
     /**
      * Place an error in Ballerina when received.
-     * @param throwable Email object to be received
+     * @param error Email object to be received
      */
-    public void onError(Throwable throwable) {
-        log.error(throwable.getMessage(), throwable);
-        Map<String, Object> args = new HashMap<>();
-        String errorMessage =  throwable.getMessage();
-        args.put("0", errorMessage);
-        MapValue errorValue = BallerinaValues.createRecordValue(EmailConstants.EMAIL_PACKAGE_ID, EmailConstants.ERROR,
-                args);
+    public void onError(Object error) {
+        log.error(((ErrorValue) error).getMessage());
         if (runtime != null) {
-            runtime.invokeMethodAsync(service, EmailConstants.ON_ERROR, errorValue);
+            runtime.invokeMethodSync(service, EmailConstants.ON_ERROR, error, true);
         } else {
             log.error("Runtime should not be null.");
         }

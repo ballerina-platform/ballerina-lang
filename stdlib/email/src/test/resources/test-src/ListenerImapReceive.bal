@@ -32,14 +32,14 @@ listener email:Listener emailServer = new ({
 
 boolean onMessageInvoked = false;
 boolean onErrorInvoked = false;
-boolean receivedMessageIsCorrect = false;
+string receivedMessage = "";
 string receivedError = "";
 
 service emailObserver on emailServer {
 
     resource function onMessage(email:Email emailMessage) {
         onMessageInvoked = true;
-        receivedMessageIsCorrect = <@untainted>(emailMessage.subject == "Test E-Mail");
+        receivedMessage = <@untainted>emailMessage.subject;
     }
 
     resource function onError(email:Error emailError) {
@@ -57,8 +57,8 @@ function isOnErrorInvoked() returns boolean {
     return onErrorInvoked;
 }
 
-function receivedMessage() returns boolean {
-    return <@untainted>receivedMessageIsCorrect;
+function getReceivedMessage() returns string {
+    return <@untainted>receivedMessage;
 }
 
 function getReceivedError() returns string {

@@ -24,10 +24,8 @@ public type Listener object {
 
     *lang:Listener;
 
-    private handle EMPTY_JAVA_STRING = java:fromString("");
-    private ListenerConfig config = {};
+    private ListenerConfig config;
     private task:Scheduler? appointment = ();
-    private handle? serverConnector = ();
 
     # Gets invoked during the `email:Listener` initialization.
     #
@@ -113,7 +111,7 @@ public type Listener object {
             check appointment.attach(appointmentService, self);
             check appointment.start();
         }
-        log:printInfo("Listening to remote server at " + self.config.host + "...");
+        log:printInfo("User " + self.config.username + " is listening to remote server at " + self.config.host + "...");
     }
 
     function stop() returns error? {
@@ -124,14 +122,8 @@ public type Listener object {
         log:printInfo("Stopped listening to remote server at " + self.config.host);
     }
 
-    # Polls the email server enspoint.
-    # ```ballerina
-    # email:Error? result = emailListener.poll();
-    # ```
-    #
-    # + return - () or else error upon failure to poll the listener
-    public function poll() returns error? {
-        return poll(self.config);
+    function poll() returns error? {
+        return poll(self);
     }
 
     # Registers for the Email service.
@@ -145,12 +137,9 @@ public type Listener object {
     public function register(service emailService, string? name) returns error? {
         error? response = ();
         handle|error result = register(self, self.config,  emailService);
-        if(result is handle){
-            self.config.serverConnector = result;
-        } else {
-            response = result;
+        if(result is error){
+            return result;
         }
-        return response;
     }
 };
 
@@ -172,19 +161,17 @@ service appointmentService = service {
 # + protocolConfig - POP3 or IMAP4 protocol configuration
 # + pollingInterval - Periodic time interval to check new update
 # + cronExpression - Cron expression to check new update
-# + serverConnector - Server connector for service
 public type ListenerConfig record {|
-    string host = "127.0.0.1";
-    string username = "";
-    string password = "";
-    string protocol = "";
+    string host;
+    string username;
+    string password;
+    string protocol = "IMAP";
     PopConfig|ImapConfig? protocolConfig = ();
     int pollingInterval = 60000;
     string? cronExpression = ();
-    handle? serverConnector = ();
 |};
 
-function poll(ListenerConfig config) returns error? = @java:Method{
+function poll(Listener listenerEndpoint) returns error? = @java:Method{
     name: "poll",
     class: "org.ballerinalang.stdlib.email.server.EmailListenerHelper"
 } external;

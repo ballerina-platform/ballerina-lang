@@ -18,6 +18,7 @@
 
 package org.ballerinalang.stdlib.email.server;
 
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -66,9 +67,8 @@ public class EmailConsumer {
                     (MapValue<Object, Object>) protocolConfig);
         } else {
             String errorMsg = "Protocol should either be 'IMAP' or 'POP'.";
-            log.error(errorMsg);
             final EmailConnectorException e = new EmailConnectorException(errorMsg);
-            emailListener.onError(e);
+            emailListener.onError(BallerinaErrors.createError(e));
         }
 
     }
@@ -87,9 +87,10 @@ public class EmailConsumer {
             if (message instanceof MapValue) {
                 emailListener.onMessage(new EmailEvent(message));
             } else if (message instanceof ErrorValue) {
-                emailListener.onError(new EmailConnectorException(((ErrorValue) message).getMessage()));
+                emailListener.onError(message);
             } else {
-                emailListener.onError(new EmailConnectorException("Received an undefined message from email server."));
+                emailListener.onError(BallerinaErrors.createError(
+                        new EmailConnectorException("Received an undefined message from email server.")));
             }
         } else {
             log.debug("No emails found in the inbox.");

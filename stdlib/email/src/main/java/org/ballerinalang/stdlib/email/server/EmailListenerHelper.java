@@ -51,7 +51,6 @@ public class EmailListenerHelper {
         Map<String, Object> paramMap = getServerConnectorParamMap(serviceEndpointConfig);
         EmailConnector emailConnector = emailConnectorFactory.createServerConnector(paramMap, listener);
         emailListener.addNativeData(EmailConstants.EMAIL_SERVER_CONNECTOR, emailConnector);
-        serviceEndpointConfig.addNativeData(EmailConstants.EMAIL_SERVER_CONNECTOR, emailConnector);
         return emailConnector;
     }
 
@@ -62,13 +61,12 @@ public class EmailListenerHelper {
             final MapValue privateKey = secureSocket.getMapValue(EmailConstants.ENDPOINT_CONFIG_PRIVATE_KEY);
             if (privateKey != null) {
                 final String privateKeyPath = privateKey.getStringValue(EmailConstants.ENDPOINT_CONFIG_PATH);
-                if (privateKeyPath != null && !privateKeyPath.isEmpty()) {
+                final String privateKeyPassword =
+                        privateKey.getStringValue(EmailConstants.ENDPOINT_CONFIG_PASS_KEY);
+                if (privateKeyPath != null && !privateKeyPath.isEmpty() && privateKeyPassword != null
+                        && !privateKeyPassword.isEmpty()) {
                     params.put(EmailConstants.IDENTITY, privateKeyPath);
-                    final String privateKeyPassword =
-                            privateKey.getStringValue(EmailConstants.ENDPOINT_CONFIG_PASS_KEY);
-                    if (privateKeyPassword != null && !privateKeyPassword.isEmpty()) {
-                        params.put(EmailConstants.IDENTITY_PASS_PHRASE, privateKeyPassword);
-                    }
+                    params.put(EmailConstants.IDENTITY_PASS_PHRASE, privateKeyPassword);
                 }
             }
         }
@@ -85,11 +83,11 @@ public class EmailListenerHelper {
 
     /**
      * Polls emails from the email server endpoint.
-     * @param config Configuration for connecting to the email server endpoint
+     * @param emailListener Ballerina listener for connecting to the email server endpoint
      * @throws Exception If an error occurs during the polling operations
      */
-    public static void poll(MapValue<Object, Object> config) throws Exception {
-        EmailConnector connector = (EmailConnector) config.getNativeData(EmailConstants.EMAIL_SERVER_CONNECTOR);
+    public static void poll(ObjectValue emailListener) throws Exception {
+        EmailConnector connector = (EmailConnector) emailListener.getNativeData(EmailConstants.EMAIL_SERVER_CONNECTOR);
         try {
             connector.poll();
         } catch (Exception e) {

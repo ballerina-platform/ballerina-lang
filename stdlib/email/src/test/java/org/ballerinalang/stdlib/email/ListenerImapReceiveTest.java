@@ -23,11 +23,11 @@ import com.icegreen.greenmail.util.DummySSLSocketFactory;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -41,6 +41,8 @@ import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -48,7 +50,7 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 1.3.0
  */
-public class ListenerReceiveTest {
+public class ListenerImapReceiveTest {
 
     private GreenMailUser user;
     private CompileResult compiledResult;
@@ -73,22 +75,46 @@ public class ListenerReceiveTest {
     public void testReceiveSimpleEmail() throws MessagingException, InterruptedException {
         sendEmail();
         Thread.sleep(10000);
-        readEmails();
+        readEmail();
     }
 
-    @AfterClass
-    public void terminate() {
+    @Test(
+            description = "Test for receiving an email with simple parameters",
+            dependsOnMethods = "testReceiveSimpleEmail"
+    )
+    public void testReceiveError() throws InterruptedException {
         mailServer.stop();
+        Thread.sleep(10000);
+        readError();
     }
 
-    private void readEmails() {
+    private void readEmail() {
         BValue[] isOnMessageInvokedReturns = BRunUtil.invoke(compiledResult, "isOnMessageInvoked");
         assertTrue(isOnMessageInvokedReturns[0] instanceof BBoolean);
         assertTrue(((BBoolean) isOnMessageInvokedReturns[0]).booleanValue());
 
-        BValue[] receivedMessageReturns = BRunUtil.invoke(compiledResult, "receivedMessage");
-        assertTrue(receivedMessageReturns[0] instanceof BBoolean);
-        assertTrue(((BBoolean) receivedMessageReturns[0]).booleanValue());
+        BValue[] receivedMessageReturns = BRunUtil.invoke(compiledResult, "getReceivedMessage");
+        assertTrue(receivedMessageReturns[0] instanceof BString);
+        assertEquals(receivedMessageReturns[0].stringValue(), "Test E-Mail");
+
+        BValue[] isOnErrorInvokedReturns = BRunUtil.invoke(compiledResult, "isOnErrorInvoked");
+        assertTrue(isOnErrorInvokedReturns[0] instanceof BBoolean);
+        assertFalse(((BBoolean) isOnErrorInvokedReturns[0]).booleanValue());
+
+        BValue[] receivedErrorReturns = BRunUtil.invoke(compiledResult, "getReceivedError");
+        assertTrue(receivedErrorReturns[0] instanceof BString);
+        assertEquals((receivedErrorReturns[0]).stringValue(), "");
+    }
+
+    private void readError() {
+        BValue[] isOnErrorInvokedReturns = BRunUtil.invoke(compiledResult, "isOnErrorInvoked");
+        assertTrue(isOnErrorInvokedReturns[0] instanceof BBoolean);
+        assertTrue(((BBoolean) isOnErrorInvokedReturns[0]).booleanValue());
+
+        BValue[] receivedErrorReturns = BRunUtil.invoke(compiledResult, "getReceivedError");
+        assertTrue(receivedErrorReturns[0] instanceof BString);
+        String expectedError = "message=Couldn't connect to host, port: 127.0.0.1, 3993; timeout -1";
+        assertEquals((receivedErrorReturns[0]).stringValue(), expectedError);
     }
 
     private void startServer() {
@@ -112,7 +138,7 @@ public class ListenerReceiveTest {
 
     private void compileBallerinaScript() {
         Path sourceFilePath = Paths.get("src", "test", "resources", "test-src",
-                "ListenerReceive.bal");
+                "ListenerImapReceive.bal");
         compiledResult = BCompileUtil.compileOffline(true, sourceFilePath.toAbsolutePath().toString());
     }
 

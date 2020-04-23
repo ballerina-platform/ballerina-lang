@@ -40,12 +40,12 @@ public class EmailConnector {
      * @param emailListener Listener that polls emails from the server
      */
     public EmailConnector(Map<String, Object> properties, EmailListener emailListener) {
-        log.debug("Email listener config fields: " + properties.keySet());
+        log.debug("Email listener configurations: " + properties.keySet());
         consumer = new EmailConsumer(properties, emailListener);
     }
 
     /**
-     * Polling to retrieve emails from the server.
+     * Polls to retrieve emails from the server.
      */
     public void poll() {
         try {
