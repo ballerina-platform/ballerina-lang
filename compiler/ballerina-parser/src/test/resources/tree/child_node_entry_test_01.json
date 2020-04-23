@@ -1,5 +1,6 @@
 {
-    "imports": [],
+    "imports": [
+    ],
     "members": [
         {
             "kind": "FUNCTION_DEFINITION",
@@ -7,7 +8,8 @@
                 "metadata": {
                     "kind": "METADATA",
                     "value": {
-                        "annotations": []
+                        "annotations": [
+                        ]
                     }
                 },
                 "functionKeyword": {
@@ -22,7 +24,8 @@
                     "kind": "OPEN_PAREN_TOKEN",
                     "value": "("
                 },
-                "parameters": [],
+                "parameters": [
+                ],
                 "closeParenToken": {
                     "kind": "CLOSE_PAREN_TOKEN",
                     "value": ")"
@@ -34,7 +37,8 @@
                             "kind": "RETURNS_KEYWORD",
                             "value": "returns"
                         },
-                        "annotations": [],
+                        "annotations": [
+                        ],
                         "type": {
                             "kind": "SIMPLE_TYPE",
                             "value": "string"
@@ -52,7 +56,8 @@
                             {
                                 "kind": "LOCAL_VAR_DECL",
                                 "value": {
-                                    "annotations": [],
+                                    "annotations": [
+                                    ],
                                     "typeName": {
                                         "kind": "SIMPLE_TYPE",
                                         "value": "int"
@@ -66,8 +71,13 @@
                                         "value": "\u003d"
                                     },
                                     "initializer": {
-                                        "kind": "DECIMAL_INTEGER_LITERAL",
-                                        "value": "5"
+                                        "kind": "BASIC_LITERAL",
+                                        "value": {
+                                            "literalToken": {
+                                                "kind": "DECIMAL_INTEGER_LITERAL",
+                                                "value": "5"
+                                            }
+                                        }
                                     },
                                     "semicolonToken": {
                                         "kind": "SEMICOLON_TOKEN",
@@ -87,8 +97,13 @@
                                         "value": "\u003d"
                                     },
                                     "expression": {
-                                        "kind": "DECIMAL_INTEGER_LITERAL",
-                                        "value": "10"
+                                        "kind": "BASIC_LITERAL",
+                                        "value": {
+                                            "literalToken": {
+                                                "kind": "DECIMAL_INTEGER_LITERAL",
+                                                "value": "10"
+                                            }
+                                        }
                                     },
                                     "semicolonToken": {
                                         "kind": "SEMICOLON_TOKEN",
@@ -104,8 +119,13 @@
                                         "value": "return"
                                     },
                                     "expression": {
-                                        "kind": "DECIMAL_INTEGER_LITERAL",
-                                        "value": "10"
+                                        "kind": "BASIC_LITERAL",
+                                        "value": {
+                                            "literalToken": {
+                                                "kind": "DECIMAL_INTEGER_LITERAL",
+                                                "value": "10"
+                                            }
+                                        }
                                     },
                                     "semicolonToken": {
                                         "kind": "SEMICOLON_TOKEN",

@@ -21,9 +21,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
+import io.ballerinalang.compiler.internal.parser.tree.STBasicLiteralNode;
 import io.ballerinalang.compiler.internal.parser.tree.STDocumentationLineToken;
 import io.ballerinalang.compiler.internal.parser.tree.STIdentifierToken;
 import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
@@ -37,6 +39,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocuments;
+
 import org.testng.Assert;
 
 import java.io.FileReader;
@@ -129,6 +132,9 @@ public class ParserTestUtils {
     }
 
     private static void assertNode(STNode node, JsonObject json) {
+        if (node instanceof STBasicLiteralNode) {
+            node = ((STBasicLiteralNode) node).literalToken;
+        }
         aseertNodeKind(json, node);
 
         if (isMissingToken(json)) {

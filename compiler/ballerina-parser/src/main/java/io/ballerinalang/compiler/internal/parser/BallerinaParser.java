@@ -197,8 +197,6 @@ public class BallerinaParser {
                 return parseElseBody();
             case WHILE_KEYWORD:
                 return parseWhileKeyword();
-            case BOOLEAN_LITERAL:
-                return parseBooleanLiteral();
             case PANIC_KEYWORD:
                 return parsePanicKeyword();
             case MAJOR_VERSION:
@@ -3146,7 +3144,9 @@ public class BallerinaParser {
             case HEX_INTEGER_LITERAL:
             case STRING_LITERAL:
             case NULL_KEYWORD:
-                return parseLiteral();
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+                return parseBasicLiteral();
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
             case OPEN_PAREN_TOKEN:
@@ -3156,9 +3156,6 @@ public class BallerinaParser {
                     return parseNilLiteral();
                 }
                 return parseBracedExpression(isRhsExpr, allowActions);
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-                return parseBooleanLiteral();
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
                 // In the checking action, nested actions are allowed. And thats the only
@@ -3460,12 +3457,13 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse basic literals. It is assmued that we come here after validation.
+     * Parse basic literals. It is assumed that we come here after validation.
      *
      * @return Parsed node
      */
-    private STNode parseLiteral() {
-        return consume();
+    private STNode parseBasicLiteral() {
+        STToken literalToken = consume();
+        return STNodeFactory.createBasicLiteralNode(literalToken);
     }
 
     /**
@@ -4262,23 +4260,6 @@ public class BallerinaParser {
         } else {
             Solution sol = recover(token, ParserRuleContext.PANIC_KEYWORD);
             return sol.recoveredNode;
-        }
-    }
-
-    /**
-     * Parse boolean literal.
-     *
-     * @return Parsed node
-     */
-    private STNode parseBooleanLiteral() {
-        STToken token = peek();
-        switch (token.kind) {
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-                return consume();
-            default:
-                Solution sol = recover(token, ParserRuleContext.BOOLEAN_LITERAL);
-                return sol.recoveredNode;
         }
     }
 

@@ -963,5 +963,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STDocumentationStringNode(
                 documentationLines);
     }
+
+    public static STNode createBasicLiteralNode(
+            STNode literalToken) {
+
+        return new STBasicLiteralNode(
+                literalToken);
+    }
 }
 

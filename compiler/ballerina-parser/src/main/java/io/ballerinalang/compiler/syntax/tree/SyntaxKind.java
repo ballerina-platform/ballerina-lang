@@ -164,6 +164,7 @@ public enum SyntaxKind {
     TYPEOF_EXPRESSION(1309),
     UNARY_EXPRESSION(1310),
     TYPE_TEST_EXPRESSION(1311),
+    BASIC_LITERAL(1312),
 
     // Type descriptors
     RECORD_TYPE_DESCRIPTOR(2000),

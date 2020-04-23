@@ -1713,6 +1713,17 @@
                     "occurrences": "MULTIPLE"
                 }
             ]
+        },
+        {
+            "name": "BasicLiteralNode",
+            "base": "ExpressionNode",
+            "kind": "BASIC_LITERAL",
+            "attributes": [
+                {
+                    "name": "literalToken",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

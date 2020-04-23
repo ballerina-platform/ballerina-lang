@@ -328,6 +328,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(documentationStringNode);
     }
 
+    public T transform(BasicLiteralNode basicLiteralNode) {
+        return transformSyntaxNode(basicLiteralNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

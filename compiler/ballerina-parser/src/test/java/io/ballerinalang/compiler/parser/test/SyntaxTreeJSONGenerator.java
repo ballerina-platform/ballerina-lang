@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
+import io.ballerinalang.compiler.internal.parser.tree.STBasicLiteralNode;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
@@ -85,6 +86,10 @@ public class SyntaxTreeJSONGenerator {
     }
 
     private static JsonElement getJSON(STNode treeNode) {
+        if (treeNode instanceof STBasicLiteralNode) {
+            treeNode = ((STBasicLiteralNode) treeNode).literalToken;
+        }
+
         JsonObject jsonNode = new JsonObject();
         SyntaxKind nodeKind = treeNode.kind;
         jsonNode.addProperty(KIND_FIELD, nodeKind.name());

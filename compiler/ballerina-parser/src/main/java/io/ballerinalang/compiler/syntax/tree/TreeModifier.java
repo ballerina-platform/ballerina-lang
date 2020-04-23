@@ -955,6 +955,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 documentationLines);
     }
 
+    @Override
+    public Node transform(BasicLiteralNode basicLiteralNode) {
+        Token literalToken = modifyToken(basicLiteralNode.literalToken());
+        return basicLiteralNode.modify(
+                literalToken);
+    }
+
     // Tokens
 
     @Override
