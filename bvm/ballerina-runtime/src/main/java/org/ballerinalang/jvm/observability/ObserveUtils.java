@@ -135,8 +135,8 @@ public class ObserveUtils {
             observers.forEach(observer -> observer.stopServerObservation(observerContext));
         } else {
             observers.forEach(observer -> observer.stopClientObservation(observerContext));
-            setObserverContextToCurrentFrame(strand, observerContext.getParent());
         }
+        setObserverContextToCurrentFrame(strand, observerContext.getParent());
         observerContext.setFinished();
     }
 
@@ -200,7 +200,7 @@ public class ObserveUtils {
         for (Map.Entry<String, String> tagEntry : tags.entrySet()) {
             newObContext.addMainTag(tagEntry.getKey(), tagEntry.getValue());
         }
-        strand.observerContext = newObContext;
+        setObserverContextToCurrentFrame(strand, newObContext);
         observers.forEach(observer -> observer.startClientObservation(newObContext));
     }
 
