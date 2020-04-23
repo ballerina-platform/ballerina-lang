@@ -5902,8 +5902,28 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseParameterizedTypeDescriptor() {
-        startContext(ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR);
-        STNode parameterizedTypeKeyword = parseParameterizedTypeKeyword();
+        STNode parameterizedTypeKeyword;
+        STToken nextToken = peek();
+
+        switch(nextToken.kind) {
+            case MAP_KEYWORD: // map type desc
+                startContext(ParserRuleContext.MAP_TYPE_DESCRIPTOR);
+                parameterizedTypeKeyword = consume();
+                break;
+            case FUTURE_KEYWORD: // future type desc
+                startContext(ParserRuleContext.FUTURE_TYPE_DESCRIPTOR);
+                parameterizedTypeKeyword = consume();
+                break;
+            default:// typedesc type desc
+                startContext(ParserRuleContext.TYPEDESC_TYPE_DESCRIPTOR);
+                if (nextToken.kind == SyntaxKind.TYPEDESC_KEYWORD) {
+                    parameterizedTypeKeyword = consume();
+                } else {
+                    Solution sol = recover(nextToken, ParserRuleContext.TYPEDESC_KEYWORD);
+                    parameterizedTypeKeyword =  sol.recoveredNode;
+                }
+        }
+
         STNode ltToken = parseLTToken();
         STNode typeNode = parseTypeDescriptor();
         STNode gtToken = parseGTToken();
@@ -5913,23 +5933,6 @@ public class BallerinaParser {
                 gtToken);
     }
 
-    /**
-     * Parse <code>map</code> or <code>future</code> or <code>typedesc</code> keyword token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseParameterizedTypeKeyword() {
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case MAP_KEYWORD: // map type desc
-            case FUTURE_KEYWORD: // future type desc
-            case TYPEDESC_KEYWORD: // typedesc type desc
-                return consume();
-            default:
-                Solution sol = recover(nextToken, ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR);
-                return sol.recoveredNode;
-        }
-    }
 
     /**
      * Parse <code> < </code> token.
