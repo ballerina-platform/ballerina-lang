@@ -380,6 +380,8 @@ public class ParserTestUtils {
                 return SyntaxKind.FIELD_KEYWORD;
             case "XMLNS_KEYWORD":
                 return SyntaxKind.XMLNS_KEYWORD;
+            case "FORK_KEYWORD":
+                return SyntaxKind.FORK_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -546,6 +548,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ACTION_STATEMENT;
             case "LOCK_STATEMENT":
                 return SyntaxKind.LOCK_STATEMENT;
+            case "FORK_STATEMENT":
+                return SyntaxKind.FORK_STATEMENT;
 
             // Others
             case "FUNCTION_BODY_BLOCK":

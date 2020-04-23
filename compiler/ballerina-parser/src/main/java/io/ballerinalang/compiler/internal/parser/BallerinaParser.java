@@ -6686,7 +6686,10 @@ public class BallerinaParser {
             }
             token = peek();
         }
-
+        
+        if (workers.isEmpty()) {
+            this.errorHandler.reportInvalidNode(null, "Fork Statement must contain atleast one named-worker");
+        }
         STNode namedWorkers = STNodeFactory.createNodeList(workers);
         return namedWorkers;
     }
