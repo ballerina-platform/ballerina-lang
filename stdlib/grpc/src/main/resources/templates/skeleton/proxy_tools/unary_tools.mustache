@@ -1,0 +1,26 @@
+public function sendResponse (http:Caller caller, any | error responseData) {
+    http:Response httpResponse = new;
+    match responseData {
+        var [response, header] => {
+            if (response is anydata) {
+                json | error responseJson = json.constructFrom(response);
+                if (responseJson is json) {
+                    httpResponse.statusCode = 200;
+                    httpResponse.setJsonPayload(responseJson);
+                }
+            }
+        }
+        var noPayload => {
+            if (noPayload is error) {
+                httpResponse.statusCode = 500;
+                httpResponse.setPayload(noPayload.reason());
+            } else if (noPayload is grpc:Headers) {
+                httpResponse.statusCode = 200;
+            }
+        }
+    }
+    var sent = caller->respond(httpResponse);
+    if (sent is error) {
+        log:printInfo("Error when responding : " + sent.reason());
+    }
+}

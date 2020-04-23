@@ -28,6 +28,8 @@ import java.util.List;
 public class StubFile extends AbstractStub {
     private List<ServiceStub> stubList = new ArrayList<>();
     private String fileName;
+    private boolean unaryProxyAvailable;
+    private boolean streamingProxyAvailable;
     
     public StubFile(String fileName) {
         this.fileName = fileName;
@@ -44,5 +46,17 @@ public class StubFile extends AbstractStub {
     public List<ServiceStub> getStubList() {
         return stubList;
     }
-    
+
+    public void setFunctionTypes(boolean containsUnary, boolean containsStreaming) {
+        this.unaryProxyAvailable = containsUnary;
+        this.streamingProxyAvailable = containsStreaming;
+    }
+
+    public boolean containUnary() {
+        return this.unaryProxyAvailable;
+    }
+
+    public boolean containStreaming() {
+        return this.streamingProxyAvailable;
+    }
 }

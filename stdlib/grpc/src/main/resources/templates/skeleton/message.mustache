@@ -9,5 +9,4 @@ public type {{messageName}} record {|
 {{#if oneofFieldMap}}
 {{> oneoffield}}
 {{/if}}{{#enumList}}
-{{> enum}}{{/enumList}}{{#if this.nestedMessageList}}{{#each this.nestedMessageList}}
-{{> message}}{{/each}}{{/if}}
+{{> enum}}{{/enumList}}

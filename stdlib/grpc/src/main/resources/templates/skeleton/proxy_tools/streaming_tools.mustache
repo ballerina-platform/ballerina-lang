@@ -1,0 +1,82 @@
+type MessageListener object {
+    private http:WebSocketCaller callingClient;
+    private int outputQueue;
+
+    function __init(http:WebSocketCaller callingClient) {
+        self.callingClient = callingClient;
+        self.outputQueue = 0;
+    }
+
+    function onMessage(anydata message) {
+        self.outputQueue = self.outputQueue + 1;
+        sendSocketResponse(self.callingClient, message);
+        self.outputQueue = self.outputQueue - 1;
+    }
+
+    function onError(error err) {
+        sendSocketResponse(self.callingClient, err);
+    }
+
+    function onComplete() {
+        while(self.outputQueue>0) {}
+        var close = self.callingClient->close();
+    }
+};
+
+service socketHandler = @http:WebSocketServiceConfig {} service {
+    resource function onText(http:WebSocketCaller caller, string text) {
+        string callerStage = caller.getAttribute(STAGE).toString();
+        if (callerStage == REPLY) {
+            sendSocketResponse(caller, "Wait for server to respond");
+        } else {
+            json | error requestBody = text.fromJsonString();
+            if ((text == "null") && callerStage == CLIENT_STREAM) {
+                caller.setAttribute(STAGE, REPLY);
+                sendCompleteSignal(caller);
+                return;
+            }
+            if (requestBody is json) {
+                if (callerStage == INIT) {
+                    caller.setAttribute(STAGE, REPLY);
+                }
+                invokeStreaming(caller.getAttribute(FUNCTION).toString(), caller, requestBody);
+            } else {
+                sendSocketResponse(caller, requestBody, true);
+            }
+        }
+    }
+};
+
+public function sendCompleteSignal (http:WebSocketCaller caller) {
+    any streamingClient = caller.getAttribute(CLIENT_EP);
+    if (streamingClient is grpc:StreamingClient) {
+        grpc:Error? response = streamingClient->complete();
+        if (response is grpc:Error) {
+            sendSocketResponse(caller, response, true);
+        }
+    }
+}
+
+function sendSocketResponse(http:WebSocketCaller caller, anydata | error response, boolean closeConnection = false) {
+    string responseMessage = "";
+    if (response is error) {
+        responseMessage = response.detail().toString();
+    } else if (response is string) {
+        responseMessage = response;
+    } else {
+        json | error responseJson = json.constructFrom(response);
+        if (responseJson is json) {
+            responseMessage= responseJson.toJsonString();
+        } else {
+            log:printError("Error in creating response");
+            return;
+        }
+    }
+    var sent = caller->pushText(responseMessage);
+    if (sent is error) {
+        log:printError(sent.reason());
+    }
+    if (closeConnection) {
+        var close = caller->close();
+    }
+}

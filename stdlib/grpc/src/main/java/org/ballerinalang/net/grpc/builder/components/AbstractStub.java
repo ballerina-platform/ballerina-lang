@@ -82,8 +82,20 @@ public abstract class AbstractStub {
         return descriptors;
     }
 
-    public void setMessageMap(Map<String, Message>  messageMap) {
-        this.messageMap = messageMap;
+    public void setMessageMap(List<Message> messageList) {
+        this.messageMap = buildMessageMap(messageList);
+    }
+
+    private Map<String, Message> buildMessageMap (List<Message> messageList) {
+        Map<String, Message> messageMap = new HashMap<>();
+        for (Message messageInList : messageList) {
+            messageMap.put(messageInList.getMessageName(), messageInList);
+            List<Message> nestedMessageList = messageInList.getNestedMessageList();
+            if (nestedMessageList != null) {
+                messageMap.putAll(buildMessageMap(nestedMessageList));
+            }
+        }
+        return messageMap;
     }
 
     public void setEnumList(List<EnumMessage> enumList) {

@@ -62,12 +62,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SAMPLE_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SKELETON_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_DATA_TYPE;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_STRING;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GOOGLE_API_LIB;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GOOGLE_STANDARD_LIB;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_CLIENT;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_PROXY;
@@ -81,6 +82,7 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_SE
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SAMPLE_SERVICE_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SERVICE_SKELETON_TEMPLATE_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.SKELETON_TEMPLATE_NAME;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.STREAMING_TYPE_SUFFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.STUB_FILE_PREFIX;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.TEMPLATES_DIR_PATH_KEY;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.TEMPLATES_SUFFIX;
@@ -123,7 +125,8 @@ public class BallerinaFileBuilder {
             DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                     .parseFrom(targetStream, extensionRegistry);
 
-            if (fileDescriptorSet.getPackage().contains(GOOGLE_STANDARD_LIB)) {
+            if (fileDescriptorSet.getPackage().contains(GOOGLE_STANDARD_LIB) ||
+                    fileDescriptorSet.getPackage().contains(GOOGLE_API_LIB)) {
                 return;
             }
             List<DescriptorProtos.ServiceDescriptorProto> serviceDescriptotList = fileDescriptorSet.getServiceList();
@@ -177,13 +180,15 @@ public class BallerinaFileBuilder {
 
             boolean needStubFile = serviceDescriptotList.size() != 1;
             boolean hasEmptyMessage = false;
+            boolean hasStreamingProxy = false;
+            boolean hasUnaryProxy = false;
             for (DescriptorProtos.ServiceDescriptorProto serviceDescriptor : serviceDescriptotList) {
                 ServiceStub.Builder serviceStubBuilder = ServiceStub.newBuilder(serviceDescriptor.getName());
                 ServiceFile.Builder sampleServiceBuilder = ServiceFile.newBuilder(serviceDescriptor.getName());
                 List<DescriptorProtos.MethodDescriptorProto> methodList = serviceDescriptor.getMethodList();
                 boolean isUnaryContains = false;
-                stubFileObject.setMessageMap(messageList.stream().collect(Collectors.toMap(Message::getMessageName,
-                        message -> message)));
+                boolean proxyAvailable = false;
+                stubFileObject.setMessageMap(messageList);
                 for (DescriptorProtos.MethodDescriptorProto methodDescriptorProto : methodList) {
                     String methodID;
                     if (filePackage != null && !filePackage.isEmpty()) {
@@ -200,13 +205,25 @@ public class BallerinaFileBuilder {
                     if (MethodDescriptor.MethodType.UNARY.equals(method.getMethodType())) {
                         isUnaryContains = true;
                     }
+                    if (!method.getHttpPath().equals(EMPTY_STRING)) {
+                        proxyAvailable = true;
+                        if (MethodDescriptor.MethodType.UNARY.equals(method.getMethodType())) {
+                            hasUnaryProxy = true;
+                        } else if (method.getMethodType().name().contains(STREAMING_TYPE_SUFFIX)) {
+                            hasStreamingProxy = true;
+                        }
+                    }
                     if (method.containsEmptyType() && !(stubFileObject.isMessageExists(EMPTY_DATA_TYPE))
                             && !hasEmptyMessage) {
                         Message message = Message.newBuilder(EmptyMessage.newBuilder().getDescriptor().toProto())
                                 .build();
                         messageList.add(message);
+                        stubFileObject.addMessage(message);
                         hasEmptyMessage = true;
                     }
+                }
+                if (proxyAvailable) {
+                    serviceStubBuilder.setProxyAvailable();
                 }
                 if (isUnaryContains) {
                     stubFileObject.addServiceStub(serviceStubBuilder.build(ServiceStub.StubType.BLOCKING));
@@ -216,8 +233,7 @@ public class BallerinaFileBuilder {
                 if (GRPC_SERVICE.equals(mode)) {
                     serviceFile = sampleServiceBuilder.build();
                     if (!needStubFile) {
-                        serviceFile.setMessageMap(messageList.stream().collect(Collectors.toMap(Message::getMessageName,
-                                message -> message)));
+                        serviceFile.setMessageMap(messageList);
                         serviceFile.setEnumList(enumList);
                         serviceFile.setDescriptors(descriptors);
                         if (!stubRootDescriptor.isEmpty()) {
@@ -236,14 +252,11 @@ public class BallerinaFileBuilder {
                     writeOutputFile(new ClientFile(serviceDescriptor.getName(), isUnaryContains),
                             DEFAULT_SAMPLE_DIR,
                             SAMPLE_CLIENT_TEMPLATE_NAME, clientFilePath);
-                } else if (GRPC_PROXY.equals(mode)) {
-                    String proxyPath = generateOutputFile(this.balOutPath, filename +
-                            SAMPLE_PROXY_FILE_PREFIX);
-                    writeOutputFile(stubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_PROXY_TEMPLATE_NAME, proxyPath);
                 }
             }
             stubFileObject.setEnumList(enumList);
             stubFileObject.setDescriptors(descriptors);
+            stubFileObject.setFunctionTypes(hasUnaryProxy, hasStreamingProxy);
             if (!stubRootDescriptor.isEmpty()) {
                 stubFileObject.setRootDescriptor(stubRootDescriptor);
             }
@@ -253,6 +266,11 @@ public class BallerinaFileBuilder {
             } else if (needStubFile) {
                 String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
                 writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SERVICE_SKELETON_TEMPLATE_NAME, stubFilePath);
+            }
+            if (GRPC_PROXY.equals(mode) && (hasUnaryProxy || hasStreamingProxy)) {
+                String proxyPath = generateOutputFile(this.balOutPath, filename +
+                        SAMPLE_PROXY_FILE_PREFIX);
+                writeOutputFile(stubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_PROXY_TEMPLATE_NAME, proxyPath);
             }
         } catch (GrpcServerException e) {
             throw new CodeBuilderException("Message descriptor error. " + e.getMessage());
@@ -381,6 +399,37 @@ public class BallerinaFileBuilder {
                 return object;
             }
             return "";
+        });
+        handlebars.registerHelper("checkStreamingType", (object, options) -> {
+            Object param0 = options.param(0);
+            if (param0 == null) {
+                throw new IllegalArgumentException("found n'null', expected 'string'");
+            }
+            if (object instanceof MethodDescriptor.MethodType) {
+                String streamingType = ((MethodDescriptor.MethodType) object).name();
+                String compareTo = param0.toString();
+                if (streamingType.equals(compareTo)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                throw new IllegalArgumentException("found wrong type of object, expected 'MethodType' object");
+            }
+        });
+        handlebars.registerHelper("getAllStreamingFunctions", (object, options) -> {
+            if (object instanceof ServiceStub) {
+                List<Method> streamingFunctions = new ArrayList<>(((ServiceStub) object).getStreamingFunctions());
+                List<Method> functions = ((ServiceStub) object).getNonBlockingFunctions();
+                for (Method method : functions) {
+                    if (MethodDescriptor.MethodType.SERVER_STREAMING.equals(method.getMethodType())) {
+                        streamingFunctions.add(method);
+                    }
+                }
+                return streamingFunctions;
+            } else {
+                throw new IllegalArgumentException("found wrong type of object, expected 'ServiceStub' object");
+            }
         });
         // This is enable nested messages. There won't be any infinite scenarios in nested messages.
         handlebars.infiniteLoops(true);

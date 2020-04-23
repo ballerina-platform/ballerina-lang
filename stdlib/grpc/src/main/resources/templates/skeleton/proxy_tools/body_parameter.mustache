@@ -1,0 +1,13 @@
+{{#not_equal httpBody ""}}if (requestBody.toJsonString() != "null") {
+            {{#equals httpBody "*"}}{{inputType}} | error bodyExtracted{{inputType}} = {{inputType}}.constructFrom(requestBody);
+            if (bodyExtracted{{inputType}} is error) {
+                paramReadErrors = paramReadErrors.concat("\nInvalid request body.");
+            } else {
+                gatewayRequestMessage = bodyExtracted{{inputType}};
+            }{{/equals}}{{#not_equal httpBody "*"}}{{#paramSet}}{{#equals paramSource "body"}}{{fieldType}} | error {{fieldName}} = {{fieldType}}.constructFrom(requestBody);
+            if ({{fieldName}} is {{fieldType}}) {
+                {{#if ../primitiveInput}}gatewayRequestMessage{{else}}{{parentName}}.{{fieldName}}{{/if}} = {{fieldName}};
+            } else {
+                paramReadErrors = paramReadErrors.concat("\nCannot read parameter '{{fieldName}}' from the body");
+            }{{/equals}}{{/paramSet}}{{/not_equal}}
+        }{{/not_equal}}

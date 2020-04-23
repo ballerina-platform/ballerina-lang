@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
 
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.BODY_PARAMETER;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.HTTP_PATTERN_NOT_SET;
-import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.INITIAL_PARENT_PREFIX;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.INITIAL_PARENT_NAME;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.MESSAGE_PARAMETER;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PATH_PARAMETER;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.PATH_PARAMETER_PATTERN_REGEX;
@@ -185,7 +185,7 @@ public class Method {
                return new ArrayList<>();
             }
             String httpBody = httpExtension.getBody();
-            String parentName = INITIAL_PARENT_PREFIX + inputType;
+            String parentName = INITIAL_PARENT_NAME;
             List<String> pathParamList = getPathParamList(resolveHttpPath(httpExtension));
             Message inputMessage = messageMap.get(inputType);
             if (inputMessage == null) {

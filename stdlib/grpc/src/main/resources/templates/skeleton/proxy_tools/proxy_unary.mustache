@@ -1,0 +1,22 @@
+    {{#not_equal httpMethod "PATTERN_NOT_SET"}}@http:ResourceConfig {
+    methods: ["{{httpMethod}}"],
+    path: "{{httpPath}}"{{#not_equal httpBody ""}},
+    body: "requestBody"{{/not_equal}}
+    }
+    resource function {{methodName}}(http:Caller caller, http:Request req{{#paramSet}}
+        {{~#equals paramSource "path"}}, {{fieldType}} {{fieldName}}{{/equals}}{{/paramSet}}{{#not_equal httpBody ""}}, json requestBody{{/not_equal}}) {
+        {{#isNotNull inputType}}string paramReadErrors = "";
+        any | error paramReader;
+        string[]? queryParamSetReader;
+        {{>proxy_tools/input_initializer}}
+        {{>proxy_tools/body_parameter methodType=methodType}}
+        {{>proxy_tools/param_extractor~}}
+        if (paramReadErrors.length()>0) {
+            error paramError = error("Parameter error", message = paramReadErrors);
+            sendResponse(caller, paramError);
+            return;
+        }{{/isNotNull}}
+        var response = {{service}}BlockingEp ->{{methodName}}{{#isNotNull inputType}}(gatewayRequestMessage){{/isNotNull}}{{#isNull inputType}}(){{/isNull}};
+        sendResponse(caller, response);
+        return;
+    }{{/not_equal}}

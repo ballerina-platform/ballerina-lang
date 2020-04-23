@@ -1,0 +1,35 @@
+{{#stubList}}{{#not_equal stubType "blocking"}}{{#each (getAllStreamingFunctions this)}}{{#not_equal httpMethod "PATTERN_NOT_SET"}}public function invoke_
+{{~../serviceName}}_{{methodName}}(http:WebSocketCaller caller{{#isNotNull inputType}}, json requestBody{{/isNotNull}}) {
+    {{#isNotNull inputType}}{{>proxy_tools/input_initializer}}
+    string paramReadErrors = "";
+    any parameterAttachement = caller.getAttribute(MESSAGE);
+    if (parameterAttachement is {{inputType}}) {
+        {{#not_equal httpBody "*"}}gatewayRequestMessage = parameterAttachement;
+        {{/not_equal}}{{>proxy_tools/body_parameter methodType=methodType}}
+        {{#equals httpBody "*"}}{{#paramSet}}{{#equals paramSource "path"}}gatewayRequestMessage.{{fieldName}} = parameterAttachement.{{fieldName}};
+        {{/equals}}{{/paramSet}}{{/equals}}
+    }
+    if (paramReadErrors.length()>0) {
+        error paramError = error("Parameter error", message = paramReadErrors);
+        sendSocketResponse(caller, paramError{{#if (checkStreamingType methodType "SERVER_STREAMING")}}, true{{/if}});
+        return;
+    }
+    {{/isNotNull}}{{#if (checkStreamingType methodType "SERVER_STREAMING")}}MessageListener responseListener = new (caller);
+    grpc:Error? response = {{../serviceName}}Ep->{{methodName}}({{#isNotNull inputType}}gatewayRequestMessage, {{/isNotNull}}responseListener);
+    if (response is grpc:Error) {
+        sendSocketResponse(caller, response, true);
+    }{{else}}any streamingClient = caller.getAttribute(CLIENT_EP);
+    if (streamingClient is grpc:StreamingClient) {
+        grpc:Error? response = streamingClient->{{#isNotNull inputType}}send(gatewayRequestMessage){{/isNotNull}}{{#isNull inputType}}complete(){{/isNull}};
+        if (response is grpc:Error) {
+            sendSocketResponse(caller, response);
+        }
+    }{{/if}}
+}
+{{/not_equal}}{{/each}}{{/not_equal}}{{/stubList}}public function invokeStreaming (string functionName, http:WebSocketCaller caller, json requestBody) {
+    match functionName {
+        {{#stubList}}{{#not_equal stubType "blocking"}}{{#each (getAllStreamingFunctions this)}}{{#not_equal httpMethod "PATTERN_NOT_SET"}}"{{../serviceName}}_
+        {{~methodName}}" => { invoke_{{../serviceName}}_{{methodName}}(caller{{#isNotNull inputType}}, requestBody{{/isNotNull}}); }
+        {{/not_equal}}{{/each}}{{/not_equal}}{{~/stubList}}
+    }
+}

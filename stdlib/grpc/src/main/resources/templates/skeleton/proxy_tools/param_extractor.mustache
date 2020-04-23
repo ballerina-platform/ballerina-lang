@@ -1,0 +1,21 @@
+{{#paramSet}}{{#equals paramSource "path"}}{{#if ../primitiveInput}}gatewayRequestMessage{{else}}{{parentName}}.{{fieldName}}{{/if}} = {{fieldName}};
+        {{/equals}}{{/paramSet}}{{#not_equal httpBody "*"}}{{#paramSet}}{{#equals paramSource "message"}}{{fieldType}} {{fieldName}} = {};
+        {{/equals}}{{/paramSet}}{{#paramSet}}{{#equals paramSource "query"}}{{#if repeatedParam}}queryParamSetReader = req.getQueryParamValues("{{queryAccessName}}{{fieldName}}");
+        if (queryParamSetReader is string[]) {
+            paramReader = arrayCaster(queryParamSetReader, "{{fieldType}}");
+            if (paramReader is {{fieldType}}[]) {
+                {{parentName}}.{{fieldName}} = paramReader;
+            } else {
+                paramReadErrors = paramReadErrors.concat("\nInvalid data type for parameter: '{{fieldName}}'.");
+            }
+        }{{else}}paramReader = req.getQueryParamValue("{{queryAccessName}}{{fieldName}}");
+        if (paramReader is string) {
+            paramReader = castFunction(paramReader, "{{fieldType}}");
+            if (paramReader is {{fieldType}}) {
+                {{#if ../primitiveInput}}gatewayRequestMessage{{else}}{{parentName}}.{{fieldName}}{{/if}} = paramReader;
+            } else {
+                paramReadErrors = paramReadErrors.concat("\nInvalid data type for parameter: '{{fieldName}}'.");
+            }
+        }{{/if}}
+        {{/equals}}{{#equals paramSource "message"}}{{parentName}}.{{fieldName}} = {{fieldName}};
+        {{/equals}}{{/paramSet}}{{/not_equal}}

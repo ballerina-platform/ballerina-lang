@@ -1,0 +1,45 @@
+    {{#not_equal httpMethod "PATTERN_NOT_SET"}}@http:ResourceConfig {
+        webSocketUpgrade: {
+            upgradePath: "{{httpPath}}",
+            upgradeService: socketHandler
+        }
+    }
+    resource function {{methodName}}(http:Caller caller, http:Request req{{#paramSet}}
+        {{~#equals paramSource "path"}}, {{fieldType}} {{fieldName}}{{/equals}}{{/paramSet}}) {
+        string paramReadErrors = "";
+        {{#isNotNull inputType}}any | error paramReader;
+        string[]? queryParamSetReader;
+        {{>proxy_tools/input_initializer}}
+        {{>proxy_tools/param_extractor}}{{/isNotNull~}}
+        map{{#literal "<string>"}}{{/literal}} headers = {};
+        http:WebSocketCaller|http:WebSocketError webSocketEp = caller->acceptWebSocketUpgrade(headers);
+        if (webSocketEp is http:WebSocketCaller) {
+            {{#isNotNull inputType}}if (paramReadErrors.length()>0) {
+                error paramError = error("Parameter error", message = paramReadErrors);
+                sendSocketResponse(webSocketEp, paramError, true);
+                return;
+            }
+            webSocketEp.setAttribute(MESSAGE, gatewayRequestMessage);
+            webSocketEp.setAttribute(FUNCTION, "{{service}}_{{methodName}}");
+            {{#if (checkStreamingType methodType "SERVER_STREAMING")}}webSocketEp.setAttribute(STAGE, INIT);
+            {{~else}}webSocketEp.setAttribute(STAGE, {{#unless (checkStreamingType methodType "SERVER_STREAMING")}}CLIENT_STREAM{{/unless}});
+            MessageListener responseListener = new (webSocketEp);
+            any | error clientEp = {{service}}Ep->{{methodName}}(responseListener);
+            if !(clientEp is error) {
+                webSocketEp.setAttribute(CLIENT_EP, clientEp);
+            } else {
+                sendSocketResponse(webSocketEp, clientEp, true);
+            }{{/if}}{{/isNotNull}}{{#isNull inputType}}webSocketEp.setAttribute(STAGE, REPLY);
+            {{#unless (checkStreamingType methodType "SERVER_STREAMING")}}MessageListener responseListener = new (webSocketEp);
+            any | error clientEp = {{service}}Ep->{{methodName}}(responseListener);
+            if !(clientEp is error) {
+               webSocketEp.setAttribute(CLIENT_EP, clientEp);
+            } else {
+                sendSocketResponse(webSocketEp, clientEp, true);
+            }
+            {{/unless}}invokeStreaming("{{../serviceName}}_{{methodName}}", webSocketEp, ());{{/isNull}}
+        } else {
+            log:printError("Error during WebSocket upgrade", webSocketEp);
+            return;
+        }
+    }{{/not_equal}}

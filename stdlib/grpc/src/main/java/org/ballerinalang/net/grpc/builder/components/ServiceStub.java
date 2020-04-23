@@ -35,6 +35,7 @@ public class ServiceStub {
     private List<Method> blockingFunctions = new ArrayList<>();
     private List<Method> nonBlockingFunctions = new ArrayList<>();
     private List<Method> streamingFunctions = new ArrayList<>();
+    private boolean proxyAvailable;
 
     private ServiceStub(String serviceName, String stubType) {
         this.serviceName = serviceName;
@@ -65,12 +66,16 @@ public class ServiceStub {
         return Collections.unmodifiableList(streamingFunctions);
     }
 
+    public boolean hasProxyFunctions() {
+        return this.proxyAvailable;
+    }
     /**
      * Service stub definition builder.
      */
     public static class Builder {
         String serviceName;
         List<Method> methodList = new ArrayList<>();
+        boolean proxyAvailable;
 
         private Builder(String serviceName) {
             this.serviceName = serviceName;
@@ -79,6 +84,10 @@ public class ServiceStub {
         public Builder addMethod(Method method) {
             methodList.add(method);
             return this;
+        }
+
+        public void setProxyAvailable() {
+            this.proxyAvailable = true;
         }
 
         public ServiceStub build(StubType stubType) throws CodeBuilderException {
@@ -102,6 +111,9 @@ public class ServiceStub {
                     default:
                         throw new CodeBuilderException("Method type is unknown or not supported.");
                 }
+            }
+            if (proxyAvailable) {
+                serviceStub.proxyAvailable = true;
             }
             return serviceStub;
         }

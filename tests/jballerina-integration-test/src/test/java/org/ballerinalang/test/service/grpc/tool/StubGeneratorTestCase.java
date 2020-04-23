@@ -357,7 +357,7 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getProxyCompileResult("helloWorldGateway.proto",
                 "helloWorldGateway");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 8,
                 "Expected type definitions not found in compile results.");
@@ -365,7 +365,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
@@ -376,7 +376,7 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithBody.proto",
                 "helloWorldGatewayWithBody");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
                 "Expected type definitions not found in compile results.");
@@ -384,7 +384,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
@@ -395,7 +395,7 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithPrimitiveInput.proto",
                 "helloWorldGatewayWithPrimitiveInput");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 4,
                 "Expected type definitions not found in compile results.");
@@ -403,7 +403,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
@@ -414,7 +414,7 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithRepeatedField.proto",
                 "helloWorldGatewayWithRepeatedField");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
                 "Expected compilation units not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
                 "Expected type definitions not found in compile results.");
@@ -422,9 +422,47 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
+    }
+
+    @Test(description = "Test gateway proxy with a nested message in the input")
+    public void testHelloWorldGatewayWithNestedMessage() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithNestedMessage.proto",
+                "helloWorldGatewayWithNestedMessage");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 22,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 2);
+    }
+
+    @Test(description = "Test gateway proxy with an empty input")
+    public void testHelloWorldGatewayWithEmptyInput() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithEmptyInput.proto",
+                "helloWorldGatewayWithEmptyInput");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 6,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 15,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 1);
     }
 
     @Test(description = "Test gateway proxy without a http method definition")
@@ -433,15 +471,15 @@ public class StubGeneratorTestCase {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithoutPath.proto",
                 "helloWorldGatewayWithoutPath");
         assertEquals(compileResult.getDiagnostics().length, 0);
-        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 4,
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 1,
                 "Expected compilation units not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 6,
                 "Expected type definitions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 14,
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 10,
                 "Expected functions not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 1,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 0);
     }

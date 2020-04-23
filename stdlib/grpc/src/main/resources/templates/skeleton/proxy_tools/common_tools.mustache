@@ -1,0 +1,41 @@
+public function castFunction(string? fieldToCast, string fieldType) returns anydata | error {
+    string castField = fieldToCast.toString();
+    match fieldType {
+        "string" => { return castField; }
+        "int" => { return intCaster:fromString(castField); }
+        "float" => { return floatCaster:fromString(castField); }
+    }
+}
+
+public function arrayCaster (string[] fieldArray, string fieldType) returns any | error {
+    match fieldType {
+        "string" => {
+            return fieldArray;
+        }
+        "int" => {
+            int[] intArray  = [];
+            foreach var fieldToCast in fieldArray {
+                int | error castedField = intCaster:fromString(fieldToCast);
+                    if castedField is int {
+                        intArray.push(castedField);
+                    } else {
+                        return castedField;
+                    }
+                }
+                return intArray;
+            }
+        "float" => {
+            float[] floatArray  = [];
+            foreach var fieldToCast in fieldArray {
+                float | error castedField = floatCaster:fromString(fieldToCast);
+                if castedField is float {
+                    floatArray.push(castedField);
+                } else {
+                    return castedField;
+                }
+            }
+            return floatArray;
+        }
+    }
+    return ();
+}

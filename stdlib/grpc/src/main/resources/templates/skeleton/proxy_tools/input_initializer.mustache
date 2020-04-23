@@ -1,0 +1,7 @@
+{{#if primitiveInput}}{{inputType}} gatewayRequestMessage = {{#equals inputType "string"}}"";
+        {{~/equals}}{{#equals inputType "int"}}0;
+        {{~/equals}}{{#equals inputType "float"}}0.0;
+        {{~/equals}}{{#equals inputType "boolean"}}false;
+        {{~/equals}}{{#equals inputType "byte[]"}}[];
+        {{~/equals}}{{#equals inputType "anydata"}}();
+        {{~/equals}}{{else}}{{inputType}} gatewayRequestMessage = {};{{/if}}

@@ -87,9 +87,11 @@ public class BalGenConstants {
 
     public static final String GOOGLE_STANDARD_LIB = "google.protobuf";
 
+    public static final String GOOGLE_API_LIB = "google.api";
+
     public static final String HTTP_PATTERN_NOT_SET = "PATTERN_NOT_SET";
 
-    public static final String INITIAL_PARENT_PREFIX = "new";
+    public static final String INITIAL_PARENT_NAME = "gatewayRequestMessage";
 
     public static final String QUERY_PARAMETER = "query";
 
@@ -104,4 +106,6 @@ public class BalGenConstants {
     public static final String PATH_PARAMETER_PATTERN_REGEX = "(?<=\\{)([^}]+)(?=})";
 
     public static final int PARENT_SPLITTING_INDEX = 1;
+
+    public static final String STREAMING_TYPE_SUFFIX = "STREAMING";
 }
