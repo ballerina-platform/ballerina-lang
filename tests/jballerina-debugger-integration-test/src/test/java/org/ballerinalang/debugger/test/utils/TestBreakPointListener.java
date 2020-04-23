@@ -85,7 +85,6 @@ public class TestBreakPointListener extends TimerTask {
         }
     }
 
-
     private BallerinaTestBreakPoint fetchBreakPoint(StoppedEventArguments args) {
 
         if (!connector.isConnected()) {

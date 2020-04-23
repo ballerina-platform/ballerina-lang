@@ -24,6 +24,8 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
+
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
 /**
@@ -37,7 +39,7 @@ public class BallerinaTestRemoteDebugTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = testProjectPath.toString();
+        projectPath = testProjectBaseDir + File.separator + testProjectName;
     }
 
     @Test

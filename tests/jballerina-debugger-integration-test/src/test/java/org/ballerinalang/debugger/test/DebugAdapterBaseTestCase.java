@@ -31,7 +31,7 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +45,7 @@ import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 public class DebugAdapterBaseTestCase extends BaseTestCase {
 
     protected static TestDAPClientConnector debugClientConnector;
+    protected static String testProjectPath;
     protected static String entryFilePath;
     protected static int port;
     protected boolean isConnected = false;
@@ -58,12 +59,9 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
     }
 
     protected void initDebugSession() throws BallerinaTestException {
-
         port = findFreePort();
-        debugClientConnector = new TestDAPClientConnector(balServer.getServerHome(), testProjectPath.toString(),
+        debugClientConnector = new TestDAPClientConnector(balServer.getServerHome(), testProjectPath,
                 entryFilePath, port);
-
-        final int[] retryAttempt = {0};
 
         if (debugClientConnector.isConnected()) {
             isConnected = true;
@@ -71,6 +69,7 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
             return;
         }
 
+        final int[] retryAttempt = {0};
         // Else, tries to initiate the socket connection.
         while (!isConnected && (++retryAttempt[0] <= MAX_RETRY_COUNT)) {
             try {
@@ -105,14 +104,10 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         if (!isConnected) {
             return;
         }
-
         Map<Source, List<SourceBreakpoint>> sourceBreakpoints = new HashMap<>();
         for (BallerinaTestBreakPoint bp : breakpointList) {
-            if (sourceBreakpoints.get(bp.getSource()) == null) {
-                sourceBreakpoints.put(bp.getSource(), Collections.singletonList(bp.getDAPBreakPoint()));
-            } else {
-                sourceBreakpoints.get(bp.getSource()).add(bp.getDAPBreakPoint());
-            }
+            sourceBreakpoints.computeIfAbsent(bp.getSource(), k -> new ArrayList<>());
+            sourceBreakpoints.get(bp.getSource()).add(bp.getDAPBreakPoint());
         }
 
         // Sends "setBreakpoints()" requests per source file.
@@ -150,5 +145,4 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         super.destroy();
         // Todo - more resource disposing?
     }
-
 }
