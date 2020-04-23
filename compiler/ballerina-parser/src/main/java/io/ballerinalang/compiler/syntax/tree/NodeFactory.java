@@ -763,7 +763,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static SpecificFieldNode createSpecificFieldNode(
             Token leadingComma,
-            IdentifierToken fieldName,
+            Token fieldName,
             Token colon,
             ExpressionNode valueExpr) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");

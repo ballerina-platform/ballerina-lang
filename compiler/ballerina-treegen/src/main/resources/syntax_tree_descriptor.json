@@ -1007,7 +1007,7 @@
                 },
                 {
                     "name": "fieldName",
-                    "type": "IdentifierToken"
+                    "type": "Token"
                 },
                 {
                     "name": "colon",

@@ -567,7 +567,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(SpecificFieldNode specificFieldNode) {
         Token leadingComma = modifyToken(specificFieldNode.leadingComma());
-        IdentifierToken fieldName = modifyNode(specificFieldNode.fieldName());
+        Token fieldName = modifyToken(specificFieldNode.fieldName());
         Token colon = modifyToken(specificFieldNode.colon());
         ExpressionNode valueExpr = modifyNode(specificFieldNode.valueExpr());
         return specificFieldNode.modify(
