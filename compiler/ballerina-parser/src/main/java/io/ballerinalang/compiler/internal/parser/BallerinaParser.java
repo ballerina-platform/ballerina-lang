@@ -285,7 +285,9 @@ public class BallerinaParser {
                 return parseConstDecl((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             case STMT_START_WITH_IDENTIFIER:
                 return parseStatementStartsWithIdentifier((STNode) args[0], (STNode) args[1]);
-            case PARAMETERIZED_TYPE_DESCRIPTOR:
+            case MAP_TYPE_DESCRIPTOR:
+            case FUTURE_TYPE_DESCRIPTOR:
+            case TYPEDESC_TYPE_DESCRIPTOR:
                 return parseParameterizedTypeDescriptor();
             case LT:
                 return parseLTToken();
