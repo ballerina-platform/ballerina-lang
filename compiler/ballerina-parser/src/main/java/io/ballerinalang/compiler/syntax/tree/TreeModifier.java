@@ -959,6 +959,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public Node transform(BasicLiteralNode basicLiteralNode) {
         Token literalToken = modifyToken(basicLiteralNode.literalToken());
         return basicLiteralNode.modify(
+                basicLiteralNode.kind(),
                 literalToken);
     }
 

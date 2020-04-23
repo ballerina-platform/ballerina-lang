@@ -31,8 +31,9 @@ public class STBasicLiteralNode extends STExpressionNode {
     public final STNode literalToken;
 
     STBasicLiteralNode(
+            SyntaxKind kind,
             STNode literalToken) {
-        super(SyntaxKind.BASIC_LITERAL);
+        super(kind);
         this.literalToken = literalToken;
 
         addChildren(

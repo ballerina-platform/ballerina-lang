@@ -51,6 +51,7 @@ public class BasicLiteralNode extends ExpressionNode {
     }
 
     public BasicLiteralNode modify(
+            SyntaxKind kind,
             Token literalToken) {
         if (checkForReferenceEquality(
                 literalToken)) {
@@ -58,6 +59,7 @@ public class BasicLiteralNode extends ExpressionNode {
         }
 
         return NodeFactory.createBasicLiteralNode(
+                kind,
                 literalToken);
     }
 }

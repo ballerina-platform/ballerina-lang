@@ -3463,7 +3463,7 @@ public class BallerinaParser {
      */
     private STNode parseBasicLiteral() {
         STToken literalToken = consume();
-        return STNodeFactory.createBasicLiteralNode(literalToken);
+        return STNodeFactory.createBasicLiteralNode(literalToken.kind, literalToken);
     }
 
     /**

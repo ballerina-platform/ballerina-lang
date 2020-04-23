@@ -1296,10 +1296,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static BasicLiteralNode createBasicLiteralNode(
+            SyntaxKind kind,
             Token literalToken) {
         Objects.requireNonNull(literalToken, "literalToken must not be null");
 
         STNode stBasicLiteralNode = STNodeFactory.createBasicLiteralNode(
+                kind,
                 literalToken.internalNode());
         return stBasicLiteralNode.createUnlinkedFacade();
     }

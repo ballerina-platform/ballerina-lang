@@ -71,7 +71,7 @@
                                         "value": "\u003d"
                                     },
                                     "initializer": {
-                                        "kind": "BASIC_LITERAL",
+                                        "kind": "DECIMAL_INTEGER_LITERAL",
                                         "value": {
                                             "literalToken": {
                                                 "kind": "DECIMAL_INTEGER_LITERAL",
@@ -97,7 +97,7 @@
                                         "value": "\u003d"
                                     },
                                     "expression": {
-                                        "kind": "BASIC_LITERAL",
+                                        "kind": "DECIMAL_INTEGER_LITERAL",
                                         "value": {
                                             "literalToken": {
                                                 "kind": "DECIMAL_INTEGER_LITERAL",
@@ -119,7 +119,7 @@
                                         "value": "return"
                                     },
                                     "expression": {
-                                        "kind": "BASIC_LITERAL",
+                                        "kind": "DECIMAL_INTEGER_LITERAL",
                                         "value": {
                                             "literalToken": {
                                                 "kind": "DECIMAL_INTEGER_LITERAL",
