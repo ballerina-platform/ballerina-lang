@@ -19,21 +19,29 @@ import ballerina/java;
 # WritableByteChannel represents an output resource (i.e file). which could be used to sink bytes.
 public type WritableByteChannel object {
 
-    # Sink bytes from a given input/output resource.
-    #
-    # This operation will be asynchronous, write might return without writing all the content.
-    #
-    # + content - Block of bytes which should be written
-    # + offset - Start offset
-    # + return - Offset which should be kept when writing bytes.
-    #            Number of bytes written or `Error` if any error occurred
+    # Adding default __init function to prevent object getting initialized from the user code.
+    function __init() {}
+
+# Sinks bytes from a given input/output resource.
+#
+# This operation will be asynchronous. Writing might return without writing all the content.
+# ```ballerina
+# int|io:Error result = writableByteChannel.write(record, 0);
+# ```
+#
+# + content - Block of bytes, which should be written
+# + offset - Offset, which should be kept when writing bytes.
+# + return - Number of bytes written or else `io:Error`
     public function write(byte[] content, int offset) returns int|Error {
         return byteWriteExtern(self, content, offset);
     }
 
-    # Closes a given byte channel.
-    #
-    # + return - Will return () if there's no error
+# Closes a given byte channel.
+# ```ballerina
+# io:Error err = writableByteChannel.close();
+# ```
+#
+# + return - `io:Error` or else `()`
     public function close() returns Error? {
         return closeWritableByteChannelExtern(self);
     }

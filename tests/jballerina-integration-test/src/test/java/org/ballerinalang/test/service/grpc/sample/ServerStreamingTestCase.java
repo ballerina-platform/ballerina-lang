@@ -54,6 +54,7 @@ public class ServerStreamingTestCase extends GrpcBaseTest {
         BInteger responseCount = (BInteger) responses[0];
         Assert.assertEquals(responseCount.intValue(), 3);
     }
+
     @Test(description = "Test server streaming scenario with record types")
     public void testServerStreamingWithRecordType() {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "clients",

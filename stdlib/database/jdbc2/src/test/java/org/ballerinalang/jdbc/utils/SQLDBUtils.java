@@ -62,7 +62,7 @@ public class SQLDBUtils {
      * @param dbName      Name of the DB instance.
      * @param sqlFile     SQL statements for initialization.
      */
-    public static void initH2Database(String dbDirectory, String dbName, String sqlFile) {
+    public static void initH2Database(String dbDirectory, String dbName, String sqlFile) throws SQLException {
         String jdbcURL = "jdbc:h2:file:" + dbDirectory + dbName;
         initDatabase(jdbcURL, DB_USER, DB_PASSWORD, sqlFile);
     }
@@ -75,20 +75,19 @@ public class SQLDBUtils {
      * @param password Password to connect to the DB
      * @param sqlFile  SQL statements for initialization.
      */
-    private static void initDatabase(String jdbcURL, String username, String password, String sqlFile) {
-        try (Connection connection = DriverManager.getConnection(jdbcURL, username, password);
-             Statement st = connection.createStatement()) {
-            String sql = readFileToString(sqlFile);
-            String[] sqlQuery = sql.trim().split("/");
-            for (String query : sqlQuery) {
-                st.executeUpdate(query.trim());
-            }
-            if (!connection.getAutoCommit()) {
-                connection.commit();
-            }
-        } catch (SQLException e) {
-            log.error("Error while initializing database: ", e);
+    private static void initDatabase(String jdbcURL, String username, String password, String sqlFile)
+            throws SQLException {
+        Connection connection = DriverManager.getConnection(jdbcURL, username, password);
+        Statement st = connection.createStatement();
+        String sql = readFileToString(sqlFile);
+        String[] sqlQuery = sql.trim().split("/");
+        for (String query : sqlQuery) {
+            st.executeUpdate(query.trim());
         }
+        if (!connection.getAutoCommit()) {
+            connection.commit();
+        }
+        connection.close();
     }
 
     /**

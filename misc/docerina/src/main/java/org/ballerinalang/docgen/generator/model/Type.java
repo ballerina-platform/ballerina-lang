@@ -117,6 +117,13 @@ public class Type {
         this.description = description;
     }
 
+    public static Type fromTypeNode(BLangType type, BType bType, String currentModule) {
+        if (type == null) {
+            return new Type(bType);
+        }
+        return fromTypeNode(type, currentModule);
+    }
+
     public static Type fromTypeNode(BLangType type, String currentModule) {
         Type typeModel = null;
         if (type instanceof BLangFunctionTypeNode) {
@@ -216,7 +223,6 @@ public class Type {
                 case TypeTags.ANYDATA:
                 case TypeTags.XMLNS:
                 case TypeTags.MAP: // TODO generate type for constraint type
-                case TypeTags.TABLE:
                 case TypeTags.FUTURE:
                 case TypeTags.HANDLE:
                     this.category = "builtin"; break;

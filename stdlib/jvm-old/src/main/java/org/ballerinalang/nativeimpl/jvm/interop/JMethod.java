@@ -38,6 +38,7 @@ import static org.ballerinalang.nativeimpl.jvm.interop.JInteropException.CLASS_N
  */
 class JMethod {
     static final JMethod NO_SUCH_METHOD = new JMethod(null, null);
+    private static final BArrayType stringArrayType = new BArrayType(BTypes.typeString);
 
     private JMethodKind kind;
     private Executable method;
@@ -116,8 +117,7 @@ class JMethod {
             throw new JInteropException(CLASS_NOT_FOUND_REASON, e.getMessage(), e);
         }
 
-
-        ArrayValue arrayValue = new ArrayValueImpl(new BArrayType(BTypes.typeString), checkedExceptions.size());
+        ArrayValue arrayValue = new ArrayValueImpl(stringArrayType, checkedExceptions.size());
         int i = 0;
         for (Class<?> exceptionType : checkedExceptions) {
             arrayValue.add(i++, exceptionType.getName().replace(".", "/"));

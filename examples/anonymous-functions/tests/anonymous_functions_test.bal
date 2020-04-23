@@ -1,5 +1,4 @@
 import ballerina/test;
-import ballerina/io;
 
 any[] outputs = [];
 int counter = 0;
@@ -10,17 +9,21 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = s[0];
+    string outstr = "";
+    foreach var str in s {
+        outstr = outstr + str.toString();
+    }
+    outputs[counter] = outstr;
     counter += 1;
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
-
     string out1 = "Output: Hello World.!!!";
+    string out2 = "Output: Ballerina is an open source programming language.";
     test:assertEquals(outputs[0], out1);
-    test:assertEquals(outputs[1], out1);
+    test:assertEquals(outputs[1], out2);
     test:assertEquals(outputs[2], out1);
 }

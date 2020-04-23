@@ -17,12 +17,18 @@
 # Representation of the Authorization filter.
 #
 # + authzHandler - `AuthzHandler` instance for handling authorization
-# + scopes - Array of scopes
+# + scopes - An array of scopes or an array consisting of arrays of scopes
 public type AuthzFilter object {
+
+    *RequestFilter;
 
     public AuthzHandler authzHandler;
     public Scopes? scopes;
 
+    # Initializes the `AuthzFilter` object.
+    #
+    # + authzHandler - The `http:AuthzHandler` instance for handling authorization
+    # + scopes - An array of scopes or an array consisting of arrays of scopes
     public function __init(AuthzHandler authzHandler, Scopes? scopes) {
         self.authzHandler = authzHandler;
         self.scopes = scopes;
@@ -31,9 +37,9 @@ public type AuthzFilter object {
     # Filter function implementation which tries to authorize the request.
     #
     # + caller - Caller for outbound HTTP responses
-    # + request - `Request` instance
-    # + context - `FilterContext` instance
-    # + return - A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
+    # + request - An inbound HTTP request message
+    # + context - The `http:FilterContext` instance
+    # + return - A flag to indicate if the request flow should be continued(true) or aborted(false)
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         boolean|AuthorizationError authorized = true;
         Scopes|boolean scopes = getScopes(context);
@@ -55,16 +61,12 @@ public type AuthzFilter object {
         }
         return isAuthzSuccessful(caller, authorized);
     }
-
-    public function filterResponse(Response response, FilterContext context) returns boolean {
-        return true;
-    }
 };
 
 # Verifies if the authorization is successful. If not responds to the user.
 #
 # + caller - Caller for outbound HTTP response
-# + authorized - Authorization status for the request, or `AuthorizationError` if error occurred
+# + authorized - Authorization status for the request or else an `http:AuthorizationError` if an error occurred
 # + return - Authorization result to indicate if the filter can proceed(true) or not(false)
 function isAuthzSuccessful(Caller caller, boolean|AuthorizationError authorized) returns boolean {
     Response response = new;

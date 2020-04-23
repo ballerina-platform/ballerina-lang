@@ -19,7 +19,6 @@
 package org.ballerinalang.net.http;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.net.uri.DispatcherUtil;
 import org.ballerinalang.net.uri.parser.DataElement;
@@ -30,6 +29,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.ballerinalang.net.http.HttpErrorType.GENERIC_LISTENER_ERROR;
 
 /**
  * Http Node Item for URI template tree.
@@ -59,8 +60,9 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
             for (HttpResource previousResource : this.resource) {
                 if (previousResource.getMethods() == null) {
                     //if both resources do not have methods but same URI, then throw following error.
-                    throw BallerinaErrors.createError("Two resources have the same addressable URI, "
-                                                     + previousResource.getName() + " and " + newResource.getName());
+                    throw HttpUtil.createHttpError("Two resources have the same addressable URI, "
+                                                           + previousResource.getName() + " and " +
+                                                           newResource.getName(), GENERIC_LISTENER_ERROR);
                 }
             }
             this.resource.add(newResource);
@@ -70,8 +72,9 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
         this.resource.forEach(r -> {
             for (String newMethod : newMethods) {
                 if (DispatcherUtil.isMatchingMethodExist(r, newMethod)) {
-                    throw BallerinaErrors.createError("Two resources have the same addressable URI, "
-                                                         + r.getName() + " and " + newResource.getName());
+                    throw HttpUtil.createHttpError("Two resources have the same addressable URI, "
+                                                           + r.getName() + " and " + newResource.getName(),
+                                                   GENERIC_LISTENER_ERROR);
                 }
             }
         });
@@ -225,10 +228,10 @@ public class HttpResourceDataElement implements DataElement<HttpResource, HttpCa
     }
 
     private List<String> extractAcceptMediaTypes(String header) {
-        List<String> acceptMediaTypes = new ArrayList();
         if (header == null) {
             return null;
         }
+        List<String> acceptMediaTypes = new ArrayList<>();
         if (header.contains(",")) {
             //process headers like this: text/*;q=0.3, text/html;Level=1;q=0.7, */*
             acceptMediaTypes = Arrays.stream(header.split(","))

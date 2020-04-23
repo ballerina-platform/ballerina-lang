@@ -180,6 +180,7 @@ public class BallerinaFileBuilder {
 
             boolean needStubFile = serviceDescriptotList.size() != 1;
             boolean hasEmptyMessage = false;
+            boolean enableEp = true;
             boolean hasStreamingProxy = false;
             boolean hasUnaryProxy = false;
             for (DescriptorProtos.ServiceDescriptorProto serviceDescriptor : serviceDescriptotList) {
@@ -232,6 +233,10 @@ public class BallerinaFileBuilder {
 
                 if (GRPC_SERVICE.equals(mode)) {
                     serviceFile = sampleServiceBuilder.build();
+                    serviceFile.setEnableEp(enableEp);
+                    if (enableEp) {
+                        enableEp = false;
+                    }
                     if (!needStubFile) {
                         serviceFile.setMessageMap(messageList);
                         serviceFile.setEnumList(enumList);
@@ -284,7 +289,7 @@ public class BallerinaFileBuilder {
             if (outputDir != null) {
                 Files.createDirectories(Paths.get(outputDir));
             }
-            File file = new File(outputDir + FILE_SEPARATOR + fileName);
+            File file = new File(outputDir, fileName);
             if (!file.isFile()) {
                 Files.createFile(Paths.get(file.getAbsolutePath()));
             }

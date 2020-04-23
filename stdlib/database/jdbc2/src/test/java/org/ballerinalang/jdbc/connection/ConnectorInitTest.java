@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.sql.SQLException;
 
 /**
  * Test JDBC Client Initialization.
@@ -44,11 +45,11 @@ public class ConnectorInitTest {
             new BString(SQLDBUtils.DB_PASSWORD)};
 
     @BeforeClass
-    public void setup() {
-        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("connection", "connector_init_test.bal"));
+    public void setup() throws SQLException {
+        result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("connection", "connector-init-test.bal"));
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,
-                SQLDBUtils.getSQLResourceDir("connection", "connector_init_test_data.sql"));
+                SQLDBUtils.getSQLResourceDir("connection", "connector-init-test-data.sql"));
     }
 
     @Test

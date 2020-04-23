@@ -27,12 +27,25 @@ configurations.testCompileClasspath {
 dependencies {
     baloCreat project(':lib-creator')
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-java')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-io')
     implementation project(':ballerina-time')
     implementation project(':ballerina-log-api')
+    implementation project(':ballerina-runtime-api')
+    implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-file')
+    implementation project(':ballerina-mime')
+    implementation 'org.jvnet.mimepull:mimepull'
     implementation 'com.sun.mail:javax.mail:1.6.2'
+    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
+    implementation 'org.apache.ws.commons.axiom:axiom-dom'
 
+    baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-mime', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
@@ -40,7 +53,9 @@ dependencies {
     interopImports project(':ballerina-time')
     interopImports project(':ballerina-log-api')
     interopImports project(':ballerina-io')
+    interopImports project(':ballerina-mime')
     interopImports 'com.sun.mail:javax.mail:1.6.2'
+    interopImports 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.8'
 
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')

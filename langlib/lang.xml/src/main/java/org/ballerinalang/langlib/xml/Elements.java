@@ -46,8 +46,11 @@ public class Elements {
 
     private static final String OPERATION = "get elements from xml";
 
-    public static XMLValue elements(Strand strand, XMLValue xml) {
+    public static XMLValue elements(Strand strand, XMLValue xml, Object name) {
         try {
+            if (name instanceof  String) {
+                return (XMLValue) xml.elements((String) name);
+            }
             return (XMLValue) xml.elements();
         } catch (Throwable e) {
             BLangExceptionHelper.handleXMLException(OPERATION, e);
@@ -63,5 +66,8 @@ public class Elements {
             list.add((XMLValue) bIterator.next());
         }
         return new XMLSequence(list);
+    }
+    public static XMLValue elements_bstring(Strand strand, XMLValue xml, Object name) {
+        return elements(strand, xml, name);
     }
 }

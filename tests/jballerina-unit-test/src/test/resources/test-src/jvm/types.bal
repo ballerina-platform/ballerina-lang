@@ -119,14 +119,14 @@ public type Grades record {|
    int chemistry?;
 |};
 
-function tableFunc() returns table<Grades> {
-    table<Grades> gradesTable = table {
-             { key name, physics, chemistry },
-              [ {  "Mary",  90, 87 }]
-           };
-    return gradesTable;
-
-}
+//function tableFunc() returns table<Grades> {
+//    table<Grades> gradesTable = table {
+//             { key name, physics, chemistry },
+//              [ {  "Mary",  90, 87 }]
+//           };
+//    return gradesTable;
+//
+//}
 
 function arrayFunc(string[] strs) returns Grades[] {
     Grades g = {name: strs[0], physics: 75, chemistry: 65};

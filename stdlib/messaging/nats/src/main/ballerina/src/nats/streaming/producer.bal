@@ -16,17 +16,17 @@
 
 import ballerina/java;
 
-# NATS `StreamingProducer` would act as a client allowing to publish messages to the
-# NATS streaming server. `StreamingProducer` needs the NATS `Connection` to be initialized.
+# The streaming producer provides the capability to publish messages to the NATS streaming server.
+# The `nats:StreamingProducer` needs the `nats:Connection` to be initialized.
 public type StreamingProducer client object {
     private Connection? conn;
 
-    # Creates a new NATS `StreamingProducer`.
+    # Creates a new `nats:StreamingProducer` instance.
     #
-    # + connection - An established NATS connection.
-    # + clientId - A unique identifier representing the client.
-    # + clusterId - The ID of the cluster configured in the NATS server.
-    # + streamingConfig - The configuration related to the NATS streaming connectivity.
+    # + connection - An established NATS connection
+    # + clientId - A unique identifier of the client
+    # + clusterId - The unique identifier of the cluster configured in the NATS server
+    # + streamingConfig - The configuration related to the NATS streaming connectivity
     public function __init(Connection connection, public string? clientId = (), public string clusterId = "test-cluster",
     public StreamingConfig? streamingConfig = ()) {
         self.conn = connection;
@@ -34,62 +34,66 @@ public type StreamingProducer client object {
     }
 
     # Publishes data to a given subject.
+    # ```ballerina string|error result = producer->publish(subject, <@untainted>message);```
     #
-    # + subject - The subject to send the message to.
-    # + data - Data to publish.
-    # + return - `string` value representing the NUID (NATS Unique Identifier) of the published message, if the
-    #           message gets successfully published and acknowledged by the NATS server OR
-    #           `nats/Error` with NUID and `message` fields in case an error occurs in publishing, the timeout
-    #           elapses while waiting for the acknowledgement OR
-    #           `nats/Error` only with the `message` field in case an error occurs even before publishing
-    #           is completed
-    public remote function publish(string subject, @untainted Content data) returns string | Error {
-        if (self.conn is ()) {
-            return Error(message = "NATS Streaming Client has been closed.");
-        }
-        string | byte[] | error converted = convertData(data);
-        if (converted is error) {
-            return prepareError("Error in data conversion", err = converted);
+    # + subject - The subject to send the message 
+    # + data - Data to publish
+    # + return - The `string` value representing the NUID (NATS Unique Identifier) of the published message if the
+    #            message gets successfully published and acknowledged by the NATS server,
+    #            a `nats:Error` with NUID and `message` fields in case an error occurs in publishing, the timeout
+    #            elapses while waiting for the acknowledgement, or else
+    #            a `nats:Error` only with the `message` field in case an error occurs even before publishing
+    #            is completed
+    public remote function publish(string subject,@untainted Content data) returns string|Error {
+        Connection? natsConnection = self.conn;
+        if (natsConnection is ()) {
+            return Error( message = "NATS Streaming Client has been closed.");
         } else {
-            handle | Error result = externStreamingPublish(self, java:fromString(subject), converted);
-            if (result is handle) {
-                var stringResult = java:toString(result);
-                if (stringResult is string) {
-                    return stringResult;
-                } else {
-                    return prepareError("Error in value returned while publishing.");
-                }
+            string|byte[]|error converted = convertData(data);
+            if (converted is error) {
+                return prepareError("Error in data conversion", err = converted);
             } else {
-                return result;
+                handle|Error result =
+                    externStreamingPublish(self, java:fromString(subject), converted, natsConnection);
+                if (result is handle) {
+                    var stringResult = java:toString(result);
+                    if (stringResult is string) {
+                        return stringResult;
+                    } else {
+                        return prepareError("Error in value returned while publishing.");
+                    }
+                } else {
+                    return result;
+                }
             }
         }
     }
 
     # Close the producer.
     #
-    # + return - Returns () or the error if unable to complete the close operation.
+    # + return - `()` or else a `nats:Error` if unable to complete the close operation.
     public function close() returns error? {
-        if (self.conn is Connection) {
-            Connection? natsConnection = self.conn;
+        Connection? natsConnection = self.conn;
+        if (natsConnection is Connection) {
             self.conn = ();
             return streamingProducerClose(self, natsConnection);
         }
     }
 };
 
-function streamingProducerInit(StreamingProducer streamingClient, Connection? conn,
-handle clusterId, string? clientId, StreamingConfig? streamingConfig) =
+function streamingProducerInit(StreamingProducer streamingClient, Connection conn,
+    handle clusterId, string? clientId, StreamingConfig? streamingConfig) =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.producer.Init"
 } external;
 
-function streamingProducerClose(StreamingProducer streamingClient, Connection? natsConnection)
-returns error? =
+function streamingProducerClose(StreamingProducer streamingClient, Connection natsConnection) returns error? =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.producer.Close"
 } external;
 
-function externStreamingPublish(StreamingProducer producer, handle subject, string | byte[] data) returns handle | Error =
+function externStreamingPublish(StreamingProducer producer, handle subject, string|byte[] data,
+    Connection connection) returns handle|Error =
 @java:Method {
     class: "org.ballerinalang.nats.streaming.producer.Publish"
 } external;

@@ -61,7 +61,7 @@ public class BStreamType extends BBuiltInRefType implements StreamType {
             return super.toString();
         }
 
-        return super.toString() + "<" + constraint + ">";
+        return super.toString() + "<" + constraint + ((this.error == null) ? ">" : "," + this.error + ">");
     }
 
     @Override

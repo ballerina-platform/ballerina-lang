@@ -39,8 +39,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.StreamingJsonValue;
-import org.ballerinalang.jvm.values.TableValue;
+import org.ballerinalang.jvm.values.api.BString;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -142,10 +141,34 @@ public class JSONUtils {
      *
      * @param json JSON to get the element from
      * @param elementName Name of the element to be retrieved
+     * @return Element of the JSON for the provided key, if the JSON is object type. Error if not an object or nil
+     * if the object does not have the key.
+     */
+    public static Object getElementOrNil(Object json, BString elementName) {
+        return getMappingElement(json, elementName, true);
+    }
+
+    /**
+     * Get an element from a JSON.
+     *
+     * @param json JSON to get the element from
+     * @param elementName Name of the element to be retrieved
      * @return Element of the JSON for the provided key, if the JSON is object type. Error if not an object or does
      * not have the key.
      */
     public static Object getElement(Object json, String elementName) {
+        return getMappingElement(json, elementName, false);
+    }
+
+    /**
+     * Get an element from a JSON.
+     *
+     * @param json JSON to get the element from
+     * @param elementName Name of the element to be retrieved
+     * @return Element of the JSON for the provided key, if the JSON is object type. Error if not an object or does
+     * not have the key.
+     */
+    public static Object getElement(Object json, BString elementName) {
         return getMappingElement(json, elementName, false);
     }
 
@@ -171,6 +194,44 @@ public class JSONUtils {
 
             return BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR,
                                                "Key '" + elementName + "' not found in JSON mapping");
+        }
+
+        try {
+            return jsonObject.get(elementName);
+        } catch (BallerinaException e) {
+            if (e.getDetail() != null) {
+                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetail());
+            }
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getMessage());
+        } catch (Throwable t) {
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
+        }
+    }
+
+    /**
+     * Get an element from a JSON.
+     *
+     * @param json JSON object to get the element from
+     * @param elementName Name of the element to be retrieved
+     * @param returnNilOnMissingKey Whether to return nil on missing key instead of error
+     * @return Element of JSON having the provided name, if the JSON is object type. Null otherwise.
+     */
+    private static Object getMappingElement(Object json, BString elementName, boolean returnNilOnMissingKey) {
+        if (!isJSONObject(json)) {
+            return BallerinaErrors.createError(StringUtils.fromString(JSON_OPERATION_ERROR),
+                                               StringUtils.fromString("JSON value is not a mapping"));
+        }
+
+        MapValueImpl<BString, Object> jsonObject = (MapValueImpl<BString, Object>) json;
+
+        if (!jsonObject.containsKey(elementName)) {
+            if (returnNilOnMissingKey) {
+                return null;
+            }
+
+            return BallerinaErrors.createError(StringUtils.fromString(MAP_KEY_NOT_FOUND_ERROR),
+                                               StringUtils.fromString(
+                                                       "Key '" + elementName + "' not found in JSON mapping"));
         }
 
         try {
@@ -236,7 +297,8 @@ public class JSONUtils {
         }
 
         BType type = ((RefValue) json).getType();
-        return type.getTag() == TypeTags.JSON_TAG || type.getTag() == TypeTags.MAP_TAG;
+        int typeTag = type.getTag();
+        return typeTag == TypeTags.MAP_TAG || typeTag == TypeTags.RECORD_TYPE_TAG;
     }
 
     /**
@@ -568,20 +630,21 @@ public class JSONUtils {
         }
     }
 
-    /**
-     * Convert {@link TableValue} to JSON.
-     *
-     * @param table {@link TableValue} to be converted to {@link StreamingJsonValue}
-     * @return JSON representation of the provided table
-     */
-    public static Object toJSON(TableValue table) {
-        TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
-        if (table.isInMemoryTable()) {
-            return jsonDataSource.build();
-        }
-
-        return new StreamingJsonValue(jsonDataSource);
-    }
+    //TODO Table remove - Fix
+//    /**
+//     * Convert {@link TableValue} to JSON.
+//     *
+//     * @param table {@link TableValue} to be converted to {@link StreamingJsonValue}
+//     * @return JSON representation of the provided table
+//     */
+//    public static Object toJSON(TableValue table) {
+//        TableJSONDataSource jsonDataSource = new TableJSONDataSource(table);
+//        if (table.isInMemoryTable()) {
+//            return jsonDataSource.build();
+//        }
+//
+//        return new StreamingJsonValue(jsonDataSource);
+//    }
 
     public static ErrorValue createJsonConversionError(Throwable throwable, String prefix) {
         String detail = throwable.getMessage() != null ?
@@ -604,7 +667,7 @@ public class JSONUtils {
                     BTypes.typeInt, getTypeName(json));
         }
 
-        return ((Long) json).longValue();
+        return (Long) json;
     }
 
     /**
@@ -617,7 +680,7 @@ public class JSONUtils {
         if (json instanceof Integer) {
             return ((Integer) json).longValue();
         } else if (json instanceof Double) {
-            return ((Double) json).doubleValue();
+            return (Double) json;
         } else {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeFloat, getTypeName(json));
@@ -631,11 +694,11 @@ public class JSONUtils {
      * @return BDecimal value of the JSON, if it's a valid convertible JSON node. Error, otherwise.
      */
     private static DecimalValue jsonNodeToDecimal(Object json) {
-        BigDecimal decimal = null;
+        BigDecimal decimal;
         if (json instanceof Integer) {
             decimal = new BigDecimal(((Integer) json).longValue());
         } else if (json instanceof Double) {
-            decimal = new BigDecimal(((Double) json).doubleValue());
+            decimal = BigDecimal.valueOf((Double) json);
         } else if (json instanceof BigDecimal) {
             decimal = (BigDecimal) json;
         } else {
@@ -657,7 +720,7 @@ public class JSONUtils {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     BTypes.typeBoolean, getTypeName(json));
         }
-        return ((Boolean) json).booleanValue();
+        return (Boolean) json;
     }
 
     private static ArrayValue jsonArrayToBIntArray(ArrayValue arrayNode) {
@@ -749,7 +812,7 @@ public class JSONUtils {
         ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < intArray.size(); i++) {
             long value = intArray.getInt(i);
-            json.append(new Long(value));
+            json.append(value);
         }
         return json;
     }
@@ -764,7 +827,7 @@ public class JSONUtils {
         ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < floatArray.size(); i++) {
             double value = floatArray.getFloat(i);
-            json.append(new Double(value));
+            json.append(value);
         }
         return json;
     }
@@ -793,7 +856,7 @@ public class JSONUtils {
         ArrayValue json = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
         for (int i = 0; i < booleanArray.size(); i++) {
             boolean value = booleanArray.getBoolean(i);
-            json.append(Boolean.valueOf(value));
+            json.append(value);
         }
         return json;
     }

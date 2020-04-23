@@ -4,9 +4,14 @@ type Person record {|
    string deptAccess;
 |};
 
-
 type Department record {|
    string name;
+|};
+
+type Student record{|
+    string firstName;
+    string lastName;
+    float score;
 |};
 
 function testMultipleWhereClausesWithSimpleVariable() returns Person[]{
@@ -34,7 +39,6 @@ function testMultipleWhereClausesWithSimpleVariable() returns Person[]{
     return  outputPersonList;
 }
 
-
 function testMultipleWhereClausesWithRecordVariable() returns Person[]{
 
     Person p1 = {firstName: "Alex", lastName: "George", deptAccess: "XYZ"};
@@ -58,4 +62,25 @@ function testMultipleWhereClausesWithRecordVariable() returns Person[]{
                    deptAccess: deptName
             };
     return  outputPersonList;
+}
+
+function testLogicalOperandsWithWhere() returns Student[]{
+
+    Student s1 = {firstName: "Alex", lastName: "George", score: 82.5};
+    Student s2 = {firstName: "Ranjan", lastName: "Fonseka", score: 90.6};
+
+    Student[] studentList = [s1, s2];
+
+    Student[] outputStudentList =
+            from var student in studentList
+            where student.firstName == "Ranjan" || student.firstName == "Alex" && student.score >= 82.5
+            where  student.lastName != "George"
+            select {
+                   firstName: student.firstName,
+                   lastName: student.lastName,
+                   score: student.score
+
+            };
+
+    return  outputStudentList;
 }

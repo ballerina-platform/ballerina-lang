@@ -14,15 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object as lang;
 import ballerina/java;
+import ballerina/lang.'object as lang;
 
-# Represents service endpoint where socket server service registered and start.
-#
+# Represents the socket listener on which the socket listener service is registered and started.
 public type Listener object {
 
     *lang:Listener;
 
+    # Creates a new socket Listener.
+    #
+    # + port - The port number of the remote service
+    # + config - Configurations related to the `socket:Listener`
     public function __init(int port, ListenerConfig? config = ()) {
         var result = initServer(self, port, config ?: {});
         if (result is error) {
@@ -30,32 +33,66 @@ public type Listener object {
         }
     }
 
+# Starts the `socket:Listener`.
+# ```ballerina
+# socket:error? result = socketListener.__start();
+# ```
+#
+# + return - `()` or else a `socket:Error` upon failure to start the listener
     public function __start() returns error? {
         return startService(self);
     }
 
+# Stops the `socket:Listener` gracefully.
+# ```ballerina
+# socket:error? result = socketListener.__gracefulStop();
+# ```
+#
+# + return - `()` or else a `socket:Error` upon failure to stop the listener
     public function __gracefulStop() returns error? {
         return externStop(self, true);
     }
 
+# Stops the `socket:Listener` forcefully.
+# ```ballerina
+# socket:error? result = socketListener.__immediateStop();
+# ```
+#
+# + return - `()` or else a `socket:Error` upon failure to stop the listener
     public function __immediateStop() returns error? {
         return externStop(self, false);
     }
 
+# Binds a service to the `socket:Listener`.
+# ```ballerina
+# socket:error? result = socketListener.__attach(helloService);
+# ```
+#
+# + s - Type descriptor of the service
+# + name - Name of the service
+# + return - `()` or else a `socket:Error` upon failure to register the listener
     public function __attach(service s, string? name = ()) returns error? {
         return externRegister(self, s);
     }
 
+# Stops consuming messages and detaches the service from the `socket:Listener`.
+# ```ballerina
+# socket:error? result = socketListener.__detach(helloService);
+# ```
+#
+# + s - Type descriptor of the service
+# + return - `()` or else a `socket:Error` upon failure to detach the service
     public function __detach(service s) returns error? {
-        // Socket listener operations are strictly bound to the attached service. In fact, listener doesn't support
-        // for multiple services. So not removing already attached service during the detach.
+    // Socket listener operations are strictly bound to the attached service. In fact, a listener doesn't support
+    // multiple services. Therefore, an already attached service is not removed during the detachment.
     }
 };
 
 # Represents the socket server configuration.
 #
-# + interface - the interface that server with to bind
-# + readTimeoutInMillis - Socket read timeout value to be used in milliseconds. Default is 300000 milliseconds (5 minutes)
+# + interface - The interface for the server to be bound
+# + readTimeoutInMillis - The socket reading timeout value to be used in milliseconds. If this is not set,
+#                         the default value of 300000 milliseconds (5 minutes) will be used.
 public type ListenerConfig record {|
     string? interface = ();
     int readTimeoutInMillis = 300000;

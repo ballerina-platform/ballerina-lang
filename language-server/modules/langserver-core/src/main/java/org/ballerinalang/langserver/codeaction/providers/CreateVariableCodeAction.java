@@ -20,6 +20,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.CommandUtil;
+import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
@@ -33,34 +34,36 @@ import org.ballerinalang.langserver.compiler.exception.CompilationFailedExceptio
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel.Reference;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.eclipse.lsp4j.CodeAction;
-import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
-import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
-import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
-import org.eclipse.lsp4j.WorkspaceEdit;
-import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.io.IOException;
@@ -72,7 +75,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -136,7 +138,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
             context.put(ReferencesKeys.ENABLE_FIND_LITERALS, true);
             context.put(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS, true);
-            Position afterAliasPos = offsetInvocation(diagnosedContent, position);
+            Position afterAliasPos = offsetPositionToInvocation(diagnosedContent, position);
             Reference refAtCursor = getSymbolAtCursor(context, document, afterAliasPos);
 
             BSymbol symbolAtCursor = refAtCursor.getSymbol();
@@ -177,24 +179,13 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                         // Add type guard code action
                         commandTitle = String.format(CommandConstants.TYPE_GUARD_TITLE, symbolAtCursor.name);
                         List<TextEdit> tEdits = getTypeGuardCodeActionEdits(context, uri, refAtCursor, unionType);
-                        CodeAction action = new CodeAction(commandTitle);
-                        action.setKind(CodeActionKind.QuickFix);
-                        action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                                new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), tEdits)))));
-                        action.setDiagnostics(diagnostics);
-                        actions.add(action);
+                        actions.add(createQuickFixCodeAction(commandTitle, tEdits, uri));
                     }
                 }
                 // Add ignore return value code action
                 if (!hasError) {
-                    List<TextEdit> iEdits = getIgnoreCodeActionEdits(position);
                     commandTitle = CommandConstants.IGNORE_RETURN_TITLE;
-                    CodeAction action = new CodeAction(commandTitle);
-                    action.setKind(CodeActionKind.QuickFix);
-                    action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                            new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), iEdits)))));
-                    action.setDiagnostics(diagnostics);
-                    actions.add(action);
+                    actions.add(createQuickFixCodeAction(commandTitle, getIgnoreCodeActionEdits(position), uri));
                 }
             }
         } catch (CompilationFailedException | WorkspaceDocumentException | IOException e) {
@@ -215,11 +206,11 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
 
 
-        List<TextEdit> edits = new ArrayList<>();
+        List<TextEdit> importEdits = new ArrayList<>();
         Pair<List<String>, List<String>> typesAndNames = getPossibleTypesAndNames(context, referenceAtCursor,
                                                                                   hasDefaultInitFunction,
                                                                                   hasCustomInitFunction, bLangNode,
-                                                                                  edits, compilerContext);
+                                                                                  importEdits, compilerContext);
 
         List<String> types = typesAndNames.getLeft();
         List<String> names = typesAndNames.getRight();
@@ -227,20 +218,16 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         for (int i = 0; i < types.size(); i++) {
             String type = types.get(i);
             String name = names.get(i);
-            String title = CommandConstants.CREATE_VARIABLE_TITLE;
+            String commandTitle = CommandConstants.CREATE_VARIABLE_TITLE;
             if (types.size() > 1) {
                 String typeLabel = (type.startsWith("[") && type.endsWith("]") && !type.endsWith("[]") &&
                         type.length() > 10) ? "Tuple" : type;
-                title = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", typeLabel);
+                commandTitle = String.format(CommandConstants.CREATE_VARIABLE_TITLE + " with '%s'", typeLabel);
             }
-            CodeAction action = new CodeAction(title);
             Position insertPos = new Position(position.getLine(), position.getCharacter());
-            edits = Collections.singletonList(new TextEdit(new Range(insertPos, insertPos), type + " " + name + " = "));
-            action.setKind(CodeActionKind.QuickFix);
-            action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                    new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
-            action.setDiagnostics(diagnostics);
-            actions.add(action);
+            String edit = type + " " + name + " = ";
+            List<TextEdit> edits = Collections.singletonList(new TextEdit(new Range(insertPos, insertPos), edit));
+            actions.add(createQuickFixCodeAction(commandTitle, edits, uri));
         }
         return actions;
     }
@@ -251,29 +238,23 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                                                                              boolean hasCustomInitFunction,
                                                                              BLangNode bLangNode, List<TextEdit> edits,
                                                                              CompilerContext compilerContext) {
-        Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
+        Set<String> nameEntries = CommonUtil.getAllNameEntries(compilerContext);
         PackageID currentPkgId = bLangNode.pos.src.pkgID;
-        BiConsumer<String, String> importsAcceptor = (orgName, alias) -> {
-            boolean notFound = CommonUtil.getCurrentModuleImports(context).stream().noneMatch(
-                    pkg -> (pkg.orgName.value.equals(orgName) && pkg.alias.value.equals(alias))
-            );
-            if (notFound) {
-                String pkgName = orgName + "/" + alias;
-                edits.add(createImportTextEdit(pkgName, context));
-            }
-        };
+        ImportsAcceptor importsAcceptor = new ImportsAcceptor(context);
 
         List<String> types = new ArrayList<>();
         List<String> names = new ArrayList<>();
         if (hasDefaultInitFunction) {
             BType bType = referenceAtCursor.getSymbol().type;
-            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
+            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType,
+                                                                           context);
             String variableName = CommonUtil.generateVariableName(bType, nameEntries);
             types.add(variableType);
             names.add(variableName);
         } else if (hasCustomInitFunction) {
             BType bType = referenceAtCursor.getSymbol().owner.type;
-            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType);
+            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bType,
+                                                                           context);
             String variableName = CommonUtil.generateVariableName(bType, nameEntries);
             types.add(variableType);
             names.add(variableName);
@@ -282,12 +263,14 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             while (bLangNode.parent instanceof IndexBasedAccessNode) {
                 bLangNode = bLangNode.parent;
             }
-            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode);
+            String variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode,
+                                                                           context);
             if (bLangNode instanceof BLangInvocation) {
                 BSymbol symbol = ((BLangInvocation) bLangNode).symbol;
                 if (symbol instanceof BInvokableSymbol) {
                     variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
-                                                                            ((BInvokableSymbol) symbol).retType);
+                                                                            ((BInvokableSymbol) symbol).retType,
+                                                                            context);
                 }
                 String variableName = CommonUtil.generateVariableName(bLangNode, nameEntries);
                 types.add(variableType);
@@ -298,15 +281,43 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                 types.add(variableType);
                 names.add(variableName);
             } else if (bLangNode instanceof BLangRecordLiteral) {
-                // JSON
                 String variableName = CommonUtil.generateName(1, nameEntries);
-                types.add("json");
-                names.add(variableName);
 
                 // Record
-                String rType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type);
+                List<BLangPackage> bLangPackages = context.get(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY);
+                BRecordType matchingRecordType = null;
+                Types typesChk = Types.getInstance(compilerContext);
+                for (BLangPackage pkg : bLangPackages) {
+                    for (TopLevelNode topLevelNode : pkg.topLevelNodes) {
+                        if (topLevelNode instanceof BLangTypeDefinition &&
+                                ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangRecordTypeNode &&
+                                ((BLangTypeDefinition) topLevelNode).typeNode.type instanceof BRecordType) {
+                            BRecordType type = (BRecordType) ((BLangTypeDefinition) topLevelNode).typeNode.type;
+                            if (typesChk.checkStructEquivalency(bLangNode.type, type) &&
+                                    !type.tsymbol.name.value.startsWith("$")) {
+                                matchingRecordType = type;
+                            }
+                        }
+                    }
+                }
+
+                // Matching Record
+                if (matchingRecordType != null) {
+                    String recType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId,
+                                                                              matchingRecordType, context);
+                    types.add(recType);
+                    names.add(variableName);
+                }
+
+                // Anon Record
+                String rType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, bLangNode.type,
+                                                                        context);
                 BLangRecordLiteral recordLiteral = (BLangRecordLiteral) bLangNode;
                 types.add((recordLiteral.fields.size() > 0) ? rType : "record {}");
+                names.add(variableName);
+
+                // JSON
+                types.add("json");
                 names.add(variableName);
 
                 // Map
@@ -325,7 +336,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                     }
                 }
                 if (isConstrainedMap && prevType != null) {
-                    String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, prevType);
+                    String type = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, prevType,
+                                                                           context);
                     types.add("map<" + type + ">");
                     names.add(variableName);
                 } else {
@@ -343,7 +355,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                     boolean isArrayCandidate = !tupleType.tupleTypes.isEmpty();
                     StringJoiner tupleJoiner = new StringJoiner(", ");
                     for (BType type : tupleType.tupleTypes) {
-                        String newType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, type);
+                        String newType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, type,
+                                                                                  context);
                         if (prevType != null && !prevType.equals(newType)) {
                             isArrayCandidate = false;
                         }
@@ -353,7 +366,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                             boolean isSameInnerType = true;
                             for (BType innerType : nType.tupleTypes) {
                                 String newInnerType = FunctionGenerator.generateTypeDefinition(importsAcceptor,
-                                                                                               currentPkgId, innerType);
+                                                                                               currentPkgId, innerType,
+                                                                                               context);
                                 if (prevInnerType != null && !prevInnerType.equals(newInnerType)) {
                                     isSameInnerType = false;
                                 }
@@ -378,6 +392,25 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                     types.add("[" + tupleJoiner.toString() + "]");
                     names.add(variableName);
                 }
+            } else if (bLangNode instanceof BLangQueryExpr) {
+                BLangQueryExpr queryExpr = (BLangQueryExpr) bLangNode;
+                ExpressionNode expression = queryExpr.selectClause.getExpression();
+                if (expression instanceof BLangRecordLiteral) {
+                    BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
+                    return getPossibleTypesAndNames(context, referenceAtCursor, hasDefaultInitFunction,
+                                                    hasCustomInitFunction, recordLiteral, edits, compilerContext);
+                } else {
+                    String variableName = CommonUtil.generateName(1, nameEntries);
+                    types.add("var");
+                    names.add(variableName);
+                }
+            } else if (bLangNode instanceof BLangBinaryExpr) {
+                BLangBinaryExpr binaryExpr = (BLangBinaryExpr) bLangNode;
+                variableType = FunctionGenerator.generateTypeDefinition(importsAcceptor, currentPkgId, binaryExpr.type,
+                                                                        context);
+                String variableName = CommonUtil.generateName(1, nameEntries);
+                types.add(variableType);
+                names.add(variableName);
             } else {
                 String variableName = CommonUtil.generateVariableName(bLangNode.type, nameEntries);
                 types.add(variableType);
@@ -387,6 +420,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
 
         // Remove brackets of the unions
         types = types.stream().map(v -> v.replaceAll("^\\((.*)\\)$", "$1")).collect(Collectors.toList());
+        edits.addAll(importsAcceptor.getNewImportTextEdits());
         return new ImmutablePair<>(types, names);
     }
 
@@ -430,7 +464,7 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             });
         } else {
             CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-            Set<String> nameEntries = CommonUtil.getAllNameEntries(bLangNode, compilerContext);
+            Set<String> nameEntries = CommonUtil.getAllNameEntries(compilerContext);
             String varName = CommonUtil.generateVariableName(bLangNode, nameEntries);
             String typeDef = CommonUtil.getBTypeName(unionType, context, true);
             boolean addErrorTypeAtEnd;
@@ -476,24 +510,5 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
         List<TextEdit> edits = new ArrayList<>();
         edits.add(new TextEdit(new Range(position, position), editText));
         return edits;
-    }
-
-    private static TextEdit createImportTextEdit(String pkgName, LSContext context) {
-        DiagnosticPos pos = null;
-
-        // Filter the imports except the runtime import
-        List<BLangImportPackage> imports = CommonUtil.getCurrentModuleImports(context);
-
-        if (!imports.isEmpty()) {
-            BLangImportPackage lastImport = CommonUtil.getLastItem(imports);
-            pos = lastImport.getPosition();
-        }
-
-        int endCol = 0;
-        int endLine = pos == null ? 0 : pos.getEndLine();
-
-        String editText = "import " + pkgName + ";\n";
-        Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
-        return new TextEdit(range, editText);
     }
 }

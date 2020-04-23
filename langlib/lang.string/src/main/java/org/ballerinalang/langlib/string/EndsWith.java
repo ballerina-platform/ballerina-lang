@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -39,5 +40,9 @@ public class EndsWith {
 
     public static boolean endsWith(Strand strand, String str, String substr) {
         return str.endsWith(substr);
+    }
+
+    public static boolean endsWith_bstring(Strand strand, BString str, BString substr) {
+        return str.getValue().endsWith(substr.getValue());
     }
 }

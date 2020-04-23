@@ -14,18 +14,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Record type to hold the details of an error.
+# Details of an error.
 #
-# + message - Specific error message of the error.
-# + cause - Any other error, which causes this error.
+# + message - Specific error message of the error
+# + cause - Any other error, which causes this error
 public type Detail record {
     string message;
     error cause?;
 };
 
-# Error reason to specify the time error that occurs in the module
+# Specifies the time error, which occurs in the module.
 public const TIME_ERROR_REASON = "{ballerina/time}TimeError";
-# Represents Time module related error
+# Represents the Time module related error.
 public type Error error<TIME_ERROR_REASON, Detail>;
 
 function getInvalidStringError() returns Error {

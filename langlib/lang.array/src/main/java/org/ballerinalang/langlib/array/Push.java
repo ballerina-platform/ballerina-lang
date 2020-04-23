@@ -27,7 +27,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
@@ -43,23 +42,24 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupported
 )
 public class Push {
 
+    private static final String FUNCTION_SIGNATURE = "push()";
+
     public static void push(Strand strand, ArrayValue arr, ArrayValue vals) {
         BType arrType = arr.getType();
         int nVals = vals.size();
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                int elemTypeTag = arr.getElementType().getTag();
-                for (int i = arr.size(), j = 0; j < nVals; i++, j++) {
-                    add(arr, elemTypeTag, i, vals.get(j));
-                }
-                break;
             case TypeTags.TUPLE_TAG:
                 for (int i = arr.size(), j = 0; j < nVals; i++, j++) {
-                    add(arr, TypeTags.ANY_TAG, i, vals.get(j));
+                    arr.add(i, vals.get(j));
                 }
                 break;
             default:
-                throw createOpNotSupportedError(arrType, "push()");
+                throw createOpNotSupportedError(arrType, FUNCTION_SIGNATURE);
         }
+    }
+
+    public static void push_bstring(Strand strand, ArrayValue arr, ArrayValue vals) {
+        push(strand, arr, vals);
     }
 }

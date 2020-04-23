@@ -22,44 +22,56 @@ public type WritableCharacterChannel object {
     private WritableByteChannel bChannel;
     private string charset;
 
-    # Constructs a WritableByteChannel from a given WritableByteChannel and Charset.
-
-    # + bChannel - WritableByteChannel which would be used to write characters
-    # + charset - Character-Set which would be used to encode given bytes to characters
+    # Constructs a `WritableByteChannel` from a given `WritableByteChannel` and `Charset`.
+    # 
+    # + bChannel - The `WritableByteChannel`, which would be used to write the characters
+    # + charset - The character set, which would be used to encode the given bytes to characters
     public function __init(WritableByteChannel bChannel, string charset) {
         self.bChannel = bChannel;
         self.charset = charset;
         initWritableCharacterChannel(self, bChannel, java:fromString(charset));
     }
 
-    # Writes a given sequence of characters (string).
-    #
-    # + content - Content which should be written
-    # + startOffset - Number of characters which should be offset when writing content
-    # + return - Content length that written or `Error` if any error occurred
+# Writes a given sequence of characters (string).
+# ```ballerina
+# int|io:Error result = writableCharChannel.write("Content", 0);
+# ```
+#
+# + content - Content, which should be written
+# + startOffset - Number of characters, which should be offset when writing the content
+# + return - Content length that written or else `io:Error`
     public function write(string content, int startOffset) returns int|Error {
         return writeExtern(self, java:fromString(content), startOffset);
     }
 
-    # Writes a given json to the given channel.
-    #
-    # + content - The json which should be written
-    # + return - If an `Error` occurred while writing
+# Writes a given JSON to the given channel.
+# ```ballerina
+# io:Error? err = writableCharChannel.writeJson(inputJson, 0);
+# ```
+#
+# + content - The JSON, which should be written
+# + return - If an `io:Error` occurred while writing
     public function writeJson(json content) returns Error? {
         return writeJsonExtern(self, content);
     }
 
-    # Writes a given xml to the channel.
-    #
-    # + content - The XML which should be written
-    # + return - Nil or `Error` if any error occurred
+# Writes a given XML to the channel.
+# ```ballerina
+# io:Error? err = writableCharChannel.writeXml(inputXml, 0);
+# ```
+# 
+# + content - The XML, which should be written
+# + return - `()` or else `io:Error` if any error occurred
     public function writeXml(xml content) returns Error? {
         return writeXmlExtern(self, content);
     }
 
-    # Closes a given WritableCharacterChannel channel.
-    #
-    # + return - Nil or `Error` if any error occurred
+# Closes a given `WritableCharacterChannel` channel.
+# ```ballerina
+# io:Error err = writableCharChannel.close();
+# ```
+#
+# + return - `()` or else an `io:Error` if any error occurred
     public function close() returns Error? {
         return closeWritableCharacterChannel(self);
     }

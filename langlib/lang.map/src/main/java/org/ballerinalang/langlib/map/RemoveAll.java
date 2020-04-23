@@ -49,4 +49,8 @@ public class RemoveAll {
             throw BallerinaErrors.createError(e.getMessage(), "Failed to clear map: " + e.getDetail());
         }
     }
+
+    public static void removeAll_bstring(Strand strand, MapValue<?, ?> m) {
+        removeAll(strand, m);
+    }
 }

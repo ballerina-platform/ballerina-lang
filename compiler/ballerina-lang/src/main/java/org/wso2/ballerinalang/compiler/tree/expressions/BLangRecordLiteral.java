@@ -40,7 +40,6 @@ import static org.ballerinalang.model.tree.NodeKind.RECORD_LITERAL_SPREAD_OP;
  *
  * @see BLangStructLiteral
  * @see BLangMapLiteral
- * @see BLangTableLiteral
  * @since 0.94
  */
 public class BLangRecordLiteral extends BLangExpression implements RecordLiteralNode {
@@ -93,10 +92,12 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
         public BLangRecordKey key;
         public BLangExpression valueExpr;
+        public boolean isReadonly;
 
         public BLangRecordKeyValueField() {
         }
 
+        @Deprecated
         public BLangRecordKeyValueField(BLangRecordKey key, BLangExpression valueExpr) {
             this.key = key;
             this.valueExpr = valueExpr;
@@ -139,6 +140,8 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      * @since 1.2.0
      */
     public static class BLangRecordVarNameField extends BLangSimpleVarRef implements RecordVarNameFieldNode {
+
+        public boolean isReadonly;
 
         @Override
         public boolean isKeyValueField() {

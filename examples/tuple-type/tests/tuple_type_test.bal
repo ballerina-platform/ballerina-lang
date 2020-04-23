@@ -1,8 +1,6 @@
 import ballerina/test;
-import ballerina/io;
 
 any[] outputs = [];
-int counter = 0;
 
 // This is the mock function which will replace the real function
 @test:Mock {
@@ -10,18 +8,28 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = s[0];
-    counter += 1;
+    foreach var entry in s {
+        outputs.push(entry);
+    }
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
-    //test:assertEquals(outputs[0], "[10, John]");
+    [int, string] a = [10, "John"];
+    test:assertEquals(outputs[0], a);
     test:assertEquals(outputs[1], 10);
     test:assertEquals(outputs[2], "John");
-    test:assertEquals(outputs[3], "06/10: quotient=0 remainder=6");
-    test:assertEquals(outputs[4], "57/10: quotient=5");
-    test:assertEquals(outputs[5], "09/10: remainder=9");
+    test:assertEquals(outputs[3], "06/10: ");
+    test:assertEquals(outputs[4], "quotient=");
+    test:assertEquals(outputs[5], 0);
+    test:assertEquals(outputs[6], " remainder=");
+    test:assertEquals(outputs[7], 6);
+    test:assertEquals(outputs[8], "57/10: ");
+    test:assertEquals(outputs[9], "quotient=");
+    test:assertEquals(outputs[10], 5);
+    test:assertEquals(outputs[11], "09/10: ");
+    test:assertEquals(outputs[12], "remainder=");
+    test:assertEquals(outputs[13], 9);
 }

@@ -27,6 +27,7 @@ under the License.
             <class name="org.ballerinalang.jdbc.pool.ConnectionPoolTest"/>
             <class name="org.ballerinalang.jdbc.query.NumericTypesQueryTest"/>
             <class name="org.ballerinalang.jdbc.query.ComplexTypesQueryTest"/>
+            <class name="org.ballerinalang.jdbc.query.ParamsQueryTest"/>
             <class name="org.ballerinalang.jdbc.execute.ExecuteTest"/>
         </classes>
     </test>

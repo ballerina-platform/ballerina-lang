@@ -62,6 +62,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
+import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
 
@@ -155,8 +156,14 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
+    @CommandLine.Option(names = "--debug", description = "run tests in remote debugging mode")
+    private String debugPort;
+
     private static final String buildCmd = "ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]\n" +
             "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]";
+
+    @CommandLine.Option(names = "--test-report", description = "enable test report generation")
+    private boolean testReport;
 
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private boolean coverage;
@@ -175,6 +182,11 @@ public class BuildCommand implements BLauncherCmd {
             args = this.argList.toArray(new String[0]);
         } else {
             args = argList.subList(1, argList.size()).toArray(new String[0]);
+        }
+
+        // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
+        if (!this.skipTests && this.debugPort != null) {
+            System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
 
         String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
@@ -391,7 +403,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateJarTask(this.dumpBIR, skipCopyLibsFromDist))
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, skipTests))
-                .addTask(new RunTestsTask(coverage, args), this.skipTests || isSingleFileBuild) // run tests
+                .addTask(new RunTestsTask(testReport, coverage, args), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
                 .addTask(new CreateExecutableTask(), this.compile)  // create the executable.jar
                                                                                         // file

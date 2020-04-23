@@ -16,13 +16,13 @@ public function mockPrint(any|error... s) {
     }
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     error? e = trap main();
     test:assertEquals(outputs[0], 120);
     test:assertTrue(e is error, msg = "expected main to panic");
     if (e is error) {
-        test:assertEquals("{ballerina}ConversionError", io:sprintf("%s", e.reason()));
+        test:assertEquals("{ballerina/lang.int}NumberParsingError", io:sprintf("%s", e.reason()));
     }
 }

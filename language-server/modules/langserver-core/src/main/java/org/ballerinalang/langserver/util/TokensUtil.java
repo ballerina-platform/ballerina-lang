@@ -17,6 +17,8 @@ package org.ballerinalang.langserver.util;
 
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
@@ -30,7 +32,7 @@ import java.util.Optional;
 
 /**
  * Token capturing utils.
- * 
+ *
  * @since 1.0
  */
 public class TokensUtil {
@@ -38,9 +40,33 @@ public class TokensUtil {
     }
 
     /**
+     * Search and sets the token at cursor into LSContext.
+     *
+     * @param content content
+     * @param context   {@link LSContext}
+     * @param pos {@link Position}
+     */
+    public static void searchTokenAtCursor(String content, LSContext context, Position pos) {
+        // TODO: 1/23/19 Check what happens when the content is not a valid compilation unit and when there are errors
+        List<Token> tokenList = CommonUtil.getTokenList(content);
+        Boolean nextBest = context.get(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST);
+        Optional<Token> tokenAtCursor = searchTokenAtCursor(context, tokenList, pos.getLine(), pos.getCharacter(), true,
+                                                            (nextBest == null) ? false : nextBest);
+        tokenAtCursor.ifPresent(token -> {
+            context.put(NodeContextKeys.NODE_NAME_KEY, token.getText());
+            int tokenIndex = token.getTokenIndex() - 1;
+            int tokenType = -1;
+            if (tokenIndex > 0) {
+                tokenType = tokenList.get(tokenIndex).getType();
+            }
+            context.put(NodeContextKeys.INVOCATION_TOKEN_TYPE_KEY, tokenType);
+        });
+    }
+
+    /**
      * Search the token at a given cursor position.
      *
-     * @param context
+     * @param context  {@link LSContext}
      * @param tokenList List of tokens in the current compilation unit's source
      * @param cLine     Cursor line
      * @param cCol      cursor column
@@ -118,6 +144,7 @@ public class TokensUtil {
         boolean isACastStart = nextToken.getType() == BallerinaParser.LT;
         boolean isAnArrayStart = nextToken.getType() == BallerinaParser.LEFT_BRACKET;
         boolean isAFunction = nextToken.getType() == BallerinaParser.FUNCTION;
+        boolean isAFromClause = nextToken.getType() == BallerinaParser.FROM;
         boolean isALiteral = nextToken.getType() == BallerinaParser.DecimalIntegerLiteral ||
                 nextToken.getType() == BallerinaParser.HexIntegerLiteral ||
                 nextToken.getType() == BallerinaParser.HexadecimalFloatingPointLiteral ||
@@ -131,8 +158,8 @@ public class TokensUtil {
                 nextToken.getType() == BallerinaParser.XMLLiteralStart ||
                 nextToken.getType() == BallerinaParser.StringTemplateLiteralStart;
         return defaultChannel &&
-                ((findLiterals && (isACastStart || isARecordStart || isAnArrayStart || isAFunction || isALiteral)) ||
-                        nextToken.getType() == BallerinaParser.Identifier);
+                ((findLiterals && (isAFromClause || isACastStart || isARecordStart || isAnArrayStart || isAFunction ||
+                        isALiteral)) || nextToken.getType() == BallerinaParser.Identifier);
     }
 
     private static TokenPosition locateTokenAtCursor(Token token, int cLine, int cCol, boolean identifiersOnly,

@@ -184,10 +184,6 @@
                 "url": "maps"
             },
             {
-                "name": "Table",
-                "url": "table"
-            },
-            {
                 "name": "Union Types",
                 "url": "union-type"
             },
@@ -505,6 +501,10 @@
                 "url": "byte-io"
             },
             {
+                "name": "Data I/O",
+                "url": "data-io"
+            },
+            {
                 "name": "Record I/O",
                 "url": "record-io"
             },
@@ -616,6 +616,10 @@
             {
                 "name": "Task Service Timer",
                 "url": "task-service-timer"
+            },
+            {
+                "name": "XSLT Transformation",
+                "url": "xslt-transformation"
             }
         ]
     },
@@ -630,6 +634,14 @@
             {
                 "name": "Cryptographic Operations",
                 "url": "crypto"
+            },
+            {
+                "name": "JWT Issue/Validate",
+                "url": "jwt-issue-validate"
+            },
+            {
+                "name": "URL Encode/Decode Operations",
+                "url": "url-encode-decode"
             }
         ]
     },
@@ -660,6 +672,14 @@
             {
                 "name": "Guarantee Test Execution Order",
                 "url": "testerina-guarantee-test-execution-order"
+            },
+            {
+                "name": "Function Mocks",
+                "url": "testerina-function-mocks"
+            },
+            {
+                "name": "Group Tests",
+                "url": "testerina-group-tests"
             }
         ]
     },
@@ -818,6 +838,10 @@
                 "url": "websocket-chat-application"
             },
             {
+                "name": "Failover",
+                "url": "websocket-failover"
+            },
+            {
                 "name": "Retry",
                 "url": "websocket-retry"
             }
@@ -897,29 +921,6 @@
             "name": "Directory Listener",
             "url": "directory-listener"
         }]
-    },
-    {
-        "title": "Database",
-        "column": 2,
-        "category": "Working over the network",
-        "samples": [
-            {
-                "name": "JDBC Client CRUD Operations",
-                "url": "jdbc-client-crud-operations"
-            },
-            {
-                "name": "JDBC Client Batch Update",
-                "url": "jdbc-client-batch-update"
-            },
-            {
-                "name": "JDBC Client Call Procedures",
-                "url": "jdbc-client-call-procedures"
-            },
-            {
-                "name": "Streaming a Big Dataset",
-                "url": "jdbc-streaming-big-dataset"
-            }
-        ]
     },
     {
         "title": "gRPC",
@@ -1105,6 +1106,10 @@
             {
                 "name": "Secured Service with OAuth2",
                 "url": "secured-service-with-oauth2"
+            },
+            {
+                "name": "Secured Service with LDAP",
+                "url": "secured-service-with-ldap"
             },
             {
                 "name": "Secured Client with Basic Auth",

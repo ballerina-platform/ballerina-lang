@@ -9,11 +9,13 @@ int counter = 0;
     functionName: "println"
 }
 public function mockPrint(any... s) {
-    outputs[counter] = s[0];
-    counter += 1;
+    foreach var str in s {
+        outputs[counter] = str;
+        counter += 1;
+    }
 }
 
-@test:Config
+@test:Config {}
 function testFunc() {
     // Invoking the main function
     main();
@@ -29,7 +31,7 @@ function testFunc() {
         }
     ];
 
-    json jt2 = "John";
+    json jt2 = {"first": "John", "last": "Pala"};
     json jt3 = [1, false, null, "foo", 8.0];
     json jt4 = {
         "fname": "John",
@@ -57,16 +59,16 @@ function testFunc() {
     json jt6 = { "fname": "Emma", "lname": "Stallone" };
     json jt7 = { "fname": "Alisha", "lname": "Stallone" };
     json jt8 = { "fname": "Paul", "lname": "Stallone" };
+    string o1 = "length of the array: ";
 
-    string o1 = "length of array: 4";
-
-    // test:assertEquals(outputs[0], jt1);
-    test:assertEquals(outputs[1], jt2);
-    // test:assertEquals(outputs[2], jt3);
-    test:assertEquals(outputs[3], jt4);
+    test:assertEquals(outputs[0], jt1.toJsonString());
+    test:assertEquals(outputs[1], jt2.toJsonString());
+    test:assertEquals(outputs[2], jt3.toJsonString());
+    test:assertEquals(outputs[3], jt4.toJsonString());
     test:assertEquals(outputs[4], o1);
-    test:assertEquals(outputs[5], jt5);
-    test:assertEquals(outputs[6], jt6);
-    test:assertEquals(outputs[7], jt7);
-    test:assertEquals(outputs[8], jt8);
+    test:assertEquals(outputs[5], 4);
+    test:assertEquals(outputs[6], jt5.toJsonString());
+    test:assertEquals(outputs[7], jt6.toJsonString());
+    test:assertEquals(outputs[8], jt7.toJsonString());
+    test:assertEquals(outputs[9], jt8.toJsonString());
 }

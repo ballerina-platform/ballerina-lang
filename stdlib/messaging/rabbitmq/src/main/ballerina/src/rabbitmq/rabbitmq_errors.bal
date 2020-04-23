@@ -14,14 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Record type to hold the details of an error.
+# The details of an error.
 #
-# + message - Specific error message of the error.
-# + cause - Any other error, which causes this error.
+# + message - Specific error message of the error
+# + cause - Any other error, which causes this error
 public type Detail record {
     string message;
     error cause?;
 };
 
+# Represents the reason for the RabbitMQ module related errors.
 public const RABBITMQ_ERROR = "{ballerina/rabbitmq}Error";
+
+# Represents the RabbitMQ module related errors.
 public type Error error<RABBITMQ_ERROR, Detail>;

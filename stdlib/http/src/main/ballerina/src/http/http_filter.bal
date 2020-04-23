@@ -53,20 +53,34 @@ public type FilterContext object {
     private string resourceName = "";
     public map<any> attributes = {};
 
+    # Initializes the `http:FilterContext` object.
+    #
+    # + serviceRef - The service to which the context is applied
+    # + serviceName - Name of the service
+    # + resourceName - Name of the resource function
     public function __init(service serviceRef, string serviceName, string resourceName) {
         self.serviceRef = serviceRef;
         self.serviceName = serviceName;
         self.resourceName = resourceName;
     }
 
+    # Gets the service to which the `http:FilerContext` is applied.
+    #
+    # + return  - `service` of the context
     public function getService() returns service {
         return self.serviceRef;
     }
 
+    # Gets the service name to which the `http:FilerContext` is applied.
+    #
+    # + return  - Name of the `service`
     public function getServiceName() returns string {
         return self.serviceName;
     }
 
+    # Gets the resource function name to which the `http:FilerContext` is applied.
+    #
+    # + return  - Name of the resource function
     public function getResourceName() returns string {
         return self.resourceName;
     }

@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.jvm.values;
 
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.api.BString;
@@ -94,18 +93,13 @@ public final class XMLQName implements RefValue, BXMLQName {
     }
 
     @Override
-    public BString bStringValue() {
-        return StringUtils.fromString(stringValue());
-    }
-
-    @Override
     public BType getType() {
         return BTypes.typeXMLAttributes;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj == null || !(obj instanceof XMLQName)) {
+        if (!(obj instanceof XMLQName)) {
             return false;
         }
 

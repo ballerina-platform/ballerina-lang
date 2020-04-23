@@ -21,10 +21,10 @@ public type LoadBalancerRoundRobinRule object {
 
     public int index = 0;
 
-    # Provides an HTTP client which is chosen according to the round robin algorithm.
+    # Provides an HTTP client, which is chosen according to the round robin algorithm.
     #
-    # + loadBalanceCallerActionsArray - Array of HTTP clients which needs to be load balanced
-    # + return - Chosen `Client` from the algorithm or an `http:ClientError` for a failure in
+    # + loadBalanceCallerActionsArray - Array of HTTP clients, which needs to be load balanced
+    # + return - Chosen `http:Client` from the algorithm or else an `http:ClientError` for a failure in
     #            the algorithm implementation
     public function getNextClient(Client?[] loadBalanceCallerActionsArray) returns Client|ClientError {
         Client httpClient = <Client>loadBalanceCallerActionsArray[self.index];

@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class Literal<DataType, InboundMsgType> extends Node<DataType, InboundMsgType> {
 
-    private int tokenLength = 0;
+    private int tokenLength;
 
     public Literal(DataElement<DataType, InboundMsgType> dataElement, String token) throws URITemplateException {
         super(dataElement, token);
