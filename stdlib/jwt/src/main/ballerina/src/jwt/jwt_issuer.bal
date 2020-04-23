@@ -19,9 +19,9 @@ import ballerina/encoding;
 
 # Represents JWT validator configurations.
 #
-# + username - JWT token username
-# + issuer - JWT token issuer
-# + audience - JWT token audience
+# + username - JWT username
+# + issuer - JWT issuer
+# + audience - JWT audience
 # + customClaims - Map of custom claims
 # + expTimeInSeconds - Expiry time in seconds
 # + keyStoreConfig - JWT key store configurations

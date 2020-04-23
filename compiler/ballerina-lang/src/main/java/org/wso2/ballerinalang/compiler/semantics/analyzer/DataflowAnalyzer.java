@@ -181,6 +181,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -210,6 +211,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private BLangDiagnosticLogHelper dlog;
     private Map<BSymbol, InitStatus> uninitializedVars;
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
+    private Map<BSymbol, Set<BSymbol>> functionToDependency;
     private boolean flowTerminated = false;
 
     private static final CompilerContext.Key<DataflowAnalyzer> DATAFLOW_ANALYZER_KEY = new CompilerContext.Key<>();
@@ -244,6 +246,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.uninitializedVars = new HashMap<>();
         this.globalNodeDependsOn = new LinkedHashMap<>();
+        this.functionToDependency = new HashMap<>();
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
         return pkgNode;
@@ -264,7 +267,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         });
         sortedListOfNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, env));
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
-        globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
+        this.globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
+        this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency);
         checkUnusedImports(pkgNode.imports);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
@@ -518,6 +522,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLock lockNode) {
+        analyzeNode(lockNode.body, this.env);
     }
 
     @Override
@@ -757,6 +762,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
+        return isVariableOrConstant(symbol);
+    }
+
+    private boolean isVariableOrConstant(BSymbol symbol) {
+        if (symbol == null) {
+            return false;
+        }
         return ((symbol.tag & SymTag.VARIABLE) == SymTag.VARIABLE) ||
                 ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT);
     }
@@ -774,6 +786,21 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             return;
         }
         Set<BSymbol> providers = globalNodeDependsOn.computeIfAbsent(dependent, s -> new LinkedHashSet<>());
+        providers.add(provider);
+
+        // Store the dependencies of functions seperately for lock optimization in later stage.
+        addFunctionToGlobalVarDependency(dependent, provider);
+    }
+
+    private void addFunctionToGlobalVarDependency(BSymbol dependent, BSymbol provider) {
+        if (dependent.kind != SymbolKind.FUNCTION) {
+            return;
+        }
+        if (isVariableOrConstant(provider) && !isGlobalVarSymbol(provider)) {
+            return;
+        }
+
+        Set<BSymbol> providers = this.functionToDependency.computeIfAbsent(dependent, s -> new HashSet<>());
         providers.add(provider);
     }
 
@@ -1409,6 +1436,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF &&
                 varRef.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR) {
             return;
+        }
+
+        // So global variable assignments happen in functions.
+        if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BSymbol owner = this.env.scope.owner;
+            addFunctionToGlobalVarDependency(owner, ((BLangSimpleVarRef) varRef).symbol);
         }
 
         this.uninitializedVars.remove(((BLangVariableReference) varRef).symbol);

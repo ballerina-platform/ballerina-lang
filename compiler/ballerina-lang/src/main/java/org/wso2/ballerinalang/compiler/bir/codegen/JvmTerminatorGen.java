@@ -351,8 +351,9 @@ public class JvmTerminatorGen {
             Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
             String lockStore = "L" + LOCK_STORE + ";";
             String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
+            String lockName = GLOBAL_LOCK_NAME + lockIns.lockId;
             this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
-            this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
+            this.mv.visitLdcInsn(lockName);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap",
                     String.format("(L%s;)L%s;", STRING_VALUE, LOCK_VALUE), false);
             this.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -373,9 +374,10 @@ public class JvmTerminatorGen {
 
             // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
             String lockStore = "L" + LOCK_STORE + ";";
+            String lockName = GLOBAL_LOCK_NAME + unlockIns.relatedLock.lockId;
             String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
             this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
-            this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
+            this.mv.visitLdcInsn(lockName);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", String.format("(L%s;)L%s;",
                     STRING_VALUE, LOCK_VALUE), false);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);

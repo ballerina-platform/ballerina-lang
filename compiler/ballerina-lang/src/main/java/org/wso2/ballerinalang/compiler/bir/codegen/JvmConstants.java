@@ -203,5 +203,5 @@ public class JvmConstants {
     public static final String METHOD_TOO_LARGE = "MethodTooLarge";
     public static final String CLASS_TOO_LARGE = "ClassTooLarge";
 
-    public static final String GLOBAL_LOCK_NAME = "global";
+    public static final String GLOBAL_LOCK_NAME = "lock";
 }
