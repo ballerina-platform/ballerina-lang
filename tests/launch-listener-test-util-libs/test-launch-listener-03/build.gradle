@@ -22,7 +22,7 @@ dependencies {
 }
 
 jar {
-    archiveFileName = 'test-launch-listener-01.jar'
+    archiveFileName = 'test-launch-listener-03.jar'
 }
 
 description = 'Ballerina - Test - Launch Listener - 03'
