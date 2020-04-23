@@ -35,8 +35,9 @@ import java.nio.file.Paths;
 public class BaseTestCase {
 
     protected static BalServer balServer;
-    protected static Path testProjectPath;
+    protected static Path testProjectBaseDir;
     protected static Path testSingleFileBaseDir;
+    protected static String testProjectName;
     protected static String testModuleName;
     protected static String testModuleFileName;
     protected static String testSingleFileName;
@@ -52,11 +53,12 @@ public class BaseTestCase {
         testSingleFileBaseDir = tempProjectDirectory.resolve("single-file-tests");
         FileUtils.copyFolder(originalSingleFilesProj, testSingleFileBaseDir);
 
-        Path originalMultiModulesProj = Paths.get("src", "test", "resources", "project-based-tests/basic-project")
+        Path originalMultiModulesProj = Paths.get("src", "test", "resources", "project-based-tests")
                 .toAbsolutePath();
-        testProjectPath = tempProjectDirectory.resolve("basic-project");
-        FileUtils.copyFolder(originalMultiModulesProj, testProjectPath);
+        testProjectBaseDir = tempProjectDirectory.resolve("project-based-tests");
+        FileUtils.copyFolder(originalMultiModulesProj, testProjectBaseDir);
 
+        testProjectName = "basic-project";
         testModuleName = "hello-world";
         testModuleFileName = "hello_world.bal";
         testSingleFileName = "hello_world.bal";

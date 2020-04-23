@@ -26,6 +26,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,21 +39,35 @@ public class ModuleBreakpointTest extends DebugAdapterBaseTestCase {
 
     @BeforeClass
     public void setup() {
-        testModuleName = "advanced";
-        testModuleFileName = "main.bal";
+        testProjectName = "breakpoint-tests";
+        testModuleName = "foo";
+        testModuleFileName = "mainBal" + File.separator + "main.bal";
         testSingleFileName = "hello_world.bal";
+        testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
+        entryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
     @Test
     public void testSingleModuleBreakPoint() throws BallerinaTestException {
-        entryFilePath = Paths.get(testProjectPath.toString(), "src", testModuleName, testModuleFileName).toString();
+
         initDebugSession();
         List<BallerinaTestBreakPoint> breakPoints = new ArrayList<>();
-        breakPoints.add(new BallerinaTestBreakPoint(entryFilePath, 18));
+        breakPoints.add(new BallerinaTestBreakPoint(entryFilePath, 26));
+        breakPoints.add(new BallerinaTestBreakPoint(entryFilePath, 31));
+        breakPoints.add(new BallerinaTestBreakPoint(entryFilePath, 37));
         setBreakpoints(breakPoints);
         launchDebuggee(DebugUtils.DebuggeeExecutionKind.RUN);
         List<BallerinaTestBreakPoint> capturedBreakpoints = waitForDebugHit(20000);
-        Assert.assertEquals(capturedBreakpoints, breakPoints);
+
+        Assert.assertEquals(capturedBreakpoints.size(), breakPoints.size());
+        for (int i = 0; i < capturedBreakpoints.size(); i++) {
+            Assert.assertEquals(capturedBreakpoints.get(i).getDAPBreakPoint().getLine(),
+                    breakPoints.get(i).getDAPBreakPoint().getLine());
+            Assert.assertEquals(capturedBreakpoints.get(i).getSource().getPath(),
+                    breakPoints.get(i).getSource().getPath());
+            Assert.assertEquals(capturedBreakpoints.get(i).getSource().getName(),
+                    breakPoints.get(i).getSource().getName());
+        }
     }
 
     private List<BallerinaTestBreakPoint> waitForDebugHit(long timeoutMillis) {

@@ -44,6 +44,7 @@ public class DebugServerEventHolder {
     public ConcurrentLinkedQueue<OutputEventArguments> getOutputEvents() {
         return outputEvents;
     }
+
     public void addOutputEvent(OutputEventArguments event) {
         this.outputEvents.add(event);
     }
