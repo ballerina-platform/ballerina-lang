@@ -512,6 +512,8 @@ public class ParserTestUtils {
                 return SyntaxKind.NIL_LITERAL;
             case "TRAP_EXPRESSION":
                 return SyntaxKind.TRAP_EXPRESSION;
+            case "LIST_CONSTRUCTOR":
+                return SyntaxKind.LIST_CONSTRUCTOR;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
