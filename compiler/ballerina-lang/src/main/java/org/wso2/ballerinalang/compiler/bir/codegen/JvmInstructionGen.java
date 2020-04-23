@@ -82,7 +82,7 @@ public class JvmInstructionGen {
     public static final String NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
     public static boolean isBString = false;
 
-    public static void addBoxInsn(MethodVisitor mv, @Nilable BType bType) {
+    public static void addBoxInsn(MethodVisitor mv, BType bType) {
 
         if (bType != null) {
             generateCast(mv, bType, symbolTable.anyType);

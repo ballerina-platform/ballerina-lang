@@ -162,9 +162,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
  */
 public class JvmTypeGen {
 
-    //Name of the class to which the types will be added as static fields.
-    public static String typeOwnerClass = "";
-
     /**
      * Create static fields to hold the user defined types.
      *
@@ -188,21 +185,10 @@ public class JvmTypeGen {
         }
     }
 
-    /**
-     * Create instances of runtime types. This will create one instance from each
-     * runtime type and populate the static fields.
-     *
-     * @param mv method visitor
-     */
-    public static void generateUserDefinedTypes(MethodVisitor mv) {
+    static void generateCreateTypesMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass) {
 
-        mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, "$createTypes", "()V", false);
-    }
-
-    static void generateCreateTypesMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
-
-        createTypesInstance(cw, typeDefs);
-        List<String> populateTypeFuncNames = populateTypes(cw, typeDefs);
+        createTypesInstance(cw, typeDefs, typeOwnerClass);
+        List<String> populateTypeFuncNames = populateTypes(cw, typeDefs, typeOwnerClass);
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$createTypes", "()V", null, null);
         mv.visitCode();
@@ -220,7 +206,7 @@ public class JvmTypeGen {
         mv.visitEnd();
     }
 
-    private static void createTypesInstance(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
+    private static void createTypesInstance(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$createTypeInstances", "()V", null, null);
         mv.visitCode();
@@ -254,7 +240,7 @@ public class JvmTypeGen {
         mv.visitEnd();
     }
 
-    private static List<String> populateTypes(ClassWriter cw, List<BIRTypeDefinition> typeDefs) {
+    private static List<String> populateTypes(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass) {
 
         List<String> funcNames = new ArrayList<>();
         String fieldName;
@@ -323,7 +309,7 @@ public class JvmTypeGen {
     // -------------------------------------------------------
 
     static void generateValueCreatorMethods(ClassWriter cw, List<BIRTypeDefinition> typeDefs,
-                                            BIRNode.BIRPackage moduleId) {
+                                            BIRNode.BIRPackage moduleId, String typeOwnerClass) {
 
         List<BIRTypeDefinition> recordTypeDefs = new ArrayList<>();
         List<BIRTypeDefinition> objectTypeDefs = new ArrayList<>();
@@ -349,12 +335,12 @@ public class JvmTypeGen {
             }
         }
 
-        generateRecordValueCreateMethod(cw, recordTypeDefs, moduleId);
-        generateObjectValueCreateMethod(cw, objectTypeDefs, moduleId);
+        generateRecordValueCreateMethod(cw, recordTypeDefs, moduleId, typeOwnerClass);
+        generateObjectValueCreateMethod(cw, objectTypeDefs, moduleId, typeOwnerClass);
     }
 
     private static void generateRecordValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefs,
-                                                        BIRNode.BIRPackage moduleId) {
+                                                        BIRNode.BIRPackage moduleId, String typeOwnerClass) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "createRecordValue",
                 String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
@@ -405,7 +391,7 @@ public class JvmTypeGen {
     }
 
     private static void generateObjectValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> objectTypeDefs,
-                                                        BIRNode.BIRPackage moduleId) {
+                                                        BIRNode.BIRPackage moduleId, String typeOwnerClass) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "createObjectValue",
                 String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;", STRING_VALUE, SCHEDULER, STRAND, MAP, OBJECT,

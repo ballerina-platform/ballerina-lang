@@ -151,12 +151,12 @@ public class TerminatorGenerator {
     MethodVisitor mv;
     BIRVarToJVMIndexMap indexMap;
     public LabelGenerator labelGen;
-    JvmErrorGen.ErrorHandlerGenerator errorGen;
+    JvmErrorGen errorGen;
     BIRNode.BIRPackage module;
     String currentPackageName;
 
     public TerminatorGenerator(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, LabelGenerator labelGen,
-                               JvmErrorGen.ErrorHandlerGenerator errorGen, BIRNode.BIRPackage module) {
+                               JvmErrorGen errorGen, BIRNode.BIRPackage module) {
 
         this.mv = mv;
         this.indexMap = indexMap;

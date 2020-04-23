@@ -94,7 +94,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.getNextDesugarBBId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen.ErrorHandlerGenerator;
+
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen;
 
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.InstructionGenerator;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
@@ -142,7 +143,7 @@ public class InteropMethodGen {
 
         MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, null, null);
         InstructionGenerator instGen = new InstructionGenerator(mv, indexMap, birModule);
-        ErrorHandlerGenerator errorGen = new ErrorHandlerGenerator(mv, indexMap, currentPackageName);
+        JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, currentPackageName);
         LabelGenerator labelGen = new LabelGenerator();
         TerminatorGenerator termGen = new TerminatorGenerator(mv, indexMap, labelGen, errorGen, birModule);
         mv.visitCode();

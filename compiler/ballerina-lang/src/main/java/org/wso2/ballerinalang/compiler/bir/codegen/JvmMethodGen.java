@@ -23,7 +23,6 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen.ErrorHandlerGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FunctionParamComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.InstructionGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
@@ -193,7 +192,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.isExt
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.loadChannelDetails;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadLocalType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.typeOwnerClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.genJMethodForBExternalFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.isBallerinaBuiltinModule;
 
@@ -286,7 +284,7 @@ public class JvmMethodGen {
 
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
         InstructionGenerator instGen = new InstructionGenerator(mv, indexMap, module);
-        ErrorHandlerGenerator errorGen = new ErrorHandlerGenerator(mv, indexMap, currentPackageName);
+        JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, currentPackageName);
         LabelGenerator labelGen = new LabelGenerator();
 
         mv.visitCode();
@@ -862,7 +860,7 @@ public class JvmMethodGen {
     }
 
     public static void generateBasicBlocks(MethodVisitor mv, List<BIRBasicBlock> basicBlocks,
-                                           LabelGenerator labelGen, ErrorHandlerGenerator errorGen,
+                                           LabelGenerator labelGen, JvmErrorGen errorGen,
                                            InstructionGenerator instGen, TerminatorGenerator termGen,
                                            BIRFunction func, int returnVarRefIndex, int stateVarIndex,
                                            int localVarOffset, boolean isArg, BIRPackage module,
@@ -1646,7 +1644,7 @@ public class JvmMethodGen {
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
         String pkgName = getPackageName(pkg.org.value, pkg.name.value);
-        ErrorHandlerGenerator errorGen = new ErrorHandlerGenerator(mv, indexMap, pkgName);
+        JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, pkgName);
 
         // add main string[] args param first
         BIRVariableDcl argsVar = new BIRVariableDcl(symbolTable.anyType, new Name("argsdummy"), VarScope.FUNCTION,
@@ -1790,7 +1788,7 @@ public class JvmMethodGen {
     }
 
     private static void scheduleStartMethod(MethodVisitor mv, BIRPackage pkg, String initClass,
-                                            boolean serviceEPAvailable, ErrorHandlerGenerator errorGen,
+                                            boolean serviceEPAvailable, JvmErrorGen errorGen,
                                             BIRVarToJVMIndexMap indexMap, int schedulerVarIndex) {
 
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
@@ -2535,7 +2533,7 @@ public class JvmMethodGen {
         mv.visitLabel(notCancelledLabel);
     }
 
-    static void generateModuleInitializer(ClassWriter cw, BIRPackage module) {
+    static void generateModuleInitializer(ClassWriter cw, BIRPackage module, String typeOwnerClass) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
@@ -2576,7 +2574,7 @@ public class JvmMethodGen {
     }
 
     static void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRPackage
-            module, List<PackageID> imprtMods) {
+            module, List<PackageID> imprtMods, String typeOwnerClass) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
@@ -2586,7 +2584,7 @@ public class JvmMethodGen {
         mv.visitCode();
 
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-        ErrorHandlerGenerator errorGen = new ErrorHandlerGenerator(mv, indexMap, pkgName);
+        JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, pkgName);
 
         BIRVariableDcl argsVar = new BIRVariableDcl(symbolTable.anyType, new Name("schedulerVar"),
                 VarScope.FUNCTION, VarKind.ARG);
@@ -2633,7 +2631,7 @@ public class JvmMethodGen {
     }
 
     private static void scheduleStopMethod(MethodVisitor mv, String initClass, String stopFuncName,
-                                           ErrorHandlerGenerator errorGen, BIRVarToJVMIndexMap indexMap,
+                                           JvmErrorGen errorGen, BIRVarToJVMIndexMap indexMap,
                                            int schedulerIndex, int futureIndex) {
 
         String lambdaFuncName = "$lambda$" + stopFuncName;

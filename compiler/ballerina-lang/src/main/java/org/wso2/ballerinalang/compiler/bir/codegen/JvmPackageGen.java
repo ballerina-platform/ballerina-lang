@@ -116,7 +116,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateCre
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateUserDefinedTypeFields;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateValueCreatorMethods;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.isServiceDefAvailable;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.typeOwnerClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.injectDefaultParamInitsToAttachedFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.createExternalFunctionWrapper;
@@ -235,7 +234,7 @@ public class JvmPackageGen {
             }
         }
 
-        typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
+        String typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
                 interopValidator, isEntry);
         if (!isEntry || CodeGenerator.dlog.getErrorCount() > 0) {
@@ -272,7 +271,7 @@ public class JvmPackageGen {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 generateDefaultConstructor(cw, VALUE_CREATOR);
                 generateUserDefinedTypeFields(cw, module.typeDefs);
-                generateValueCreatorMethods(cw, module.typeDefs, module);
+                generateValueCreatorMethods(cw, module.typeDefs, module, typeOwnerClass);
                 // populate global variable to class name mapping and generate them
                 for (BIRGlobalVariableDcl globalVar : module.globalVars) {
                     if (globalVar != null) {
@@ -296,9 +295,9 @@ public class JvmPackageGen {
 
                 generateLockForVariable(cw);
                 generateStaticInitializer(cw, moduleClass, serviceEPAvailable);
-                generateCreateTypesMethod(cw, module.typeDefs);
-                generateModuleInitializer(cw, module);
-                generateExecutionStopMethod(cw, typeOwnerClass, module, dependentModuleArray);
+                generateCreateTypesMethod(cw, module.typeDefs, typeOwnerClass);
+                generateModuleInitializer(cw, module, typeOwnerClass);
+                generateExecutionStopMethod(cw, typeOwnerClass, module, dependentModuleArray, typeOwnerClass);
             } else {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 generateDefaultConstructor(cw, OBJECT);

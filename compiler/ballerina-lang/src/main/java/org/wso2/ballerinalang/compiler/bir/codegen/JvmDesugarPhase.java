@@ -67,7 +67,7 @@ public class JvmDesugarPhase {
                 type != null ? type.restType : type);
         int index = 0;
         List<BIRVariableDcl> updatedVars = new ArrayList<>();
-        @Nilable List<BIRVariableDcl> localVars = currentFunc.localVars;
+        List<BIRVariableDcl> localVars = currentFunc.localVars;
         int nameIndex = 0;
 
         for (BIRVariableDcl localVar : localVars) {
@@ -163,8 +163,7 @@ public class JvmDesugarPhase {
         return new Name(prefix + nextId);
     }
 
-    private static @Nilable
-    List<BType> updateParamTypesWithDefaultableBooleanVar(List<BType> funcParams, BType restType) {
+    private static List<BType> updateParamTypesWithDefaultableBooleanVar(List<BType> funcParams, BType restType) {
 
         List<BType> paramTypes = new ArrayList<>();
 
