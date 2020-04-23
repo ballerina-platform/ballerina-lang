@@ -19,7 +19,6 @@
 package org.ballerinalang.stdlib.crypto.nativeimpl;
 
 import org.apache.commons.codec.binary.Base64;
-
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
