@@ -108,11 +108,14 @@ public class LangLibTableTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    //todo improve when KeyType.type is resolved correctly
     @Test
     public void testGetKeyList() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetKeyList");
         assertEquals(returns.length, 4);
+        assertEquals(returns[0].stringValue(), "Chiran");
+        assertEquals(returns[1].stringValue(), "Mohan");
+        assertEquals(returns[2].stringValue(), "Gima");
+        assertEquals(returns[3].stringValue(), "Granier");
     }
 
     @Test
