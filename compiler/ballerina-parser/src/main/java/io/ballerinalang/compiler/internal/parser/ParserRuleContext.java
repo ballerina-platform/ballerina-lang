@@ -100,7 +100,6 @@ public enum ParserRuleContext {
     DOC_STRING("doc-string"),
     QUALIFIED_IDENTIFIER("qualified-identifier"),
     EQUAL_OR_RIGHT_ARROW("equal-or-right-arrow"),
-    PARAMETERIZED_TYPE_DESCRIPTOR("parameterized-type-descriptor"),
     MAP_TYPE_DESCRIPTOR("map-type-descriptor"),
     FUTURE_TYPE_DESCRIPTOR("future-type-descriptor"),
     TYPEDESC_TYPE_DESCRIPTOR("typedesc-type-descriptor"),
