@@ -461,30 +461,41 @@ function testFiniteTypesWithDiscriminatedMembers() returns [any, any, any, any, 
     return [a, b, c, d, e];
 }
 
-type d +3|+5;
+type PositiveInt +3|+5;
 
 function testFiniteTypesWithPositiveIntegers() {
-    d n = +3;
-    d comparator = +3;
+    PositiveInt n = +3;
+    PositiveInt comparator = +3;
     if (n == comparator) {
        n = +5;
     }
-    if (n != 5){
-        panic error("Type mismatch");
-    }
+    assertEquality(5,n);
+
 }
 
-type f +1.2|+1.5;
+type PositiveFloat +1.2|+1.5;
 
 function testFiniteTypesWithPositiveFloats() {
-    f n = +1.2;
-    f comparator = +1.2;
+    PositiveFloat n = +1.2;
+    PositiveFloat comparator = +1.2;
     if (n == comparator) {
        n = +1.5;
     }
-    if (n != 1.5){
-        panic error("Type mismatch");
+    assertEquality(1.5,n);
+}
+
+const ASSERTION_ERROR_REASON = "TypeAssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if (expected is anydata && actual is anydata && expected == actual) {
+        return;
     }
+    if (expected === actual) {
+        return;
+    }
+    typedesc<any|error> tActual = typeof actual;
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + tActual.toString() + "'");
 }
 
 //public const '\- = "-";

@@ -370,11 +370,11 @@ public class FiniteTypeTest {
 
     @Test(description = "Test finite type where integer literals with positive sign as members")
     public void testFiniteTypesWithPositiveIntegers() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithPositiveIntegers");
+        BRunUtil.invoke(result, "testFiniteTypesWithPositiveIntegers");
     }
 
     @Test(description = "Test finite type where float literals with positive sign as members")
     public void testFiniteTypesWithPositiveFloats() {
-        BValue[] returns = BRunUtil.invoke(result, "testFiniteTypesWithPositiveFloats");
+        BRunUtil.invoke(result, "testFiniteTypesWithPositiveFloats");
     }
 }
