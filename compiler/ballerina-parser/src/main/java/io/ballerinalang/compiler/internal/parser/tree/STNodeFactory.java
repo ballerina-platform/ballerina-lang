@@ -972,5 +972,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 trapKeyword,
                 expression);
     }
+
+    public static STNode createListConstructorExpressionNode(
+            STNode openBracket,
+            STNode expressions,
+            STNode closeBracket) {
+
+        return new STListConstructorExpressionNode(
+                openBracket,
+                expressions,
+                closeBracket);
+    }
 }
 

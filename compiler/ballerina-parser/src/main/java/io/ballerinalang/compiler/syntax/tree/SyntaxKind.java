@@ -166,6 +166,7 @@ public enum SyntaxKind {
     UNARY_EXPRESSION(1310),
     TYPE_TEST_EXPRESSION(1311),
     TRAP_EXPRESSION(1312),
+    LIST_CONSTRUCTOR(1313),
 
     // Type descriptors
     RECORD_TYPE_DESCRIPTOR(2000),

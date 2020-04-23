@@ -3169,7 +3169,7 @@ public class BallerinaParser {
                 return parseBooleanLiteral();
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
-                // In the checking action, nested actions are allowed. And thats the only
+                // In the checking action, nested actions are allowed. And that's the only
                 // place where actions are allowed within an action or an expression.
                 return parseCheckExpression(isRhsExpr, allowActions);
             case OPEN_BRACE_TOKEN:
@@ -3183,6 +3183,8 @@ public class BallerinaParser {
                 return parseUnaryExpression(isRhsExpr);
             case TRAP_KEYWORD:
                 return parseTrapExpression(isRhsExpr);
+            case OPEN_BRACKET_TOKEN:
+                return parseListConstructorExpr();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
@@ -6717,6 +6719,65 @@ public class BallerinaParser {
         } else {
             Solution sol = recover(token, ParserRuleContext.TRAP_KEYWORD);
             return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse list constructor expression.
+     * <p>
+     * <code>
+     * list-constructor-expr := [ [ expr-list ] ]
+     * <br/>
+     * expr-list := expression (, expression)*
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseListConstructorExpr() {
+        startContext(ParserRuleContext.LIST_CONSTRUCTOR);
+        STNode openBracket = parseOpenBracket();
+        STNode expressions = parseExpressionList();
+        STNode closeBracket = parseCloseBracket();
+        endContext();
+        return STNodeFactory.createListConstructorExpressionNode(openBracket, expressions, closeBracket);
+    }
+
+    /**
+     * Parse expression list for list constructor expression.
+     *
+     * @return Parsed node
+     */
+    private STNode parseExpressionList() {
+        List<STNode> expressions = new ArrayList<>();
+        STToken nextToken = peek();
+
+        if (isEndOfListConstructor(nextToken.kind)) {
+            return STNodeFactory.createNodeList(expressions);
+        }
+
+        // Parse first expression, that has no leading comma
+        STNode expr = parseExpression();
+        expressions.add(expr);
+
+        // Parse the remaining expressions
+        nextToken = peek();
+        STNode leadingComma;
+        while (!isEndOfListConstructor(nextToken.kind)) {
+            leadingComma = parseComma();
+            expressions.add(leadingComma);
+            expr = parseExpression();
+            expressions.add(expr);
+            nextToken = peek();
+        }
+
+        return STNodeFactory.createNodeList(expressions);
+    }
+
+    private boolean isEndOfListConstructor(SyntaxKind tokenKind) {
+        if (tokenKind == SyntaxKind.COMMA_TOKEN){
+            return false;
+        } else {
+            return isEndOfExpression(tokenKind, true);
         }
     }
 }

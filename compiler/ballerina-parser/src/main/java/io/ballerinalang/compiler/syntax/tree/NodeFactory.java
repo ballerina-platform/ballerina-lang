@@ -1306,5 +1306,20 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 expression.internalNode());
         return stTrapExpressionNode.createUnlinkedFacade();
     }
+
+    public static ListConstructorExpressionNode createListConstructorExpressionNode(
+            Token openBracket,
+            SeparatedNodeList<Node> expressions,
+            Token closeBracket) {
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(expressions, "expressions must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stListConstructorExpressionNode = STNodeFactory.createListConstructorExpressionNode(
+                openBracket.internalNode(),
+                expressions.underlyingListNode().internalNode(),
+                closeBracket.internalNode());
+        return stListConstructorExpressionNode.createUnlinkedFacade();
+    }
 }
 
