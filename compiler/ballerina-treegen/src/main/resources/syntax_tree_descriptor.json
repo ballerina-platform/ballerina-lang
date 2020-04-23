@@ -545,6 +545,30 @@
             ]
         },
         {
+            "name": "ForkStatementNode",
+            "base": "StatementNode",
+            "kind": "FORK_STATEMENT",
+            "attributes": [
+                {
+                    "name": "forkKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "namedWorkerDeclarations",
+                    "type": "NamedWorkerDeclarationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "ExpressionNode",
             "base": "Node",
             "isAbstract": true
