@@ -344,19 +344,14 @@ type Bar1 record {|
     int i2;
 |};
 
-function testOptionalFieldAccessInUnionType() {
-    testOptionalFieldAccessInUnionType1();
-    testOptionalFieldAccessInUnionType2();
-}
-
 function testOptionalFieldAccessInUnionType1() {
-    Foo1 f = {s1: "s", i1: 1};
-    Foo1|Bar1? fb = f;
+    Foo1 f = { s1: "s", i1: 1};
+    Foo1|Bar1 fb = f;
 
-    string|int? x1 = fb["s1"];
-    string|int? x2 = fb["i1"];
-    string|int? x3 = fb["s2"];
-    string|int? x4 = fb["i2"];
+    string|int? x1 = fb?.s1;
+    string|int? x2 = fb?.i1;
+    string|int? x3 = fb?.s2;
+    string|int? x4 = fb?.i2;
 
     if !(x1 == "s" && x2 == 1 && x3 == () && x4 == ()) {
         panic error(ASSERTION_ERROR_REASON, message = "expected 'true', found 'false'");
@@ -364,15 +359,35 @@ function testOptionalFieldAccessInUnionType1() {
 }
 
 function testOptionalFieldAccessInUnionType2() {
-    Bar1 b = {s2: "s", i2: 1};
-    Foo1|Bar1? fb = b;
+    Bar1 b = { s2: "s", i2: 1};
+    Foo1|Bar1 fb = b;
 
-    string|int? x1 = fb["s1"];
-    string|int? x2 = fb["i1"];
-    string|int? x3 = fb["s2"];
-    string|int? x4 = fb["i2"];
+    string|int? x1 = fb?.s1;
+    string|int? x2 = fb?.i1;
+    string|int? x3 = fb?.s2;
+    string|int? x4 = fb?.i2;
 
-    if !(x1 == ()) && x2 == () && x3 == "s" && x4 == 1 {
+    if !(x1 == () && x2 == () && x3 == "s" && x4 == 1) {
         panic error(ASSERTION_ERROR_REASON, message = "expected 'true', found 'false'");
     }
+}
+
+function testOptionalFieldAccessInUnionType3() {
+    Bar1 b = { s2: "s", i2: 1};
+    Foo1|Bar1? fb = b;
+
+    string|int? x1 = fb?.s1;
+    string|int? x2 = fb?.i1;
+    string|int? x3 = fb?.s2;
+    string|int? x4 = fb?.i2;
+
+    if !(x1 == () && x2 == () && x3 == "s" && x4 == 1) {
+        panic error("ASSERTION_ERROR_REASON", message = "expected 'true', found 'false'");
+    }
+}
+
+function testOptionalFieldAccessInUnionType() {
+    testOptionalFieldAccessInUnionType1();
+    testOptionalFieldAccessInUnionType2();
+    testOptionalFieldAccessInUnionType3();
 }
