@@ -67,7 +67,7 @@ public class InvalidSyntaxParserTest {
         BAssertUtil.validateError(result, 0,
                                   "mismatched input '('. expecting {'public', 'private', 'resource', 'function', " +
                                           "'remote', '}', '@', DocumentationLineStart}", 6, 3);
-        BAssertUtil.validateError(result, 1, "mismatched input 'caller'. expecting {')', '[', '?', '|'}", 6, 16);
+        BAssertUtil.validateError(result, 1, "mismatched input 'caller'. expecting {')', '[', '?', '&', '|'}", 6, 16);
         BAssertUtil.validateError(result, 2, "mismatched input ','. expecting '='", 6, 22);
         BAssertUtil.validateError(result, 3, "mismatched input ')'. expecting '='", 6, 44);
     }
@@ -75,7 +75,7 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testParseMainFuncWithoutName() {
         CompileResult result = BCompileUtil.compile("test-src/parser/func-without-name-negative.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting {'[', '?', '|', Identifier}", 1, 30);
+        BAssertUtil.validateError(result, 0, "mismatched input '{'. expecting {'[', '?', '&', '|', Identifier}", 1, 30);
         BAssertUtil.validateError(result, 1, "mismatched input ';'. expecting '='", 2, 7);
     }
 
@@ -110,9 +110,9 @@ public class InvalidSyntaxParserTest {
     public void testObjectAttachedFunctionWithInvalidSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/parser/object-attached-func-with-invalid-syntax.bal");
         BAssertUtil.validateError(result, 0, "mismatched input '.'. expecting '('", 6, 17);
-        BAssertUtil.validateError(result, 1, "mismatched input '('. expecting {'[', '?', '|', Identifier}", 6, 21);
+        BAssertUtil.validateError(result, 1, "mismatched input '('. expecting {'[', '?', '&', '|', Identifier}", 6, 21);
         BAssertUtil.validateError(result, 2, "extraneous input 'a'", 6, 26);
-        BAssertUtil.validateError(result, 3, "mismatched input 'returns'. expecting {'[', '?', '|', Identifier}",
+        BAssertUtil.validateError(result, 3, "mismatched input 'returns'. expecting {'[', '?', '&', '|', Identifier}",
                                   6, 29);
         BAssertUtil.validateError(result, 4, "mismatched input ';'. expecting '='", 7, 21);
     }
