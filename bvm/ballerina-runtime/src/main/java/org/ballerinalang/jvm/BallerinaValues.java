@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.jvm;
 
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -86,7 +88,48 @@ public class BallerinaValues {
             fields[j++] = true;
         }
         //passing scheduler, strand and properties as null for the moment, but better to expose them via this method
-        return valueCreator.createObjectValue(objectTypeName, null, null, null, fields);
+        return valueCreator.createObjectValue(objectTypeName, getScheduler(), getStrand(), null, fields);
+    }
+
+    /**
+     * Method that creates a runtime object value using the given package id and object type name.
+     *
+     * @param packageId the package id that the object type resides.
+     * @param objectTypeName name of the object type.
+     * @param fieldValues values to be used for fields when creating the object value instance.
+     * @return value of the object.
+     */
+    public static ObjectValue createObjectValueWithCurrentStrandScheduler(BPackage packageId, String objectTypeName,
+                                                      Object... fieldValues) {
+        ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
+        Object[] fields = new Object[fieldValues.length * 2];
+
+        // Adding boolean values for each arg
+        for (int i = 0, j = 0; i < fieldValues.length; i++) {
+            fields[j++] = fieldValues[i];
+            fields[j++] = true;
+        }
+        //passing scheduler of current strand
+        return valueCreator.createObjectValue(objectTypeName, Scheduler.getStrand().scheduler, getStrand(),
+                null, fields);
+    }
+
+    private static Scheduler getScheduler() {
+        try {
+            return Scheduler.getStrand().scheduler;
+        } catch (Exception ex) {
+            //ignore : #8984392 is opened to fix this
+        }
+        return null;
+    }
+
+    private static Strand getStrand() {
+        try {
+            return Scheduler.getStrand();
+        } catch (Exception ex) {
+            //need a fix
+        }
+        return null;
     }
 
     /**

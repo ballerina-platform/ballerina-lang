@@ -75,10 +75,14 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
+import static org.objectweb.asm.Opcodes.F_APPEND;
+import static org.objectweb.asm.Opcodes.F_SAME;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.GOTO;
 import static org.objectweb.asm.Opcodes.ICONST_0;
 import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
+import static org.objectweb.asm.Opcodes.IFNONNULL;
 import static org.objectweb.asm.Opcodes.INSTANCEOF;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
@@ -463,7 +467,15 @@ class JvmTypeGen {
 
             int tempVarIndex = indexMap.getIndex(tempVar);
             mv.visitVarInsn(ASTORE, tempVarIndex);
+            BIRVariableDcl strandVar = new BIRVariableDcl(symbolTable.anyType, new Name("strandVar"), VarScope.FUNCTION,
+                    VarKind.LOCAL);
+            int strandVarIndex = indexMap.getIndex(strandVar);
 
+            mv.visitVarInsn(ALOAD, parentIndex);
+            Label parentNonNullLabel = new Label();
+            mv.visitJumpInsn(IFNONNULL, parentNonNullLabel);
+            Label parentNullLabel = new Label();
+            mv.visitLabel(parentNullLabel);
             mv.visitTypeInsn(NEW, STRAND);
             mv.visitInsn(DUP);
             mv.visitVarInsn(ALOAD, schedulerIndex);
@@ -471,11 +483,17 @@ class JvmTypeGen {
             mv.visitVarInsn(ALOAD, propertiesIndex);
             mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>",
                     String.format("(L%s;L%s;L%s;)V", SCHEDULER, STRAND, MAP), false);
-            BIRVariableDcl strandVar = new BIRVariableDcl(symbolTable.anyType, new Name("strandVar"), VarScope.FUNCTION,
-                    VarKind.LOCAL);
-
-            int strandVarIndex = indexMap.getIndex(strandVar);
             mv.visitVarInsn(ASTORE, strandVarIndex);
+            Label conditionLinkLabel = new Label();
+            mv.visitLabel(conditionLinkLabel);
+            Label endConditionLabel = new Label();
+            mv.visitJumpInsn(GOTO, endConditionLabel);
+            mv.visitLabel(parentNonNullLabel);
+            mv.visitFrame(F_SAME, 0, null, 0, null);
+            mv.visitVarInsn(ALOAD, parentIndex);
+            mv.visitVarInsn(ASTORE, strandVarIndex);
+            mv.visitLabel(endConditionLabel);
+            mv.visitFrame(F_APPEND, 1, new Object[]{STRAND}, 0, null);
 
             mv.visitVarInsn(ALOAD, tempVarIndex);
             mv.visitVarInsn(ALOAD, strandVarIndex);
