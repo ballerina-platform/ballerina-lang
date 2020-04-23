@@ -45,7 +45,27 @@ public class CommandConstants {
             "function '(.*)' in abstract object '(.*)' cannot have a body");
     public static final Pattern FQ_TYPE_PATTERN = Pattern.compile("(.*)/([^:]*):(?:.*:)?(.*)");
     public static final Pattern NO_CONCAT_PATTERN = Pattern.compile("^\\\"[^\\\"]*\\\"$|^[^\\\"\\+]*$");
-
+    public static final Pattern RESOURCE_PATH_NOT_FOUND = Pattern.compile(
+            "Couldn't find a Ballerina service resource for the path '(.*)' which is documented in the OpenAPI " +
+                    "contract");
+    public static final Pattern RESOURCE_METHOD_NOT_FOUND = Pattern.compile(
+            "Couldn't find Ballerina service resource\\(s\\) for http method\\(s\\) '(.*)' for the path '(.*)' which " +
+                    "is documented in the OpenAPI contract");
+    public static final Pattern RESOURCE_METHOD_NOT_FOUND_IN_OPENAPI = Pattern.compile(
+            "Ballerina service contains a Resource that is not documented in the OpenAPI contract. Error Resource " +
+                    "path '(.*)'");
+    public static final Pattern PARAMETER_FOR_THE_METHOD_NOT_FOUND_IN_OPENAPI =
+            Pattern.compile(
+                    "'(.*)' parameter for the method '(.*)' of the resource associated with the path '(.*)' is not " +
+                            "documented in the OpenAPI contract");
+    public static final Pattern PARAMETER_FOR_THE_METHOD_NOT_FOUND_IN_BALLERINA =
+            Pattern.compile(
+                    "Couldn't find '(.*)' parameter in the Ballerina service resource for the method '(.*)' of the " +
+                            "path '(.*)' which is documented in the OpenAPI contract");
+    public static final Pattern METHOD_FOR_THE_PATH_NOT_FOUND_IN_OPENAPI =
+            Pattern.compile(
+                    "OpenAPI contract doesn't contain the documentation for http method\\(s\\) '(.*)' for the path '(" +
+                            ".*)'");
     // Command Arguments
     public static final String ARG_KEY_DOC_URI = "doc.uri";
 
@@ -64,6 +84,12 @@ public class CommandConstants {
     public static final String ARG_KEY_MESSAGE_TYPE = "message.type";
 
     public static final String ARG_KEY_MESSAGE = "message";
+
+    public static final String ARG_KEY_PATH = "path";
+
+    public static final String ARG_KEY_METHOD = "method";
+
+    public static final String ARG_KEY_PARAMETER = "parameter";
 
     // Command Titles
     public static final String IMPORT_MODULE_TITLE = "Import Module ";
@@ -95,6 +121,23 @@ public class CommandConstants {
     public static final String MAKE_OBJ_NON_ABSTRACT_TITLE = "Make '%s' an Non-Abstract Object";
 
     public static final String TYPE_GUARD_TITLE = "Type Guard '%s'";
+
+    public static final String CREATE_SERVICE_RESOURCE = "Create service resource for the path '%s'";
+
+    public static final String CREATE_SERVICE_RESOURCE_METHOD =
+            "Create service resource for http method '%s' for the path '%s'";
+
+    public static final String CREATE_SERVICE_RESOURCE_METHOD_IN_OPENAPI =
+            "Create service resource for the path '%s' in the OpenAPI contract";
+
+    public static final String ADD_MISSING_PARAMETER_IN_OPENAPI =
+            "Add missing parameter '%s' for the method '%s' for the path '%s' in the OpenAPI contract";
+
+    public static final String ADD_MISSING_PARAMETER_IN_BALLERINA =
+            "Add missing parameter '%s' for the method '%s' for the path '%s'";
+
+    public static final String CREATE_MISSING_METHOD_FOR_THE_PATH_IN_OPENAPI =
+            "Create missing http method '%s' for the path '%s'";
 
     public static final String IMPLEMENT_FUNCS_TITLE = "Implement All Functions";
 
