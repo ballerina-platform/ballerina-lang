@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
+
 import java.util.Objects;
 
 /**
@@ -1155,22 +1156,22 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRemoteMethodCallActionNode.createUnlinkedFacade();
     }
 
-    public static MapTypeDescriptorNode createMapTypeDescriptorNode(
-            Token mapKeywordToken,
+    public static ParameterizedTypeDescriptorNode createParameterizedTypeDescriptorNode(
+            Token parameterizedType,
             Token ltToken,
             Node typeNode,
             Token gtToken) {
-        Objects.requireNonNull(mapKeywordToken, "mapKeywordToken must not be null");
+        Objects.requireNonNull(parameterizedType, "parameterizedType must not be null");
         Objects.requireNonNull(ltToken, "ltToken must not be null");
         Objects.requireNonNull(typeNode, "typeNode must not be null");
         Objects.requireNonNull(gtToken, "gtToken must not be null");
 
-        STNode stMapTypeDescriptorNode = STNodeFactory.createMapTypeDescriptorNode(
-                mapKeywordToken.internalNode(),
+        STNode stParameterizedTypeDescriptorNode = STNodeFactory.createParameterizedTypeDescriptorNode(
+                parameterizedType.internalNode(),
                 ltToken.internalNode(),
                 typeNode.internalNode(),
                 gtToken.internalNode());
-        return stMapTypeDescriptorNode.createUnlinkedFacade();
+        return stParameterizedTypeDescriptorNode.createUnlinkedFacade();
     }
 
     public static NilLiteralNode createNilLiteralNode(

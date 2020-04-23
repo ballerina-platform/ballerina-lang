@@ -660,8 +660,6 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.TYPEOF_KEYWORD);
             case LexerTerminals.IS:
                 return getSyntaxToken(SyntaxKind.IS_KEYWORD);
-            case LexerTerminals.MAP:
-                return getSyntaxToken(SyntaxKind.MAP_KEYWORD);
             case LexerTerminals.NULL:
                 return getSyntaxToken(SyntaxKind.NULL_KEYWORD);
             case LexerTerminals.LOCK:
@@ -680,6 +678,12 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.FIELD_KEYWORD);
             case LexerTerminals.XMLNS:
                 return getSyntaxToken(SyntaxKind.XMLNS_KEYWORD);
+            case LexerTerminals.MAP:
+                return getSyntaxToken(SyntaxKind.MAP_KEYWORD);
+            case LexerTerminals.FUTURE:
+                return getSyntaxToken(SyntaxKind.FUTURE_KEYWORD);
+            case LexerTerminals.TYPEDESC:
+                return getSyntaxToken(SyntaxKind.TYPEDESC_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }

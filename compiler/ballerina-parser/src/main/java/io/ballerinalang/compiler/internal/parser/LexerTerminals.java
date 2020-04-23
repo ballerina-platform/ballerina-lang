@@ -81,6 +81,8 @@ public class LexerTerminals {
     public static final String VAR = "var";
     public static final String NEVER = "never";
     public static final String MAP = "map";
+    public static final String FUTURE = "future";
+    public static final String TYPEDESC = "typedesc";
 
     // Separators
     public static final char SEMICOLON = ';';

@@ -44,7 +44,7 @@
                     ]
                 },
                 {
-                    "kind": "MAP_TYPE",
+                    "kind": "PARAMETERIZED_TYPE",
                     "children": [
                         {
                             "kind": "MAP_KEYWORD"

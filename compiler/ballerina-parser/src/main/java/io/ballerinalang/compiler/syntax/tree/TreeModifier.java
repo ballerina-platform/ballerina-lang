@@ -854,13 +854,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(MapTypeDescriptorNode mapTypeDescriptorNode) {
-        Token mapKeywordToken = modifyToken(mapTypeDescriptorNode.mapKeywordToken());
-        Token ltToken = modifyToken(mapTypeDescriptorNode.ltToken());
-        Node typeNode = modifyNode(mapTypeDescriptorNode.typeNode());
-        Token gtToken = modifyToken(mapTypeDescriptorNode.gtToken());
-        return mapTypeDescriptorNode.modify(
-                mapKeywordToken,
+    public Node transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        Token parameterizedType = modifyToken(parameterizedTypeDescriptorNode.parameterizedType());
+        Token ltToken = modifyToken(parameterizedTypeDescriptorNode.ltToken());
+        Node typeNode = modifyNode(parameterizedTypeDescriptorNode.typeNode());
+        Token gtToken = modifyToken(parameterizedTypeDescriptorNode.gtToken());
+        return parameterizedTypeDescriptorNode.modify(
+                parameterizedType,
                 ltToken,
                 typeNode,
                 gtToken);

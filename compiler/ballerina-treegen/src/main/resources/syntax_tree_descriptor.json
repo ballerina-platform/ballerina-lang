@@ -1527,12 +1527,12 @@
             ]
         },
         {
-            "name": "MapTypeDescriptorNode",
+            "name": "ParameterizedTypeDescriptorNode",
             "base": "Node",
-            "kind": "MAP_TYPE",
+            "kind": "PARAMETERIZED_TYPE",
             "attributes": [
                 {
-                    "name": "mapKeywordToken",
+                    "name": "parameterizedType",
                     "type": "Token"
                 },
                 {

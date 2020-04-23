@@ -285,8 +285,8 @@ public class BallerinaParser {
                 return parseConstDecl((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             case STMT_START_WITH_IDENTIFIER:
                 return parseStatementStartsWithIdentifier((STNode) args[0], (STNode) args[1]);
-            case MAP_TYPE_DESCRIPTOR:
-                return parseMapTypeDescriptor();
+            case PARAMETERIZED_TYPE_DESCRIPTOR:
+                return parseParameterizedTypeDescriptor();
             case LT:
                 return parseLTToken();
             case GT:
@@ -451,6 +451,8 @@ public class BallerinaParser {
             case CLIENT_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
             case MAP_KEYWORD: // map type desc
+            case FUTURE_KEYWORD: // future type desc
+            case TYPEDESC_KEYWORD: // typedesc type desc
                 // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
                 // TODO: add type binding pattern
                 metadata = createEmptyMetadata();
@@ -531,6 +533,8 @@ public class BallerinaParser {
             case SERVICE_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
             case MAP_KEYWORD: // map type desc
+            case FUTURE_KEYWORD: // future type desc
+            case TYPEDESC_KEYWORD: // typedesc type desc
                 break;
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
@@ -1114,6 +1118,8 @@ public class BallerinaParser {
             case CLIENT_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
             case MAP_KEYWORD: // map type desc
+            case FUTURE_KEYWORD: // future type desc
+            case TYPEDESC_KEYWORD: // typedesc type desc
                 return parseModuleVarDecl(metadata, qualifier);
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
@@ -1771,9 +1777,10 @@ public class BallerinaParser {
             case OPEN_PAREN_TOKEN:
                 // nil type descriptor '()'
                 return parseNilTypeDescriptor();
-            case MAP_KEYWORD:
-                // map type desc
-                return parseMapTypeDescriptor();
+            case MAP_KEYWORD: // map type desc
+            case FUTURE_KEYWORD: // future type desc
+            case TYPEDESC_KEYWORD: // typedesc type desc
+                return parseParameterizedTypeDescriptor();
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.TYPE_DESCRIPTOR);
@@ -2779,7 +2786,9 @@ public class BallerinaParser {
             case CLIENT_KEYWORD:
             case IDENTIFIER_TOKEN:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
-            case MAP_KEYWORD: // map type descriptor
+            case MAP_KEYWORD: // map type desc
+            case FUTURE_KEYWORD: // future type desc
+            case TYPEDESC_KEYWORD: // typedesc type desc
 
                 // Other statements
             case IF_KEYWORD:
@@ -2860,7 +2869,9 @@ public class BallerinaParser {
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
-            case MAP_KEYWORD: //map type descriptor
+            case MAP_KEYWORD: // map type desc
+            case FUTURE_KEYWORD: // future type desc
+            case TYPEDESC_KEYWORD: // typedesc type desc
                 // If the statement starts with a type, then its a var declaration.
                 // This is an optimization since if we know the next token is a type, then
                 // we can parse the var-def faster.
@@ -5885,34 +5896,38 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse map type descriptor.
-     * map-type-descriptor := map type-parameter
+     * Parse parameterized type descriptor.
+     * parameterized-type-descriptor := map type-parameter | future type-parameter | typedesc type-parameter
      *
      * @return Parsed node
      */
-    private STNode parseMapTypeDescriptor() {
-        startContext(ParserRuleContext.MAP_TYPE_DESCRIPTOR);
-        STNode mapKeywordToken = parseMapKeyword();
+    private STNode parseParameterizedTypeDescriptor() {
+        startContext(ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR);
+        STNode parameterizedTypeKeyword = parseParameterizedTypeKeyword();
         STNode ltToken = parseLTToken();
         STNode typeNode = parseTypeDescriptor();
         STNode gtToken = parseGTToken();
 
         endContext();
-        return STNodeFactory.createMapTypeDescriptorNode(mapKeywordToken, ltToken, typeNode, gtToken);
+        return STNodeFactory.createParameterizedTypeDescriptorNode(parameterizedTypeKeyword, ltToken, typeNode,
+                gtToken);
     }
 
     /**
-     * Parse <code>map</code> keyword token.
+     * Parse <code>map</code> or <code>future</code> or <code>typedesc</code> keyword token.
      *
      * @return Parsed node
      */
-    private STNode parseMapKeyword() {
+    private STNode parseParameterizedTypeKeyword() {
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.MAP_KEYWORD) {
-            return consume();
-        } else {
-            Solution sol = recover(nextToken, ParserRuleContext.MAP_KEYWORD);
-            return sol.recoveredNode;
+        switch (nextToken.kind) {
+            case MAP_KEYWORD: // map type desc
+            case FUTURE_KEYWORD: // future type desc
+            case TYPEDESC_KEYWORD: // typedesc type desc
+                return consume();
+            default:
+                Solution sol = recover(nextToken, ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR);
+                return sol.recoveredNode;
         }
     }
 

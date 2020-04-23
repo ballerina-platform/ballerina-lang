@@ -295,8 +295,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(remoteMethodCallActionNode);
     }
 
-    public void visit(MapTypeDescriptorNode mapTypeDescriptorNode) {
-        visitSyntaxNode(mapTypeDescriptorNode);
+    public void visit(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        visitSyntaxNode(parameterizedTypeDescriptorNode);
     }
 
     public void visit(NilLiteralNode nilLiteralNode) {

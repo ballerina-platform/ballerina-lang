@@ -63,8 +63,10 @@ public enum SyntaxKind {
     IS_KEYWORD(214, "is"),
     NULL_KEYWORD(215, "null"),
     MAP_KEYWORD(216,"map"),
-    LOCK_KEYWORD(217, "lock"),
-    VAR_KEYWORD(217, "var"),
+    FUTURE_KEYWORD(217, "future"),
+    TYPEDESC_KEYWORD(218, "typedesc"),
+    LOCK_KEYWORD(219, "lock"),
+    VAR_KEYWORD(220, "var"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -172,7 +174,7 @@ public enum SyntaxKind {
     NIL_TYPE(2002),
     OPTIONAL_TYPE(2003),
     ARRAY_TYPE(2004),
-    MAP_TYPE(2005),
+    PARAMETERIZED_TYPE(2005),
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),

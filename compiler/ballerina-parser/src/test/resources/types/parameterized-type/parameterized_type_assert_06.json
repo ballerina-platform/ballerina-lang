@@ -12,14 +12,13 @@
             ]
         },
         {
-            "kind": "MAP_TYPE",
+            "kind": "PARAMETERIZED_TYPE",
             "children": [
                 {
                     "kind": "MAP_KEYWORD"
                 },
                 {
-                    "kind": "LT_TOKEN",
-                    "isMissing": true
+                    "kind": "LT_TOKEN"
                 },
                 {
                     "kind": "SIMPLE_TYPE",
@@ -27,7 +26,8 @@
                 },
 
                 {
-                    "kind": "GT_TOKEN"
+                    "kind": "GT_TOKEN",
+                    "isMissing": true
                 }
             ]
         },

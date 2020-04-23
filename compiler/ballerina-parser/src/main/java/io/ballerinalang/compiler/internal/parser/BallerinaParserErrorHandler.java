@@ -123,13 +123,13 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] TYPE_DESCRIPTORS =
             { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.OBJECT_TYPE_DESCRIPTOR,
                     ParserRuleContext.RECORD_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR,
-                    ParserRuleContext.MAP_TYPE_DESCRIPTOR, ParserRuleContext.ARRAY_TYPE_DESCRIPTOR,
+                    ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR, ParserRuleContext.ARRAY_TYPE_DESCRIPTOR,
                     ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR};
 
     private static final ParserRuleContext[] TYPE_DESCRIPTORS_WITHOUT_COMPLEX =
             { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.OBJECT_TYPE_DESCRIPTOR,
                     ParserRuleContext.RECORD_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR,
-                    ParserRuleContext.MAP_TYPE_DESCRIPTOR };
+                    ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR };
 
     private static final ParserRuleContext[] RECORD_FIELD_OR_RECORD_END =
             { ParserRuleContext.RECORD_FIELD, ParserRuleContext.RECORD_BODY_END };
@@ -262,6 +262,9 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] CONSTANT_EXPRESSION =
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF };
+
+    private static final ParserRuleContext[] PARAMETERIZED_TYPE_DESCRIPTORS = { ParserRuleContext.MAP_KEYWORD,
+              ParserRuleContext.FUTURE_KEYWORD, ParserRuleContext.TYPEDESC_KEYWORD};
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -1003,6 +1006,12 @@ public class BallerinaParserErrorHandler {
                 case MAP_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.MAP_KEYWORD;
                     break;
+                case FUTURE_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.FUTURE_KEYWORD;
+                    break;
+                case TYPEDESC_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.TYPEDESC_KEYWORD;
+                    break;
                 case LT:
                     hasMatch = nextToken.kind == SyntaxKind.LT_TOKEN;
                     break;
@@ -1070,6 +1079,10 @@ public class BallerinaParserErrorHandler {
                 case WORKER_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.WORKER_KEYWORD;
                     break;
+                case PARAMETERIZED_TYPE_DESCRIPTOR:
+                    startContext(ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR);
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                            PARAMETERIZED_TYPE_DESCRIPTORS, isEntryPoint);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1113,7 +1126,6 @@ public class BallerinaParserErrorHandler {
                 case LOCAL_TYPE_DEFINITION_STMT:
                 case ANNOTATIONS:
                 case DOC_STRING:
-                case MAP_TYPE_DESCRIPTOR:
                 case ANNOTATION_DECL:
                 case ANNOT_ATTACH_POINTS_LIST:
                 case COMPOUND_ASSIGNMENT_STMT:
@@ -1320,7 +1332,7 @@ public class BallerinaParserErrorHandler {
             nextContext = ParserRuleContext.TOP_LEVEL_NODE;
         } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
             nextContext = ParserRuleContext.CLOSE_BRACKET;
-        } else if (parentCtx == ParserRuleContext.MAP_TYPE_DESCRIPTOR) {
+        } else if (parentCtx == ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR) {
             nextContext = ParserRuleContext.GT;
         } else {
             throw new IllegalStateException();
@@ -1550,7 +1562,6 @@ public class BallerinaParserErrorHandler {
             case MAPPING_CONSTRUCTOR:
             case LOCAL_TYPE_DEFINITION_STMT:
             case EXPRESSION_STATEMENT:
-            case MAP_TYPE_DESCRIPTOR:
             case NIL_LITERAL:
             case LOCK_STMT:
             case ANNOTATION_DECL:
@@ -1934,9 +1945,9 @@ public class BallerinaParserErrorHandler {
                 return getNextRuleForDecimalIntegerLiteral();
             case EXPRESSION_STATEMENT:
                 return ParserRuleContext.EXPRESSION_STATEMENT_START;
-            case MAP_TYPE_DESCRIPTOR:
-                return ParserRuleContext.MAP_KEYWORD;
             case MAP_KEYWORD:
+            case FUTURE_KEYWORD:
+            case TYPEDESC_KEYWORD:
                 return ParserRuleContext.LT;
             case LT:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
@@ -1946,7 +1957,7 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.BLOCK_STMT;
             case GT:
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.MAP_TYPE_DESCRIPTOR) {
+                if (parentCtx == ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR) {
                     endContext();
                     return getNextRuleForTypeDescriptor();
                 }
@@ -2138,7 +2149,7 @@ public class BallerinaParserErrorHandler {
                 return getNextRuleForExpr();
             case ANNOTATION_DECL:
                 return ParserRuleContext.IDENTIFIER;
-            case MAP_TYPE_DESCRIPTOR:
+            case PARAMETERIZED_TYPE_DESCRIPTOR:
                 return ParserRuleContext.GT;
 
             default:
@@ -2316,7 +2327,7 @@ public class BallerinaParserErrorHandler {
             return ParserRuleContext.OBJECT_FIELD_RHS;
         } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
             return ParserRuleContext.CLOSE_BRACKET;
-        } else if (parentCtx == ParserRuleContext.MAP_TYPE_DESCRIPTOR) {
+        } else if (parentCtx == ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR) {
             return ParserRuleContext.GT;
         } else {
             throw new IllegalStateException();
@@ -2839,6 +2850,10 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.PLUS_TOKEN;
             case MAP_KEYWORD:
                 return SyntaxKind.MAP_KEYWORD;
+            case FUTURE_KEYWORD:
+                return SyntaxKind.FUTURE_KEYWORD;
+            case TYPEDESC_KEYWORD:
+                return SyntaxKind.TYPEDESC_KEYWORD;
             case GT:
                 return SyntaxKind.GT_TOKEN;
             case LT:

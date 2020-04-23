@@ -366,6 +366,10 @@ public class ParserTestUtils {
                 return SyntaxKind.IS_KEYWORD;
             case "MAP_KEYWORD":
                 return SyntaxKind.MAP_KEYWORD;
+            case "FUTURE_KEYWORD":
+                return SyntaxKind.FUTURE_KEYWORD;
+            case "TYPEDESC_KEYWORD":
+                return SyntaxKind.TYPEDESC_KEYWORD;
             case "NULL_KEYWORD":
                 return SyntaxKind.NULL_KEYWORD;
             case "LOCK_KEYWORD":
@@ -614,8 +618,8 @@ public class ParserTestUtils {
                 return SyntaxKind.METADATA;
             case "ANNOTATION":
                 return SyntaxKind.ANNOTATION;
-            case "MAP_TYPE":
-                return SyntaxKind.MAP_TYPE;
+            case "PARAMETERIZED_TYPE":
+                return SyntaxKind.PARAMETERIZED_TYPE;
             case "ANNOTATION_ATTACH_POINT":
                 return SyntaxKind.ANNOTATION_ATTACH_POINT;
             case "NAMED_WORKER_DECLARATION":

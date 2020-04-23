@@ -24,13 +24,13 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class MapTypeDescriptorNode extends NonTerminalNode {
+public class ParameterizedTypeDescriptorNode extends NonTerminalNode {
 
-    public MapTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public ParameterizedTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token mapKeywordToken() {
+    public Token parameterizedType() {
         return childInBucket(0);
     }
 
@@ -59,27 +59,27 @@ public class MapTypeDescriptorNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "mapKeywordToken",
+                "parameterizedType",
                 "ltToken",
                 "typeNode",
                 "gtToken"};
     }
 
-    public MapTypeDescriptorNode modify(
-            Token mapKeywordToken,
+    public ParameterizedTypeDescriptorNode modify(
+            Token parameterizedType,
             Token ltToken,
             Node typeNode,
             Token gtToken) {
         if (checkForReferenceEquality(
-                mapKeywordToken,
+                parameterizedType,
                 ltToken,
                 typeNode,
                 gtToken)) {
             return this;
         }
 
-        return NodeFactory.createMapTypeDescriptorNode(
-                mapKeywordToken,
+        return NodeFactory.createParameterizedTypeDescriptorNode(
+                parameterizedType,
                 ltToken,
                 typeNode,
                 gtToken);

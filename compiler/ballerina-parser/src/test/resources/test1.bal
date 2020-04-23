@@ -1,3 +1,1 @@
-function foo() {
-    io:println();
-}
+function foo() returns = external;
