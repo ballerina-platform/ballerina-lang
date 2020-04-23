@@ -784,9 +784,14 @@ function externDecryptAesGcm(byte[] input, byte[] key, byte[] iv, handle padding
 } external;
 
 # Returns the `crypto:PublicKey` created with modulus and exponent retrieved from JWKs endpoint.
+# ```ballerina
+# string modulus = "luZFdW1ynitztkWLC6xKegbRWxky...";
+# string exponent = "AQAB";
+# crypto:PublicKey|crypto:Error publicKey = generatePublicKey(modulus, exponent);
+# ```
 #
-# + modulus - 'n' parameter, the modulus value for the RSA public key
-# + exponent - 'e' paramenter, the exponent value for the RSA public key
+# + modulus - JWK modulus value ('n' parameter) for the RSA public key
+# + exponent - JWK exponent value ('e' paramenter) for the RSA public key
 # + return - Reference to the public key or else a `crypto:Error` if the modulus or exponent is invalid
 public function generatePublicKey(string modulus, string exponent) returns PublicKey|Error {
     return externGeneratePublicKey(java:fromString(modulus), java:fromString(exponent));
