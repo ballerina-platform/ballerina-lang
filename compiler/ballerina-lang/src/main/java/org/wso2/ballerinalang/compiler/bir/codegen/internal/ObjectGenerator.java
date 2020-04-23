@@ -113,14 +113,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDe
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeLockNameFromString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.currentClass;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
-import static org.wso2.ballerinalang.compiler.bir.codegen.internal.TerminatorGenerator.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 
 public class ObjectGenerator {
 
     private BIRNode.BIRPackage module;
-    private
-    BObjectType currentObjectType = null;
+    private BObjectType currentObjectType = null;
 
     private void createLambdas(ClassWriter cw) {
 

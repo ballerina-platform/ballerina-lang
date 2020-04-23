@@ -46,7 +46,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getVariab
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.nextVarId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
-import static org.wso2.ballerinalang.compiler.bir.codegen.internal.TerminatorGenerator.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.GOTO;
 

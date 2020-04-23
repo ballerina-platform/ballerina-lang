@@ -111,7 +111,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMainFu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
-import static org.wso2.ballerinalang.compiler.bir.codegen.internal.TerminatorGenerator.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateCreateTypesMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateUserDefinedTypeFields;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateValueCreatorMethods;
@@ -174,7 +174,7 @@ public class JvmPackageGen {
         }
     }
 
-    static BIRFunctionWrapper getBIRFunctionWrapper(BIRFunctionWrapper wrapper) {
+    public static BIRFunctionWrapper getBIRFunctionWrapper(BIRFunctionWrapper wrapper) {
 
         if (wrapper == null) {
             throw new BLangCompilerException("invalid bir function linking");

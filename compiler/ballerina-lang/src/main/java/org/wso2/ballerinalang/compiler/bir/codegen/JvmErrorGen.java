@@ -20,9 +20,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.InstructionGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.TerminatorGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.CatchIns;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JErrorEntry;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -110,7 +108,7 @@ public class JvmErrorGen {
     }
 
     void generateTryCatch(BIRNode.BIRFunction func, String funcName, BIRNode.BIRBasicBlock currentBB,
-                          InstructionGenerator instGen, TerminatorGenerator termGen, LabelGenerator labelGen) {
+                          JvmInstructionGen instGen, JvmTerminatorGen termGen, LabelGenerator labelGen) {
 
         BIRNode.BIRErrorEntry currentEE = findErrorEntry(func.errorTable, currentBB);
         if (currentEE == null) {

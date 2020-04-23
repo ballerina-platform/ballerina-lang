@@ -50,7 +50,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.cleanupP
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupExternClassName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.internal.TerminatorGenerator.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.AnnotationProc.getInteropAnnotValue;
 
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.createJInteropFunctionWrapper;

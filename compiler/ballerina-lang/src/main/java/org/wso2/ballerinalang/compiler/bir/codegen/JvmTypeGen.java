@@ -148,7 +148,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModul
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
-import static org.wso2.ballerinalang.compiler.bir.codegen.internal.TerminatorGenerator.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createLabelsForEqualCheck;

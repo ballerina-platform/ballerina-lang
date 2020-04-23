@@ -97,7 +97,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insert
 
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmErrorGen;
 
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.InstructionGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarLoad;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarStore;
@@ -115,7 +115,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunct
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
 
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.TerminatorGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen;
 
 /**
  * Interop related method generation class for JVM byte code generation.
@@ -142,10 +142,10 @@ public class InteropMethodGen {
         int access = ACC_PUBLIC + ACC_STATIC;
 
         MethodVisitor mv = cw.visitMethod(access, birFunc.name.value, desc, null, null);
-        InstructionGenerator instGen = new InstructionGenerator(mv, indexMap, birModule);
+        JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, birModule);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, currentPackageName);
         LabelGenerator labelGen = new LabelGenerator();
-        TerminatorGenerator termGen = new TerminatorGenerator(mv, indexMap, labelGen, errorGen, birModule);
+        JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, birModule);
         mv.visitCode();
 
         Label paramLoadLabel = labelGen.getLabel("param_load");

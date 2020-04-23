@@ -24,10 +24,8 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FunctionParamComparator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.InstructionGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.TerminatorGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
@@ -168,7 +166,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CRE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WINDOWS_PATH_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.internal.InstructionGenerator.visitInvokeDyn;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.visitInvokeDyn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
@@ -186,7 +184,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPacka
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.packageToModuleId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
-import static org.wso2.ballerinalang.compiler.bir.codegen.internal.TerminatorGenerator.toNameString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.cleanupObjectTypeName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.isExternStaticFunctionCall;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.loadChannelDetails;
@@ -283,7 +281,7 @@ public class JvmMethodGen {
         }
 
         MethodVisitor mv = cw.visitMethod(access, funcName, desc, null, null);
-        InstructionGenerator instGen = new InstructionGenerator(mv, indexMap, module);
+        JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, module);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, currentPackageName);
         LabelGenerator labelGen = new LabelGenerator();
 
@@ -378,7 +376,7 @@ public class JvmMethodGen {
             i = i + 1;
         }
 
-        TerminatorGenerator termGen = new TerminatorGenerator(mv, indexMap, labelGen, errorGen, module);
+        JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module);
 
         // uncomment to test yield
         // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
@@ -861,7 +859,7 @@ public class JvmMethodGen {
 
     public static void generateBasicBlocks(MethodVisitor mv, List<BIRBasicBlock> basicBlocks,
                                            LabelGenerator labelGen, JvmErrorGen errorGen,
-                                           InstructionGenerator instGen, TerminatorGenerator termGen,
+                                           JvmInstructionGen instGen, JvmTerminatorGen termGen,
                                            BIRFunction func, int returnVarRefIndex, int stateVarIndex,
                                            int localVarOffset, boolean isArg, BIRPackage module,
                                            String currentPackageName, BType attachedType,
@@ -1056,7 +1054,7 @@ public class JvmMethodGen {
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
-                genYieldCheck(mv, termGen.labelGen, thenBB, funcName, localVarOffset);
+                genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, localVarOffset);
             }
             j += 1;
         }
@@ -2476,7 +2474,7 @@ public class JvmMethodGen {
         }
     }
 
-    static boolean isExternFunc(BIRFunction func) {
+    public static boolean isExternFunc(BIRFunction func) {
 
         return (func.flags & Flags.NATIVE) == Flags.NATIVE;
     }
