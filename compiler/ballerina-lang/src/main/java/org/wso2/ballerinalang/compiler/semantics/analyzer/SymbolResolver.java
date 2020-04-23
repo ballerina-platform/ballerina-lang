@@ -68,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -878,6 +879,51 @@ public class SymbolResolver extends BLangNodeVisitor {
         unionTypeSymbol.type = unionType;
 
         resultType = unionType;
+    }
+
+    public void visit(BLangIntersectionTypeNode intersectionTypeNode) {
+
+        List<BLangType> constituentTypeNodes = intersectionTypeNode.constituentTypeNodes;
+
+        BType lhsType = resolveTypeNode(constituentTypeNodes.get(0), env);
+        BType rhsType = resolveTypeNode(constituentTypeNodes.get(1), env);
+
+        if (lhsType == symTable.readonlyType) {
+            if (types.isReadonlyType(rhsType)) {
+                resultType = rhsType;
+                return;
+            }
+
+            if (!types.isSelectivelyImmutableType(rhsType)) {
+                dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_INTERSECTION_TYPE, rhsType);
+                resultType = symTable.semanticError;
+                return;
+            }
+
+            rhsType.flags |= Flags.READONLY;
+            resultType = rhsType;
+            return;
+        }
+
+        if (rhsType == symTable.readonlyType) {
+            if (types.isReadonlyType(lhsType)) {
+                resultType = lhsType;
+                return;
+            }
+
+            if (!types.isSelectivelyImmutableType(lhsType)) {
+                dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_INTERSECTION_TYPE, lhsType);
+                resultType = symTable.semanticError;
+                return;
+            }
+
+            lhsType.flags |= Flags.READONLY;
+            resultType = lhsType;
+            return;
+        }
+
+        dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_INTERSECTION_TYPE, intersectionTypeNode);
+        resultType = symTable.semanticError;
     }
 
     public void visit(BLangObjectTypeNode objectTypeNode) {

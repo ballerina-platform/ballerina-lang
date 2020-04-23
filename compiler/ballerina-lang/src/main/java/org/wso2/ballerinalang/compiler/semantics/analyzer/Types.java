@@ -861,12 +861,13 @@ public class Types {
         return checkFunctionTypeEquality(source, target, unresolvedTypes, (s, t, ut) -> isAssignable(t, s, ut));
     }
 
-    private boolean isReadonlyType(BType sourceType) {
+    boolean isReadonlyType(BType sourceType) {
         if (isValueType(sourceType)) {
             return true;
         }
 
         switch (sourceType.tag) {
+            case TypeTags.READONLY:
             case TypeTags.NIL:
             case TypeTags.ERROR:
             case TypeTags.INVOKABLE:
@@ -874,6 +875,51 @@ public class Types {
             case TypeTags.TYPEDESC:
             case TypeTags.HANDLE:
                 return true;
+        }
+        return false;
+    }
+
+    boolean isSelectivelyImmutableType(BType sourceType) {
+        switch (sourceType.tag) {
+            case TypeTags.ANYDATA:
+            case TypeTags.XML:
+                return true;
+            case TypeTags.ARRAY:
+                BType elementType = ((BArrayType) sourceType).eType;
+                return isReadonlyType(elementType) || isSelectivelyImmutableType(elementType);
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) sourceType;
+                for (BType tupMemType : tupleType.tupleTypes) {
+                    if (!isReadonlyType(tupMemType) && !isSelectivelyImmutableType(tupMemType)) {
+                        return false;
+                    }
+                }
+
+                BType tupRestType = tupleType.restType;
+                if (tupRestType == null) {
+                    return true;
+                }
+
+                return isReadonlyType(tupRestType) || isSelectivelyImmutableType(tupRestType);
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) sourceType;
+                for (BField field : recordType.fields) {
+                    BType fieldType = field.type;
+                    if (!isReadonlyType(fieldType) && !isSelectivelyImmutableType(fieldType)) {
+                        return false;
+                    }
+                }
+
+                BType recordRestType = recordType.restFieldType;
+                if (recordRestType == null || recordRestType == symTable.noType) {
+                    return true;
+                }
+
+                return isReadonlyType(recordRestType) || isSelectivelyImmutableType(recordRestType);
+            case TypeTags.MAP:
+                BType constraintType = ((BMapType) sourceType).constraint;
+                return isReadonlyType(constraintType) || isSelectivelyImmutableType(constraintType);
+            // TODO: 4/23/20 Table
         }
         return false;
     }
