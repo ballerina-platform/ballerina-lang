@@ -24,6 +24,8 @@ import java.net.ServerSocket;
  */
 public class DebugUtils {
 
+    public static final String JBAL_DEBUG_CMD_NAME = "start-debugger-adapter";
+
     /**
      * Finds an available port.
      *
@@ -36,5 +38,14 @@ public class DebugUtils {
         } catch (Exception ignore) {
         }
         throw new IllegalStateException("Could not find a free TCP/IP port to start debugging");
+    }
+
+    /**
+     * Ballerina command options to be run in debug mode.
+     */
+    public enum DebuggeeExecutionKind {
+        RUN,
+        TEST,
+        BUILD
     }
 }

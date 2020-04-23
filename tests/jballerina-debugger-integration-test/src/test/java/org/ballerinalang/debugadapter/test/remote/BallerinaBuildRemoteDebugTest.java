@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 package org.ballerinalang.debugadapter.test.remote;
 
 import org.ballerinalang.debugadapter.test.BaseTestCase;
@@ -28,7 +27,7 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.debugadapter.test.utils.DebugUtils.findFreePort;
 
 /**
- * Test class to test positive scenarios of remote debugging ballerina run command.
+ * Test class to test positive and negative scenarios of remote debugging ballerina build command.
  */
 public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
 
@@ -39,8 +38,8 @@ public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = testProjectDirPath.toString();
-        singleFilePath = testSingleFileDirPath.toString();
+        projectPath = testProjectPath.toString();
+        singleFilePath = testSingleFileBaseDir.toString();
     }
 
     @Test
@@ -48,7 +47,7 @@ public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
         int port = findFreePort();
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.debugMain("build", new String[]{"--debug", String.valueOf(port), TEST_MODULE_NAME}, null,
+        balClient.debugMain("build", new String[]{"--debug", String.valueOf(port), testModuleName}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 10);
         clientLeecher.waitForText(20000);
     }
@@ -77,7 +76,7 @@ public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
         LogLeecher clientLeecher = new LogLeecher(msg);
         try {
             balClient.debugMain("build", new String[]{"--debug", String.valueOf(port), "--skip-tests",
-                            TEST_MODULE_NAME},
+                            testModuleName},
                     null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 10);
             clientLeecher.waitForText(20000);
             throw new BallerinaTestException("Ballerina tests running is suspended even when the test skip flag is " +
