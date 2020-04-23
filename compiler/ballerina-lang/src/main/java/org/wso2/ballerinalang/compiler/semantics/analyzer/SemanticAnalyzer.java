@@ -18,7 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
@@ -31,7 +30,6 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -1954,8 +1952,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, arraySource);
                     break;
                 }
-            }
-            else {
+            } else {
                 dlog.error(expression.pos, DiagnosticCode.INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN, expression);
             }
         }
@@ -1968,7 +1965,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (source.tag != TypeTags.TUPLE ) {
+        if (source.tag != TypeTags.TUPLE) {
             dlog.error(rhsPos, DiagnosticCode.INCOMPATIBLE_TYPES, target.type, source);
             return;
         }

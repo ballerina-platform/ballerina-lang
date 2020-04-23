@@ -3,6 +3,10 @@ type Foo record {
     string b;
 };
 
+type Bar record {
+    boolean a;
+};
+
 public function testSimpleListBindingPattern() {
     int[4] intArray = [1, 2, 3, 4];
     int[] intArrayUnsealed = [1, 2, 3, 4];
@@ -15,6 +19,9 @@ public function testSimpleListBindingPattern() {
     int e = 0;
     boolean f = false;
     int[] g;
+    Foo h;
+    Bar i;
+    Bar j;
 
     // Invalid size in binding pattern for simple types.
     [a, b, c, d, e] = intArray;
@@ -24,6 +31,12 @@ public function testSimpleListBindingPattern() {
 
     // Invalid unsealed tuple binding pattern.
     [a, ...g] = intArrayUnsealed;
+
+    // Invalid size for reference type.
+    [h] = fooArray;
+
+    // Type not compatible test for reference types.
+    [i, j] = fooArray;
 
     if (a != 1 || b != 2 || c != 3 || d != 4) {
         panic error("Simple List binding pattern didn't work");

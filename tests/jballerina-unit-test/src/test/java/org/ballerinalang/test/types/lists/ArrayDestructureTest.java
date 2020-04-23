@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test case for list destructure bindings
+ * Test case for list destructure bindings.
  *
  * @since 1.3.0
  */
@@ -66,23 +66,42 @@ public class ArrayDestructureTest {
     }
 
     @Test
+    public void testReferenceArrayDestructureWithUndefinedSizeAndDifferentType() {
+        BValue[] result = BRunUtil.invoke(compileResult
+                , "testReferenceListBindingPatternForUndefinedSizeWithDifferentType");
+    }
+
+    @Test
+    public void testReferenceListBindingPatternWithTuples() {
+        BValue[] result = BRunUtil.invoke(compileResult, "testReferenceListBindingPatternWithTuples");
+    }
+
+    @Test
     public void testSimpleArrayDestructureNegative() {
         CompileResult negativeTestCompile = BCompileUtil
                 .compile("test-src/types/lists/array_destructure_negative.bal");
-        Assert.assertEquals(negativeTestCompile.getErrorCount(), 3);
+        Assert.assertEquals(negativeTestCompile.getErrorCount(), 5);
 
         int index = 0;
         BAssertUtil.validateError(negativeTestCompile, index++
                 , "incompatible types: expected '[int,int,int,int,int]', found 'int[4]'"
-                , 20, 23);
+                , 27, 23);
 
         BAssertUtil.validateError(negativeTestCompile, index++
                 , "incompatible types: expected '[int,int,int,boolean]', found 'int[4]'"
-                , 23, 20);
+                , 30, 20);
 
         BAssertUtil.validateError(negativeTestCompile, index++
                 , "incompatible types: expected '[int,int...]', found 'int[]'",
-                26, 17);
+                33, 17);
+
+        BAssertUtil.validateError(negativeTestCompile, index++
+                , "incompatible types: expected '[Foo]', found 'Foo[2]'",
+                36, 11);
+
+        BAssertUtil.validateError(negativeTestCompile, index++
+                , "incompatible types: expected '[Bar,Bar]', found 'Foo[2]'",
+                39, 14);
     }
 
 }

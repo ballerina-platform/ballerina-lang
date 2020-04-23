@@ -30,6 +30,10 @@ type Foo record {
     string b;
 };
 
+type Bar record {
+    int a;
+};
+
 public function testReferenceListBindingPattern() {
     Foo[2] fooArray = [{a : 1, b : "1"}, {a: 2, b : "2"}];
 
@@ -67,5 +71,32 @@ public function testReferenceListBindingPatternWithRecordDestructure() {
 
     if (b != 1 || c != "1" || a.a != 2 || a.b != "2") {
         panic error("Reference list binding pattern error with record destructure");
+    }
+}
+
+public function testReferenceListBindingPatternForUndefinedSizeWithDifferentType() {
+    Foo[] fooArray = [{a : 1, b : "1"}, {a: 2, b : "2"}];
+
+    Bar[] a;
+
+    [...a] = fooArray;
+
+    if (a[0].a != 1  || a[1].a != 2 ) {
+        panic error("Reference list binding pattern error with undefined size and different type failed");
+    }
+}
+
+public function testReferenceListBindingPatternWithTuples() {
+    [int, int][3] tupleArray = [[1, 1], [2, 2], [3, 3]];
+
+    [int, int] a;
+    [int, int] b;
+    int c;
+    int d;
+
+    [a, b, [c, d]] = tupleArray;
+
+    if (a[0] != 1  || a[1] != 1 || b[0] != 2 || b[1] != 2 || c != 3 || d != 3) {
+        panic error("Reference list binding pattern error with tuples nested");
     }
 }
