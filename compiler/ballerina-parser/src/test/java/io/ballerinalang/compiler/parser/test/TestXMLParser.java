@@ -33,7 +33,7 @@ public class TestXMLParser {
      * @param args
      */
     public static void main(String[] args) {
-        String s = "<Ñfoo></Ñfoo>";
+        String s = "<4ÑfoĦoƸ>heÑllo</4ÑfoĦoƸ>";
 //        String s = "<!-- comment -->";
         XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
         xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);

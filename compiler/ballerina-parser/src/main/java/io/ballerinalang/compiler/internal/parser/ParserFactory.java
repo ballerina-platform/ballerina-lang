@@ -83,4 +83,10 @@ public class ParserFactory {
     private static BallerinaLexer getLexer(TextDocument textDocument) {
         return new BallerinaLexer(textDocument.getCharacterReader());
     }
+
+    public static BallerinaBacktickTemplateParser getStringTemplateParser(String text) {
+        TextDocument textDocument = TextDocuments.from(text);
+        AbstractTokenReader tokenReader = new TokenReader(getLexer(textDocument));
+        return new BallerinaBacktickTemplateParser(tokenReader);
+    }
 }

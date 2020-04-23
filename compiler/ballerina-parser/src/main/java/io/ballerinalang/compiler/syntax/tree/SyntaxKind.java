@@ -64,7 +64,8 @@ public enum SyntaxKind {
     NULL_KEYWORD(215, "null"),
     LOCK_KEYWORD(216, "lock"),
     VAR_KEYWORD(217, "var"),
-    XML_KEYWORD(216, "xml"),
+    XML_KEYWORD(218, "xml"),
+    STRING_KEYWORD(219, "string"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -216,7 +217,8 @@ public enum SyntaxKind {
     NAMED_WORKER_DECLARATOR(3029),
     EXPRESSION_FUNCTION_BODY(3030),
     DOCUMENTATION_STRING(3031),
-    
+    BACKTICK_STRING(3032),
+
     // XML
     XML_ELEMENT(4000),
     XML_TEXT(4001),

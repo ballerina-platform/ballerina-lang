@@ -24,7 +24,6 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.prefs.BackingStoreException;
 
 /**
  * A LL(k) lexer for ballerina.
@@ -209,7 +208,8 @@ public class BallerinaLexer {
                 token = getSyntaxToken(SyntaxKind.NEGATION_TOKEN);
                 break;
             case LexerTerminals.BACKTICK:
-                token = getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+                // token = getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+                token = processBacktickString();
                 break;
 
             // Numbers
@@ -285,7 +285,7 @@ public class BallerinaLexer {
             // Other
             default:
                 // Process invalid token as trivia, and continue to next token
-                System.out.println(String.valueOf((char)c));
+                System.out.println(String.valueOf((char) c));
                 processInvalidToken();
                 token = readToken();
                 break;
@@ -1031,6 +1031,103 @@ public class BallerinaLexer {
         return STNodeFactory.createDocumentationLineToken(lexeme, leadingTrivia, trailingTrivia);
     }
 
+    private STToken processBacktickString() {
+        int nextToken;
+        while (!reader.isEOF()) {
+            nextToken = peek();
+            switch (nextToken) {
+                case LexerTerminals.BACKTICK:
+                    reader.advance();
+                    break;
+                case LexerTerminals.DOLLAR:
+                    if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                        reader.advance(2);
+                        processInterpolation();
+                        continue;
+                    }
+                    // fall through
+                default:
+                    reader.advance();
+                    nextToken = peek();
+                    continue;
+            }
+            break;
+        }
+
+        return getLiteral(SyntaxKind.BACKTICK_STRING);
+    }
+
+    private void processInterpolation() {
+        int nextToken;
+        while (!reader.isEOF()) {
+            nextToken = peek();
+            switch (nextToken) {
+                case LexerTerminals.DOUBLE_QUOTE:
+                    reader.advance();
+                    processQuotedStringInInterpolation();
+                    continue;
+                case LexerTerminals.OPEN_BRACE:
+                    reader.advance();
+                    processBracedExprInInterpolation();
+                    continue;
+                case LexerTerminals.CLOSE_BRACE:
+                    reader.advance();
+                    return;
+                default:
+                    reader.advance();
+                    nextToken = peek();
+                    continue;
+            }
+        }
+    }
+
+    private void processBracedExprInInterpolation() {
+        int nextToken;
+        while (!reader.isEOF()) {
+            nextToken = peek();
+            switch (nextToken) {
+                case LexerTerminals.DOUBLE_QUOTE:
+                    reader.advance();
+                    processQuotedStringInInterpolation();
+                    continue;
+                case LexerTerminals.OPEN_BRACE:
+                    reader.advance();
+                    processBracedExprInInterpolation();
+                    continue;
+                case LexerTerminals.CLOSE_BRACE:
+                    reader.advance();
+                    return;
+                default:
+                    reader.advance();
+                    nextToken = peek();
+                    continue;
+            }
+        }
+    }
+
+    private void processQuotedStringInInterpolation() {
+        int nextToken;
+        while (!reader.isEOF()) {
+            nextToken = peek();
+            switch (nextToken) {
+                case LexerTerminals.DOUBLE_QUOTE:
+                    reader.advance();
+                    return;
+                case LexerTerminals.BACKSLASH:
+                    if (reader.peek(1) == LexerTerminals.DOUBLE_QUOTE) {
+                        reader.advance(2);
+                    } else {
+                        reader.advance();
+                    }
+                    continue;
+                default:
+                    reader.advance();
+                    continue;
+            }
+        }
+
+    }
+
     /*
      * ------------------------------------------------------------------------------------------------------------
      * XML_CONTENT Mode
@@ -1044,11 +1141,12 @@ public class BallerinaLexer {
         }
 
         int nextChar = reader.peek();
-        reader.advance();
         switch (nextChar) {
             case LexerTerminals.BACKTICK:
+                reader.advance();
                 return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
             case LexerTerminals.LT:
+                reader.advance();
                 nextChar = reader.peek();
                 switch (nextChar) {
                     case LexerTerminals.EXCLAMATION_MARK:
@@ -1060,6 +1158,7 @@ public class BallerinaLexer {
                     case LexerTerminals.SLASH:
                         // this is the end token.
                     default:
+                        switchMode(ParserMode.XML_ELEMENT);
                         return getSyntaxToken(SyntaxKind.LT_TOKEN);
                 }
             case LexerTerminals.DOLLAR:
@@ -1076,7 +1175,7 @@ public class BallerinaLexer {
         }
 
         // Everything else treat as charData
-        return getXMLCharacterData();
+        return readXMLTextToken();
     }
 
     /*
@@ -1101,6 +1200,7 @@ public class BallerinaLexer {
                 break;
             case LexerTerminals.GT:
                 token = getSyntaxToken(SyntaxKind.GT_TOKEN);
+                switchMode(ParserMode.XML_CONTENT);
                 break;
             case LexerTerminals.SLASH:
                 token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
@@ -1115,6 +1215,8 @@ public class BallerinaLexer {
                     break;
                 }
                 // fall through
+            case LexerTerminals.BACKTICK:
+                // TODO:
             default:
                 token = processXMLName(c);
                 break;
@@ -1148,6 +1250,7 @@ public class BallerinaLexer {
      */
 
     private STToken readXMLTextToken() {
+        switchMode(ParserMode.XML_TEXT);
         reader.mark();
         if (reader.isEOF()) {
             return getSyntaxToken(SyntaxKind.EOF_TOKEN);
@@ -1156,10 +1259,6 @@ public class BallerinaLexer {
         int nextChar = reader.peek();
         STToken token;
         switch (nextChar) {
-            case LexerTerminals.LT:
-                reader.advance();
-                token = getSyntaxToken(SyntaxKind.LT_TOKEN);
-                break;
             case LexerTerminals.DOLLAR:
                 if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
                     reader.advance(2);
@@ -1168,7 +1267,6 @@ public class BallerinaLexer {
                 }
                 // fall through
             default:
-                reader.advance();
                 token = getXMLCharacterData();
                 break;
         }
@@ -1177,37 +1275,33 @@ public class BallerinaLexer {
     }
 
     private STToken getXMLCharacterData() {
-        boolean done = false;
-        int nextChar = this.reader.peek();
         while (!reader.isEOF()) {
+            int nextChar = this.reader.peek();
             switch (nextChar) {
                 case LexerTerminals.BACKTICK:
+                    switchMode(ParserMode.XML_CONTENT);
+                    break;
                 case LexerTerminals.LT:
-                    done = true;
+                    switchMode(ParserMode.XML_ELEMENT);
                     break;
                 case LexerTerminals.DOLLAR:
                     if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
-                        done = true;
                         break;
                     }
                     reader.advance();
-                    break;
+                    continue;
                 case LexerTerminals.BITWISE_AND:
-                    // The ampersand character is not allowed in Report error, but continue.
+                    // The ampersand character is not allowed in text. Report error, but continue.
                     reportLexerError("invalid token in xml text: " + nextChar);
                     reader.advance();
-                    break;
+                    continue;
                 default:
-                    // TODO: ]]> should also terminate the charData
+                    // TODO: ']]>' should also terminate charData?
                     reader.advance();
-                    break;
+                    continue;
             }
 
-            if (done) {
-                break;
-            }
-            nextChar = this.reader.peek();
-            continue;
+            break;
         }
 
         return getLiteral(SyntaxKind.XML_TEXT);
