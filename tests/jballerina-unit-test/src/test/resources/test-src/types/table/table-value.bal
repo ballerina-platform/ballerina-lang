@@ -179,6 +179,43 @@ function testMemberAccessWithInvalidMultiKey() {
     Customer customer = customerTable[18, "Mohan"];
 }
 
+function runTableTestcasesWithVarType() {
+    testSimpleTableInitializationWithVarType();
+    testTableWithKeySpecifier();
+    testTableWithMultiKeySpecifier();
+}
+
+function testSimpleTableInitializationWithVarType() {
+    var customerTable = table [{ id: 13 , name: "Sanjiva", lname: {name: "Weerawarana"}, address: xml `<city>COL</city>` },
+                                        { id: 23 , name: "James" , lname: {name:"Clark"} , address: xml `<city>BNK</city>`}];
+
+    assertEquality(2, customerTable.length());
+}
+
+function testTableWithKeySpecifier() {
+    var customerTable = table key(id) [{ id: 13 , name: "Sanjiva", lname: {name: "Weerawarana"}, address: xml `<city>COL</city>` },
+                                        { id: 23 , name: "James" , lname: {name:"Clark"} , address: xml `<city>BNK</city>`}];
+
+    assertEquality(2, customerTable.length());
+    assertEquality("Sanjiva", customerTable[13]["name"]);
+}
+
+function testTableWithMultiKeySpecifier() {
+    var customerTable = table key(id, name) [{ id: 13 , name: "Sanjiva", lname: {name: "Weerawarana"}, address: xml `<city>COL</city>` },
+                                        { id: 23 , name: "James" , lname: {name:"Clark"} , address: xml `<city>BNK</city>`}];
+
+    assertEquality(2, customerTable.length());
+    var lname = customerTable[13, "Sanjiva"]["lname"];
+    assertEquality("Weerawarana", lname["name"]);
+}
+
+function testVarTypeTableInvalidMemberAccess() {
+    var customerTable = table key(id, name) [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
+                                        { id: 23 , name: "James" , lname: "Clark" }];
+
+    Customer customer = customerTable[18, "Mohan"];
+}
+
 type AssertionError error<ASSERTION_ERROR_REASON>;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

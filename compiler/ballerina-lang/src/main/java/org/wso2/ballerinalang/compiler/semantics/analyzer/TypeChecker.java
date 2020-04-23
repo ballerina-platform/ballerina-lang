@@ -711,7 +711,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
 
-            resultType = new BTableType(TypeTags.TABLE, memTypes.get(0), null);
+            BTableType tableType = new BTableType(TypeTags.TABLE, memTypes.get(0), null);
+            if (tableConstructorExpr.tableKeySpecifier != null) {
+                tableType.fieldNameList = getTableKeyNameList(tableConstructorExpr.tableKeySpecifier);
+            }
+            resultType = tableType;
         } else if (expType.tag == TypeTags.TABLE) {
             for (BLangRecordLiteral recordLiteral : tableConstructorExpr.recordLiteralList) {
                 BType recordType = checkExpr(recordLiteral, env, ((BTableType) expType).constraint);
