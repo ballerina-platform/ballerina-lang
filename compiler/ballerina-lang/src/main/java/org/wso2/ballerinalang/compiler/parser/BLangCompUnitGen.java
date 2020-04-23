@@ -34,6 +34,7 @@ import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
+import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
@@ -67,6 +68,7 @@ import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -178,6 +180,14 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
 
         compilationUnit.pos = emptyPos;
         return NodeTransformerOut.of(compilationUnit);
+    }
+
+    @Override
+    public NodeTransformerOut transform(ModuleVariableDeclarationNode modVarDeclrNode) {
+        NodeTransformerOut varOut = createSimpleVar(modVarDeclrNode.variableName().text(),
+                                                    modVarDeclrNode.typeName(), modVarDeclrNode.initializer(),
+                                                    modVarDeclrNode.finalKeyword().isPresent(), false);
+        return NodeTransformerOut.of(varOut.node, varOut.others);
     }
 
     @Override
@@ -367,34 +377,13 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
 
     @Override
     public NodeTransformerOut transform(VariableDeclarationNode varDeclaration) {
-        BLangSimpleVariable bLVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         BLangSimpleVariableDef bLVarDef = (BLangSimpleVariableDef) TreeBuilder.createSimpleVariableDefinitionNode();
-        bLVar.pos = emptyPos;
-        bLVar.setName(this.createIdentifier(emptyPos, varDeclaration.variableName().text()));
-        bLVar.name.pos = emptyPos;
-
-        if (varDeclaration.finalKeyword().isPresent()) {
-            markVariableAsFinal(bLVar);
-        }
-
-        List<BLangNode> otherNodes = new ArrayList<>();
-        boolean isDeclaredWithVar = (VAR.equals(varDeclaration.typeName().toString().trim()));
-        if (isDeclaredWithVar) {
-            bLVar.isDeclaredWithVar = true;
-        } else {
-            NodeTransformerOut typeOut = createTypeNode(varDeclaration.typeName());
-            bLVar.setTypeNode((TypeNode) typeOut.node);
-            otherNodes.addAll(typeOut.others);
-        }
-        if (varDeclaration.initializer().isPresent()) {
-            NodeTransformerOut exprOut = createExpression(varDeclaration.initializer().get());
-            otherNodes.addAll(exprOut.others);
-            bLVar.setInitialExpression((BLangExpression) exprOut.node);
-        }
-
+        NodeTransformerOut varOut = createSimpleVar(varDeclaration.variableName().text(), varDeclaration.typeName(),
+                                                    varDeclaration.initializer().orElse(null),
+                                                    varDeclaration.finalKeyword().isPresent(), false);
         bLVarDef.pos = emptyPos;
-        bLVarDef.setVariable(bLVar);
-        return NodeTransformerOut.of(bLVarDef, otherNodes);
+        bLVarDef.setVariable((VariableNode) varOut.node);
+        return NodeTransformerOut.of(bLVarDef, varOut.others);
     }
 
     @Override
@@ -612,11 +601,38 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
     }
 
     private NodeTransformerOut createSimpleVar(String name, Node type) {
+        return createSimpleVar(name, type, null, false, false);
+    }
+
+    private NodeTransformerOut createSimpleVar(String name, Node typeName, Node initializer, boolean isFinal,
+                                               boolean isListenerVar) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(emptyPos, name));
-        NodeTransformerOut typeOut = createTypeNode(type);
-        bLSimpleVar.setTypeNode((BLangType) typeOut.node);
-        return NodeTransformerOut.of(bLSimpleVar, typeOut.others);
+        bLSimpleVar.name.pos = emptyPos;
+        bLSimpleVar.pos = emptyPos;
+        List<BLangNode> otherNodes = new ArrayList<>();
+        boolean isDeclaredWithVar = (VAR.equals(typeName.toString().trim()));
+        if (isDeclaredWithVar) {
+            bLSimpleVar.isDeclaredWithVar = true;
+        } else {
+            NodeTransformerOut typeOut = createTypeNode(typeName);
+            bLSimpleVar.setTypeNode((TypeNode) typeOut.node);
+            otherNodes.addAll(typeOut.others);
+        }
+
+        if (isFinal) {
+            markVariableAsFinal(bLSimpleVar);
+        }
+        if (initializer != null) {
+            NodeTransformerOut exprOut = createExpression(initializer);
+            otherNodes.addAll(exprOut.others);
+            bLSimpleVar.setInitialExpression((BLangExpression) exprOut.node);
+        }
+        if (isListenerVar) {
+            bLSimpleVar.flagSet.add(Flag.LISTENER);
+            bLSimpleVar.flagSet.add(Flag.FINAL);
+        }
+        return NodeTransformerOut.of(bLSimpleVar, otherNodes);
     }
 
     private BLangIdentifier createIdentifier(DiagnosticPos pos, String value) {
