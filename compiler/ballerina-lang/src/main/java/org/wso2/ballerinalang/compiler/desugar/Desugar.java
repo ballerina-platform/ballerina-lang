@@ -1185,25 +1185,25 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariable varNode) {
         //  case 1:
-        //  (string, int) (a, b) = (tuple)
+        //  [string, int] (a, b) = (tuple)
         //
         //  any[] x = (tuple);
         //  string a = x[0];
         //  int b = x[1];
         //
         //  case 2:
-        //  ((string, float) int)) ((a, b), c)) = (tuple)
+        //  [[string, float], int] [[a, b], c] = (tuple)
         //
         //  any[] x = (tuple);
         //  string a = x[0][0];
         //  float b = x[0][1];
         //  int c = x[1];
 
-        //create tuple destruct block stmt
+        // Create tuple destruct block stmt
         final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
 
-        //create a simple var for the array 'any[] x = (tuple)' based on the dimension for x
-        String name = "tuple";
+        // Create a simple var for the array 'any[] x = (tuple)' based on the dimension for x
+        String name = "$tuple$";
         final BLangSimpleVariable tuple =
                 ASTBuilderUtil.createVariable(varNode.pos, name, symTable.arrayAllType, null,
                                               new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
@@ -1212,11 +1212,11 @@ public class Desugar extends BLangNodeVisitor {
         final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varNode.pos, blockStmt);
         variableDef.var = tuple;
 
-        //create the variable definition statements using the root block stmt created
+        // Create the variable definition statements using the root block stmt created
         createVarDefStmts(varNode, blockStmt, tuple.symbol, null);
         createRestFieldVarDefStmts(varNode, blockStmt, tuple.symbol);
 
-        //finally rewrite the populated block statement
+        // Finally rewrite the populated block statement
         result = rewrite(blockStmt, env);
     }
 
