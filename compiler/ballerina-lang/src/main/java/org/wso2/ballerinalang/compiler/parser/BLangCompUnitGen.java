@@ -22,6 +22,7 @@ import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
@@ -73,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
@@ -319,13 +321,27 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
 
         // Set the function body
         NodeTransformerOut funcBodyOut = funcDefNode.functionBody().apply(this);
-        BLangBlockStmt bLangBlockStmt = (BLangBlockStmt) funcBodyOut.node;
-        BLangBlockFunctionBody bLFuncBody = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
-        bLFuncBody.stmts = bLangBlockStmt.stmts;
-        bLFunction.body = bLFuncBody;
+        bLFunction.body = (BLangFunctionBody) funcBodyOut.node;
 
         funcBodyOut.others.addAll(funcSignatureOut.others);
         return NodeTransformerOut.of(bLFunction, funcBodyOut.others);
+    }
+
+    @Override
+    public NodeTransformerOut transform(FunctionBodyBlockNode functionBodyBlockNode) {
+        BLangBlockFunctionBody bLFuncBody = (BLangBlockFunctionBody) TreeBuilder.createBlockFunctionBodyNode();
+        List<BLangStatement> statements = new ArrayList<>();
+        List<BLangNode> otherNodes = new ArrayList<>();
+        for (StatementNode statement : functionBodyBlockNode.statements()) {
+            // TODO: Remove this check once statements are non null guaranteed
+            if (statement != null) {
+                NodeTransformerOut stmtOut = statement.apply(this);
+                otherNodes.addAll(stmtOut.others);
+                statements.add((BLangStatement) stmtOut.node);
+            }
+        }
+        bLFuncBody.stmts = statements;
+        return NodeTransformerOut.of(bLFuncBody, otherNodes);
     }
 
     // -----------------------------------------------Statements--------------------------------------------------------
