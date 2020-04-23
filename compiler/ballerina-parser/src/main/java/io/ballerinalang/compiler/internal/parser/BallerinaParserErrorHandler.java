@@ -1332,8 +1332,6 @@ public class BallerinaParserErrorHandler {
             nextContext = ParserRuleContext.TOP_LEVEL_NODE;
         } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
             nextContext = ParserRuleContext.CLOSE_BRACKET;
-        } else if (parentCtx == ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR) {
-            nextContext = ParserRuleContext.GT;
         } else {
             throw new IllegalStateException();
         }
@@ -2326,8 +2324,6 @@ public class BallerinaParserErrorHandler {
             return ParserRuleContext.OBJECT_FIELD_RHS;
         } else if (parentCtx == ParserRuleContext.ARRAY_TYPE_DESCRIPTOR) {
             return ParserRuleContext.CLOSE_BRACKET;
-        } else if (parentCtx == ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR) {
-            return ParserRuleContext.GT;
         } else {
             throw new IllegalStateException();
         }
