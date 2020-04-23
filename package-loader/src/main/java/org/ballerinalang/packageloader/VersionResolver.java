@@ -1,4 +1,4 @@
-package org.wso2.ballerinalang.compiler.packageloader;
+package org.ballerinalang.packageloader;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.toml.model.Dependency;
@@ -7,8 +7,6 @@ import org.ballerinalang.toml.model.LockFileImport;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.LockFileProcessor;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.nio.file.Path;
@@ -86,7 +84,7 @@ public class VersionResolver {
     /**
      * Check if lock file is empty.
      *
-     * @param sourceRoot The sourceroot of the project.
+     * @param sourceRoot The source root of the project.
      * @return True if lock file is valid, else false.
      */
     private boolean hasLockFile(Path sourceRoot) {
