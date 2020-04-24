@@ -35,6 +35,9 @@ configurations {
     observeTestUtils {
         transitive false
     }
+    launchListenerTestUtils {
+        transitive false
+    }
 }
 
 dependencies {
@@ -137,6 +140,11 @@ dependencies {
     jballerinaTools project(path: ':jballerina-tools', configuration: 'zip')
     observeTestUtils project(path: ':observability-test-utils', configuration: 'shadow')
 
+    launchListenerTestUtils project(':test-launch-listener-01')
+    launchListenerTestUtils project(':test-launch-listener-02')
+    launchListenerTestUtils project(':test-launch-listener-03')
+    launchListenerTestUtils project(':test-launch-listener-04')
+
     testLibs 'org.hsqldb:hsqldb:2.4.1'
 }
 
@@ -181,3 +189,10 @@ task copyToLib(type: Copy) {
 }
 
 test.dependsOn(copyToLib)
+
+task createLaunchListenerUtilsLib(type: Copy) {
+    from configurations.launchListenerTestUtils
+    into "${buildDir}/launch-listener/libs"
+}
+
+test.dependsOn(createLaunchListenerUtilsLib)
