@@ -194,7 +194,7 @@ public class BallerinaParserErrorHandler {
                     ParserRuleContext.ACCESS_EXPRESSION, ParserRuleContext.TYPEOF_EXPRESSION,
                     ParserRuleContext.UNARY_EXPRESSION, ParserRuleContext.TYPE_TEST_EXPRESSION,
                     ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS,
-                    ParserRuleContext.TRAP_EXPRESSION };
+                    ParserRuleContext.TRAP_EXPRESSION, ParserRuleContext.LIST_CONSTRUCTOR };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -256,6 +256,9 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] CONSTANT_EXPRESSION =
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF };
+
+    private static final ParserRuleContext[] LIST_CONSTRUCTOR_RHS =
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.LISTENERS_LIST };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -1056,6 +1059,9 @@ public class BallerinaParserErrorHandler {
                 case TRAP_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.TRAP_KEYWORD;
                     break;
+                case LIST_CONSTRUCTOR_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, LIST_CONSTRUCTOR_RHS,
+                            isEntryPoint);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1114,6 +1120,7 @@ public class BallerinaParserErrorHandler {
                 case NAMED_WORKERS:
                 case NAMED_WORKER_DECL:
                 case TRAP_EXPRESSION:
+                case LIST_CONSTRUCTOR:
 
                     // start a context, so that we know where to fall back, and continue
                     // having the qualified-identifier as the next rule.
@@ -1542,6 +1549,7 @@ public class BallerinaParserErrorHandler {
             case XML_NAMESPACE_DECLARATION:
             case CONSTANT_EXPRESSION:
             case NAMED_WORKER_DECL:
+            case LIST_CONSTRUCTOR:
                 startContext(currentCtx);
                 break;
             default:
@@ -1966,6 +1974,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.TRAP_KEYWORD;
             case TRAP_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
+            case LIST_CONSTRUCTOR:
+                return ParserRuleContext.OPEN_BRACKET;
 
             case OBJECT_FUNC_OR_FIELD:
             case OBJECT_METHOD_START:
@@ -2013,13 +2023,13 @@ public class BallerinaParserErrorHandler {
             case ANNOT_DECL_OPTIONAL_TYPE:
             case ANNOT_DECL_RHS:
             case ANNOT_OPTIONAL_ATTACH_POINTS:
-
             case ATTACH_POINT_IDENT:
             case ATTACH_POINT_END:
             case CONSTANT_EXPRESSION_START:
             case DEFAULT_WORKER:
             case DEFAULT_WORKER_INIT:
             case NAMED_WORKERS:
+            case LIST_CONSTRUCTOR_RHS:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -2242,6 +2252,8 @@ public class BallerinaParserErrorHandler {
                         }
                         throw new IllegalStateException("annotation is ending inside a " + parentCtx);
                 }
+            case LIST_CONSTRUCTOR:
+                return ParserRuleContext.CLOSE_BRACKET;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
@@ -2433,6 +2445,8 @@ public class BallerinaParserErrorHandler {
         switch (parentCtx) {
             case ARRAY_TYPE_DESCRIPTOR:
                 return ParserRuleContext.ARRAY_LENGTH;
+            case LIST_CONSTRUCTOR:
+                return ParserRuleContext.LIST_CONSTRUCTOR_RHS;
             default:
                 return ParserRuleContext.EXPRESSION;
         }
@@ -2456,6 +2470,9 @@ public class BallerinaParserErrorHandler {
                     endContext(); // End array type descriptor context
                     return getNextRuleForTypeDescriptor();
                 }
+            case LIST_CONSTRUCTOR:
+                endContext(); // end list-constructor
+                return ParserRuleContext.EXPRESSION_RHS;
             case COMPUTED_FIELD_NAME:
             default:
                 endContext(); // end computed-field-name
@@ -2933,6 +2950,7 @@ public class BallerinaParserErrorHandler {
             case DEFAULT_WORKER:
             case DEFAULT_WORKER_INIT:
             case TRAP_EXPRESSION:
+            case LIST_CONSTRUCTOR:
             default:
                 break;
         }
