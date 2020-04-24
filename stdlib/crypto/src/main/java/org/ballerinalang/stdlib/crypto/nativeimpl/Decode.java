@@ -153,7 +153,7 @@ public class Decode {
         }
     }
 
-    public static Object generatePublicKey(String modulus, String exponent) {
+    public static Object buildRsaPublicKey(String modulus, String exponent) {
         try {
             byte[] decodedModulus = Base64.decodeBase64(modulus);
             byte[] decodedExponent = Base64.decodeBase64(exponent);
