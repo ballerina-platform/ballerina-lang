@@ -17,14 +17,19 @@
  */
 package org.ballerinalang.debugger.test;
 
-import org.ballerinalang.debugger.test.utils.BallerinaTestBreakPoint;
+import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
+import org.eclipse.lsp4j.debug.ContinueArguments;
+import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.SourceBreakpoint;
+import org.eclipse.lsp4j.debug.StepInArguments;
+import org.eclipse.lsp4j.debug.StepOutArguments;
+import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterSuite;
@@ -35,6 +40,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 
@@ -44,9 +50,10 @@ import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
  */
 public class DebugAdapterBaseTestCase extends BaseTestCase {
 
-    protected static TestDAPClientConnector debugClientConnector;
-    protected static String testProjectPath;
-    protected static String entryFilePath;
+    protected TestDAPClientConnector debugClientConnector;
+    protected String testProjectPath;
+    protected String testEntryFilePath;
+    protected List<BallerinaTestDebugPoint> testBreakpoints = new ArrayList<>();
     protected static int port;
     protected boolean isConnected = false;
     protected static final int MAX_RETRY_COUNT = 3;
@@ -58,10 +65,17 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         super.initialize();
     }
 
-    protected void initDebugSession() throws BallerinaTestException {
+    /**
+     * Initialize test debug session.
+     *
+     * @param executionKind Defines ballerina command type to be used to launch the debuggee.(If set to null, adapter
+     *                      will try to attach to the debuggee, instead of launching)
+     * @throws BallerinaTestException if any exception is occurred during initialization.
+     */
+    protected void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind) throws BallerinaTestException {
         port = findFreePort();
         debugClientConnector = new TestDAPClientConnector(balServer.getServerHome(), testProjectPath,
-                entryFilePath, port);
+                testEntryFilePath, port);
 
         if (debugClientConnector.isConnected()) {
             isConnected = true;
@@ -97,15 +111,127 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
             throw new BallerinaTestException(String.format("Connection to debug server at %s could not be " +
                     "established\n", debugClientConnector.getAddress()));
         }
+
+        setBreakpoints(testBreakpoints);
+
+        if (executionKind != null) {
+            launchDebuggee(executionKind);
+        } else {
+            attachToDebuggee();
+        }
     }
 
-    protected void setBreakpoints(List<BallerinaTestBreakPoint> breakpointList) throws BallerinaTestException {
+    /**
+     * Can be used to add a new test breakpoint on-the-fly.
+     *
+     * @param breakpoint breakpoint to be set
+     * @throws BallerinaTestException if any exception is occurred during action.
+     */
+    protected void addBreakPoint(BallerinaTestDebugPoint breakpoint) throws BallerinaTestException {
+        testBreakpoints.add(breakpoint);
+        List<BallerinaTestDebugPoint> breakpointsToBeSent = testBreakpoints.stream().filter(bp ->
+                bp.getSource() != null && bp.getSource().getPath().equals(breakpoint.getSource().getPath()))
+                .collect(Collectors.toList());
+
+        if (debugClientConnector != null && debugClientConnector.isConnected()) {
+            setBreakpoints(breakpointsToBeSent);
+        }
+    }
+
+    /**
+     * Can be used to remove an already added test breakpoint on-the-fly.
+     *
+     * @param breakpoint breakpoint to be removed.
+     * @throws BallerinaTestException if any exception is occurred during action.
+     */
+    protected void removeBreakPoint(BallerinaTestDebugPoint breakpoint) throws BallerinaTestException {
+        testBreakpoints.remove(breakpoint);
+        List<BallerinaTestDebugPoint> breakpointsToBeSent = testBreakpoints.stream().filter(bp ->
+                bp.getSource() != null && bp.getSource().getPath().equals(breakpoint.getSource().getPath()))
+                .collect(Collectors.toList());
+
+        if (debugClientConnector != null && debugClientConnector.isConnected()) {
+            setBreakpoints(breakpointsToBeSent);
+        }
+    }
+
+    /**
+     * Resumes the execution of the debuggee program.
+     *
+     * @param context program suspended context.
+     * @param kind    debug option to be used to continue the debuggee execution.
+     * @throws BallerinaTestException
+     */
+    protected void resumeProgram(StoppedEventArguments context, DebugResumeKind kind) throws BallerinaTestException {
+
+        if (kind == DebugResumeKind.NEXT_BREAKPOINT) {
+            ContinueArguments continueArgs = new ContinueArguments();
+            continueArgs.setThreadId(context.getThreadId());
+            try {
+                debugClientConnector.getRequestManager().resume(continueArgs);
+            } catch (Exception e) {
+                LOGGER.warn("continue request failed.", e);
+                throw new BallerinaTestException("continue request failed.", e);
+            }
+        } else if (kind == DebugResumeKind.STEP_IN) {
+            StepInArguments stepInArgs = new StepInArguments();
+            stepInArgs.setThreadId(context.getThreadId());
+            try {
+                debugClientConnector.getRequestManager().stepIn(stepInArgs);
+            } catch (Exception e) {
+                LOGGER.warn("Step in request failed", e);
+                throw new BallerinaTestException("Step in request failed", e);
+            }
+        } else if (kind == DebugResumeKind.STEP_OUT) {
+            StepOutArguments stepOutArgs = new StepOutArguments();
+            stepOutArgs.setThreadId(context.getThreadId());
+            try {
+                debugClientConnector.getRequestManager().stepOut(stepOutArgs);
+            } catch (Exception e) {
+                LOGGER.warn("Step out request failed", e);
+                throw new BallerinaTestException("Step out request failed", e);
+            }
+        } else if (kind == DebugResumeKind.STEP_OVER) {
+            NextArguments nextArgs = new NextArguments();
+            nextArgs.setThreadId(context.getThreadId());
+            try {
+                debugClientConnector.getRequestManager().next(nextArgs);
+            } catch (Exception e) {
+                LOGGER.warn("Step over request failed", e);
+                throw new BallerinaTestException("Step over request failed", e);
+            }
+        }
+    }
+
+    private void attachToDebuggee() throws BallerinaTestException {
+        try {
+            // Sends "configuration done" notification to the debug server.
+            debugClientConnector.getRequestManager().configurationDone(new ConfigurationDoneArguments());
+        } catch (Exception e) {
+            LOGGER.error("ConfigurationDone request failed.", e);
+            throw new BallerinaTestException("ConfigurationDone request failed.", e);
+        }
+        debugClientConnector.attachToServer();
+    }
+
+    private void launchDebuggee(DebugUtils.DebuggeeExecutionKind launchKind) throws BallerinaTestException {
+        try {
+            // Sends "configuration done" notification to the debug server.
+            debugClientConnector.getRequestManager().configurationDone(new ConfigurationDoneArguments());
+        } catch (Exception e) {
+            LOGGER.error("ConfigurationDone request failed.", e);
+            throw new BallerinaTestException("ConfigurationDone request failed.", e);
+        }
+        debugClientConnector.launchServer(launchKind);
+    }
+
+    private void setBreakpoints(List<BallerinaTestDebugPoint> breakPoints) throws BallerinaTestException {
 
         if (!isConnected) {
             return;
         }
         Map<Source, List<SourceBreakpoint>> sourceBreakpoints = new HashMap<>();
-        for (BallerinaTestBreakPoint bp : breakpointList) {
+        for (BallerinaTestDebugPoint bp : breakPoints) {
             sourceBreakpoints.computeIfAbsent(bp.getSource(), k -> new ArrayList<>());
             sourceBreakpoints.get(bp.getSource()).add(bp.getDAPBreakPoint());
         }
@@ -122,22 +248,13 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
                 throw new BallerinaTestException("Breakpoints request failed.", e);
             }
         }
-
-        try {
-            // Sends "configuration done" notification to the debug server.
-            debugClientConnector.getRequestManager().configurationDone(new ConfigurationDoneArguments());
-        } catch (Exception e) {
-            LOGGER.error("ConfigurationDone request failed.", e);
-            throw new BallerinaTestException("ConfigurationDone request failed.", e);
-        }
     }
 
-    protected void attachToDebuggee() throws BallerinaTestException {
-        debugClientConnector.attachToServer();
-    }
-
-    protected void launchDebuggee(DebugUtils.DebuggeeExecutionKind launchKind) throws BallerinaTestException {
-        debugClientConnector.launchServer(launchKind);
+    public enum DebugResumeKind {
+        NEXT_BREAKPOINT,
+        STEP_IN,
+        STEP_OUT,
+        STEP_OVER
     }
 
     @AfterSuite(alwaysRun = true)

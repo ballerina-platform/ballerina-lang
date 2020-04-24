@@ -17,19 +17,20 @@
  */
 package org.ballerinalang.debugger.test.adapter;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
-import org.ballerinalang.debugger.test.utils.BallerinaTestBreakPoint;
+import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
-import org.ballerinalang.debugger.test.utils.TestBreakPointListener;
+import org.ballerinalang.debugger.test.utils.DeubgHitListener;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Timer;
 
 /**
@@ -44,42 +45,40 @@ public class ModuleBreakpointTest extends DebugAdapterBaseTestCase {
         testModuleFileName = "mainBal" + File.separator + "main.bal";
         testSingleFileName = "hello_world.bal";
         testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
-        entryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
+        testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
     @Test
     public void testSingleModuleBreakPoint() throws BallerinaTestException {
 
-        initDebugSession();
-        List<BallerinaTestBreakPoint> breakPoints = new ArrayList<>();
-        breakPoints.add(new BallerinaTestBreakPoint(entryFilePath, 26));
-        breakPoints.add(new BallerinaTestBreakPoint(entryFilePath, 31));
-        breakPoints.add(new BallerinaTestBreakPoint(entryFilePath, 37));
-        setBreakpoints(breakPoints);
-        launchDebuggee(DebugUtils.DebuggeeExecutionKind.RUN);
-        List<BallerinaTestBreakPoint> capturedBreakpoints = waitForDebugHit(20000);
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 25));
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 26));
+        initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
-        Assert.assertEquals(capturedBreakpoints.size(), breakPoints.size());
-        for (int i = 0; i < capturedBreakpoints.size(); i++) {
-            Assert.assertEquals(capturedBreakpoints.get(i).getDAPBreakPoint().getLine(),
-                    breakPoints.get(i).getDAPBreakPoint().getLine());
-            Assert.assertEquals(capturedBreakpoints.get(i).getSource().getPath(),
-                    breakPoints.get(i).getSource().getPath());
-            Assert.assertEquals(capturedBreakpoints.get(i).getSource().getName(),
-                    breakPoints.get(i).getSource().getName());
-        }
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(0));
+
+        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo2 = waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo2.getLeft(), testBreakpoints.get(1));
+
     }
 
-    private List<BallerinaTestBreakPoint> waitForDebugHit(long timeoutMillis) {
-        TestBreakPointListener bpListener = new TestBreakPointListener(debugClientConnector);
+    private Pair<BallerinaTestDebugPoint, StoppedEventArguments> waitForDebugHit(long timeoutMillis)
+            throws BallerinaTestException {
+        DeubgHitListener listener = new DeubgHitListener(debugClientConnector);
         Timer timer = new Timer(true);
-        timer.scheduleAtFixedRate(bpListener, 0, 1000);
+        timer.scheduleAtFixedRate(listener, 0, 1000);
         try {
             Thread.sleep(timeoutMillis);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         timer.cancel();
-        return bpListener.getCapturedBreakpoints();
+
+        if (!listener.isDebugHitFound()) {
+            throw new BallerinaTestException("Timeout expired waiting for the debug hit");
+        }
+        return new ImmutablePair<>(listener.getDebugHitpoint(), listener.getDebugHitContext());
     }
 }

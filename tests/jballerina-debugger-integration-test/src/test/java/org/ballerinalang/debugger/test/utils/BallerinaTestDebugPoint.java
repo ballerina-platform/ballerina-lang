@@ -23,13 +23,13 @@ import org.eclipse.lsp4j.debug.SourceBreakpoint;
 import java.io.File;
 
 /**
- * Ballerina breakpoint representation used for integration test scenarios.
+ * Ballerina debug point (breakpoint/debug hit point) representation used for integration test scenarios.
  */
-public class BallerinaTestBreakPoint {
+public class BallerinaTestDebugPoint {
     String filePath;
     long line;
 
-    public BallerinaTestBreakPoint(String filePath, long line) {
+    public BallerinaTestDebugPoint(String filePath, long line) {
         this.filePath = filePath;
         this.line = line;
     }
@@ -48,5 +48,27 @@ public class BallerinaTestBreakPoint {
         breakpoint.setLine(line);
         breakpoint.setColumn(0L);
         return breakpoint;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        BallerinaTestDebugPoint info = (BallerinaTestDebugPoint) o;
+        return filePath.equals(info.filePath) && line == info.line;
+    }
+
+    @Override
+    public int hashCode() {
+        return 7 * (int) line + filePath.hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "Ballerina test breakpoint at line: " + line + " in " + filePath;
     }
 }
