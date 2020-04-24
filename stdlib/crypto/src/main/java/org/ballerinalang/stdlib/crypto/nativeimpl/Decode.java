@@ -167,7 +167,7 @@ public class Decode {
             publicKeyMap.put(Constants.PUBLIC_KEY_RECORD_ALGORITHM_FIELD, publicKey.getAlgorithm());
             return publicKeyMap;
         } catch (InvalidKeySpecException e) {
-            throw CryptoUtils.createError("Invalid modulus or exponent: " + e.getMessage());
+            return CryptoUtils.createError("Invalid modulus or exponent: " + e.getMessage());
         } catch (NoSuchAlgorithmException e) {
             throw CryptoUtils.createError("Algorithm of the key factory is not found: " + e.getMessage());
         }
