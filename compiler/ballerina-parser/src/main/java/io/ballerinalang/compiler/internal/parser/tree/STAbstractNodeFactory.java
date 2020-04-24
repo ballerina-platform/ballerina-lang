@@ -70,6 +70,10 @@ public abstract class STAbstractNodeFactory {
         return new SyntaxTrivia(kind, text);
     }
 
+    public static STNode createSyntaxTrivia(SyntaxKind kind, String text, int width) {
+        return new SyntaxTrivia(kind, text, width);
+    }
+
     public static STToken createDocumentationLineToken(String text, STNode leadingTrivia, STNode trailingTrivia) {
         return new STDocumentationLineToken(text, leadingTrivia, trailingTrivia);
     }

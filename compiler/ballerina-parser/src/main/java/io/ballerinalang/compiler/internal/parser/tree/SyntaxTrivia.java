@@ -27,14 +27,16 @@ public class SyntaxTrivia extends STNode {
     public final String text;
 
     public SyntaxTrivia(SyntaxKind kind, String text) {
+        this(kind, text, text.length());
+    }
+
+    public SyntaxTrivia(SyntaxKind kind, String text, int width) {
         super(kind);
         this.text = text;
-
-        int textLength = text.length();
-        this.width = textLength;
-        this.widthWithLeadingMinutiae = textLength;
-        this.widthWithTrailingMinutiae = textLength;
-        this.widthWithMinutiae = textLength;
+        this.width = width;
+        this.widthWithLeadingMinutiae = width;
+        this.widthWithTrailingMinutiae = width;
+        this.widthWithMinutiae = width;
     }
 
     @Override
