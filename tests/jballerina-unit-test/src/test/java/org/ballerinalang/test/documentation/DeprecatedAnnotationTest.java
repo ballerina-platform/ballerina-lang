@@ -19,8 +19,10 @@
 package org.ballerinalang.test.documentation;
 
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
+import org.ballerinalang.docgen.generator.model.Annotation;
 import org.ballerinalang.docgen.generator.model.Constant;
 import org.ballerinalang.docgen.generator.model.Construct;
+import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.Error;
 import org.ballerinalang.docgen.generator.model.FiniteType;
 import org.ballerinalang.docgen.generator.model.Function;
@@ -29,6 +31,7 @@ import org.ballerinalang.docgen.generator.model.Object;
 import org.ballerinalang.docgen.generator.model.Project;
 import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.UnionType;
+import org.ballerinalang.docgen.generator.model.Variable;
 import org.ballerinalang.docgen.model.ModuleDoc;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -197,6 +200,25 @@ public class DeprecatedAnnotationTest {
         testNonDeprecated(nonDeprecatedUSA);
     }
 
+    @Test(description = "Test @deprecated annotation for module-level annotation declaration")
+    public void testDeprecatedAnnotationDef() {
+        List<Annotation> annotations = testModule.annotations;
+        Annotation deprecatedAnnotation = null;
+        Annotation nonDeprecatedAnnotation = null;
+
+        for (Annotation annotation : annotations) {
+            String annotationName = annotation.name;
+            if ("Bye".equals(annotationName)) {
+                deprecatedAnnotation = annotation;
+            } else if ("Greeting".equals(annotationName)) {
+                nonDeprecatedAnnotation = annotation;
+            }
+        }
+
+        testDeprecated(deprecatedAnnotation);
+        testNonDeprecated(nonDeprecatedAnnotation);
+    }
+
     @Test(description = "Test @deprecated annotation for module-level function definition")
     public void testDeprecatedFunctionDef() {
         List<Function> functions = testModule.functions;
@@ -214,6 +236,33 @@ public class DeprecatedAnnotationTest {
 
         testDeprecated(deprecatedFunc);
         testNonDeprecated(nonDeprecatedFunc);
+    }
+
+    @Test(description = "Test @deprecated annotation for required and defaultable params")
+    public void testFunctionParams() {
+        List<Function> functions = testModule.functions;
+        Function getFullNameFunc = null;
+
+        for (Function function : functions) {
+            if ("getFullName".equals(function.name)) {
+                getFullNameFunc = function;
+            }
+        }
+
+        // test function parameters
+        Assert.assertNotNull(getFullNameFunc);
+        for (Variable param : getFullNameFunc.parameters) {
+            String paramName = param.name;
+            if ("title".equals(paramName)) {
+                testNonDeprecated(param);
+            } else if ("fName".equals(paramName)) {
+                testDeprecated(param);
+            } else if ("mName".equals(paramName)) {
+                testNonDeprecated(param);
+            } else if ("lName".equals(paramName)) {
+                testDeprecated(param);
+            }
+        }
     }
 
     @Test(description = "Test @deprecated annotation for object member method")
@@ -250,6 +299,29 @@ public class DeprecatedAnnotationTest {
                 testDeprecated(method);
             } else if ("getAge".equals(methodName)) {
                 testNonDeprecated(method);
+            }
+        }
+    }
+
+    @Test(description = "Test @deprecated annotation for object member field")
+    public void testDeprecatedObjectMemberField() {
+        List<Object> objects = testModule.objects;
+        Object playerObj = null;
+
+        for (Object obj : objects) {
+            String objName = obj.name;
+            if ("Player".equals(objName)) {
+                playerObj = obj;
+            }
+        }
+
+        Assert.assertNotNull(playerObj);
+        for (DefaultableVariable field : playerObj.fields) {
+            String fieldName = field.name;
+            if ("name".equals(fieldName)) {
+                testDeprecated(field);
+            } else if ("age".equals(fieldName)) {
+                testNonDeprecated(field);
             }
         }
     }
