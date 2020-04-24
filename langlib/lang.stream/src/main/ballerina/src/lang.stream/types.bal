@@ -30,8 +30,8 @@ public type _StreamFunction abstract object {
     public function reset();
 };
 
-public type _Frame record{|(
-    any|error)...;
+public type _Frame record{|
+    (any|error)...;
 |};
 
 public type _StreamPipeline object {

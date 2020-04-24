@@ -320,18 +320,20 @@ public class QueryDesugar extends BLangNodeVisitor {
 //            addToFrameFunction(lambda, symbol);
 //        }
 
-//        // int x = <int> frame["value"];, note: stmts will get added in reverse order.
-//        BVarSymbol fSymbol = lambda.function.requiredParams.get(0).symbol;
-//        BLangFieldBasedAccess valueAccessExpr = desugar.getValueAccessExpression(fromClause.pos,
-//                fromClause.varType, fSymbol);
-//        valueAccessExpr.expr = desugar.addConversionExprIfRequired(valueAccessExpr.expr,
-//                types.getSafeType(valueAccessExpr.expr.type, true, false));
-//        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
-//        VariableDefinitionNode variableDefinitionNode = fromClause.variableDefinitionNode;
-//        variableDefinitionNode.getVariable().setInitialExpression(
-//                desugar.addConversionExprIfRequired(valueAccessExpr, fromClause.varType));
-//        // add at 0, otherwise, this goes under existing stmts.
-//        body.stmts.add(0, (BLangStatement) variableDefinitionNode);
+        /// ---- ISSUE ----
+        // int x = <int> frame["value"];, note: stmts will get added in reverse order.
+        BVarSymbol fSymbol = lambda.function.requiredParams.get(0).symbol;
+        BLangFieldBasedAccess valueAccessExpr = desugar.getValueAccessExpression(fromClause.pos, symTable.anyOrErrorType, fSymbol);
+        valueAccessExpr.expr = desugar.addConversionExprIfRequired(valueAccessExpr.expr, types.getSafeType(valueAccessExpr.expr.type, true, false));
+        VariableDefinitionNode variableDefinitionNode = fromClause.variableDefinitionNode;
+        BLangVariable variable = (BLangVariable) variableDefinitionNode.getVariable();
+        variable.setInitialExpression(desugar.addConversionExprIfRequired(valueAccessExpr, fromClause.varType));
+
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        // add at 0, otherwise, this goes under existing stmts.
+        body.stmts.add(0, (BLangStatement) variableDefinitionNode);
+
+        /// ---- ISSUE END ----
 
         // at this point;
         // function(_Frame frame) returns _Frame|error? {
@@ -367,26 +369,25 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return variableReference to created let _StreamFunction.
      */
     BLangVariableReference addLetFunction(BLangBlockStmt blockStmt, BLangLetClause letClause) {
-//        DiagnosticPos pos = letClause.pos;
-//        // function(_Frame frame) returns _Frame|error? { return frame; }
-//        BLangLambdaFunction lambda = createPassthroughLambda(pos);
-//
-//        // frame["x"] = x;, note: stmts will get added in reverse order.
-//        List<BVarSymbol> symbols = getIntroducedSymbols(letClause);
-//        Collections.reverse(symbols);
-//        for (BVarSymbol symbol : symbols) {
-//            addToFrameFunction(lambda, symbol);
-//        }
-//
-//        // TODO: have to re-write with Frame access
-//        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
-//        for (BLangLetVariable letVariable  : letClause.letVarDeclarations) {
-//            // add at 0, otherwise, this goes under existing stmts.
-//            body.stmts.add(0, (BLangStatement) letVariable.definitionNode);
-//        }
-//
-//        return getStreamFunctionVariableRef(blockStmt, Names.QUERY_CREATE_LET_FUNCTION, Lists.of(lambda), pos);
-        return null;
+        DiagnosticPos pos = letClause.pos;
+        // function(_Frame frame) returns _Frame|error? { return frame; }
+        BLangLambdaFunction lambda = createPassthroughLambda(pos);
+
+        // frame["x"] = x;, note: stmts will get added in reverse order.
+        List<BVarSymbol> symbols = getIntroducedSymbols(letClause);
+        Collections.reverse(symbols);
+        for (BVarSymbol symbol : symbols) {
+            addToFrameFunction(lambda, symbol);
+        }
+
+        // TODO: have to re-write with Frame access
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
+            // add at 0, otherwise, this goes under existing stmts.
+            body.stmts.add(0, (BLangStatement) letVariable.definitionNode);
+        }
+
+        return getStreamFunctionVariableRef(blockStmt, Names.QUERY_CREATE_LET_FUNCTION, Lists.of(lambda), pos);
     }
 
     /**
