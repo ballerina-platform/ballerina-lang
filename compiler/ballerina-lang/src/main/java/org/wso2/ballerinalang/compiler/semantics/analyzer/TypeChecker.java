@@ -1783,7 +1783,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Module aliases cannot be used with methods
-        if (!validateModuleAliasUsage(iExpr)) {
+        if (invalidModuleAliasUsage(iExpr)) {
             return;
         }
 
@@ -1821,7 +1821,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         // Module aliases cannot be used with remote method call actions
-        if (!validateModuleAliasUsage(aInv)) {
+        if (invalidModuleAliasUsage(aInv)) {
             return;
         }
 
@@ -1846,13 +1846,13 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean validateModuleAliasUsage(BLangInvocation invocation) {
+    private boolean invalidModuleAliasUsage(BLangInvocation invocation) {
         Name pkgAlias = names.fromIdNode(invocation.pkgAlias);
         if (pkgAlias != Names.EMPTY) {
             dlog.error(invocation.pos, DiagnosticCode.PKG_ALIAS_NOT_ALLOWED_HERE);
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     public void visit(BLangLetExpression letExpression) {

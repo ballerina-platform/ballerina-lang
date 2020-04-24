@@ -18,16 +18,26 @@ package org.ballerinalang.test.action.start;
 
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * Start action negative test cases.
+ * Start action test cases.
  */
 public class StartActionTest {
 
-    @Test (description = "Test negative start action usage")
+    private CompileResult result;
+
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/action/start/start_action.bal");
+    }
+
+    @Test(description = "Test negative start action usage")
     public void testStartActionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/action/start/start-action-negative.bal");
         int indx = 0;
@@ -47,5 +57,18 @@ public class StartActionTest {
         BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 90, 33);
 
         Assert.assertEquals(result.getErrorCount(), indx);
+    }
+
+    @Test(dataProvider = "FuncList")
+    public void testStartAction(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "FuncList")
+    public Object[][] getFunctionNames() {
+        return new Object[][]{
+                {"testRecFieldFuncPointerAsyncCall"},
+                {"testObjectMethodsAsAsyncCalls"}
+        };
     }
 }
