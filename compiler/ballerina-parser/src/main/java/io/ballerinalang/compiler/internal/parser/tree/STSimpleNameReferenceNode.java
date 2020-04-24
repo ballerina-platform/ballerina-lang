@@ -32,7 +32,7 @@ public class STSimpleNameReferenceNode extends STNameReferenceNode {
 
     STSimpleNameReferenceNode(
             STNode name) {
-        super(SyntaxKind.SIMPLE_IDENTIFIER);
+        super(SyntaxKind.SIMPLE_NAME_REFERENCE);
         this.name = name;
 
         addChildren(

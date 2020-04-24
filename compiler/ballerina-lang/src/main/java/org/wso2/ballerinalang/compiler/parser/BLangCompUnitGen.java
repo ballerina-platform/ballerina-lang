@@ -718,7 +718,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
             bLValueType.pos = emptyPos;
             bLValueType.typeKind = typeKind;
             return NodeTransformerOut.of(bLValueType);
-        } else if (type.kind() == SyntaxKind.QUALIFIED_IDENTIFIER || type.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+        } else if (type.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE || type.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
             BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
             BLangNameReference nameReference = getBLangNameReference(type);
             bLUserDefinedType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
@@ -761,7 +761,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
     }
 
     private BLangNameReference getBLangNameReference(Node node) {
-        if (node.kind() == SyntaxKind.QUALIFIED_IDENTIFIER) {
+        if (node.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             // qualified identifier
             QualifiedIdentifierNode identifierNode = (QualifiedIdentifierNode) node;
             BLangIdentifier pkgAlias = this.createIdentifier(emptyPos, identifierNode.modulePrefix().text());

@@ -3046,7 +3046,7 @@ public class BallerinaParser {
     private boolean isValidLVExpr(STNode expression) {
         switch (expression.kind) {
             case IDENTIFIER_TOKEN:
-            case QUALIFIED_IDENTIFIER:
+            case QUALIFIED_NAME_REFERENCE:
                 return true;
             case FIELD_ACCESS:
                 return isValidLVExpr(((STFieldAccessExpressionNode) expression).expression);
@@ -5886,9 +5886,9 @@ public class BallerinaParser {
     private STNode parseAnnotationDeclWithOptionalType(STNode metadata, STNode qualifier, STNode constKeyword,
                                                        STNode annotationKeyword) {
         // We come here if the type name also and identifier.
-        // However, if it is a qualified identifier, then it to be the type-desc.
+        // However, if it is a qualified identifier, then it has to be the type-desc.
         STNode typeDescOrAnnotTag = parseAnnotationTag();
-        if (typeDescOrAnnotTag.kind == SyntaxKind.QUALIFIED_IDENTIFIER) {
+        if (typeDescOrAnnotTag.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             STNode annotTag = parseAnnotationTag();
             return parseAnnotationDeclAttachPoints(metadata, qualifier, constKeyword, annotationKeyword,
                     typeDescOrAnnotTag, annotTag);
@@ -6341,7 +6341,7 @@ public class BallerinaParser {
         switch (expr.kind) {
             case STRING_LITERAL:
             case IDENTIFIER_TOKEN:
-            case QUALIFIED_IDENTIFIER:
+            case QUALIFIED_NAME_REFERENCE:
                 break;
             default:
                 this.errorHandler.reportInvalidNode(null, "namespace uri must be a subtype of string");

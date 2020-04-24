@@ -99,7 +99,7 @@
                                 "kind": "ASSIGNMENT_STATEMENT",
                                 "value": {
                                     "varRef": {
-                                        "kind": "SIMPLE_IDENTIFIER",
+                                        "kind": "SIMPLE_NAME_REFERENCE",
                                         "value": {
                                             "name": {
                                                 "kind": "IDENTIFIER_TOKEN",

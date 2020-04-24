@@ -36,7 +36,7 @@ public class STQualifiedNameReferenceNode extends STNameReferenceNode {
             STNode modulePrefix,
             STNode colon,
             STNode identifier) {
-        super(SyntaxKind.QUALIFIED_IDENTIFIER);
+        super(SyntaxKind.QUALIFIED_NAME_REFERENCE);
         this.modulePrefix = modulePrefix;
         this.colon = colon;
         this.identifier = identifier;

@@ -1718,7 +1718,7 @@
         {
             "name": "SimpleNameReferenceNode",
             "base": "NameReferenceNode",
-            "kind": "SIMPLE_IDENTIFIER",
+            "kind": "SIMPLE_NAME_REFERENCE",
             "attributes": [
                 {
                     "name": "name",
@@ -1729,7 +1729,7 @@
         {
             "name": "QualifiedNameReferenceNode",
             "base": "NameReferenceNode",
-            "kind": "QUALIFIED_IDENTIFIER",
+            "kind": "QUALIFIED_NAME_REFERENCE",
             "attributes": [
                 {
                     "name": "modulePrefix",

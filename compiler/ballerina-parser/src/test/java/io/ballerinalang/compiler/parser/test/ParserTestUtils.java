@@ -390,8 +390,6 @@ public class ParserTestUtils {
                 return SyntaxKind.FIELD_KEYWORD;
             case "XMLNS_KEYWORD":
                 return SyntaxKind.XMLNS_KEYWORD;
-
-            // Types
             case "INT_KEYWORD":
                 return SyntaxKind.INT_KEYWORD;
             case "FLOAT_KEYWORD":
@@ -416,8 +414,6 @@ public class ParserTestUtils {
                 return SyntaxKind.ANYDATA_KEYWORD;
             case "NEVER_KEYWORD":
                 return SyntaxKind.NEVER_KEYWORD;
-            case "TYPE_DESC":
-                return SyntaxKind.TYPE_DESC;
 
             // Operators
             case "PLUS_TOKEN":
@@ -524,8 +520,8 @@ public class ParserTestUtils {
                 return SyntaxKind.NAMED_ARG;
             case "REST_ARG":
                 return SyntaxKind.REST_ARG;
-            case "QUALIFIED_IDENTIFIER":
-                return SyntaxKind.QUALIFIED_IDENTIFIER;
+            case "QUALIFIED_NAME_REFERENCE":
+                return SyntaxKind.QUALIFIED_NAME_REFERENCE;
             case "FIELD_ACCESS":
                 return SyntaxKind.FIELD_ACCESS;
             case "METHOD_CALL":
@@ -544,6 +540,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_TEST_EXPRESSION;
             case "NIL_LITERAL":
                 return SyntaxKind.NIL_LITERAL;
+            case "SIMPLE_NAME_REFERENCE":
+                return SyntaxKind.SIMPLE_NAME_REFERENCE;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -585,6 +583,44 @@ public class ParserTestUtils {
             case "LOCK_STATEMENT":
                 return SyntaxKind.LOCK_STATEMENT;
 
+            // Types
+            case "TYPE_DESC":
+                return SyntaxKind.TYPE_DESC;
+            case "INT_TYPE":
+                return SyntaxKind.INT_TYPE;
+            case "FLOAT_TYPE":
+                return SyntaxKind.FLOAT_TYPE;
+            case "DECIMAL_TYPE":
+                return SyntaxKind.DECIMAL_TYPE;
+            case "BOOLEAN_TYPE":
+                return SyntaxKind.BOOLEAN_TYPE;
+            case "STRING_TYPE":
+                return SyntaxKind.STRING_TYPE;
+            case "BYTE_TYPE":
+                return SyntaxKind.BYTE_TYPE;
+            case "XML_TYPE":
+                return SyntaxKind.XML_TYPE;
+            case "JSON_TYPE":
+                return SyntaxKind.JSON_TYPE;
+            case "HANDLE_TYPE":
+                return SyntaxKind.HANDLE_TYPE;
+            case "ANY_TYPE":
+                return SyntaxKind.ANY_TYPE;
+            case "ANYDATA_TYPE":
+                return SyntaxKind.ANYDATA_TYPE;
+            case "NEVER_TYPE":
+                return SyntaxKind.NEVER_TYPE;
+            case "NIL_TYPE":
+                return SyntaxKind.NIL_TYPE;
+            case "OPTIONAL_TYPE":
+                return SyntaxKind.OPTIONAL_TYPE;
+            case "ARRAY_TYPE":
+                return SyntaxKind.ARRAY_TYPE;
+            case "RECORD_TYPE_DESCRIPTOR":
+                return SyntaxKind.RECORD_TYPE_DESCRIPTOR;
+            case "OBJECT_TYPE_DESCRIPTOR":
+                return SyntaxKind.OBJECT_TYPE_DESCRIPTOR;
+
             // Others
             case "FUNCTION_BODY_BLOCK":
                 return SyntaxKind.FUNCTION_BODY_BLOCK;
@@ -600,8 +636,6 @@ public class ParserTestUtils {
                 return SyntaxKind.DEFAULTABLE_PARAM;
             case "REST_PARAM":
                 return SyntaxKind.REST_PARAM;
-            case "RECORD_TYPE_DESCRIPTOR":
-                return SyntaxKind.RECORD_TYPE_DESCRIPTOR;
             case "RECORD_FIELD":
                 return SyntaxKind.RECORD_FIELD;
             case "RECORD_FIELD_WITH_DEFAULT_VALUE":
@@ -612,8 +646,6 @@ public class ParserTestUtils {
                 return SyntaxKind.RECORD_REST_TYPE;
             case "OBJECT_FIELD":
                 return SyntaxKind.OBJECT_FIELD;
-            case "OBJECT_TYPE_DESCRIPTOR":
-                return SyntaxKind.OBJECT_TYPE_DESCRIPTOR;
             case "IMPORT_ORG_NAME":
                 return SyntaxKind.IMPORT_ORG_NAME;
             case "MODULE_NAME":
@@ -636,12 +668,6 @@ public class ParserTestUtils {
                 return SyntaxKind.SERVICE_BODY;
             case "EXPRESSION_LIST_ITEM":
                 return SyntaxKind.EXPRESSION_LIST_ITEM;
-            case "NIL_TYPE":
-                return SyntaxKind.NIL_TYPE;
-            case "OPTIONAL_TYPE":
-                return SyntaxKind.OPTIONAL_TYPE;
-            case "ARRAY_TYPE":
-                return SyntaxKind.ARRAY_TYPE;
             case "ARRAY_DIMENSION":
                 return SyntaxKind.ARRAY_DIMENSION;
             case "METADATA":
