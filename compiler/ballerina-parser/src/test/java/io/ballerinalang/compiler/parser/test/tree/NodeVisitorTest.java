@@ -39,7 +39,7 @@ public class NodeVisitorTest extends AbstractSyntaxTreeAPITest {
     public void testTokenTraversal() {
         SyntaxKind[] expectedKinds = {SyntaxKind.PUBLIC_KEYWORD, SyntaxKind.FUNCTION_KEYWORD,
                 SyntaxKind.IDENTIFIER_TOKEN, SyntaxKind.OPEN_PAREN_TOKEN, SyntaxKind.CLOSE_PAREN_TOKEN,
-                SyntaxKind.OPEN_BRACE_TOKEN, SyntaxKind.SIMPLE_TYPE, SyntaxKind.IDENTIFIER_TOKEN,
+                SyntaxKind.OPEN_BRACE_TOKEN, SyntaxKind.INT_KEYWORD, SyntaxKind.IDENTIFIER_TOKEN,
                 SyntaxKind.EQUAL_TOKEN, SyntaxKind.IDENTIFIER_TOKEN, SyntaxKind.PLUS_TOKEN,
                 SyntaxKind.IDENTIFIER_TOKEN, SyntaxKind.SEMICOLON_TOKEN, SyntaxKind.CLOSE_BRACE_TOKEN,
                 SyntaxKind.EOF_TOKEN};

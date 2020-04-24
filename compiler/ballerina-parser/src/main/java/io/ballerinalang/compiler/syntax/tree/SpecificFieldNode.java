@@ -34,7 +34,7 @@ public class SpecificFieldNode extends MappingFieldNode {
         return childInBucket(0);
     }
 
-    public IdentifierToken fieldName() {
+    public Token fieldName() {
         return childInBucket(1);
     }
 
@@ -67,7 +67,7 @@ public class SpecificFieldNode extends MappingFieldNode {
 
     public SpecificFieldNode modify(
             Token leadingComma,
-            IdentifierToken fieldName,
+            Token fieldName,
             Token colon,
             ExpressionNode valueExpr) {
         if (checkForReferenceEquality(
