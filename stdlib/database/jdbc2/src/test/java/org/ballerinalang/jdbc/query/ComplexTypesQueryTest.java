@@ -307,7 +307,7 @@ public class ComplexTypesQueryTest {
         }
     }
 	
-@Test(description = "Test string representation of stream type")
+    @Test(description = "Test string representation of stream type")
     public void testErrorInStringRepresentation() {
         validateError(negativeResult, 0,
                 "incompatible types: expected 'stream<Student," +
