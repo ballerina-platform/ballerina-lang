@@ -24,26 +24,14 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ArrayTypeDescriptorNode extends TypeDescriptorNode {
+public class BuiltinSimpleNameReferenceNode extends NameReferenceNode {
 
-    public ArrayTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public BuiltinSimpleNameReferenceNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Node typeDescriptorNode() {
+    public Token name() {
         return childInBucket(0);
-    }
-
-    public Token openBracketToken() {
-        return childInBucket(1);
-    }
-
-    public Node arrayLengthNode() {
-        return childInBucket(2);
-    }
-
-    public Token closeBracketToken() {
-        return childInBucket(3);
     }
 
     @Override
@@ -59,29 +47,19 @@ public class ArrayTypeDescriptorNode extends TypeDescriptorNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "typeDescriptorNode",
-                "openBracketToken",
-                "arrayLengthNode",
-                "closeBracketToken"};
+                "name"};
     }
 
-    public ArrayTypeDescriptorNode modify(
-            Node typeDescriptorNode,
-            Token openBracketToken,
-            Node arrayLengthNode,
-            Token closeBracketToken) {
+    public BuiltinSimpleNameReferenceNode modify(
+            SyntaxKind kind,
+            Token name) {
         if (checkForReferenceEquality(
-                typeDescriptorNode,
-                openBracketToken,
-                arrayLengthNode,
-                closeBracketToken)) {
+                name)) {
             return this;
         }
 
-        return NodeFactory.createArrayTypeDescriptorNode(
-                typeDescriptorNode,
-                openBracketToken,
-                arrayLengthNode,
-                closeBracketToken);
+        return NodeFactory.createBuiltinSimpleNameReferenceNode(
+                kind,
+                name);
     }
 }

@@ -264,10 +264,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(typeReferenceNode);
     }
 
-    public T transform(QualifiedIdentifierNode qualifiedIdentifierNode) {
-        return transformSyntaxNode(qualifiedIdentifierNode);
-    }
-
     public T transform(ServiceBodyNode serviceBodyNode) {
         return transformSyntaxNode(serviceBodyNode);
     }
@@ -330,6 +326,18 @@ public abstract class NodeTransformer<T> {
 
     public T transform(BasicLiteralNode basicLiteralNode) {
         return transformSyntaxNode(basicLiteralNode);
+    }
+
+    public T transform(SimpleNameReferenceNode simpleNameReferenceNode) {
+        return transformSyntaxNode(simpleNameReferenceNode);
+    }
+
+    public T transform(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
+        return transformSyntaxNode(qualifiedNameReferenceNode);
+    }
+
+    public T transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
+        return transformSyntaxNode(builtinSimpleNameReferenceNode);
     }
 
     // Tokens

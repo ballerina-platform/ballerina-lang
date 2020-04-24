@@ -263,10 +263,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(typeReferenceNode);
     }
 
-    public void visit(QualifiedIdentifierNode qualifiedIdentifierNode) {
-        visitSyntaxNode(qualifiedIdentifierNode);
-    }
-
     public void visit(ServiceBodyNode serviceBodyNode) {
         visitSyntaxNode(serviceBodyNode);
     }
@@ -329,6 +325,18 @@ public abstract class NodeVisitor {
 
     public void visit(BasicLiteralNode basicLiteralNode) {
         visitSyntaxNode(basicLiteralNode);
+    }
+
+    public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
+        visitSyntaxNode(simpleNameReferenceNode);
+    }
+
+    public void visit(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
+        visitSyntaxNode(qualifiedNameReferenceNode);
+    }
+
+    public void visit(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
+        visitSyntaxNode(builtinSimpleNameReferenceNode);
     }
 
     // Tokens

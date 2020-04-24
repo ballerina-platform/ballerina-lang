@@ -1018,21 +1018,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stTypeReferenceNode.createUnlinkedFacade();
     }
 
-    public static QualifiedIdentifierNode createQualifiedIdentifierNode(
-            Token modulePrefix,
-            Node colon,
-            IdentifierToken identifier) {
-        Objects.requireNonNull(modulePrefix, "modulePrefix must not be null");
-        Objects.requireNonNull(colon, "colon must not be null");
-        Objects.requireNonNull(identifier, "identifier must not be null");
-
-        STNode stQualifiedIdentifierNode = STNodeFactory.createQualifiedIdentifierNode(
-                modulePrefix.internalNode(),
-                colon.internalNode(),
-                identifier.internalNode());
-        return stQualifiedIdentifierNode.createUnlinkedFacade();
-    }
-
     public static ServiceBodyNode createServiceBodyNode(
             Token openBraceToken,
             NodeList<Node> resources,
@@ -1304,6 +1289,41 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 kind,
                 literalToken.internalNode());
         return stBasicLiteralNode.createUnlinkedFacade();
+    }
+
+    public static SimpleNameReferenceNode createSimpleNameReferenceNode(
+            Token name) {
+        Objects.requireNonNull(name, "name must not be null");
+
+        STNode stSimpleNameReferenceNode = STNodeFactory.createSimpleNameReferenceNode(
+                name.internalNode());
+        return stSimpleNameReferenceNode.createUnlinkedFacade();
+    }
+
+    public static QualifiedNameReferenceNode createQualifiedNameReferenceNode(
+            Token modulePrefix,
+            Node colon,
+            IdentifierToken identifier) {
+        Objects.requireNonNull(modulePrefix, "modulePrefix must not be null");
+        Objects.requireNonNull(colon, "colon must not be null");
+        Objects.requireNonNull(identifier, "identifier must not be null");
+
+        STNode stQualifiedNameReferenceNode = STNodeFactory.createQualifiedNameReferenceNode(
+                modulePrefix.internalNode(),
+                colon.internalNode(),
+                identifier.internalNode());
+        return stQualifiedNameReferenceNode.createUnlinkedFacade();
+    }
+
+    public static BuiltinSimpleNameReferenceNode createBuiltinSimpleNameReferenceNode(
+            SyntaxKind kind,
+            Token name) {
+        Objects.requireNonNull(name, "name must not be null");
+
+        STNode stBuiltinSimpleNameReferenceNode = STNodeFactory.createBuiltinSimpleNameReferenceNode(
+                kind,
+                name.internalNode());
+        return stBuiltinSimpleNameReferenceNode.createUnlinkedFacade();
     }
 }
 

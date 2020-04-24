@@ -178,6 +178,7 @@ public enum SyntaxKind {
     UNARY_EXPRESSION(1310),
     TYPE_TEST_EXPRESSION(1311),
     BASIC_LITERAL(1312),
+    SIMPLE_IDENTIFIER(1213),
 
     // Type descriptors
     TYPE_DESC(2000),
@@ -186,6 +187,19 @@ public enum SyntaxKind {
     NIL_TYPE(2003),
     OPTIONAL_TYPE(2004),
     ARRAY_TYPE(2005),
+    INT_TYPE(2006, "int"),
+    BYTE_TYPE(2007, "byte"),
+    FLOAT_TYPE(2008, "float"),
+    DECIMAL_TYPE(2009, "decimal"),
+    STRING_TYPE(2010, "string"),
+    BOOLEAN_TYPE(2011, "boolean"),
+    XML_TYPE(2012, "xml"),
+    JSON_TYPE(2013, "json"),
+    HANDLE_TYPE(2014, "handle"),
+    ANY_TYPE(2015, "any"),
+    ANYDATA_TYPE(2016, "anydata"),
+    NEVER_TYPE(2017, "never"),
+    VAR_TYPE(2018, "var"),
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),

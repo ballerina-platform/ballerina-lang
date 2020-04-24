@@ -26,11 +26,13 @@ import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
 import io.ballerinalang.compiler.internal.parser.tree.STBasicLiteralNode;
+import io.ballerinalang.compiler.internal.parser.tree.STBuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STDocumentationLineToken;
 import io.ballerinalang.compiler.internal.parser.tree.STIdentifierToken;
 import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
 import io.ballerinalang.compiler.syntax.BLModules;
@@ -130,9 +132,15 @@ public class ParserTestUtils {
     }
 
     private static void assertNode(STNode node, JsonObject json) {
+        // Remove the wrappers
         if (node instanceof STBasicLiteralNode) {
             node = ((STBasicLiteralNode) node).literalToken;
+        } else if (node instanceof STSimpleNameReferenceNode) {
+            node = ((STSimpleNameReferenceNode) node).name;
+        } else if (node instanceof STBuiltinSimpleNameReferenceNode) {
+            node = ((STBuiltinSimpleNameReferenceNode) node).name;
         }
+
         aseertNodeKind(json, node);
 
         if (isMissingToken(json)) {

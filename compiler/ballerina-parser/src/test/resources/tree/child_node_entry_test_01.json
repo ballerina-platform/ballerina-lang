@@ -40,8 +40,13 @@
                         "annotations": [
                         ],
                         "type": {
-                            "kind": "STRING_KEYWORD",
-                            "value":"string"
+                            "kind": "STRING_TYPE",
+                            "value": {
+                                "name": {
+                                    "kind": "STRING_KEYWORD",
+                                    "value": "string"
+                                }
+                            }
                         }
                     }
                 },
@@ -59,8 +64,13 @@
                                     "annotations": [
                                     ],
                                     "typeName": {
-                                        "kind": "INT_KEYWORD",
-                                        "value":"int"
+                                        "kind": "INT_TYPE",
+                                        "value": {
+                                            "name": {
+                                                "kind": "INT_KEYWORD",
+                                                "value": "int"
+                                            }
+                                        }
                                     },
                                     "variableName": {
                                         "kind": "IDENTIFIER_TOKEN",
@@ -89,8 +99,13 @@
                                 "kind": "ASSIGNMENT_STATEMENT",
                                 "value": {
                                     "varRef": {
-                                        "kind": "IDENTIFIER_TOKEN",
-                                        "value": "a"
+                                        "kind": "SIMPLE_IDENTIFIER",
+                                        "value": {
+                                            "name": {
+                                                "kind": "IDENTIFIER_TOKEN",
+                                                "value": "a"
+                                            }
+                                        }
                                     },
                                     "equalsToken": {
                                         "kind": "EQUAL_TOKEN",

@@ -1755,7 +1755,9 @@ public class BallerinaParser {
     private STNode parseSimpleTypeDescriptor() {
         STToken node = peek();
         if (isSimpleType(node.kind)) {
-            return consume();
+            STToken token = consume();
+            SyntaxKind typeKind = getTypeSyntaxKind(token.kind);
+            return STNodeFactory.createBuiltinSimpleNameReferenceNode(typeKind, token);
         } else {
             Solution sol = recover(peek(), ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
             return sol.recoveredNode;
@@ -2518,14 +2520,14 @@ public class BallerinaParser {
     private STNode parseQualifiedIdentifier(STNode identifier) {
         STToken nextToken = peek(1);
         if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
-            return identifier;
+            return STNodeFactory.createSimpleNameReferenceNode(identifier);
         }
 
         STToken nextNextToken = peek(2);
         if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             STToken colon = consume();
             STToken varOrFuncName = consume();
-            return STNodeFactory.createQualifiedIdentifierNode(identifier, colon, varOrFuncName);
+            return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
         } else {
             this.errorHandler.removeInvalidToken();
             return parseQualifiedIdentifier(identifier);
@@ -6579,6 +6581,41 @@ public class BallerinaParser {
                 return true;
             default:
                 return false;
+        }
+    }
+
+    private SyntaxKind getTypeSyntaxKind(SyntaxKind typeKeyword) {
+        switch (typeKeyword) {
+            case INT_KEYWORD:
+                return SyntaxKind.INT_TYPE;
+            case FLOAT_KEYWORD:
+                return SyntaxKind.FLOAT_TYPE;
+            case DECIMAL_KEYWORD:
+                return SyntaxKind.DECIMAL_TYPE;
+            case BOOLEAN_KEYWORD:
+                return SyntaxKind.BOOLEAN_TYPE;
+            case STRING_KEYWORD:
+                return SyntaxKind.STRING_TYPE;
+            case BYTE_KEYWORD:
+                return SyntaxKind.BYTE_TYPE;
+            case XML_KEYWORD:
+                return SyntaxKind.XML_TYPE;
+            case JSON_KEYWORD:
+                return SyntaxKind.JSON_TYPE;
+            case HANDLE_KEYWORD:
+                return SyntaxKind.HANDLE_TYPE;
+            case ANY_KEYWORD:
+                return SyntaxKind.ANY_TYPE;
+            case ANYDATA_KEYWORD:
+                return SyntaxKind.ANYDATA_TYPE;
+            case NEVER_KEYWORD:
+                return SyntaxKind.NEVER_TYPE;
+            case SERVICE_KEYWORD:
+                return SyntaxKind.SERVICE_KEYWORD;
+            case VAR_KEYWORD:
+                return SyntaxKind.VAR_TYPE;
+            default:
+                return SyntaxKind.TYPE_DESC;
         }
     }
 }

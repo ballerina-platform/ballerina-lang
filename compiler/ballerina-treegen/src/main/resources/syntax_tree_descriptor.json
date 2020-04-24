@@ -1102,7 +1102,7 @@
         },
         {
             "name": "ObjectTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "OBJECT_TYPE_DESCRIPTOR",
             "attributes": [
                 {
@@ -1131,7 +1131,7 @@
         },
         {
             "name": "RecordTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "RECORD_TYPE_DESCRIPTOR",
             "attributes": [
                 {
@@ -1190,7 +1190,7 @@
         },
         {
             "name": "OptionalTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "OPTIONAL_TYPE",
             "attributes": [
                 {
@@ -1318,7 +1318,7 @@
         },
         {
             "name": "TypeReferenceNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "TYPE_REFERENCE",
             "attributes": [
                 {
@@ -1332,25 +1332,6 @@
                 {
                     "name": "semicolonToken",
                     "type": "Token"
-                }
-            ]
-        },
-        {
-            "name": "QualifiedIdentifierNode",
-            "base": "Node",
-            "kind": "QUALIFIED_IDENTIFIER",
-            "attributes": [
-                {
-                    "name": "modulePrefix",
-                    "type": "Token"
-                },
-                {
-                    "name": "colon",
-                    "type": "Node"
-                },
-                {
-                    "name": "identifier",
-                    "type": "IdentifierToken"
                 }
             ]
         },
@@ -1468,7 +1449,7 @@
         },
         {
             "name": "ArrayTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "ARRAY_TYPE",
             "attributes": [
                 {
@@ -1720,6 +1701,56 @@
             "attributes": [
                 {
                     "name": "literalToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "TypeDescriptorNode",
+            "base": "ExpressionNode",
+            "isAbstract": true
+        },
+        {
+            "name": "NameReferenceNode",
+            "base": "TypeDescriptorNode",
+            "isAbstract": true
+        },
+        {
+            "name": "SimpleNameReferenceNode",
+            "base": "NameReferenceNode",
+            "kind": "SIMPLE_IDENTIFIER",
+            "attributes": [
+                {
+                    "name": "name",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "QualifiedNameReferenceNode",
+            "base": "NameReferenceNode",
+            "kind": "QUALIFIED_IDENTIFIER",
+            "attributes": [
+                {
+                    "name": "modulePrefix",
+                    "type": "Token"
+                },
+                {
+                    "name": "colon",
+                    "type": "Node"
+                },
+                {
+                    "name": "identifier",
+                    "type": "IdentifierToken"
+                }
+            ]
+        },
+        {
+            "name": "BuiltinSimpleNameReferenceNode",
+            "base": "NameReferenceNode",
+            "attributes": [
+                {
+                    "name": "name",
                     "type": "Token"
                 }
             ]

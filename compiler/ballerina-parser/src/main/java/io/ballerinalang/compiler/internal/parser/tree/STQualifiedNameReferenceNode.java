@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedIdentifierNode;
+import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,12 +27,12 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STQualifiedIdentifierNode extends STNode {
+public class STQualifiedNameReferenceNode extends STNameReferenceNode {
     public final STNode modulePrefix;
     public final STNode colon;
     public final STNode identifier;
 
-    STQualifiedIdentifierNode(
+    STQualifiedNameReferenceNode(
             STNode modulePrefix,
             STNode colon,
             STNode identifier) {
@@ -48,6 +48,6 @@ public class STQualifiedIdentifierNode extends STNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new QualifiedIdentifierNode(this, position, parent);
+        return new QualifiedNameReferenceNode(this, position, parent);
     }
 }

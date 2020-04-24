@@ -24,9 +24,9 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class QualifiedIdentifierNode extends NonTerminalNode {
+public class QualifiedNameReferenceNode extends NameReferenceNode {
 
-    public QualifiedIdentifierNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public QualifiedNameReferenceNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -60,7 +60,7 @@ public class QualifiedIdentifierNode extends NonTerminalNode {
                 "identifier"};
     }
 
-    public QualifiedIdentifierNode modify(
+    public QualifiedNameReferenceNode modify(
             Token modulePrefix,
             Node colon,
             IdentifierToken identifier) {
@@ -71,7 +71,7 @@ public class QualifiedIdentifierNode extends NonTerminalNode {
             return this;
         }
 
-        return NodeFactory.createQualifiedIdentifierNode(
+        return NodeFactory.createQualifiedNameReferenceNode(
                 modulePrefix,
                 colon,
                 identifier);

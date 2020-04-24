@@ -752,17 +752,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(QualifiedIdentifierNode qualifiedIdentifierNode) {
-        Token modulePrefix = modifyToken(qualifiedIdentifierNode.modulePrefix());
-        Node colon = modifyNode(qualifiedIdentifierNode.colon());
-        IdentifierToken identifier = modifyNode(qualifiedIdentifierNode.identifier());
-        return qualifiedIdentifierNode.modify(
-                modulePrefix,
-                colon,
-                identifier);
-    }
-
-    @Override
     public Node transform(ServiceBodyNode serviceBodyNode) {
         Token openBraceToken = modifyToken(serviceBodyNode.openBraceToken());
         NodeList<Node> resources = modifyNodeList(serviceBodyNode.resources());
@@ -961,6 +950,32 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return basicLiteralNode.modify(
                 basicLiteralNode.kind(),
                 literalToken);
+    }
+
+    @Override
+    public Node transform(SimpleNameReferenceNode simpleNameReferenceNode) {
+        Token name = modifyToken(simpleNameReferenceNode.name());
+        return simpleNameReferenceNode.modify(
+                name);
+    }
+
+    @Override
+    public Node transform(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
+        Token modulePrefix = modifyToken(qualifiedNameReferenceNode.modulePrefix());
+        Node colon = modifyNode(qualifiedNameReferenceNode.colon());
+        IdentifierToken identifier = modifyNode(qualifiedNameReferenceNode.identifier());
+        return qualifiedNameReferenceNode.modify(
+                modulePrefix,
+                colon,
+                identifier);
+    }
+
+    @Override
+    public Node transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
+        Token name = modifyToken(builtinSimpleNameReferenceNode.name());
+        return builtinSimpleNameReferenceNode.modify(
+                builtinSimpleNameReferenceNode.kind(),
+                name);
     }
 
     // Tokens
