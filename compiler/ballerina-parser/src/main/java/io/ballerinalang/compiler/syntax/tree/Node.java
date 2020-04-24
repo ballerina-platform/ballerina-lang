@@ -18,6 +18,8 @@
 package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.text.LineRange;
+import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextRange;
 
 /**
@@ -30,23 +32,20 @@ public abstract class Node {
     protected final int position;
     protected final NonTerminalNode parent;
 
-    // TextRange - starting startOffset and width
-    private final TextRange textRange;
-    private final TextRange textRangeWithMinutiae;
-
     /**
      * A reference to the syntaxTree to which this node belongs.
      */
     private SyntaxTree syntaxTree;
+    private LineRange lineRange;
+
+    // TextRange - starting startOffset and width
+    private TextRange textRange;
+    private TextRange textRangeWithMinutiae;
 
     public Node(STNode internalNode, int position, NonTerminalNode parent) {
         this.internalNode = internalNode;
         this.position = position;
         this.parent = parent;
-
-        // TODO Set the width excluding the minutiae.
-        this.textRange = new TextRange(position, internalNode.width());
-        this.textRangeWithMinutiae = new TextRange(position, internalNode.width());
     }
 
     public int position() {
@@ -58,10 +57,20 @@ public abstract class Node {
     }
 
     public TextRange textRange() {
+        if (textRange != null) {
+            return textRange;
+        }
+        int leadingMinutiaeDelta = internalNode.widthWithLeadingMinutiae() - internalNode.width();
+        int positionWithoutLeadingMinutiae = this.position + leadingMinutiaeDelta;
+        textRange = new TextRange(positionWithoutLeadingMinutiae, internalNode.width());
         return textRange;
     }
 
     public TextRange textRangeWithMinutiae() {
+        if (textRangeWithMinutiae != null) {
+            return textRangeWithMinutiae;
+        }
+        textRangeWithMinutiae = new TextRange(position, internalNode.widthWithMinutiae());
         return textRangeWithMinutiae;
     }
 
@@ -75,6 +84,18 @@ public abstract class Node {
 
     public SyntaxTree syntaxTree() {
         return populateSyntaxTree();
+    }
+
+    public LineRange lineRange() {
+        if (lineRange != null) {
+            return lineRange;
+        }
+
+        SyntaxTree syntaxTree = syntaxTree();
+        TextDocument textDocument = syntaxTree.textDocument();
+        lineRange = new LineRange(syntaxTree.filePath(), textDocument.textLineFrom(textRange().startOffset()),
+                textDocument.textLineFrom(textRange().endOffset()));
+        return lineRange;
     }
 
     /**
