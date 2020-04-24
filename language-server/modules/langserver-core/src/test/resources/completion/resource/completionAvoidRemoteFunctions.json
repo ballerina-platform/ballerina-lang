@@ -50,7 +50,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets the hostname from the remote address. This method may trigger a DNS reverse lookup if the address was created\nwith a literal IP address.\n  \n  \n  \n**Returns** `(string|())`   \n- The hostname of the address or `nil` if it is unresolved  \n  \n"
+          "value": "**Package:** _ballerina/http_  \n  \nGets the hostname from the remote address. This method may trigger a DNS reverse lookup if the address was created\nwith a literal IP address.\n```ballerina\n# string? remoteHost = caller.getRemoteHostName();\n# ```\n  \n  \n  \n**Returns** `(string|())`   \n- The hostname of the address or else `()` if it is unresolved  \n  \n"
         }
       },
       "sortText": "120",

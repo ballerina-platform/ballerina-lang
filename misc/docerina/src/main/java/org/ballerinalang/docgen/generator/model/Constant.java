@@ -22,8 +22,8 @@ public class Constant extends Construct {
     public Type type;
     public String value;
 
-    public Constant(String name, String description, Type type, String value) {
-        super(name, description);
+    public Constant(String name, String description, boolean isDeprecated, Type type, String value) {
+        super(name, description, isDeprecated);
         this.type = type;
         this.value = value;
     }
