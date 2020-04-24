@@ -87,20 +87,12 @@ public class BallerinaValues {
             fields[j++] = fieldValues[i];
             fields[j++] = true;
         }
-        //passing scheduler, strand and properties as null for the moment, but better to expose them via this method
         return valueCreator.createObjectValue(objectTypeName, getScheduler(), getStrand(), null, fields);
     }
 
-    /**
-     * Method that creates a runtime object value using the given package id and object type name.
-     *
-     * @param packageId the package id that the object type resides.
-     * @param objectTypeName name of the object type.
-     * @param fieldValues values to be used for fields when creating the object value instance.
-     * @return value of the object.
-     */
     public static ObjectValue createObjectValueWithCurrentStrandScheduler(BPackage packageId, String objectTypeName,
                                                       Object... fieldValues) {
+        //This method duplicates the createObjectValue with referencing the fix for issue #22871
         ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
         Object[] fields = new Object[fieldValues.length * 2];
 
@@ -110,7 +102,7 @@ public class BallerinaValues {
             fields[j++] = true;
         }
         //passing scheduler of current strand
-        return valueCreator.createObjectValue(objectTypeName, Scheduler.getStrand().scheduler, getStrand(),
+        return valueCreator.createObjectValue(objectTypeName, Scheduler.getStrand().scheduler, Scheduler.getStrand(),
                 null, fields);
     }
 
@@ -118,7 +110,7 @@ public class BallerinaValues {
         try {
             return Scheduler.getStrand().scheduler;
         } catch (Exception ex) {
-            //ignore : #8984392 is opened to fix this
+            //ignore : #22871 is opened to fix this
         }
         return null;
     }
@@ -127,7 +119,7 @@ public class BallerinaValues {
         try {
             return Scheduler.getStrand();
         } catch (Exception ex) {
-            //need a fix
+            //ignore : #22871 is opened to fix this
         }
         return null;
     }
