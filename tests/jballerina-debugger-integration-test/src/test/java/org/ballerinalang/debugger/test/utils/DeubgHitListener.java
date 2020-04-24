@@ -19,7 +19,7 @@
 package org.ballerinalang.debugger.test.utils;
 
 import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
-import org.eclipse.lsp4j.debug.ContinueArguments;
+import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.StackTraceArguments;
 import org.eclipse.lsp4j.debug.StackTraceResponse;
@@ -29,28 +29,38 @@ import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Timer Task implementation to capture breakpoints from server stop events.
  */
-public class TestBreakPointListener extends TimerTask {
+public class DeubgHitListener extends TimerTask {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TestBreakPointListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DeubgHitListener.class);
     private final TestDAPClientConnector connector;
-    private final List<BallerinaTestBreakPoint> capturedBreakpoints;
+    private StoppedEventArguments debugHitContext;
+    private BallerinaTestDebugPoint debugHitpoint;
+    private boolean debugHitFound;
 
-    public TestBreakPointListener(TestDAPClientConnector connector) {
+    public DeubgHitListener(TestDAPClientConnector connector) {
         this.connector = connector;
-        this.capturedBreakpoints = new ArrayList<>();
+        this.debugHitFound = false;
+        this.debugHitContext = null;
+        this.debugHitpoint = null;
     }
 
-    public List<BallerinaTestBreakPoint> getCapturedBreakpoints() {
-        return capturedBreakpoints;
+    public StoppedEventArguments getDebugHitContext() {
+        return debugHitContext;
+    }
+
+    public boolean isDebugHitFound() {
+        return debugHitFound;
+    }
+
+    public BallerinaTestDebugPoint getDebugHitpoint() {
+        return debugHitpoint;
     }
 
     @Override
@@ -58,13 +68,22 @@ public class TestBreakPointListener extends TimerTask {
         ConcurrentLinkedQueue<StoppedEventArguments> events = connector.getServerEventHolder().getStoppedEvents();
         while (!events.isEmpty() && connector.isConnected()) {
             StoppedEventArguments event = events.poll();
-            if (event == null || !event.getReason().equals(StoppedEventArgumentsReason.BREAKPOINT)) {
+            if (event == null || !(event.getReason().equals(StoppedEventArgumentsReason.BREAKPOINT)
+                    || event.getReason().equals(StoppedEventArgumentsReason.STEP))) {
                 continue;
             }
-            BallerinaTestBreakPoint bp = fetchBreakPoint(event);
+            BallerinaTestDebugPoint bp = null;
+            try {
+                bp = fetchDebugHitPoint(event);
+            } catch (BallerinaTestException e) {
+                LOGGER.error(e.getMessage(), e);
+            }
+            // If the debug hit is observed, cancels the timer task.
             if (bp != null) {
-                capturedBreakpoints.add(bp);
-                resumeProgram(event);
+                debugHitFound = true;
+                debugHitContext = event;
+                debugHitpoint = bp;
+                this.cancel();
             }
         }
 
@@ -75,17 +94,7 @@ public class TestBreakPointListener extends TimerTask {
         }
     }
 
-    private void resumeProgram(StoppedEventArguments args) {
-        ContinueArguments continueArgs = new ContinueArguments();
-        continueArgs.setThreadId(args.getThreadId());
-        try {
-            connector.getRequestManager().resume(continueArgs);
-        } catch (Exception e) {
-            LOGGER.warn("continue request failed.", e);
-        }
-    }
-
-    private BallerinaTestBreakPoint fetchBreakPoint(StoppedEventArguments args) {
+    private BallerinaTestDebugPoint fetchDebugHitPoint(StoppedEventArguments args) throws BallerinaTestException {
 
         if (!connector.isConnected()) {
             return null;
@@ -97,16 +106,15 @@ public class TestBreakPointListener extends TimerTask {
             if (Arrays.stream(threadsResp.getThreads()).noneMatch(t -> t.getId().equals(args.getThreadId()))) {
                 return null;
             }
-            StackTraceResponse stackTraceResp = connector.getRequestManager().
-                    stackTrace(stackTraceArgs);
+            StackTraceResponse stackTraceResp = connector.getRequestManager().stackTrace(stackTraceArgs);
             StackFrame[] stackFrames = stackTraceResp.getStackFrames();
             if (stackFrames.length == 0) {
                 return null;
             }
-            return new BallerinaTestBreakPoint(stackFrames[0].getSource().getPath(), stackFrames[0].getLine());
+            return new BallerinaTestDebugPoint(stackFrames[0].getSource().getPath(), stackFrames[0].getLine());
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching stack frames", e);
-            return null;
+            throw new BallerinaTestException("Error occurred when fetching stack frames.", e);
         }
     }
 }

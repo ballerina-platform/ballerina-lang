@@ -111,6 +111,7 @@ public class TestDAPClientConnector {
     public DebugServerEventHolder getServerEventHolder() {
         return serverEventHolder;
     }
+
     public void createConnection() {
         try {
             myConnectionState = ConnectionState.CONNECTING;
