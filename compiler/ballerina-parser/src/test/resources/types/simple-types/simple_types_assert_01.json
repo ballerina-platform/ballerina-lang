@@ -50,8 +50,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "int"
+                                    "kind": "INT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -71,8 +70,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "string"
+                                    "kind": "STRING_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -92,8 +90,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "float"
+                                    "kind": "FLOAT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -113,8 +110,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "boolean"
+                                    "kind": "BOOLEAN_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -134,8 +130,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "decimal"
+                                    "kind": "DECIMAL_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -155,8 +150,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "xml"
+                                    "kind": "XML_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -176,8 +170,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "json"
+                                    "kind": "JSON_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -197,8 +190,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "handle"
+                                    "kind": "HANDLE_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -218,8 +210,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "any"
+                                    "kind": "ANY_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -239,8 +230,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "anydata"
+                                    "kind": "ANYDATA_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -300,8 +290,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "never"
+                                    "kind": "NEVER_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",

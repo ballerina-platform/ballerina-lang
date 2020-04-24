@@ -39,7 +39,7 @@ import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
 import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedIdentifierNode;
+import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
@@ -685,7 +685,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
             value = null;
             originalValue = "null";
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
-        } else if (type == SyntaxKind.NIL_TYPE) {
+        } else if (type == SyntaxKind.NIL_TYPE_DESC) {
             typeTag = TypeTags.NIL;
             value = null;
             originalValue = "()";
@@ -718,7 +718,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
             bLValueType.pos = emptyPos;
             bLValueType.typeKind = typeKind;
             return NodeTransformerOut.of(bLValueType);
-        } else if (type.kind() == SyntaxKind.QUALIFIED_IDENTIFIER || type.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+        } else if (type.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE || type.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
             BLangUserDefinedType bLUserDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
             BLangNameReference nameReference = getBLangNameReference(type);
             bLUserDefinedType.pkgAlias = (BLangIdentifier) nameReference.pkgAlias;
@@ -732,7 +732,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
             bLValueType.pos = emptyPos;
             bLValueType.typeKind = typeKind;
             return NodeTransformerOut.of(bLValueType);
-        } else if (type.kind() == SyntaxKind.RECORD_TYPE_DESCRIPTOR) {
+        } else if (type.kind() == SyntaxKind.RECORD_TYPE_DESC) {
             // Inline-record type
             NodeTransformerOut structOut = type.apply(this);
             BLangStructureTypeNode structTypeNode = (BLangStructureTypeNode) structOut.node;
@@ -761,9 +761,9 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
     }
 
     private BLangNameReference getBLangNameReference(Node node) {
-        if (node.kind() == SyntaxKind.QUALIFIED_IDENTIFIER) {
+        if (node.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             // qualified identifier
-            QualifiedIdentifierNode identifierNode = (QualifiedIdentifierNode) node;
+            QualifiedNameReferenceNode identifierNode = (QualifiedNameReferenceNode) node;
             BLangIdentifier pkgAlias = this.createIdentifier(emptyPos, identifierNode.modulePrefix().text());
             BLangIdentifier name = this.createIdentifier(emptyPos, identifierNode.identifier().text());
             return new BLangNameReference(emptyPos, null, pkgAlias, name);
@@ -860,7 +860,7 @@ public class BLangCompUnitGen extends NodeTransformer<BLangCompUnitGen.NodeTrans
             case HEX_FLOATING_POINT_LITERAL:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
-            case NIL_TYPE:
+            case NIL_TYPE_DESC:
             case NONE:
                 return true;
             default:

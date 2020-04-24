@@ -30,8 +30,7 @@
                             "value": "Student"
                         },
                         {
-                            "kind": "SIMPLE_TYPE",
-                            "value": "int"
+                            "kind": "INT_KEYWORD"
                         },
                         {
                             "kind": "SEMICOLON_TOKEN"
@@ -52,8 +51,7 @@
                             ]
                         },
                         {
-                            "kind": "SIMPLE_TYPE",
-                            "value": "int"
+                            "kind": "INT_KEYWORD"
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",
