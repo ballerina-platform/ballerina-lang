@@ -52,7 +52,6 @@ public class TerminatorMac extends TerminatorUnix {
                 try {
                     reader.close();
                 } catch (IOException ignored) {
-                    // noop
                 }
             }
         }

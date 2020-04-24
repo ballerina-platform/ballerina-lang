@@ -55,7 +55,6 @@ public class TerminatorUnix extends Terminator {
                 try {
                     reader.close();
                 } catch (final IOException ignored) {
-                    // noop
                 }
             }
         }
