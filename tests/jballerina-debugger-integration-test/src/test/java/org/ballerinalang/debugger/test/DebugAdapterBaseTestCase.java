@@ -107,7 +107,6 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
             }
         }
         if (!debugClientConnector.isConnected()) {
-            destroy();
             throw new BallerinaTestException(String.format("Connection to debug server at %s could not be " +
                     "established\n", debugClientConnector.getAddress()));
         }
@@ -250,6 +249,16 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         }
     }
 
+    public void terminateDebugSession() {
+        if (debugClientConnector != null && debugClientConnector.isConnected()) {
+            try {
+                debugClientConnector.disconnectFromServer();
+            } catch (Exception e) {
+                LOGGER.error("Error occurred when trying disconnect from the debug server.", e);
+            }
+        }
+    }
+
     public enum DebugResumeKind {
         NEXT_BREAKPOINT,
         STEP_IN,
@@ -259,7 +268,7 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
 
     @AfterSuite(alwaysRun = true)
     public void destroy() {
+        terminateDebugSession();
         super.destroy();
-        // Todo - more resource disposing?
     }
 }

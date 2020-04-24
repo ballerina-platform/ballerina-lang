@@ -49,7 +49,7 @@ public class ModuleBreakpointTest extends DebugAdapterBaseTestCase {
     }
 
     @Test
-    public void testSingleModuleBreakPoint() throws BallerinaTestException {
+    public void testMultipleBreakpointsInSameFile() throws BallerinaTestException {
 
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 25));
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 26));
@@ -62,6 +62,7 @@ public class ModuleBreakpointTest extends DebugAdapterBaseTestCase {
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo2 = waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo2.getLeft(), testBreakpoints.get(1));
 
+        terminateDebugSession();
     }
 
     private Pair<BallerinaTestDebugPoint, StoppedEventArguments> waitForDebugHit(long timeoutMillis)

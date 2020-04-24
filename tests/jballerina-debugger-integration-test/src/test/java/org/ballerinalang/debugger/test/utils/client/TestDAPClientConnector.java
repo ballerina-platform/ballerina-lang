@@ -186,10 +186,10 @@ public class TestDAPClientConnector {
         }
     }
 
-    void disconnectFromServer() throws Exception {
+    public void disconnectFromServer() throws Exception {
         try {
             DisconnectArguments disconnectArgs = new DisconnectArguments();
-            disconnectArgs.setTerminateDebuggee(false);
+            disconnectArgs.setTerminateDebuggee(true);
             requestManager.disconnect(disconnectArgs);
             stop();
         } catch (Exception e) {
