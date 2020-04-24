@@ -630,6 +630,8 @@ public class ParserTestUtils {
                 return SyntaxKind.DOCUMENTATION_STRING;
             case "DOCUMENTATION_LINE":
                 return SyntaxKind.DOCUMENTATION_LINE;
+            case "UNION_TYPE":
+                return SyntaxKind.UNION_TYPE;
 
             // Trivia
             case "EOF_TOKEN":
