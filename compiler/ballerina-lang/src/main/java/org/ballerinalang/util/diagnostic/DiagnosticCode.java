@@ -260,6 +260,7 @@ public enum DiagnosticCode {
     INVALID_PATTERN_CLAUSES_IN_MATCH_STMT("invalid.pattern.clauses.in.match.stmt"),
     STATIC_MATCH_ONLY_SUPPORTS_ANYDATA("static.value.match.only.supports.anydata"),
     UNINITIALIZED_VARIABLE("uninitialized.variable"),
+    UNINITIALIZED_MODULE_VARIABLE("uninitialized.module.variable"),
     CONTAINS_UNINITIALIZED_FIELDS("uninitialized.object.fields"),
     INVALID_ANY_VAR_DEF("invalid.any.var.def"),
     INVALID_RECORD_LITERAL("invalid.record.literal"),

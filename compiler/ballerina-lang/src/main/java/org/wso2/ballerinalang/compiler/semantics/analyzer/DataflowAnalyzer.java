@@ -277,6 +277,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         sortedListOfNodes.forEach(topLevelNode -> {
             if (isModuleInitFunction((BLangNode) topLevelNode)) {
                 analyzeModuleInitFunc((BLangFunction) topLevelNode);
+                checkForUninitializedGlobalVar(pkgNode.globalVars);
             } else {
                 analyzeNode((BLangNode) topLevelNode, env);
             }
@@ -301,6 +302,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
         analyzeNode(funcNode.body, funcEnv);
         this.currDependentSymbol.pop();
+    }
+
+    private void checkForUninitializedGlobalVar(List<BLangSimpleVariable> globalVars) {
+        for (BLangSimpleVariable globalVar : globalVars) {
+            if (this.uninitializedVars.containsKey(globalVar.symbol)) {
+                this.dlog.error(globalVar.pos, DiagnosticCode.UNINITIALIZED_MODULE_VARIABLE, globalVar.name);
+            }
+        }
     }
 
     @Override
