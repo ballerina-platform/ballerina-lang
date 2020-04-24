@@ -50,7 +50,7 @@ import java.util.TimeZone;
 public class ComplexTypesQueryTest {
 
     private CompileResult result;
-	private CompileResult negativeResult;
+    private CompileResult negativeResult;
     private static final String DB_NAME = "TEST_SQL_COMPLEX_QUERY";
     private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIR + DB_NAME;
     private BValue[] args = {new BString(JDBC_URL), new BString(SQLDBUtils.DB_USER),
@@ -59,7 +59,7 @@ public class ComplexTypesQueryTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query", "complex-query-test.bal"));
-		negativeResult = 
+        negativeResult = 
 		BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query", "complex-query-negative-test.bal"));
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,
