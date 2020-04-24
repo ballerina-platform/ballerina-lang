@@ -12,4 +12,6 @@
 // If the settings are specified at the listener initialization, they will be
 // applied for the entire connection as a global setting.
 // To apply the settings per consumer service, they should be specified in the
-// service config annotation.
+// service config annotation.<br/><br/>
+// For more information on the underlying module, 
+// see the [RabbitMQ module](https://ballerina.io/learn/api-docs/ballerina/rabbitmq/index.html).
