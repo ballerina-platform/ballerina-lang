@@ -2600,10 +2600,6 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case PUBLIC_KEYWORD:
                 return SyntaxKind.PUBLIC_KEYWORD;
-            case SIMPLE_TYPE_DESCRIPTOR:
-                // TODO: return type token
-                // return SyntaxKind.IDENTIFIER_TOKEN;
-                return SyntaxKind.SIMPLE_TYPE;
             case ASSIGNMENT_STMT:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case EXPRESSION_RHS:
@@ -2618,18 +2614,15 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.OPEN_BRACE_TOKEN;
             case FUNC_DEFINITION:
                 return SyntaxKind.FUNCTION_KEYWORD;
-            case REQUIRED_PARAM:
-                return SyntaxKind.SIMPLE_TYPE;
-            case VAR_DECL_STMT:
-                return SyntaxKind.SIMPLE_TYPE;
             case VAR_DECL_STMT_RHS:
                 return SyntaxKind.SEMICOLON_TOKEN;
+            case SIMPLE_TYPE_DESCRIPTOR:
+            case REQUIRED_PARAM:
+            case VAR_DECL_STMT:
             case ASSIGNMENT_OR_VAR_DECL_STMT:
-                return SyntaxKind.SIMPLE_TYPE;
             case DEFAULTABLE_PARAM:
-                return SyntaxKind.SIMPLE_TYPE;
             case REST_PARAM:
-                return SyntaxKind.SIMPLE_TYPE;
+                return SyntaxKind.TYPE_DESC;
             case ASTERISK:
                 return SyntaxKind.ASTERISK_TOKEN;
             case CLOSED_RECORD_BODY_END:
@@ -2762,12 +2755,11 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.EQUAL_TOKEN;
             case IS_KEYWORD:
                 return SyntaxKind.IS_KEYWORD;
-            case TYPE_DESCRIPTOR:
-                return SyntaxKind.SIMPLE_TYPE;
             case OBJECT_MEMBER_WITHOUT_METADATA:
             case RECORD_FIELD_WITHOUT_METADATA:
             case PARAMETER_WITHOUT_ANNOTS:
-                return SyntaxKind.SIMPLE_TYPE;
+            case TYPE_DESCRIPTOR:
+                return SyntaxKind.TYPE_DESC;
             case TYPEOF_EXPRESSION:
                 return SyntaxKind.TYPEOF_KEYWORD;
             case RIGHT_ARROW:

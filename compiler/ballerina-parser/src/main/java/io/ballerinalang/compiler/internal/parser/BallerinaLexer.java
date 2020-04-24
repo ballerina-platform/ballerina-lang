@@ -296,13 +296,6 @@ public class BallerinaLexer {
         return STNodeFactory.createLiteralValueToken(kind, lexeme, -1, leadingTrivia, trailingTrivia);
     }
 
-    private STToken getTypeToken(String tokenText) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        String lexeme = getLexeme();
-        STNode trailingTrivia = processTrailingTrivia();
-        return STNodeFactory.createTypeToken(SyntaxKind.SIMPLE_TYPE, lexeme, leadingTrivia, trailingTrivia);
-    }
-
     /**
      * Process leading trivia.
      */
@@ -579,19 +572,31 @@ public class BallerinaLexer {
 
         String tokenText = getLexeme();
         switch (tokenText) {
-            // Simple types
+            // built-in named-types
             case LexerTerminals.INT:
+                return getSyntaxToken(SyntaxKind.INT_KEYWORD);
             case LexerTerminals.FLOAT:
+                return getSyntaxToken(SyntaxKind.FLOAT_KEYWORD);
             case LexerTerminals.STRING:
+                return getSyntaxToken(SyntaxKind.STRING_KEYWORD);
             case LexerTerminals.BOOLEAN:
+                return getSyntaxToken(SyntaxKind.BOOLEAN_KEYWORD);
             case LexerTerminals.DECIMAL:
+                return getSyntaxToken(SyntaxKind.DECIMAL_KEYWORD);
             case LexerTerminals.XML:
+                return getSyntaxToken(SyntaxKind.XML_KEYWORD);
             case LexerTerminals.JSON:
+                return getSyntaxToken(SyntaxKind.JSON_KEYWORD);
             case LexerTerminals.HANDLE:
+                return getSyntaxToken(SyntaxKind.HANDLE_KEYWORD);
             case LexerTerminals.ANY:
+                return getSyntaxToken(SyntaxKind.ANY_KEYWORD);
             case LexerTerminals.ANYDATA:
+                return getSyntaxToken(SyntaxKind.ANYDATA_KEYWORD);
             case LexerTerminals.NEVER:
-                return getTypeToken(tokenText);
+                return getSyntaxToken(SyntaxKind.NEVER_KEYWORD);
+            case LexerTerminals.BYTE:
+                return getSyntaxToken(SyntaxKind.NEVER_KEYWORD);
 
             // Keywords
             case LexerTerminals.PUBLIC:

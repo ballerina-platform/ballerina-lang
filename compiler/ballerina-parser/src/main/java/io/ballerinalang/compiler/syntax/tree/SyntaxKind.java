@@ -78,7 +78,7 @@ public enum SyntaxKind {
     ANYDATA_KEYWORD(260, "anydata"),
     NEVER_KEYWORD(261, "never"),
     VAR_KEYWORD(262, "var"),
-    
+
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
     CLOSE_BRACE_TOKEN(501, "}"),
@@ -128,7 +128,6 @@ public enum SyntaxKind {
     HEX_INTEGER_LITERAL(1003),
     DECIMAL_FLOATING_POINT_LITERAL(1004),
     HEX_FLOATING_POINT_LITERAL(1005),
-    SIMPLE_TYPE(1006),
 
     // Trivia
     WHITESPACE_TRIVIA(1500),
@@ -181,11 +180,12 @@ public enum SyntaxKind {
     BASIC_LITERAL(1312),
 
     // Type descriptors
-    RECORD_TYPE_DESCRIPTOR(2000),
-    OBJECT_TYPE_DESCRIPTOR(2001),
-    NIL_TYPE(2002),
-    OPTIONAL_TYPE(2003),
-    ARRAY_TYPE(2004),
+    TYPE_DESC(2000),
+    RECORD_TYPE_DESCRIPTOR(2001),
+    OBJECT_TYPE_DESCRIPTOR(2002),
+    NIL_TYPE(2003),
+    OPTIONAL_TYPE(2004),
+    ARRAY_TYPE(2005),
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),

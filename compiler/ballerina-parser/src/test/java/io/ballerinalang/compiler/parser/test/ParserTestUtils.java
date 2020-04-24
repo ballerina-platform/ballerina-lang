@@ -32,14 +32,12 @@ import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.internal.parser.tree.STTypeToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
 import io.ballerinalang.compiler.syntax.BLModules;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocuments;
-
 import org.testng.Assert;
 
 import java.io.FileReader;
@@ -263,8 +261,6 @@ public class ParserTestUtils {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
                 return ((STLiteralValueToken) token).text;
-            case SIMPLE_TYPE:
-                return ((STTypeToken) token).text;
             case WHITESPACE_TRIVIA:
             case END_OF_LINE_TRIVIA:
             case COMMENT:
@@ -386,6 +382,34 @@ public class ParserTestUtils {
                 return SyntaxKind.FIELD_KEYWORD;
             case "XMLNS_KEYWORD":
                 return SyntaxKind.XMLNS_KEYWORD;
+
+            // Types
+            case "INT_KEYWORD":
+                return SyntaxKind.INT_KEYWORD;
+            case "FLOAT_KEYWORD":
+                return SyntaxKind.FLOAT_KEYWORD;
+            case "DECIMAL_KEYWORD":
+                return SyntaxKind.DECIMAL_KEYWORD;
+            case "BOOLEAN_KEYWORD":
+                return SyntaxKind.BOOLEAN_KEYWORD;
+            case "STRING_KEYWORD":
+                return SyntaxKind.STRING_KEYWORD;
+            case "BYTE_KEYWORD":
+                return SyntaxKind.BYTE_KEYWORD;
+            case "XML_KEYWORD":
+                return SyntaxKind.XML_KEYWORD;
+            case "JSON_KEYWORD":
+                return SyntaxKind.JSON_KEYWORD;
+            case "HANDLE_KEYWORD":
+                return SyntaxKind.HANDLE_KEYWORD;
+            case "ANY_KEYWORD":
+                return SyntaxKind.ANY_KEYWORD;
+            case "ANYDATA_KEYWORD":
+                return SyntaxKind.ANYDATA_KEYWORD;
+            case "NEVER_KEYWORD":
+                return SyntaxKind.NEVER_KEYWORD;
+            case "TYPE_DESC":
+                return SyntaxKind.TYPE_DESC;
 
             // Operators
             case "PLUS_TOKEN":
@@ -556,8 +580,6 @@ public class ParserTestUtils {
             // Others
             case "FUNCTION_BODY_BLOCK":
                 return SyntaxKind.FUNCTION_BODY_BLOCK;
-            case "SIMPLE_TYPE":
-                return SyntaxKind.SIMPLE_TYPE;
             case "LIST":
                 return SyntaxKind.LIST;
             case "RETURN_TYPE_DESCRIPTOR":

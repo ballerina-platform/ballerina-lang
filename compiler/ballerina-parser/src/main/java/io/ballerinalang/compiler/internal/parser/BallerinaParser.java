@@ -6557,9 +6557,25 @@ public class BallerinaParser {
 
     static boolean isSimpleType(SyntaxKind nodeKind) {
         switch (nodeKind) {
-            case SIMPLE_TYPE:
+            case INT_KEYWORD:
+            case FLOAT_KEYWORD:
+            case DECIMAL_KEYWORD:
+            case BOOLEAN_KEYWORD:
+            case STRING_KEYWORD:
+            case BYTE_KEYWORD:
+            case XML_KEYWORD:
+            case JSON_KEYWORD:
+            case HANDLE_KEYWORD:
+            case ANY_KEYWORD:
+            case ANYDATA_KEYWORD:
+            case NEVER_KEYWORD:
             case SERVICE_KEYWORD:
             case VAR_KEYWORD:
+                return true;
+            case TYPE_DESC:
+                // This is a special case. TYPE_DESC is only return from
+                // error recovery. when a type is missing. Hence we treat it as
+                // a simple type
                 return true;
             default:
                 return false;

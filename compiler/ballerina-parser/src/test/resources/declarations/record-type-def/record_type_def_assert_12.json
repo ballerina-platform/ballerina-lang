@@ -42,10 +42,7 @@
                                             ]
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "string"
+                                },{"kind":"STRING_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -68,10 +65,7 @@
                                             ]
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "float"
+                                },{"kind":"FLOAT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -101,10 +95,7 @@
                                             ]
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "int"
+                                },{"kind":"INT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -153,10 +144,7 @@
                                                                     ]
                                                                 }
                                                             ]
-                                                        },
-                                                        {
-                                                            "kind": "SIMPLE_TYPE",
-                                                            "value": "string"
+                                                        },{"kind":"STRING_KEYWORD"
                                                         },
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
@@ -180,10 +168,7 @@
                                                                     ]
                                                                 }
                                                             ]
-                                                        },
-                                                        {
-                                                            "kind": "SIMPLE_TYPE",
-                                                            "value": "int"
+                                                        },{"kind":"INT_KEYWORD"
                                                         },
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
@@ -251,10 +236,7 @@
                         },
                         {
                             "kind": "RECORD_REST_TYPE",
-                            "children": [
-                                {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "string"
+                            "children": [{"kind":"STRING_KEYWORD"
                                 },
                                 {
                                     "kind": "ELLIPSIS_TOKEN"

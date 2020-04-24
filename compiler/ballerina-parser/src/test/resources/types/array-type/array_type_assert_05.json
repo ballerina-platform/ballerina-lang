@@ -16,10 +16,7 @@
             "children": [
                 {
                     "kind": "OPTIONAL_TYPE",
-                    "children": [
-                        {
-                            "kind": "SIMPLE_TYPE",
-                            "value": "int"
+                    "children": [{"kind":"INT_KEYWORD"
                         },
                         {
                             "kind": "QUESTION_MARK_TOKEN"

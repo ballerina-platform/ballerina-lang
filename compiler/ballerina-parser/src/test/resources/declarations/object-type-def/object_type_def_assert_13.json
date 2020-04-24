@@ -62,10 +62,7 @@
                                             ]
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "string"
+                                },{"kind":"STRING_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",

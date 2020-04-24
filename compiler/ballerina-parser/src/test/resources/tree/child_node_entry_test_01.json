@@ -40,8 +40,8 @@
                         "annotations": [
                         ],
                         "type": {
-                            "kind": "SIMPLE_TYPE",
-                            "value": "string"
+                            "kind": "STRING_KEYWORD",
+                            "value":"string"
                         }
                     }
                 },
@@ -59,8 +59,8 @@
                                     "annotations": [
                                     ],
                                     "typeName": {
-                                        "kind": "SIMPLE_TYPE",
-                                        "value": "int"
+                                        "kind": "INT_KEYWORD",
+                                        "value":"int"
                                     },
                                     "variableName": {
                                         "kind": "IDENTIFIER_TOKEN",

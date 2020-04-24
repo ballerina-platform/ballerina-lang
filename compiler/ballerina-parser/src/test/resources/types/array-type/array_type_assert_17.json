@@ -51,10 +51,7 @@
                                 },
                                 {
                                     "kind": "ARRAY_TYPE",
-                                    "children": [
-                                        {
-                                            "kind": "SIMPLE_TYPE",
-                                            "value": "int"
+                                    "children": [{"kind":"INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"
@@ -88,10 +85,7 @@
                                 },
                                 {
                                     "kind": "ARRAY_TYPE",
-                                    "children": [
-                                        {
-                                            "kind": "SIMPLE_TYPE",
-                                            "value": "int"
+                                    "children": [{"kind":"INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"
@@ -125,10 +119,7 @@
                                 },
                                 {
                                     "kind": "ARRAY_TYPE",
-                                    "children": [
-                                        {
-                                            "kind": "SIMPLE_TYPE",
-                                            "value": "int"
+                                    "children": [{"kind":"INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"
@@ -157,10 +148,7 @@
                                 },
                                 {
                                     "kind": "ARRAY_TYPE",
-                                    "children": [
-                                        {
-                                            "kind": "SIMPLE_TYPE",
-                                            "value": "int"
+                                    "children": [{"kind":"INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"

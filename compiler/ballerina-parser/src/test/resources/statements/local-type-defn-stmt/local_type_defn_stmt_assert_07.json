@@ -83,10 +83,7 @@
                                                         },
                                                         {
                                                             "kind": "PUBLIC_KEYWORD"
-                                                        },
-                                                        {
-                                                            "kind": "SIMPLE_TYPE",
-                                                            "value": "int"
+                                                        },{"kind":"INT_KEYWORD"
                                                         },
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
@@ -136,10 +133,7 @@
                                                                                             "children": []
                                                                                         }
                                                                                     ]
-                                                                                },
-                                                                                {
-                                                                                    "kind": "SIMPLE_TYPE",
-                                                                                    "value": "int"
+                                                                                },{"kind":"INT_KEYWORD"
                                                                                 },
                                                                                 {
                                                                                     "kind": "IDENTIFIER_TOKEN",
