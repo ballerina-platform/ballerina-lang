@@ -752,15 +752,21 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean validateTableType(BTableType tableType, DiagnosticPos pos,
                                       List<BLangRecordLiteral> recordLiterals) {
-        if (!types.isAssignable(tableType.constraint, symTable.mapAnydataType)) {
-            dlog.error(pos, DiagnosticCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, tableType.constraint);
+        LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
+        memTypes.add(symTable.anyType);
+        memTypes.add(symTable.errorType);
+        BUnionType unionType = BUnionType.create(null, memTypes);
+        BMapType anyErrorMapType = new BMapType(TypeTags.MAP, unionType, null);
+
+        if (!types.isAssignable(tableType.constraint, anyErrorMapType)) {
+            dlog.error(tableType.constraintPos, DiagnosticCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, tableType.constraint);
             resultType = symTable.semanticError;
             return false;
         }
 
         List<String> fieldNameList = tableType.fieldNameList;
         if (fieldNameList != null) {
-            return validateKeySpecifier(fieldNameList, tableType.constraint, pos) &&
+            return validateKeySpecifier(fieldNameList, tableType.constraint, tableType.keyPos) &&
                     validateTableConstructorRecordLiterals(fieldNameList, recordLiterals);
         }
 
