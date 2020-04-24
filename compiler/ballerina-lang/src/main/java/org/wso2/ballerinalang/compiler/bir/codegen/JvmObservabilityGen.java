@@ -119,7 +119,7 @@ class JvmObservabilityGen {
             boolean isService = typeDef.type instanceof BServiceType;
             for (BIRFunction func : typeDef.attachedFuncs) {
                 rewriteObservableFunctionInvocations(func, pkg);
-                if (isService && !func.name.value.contains("$")) {
+                if (isService && (func.flags & Flags.RESOURCE) == Flags.RESOURCE) {
                     Map<String, String> tags = new HashMap<>();
                     tags.put(IS_RESOURCE_ENTRY_POINT_TAG_KEY, TAG_VALUE_TRUE);
                     rewriteObservableFunctionBody(func, pkg, true, cleanUpServiceName(typeDef.name.value),
