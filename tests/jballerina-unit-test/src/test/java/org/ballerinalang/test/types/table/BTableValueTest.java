@@ -18,6 +18,7 @@ package org.ballerinalang.test.types.table;
 
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -33,11 +34,20 @@ import org.testng.annotations.Test;
  */
 public class BTableValueTest {
 
-    private CompileResult result;
+    private CompileResult result, negativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table-value.bal");
+        negativeResult = BCompileUtil.compile("test-src/types/table/table-value-negative.bal");
+    }
+
+    @Test
+    public void testDuplicateKeysInTableConstructorExpr() {
+        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        BAssertUtil.validateError(negativeResult, 0, "duplicate key found in table row key('name') : 'AAA'", 18, 5);
+        BAssertUtil.validateError(negativeResult, 1, "duplicate key found in table row key('id, name') : '13, Foo'",
+                23, 5);
     }
 
     @Test(description = "Test global table constructor expr")
