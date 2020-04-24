@@ -431,7 +431,7 @@
         },
         {
             "name": "ElseBlockNode",
-            "base": "StatementNode",
+            "base": "Node",
             "kind": "ELSE_BLOCK",
             "attributes": [
                 {
@@ -440,7 +440,7 @@
                 },
                 {
                     "name": "elseBody",
-                    "type": "BlockStatementNode"
+                    "type": "StatementNode"
                 }
             ]
         },

@@ -653,7 +653,8 @@ public class BallerinaParserErrorHandler {
                     }
                     break;
                 case SIMPLE_TYPE_DESCRIPTOR:
-                    hasMatch = isTypeToken(nextToken.kind);
+                    hasMatch = BallerinaParser.isSimpleType(nextToken.kind) ||
+                            nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case FUNC_BODY:
                     return seekInFuncBodies(lookahead, currentDepth, matchingRulesCount, isEntryPoint);
@@ -1147,18 +1148,6 @@ public class BallerinaParserErrorHandler {
         result.solution =
                 new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString());
         return result;
-    }
-
-    private boolean isTypeToken(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case SIMPLE_TYPE:
-            case SERVICE_KEYWORD:
-            case IDENTIFIER_TOKEN:
-            case VAR_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
     }
 
     /**

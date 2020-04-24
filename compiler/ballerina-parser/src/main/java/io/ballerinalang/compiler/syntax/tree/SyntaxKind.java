@@ -63,8 +63,22 @@ public enum SyntaxKind {
     IS_KEYWORD(214, "is"),
     NULL_KEYWORD(215, "null"),
     LOCK_KEYWORD(216, "lock"),
-    VAR_KEYWORD(217, "var"),
 
+    // Type keywords
+    INT_KEYWORD(250, "int"),
+    BYTE_KEYWORD(251, "byte"),
+    FLOAT_KEYWORD(252, "float"),
+    DECIMAL_KEYWORD(253, "decimal"),
+    STRING_KEYWORD(254, "string"),
+    BOOLEAN_KEYWORD(255, "boolean"),
+    XML_KEYWORD(256, "xml"),
+    JSON_KEYWORD(257, "json"),
+    HANDLE_KEYWORD(258, "handle"),
+    ANY_KEYWORD(259, "any"),
+    ANYDATA_KEYWORD(260, "anydata"),
+    NEVER_KEYWORD(261, "never"),
+    VAR_KEYWORD(262, "var"),
+    
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
     CLOSE_BRACE_TOKEN(501, "}"),

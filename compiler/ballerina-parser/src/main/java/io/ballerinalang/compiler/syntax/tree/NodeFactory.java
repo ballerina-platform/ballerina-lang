@@ -330,7 +330,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ElseBlockNode createElseBlockNode(
             Token elseKeyword,
-            BlockStatementNode elseBody) {
+            StatementNode elseBody) {
         Objects.requireNonNull(elseKeyword, "elseKeyword must not be null");
         Objects.requireNonNull(elseBody, "elseBody must not be null");
 
