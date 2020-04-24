@@ -57,9 +57,14 @@
                 {{else}}
                     <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a>
                 {{/if}} :
-                <span class="objects">{{ object.name }}</span>
+                <span class="objects {{#if object.isDeprecated}}strike{{/if}}">{{ object.name }}</span>
             </h1>
-            <p>{{{ object.description }}}</p>
+            <p>
+                {{#if object.isDeprecated}}
+                    <span class="stab">Deprecated</span>
+                {{/if}}
+                {{{ object.description }}}
+            </p>
 
             <div class="constants">
                 <div class="method-sum">
