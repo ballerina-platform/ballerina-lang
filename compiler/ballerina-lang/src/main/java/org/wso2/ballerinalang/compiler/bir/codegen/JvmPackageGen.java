@@ -252,6 +252,9 @@ public class JvmPackageGen {
             }
         }
 
+        // Desugar BIR to include the observations
+        rewriteObservableFunctions(module);
+
         typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
                 interopValidator, isEntry);
@@ -275,9 +278,6 @@ public class JvmPackageGen {
 
         // Desugar the record init function
         rewriteRecordInits(module.typeDefs);
-
-        // Desugar BIR to include the observations
-        rewriteObservableFunctions(module);
 
         // generate object/record value classes
         ObjectGenerator objGen = new ObjectGenerator(module);
