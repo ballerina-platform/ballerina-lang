@@ -2,4 +2,4 @@
 // storage and eviction policies while providing a in-memory storage and LRU
 // eviction policy by default.<br/><br/>
 // For more information on the underlying module, 
-// see [the Cache module](https://ballerina.io/learn/api-docs/ballerina/cache/index.html).
+// see the [Cache module](https://ballerina.io/learn/api-docs/ballerina/cache/index.html).

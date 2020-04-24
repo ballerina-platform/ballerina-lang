@@ -1,3 +1,3 @@
 //The `ballerina/config` module provides an API to read configurations from various sources such as files, environment variables and CLI parameters.<br/><br/>
 // For more information on the underlying module, 
-// see [the Config module](https://ballerina.io/learn/api-docs/ballerina/config/index.html).
+// see the [Config module](https://ballerina.io/learn/api-docs/ballerina/config/index.html).

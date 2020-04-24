@@ -6,4 +6,4 @@
 // the `attach()` function, which then can be used inside the `onTrigger()`
 // function. The Listener can be stopped by calling the `stop()` function.<br/><br/>
 // For more information on the underlying module, 
-// see [the Task module](https://ballerina.io/learn/api-docs/ballerina/task/index.html).
+// see the [Task module](https://ballerina.io/learn/api-docs/ballerina/task/index.html).

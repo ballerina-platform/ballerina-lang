@@ -6,4 +6,4 @@
 // `noOfRecurrences` field can be used to provide the maximum number of times
 // the Timer should run before shutting down.<br/><br/>
 // For more information on the underlying module, 
-// see [the Task module](https://ballerina.io/learn/api-docs/ballerina/task/index.html).
+// see the [Task module](https://ballerina.io/learn/api-docs/ballerina/task/index.html).

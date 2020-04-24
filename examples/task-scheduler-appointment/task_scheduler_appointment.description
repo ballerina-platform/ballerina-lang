@@ -7,4 +7,4 @@
 // Then the Scheduler can be started using `start()` method. When the scheduler
 // needs to be cancelled, `stop()` method can be called.<br/><br/>
 // For more information on the underlying module, 
-// see [the Task module](https://ballerina.io/learn/api-docs/ballerina/task/index.html).
+// see the [Task module](https://ballerina.io/learn/api-docs/ballerina/task/index.html).

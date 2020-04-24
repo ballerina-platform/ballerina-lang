@@ -3,4 +3,4 @@
 // Similarly, the `@java:FieldSet` annotation can be used to create a Ballerina function with
 // an external function that acts as a field setter.<br/><br/>
 // For more information on the underlying module, 
-// see [the Java module](https://ballerina.io/learn/api-docs/ballerina/java/index.html).
+// see the [Java module](https://ballerina.io/learn/api-docs/ballerina/java/index.html).

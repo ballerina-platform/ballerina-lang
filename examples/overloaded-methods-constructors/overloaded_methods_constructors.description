@@ -3,4 +3,4 @@
 // parameters, then you need to specify the parameter types of the exact constructor or the method using the
 // `paramTypes` annotation field.<br/><br/>
 // For more information on the underlying module, 
-// see [the Java module](https://ballerina.io/learn/api-docs/ballerina/java/index.html).
+// see the [Java module](https://ballerina.io/learn/api-docs/ballerina/java/index.html).

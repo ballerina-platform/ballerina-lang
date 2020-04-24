@@ -1,4 +1,4 @@
 //The `ballerina/log` module contains the Ballerina-log-handling functions including 'DEBUG', 'ERROR', 'INFO', 'TRACE',
 //'WARN', 'OFF', and 'ALL'.<br/><br/>
 // For more information on the underlying module, 
-// see [the Log module](https://ballerina.io/learn/api-docs/ballerina/log/index.html).
+// see the [Log module](https://ballerina.io/learn/api-docs/ballerina/log/index.html).
