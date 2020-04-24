@@ -976,5 +976,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STDocumentationStringNode(
                 documentationLines);
     }
+
+    public static STNode createUnionTypeDescriptorNode(
+            STNode leftTypeDesc,
+            STNode pipeToken,
+            STNode rightTypeDesc) {
+
+        return new STUnionTypeDescriptorNode(
+                leftTypeDesc,
+                pipeToken,
+                rightTypeDesc);
+    }
 }
 

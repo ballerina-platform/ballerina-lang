@@ -1312,5 +1312,20 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 documentationLines.underlyingListNode().internalNode());
         return stDocumentationStringNode.createUnlinkedFacade();
     }
+
+    public static UnionTypeDescriptorNode createUnionTypeDescriptorNode(
+            Node leftTypeDesc,
+            Token pipeToken,
+            Node rightTypeDesc) {
+        Objects.requireNonNull(leftTypeDesc, "leftTypeDesc must not be null");
+        Objects.requireNonNull(pipeToken, "pipeToken must not be null");
+        Objects.requireNonNull(rightTypeDesc, "rightTypeDesc must not be null");
+
+        STNode stUnionTypeDescriptorNode = STNodeFactory.createUnionTypeDescriptorNode(
+                leftTypeDesc.internalNode(),
+                pipeToken.internalNode(),
+                rightTypeDesc.internalNode());
+        return stUnionTypeDescriptorNode.createUnlinkedFacade();
+    }
 }
 

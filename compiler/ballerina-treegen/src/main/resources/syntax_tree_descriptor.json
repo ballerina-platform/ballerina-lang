@@ -1736,6 +1736,25 @@
                     "occurrences": "MULTIPLE"
                 }
             ]
+        },
+        {
+            "name": "UnionTypeDescriptorNode",
+            "base": "Node",
+            "kind": "UNION_TYPE",
+            "attributes": [
+                {
+                    "name": "leftTypeDesc",
+                    "type": "Node"
+                },
+                {
+                    "name": "pipeToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "rightTypeDesc",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }

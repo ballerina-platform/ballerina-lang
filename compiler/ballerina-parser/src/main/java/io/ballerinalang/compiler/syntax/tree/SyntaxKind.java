@@ -175,6 +175,7 @@ public enum SyntaxKind {
     OPTIONAL_TYPE(2003),
     ARRAY_TYPE(2004),
     PARAMETERIZED_TYPE(2005),
+    UNION_TYPE(2006),
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),

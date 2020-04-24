@@ -117,6 +117,7 @@ public enum ParserRuleContext {
     DEFAULT_WORKER_INIT("default-worker-init"),
     NAMED_WORKERS("named-workers"),
     DEFAULT_WORKER("default-worker-init"),
+    UNION_TYPE_DESCRIPTOR("union-type-descriptor"),
 
     // Statements
     STATEMENT("statement"),
@@ -210,6 +211,7 @@ public enum ParserRuleContext {
     RIGHT_ARROW("->"),
     GT(">"),
     LT("<"),
+    PIPE("|"),
 
     // Other terminals
     FUNC_NAME("function-name"),

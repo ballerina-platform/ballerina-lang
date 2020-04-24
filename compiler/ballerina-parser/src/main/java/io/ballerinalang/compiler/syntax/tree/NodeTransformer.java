@@ -332,6 +332,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(documentationStringNode);
     }
 
+    public T transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {
+        return transformSyntaxNode(unionTypeDescriptorNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
