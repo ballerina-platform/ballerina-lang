@@ -25,7 +25,6 @@ dependencies {
 
 description = 'Ballerina - Compiler API'
 
-
 test {
     useTestNG() {
 //        suites 'src/test/resources/testng.xml'

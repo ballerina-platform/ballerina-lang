@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.TypeKind;
 
 /**
@@ -28,7 +29,7 @@ import org.ballerinalang.model.types.TypeKind;
 public abstract class BallerinaTypeDesc implements TypeDescriptor {
     private TypeDescKind typeDescKind;
     private ModuleID moduleID;
-    private TypeKind typeKind;
+    protected TypeKind typeKind;
 
     public BallerinaTypeDesc(TypeDescKind typeDescKind, ModuleID moduleID, TypeKind typeKind) {
         this.typeDescKind = typeDescKind;
@@ -62,9 +63,9 @@ public abstract class BallerinaTypeDesc implements TypeDescriptor {
          * @param moduleID Module ID of the type descriptor
          * @param typeKind kind of the type descriptor
          */
-        public TypeBuilder(TypeDescKind typeDescKind, ModuleID moduleID, TypeKind typeKind) {
+        public TypeBuilder(TypeDescKind typeDescKind, PackageID moduleID, TypeKind typeKind) {
             this.typeDescKind = typeDescKind;
-            this.moduleID = moduleID;
+            this.moduleID = new ModuleID(moduleID);
             this.typeKind = typeKind;
         }
         
@@ -74,9 +75,9 @@ public abstract class BallerinaTypeDesc implements TypeDescriptor {
          * @param typeDescKind type descriptor kind
          * @param moduleID Module ID of the type descriptor
          */
-        public TypeBuilder(TypeDescKind typeDescKind, ModuleID moduleID) {
+        public TypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
             this.typeDescKind = typeDescKind;
-            this.moduleID = moduleID;
+            this.moduleID = new ModuleID(moduleID);
         }
 
         /**

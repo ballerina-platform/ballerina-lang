@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.TypeKind;
 
 import java.util.Optional;
@@ -61,7 +62,7 @@ public class TypeDescTypeDescriptor extends BallerinaTypeDesc {
          * @param typeDescKind type descriptor kind
          * @param moduleID     Module ID of the type descriptor
          */
-        public TypeDescTypeBuilder(TypeDescKind typeDescKind, ModuleID moduleID) {
+        public TypeDescTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
             super(typeDescKind, moduleID, TypeKind.TYPEDESC);
         }
 

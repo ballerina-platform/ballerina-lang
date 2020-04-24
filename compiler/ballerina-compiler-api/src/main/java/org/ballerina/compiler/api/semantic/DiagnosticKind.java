@@ -15,24 +15,15 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api.model;
+package org.ballerina.compiler.api.semantic;
 
 /**
- * Represents the types of Symbols.
+ * Represents the diagnostic kinds.
  * 
  * @since 1.3.0
  */
-public enum SymbolKind {
-    MODULE,
-    XMLNS,
-    LISTENER,
-    CLIENT,
-    PARAM,
-    FUNCTION_DECLARATION,
-    FUNCTION_DEFINITION,
-    EXTERNAL_FUNCTION,
-    REMOTE_FUNCTION,
-    ACTION_INVOCATION,
-    CONST,
-    TYPE_DEF
+public enum DiagnosticKind {
+    SYNTAX,
+    SEMANTIC,
+    ALL
 }

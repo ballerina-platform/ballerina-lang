@@ -17,7 +17,6 @@
  */
 package org.ballerina.compiler.api.model;
 
-import org.ballerina.compiler.api.SymbolFactory;
 import org.ballerinalang.model.elements.PackageID;
 
 /**
@@ -28,12 +27,12 @@ import org.ballerinalang.model.elements.PackageID;
 public class BallerinaSymbol implements BCompiledSymbol {
     private String name;
     private PackageID moduleID;
-    private SymbolKind symbolKind;
+    private BallerinaSymbolKind ballerinaSymbolKind;
 
-    protected BallerinaSymbol(String name, PackageID moduleID, SymbolKind symbolKind) {
+    protected BallerinaSymbol(String name, PackageID moduleID, BallerinaSymbolKind ballerinaSymbolKind) {
         this.name = name;
         this.moduleID = moduleID;
-        this.symbolKind = symbolKind;
+        this.ballerinaSymbolKind = ballerinaSymbolKind;
     }
 
     /**
@@ -49,15 +48,15 @@ public class BallerinaSymbol implements BCompiledSymbol {
      */
     @Override
     public ModuleID getModuleID() {
-        return SymbolFactory.createModuleID(this.moduleID);
+        return new ModuleID(this.moduleID);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public SymbolKind getKind() {
-        return this.symbolKind;
+    public BallerinaSymbolKind getKind() {
+        return this.ballerinaSymbolKind;
     }
 
     /**
@@ -67,17 +66,18 @@ public class BallerinaSymbol implements BCompiledSymbol {
     protected abstract static class SymbolBuilder<T extends SymbolBuilder<T>> {
         protected String name;
         protected PackageID moduleID;
-        protected SymbolKind symbolKind;
+        protected BallerinaSymbolKind ballerinaSymbolKind;
         /**
          * Symbol Builder Constructor.
          * 
          * @param name Symbol Name
          * @param moduleID module ID of the symbol
+         * @param symbolKind symbol kind
          */
-        public SymbolBuilder(String name, PackageID moduleID, SymbolKind symbolKind) {
+        public SymbolBuilder(String name, PackageID moduleID, BallerinaSymbolKind symbolKind) {
             this.name = name;
             this.moduleID = moduleID;
-            this.symbolKind = symbolKind;
+            this.ballerinaSymbolKind = symbolKind;
         }
 
         /**

@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.TypeKind;
 
 /**
@@ -59,7 +60,7 @@ public class MapTypeDescriptor extends BallerinaTypeDesc {
          * @param moduleID     Module ID of the type descriptor
          * @param typeKind     kind of the type descriptor
          */
-        public MapTypeBuilder(TypeDescKind typeDescKind, ModuleID moduleID, TypeKind typeKind) {
+        public MapTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID, TypeKind typeKind) {
             super(typeDescKind, moduleID, typeKind);
         }
 

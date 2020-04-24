@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.TypeKind;
 
 import java.util.ArrayList;
@@ -80,7 +81,7 @@ public class TupleTypeDescriptor extends BallerinaTypeDesc {
          * @param moduleID     Module ID of the type descriptor
          * @param typeKind     kind of the type descriptor
          */
-        public TupleTypeBuilder(TypeDescKind typeDescKind, ModuleID moduleID, TypeKind typeKind) {
+        public TupleTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID, TypeKind typeKind) {
             super(typeDescKind, moduleID, typeKind);
         }
 

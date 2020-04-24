@@ -27,5 +27,6 @@ public enum TypeDescKind {
     RECORD,
     ERROR,
     SIMPLE,
-    OTHER
+    OTHER,
+    FUNCTION
 }

@@ -17,8 +17,13 @@
  */
 package org.ballerina.compiler.api.model;
 
+import org.ballerina.compiler.api.semantic.SymbolFactory;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,33 +38,82 @@ public class BallerinaModule extends BallerinaSymbol {
     
     protected BallerinaModule(String name,
                               PackageID moduleID,
-                              SymbolKind symbolKind, BPackageSymbol packageSymbol) {
-        super(name, moduleID, symbolKind);
+                              BallerinaSymbolKind ballerinaSymbolKind, BPackageSymbol packageSymbol) {
+        super(name, moduleID, ballerinaSymbolKind);
         this.packageSymbol = packageSymbol;
     }
 
     /**
-     * Get the type definitions defined within the module.
+     * Get the public type definitions defined within the module.
      * 
      * @return {@link List} of type definitions
      */
     public List<BallerinaTypeDefinition> getTypeDefinitions() {
-        // todo: complete the generator
-        return new ArrayList<>();
+        List<BallerinaTypeDefinition> typeDefs = new ArrayList<>();
+        this.packageSymbol.scope.entries.forEach((name, scopeEntry) -> {
+            if (scopeEntry.symbol instanceof BTypeSymbol
+                    && (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+                typeDefs.add(SymbolFactory.createTypeDefinition((BTypeSymbol) scopeEntry.symbol));
+            }
+        });
+        
+        return typeDefs;
     }
-    
+
+    /**
+     * Get the public functions defined within the module.
+     *
+     * @return {@link List} of type definitions
+     */
     public List<BallerinaFunctionSymbol> getFunctions() {
-        // todo: complete the generator
-        return new ArrayList<>();
+        List<BallerinaFunctionSymbol> functions = new ArrayList<>();
+        this.packageSymbol.scope.entries.forEach((name, scopeEntry) -> {
+            if (scopeEntry.symbol instanceof BInvokableSymbol
+                    && (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+                functions.add(SymbolFactory.createFunctionSymbol((BInvokableSymbol) scopeEntry.symbol));
+            }
+        });
+        return functions;
     }
-    
+
+    /**
+     * Get the public constants defined within the module.
+     *
+     * @return {@link List} of type definitions
+     */
     public List<BallerinaConstantSymbol> getConstants() {
-        // todo: complete the generator
-        return new ArrayList<>();
+        List<BallerinaConstantSymbol> constants = new ArrayList<>();
+        this.packageSymbol.scope.entries.forEach((name, scopeEntry) -> {
+            if (scopeEntry.symbol instanceof BConstantSymbol
+                    && (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+                constants.add(SymbolFactory.createConstantSymbol((BConstantSymbol) scopeEntry.symbol));
+            }
+        });
+        
+        return constants;
+    }
+
+    /**
+     * Get all public the symbols within the module.
+     *
+     * @return {@link List} of type definitions
+     */
+    public List<BCompiledSymbol> getAllSymbols() {
+        List<BCompiledSymbol> symbols = new ArrayList<>();
+        this.packageSymbol.scope.entries.forEach((name, scopeEntry) -> {
+            if (scopeEntry.symbol instanceof BConstantSymbol
+                    && (scopeEntry.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+                symbols.add(SymbolFactory.getBCompiledSymbol(scopeEntry.symbol));
+            }
+        });
+        
+        return symbols;
     }
     
     /**
      * Represents Ballerina Module Symbol Builder.
+     * 
+     * @since 1.3.0
      */
     public static class ModuleSymbolBuilder extends SymbolBuilder<ModuleSymbolBuilder> {
         BPackageSymbol packageSymbol;
@@ -69,19 +123,20 @@ public class BallerinaModule extends BallerinaSymbol {
          *
          * @param name Symbol Name
          * @param moduleID module ID of the symbol
+         * @param symbolKind symbol kind
          */
-        public ModuleSymbolBuilder(String name, PackageID moduleID, SymbolKind symbolKind) {
+        public ModuleSymbolBuilder(String name, PackageID moduleID, BallerinaSymbolKind symbolKind) {
             super(name, moduleID, symbolKind);
         }
 
         /**
          * {@inheritDoc}
          */
-        public BallerinaSymbol build() {
+        public BallerinaModule build() {
             if (this.packageSymbol == null) {
                 throw new AssertionError("Package Symbol cannot be null");
             }
-            return new BallerinaModule(this.name, this.moduleID, this.symbolKind, this.packageSymbol);
+            return new BallerinaModule(this.name, this.moduleID, this.ballerinaSymbolKind, this.packageSymbol);
         }
         
         public ModuleSymbolBuilder withPackageSymbol(BPackageSymbol packageSymbol) {

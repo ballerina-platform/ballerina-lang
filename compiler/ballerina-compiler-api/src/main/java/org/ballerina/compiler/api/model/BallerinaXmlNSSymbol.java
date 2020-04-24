@@ -24,29 +24,28 @@ import org.ballerinalang.model.elements.PackageID;
  * 
  * @since 1.3.0
  */
-public class XmlNSSymbol extends BallerinaSymbol {
-    private XmlNSSymbol(String name, PackageID moduleID, SymbolKind symbolKind) {
-        super(name, moduleID, symbolKind);
+public class BallerinaXmlNSSymbol extends BallerinaSymbol {
+    private BallerinaXmlNSSymbol(String name, PackageID moduleID, BallerinaSymbolKind ballerinaSymbolKind) {
+        super(name, moduleID, ballerinaSymbolKind);
     }
 
     /**
      * Represents Ballerina XML Namespace Symbol Builder.
      */
     public static class XmlNSSymbolBuilder extends SymbolBuilder<XmlNSSymbolBuilder> {
-        protected String name;
-        protected PackageID moduleID;
         /**
          * Symbol Builder's Constructor.
          *
          * @param name Symbol Name
          * @param moduleID module ID of the symbol
+         * @param symbolKind symbol kind
          */
-        public XmlNSSymbolBuilder(String name, PackageID moduleID, SymbolKind symbolKind) {
+        public XmlNSSymbolBuilder(String name, PackageID moduleID, BallerinaSymbolKind symbolKind) {
             super(name, moduleID, symbolKind);
         }
 
-        public BallerinaSymbol build() {
-            return new XmlNSSymbol(this.name, this.moduleID, symbolKind);
+        public BallerinaXmlNSSymbol build() {
+            return new BallerinaXmlNSSymbol(this.name, this.moduleID, ballerinaSymbolKind);
         }
     }
 }

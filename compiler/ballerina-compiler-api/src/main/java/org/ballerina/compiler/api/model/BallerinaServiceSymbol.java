@@ -17,11 +17,15 @@
  */
 package org.ballerina.compiler.api.model;
 
+import org.ballerina.compiler.api.semantic.SymbolFactory;
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -34,12 +38,26 @@ public class BallerinaServiceSymbol extends BallerinaVariable {
     
     private BallerinaServiceSymbol(String name,
                                    PackageID moduleID,
-                                   SymbolKind symbolKind,
                                    List<AccessModifier> accessModifiers,
                                    TypeDescriptor typeDescriptor,
                                    BServiceSymbol serviceSymbol) {
-        super(name, moduleID, symbolKind, accessModifiers, typeDescriptor);
+        super(name, moduleID, BallerinaSymbolKind.SERVICE, accessModifiers, typeDescriptor);
         this.serviceSymbol = serviceSymbol;
+    }
+    
+    public List<BallerinaFunctionSymbol> getResources() {
+        List<BallerinaFunctionSymbol> resources = new ArrayList<>();
+        if (!(this.serviceSymbol.type.tsymbol instanceof BObjectTypeSymbol)) {
+            // Do we need to throw an assertion error instead
+            return resources;
+        }
+        for (BAttachedFunction function : ((BObjectTypeSymbol) this.serviceSymbol.type.tsymbol).attachedFuncs) {
+            if ((function.symbol.flags & Flags.REMOTE) == Flags.REMOTE) {
+                BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(function.symbol);
+                resources.add(functionSymbol);
+            }
+        }
+        return resources;
     }
 
     /**
@@ -48,13 +66,16 @@ public class BallerinaServiceSymbol extends BallerinaVariable {
     public static class ServiceSymbolBuilder extends VariableSymbolBuilder {
         private BServiceSymbol serviceSymbol;
         
-        public ServiceSymbolBuilder(String name, PackageID moduleID, SymbolKind symbolKind) {
-            super(name, moduleID, symbolKind);
+        public ServiceSymbolBuilder(String name, PackageID moduleID) {
+            super(name, moduleID);
         }
 
-        public BallerinaSymbol build() {
-            return new BallerinaServiceSymbol(this.name, this.moduleID, this.symbolKind, this.accessModifiers,
-                    this.typeDescriptor, this.serviceSymbol);
+        public BallerinaServiceSymbol build() {
+            return new BallerinaServiceSymbol(this.name,
+                    this.moduleID,
+                    this.accessModifiers,
+                    this.typeDescriptor,
+                    this.serviceSymbol);
         }
 
         public ServiceSymbolBuilder withServiceSymbol(BServiceSymbol serviceSymbol) {
@@ -62,6 +83,4 @@ public class BallerinaServiceSymbol extends BallerinaVariable {
             return this;
         }
     }
-    
-    // TODO: Implement the resource function getters 
 }

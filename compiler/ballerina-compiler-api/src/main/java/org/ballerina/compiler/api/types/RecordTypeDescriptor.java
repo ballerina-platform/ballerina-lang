@@ -19,6 +19,7 @@ package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.BallerinaField;
 import org.ballerina.compiler.api.model.ModuleID;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.TypeKind;
 
 import java.util.ArrayList;
@@ -117,10 +118,11 @@ public class RecordTypeDescriptor extends BallerinaTypeDesc {
          *
          * @param typeDescKind type descriptor kind
          * @param moduleID     Module ID of the type descriptor
+         * @param inclusive whether the record is inclusive or not
          */
-        public RecordTypeBuilder(TypeDescKind typeDescKind, ModuleID moduleID, boolean isInclusive) {
+        public RecordTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID, boolean inclusive) {
             super(typeDescKind, moduleID);
-            this.isInclusive = isInclusive;
+            this.isInclusive = inclusive;
         }
 
         /**
@@ -128,7 +130,7 @@ public class RecordTypeDescriptor extends BallerinaTypeDesc {
          *
          * @return {@link TypeDescriptor} built
          */
-        public TypeDescriptor build() {
+        public RecordTypeDescriptor build() {
             return new RecordTypeDescriptor(this.typeDescKind,
                     this.moduleID,
                     this.fieldDescriptors,

@@ -20,7 +20,6 @@ package org.ballerina.compiler.api.model;
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,9 +30,41 @@ import java.util.List;
 public class BallerinaTypeDefinition extends BallerinaVariable {
     protected BallerinaTypeDefinition(String name,
                                       PackageID moduleID,
-                                      SymbolKind symbolKind,
                                       List<AccessModifier> accessModifiers,
                                       TypeDescriptor typeDescriptor) {
-        super(name, moduleID, symbolKind, accessModifiers, typeDescriptor);
+        super(name, moduleID, BallerinaSymbolKind.TYPE_DEF, accessModifiers, typeDescriptor);
+    }
+
+    /**
+     * Represents a type definition symbol builder.
+     * 
+     * @since 1.3.0
+     */
+    public static class TypeDefSymbolBuilder extends BallerinaVariable.VariableSymbolBuilder {
+
+        /**
+         * Symbol Builder's Constructor.
+         *
+         * @param name     Symbol Name
+         * @param moduleID module ID of the symbol
+         */
+        public TypeDefSymbolBuilder(String name, PackageID moduleID) {
+            super(name, moduleID);
+        }
+
+        @Override
+        public TypeDefSymbolBuilder withTypeDescriptor(TypeDescriptor typeDescriptor) {
+            return (TypeDefSymbolBuilder) super.withTypeDescriptor(typeDescriptor);
+        }
+
+        @Override
+        public TypeDefSymbolBuilder withAccessModifier(AccessModifier accessModifier) {
+            return (TypeDefSymbolBuilder) super.withAccessModifier(accessModifier);
+        }
+
+        @Override
+        public BallerinaTypeDefinition build() {
+            return new BallerinaTypeDefinition(this.name, this.moduleID, this.accessModifiers, this.typeDescriptor);
+        }
     }
 }

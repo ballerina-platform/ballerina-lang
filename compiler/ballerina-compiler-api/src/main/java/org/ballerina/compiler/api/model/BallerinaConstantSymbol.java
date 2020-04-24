@@ -19,12 +19,11 @@ package org.ballerina.compiler.api.model;
 
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 
 import java.util.List;
 
 /**
- * Represent FUnction Symbol.
+ * Represent Constant Symbol.
  * 
  * @since 1.3.0
  */
@@ -33,11 +32,10 @@ public class BallerinaConstantSymbol extends BallerinaVariable {
     
     private BallerinaConstantSymbol(String name,
                                     PackageID moduleID,
-                                    SymbolKind symbolKind,
                                     List<AccessModifier> accessModifiers,
                                     TypeDescriptor typeDescriptor,
                                     Object constValue) {
-        super(name, moduleID, symbolKind, accessModifiers, typeDescriptor);
+        super(name, moduleID, BallerinaSymbolKind.CONST, accessModifiers, typeDescriptor);
         this.constValue = constValue;
     }
 
@@ -54,20 +52,25 @@ public class BallerinaConstantSymbol extends BallerinaVariable {
      * Represents Ballerina Constant Symbol Builder.
      */
     public static class ConstantSymbolBuilder extends VariableSymbolBuilder {
+        
         private Object constantValue;
+        
         /**
          * Symbol Builder's Constructor.
          *
          * @param name Symbol Name
          * @param moduleID module ID of the symbol
          */
-        public ConstantSymbolBuilder(String name, PackageID moduleID, SymbolKind symbolKind) {
-            super(name, moduleID, symbolKind);
+        public ConstantSymbolBuilder(String name, PackageID moduleID) {
+            super(name, moduleID);
         }
 
-        public BallerinaSymbol build() {
-            return new BallerinaConstantSymbol(this.name, this.moduleID, this.symbolKind, this.accessModifiers,
-                    this.typeDescriptor, this.constantValue);
+        public BallerinaConstantSymbol build() {
+            return new BallerinaConstantSymbol(this.name,
+                    this.moduleID,
+                    this.accessModifiers,
+                    this.typeDescriptor,
+                    this.constantValue);
         }
 
         public ConstantSymbolBuilder withConstValue(Object constValue) {

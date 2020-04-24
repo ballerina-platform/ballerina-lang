@@ -17,7 +17,10 @@
  */
 package org.ballerina.compiler.api.model;
 
+import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.ballerina.compiler.api.types.TypeDescriptor;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * Represents a field with a name and type.
@@ -26,14 +29,12 @@ import org.ballerina.compiler.api.types.TypeDescriptor;
  */
 public class BallerinaField {
     // add the metadata field
-    private String fieldName;
+    private BField bField;
     private TypeDescriptor typeDescriptor;
-    private boolean isOptional;
 
-    public BallerinaField(String fieldName, TypeDescriptor typeDescriptor, boolean isOptional) {
-        this.fieldName = fieldName;
-        this.typeDescriptor = typeDescriptor;
-        this.isOptional = isOptional;
+    public BallerinaField(BField bField) {
+        this.bField = bField;
+        this.typeDescriptor = TypesFactory.getTypeDescriptor(bField.getType());
     }
 
     /**
@@ -42,7 +43,7 @@ public class BallerinaField {
      * @return {@link String} name of the field
      */
     public String getFieldName() {
-        return fieldName;
+        return this.bField.getName().getValue();
     }
 
     /**
@@ -51,7 +52,7 @@ public class BallerinaField {
      * @return {@link Boolean} optional status
      */
     public boolean isOptional() {
-        return isOptional;
+        return (this.bField.type.flags & Flags.OPTIONAL) == Flags.OPTIONAL;
     }
 
     /**
@@ -60,7 +61,7 @@ public class BallerinaField {
      * @return {@link TypeDescriptor} of the field
      */
     public TypeDescriptor getTypeDescriptor() {
-        return typeDescriptor;
+        return TypesFactory.getTypeDescriptor(this.bField.getType());
     }
 
     /**
@@ -69,8 +70,8 @@ public class BallerinaField {
      * @return {}
      */
     public String getSignature() {
-        StringBuilder signature = new StringBuilder(this.typeDescriptor.getSignature() + " " + this.fieldName);
-        if (this.isOptional) {
+        StringBuilder signature = new StringBuilder(this.typeDescriptor.getSignature() + " " + this.getFieldName());
+        if (this.isOptional()) {
             signature.append("?");
         }
         

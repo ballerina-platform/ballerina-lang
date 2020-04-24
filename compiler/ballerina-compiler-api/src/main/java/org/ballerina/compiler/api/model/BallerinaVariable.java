@@ -35,10 +35,10 @@ public class BallerinaVariable extends BallerinaSymbol {
     
     protected BallerinaVariable(String name,
                               PackageID moduleID,
-                              SymbolKind symbolKind,
+                              BallerinaSymbolKind ballerinaSymbolKind,
                               List<AccessModifier> accessModifiers,
                               TypeDescriptor typeDescriptor) {
-        super(name, moduleID, symbolKind);
+        super(name, moduleID, ballerinaSymbolKind);
         this.accessModifiers = accessModifiers;
         this.typeDescriptor = typeDescriptor;
     }
@@ -73,12 +73,12 @@ public class BallerinaVariable extends BallerinaSymbol {
          * @param name Symbol Name
          * @param moduleID module ID of the symbol
          */
-        public VariableSymbolBuilder(String name, PackageID moduleID, SymbolKind symbolKind) {
-            super(name, moduleID, symbolKind);
+        public VariableSymbolBuilder(String name, PackageID moduleID) {
+            super(name, moduleID, BallerinaSymbolKind.VARIABLE);
         }
 
-        public BallerinaSymbol build() {
-            return new BallerinaVariable(this.name, this.moduleID, this.symbolKind, this.accessModifiers,
+        public BallerinaVariable build() {
+            return new BallerinaVariable(this.name, this.moduleID, this.ballerinaSymbolKind, this.accessModifiers,
                     this.typeDescriptor);
         }
         

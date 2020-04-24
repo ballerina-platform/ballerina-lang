@@ -40,7 +40,7 @@ public interface BCompiledSymbol {
     /**
      * Get the Symbol Kind.
      * 
-     * @return {@link SymbolKind} of the symbol
+     * @return {@link BallerinaSymbolKind} of the symbol
      */
-    SymbolKind getKind();
+    BallerinaSymbolKind getKind();
 }

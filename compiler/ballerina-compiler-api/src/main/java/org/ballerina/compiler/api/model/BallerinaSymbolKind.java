@@ -15,22 +15,28 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerina.compiler.api;
-
-import org.ballerina.compiler.api.model.ModuleID;
-import org.ballerinalang.model.elements.PackageID;
+package org.ballerina.compiler.api.model;
 
 /**
- * Factory implementation to convert the {@link org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol}.
- *
+ * Represents the types of Symbols.
+ * 
  * @since 1.3.0
  */
-public class SymbolFactory {
-    private SymbolFactory() {
-    }
-    
-    public static ModuleID createModuleID(PackageID packageID) {
-        return new ModuleID(packageID);
-    }
-
+public enum BallerinaSymbolKind {
+    MODULE,
+    XMLNS,
+    LISTENER,
+    CLIENT,
+    PARAM,
+    FUNCTION,
+    FUNCTION_DECLARATION,
+    FUNCTION_DEFINITION,
+    EXTERNAL_FUNCTION,
+    REMOTE_FUNCTION,
+    ACTION_INVOCATION,
+    CONST,
+    TYPE_DEF,
+    VARIABLE,
+    SERVICE,
+    WORKER
 }

@@ -17,47 +17,85 @@
  */
 package org.ballerina.compiler.api.model;
 
+import org.ballerina.compiler.api.semantic.SymbolFactory;
+import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
- * Represent FUnction Symbol.
+ * Represent Function Symbol.
  * 
  * @since 1.3.0
  */
 public class BallerinaFunctionSymbol extends BallerinaVariable {
-    private BInvokableSymbol invokableSymbol;
+    private List<BallerinaParameter> parameters;
+    private BallerinaParameter restParam;
+    private TypeDescriptor returnType;
     
     private BallerinaFunctionSymbol(String name,
                                     PackageID moduleID,
-                                    SymbolKind symbolKind,
                                     List<AccessModifier> accessModifiers,
                                     TypeDescriptor typeDescriptor,
                                     BInvokableSymbol invokableSymbol) {
-        super(name, moduleID, symbolKind, accessModifiers, typeDescriptor);
-        this.invokableSymbol = invokableSymbol;
+        super(name, moduleID, BallerinaSymbolKind.FUNCTION, accessModifiers, typeDescriptor);
+        this.parameters = invokableSymbol.params.stream()
+                .map(SymbolFactory::createBallerinaParameter)
+                .collect(Collectors.toList());
+        this.restParam = SymbolFactory.createBallerinaParameter(invokableSymbol.restParam);
+        this.returnType = TypesFactory.getTypeDescriptor(invokableSymbol.retType);
+    }
+
+    /**
+     * Get the Required parameters.
+     * 
+     * @return {@link List} of return parameters
+     */
+    public List<BallerinaParameter> getParams() {
+        return this.parameters;
+    }
+
+    /**
+     * Get the rest parameter.
+     * 
+     * @return {@link Optional} rest parameter
+     */
+    public Optional<BallerinaParameter> getRestParam() {
+        return Optional.ofNullable(restParam);
+    }
+
+    /**
+     * Get the return parameter.
+     * 
+     * @return {@link Optional} return type descriptor
+     */
+    public Optional<TypeDescriptor> getReturnType() {
+        return Optional.ofNullable(returnType);
     }
 
     /**
      * Represents Ballerina XML Namespace Symbol Builder.
      */
     public static class FunctionSymbolBuilder extends BallerinaVariable.VariableSymbolBuilder {
+        
         private BInvokableSymbol invokableSymbol;
+        
         /**
          * Symbol Builder's Constructor.
          *
          * @param name Symbol Name
          * @param moduleID module ID of the symbol
          */
-        public FunctionSymbolBuilder(String name, PackageID moduleID, SymbolKind symbolKind) {
-            super(name, moduleID, symbolKind);
+        public FunctionSymbolBuilder(String name, PackageID moduleID) {
+            super(name, moduleID);
         }
 
-        public BallerinaSymbol build() {
-            return new BallerinaFunctionSymbol(this.name, this.moduleID, this.symbolKind, this.accessModifiers,
+        public BallerinaFunctionSymbol build() {
+            return new BallerinaFunctionSymbol(this.name, this.moduleID, this.accessModifiers,
                     this.typeDescriptor, this.invokableSymbol);
         }
 
@@ -66,6 +104,4 @@ public class BallerinaFunctionSymbol extends BallerinaVariable {
             return this;
         }
     }
-    
-    // TODO: Implement the params and return type getters 
 }
