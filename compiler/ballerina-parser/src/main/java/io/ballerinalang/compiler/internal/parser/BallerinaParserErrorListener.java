@@ -47,7 +47,8 @@ public class BallerinaParserErrorListener {
     }
     
     private void logError(int line, int col, String message) {
-        PrintStream out = System.out;
-        out.println("xxx.bal:" + line + ":" + col + ":" + message);
+        // FIXME: Removing below lines as it breaks lang-server rpc
+        // PrintStream out = System.out;
+        // out.println("xxx.bal:" + line + ":" + col + ":" + message);
     }
 }
