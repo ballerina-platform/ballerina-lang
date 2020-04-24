@@ -17,23 +17,18 @@
  */
 package io.ballerinalang.compiler.text;
 
+import java.util.Objects;
+
 /**
- * A representation of a startOffset in the {@code TextDocument} in terms of a zero-based line number
- * and a zero-based character offset on that line.
+ * The {@code LineInfo} represents a line number and a character offset from the start of the line.
+ *
+ * @since 2.0.0
  */
-public class TextPosition {
+public class LinePosition {
+    private final int line;
+    private final int offset;
 
-    /**
-     * Line number
-     */
-    private int line;
-
-    /**
-     * A zero-based character offset on the line
-     */
-    private int offset;
-
-    public TextPosition(int line, int offset) {
+    public LinePosition(int line, int offset) {
         this.line = line;
         this.offset = offset;
     }
@@ -44,5 +39,28 @@ public class TextPosition {
 
     public int offset() {
         return offset;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        LinePosition linePosition = (LinePosition) o;
+        return line == linePosition.line &&
+                offset == linePosition.offset;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(line, offset);
+    }
+
+    @Override
+    public String toString() {
+        return line + ":" + offset;
     }
 }

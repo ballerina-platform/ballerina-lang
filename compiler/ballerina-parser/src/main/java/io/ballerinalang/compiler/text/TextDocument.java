@@ -18,32 +18,35 @@
 package io.ballerinalang.compiler.text;
 
 import io.ballerinalang.compiler.internal.parser.CharReader;
-import io.ballerinalang.compiler.text.TextLineMap.TextLine;
-
-import java.io.Reader;
 
 /**
  * This is an abstract representation of a Ballerina source file (.bal)
+ *
+ * @since 2.0.0
  */
 public abstract class TextDocument {
+    private LineMap lineMap;
 
-    private TextLineMap lineMap;
+    public abstract TextDocument apply(TextDocumentChange textDocumentChange);
 
-    // TODO we need an abstraction for TextLine[] => TextLineMap
-    public TextLineMap textLineMap() {
+    protected abstract LineMap populateTextLineMap();
+
+    public abstract CharReader getCharacterReader();
+
+    public LinePosition textLineFrom(int position) {
+        return lines().lineFrom(position);
+    }
+
+    public int positionFrom(LinePosition linePosition) {
+        return lineMap.positionFrom(linePosition);
+    }
+
+    protected LineMap lines() {
         if (lineMap != null) {
             return lineMap;
         }
 
-        populateTextLineMap();
+        lineMap = populateTextLineMap();
         return lineMap;
     }
-
-    // TODO returns a new TextDocument by apply text document change
-    public abstract TextDocument apply(TextDocumentChange textDocumentChange);
-
-    protected abstract TextLine[] populateTextLineMap();
-
-    //TODO Remove this method and introduce copyOfRange to get a char array from the text document
-    public abstract CharReader getCharacterReader();
 }
