@@ -100,9 +100,7 @@ public enum ParserRuleContext {
     DOC_STRING("doc-string"),
     QUALIFIED_IDENTIFIER("qualified-identifier"),
     EQUAL_OR_RIGHT_ARROW("equal-or-right-arrow"),
-    MAP_TYPE_DESCRIPTOR("map-type-descriptor"),
-    FUTURE_TYPE_DESCRIPTOR("future-type-descriptor"),
-    TYPEDESC_TYPE_DESCRIPTOR("typedesc-type-descriptor"),
+    PARAMETERIZED_TYPE_DESCRIPTOR("parameterized-type-descriptor"),
     ANNOTATION_DECL("annotation-decl"),
     ANNOT_DECL_OPTIONAL_TYPE("annot-decl-optional-type"),
     ANNOT_DECL_RHS("annot-decl-rhs"),
@@ -256,6 +254,9 @@ public enum ParserRuleContext {
     NIL_LITERAL("nil-literal"),
     CONSTANT_EXPRESSION("constant-expr"),
     CONSTANT_EXPRESSION_START("constant-expr-start"),
+
+    //Other
+    PARAMETERIZED_TYPE("parameterized-type"),
     ;
 
     private String value;
