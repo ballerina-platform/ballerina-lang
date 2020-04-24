@@ -62,7 +62,7 @@ public class ComplexTypesQueryTest {
     public void setup() {
         result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query", "complex-query-test.bal"));
         negativeResult = 
-		BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query", "complex-query-negative-test.bal"));
+                BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query", "complex-query-negative-test.bal"));
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,
                 SQLDBUtils.getSQLResourceDir("query", "complex-test-data.sql"));
@@ -309,6 +309,6 @@ public class ComplexTypesQueryTest {
                 "incompatible types: expected 'stream<Student," +
                         "(ballerina/sql:DatabaseError|ballerina/sql:ApplicationError)>', " +
                         "found 'stream<record {| anydata...; |}," +
-                        "(ballerina/sql:DatabaseError|ballerina/sql:ApplicationError)>'", 25, 41 );
+                        "(ballerina/sql:DatabaseError|ballerina/sql:ApplicationError)>'", 25, 41);
     }
 }
