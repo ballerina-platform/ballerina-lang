@@ -42,6 +42,8 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
+
 /**
  * This test class handles the complex sql types to ballerina type conversion for query operation.
  *
