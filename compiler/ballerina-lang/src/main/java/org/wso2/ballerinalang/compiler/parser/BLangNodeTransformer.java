@@ -19,13 +19,16 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
+import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
+import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
@@ -98,6 +101,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -355,6 +359,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     // -----------------------------------------------Statements--------------------------------------------------------
+    @Override
+    public BLangNode transform(IfElseStatementNode ifElseStmtNode) {
+        BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
+        ifNode.pos = emptyPos;
+        ifNode.setCondition(createExpression(ifElseStmtNode.condition()));
+        ifNode.setBody((BLangBlockStmt) ifElseStmtNode.ifBody().apply(this));
+
+        ifElseStmtNode.elseBody().ifPresent(elseBody -> {
+            ElseBlockNode elseNode = (ElseBlockNode) elseBody;
+            ifNode.setElseStatement((org.ballerinalang.model.tree.statements.StatementNode) elseNode.elseBody().apply(this));
+        });
+
+        return ifNode;
+    }
 
     @Override
     public BLangNode transform(BlockStatementNode blockStatement) {
