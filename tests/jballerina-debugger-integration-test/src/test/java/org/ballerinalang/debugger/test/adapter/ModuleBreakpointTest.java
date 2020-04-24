@@ -72,8 +72,7 @@ public class ModuleBreakpointTest extends DebugAdapterBaseTestCase {
         timer.scheduleAtFixedRate(listener, 0, 1000);
         try {
             Thread.sleep(timeoutMillis);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException ignored) {
         }
         timer.cancel();
 

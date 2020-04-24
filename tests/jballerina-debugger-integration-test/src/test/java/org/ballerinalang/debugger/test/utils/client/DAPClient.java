@@ -42,7 +42,7 @@ public class DAPClient implements IDebugProtocolClient {
 
     @Override
     public void stopped(StoppedEventArguments args) {
-       requestManager.stopped(args);
+        requestManager.stopped(args);
     }
 
     @Override
@@ -56,7 +56,7 @@ public class DAPClient implements IDebugProtocolClient {
     }
 
     @Override
-    public void terminated(TerminatedEventArguments args){
+    public void terminated(TerminatedEventArguments args) {
         requestManager.terminated(args);
     }
 

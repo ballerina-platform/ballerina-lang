@@ -82,7 +82,6 @@ public abstract class Terminator {
                 try {
                     reader.close();
                 } catch (IOException ignored) {
-                    //noop
                 }
             }
         }

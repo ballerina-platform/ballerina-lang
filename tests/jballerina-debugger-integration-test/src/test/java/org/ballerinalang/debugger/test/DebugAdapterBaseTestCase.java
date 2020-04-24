@@ -259,6 +259,9 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         }
     }
 
+    /**
+     * Program resume options.
+     */
     public enum DebugResumeKind {
         NEXT_BREAKPOINT,
         STEP_IN,
