@@ -148,12 +148,12 @@ class HybridNodes {
     private static HybridNode tokenFromNewText(HybridNode.State state) {
         state.lexer.reset(state.newTextOffset);
         STToken token = state.lexer.nextToken();
-        state.newTextOffset += token.width();
+        state.newTextOffset += token.widthWithMinutiae();
         return new HybridNode(token, state);
     }
 
     private static boolean isNodeReusable(Node node, HybridNode.State state) {
-        if (node.internalNode().width() == 0) {
+        if (node.internalNode().widthWithMinutiae() == 0) {
             return false;
         }
 

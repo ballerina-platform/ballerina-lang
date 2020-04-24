@@ -54,10 +54,6 @@ public abstract class STAbstractNodeFactory {
         return new STToken(kind, leadingTrivia, trailingTrivia);
     }
 
-    public static STToken createToken(SyntaxKind kind, int width, STNode leadingTrivia, STNode trailingTrivia) {
-        return new STToken(kind, width, leadingTrivia, trailingTrivia);
-    }
-
     public static STToken createTypeToken(SyntaxKind kind, String text, STNode leadingTrivia, STNode trailingTrivia) {
         return new STTypeToken(kind, text, leadingTrivia, trailingTrivia);
     }
