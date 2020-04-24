@@ -240,7 +240,7 @@ function testLetExpressionErrorBindingVar() {
 }
 
 function testLetExpressionRecordConstrainedErrorBinding() {
-    string msg = let var error (_,detailMsg = detailMsg, isFatal = isFatal) = getRecordConstrainedError() in detailMsg;
+    string msg = let var error (_, detailMsg = detailMsg, isFatal = isFatal) = getRecordConstrainedError() in detailMsg;
     assertTrue(msg == "Failed Message", "msg == \"Failed Message\"");
 }
 

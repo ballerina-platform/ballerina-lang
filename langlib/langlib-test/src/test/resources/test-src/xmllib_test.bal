@@ -15,7 +15,9 @@
 // under the License.
 
 import ballerina/lang.'xml;
-xml catalog = xml `<CATALOG>
+import ballerina/lang.'int as langint;
+
+'xml:Element catalog = xml `<CATALOG>
                        <CD>
                            <TITLE>Empire Burlesque</TITLE>
                            <ARTIST>Bob Dylan</ARTIST>
@@ -39,7 +41,7 @@ function getXML() returns xml[] {
     xml[] data = [];
 
     data[data.length()] = catalog;
-    data[data.length()] = catalog["CD"][0];
+    data[data.length()] = catalog/<CD>[0];
     data[data.length()] = xml `Hello World!`;
 
     return data;
@@ -48,7 +50,7 @@ function getXML() returns xml[] {
 function testFromString() returns xml|error {
     string s = catalog.toString();
     xml x = <xml> 'xml:fromString(s);
-    return x["CD"]["TITLE"];
+    return x/<CD>/<TITLE>;
 }
 
 function emptyConcatCall() returns xml {
@@ -95,47 +97,44 @@ function testXmlIsText() returns [boolean, boolean] {
 }
 
 function getNameOfElement() returns string {
-    'xml:Element element = <'xml:Element> xml `<elem>elem</elem>`;
+    'xml:Element element = xml `<elem>elem</elem>`;
     return element.getName();
 }
 
 function testSetElementName() returns xml {
-    'xml:Element element = <'xml:Element> xml `<elem attr="attr1">content</elem>`;
+    'xml:Element element = xml `<elem attr="attr1">content</elem>`;
     element.setName("el2");
     return element;
 }
 
 function testGetChildren() returns xml {
-    'xml:Element cat = <'xml:Element> catalog;
-    xml ch1  = cat.getChildren().strip()[0];
+    xml ch1  = catalog.getChildren().strip()[0];
     'xml:Element ch1e = <'xml:Element> ch1;
     return ch1e.getChildren().strip();
 }
 
 function testSetChildren() returns xml {
     xml child = xml `<e>child</e>`;
-    'xml:Element catElm = <'xml:Element> catalog;
-    xml ch1 = catElm.getChildren().strip()[0];
+    xml ch1 = catalog.getChildren().strip()[0];
     'xml:Element ch1em = <'xml:Element> ch1;
     ch1em.setChildren(child);
-    return catElm.getChildren().strip()[0];
+    return catalog.getChildren().strip()[0];
 }
 
 function testGetAttributes() returns map<string> {
-    'xml:Element elem = <'xml:Element> xml `<elem attr="attr1" attr2="attr2">content</elem>`;
+    'xml:Element elem = xml `<elem attr="attr1" attr2="attr2">content</elem>`;
     return elem.getAttributes();
 }
 
 function testGetTarget() returns string {
-    xml x = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
-    'xml:ProcessingInstruction pi = <'xml:ProcessingInstruction> x;
+    'xml:ProcessingInstruction pi = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
     return pi.getTarget();
 }
 
 function testGetContent() returns [string, string, string] {
     'xml:Text t = <'xml:Text> xml `hello world`;
     'xml:ProcessingInstruction pi = <'xml:ProcessingInstruction> xml `<?pi-node type="cont"?>`;
-    'xml:Comment comment = <'xml:Comment> xml `<!-- this is a comment text -->`;
+    'xml:Comment comment = xml `<!-- this is a comment text -->`;
     return [t.getContent(), pi.getContent(), comment.getContent()];
 }
 
@@ -168,9 +167,9 @@ function testForEach() returns xml {
 }
 
 function testSlice() returns [xml, xml, xml] {
-    'xml:Element elemL = <'xml:Element> xml `<elemL>content</elemL>`;
-    'xml:Element elemN = <'xml:Element> xml `<elemN>content</elemN>`;
-    'xml:Element elemM = <'xml:Element> xml `<elemM>content</elemM>`;
+    'xml:Element elemL = xml `<elemL>content</elemL>`;
+    'xml:Element elemN = xml `<elemN>content</elemN>`;
+    'xml:Element elemM = xml `<elemM>content</elemM>`;
     xml elem = 'xml:concat(elemL, elemN, elemM);
     return [elem.slice(0, 2), elem.slice(1), 'xml:slice(elem, 1)];
 }
@@ -219,4 +218,163 @@ function testGet() returns [xml|error, xml|error, xml|error, xml|error, xml|erro
     xml|error item2 = trap s.get(-1);
 
     return [e1, e2, c1, item, item2];
+}
+
+xml bookstore = xml `<bookstore><book category="cooking">
+                            <title lang="en">Everyday Italian</title>
+                            <author>Giada De Laurentiis</author>
+                            <year>1990</year>
+                            <price>30.00</price>
+                        </book>
+                        <book category="children">
+                            <title lang="en">Harry Potter</title>
+                            <author>J. K. Rowling</author>
+                            <year>2005</year>
+                            <price>29.99</price>
+                        </book>
+                        <book category="web" cover="paperback">
+                            <title lang="en">Learning XML</title>
+                            <author>Erik T. Ray</author>
+                            <year>2020</year>
+                            <price>39.95</price>
+                        </book>
+                    </bookstore>`;
+
+function testAsyncFpArgsWithXmls() returns [int, xml] {
+
+    int sum = 0;
+    ((bookstore/*).elements()).forEach(function (xml x) {
+      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      future<int> f1 = start getRandomNumber(value);
+      int result = wait f1;
+      sum = sum + result;
+    });
+
+    var filter = ((bookstore/*).elements()).filter(function (xml x) returns boolean {
+      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      future<int> f1 = start getRandomNumber(value);
+      int result = wait f1;
+      return result > 2000;
+    });
+
+    var filter2 = (filter).map(function (xml x) returns xml {
+      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      future<int> f1 = start getRandomNumber(value);
+      int result = wait f1;
+      return xml `<year>${result}</year>`;
+    });
+    return [sum, filter];
+}
+
+function getRandomNumber(int i) returns int {
+    return i + 2;
+}
+
+function testChildren() {
+     xml brands = xml `<Brands><!-- Comment --><Apple>IPhone</Apple><Samsung>Galaxy</Samsung><OP>OP7</OP></Brands>`;
+
+     xml p = brands.children(); // equivalent to getChildren()
+     assert(p.length(), 4);
+     assert(p.toString(), "<!-- Comment --><Apple>IPhone</Apple><Samsung>Galaxy</Samsung><OP>OP7</OP>");
+
+     xml seq = brands/*;
+     xml q = seq.children();
+     assert(q.length(), 3);
+     assert(q.toString(), "IPhoneGalaxyOP7");
+}
+
+function testElements() {
+    xml presidents = xml `<Leaders>
+                            <!-- This is a comment -->
+                            <US>Obama</US>
+                            <US>Trump</US>
+                            <RUS>Putin</RUS>
+                          </Leaders>`;
+    xml seq = presidents/*;
+
+    xml y = seq.elements();
+    assert(y.length(), 3);
+    assert(y.toString(), "<US>Obama</US><US>Trump</US><RUS>Putin</RUS>");
+
+    xml z = seq.elements("RUS");
+    assert(z.length(), 1);
+    assert(z.toString(), "<RUS>Putin</RUS>");
+}
+
+function testElementsNS() {
+    xmlns "foo" as ns;
+    xml presidents = xml `<Leaders>
+                            <!-- This is a comment -->
+                            <ns:US>Obama</ns:US>
+                            <US>Trump</US>
+                            <RUS>Putin</RUS>
+                          </Leaders>`;
+    xml seq = presidents/*;
+
+    xml usNs = seq.elements("{foo}US");
+    assert(usNs.length(), 1);
+    assert(usNs.toString(), "<ns:US xmlns:ns=\"foo\">Obama</ns:US>");
+
+    xml usNoNs = seq.elements("US");
+    assert(usNoNs.length(), 1);
+    assert(usNoNs.toString(), "<US>Trump</US>");
+}
+
+function testElementChildren() {
+    xml letter = xml `<note>
+                        <to>Tove</to>
+                        <to>Irshad</to>
+                        <!-- This is a comment -->
+                        <from>Jani</from>
+                        <body>Don't forget me this weekend!</body>
+                      </note>`;
+
+    xml p = letter.elementChildren();
+    xml q = letter.elementChildren("to");
+
+    assert(p.length(), 4);
+    assert(p.toString(), "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>");
+    assert(q.length(), 2);
+    assert(q.toString(), "<to>Tove</to><to>Irshad</to>");
+
+    xml seq = 'xml:concat(letter, letter);
+    xml y = seq.elementChildren();
+    xml z = seq.elementChildren("to");
+
+    assert(y.length(), 8);
+    assert(y.toString(), "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>" +
+                         "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>");
+    assert(z.length(), 4);
+    assert(z.toString(), "<to>Tove</to><to>Irshad</to><to>Tove</to><to>Irshad</to>");
+}
+
+function testElementChildrenNS() {
+    xmlns "foo" as ns;
+    xml letter = xml `<note>
+                            <ns:to>Tove</ns:to>
+                            <to>Irshad</to>
+                            <!-- This is a comment -->
+                            <from>Jani</from>
+                            <body>Don't forget me this weekend!</body>
+                          </note>`;
+    xml seq = 'xml:concat(letter, letter);
+
+    xml toNs = seq.elementChildren("{foo}to");
+    assert(toNs.length(), 2);
+    assert(toNs.toString(), "<ns:to xmlns:ns=\"foo\">Tove</ns:to><ns:to xmlns:ns=\"foo\">Tove</ns:to>");
+
+    xml toNoNs = seq.elementChildren("to");
+    assert(toNoNs.length(), 2);
+    assert(toNoNs.toString(), "<to>Irshad</to><to>Irshad</to>");
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
 }

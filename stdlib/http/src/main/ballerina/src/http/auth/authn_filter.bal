@@ -16,11 +16,16 @@
 
 # Representation of the Authentication filter.
 #
-# + authHandlers - An array of authentication handlers
+# + authHandlers - An array of authentication handlers or an array consisting of arrays of authentication handlers
 public type AuthnFilter object {
+
+    *RequestFilter;
 
     public InboundAuthHandlers authHandlers;
 
+    # Initializes the `AuthnFilter` object.
+    #
+    # + authHandlers - An array of authentication handlers or an array consisting of arrays of authentication handlers
     public function __init(InboundAuthHandlers authHandlers) {
         self.authHandlers = authHandlers;
     }
@@ -29,8 +34,8 @@ public type AuthnFilter object {
     #
     # + caller - Caller for outbound HTTP responses
     # + request - An inbound HTTP request message
-    # + context - A filter context
-    # + return - Returns `true` if the filter succeeds. Else, returns `false`.
+    # + context - The `http:FilterContext` instance
+    # + return - A flag to indicate if the request flow should be continued(true) or aborted(false)
     public function filterRequest(Caller caller, Request request, FilterContext context) returns boolean {
         boolean|AuthenticationError authenticated = true;
         InboundAuthHandlers|boolean authHandlers = getAuthHandlers(context);
@@ -42,10 +47,6 @@ public type AuthnFilter object {
             }
         }
         return isAuthnSuccessful(caller, authenticated);
-    }
-
-    public function filterResponse(Response response, FilterContext context) returns boolean {
-        return true;
     }
 };
 

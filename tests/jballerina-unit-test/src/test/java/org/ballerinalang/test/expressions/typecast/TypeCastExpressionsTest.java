@@ -94,8 +94,7 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'xml' cannot be cast to 'json'.*",
-            groups = "brokenOnXMLLangLibChange")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'lang.xml:Text' cannot be cast to 'json'.*")
     public void testJsonCastNegative() {
         BRunUtil.invoke(result, "testJsonCastNegative");
     }
@@ -114,13 +113,15 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'table<TableEmployee>' cannot be cast to " +
-                    "'table<TableEmployeeTwo>'.*")
+                    "'table<TableEmployeeTwo>'.*", enabled = false)
     public void testTableCastNegative() {
         BRunUtil.invoke(result, "testTableCastNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'xml'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'xml\\" +
+                    "<lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
+                    "lang\\.xml:Text\\>'.*")
     public void testXmlCastNegative() {
         BRunUtil.invoke(result, "testXmlCastNegative");
     }
@@ -252,7 +253,9 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'string\\|xml'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'string\\|xml\\" +
+            "<lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
+                    "lang\\.xml:Text\\>'.*")
     public void testFiniteTypeToRefTypeCastNegative() {
         BRunUtil.invoke(result, "testFiniteTypeToRefTypeCastNegative");
     }
@@ -293,7 +296,6 @@ public class TypeCastExpressionsTest {
                 {"testJsonCastPositive"},
                 {"testMapCastPositive"},
                 {"testRecordCastPositive"},
-                {"testTableCastPositive"},
                 {"testXmlCastPositive"},
                 {"testErrorCastPositive"},
                 {"testFunctionCastPositive"},

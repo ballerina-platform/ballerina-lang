@@ -303,7 +303,7 @@ public class JvmPackageGen {
                             cleanupPathSeperators(cleanupBalExt(mainFunc.pos.getSource().cUnitName)));
                 }
 
-                generateMainMethod(mainFunc, cw, module, mainClass, moduleClass, serviceEPAvailable);
+                generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable);
                 if (mainFunc != null) {
                     generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
                 }
@@ -395,7 +395,6 @@ public class JvmPackageGen {
         PackageID langObjectModule = new PackageID(ballerinaOrgName, new Name("lang.object"), builtInVersion);
         PackageID langStreamModule = new PackageID(ballerinaOrgName, new Name("lang.stream"), builtInVersion);
         PackageID langStringModule = new PackageID(ballerinaOrgName, new Name("lang.string"), builtInVersion);
-        PackageID langTableModule = new PackageID(ballerinaOrgName, new Name("lang.table"), builtInVersion);
         PackageID langValueModule = new PackageID(ballerinaOrgName, new Name("lang.value"), builtInVersion);
         PackageID langXmlModule = new PackageID(ballerinaOrgName, new Name("lang.xml"), builtInVersion);
         PackageID langTypedescModule = new PackageID(ballerinaOrgName, new Name("lang.typedesc"), builtInVersion);
@@ -411,7 +410,6 @@ public class JvmPackageGen {
         dependentModuleArray.add(langObjectModule);
         dependentModuleArray.add(langStreamModule);
         dependentModuleArray.add(langStringModule);
-        dependentModuleArray.add(langTableModule);
         dependentModuleArray.add(langValueModule);
         dependentModuleArray.add(langXmlModule);
         dependentModuleArray.add(langTypedescModule);

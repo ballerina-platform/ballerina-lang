@@ -27,11 +27,13 @@ import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.net.URI;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -113,7 +115,8 @@ public class PullCommand implements BLauncherCmd {
         }
 
         URI baseURI = URI.create(RepoUtils.getRemoteRepoURL());
-        Repo remoteRepo = new RemoteRepo(baseURI, new HashMap<>(), false);
+        String ballerinaHome = System.getProperty(ProjectDirConstants.BALLERINA_HOME);
+        Repo remoteRepo = new RemoteRepo(baseURI, new HashMap<>(), false, Paths.get(ballerinaHome));
 
         PackageID moduleID = new PackageID(new Name(orgName), new Name(moduleName), new Name(version));
 

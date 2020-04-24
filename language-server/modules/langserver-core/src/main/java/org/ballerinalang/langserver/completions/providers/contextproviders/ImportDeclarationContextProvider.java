@@ -84,6 +84,9 @@ public class ImportDeclarationContextProvider extends AbstractCompletionProvider
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
         packagesList.forEach(pkg -> {
+            if (isAnnotationLangLib(pkg)) {
+                return;
+            }
             String fullPkgNameLabel = pkg.getOrgName() + "/" + pkg.getPackageName();
             String insertText = pkg.getOrgName() + "/";
             if (pkg.getOrgName().equals(Names.BALLERINA_ORG.value)
@@ -129,6 +132,9 @@ public class ImportDeclarationContextProvider extends AbstractCompletionProvider
         List<String> pkgNameLabels = new ArrayList<>();
 
         packagesList.forEach(ballerinaPackage -> {
+            if (isAnnotationLangLib(ballerinaPackage)) {
+                return;
+            }
             String packageName = ballerinaPackage.getPackageName();
             String insertText;
             if (orgName.equals(ballerinaPackage.getOrgName()) && !pkgNameLabels.contains(packageName)) {
@@ -165,5 +171,10 @@ public class ImportDeclarationContextProvider extends AbstractCompletionProvider
         item.setDetail(ItemResolverConstants.KEYWORD_TYPE);
 
         return new StaticCompletionItem(context, item);
+    }
+    
+    private boolean isAnnotationLangLib(BallerinaPackage ballerinaPackage) {
+        return "ballerina".equals(ballerinaPackage.getOrgName())
+                && "lang.annotations".equals(ballerinaPackage.getPackageName());
     }
 }

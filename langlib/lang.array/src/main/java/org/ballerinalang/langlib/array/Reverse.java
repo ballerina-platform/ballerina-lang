@@ -27,8 +27,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
-
 /**
  * Native implementation of lang.array:reverse((any|error)[]).
  *
@@ -48,7 +46,7 @@ public class Reverse {
         int size = arr.size();
 
         for (int i = size - 1, j = 0; i >= 0; i--, j++) {
-            add(reversedArr, elemTypeTag, j, arr.get(i));
+            reversedArr.add(j, arr.get(i));
         }
 
         return reversedArr;

@@ -97,7 +97,7 @@ public class Compiler {
         }
         this.outStream.println("Compiling source");
         BLangPackage bLangPackage = compile(sourcePackage, true);
-        if (bLangPackage.diagCollector.hasErrors()) {
+        if (this.dlog.getErrorCount() > 0) {
             throw new BLangCompilerException("compilation contains errors");
         }
         return bLangPackage;
@@ -164,6 +164,7 @@ public class Compiler {
         for (BLangPackage pkgNode : packages) {
             if (pkgNode.symbol != null) {
                 this.compilerDriver.compilePackage(pkgNode);
+                dlog.resetErrorCount();
             }
         }
         return packages;

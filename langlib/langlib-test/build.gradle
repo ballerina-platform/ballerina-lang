@@ -48,11 +48,11 @@ dependencies {
     testRuntime project(':ballerina-lang:object')
     testRuntime project(':ballerina-lang:stream')
     testRuntime project(':ballerina-lang:string')
-    testRuntime project(':ballerina-lang:table')
     testRuntime project(':ballerina-lang:typedesc')
     testRuntime project(':ballerina-lang:value')
     testRuntime project(':ballerina-lang:xml')
     testRuntime project(':ballerina-lang:bool')
+    testRuntime project(':ballerina-lang-test')
     testRuntime project(':ballerina-runtime')
     testRuntime project(':ballerina-lang:internal')
     testRuntime 'org.slf4j:slf4j-jdk14'
@@ -68,11 +68,11 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-lang:object', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:stream', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:string', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-lang:table', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:typedesc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:value', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
+    baloTestImplementation project(path: ':ballerina-lang-test', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-lang:internal', configuration: 'baloImplementation')
 }
 

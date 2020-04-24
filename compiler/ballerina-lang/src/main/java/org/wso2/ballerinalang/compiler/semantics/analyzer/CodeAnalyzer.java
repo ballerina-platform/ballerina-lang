@@ -31,6 +31,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -46,7 +47,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -108,7 +108,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
@@ -197,12 +196,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
@@ -330,6 +327,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
 
         analyzeTypeNode(typeDefinition.typeNode, this.env);
+        typeDefinition.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     @Override
@@ -356,6 +354,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (isLambda) {
             return;
         }
+
+        validateParams(funcNode);
+
         if (Symbols.isPublic(funcNode.symbol)) {
             funcNode.symbol.params.forEach(symbol -> analyzeExportableTypeRef(funcNode.symbol, symbol.type.tsymbol,
                     true,
@@ -380,6 +381,16 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         } finally {
             this.finalizeCurrentWorkerActionSystem();
         }
+        funcNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
+    }
+
+    private void validateParams(BLangFunction funcNode) {
+        for (BLangSimpleVariable parameter : funcNode.requiredParams) {
+            analyzeNode(parameter, env);
+        }
+        if (funcNode.restParam != null) {
+            analyzeNode(funcNode.restParam, env);
+        }
     }
 
     private void visitFunction(BLangFunction funcNode) {
@@ -394,6 +405,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (isPublicInvokableNode(funcNode)) {
             analyzeNode(funcNode.returnTypeNode, invokableEnv);
         }
+
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
             analyzeNode(funcNode.body, invokableEnv);
@@ -1298,12 +1310,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 break;
-            case TypeTags.TABLE:
-                BTableType tableType = (BTableType) symbol.type;
-                if (tableType.constraint != null) {
-                    checkForExportableType(tableType.constraint.tsymbol, pos);
-                }
-                return;
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) symbol.type;
                 if (streamType.constraint != null) {
@@ -1353,6 +1359,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangSimpleVariable varNode) {
 
         analyzeTypeNode(varNode.typeNode, this.env);
+
         analyzeExpr(varNode.expr);
 
         if (Objects.isNull(varNode.symbol)) {
@@ -1370,6 +1377,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             // Only global level simpleVarRef, listeners etc.
             analyzeExportableTypeRef(varNode.symbol, varNode.type.tsymbol, false, varNode.pos);
         }
+
+        varNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     private void checkWorkerPeerWorkerUsageInsideWorker(DiagnosticPos pos, BSymbol symbol, SymbolEnv env) {
@@ -1450,11 +1459,15 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        /* ignore */
+        annotationNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        /* ignore */
+        analyzeExpr(annAttachmentNode.expr);
+        BAnnotationSymbol annotationSymbol = annAttachmentNode.annotationSymbol;
+        if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(annAttachmentNode.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
+        }
     }
 
     public void visit(BLangSimpleVariableDef varDefNode) {
@@ -1928,10 +1941,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangTableLiteral tableLiteral) {
-        /* ignore */
-    }
-
     public void visit(BLangSimpleVarRef varRefExpr) {
         switch (varRefExpr.parent.getKind()) {
             // Referring workers for worker interactions are allowed, hence skip the check.
@@ -1943,6 +1952,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 if (varRefExpr.type != null && varRefExpr.type.tag == TypeTags.FUTURE) {
                     checkWorkerPeerWorkerUsageInsideWorker(varRefExpr.pos, varRefExpr.symbol, this.env);
                 }
+        }
+        if (varRefExpr.symbol != null && Symbols.isFlagOn(varRefExpr.symbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(varRefExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, varRefExpr);
         }
     }
 
@@ -1960,6 +1972,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         analyzeExpr(fieldAccessExpr.expr);
+        BSymbol symbol = fieldAccessExpr.symbol;
+        if (symbol != null && Symbols.isFlagOn(fieldAccessExpr.symbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(fieldAccessExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, fieldAccessExpr);
+        }
     }
 
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
@@ -1971,6 +1987,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(invocationExpr.expr);
         analyzeExprs(invocationExpr.requiredArgs);
         analyzeExprs(invocationExpr.restArgs);
+
+        if ((invocationExpr.symbol != null) && invocationExpr.symbol.kind == SymbolKind.FUNCTION) {
+            BSymbol funcSymbol = invocationExpr.symbol;
+            if (Symbols.isFlagOn(funcSymbol.flags, Flags.DEPRECATED)) {
+                dlog.warning(invocationExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, invocationExpr);
+            }
+        }
 
         if (invocationExpr.actionInvocation || invocationExpr.async) {
             if (invocationExpr.actionInvocation || !this.withinLockBlock) {
@@ -2048,6 +2071,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeInit cIExpr) {
         analyzeExprs(cIExpr.argsExpr);
         analyzeExpr(cIExpr.initInvocation);
+        BType type = cIExpr.type;
+        if (cIExpr.userDefinedType != null && Symbols.isFlagOn(type.tsymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(cIExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, type);
+        }
     }
 
     public void visit(BLangTernaryExpr ternaryExpr) {
@@ -2211,6 +2238,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
         analyzeExpr(conversionExpr.expr);
+        conversionExpr.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     public void visit(BLangXMLQName xmlQName) {
@@ -2297,8 +2325,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordTypeNode recordTypeNode) {
 
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
-        if (recordTypeNode.isFieldAnalyseRequired) {
-            recordTypeNode.fields.forEach(field -> analyzeNode(field, recordEnv));
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            analyzeNode(field, recordEnv);
         }
     }
 
@@ -2306,15 +2334,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangObjectTypeNode objectTypeNode) {
 
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
-        if (objectTypeNode.isFieldAnalyseRequired) {
-            objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
+            analyzeNode(field, objectEnv);
+        }
+
+        List<BLangFunction> bLangFunctionList = new ArrayList<>(objectTypeNode.functions);
+        if (objectTypeNode.initFunction != null) {
+            bLangFunctionList.add(objectTypeNode.initFunction);
         }
 
         // To ensure the order of the compile errors
-        Stream.concat(objectTypeNode.functions.stream(),
-                Optional.ofNullable(objectTypeNode.initFunction).map(Stream::of).orElseGet(Stream::empty))
-                .sorted(Comparator.comparingInt(fn -> fn.pos.sLine))
-                .forEachOrdered(fn -> this.analyzeNode(fn, objectEnv));
+        bLangFunctionList.sort(Comparator.comparingInt(function -> function.pos.sLine));
+        for (BLangFunction function : bLangFunctionList) {
+            this.analyzeNode(function, objectEnv);
+        }
     }
 
     @Override
@@ -2350,7 +2383,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangUserDefinedType userDefinedType) {
-        /* Ignore */
+        BTypeSymbol typeSymbol = userDefinedType.type.tsymbol;
+        if (typeSymbol != null && Symbols.isFlagOn(typeSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(userDefinedType.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, userDefinedType);
+        }
     }
 
     public void visit(BLangTupleTypeNode tupleTypeNode) {
@@ -2515,6 +2551,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
         analyzeExpr(annotAccessExpr.expr);
+        BAnnotationSymbol annotationSymbol = annotAccessExpr.annotationSymbol;
+        if (annotationSymbol != null && Symbols.isFlagOn(annotationSymbol.flags, Flags.DEPRECATED)) {
+            dlog.warning(annotAccessExpr.pos, DiagnosticCode.USAGE_OF_DEPRECATED_CONSTRUCT, annotationSymbol);
+        }
     }
 
     private boolean indirectIntersectionExists(BLangExpression expression, BType testType) {
@@ -2581,6 +2621,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeTypeNode(constant.typeNode, env);
         analyzeNode(constant.expr, env);
         analyzeExportableTypeRef(constant.symbol, constant.symbol.type.tsymbol, false, constant.pos);
+        constant.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
 
     /**

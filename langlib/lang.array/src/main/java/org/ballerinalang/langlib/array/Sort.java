@@ -28,7 +28,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.checkIsArrayOnlyOperation;
 
 /**
@@ -71,19 +70,20 @@ public class Sort {
         int elemTypeTag = input.getElementType().getTag();
 
         for (int i = lo; i <= hi; i++) {
-            add(aux, elemTypeTag, i, input.get(i));
+            aux.add(i, input.get(i));
         }
 
         for (int i = lo, j = mid + 1, k = lo; k <= hi; k++) {
             if (i > mid) {
-                add(input, elemTypeTag, k, aux.get(j++));
+                input.add(k, aux.get(j++));
             } else if (j > hi) {
-                add(input, elemTypeTag, k, aux.get(i++));
-            } else if (comparator.apply(new Object[]{strand, aux.get(j), true, aux.get(i), true}) < 0) {
-                add(input, elemTypeTag, k, aux.get(j++));
+                input.add(k, aux.get(i++));
+            } else if (comparator.call(new Object[]{strand, aux.get(j), true, aux.get(i), true}) < 0) {
+                input.add(k, aux.get(j++));
             } else {
-                add(input, elemTypeTag, k, aux.get(i++));
+                input.add(k, aux.get(i++));
             }
         }
     }
+
 }

@@ -3,6 +3,7 @@
   [![GitHub (Pre-)Release Date](https://img.shields.io/github/release-date-pre/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/releases)
   [![GitHub last commit](https://img.shields.io/github/last-commit/ballerina-platform/ballerina-lang.svg)](https://github.com/ballerina-platform/ballerina-lang/commits/master)
   [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+  ![](https://github.com/ballerina-platform/ballerina-lang/workflows/Ballerina%20daily%20build/badge.svg)
 
 # The Ballerina Programming Language
 
@@ -24,13 +25,17 @@ Extensible metadata enables easy integration of Ballerina programs with cloud pl
 
 You can use one of the following options to try out Ballerina.
 
-* [Getting Started](https://ballerina.io/learn/getting-started/)
-* [Quick Tour](https://ballerina.io/learn/quick-tour/)
-* [Ballerina by Example](https://ballerina.io/learn/by-example/) 
+* [Quick Tour](https://ballerina.io/v1-2/learn/quick-tour/)
+* [Ballerina by Example](https://ballerina.io/v1-2/learn/by-example/) 
+* [Playground](https://play.ballerina.io/)
 
 ## Downloading and installing
 
-You can download the Ballerina distribution at https://ballerina.io. For instructions on installing, see [Installing Ballerina](https://ballerina.io/learn/installing-ballerina/).
+For instructions on downloading and installing, see [Installing Ballerina](https://ballerina.io/v1-2/learn/installing-ballerina/).
+
+## Building from source
+
+For prerequisites and instructions on building from source, see [Installing from source](https://ballerina.io/v1-2/learn/installing-ballerina/#installing-from-source).
 
 ## Reporting issues and security flaws
 

@@ -1,37 +1,38 @@
 import ballerina/io;
 import ballerina/kafka;
-import ballerina/log;
 
 kafka:ProducerConfiguration producerConfigs = {
-    // Here, we create a producer config with optional parameters.
-    // client.id - used for broker-side logging.
-    // `acks` - number of acknowledgments to complete the request.
-    // `noRetries` - number of retries if record sending fails.
-    // `bootstrapServers` is the list of remote server endpoints of the Kafka brokers
+    // The `bootstrapServers` is the list of remote server endpoints of the
+    // Kafka brokers.
     bootstrapServers: "localhost:9092",
     clientId: "basic-producer",
     acks: "all",
     retryCount: 3,
+    // The `enableIdempotence` should set to `true` to make a producer
+    // transactional.
     enableIdempotence: true,
+    // A `transactionalId` must be provided to make a producer transactional.
     transactionalId: "test-transactional-id"
 };
 
 kafka:Producer kafkaProducer = new (producerConfigs);
 
 public function main() {
-    string msg1 = "Hello World Transaction Message";
-    byte[] serializedMsg = msg1.toBytes();
+    string message = "Hello World Transaction Message";
+    byte[] serializedMessage = message.toBytes();
 
     // Here, we create a producer config with optional parameters.
     // transactional.id - enable transactional message production.
-    kafkaAdvancedTransactionalProduce(serializedMsg);
+    kafkaAdvancedTransactionalProduce(serializedMessage);
 }
 
-function kafkaAdvancedTransactionalProduce(byte[] msg) {
+function kafkaAdvancedTransactionalProduce(byte[] message) {
     transaction {
-        var sendResult = kafkaProducer->send(msg, "test-kafka-topic", partition = 0);
+        var sendResult = kafkaProducer->send(message, "test-kafka-topic",
+            partition = 0);
         if (sendResult is error) {
-            log:printError("Kafka producer failed to send first message", sendResult);
+            io:println("Kafka producer failed to send first message",
+                sendResult.toString());
         }
     } committed {
         io:println("Transaction committed");

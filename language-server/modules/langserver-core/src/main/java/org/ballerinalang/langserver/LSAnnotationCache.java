@@ -95,9 +95,6 @@ public class LSAnnotationCache {
 
         // Annotation cache will only load the sk packages initially and the others will load in the runtime
         for (BallerinaPackage sdkPackage : LSPackageLoader.getSdkPackages()) {
-            if (isLangLibModule(sdkPackage)) {
-                continue;
-            }
             PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getOrgName()),
                     new org.wso2.ballerinalang.compiler.util.Name(sdkPackage.getPackageName()), Names.DEFAULT_VERSION);
             try {
@@ -168,6 +165,9 @@ public class LSAnnotationCache {
                 break;
             case WORKER:
                 annotationMap = workerAnnotations;
+                break;
+            case CONSTANT:
+                annotationMap = constAnnotations;
                 break;
             default:
                 annotationMap = new HashMap<>();
@@ -276,9 +276,5 @@ public class LSAnnotationCache {
         return processedPackages
                 .stream()
                 .anyMatch(processedPkgId -> processedPkgId.toString().equals(packageID.toString()));
-    }
-    
-    private static boolean isLangLibModule(BallerinaPackage ballerinaPackage) {
-        return ballerinaPackage.getOrgName().equals("ballerina") && ballerinaPackage.getPackageName().contains("lang.");
     }
 }

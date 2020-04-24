@@ -233,6 +233,8 @@ public class HttpConstants {
     public static final String REQUEST_NO_ENTITY_BODY_FIELD = "noEntityBody";
     public static final String REQUEST_MUTUAL_SSL_HANDSHAKE_FIELD = "mutualSslHandshake";
     public static final String REQUEST_MUTUAL_SSL_HANDSHAKE_STATUS = "status";
+    public static final String MUTUAL_SSL_CERTIFICATE = "base64EncodedCert";
+    public static final String BASE_64_ENCODED_CERT = "BASE_64_ENCODED_CERT";
 
     //Response struct field names
     public static final String RESPONSE_STATUS_CODE_FIELD = "statusCode";
@@ -414,6 +416,7 @@ public class HttpConstants {
     public static final String REMOTE_STRUCT_FIELD = "remoteAddress";
     public static final String REMOTE_HOST_FIELD = "host";
     public static final String REMOTE_PORT_FIELD = "port";
+    public static final String REMOTE_SOCKET_ADDRESS = "remoteSocketAddress";
 
     //Local struct field names
     public static final String LOCAL_STRUCT_INDEX = "localAddress";

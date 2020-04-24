@@ -17,20 +17,16 @@
 package io.ballerina.plugins.idea.project;
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleServiceManager;
-import com.intellij.openapi.options.ShowSettingsUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.impl.source.resolve.ResolveCache;
 import com.intellij.util.xmlb.XmlSerializerUtil;
 import io.ballerina.plugins.idea.BallerinaConstants;
-import io.ballerina.plugins.idea.configuration.BallerinaConfigurableProvider;
-import io.ballerina.plugins.idea.configuration.BallerinaModuleSettingsConfigurable;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -79,21 +75,5 @@ public class BallerinaModuleSettings implements
 
     static class BallerinaModuleSettingsState {
 
-    }
-
-    public static void showModulesConfigurable(@NotNull Project project) {
-        ApplicationManager.getApplication().assertIsDispatchThread();
-        if (!project.isDisposed()) {
-            ShowSettingsUtil.getInstance().editConfigurable(project, new BallerinaConfigurableProvider
-                    .BallerinaProjectSettingsConfigurable(project));
-        }
-    }
-
-    public static void showModulesConfigurable(@NotNull Module module) {
-        ApplicationManager.getApplication().assertIsDispatchThread();
-        if (!module.isDisposed()) {
-            ShowSettingsUtil.getInstance().editConfigurable(module.getProject(),
-                    new BallerinaModuleSettingsConfigurable(module, true));
-        }
     }
 }

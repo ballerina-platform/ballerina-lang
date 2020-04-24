@@ -16,13 +16,13 @@
 package org.ballerinalang.langserver.util.definition;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
+import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferenceFindingVisitor;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
@@ -32,11 +32,13 @@ import org.eclipse.lsp4j.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -66,8 +68,8 @@ public class DefinitionUtil {
     public static List<Location> getDefinition(LSContext context) throws WorkspaceDocumentException,
             CompilationFailedException, LSStdlibCacheException {
         List<BLangPackage> modules = ReferencesUtil.findCursorTokenAndCompileModules(context, false);
-        ReferencesUtil.fillReferences(modules, context);
-        SymbolReferencesModel referencesModel = context.get(NodeContextKeys.REFERENCES_KEY);
+        ReferencesUtil.findReferences(modules, context);
+        SymbolReferencesModel referencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
         // If the definition list contains an item after the prepare reference mode, then return it.
         // In this case, definition is in the current compilation unit it self
         if (!referencesModel.getDefinitions().isEmpty()) {
@@ -120,6 +122,9 @@ public class DefinitionUtil {
         if (symbolAtCursor.getSymbol() instanceof BInvokableSymbol
                 && (((BInvokableSymbol) symbolAtCursor.getSymbol()).flags & Flags.ATTACHED) == Flags.ATTACHED) {
             return getStdLibInvocationLocation((BInvokableSymbol) symbolAtCursor.getSymbol(), definitions);
+        } else if (symbolAtCursor.getSymbol() instanceof BVarSymbol
+                && symbolAtCursor.getSymbol().owner instanceof BObjectTypeSymbol) {
+            return getStdLibFieldLocation((BVarSymbol) symbolAtCursor.getSymbol(), definitions);
         }
 
         for (TopLevelNode topLevelNode : definitions) {
@@ -149,11 +154,57 @@ public class DefinitionUtil {
 
     private static List<Location> getStdLibInvocationLocation(BInvokableSymbol symbol, List<TopLevelNode> topLevelNodes)
             throws LSStdlibCacheException {
-        if (!(symbol.owner instanceof BObjectTypeSymbol)) {
+        Optional<BLangTypeDefinition> objectNode = getOwnerObjectTypeNode(symbol, topLevelNodes);
+        if (!objectNode.isPresent()) {
             return new ArrayList<>();
         }
-        String objectTypeName = symbol.owner.getName().getValue();
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) objectNode.get().typeNode;
         String symbolName = CommonUtil.getSymbolName(symbol);
+        if ("__init".equals(symbolName)) {
+            // Definition is invoked over the new keyword
+            BLangFunction initFunction = objectTypeNode.initFunction;
+            DiagnosticPos pos;
+            if (initFunction.symbol == null) {
+                pos = CommonUtil.toZeroBasedPosition(objectNode.get().getName().pos);
+                return prepareLocations(pos, objectNode.get().symbol, objectTypeNode);
+            }
+            pos = CommonUtil.toZeroBasedPosition(initFunction.getName().pos);
+            return prepareLocations(pos, initFunction.symbol, initFunction);
+        }
+        for (BLangFunction function : objectTypeNode.functions) {
+            if (symbolName.equals(function.getName().getValue())) {
+                DiagnosticPos pos = CommonUtil.toZeroBasedPosition(function.name.pos);
+                return prepareLocations(pos, symbol, function);
+            }
+        }
+        return new ArrayList<>();
+    }
+    
+    private static List<Location> getStdLibFieldLocation(BVarSymbol symbol, List<TopLevelNode> topLevelNodes)
+            throws LSStdlibCacheException {
+        Optional<BLangTypeDefinition> objectNode = getOwnerObjectTypeNode(symbol, topLevelNodes);
+        if (!objectNode.isPresent()) {
+            return new ArrayList<>();
+        }
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) objectNode.get().typeNode;
+        String symbolName = CommonUtil.getSymbolName(symbol);
+
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
+            if (symbolName.equals(field.getName().getValue())) {
+                DiagnosticPos pos = CommonUtil.toZeroBasedPosition(field.name.pos);
+                return prepareLocations(pos, symbol, field);
+            }
+        }
+        
+        return new ArrayList<>();
+    }
+    
+    private static Optional<BLangTypeDefinition> getOwnerObjectTypeNode(BVarSymbol symbol,
+                                                                        List<TopLevelNode> topLevelNodes) {
+        if (!(symbol.owner instanceof BObjectTypeSymbol)) {
+            return Optional.empty();
+        }
+        String objectTypeName = symbol.owner.getName().getValue();
 
         TopLevelNode objectNode = topLevelNodes.parallelStream()
                 .filter(topLevelNode -> {
@@ -168,17 +219,13 @@ public class DefinitionUtil {
                 .findFirst()
                 .orElse(null);
 
+
         if (!(objectNode instanceof BLangTypeDefinition)
                 || !(((BLangTypeDefinition) objectNode).typeNode instanceof BLangObjectTypeNode)) {
-            return new ArrayList<>();
+            return Optional.empty();
         }
-        for (BLangFunction function : ((BLangObjectTypeNode) ((BLangTypeDefinition) objectNode).typeNode).functions) {
-            if (symbolName.equals(function.getName().getValue())) {
-                DiagnosticPos pos = CommonUtil.toZeroBasedPosition(function.name.pos);
-                return prepareLocations(pos, symbol, function);
-            }
-        }
-        return new ArrayList<>();
+        
+        return Optional.of((BLangTypeDefinition) objectNode);
     }
 
     private static Pair<String, BSymbol> getTopLevelNodeNameSymbolPair(TopLevelNode topLevelNode)

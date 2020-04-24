@@ -59,7 +59,6 @@ public enum TypeKind {
     BLOB("blob"),
 
     TYPEDESC("typedesc"),
-    TABLE("table"),
     STREAM("stream"),
     JSON("json"),
     XML("xml"),
@@ -86,6 +85,7 @@ public enum TypeKind {
     FINITE("finite"),
     CHANNEL("channel"),
     HANDLE("handle"),
+    READONLY("readonly"),
     TYPEPARAM("typeparam"),
     ;
 

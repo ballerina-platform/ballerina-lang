@@ -19,7 +19,7 @@ jwt:OutboundJwtAuthProvider outboundJwtAuthProvider = new ({
         keyPassword: "ballerina",
         keyStore: {
             path: config:getAsString("b7a.home") +
-                  "bre/security/ballerinaKeystore.p12",
+                  "/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }
@@ -35,7 +35,7 @@ http:Client httpEndpoint = new ("https://localhost:9090", {
     secureSocket: {
         trustStore: {
             path: config:getAsString("b7a.home") +
-                  "bre/security/ballerinaTruststore.p12",
+                  "/bre/security/ballerinaTruststore.p12",
             password: "ballerina"
         }
     }

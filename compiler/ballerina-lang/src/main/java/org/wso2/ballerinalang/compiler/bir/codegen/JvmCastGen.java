@@ -80,7 +80,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SIMPLE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CONVERTER;
@@ -698,6 +697,9 @@ public class JvmCastGen {
         } else if (targetType.tag == TypeTags.JSON) {
             generateCheckCastToJSON(mv, sourceType);
             return;
+        } else if (targetType.tag == TypeTags.READONLY) {
+            generateCheckCastToReadonlyType(mv, sourceType, targetType);
+            return;
         } else if (TypeTags.isXMLTypeTag(sourceType.tag) && targetType.tag == TypeTags.MAP) {
             generateXMLToAttributesMap(mv, sourceType);
             return;
@@ -1075,8 +1077,6 @@ public class JvmCastGen {
             targetTypeClass = MAP_VALUE;
         } else if (targetType.tag == TypeTags.RECORD) {
             targetTypeClass = MAP_VALUE;
-        } else if (targetType.tag == TypeTags.TABLE) {
-            targetTypeClass = TABLE_VALUE;
         } else if (targetType.tag == TypeTags.STREAM) {
             targetTypeClass = STREAM_VALUE;
         } else if (targetType.tag == TypeTags.OBJECT) {
@@ -1101,6 +1101,13 @@ public class JvmCastGen {
     }
 
     private static void generateCheckCastToFiniteType(MethodVisitor mv, BType sourceType, BFiniteType targetType) {
+
+        generateCastToAny(mv, sourceType);
+        checkCast(mv, targetType);
+    }
+
+
+    private static void generateCheckCastToReadonlyType(MethodVisitor mv, BType sourceType, BType targetType) {
 
         generateCastToAny(mv, sourceType);
         checkCast(mv, targetType);

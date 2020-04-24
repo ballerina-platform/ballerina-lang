@@ -1,0 +1,26 @@
+{
+  "range": {
+    "start": {
+      "line": 16,
+      "character": 9
+    },
+    "end": {
+      "line": 16,
+      "character": 20
+    }
+  },
+  "expected": {
+    "title":"Create service resource for http method 'get' for the path '/pets'",
+    "command":"CREATE_SERVICE_RESOURCE_METHOD",
+    "arguments":[
+      {
+        "argumentK":"node.line",
+        "argumentV":"15"
+      },
+      {
+        "argumentK":"node.column",
+        "argumentV":"8"
+      }
+    ]
+  }
+}

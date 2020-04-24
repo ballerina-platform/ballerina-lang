@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.map;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -31,6 +32,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
 
@@ -61,14 +64,23 @@ public class Filter {
             default:
                 throw createOpNotSupportedError(mapType, "filter()");
         }
-        MapValue newMap = new MapValueImpl(newMapType);
-
-        m.entrySet().forEach(entry -> {
-            if (func.apply(new Object[]{strand, entry.getValue(), true})) {
-                newMap.put(entry.getKey(), entry.getValue());
-            }
-        });
-
+        MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
+        int size = m.size();
+        AtomicInteger index = new AtomicInteger(-1);
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                                                       () -> new Object[]{strand,
+                                                               m.get(m.getKeys()[index.incrementAndGet()]), true},
+                                                       result -> {
+                                                           if ((Boolean) result) {
+                                                               Object key = m.getKeys()[index.get()];
+                                                               Object value = m.get(key);
+                                                               newMap.put(key, value);
+                                                           }
+                                                       }, () -> newMap);
         return newMap;
+    }
+    public static MapValue filter_bstring(Strand strand, MapValue<?, ?> m, FPValue<Object, Boolean> func) {
+        return filter(strand, m, func);
     }
 }

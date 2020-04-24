@@ -23,13 +23,22 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.eclipse.lsp4j.CodeAction;
+import org.eclipse.lsp4j.CodeActionKind;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.TextDocumentEdit;
+import org.eclipse.lsp4j.TextEdit;
+import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
+import org.eclipse.lsp4j.WorkspaceEdit;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents the common class for the default Ballerina Code Action Providers.
@@ -145,7 +154,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
      * @param position         diagnose message position
      * @return offset position skipping package alias
      */
-    protected static Position offsetInvocation(String diagnosedContent, Position position) {
+    protected static Position offsetPositionToInvocation(String diagnosedContent, Position position) {
 //        Need to capture the correct function invocation position in chain & nested invocations
 //        eg. General Invocations: lorry.get_color()
 //            Chain invocations: lorry.get_color().print(10),
@@ -154,27 +163,81 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
 //            Nested invocations: crypto:hashMd5(str.toBytes())
 //            Field accesses: http:lorry.get_color
 //            String Params: lorry.get_color("test.invoke(\"")
-        String content = diagnosedContent;
+//            Record literal: {a: 1, b: ""}
+//            Lambda Functions: function() returns int { return 1; };
+//            Type Casts: <int>1.1;
+//            Streaming From Clauses: from var person in personList;
+        String content = diagnosedContent.trim();
+        int pointer = content.length();
+        int count = 0;
+
+        // Remove in-line comments
+        int counter = 0;
+        boolean insideString = false;
+        boolean insideStrTemplate = false;
+        while (counter < content.length()) {
+            char c = content.charAt(counter);
+            Optional<Character> nextC = counter + 1 < content.length() ?
+                    Optional.of(content.charAt(counter + 1)) : Optional.empty();
+            if (c == '"' && (!nextC.isPresent() || nextC.get() != '\\')) {
+                insideString = !insideString;
+            } else if (c == '`') {
+                insideStrTemplate = !insideStrTemplate;
+            }
+            if (!insideString && !insideStrTemplate && c == '/' && nextC.isPresent() && nextC.get() == '/') {
+                // Found a comment, break
+                String substring = content.substring(0, counter);
+                content = substring.trim();
+                pointer = content.length();
+                count = diagnosedContent.length() - content.length();
+                break;
+            }
+            counter++;
+        }
+
+        int len = content.length();
+        len--;
+        // In-line record literal
+        if (content.charAt(0) == '{' && content.charAt(len) == ';' && content.charAt(--len) == '}') {
+            return position;
+        }
+        // Type Casting
+        if (content.charAt(0) == '<' && content.charAt(len) == ';') {
+            return position;
+        }
+        // Streaming `from` clause
+        if (content.startsWith("from ")) {
+            return position;
+        }
         int pendingLParenthesis = 0;
         boolean loop = true;
-        boolean insideString = false;
-        int count = 0;
-        int pointer = content.length();
+        insideString = false;
+        insideStrTemplate = false;
         while (loop) {
             pointer--;
-            if (content.length() == 2) {
-                count += 2;
+            if (content.length() == 1) {
+                count += 1;
                 break;
             }
             // Check for stop-conditions
             char tailChar = content.charAt(pointer);
             char tailPrevChar = content.charAt(pointer - 1);
+            Optional<Character> tail2ndPrevChar = pointer > 1
+                    ? Optional.of(content.charAt(pointer - 2)) : Optional.empty();
             if (tailChar == '"' && tailPrevChar != '\\') {
                 insideString = !insideString;
+            } else if (tailChar == '`') {
+                insideStrTemplate = !insideStrTemplate;
             }
-            if (!insideString) {
+            if (!insideString && !insideStrTemplate) {
                 if (pendingLParenthesis <= 0) {
-                    if (tailChar == '.' || tailChar == ':') {
+                    boolean isRangeExpr = tail2ndPrevChar.isPresent()
+                            && ((tailChar == '.' || tailChar == '<') && tailPrevChar == '.' &&
+                            tail2ndPrevChar.get() == '.');
+                    if (isRangeExpr) {
+                        pointer -= 2;
+                        count += 2;
+                    } else if ((tailChar == '.') || tailChar == ':') {
                         // Break on field-access or package-prefix
                         count++;
                         break;
@@ -201,5 +264,22 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
             position = new Position(position.getLine(), position.getCharacter() + bal + 1);
         }
         return position;
+    }
+
+    /**
+     * Returns a QuickFix Code action.
+     *
+     * @param commandTitle title of the code action
+     * @param uri          uri
+     * @return {@link CodeAction}
+     */
+    protected static CodeAction createQuickFixCodeAction(String commandTitle, List<TextEdit> edits, String uri) {
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        CodeAction action = new CodeAction(commandTitle);
+        action.setKind(CodeActionKind.QuickFix);
+        action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
+                new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits)))));
+        action.setDiagnostics(diagnostics);
+        return action;
     }
 }

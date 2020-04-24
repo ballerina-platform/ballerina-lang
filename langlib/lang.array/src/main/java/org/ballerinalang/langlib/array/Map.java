@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BFunctionType;
@@ -32,7 +33,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.values.utils.ArrayUtils.add;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
 
 /**
@@ -54,27 +56,30 @@ public class Map {
         ArrayValue retArr = new ArrayValueImpl((BArrayType) retArrType);
         int size = arr.size();
         GetFunction getFn;
-        int elemTypeTag;
 
         BType arrType = arr.getType();
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 getFn = ArrayValue::get;
-                elemTypeTag = elemType.getTag();
                 break;
             case TypeTags.TUPLE_TAG:
                 getFn = ArrayValue::getRefValue;
-                elemTypeTag = elemType.getTag();
                 break;
             default:
                 throw createOpNotSupportedError(arrType, "map()");
         }
-
-        for (int i = 0; i < size; i++) {
-            Object newVal = func.getFunction().apply(new Object[]{strand, getFn.get(arr, i), true});
-            add(retArr, elemTypeTag, i, newVal);
-        }
+        AtomicInteger index = new AtomicInteger(-1);
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                                                       () -> new Object[]{strand,
+                                                               getFn.get(arr, index.incrementAndGet()), true},
+                                                       result -> retArr.add(index.get(), result),
+                                                       () -> retArr);
 
         return retArr;
+    }
+
+    public static ArrayValue map_bstring(Strand strand, ArrayValue arr, FPValue<Object, Object> func) {
+        return map(strand, arr, func);
     }
 }
