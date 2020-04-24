@@ -24,7 +24,7 @@
                         },
                         {
                             "kind": "CONST_KEYWORD"
-                        },{"kind":"STRING_KEYWORD"
+                        }, {"kind":"STRING_KEYWORD"
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",
@@ -57,7 +57,7 @@
                         },
                         {
                             "kind": "LISTENER_KEYWORD"
-                        },{"kind":"STRING_KEYWORD"
+                        }, {"kind":"STRING_KEYWORD"
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",

@@ -31,7 +31,9 @@
                             "kind": "LIST",
                             "children": [
                             ]
-                        },{"kind":"INT_KEYWORD"
+                        },
+                        {
+                            "kind": "INT_KEYWORD"
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",
@@ -50,7 +52,9 @@
                             "kind": "LIST",
                             "children": [
                             ]
-                        },{"kind":"INT_KEYWORD"
+                        },
+                        {
+                            "kind": "INT_KEYWORD"
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",
@@ -75,7 +79,9 @@
                             "kind": "LIST",
                             "children": [
                             ]
-                        },{"kind":"INT_KEYWORD"
+                        },
+                        {
+                            "kind": "INT_KEYWORD"
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",
@@ -93,7 +99,9 @@
                             "kind": "LIST",
                             "children": [
                             ]
-                        },{"kind":"STRING_KEYWORD"
+                        },
+                        {
+                            "kind": "STRING_KEYWORD"
                         },
                         {
                             "kind": "ELLIPSIS_TOKEN"

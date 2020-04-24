@@ -24,7 +24,7 @@
                         },
                         {
                             "kind": "LISTENER_KEYWORD"
-                        },{"kind":"STRING_KEYWORD"
+                        }, {"kind":"STRING_KEYWORD"
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",
@@ -55,7 +55,7 @@
                                     ]
                                 }
                             ]
-                        },{"kind":"STRING_KEYWORD"
+                        }, {"kind":"STRING_KEYWORD"
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",
@@ -89,7 +89,7 @@
                         },
                         {
                             "kind": "CONST_KEYWORD"
-                        },{"kind":"STRING_KEYWORD"
+                        }, {"kind":"STRING_KEYWORD"
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",
@@ -120,7 +120,7 @@
                                     ]
                                 }
                             ]
-                        },{"kind":"STRING_KEYWORD"
+                        }, {"kind":"STRING_KEYWORD"
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",

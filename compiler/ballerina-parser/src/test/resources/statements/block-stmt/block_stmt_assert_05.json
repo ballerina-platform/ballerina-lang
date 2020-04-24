@@ -6,7 +6,8 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": []
+                    "children": [
+                    ]
                 }
             ]
         },
@@ -25,7 +26,8 @@
         },
         {
             "kind": "LIST",
-            "children": []
+            "children": [
+            ]
         },
         {
             "kind": "CLOSE_PAREN_TOKEN"
@@ -53,8 +55,11 @@
                                             "children": [
                                                 {
                                                     "kind": "LIST",
-                                                    "children": []
-                                                },{"kind":"INT_KEYWORD"
+                                                    "children": [
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "INT_KEYWORD"
                                                 },
                                                 {
                                                     "kind": "IDENTIFIER_TOKEN",

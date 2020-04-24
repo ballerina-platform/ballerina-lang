@@ -7,7 +7,9 @@
         },
         {
             "kind": "IS_KEYWORD"
-        },{"kind":"INT_KEYWORD"
+        },
+        {
+            "kind": "INT_KEYWORD"
         }
     ]
 }

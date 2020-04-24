@@ -6,7 +6,8 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": []
+                    "children": [
+                    ]
                 }
             ]
         },
@@ -25,7 +26,8 @@
         },
         {
             "kind": "LIST",
-            "children": []
+            "children": [
+            ]
         },
         {
             "kind": "CLOSE_PAREN_TOKEN"
@@ -59,8 +61,11 @@
                                                     "children": [
                                                         {
                                                             "kind": "LIST",
-                                                            "children": []
-                                                        },{"kind":"INT_KEYWORD"
+                                                            "children": [
+                                                            ]
+                                                        },
+                                                        {
+                                                            "kind": "INT_KEYWORD"
                                                         },
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
@@ -95,8 +100,11 @@
                                                     "children": [
                                                         {
                                                             "kind": "LIST",
-                                                            "children": []
-                                                        },{"kind":"STRING_KEYWORD"
+                                                            "children": [
+                                                            ]
+                                                        },
+                                                        {
+                                                            "kind": "STRING_KEYWORD"
                                                         },
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
@@ -112,8 +120,11 @@
                                                     "children": [
                                                         {
                                                             "kind": "LIST",
-                                                            "children": []
-                                                        },{"kind":"INT_KEYWORD"
+                                                            "children": [
+                                                            ]
+                                                        },
+                                                        {
+                                                            "kind": "INT_KEYWORD"
                                                         },
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
@@ -136,8 +147,11 @@
                                                     "children": [
                                                         {
                                                             "kind": "LIST",
-                                                            "children": []
-                                                        },{"kind":"FLOAT_KEYWORD"
+                                                            "children": [
+                                                            ]
+                                                        },
+                                                        {
+                                                            "kind": "FLOAT_KEYWORD"
                                                         },
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",

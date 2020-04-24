@@ -42,7 +42,9 @@
                                             ]
                                         }
                                     ]
-                                },{"kind":"STRING_KEYWORD"
+                                },
+                                {
+                                    "kind": "STRING_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -65,7 +67,9 @@
                                             ]
                                         }
                                     ]
-                                },{"kind":"INT_KEYWORD"
+                                },
+                                {
+                                    "kind": "INT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -88,7 +92,9 @@
                                             ]
                                         }
                                     ]
-                                },{"kind":"FLOAT_KEYWORD"
+                                },
+                                {
+                                    "kind": "FLOAT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -143,7 +149,9 @@
                                                                     ]
                                                                 }
                                                             ]
-                                                        },{"kind":"STRING_KEYWORD"
+                                                        },
+                                                        {
+                                                            "kind": "STRING_KEYWORD"
                                                         },
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
@@ -166,7 +174,9 @@
                                                                     ]
                                                                 }
                                                             ]
-                                                        },{"kind":"INT_KEYWORD"
+                                                        },
+                                                        {
+                                                            "kind": "INT_KEYWORD"
                                                         },
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
@@ -232,7 +242,9 @@
                         },
                         {
                             "kind": "RECORD_REST_TYPE",
-                            "children": [{"kind":"STRING_KEYWORD"
+                            "children": [
+                                {
+                                    "kind": "STRING_KEYWORD"
                                 },
                                 {
                                     "kind": "ELLIPSIS_TOKEN"

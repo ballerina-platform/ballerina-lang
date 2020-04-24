@@ -66,7 +66,9 @@
                                                             "kind": "LIST",
                                                             "children": [
                                                             ]
-                                                        },{"kind":"INT_KEYWORD"
+                                                        },
+                                                        {
+                                                            "kind": "INT_KEYWORD"
                                                         },
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
@@ -105,7 +107,9 @@
                                                                     "children": [
                                                                         {
                                                                             "kind": "LOCAL_VAR_DECL",
-                                                                            "children": [{"kind":"INT_KEYWORD"
+                                                                            "children": [
+                                                                                {
+                                                                                    "kind": "INT_KEYWORD"
                                                                                 },
                                                                                 {
                                                                                     "kind": "IDENTIFIER_TOKEN",

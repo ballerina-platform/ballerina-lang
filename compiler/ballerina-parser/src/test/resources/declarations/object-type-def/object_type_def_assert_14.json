@@ -50,7 +50,9 @@
                                             ]
                                         }
                                     ]
-                                },{"kind":"STRING_KEYWORD"
+                                },
+                                {
+                                    "kind": "STRING_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",

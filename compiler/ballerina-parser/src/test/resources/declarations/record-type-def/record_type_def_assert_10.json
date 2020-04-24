@@ -28,7 +28,9 @@
                         {
                             "kind": "IDENTIFIER_TOKEN",
                             "value": "Student"
-                        },{"kind":"INT_KEYWORD"
+                        },
+                        {
+                            "kind": "INT_KEYWORD"
                         },
                         {
                             "kind": "SEMICOLON_TOKEN"
@@ -47,7 +49,9 @@
                                     ]
                                 }
                             ]
-                        },{"kind":"INT_KEYWORD"
+                        },
+                        {
+                            "kind": "INT_KEYWORD"
                         },
                         {
                             "kind": "IDENTIFIER_TOKEN",

@@ -10,7 +10,9 @@
                 },
                 {
                     "kind": "IS_KEYWORD"
-                },{"kind":"INT_KEYWORD"
+                },
+                {
+                    "kind": "INT_KEYWORD"
                 }
             ]
         },
@@ -18,7 +20,7 @@
             "kind": "IS_KEYWORD"
         },
         {
-           "kind": "DECIMAL_KEYWORD"
+            "kind": "DECIMAL_KEYWORD"
         }
     ]
 }

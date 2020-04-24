@@ -51,7 +51,9 @@
                                 },
                                 {
                                     "kind": "ARRAY_TYPE_DESC",
-                                    "children": [{"kind":"INT_KEYWORD"
+                                    "children": [
+                                        {
+                                            "kind": "INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"
@@ -80,7 +82,9 @@
                                 },
                                 {
                                     "kind": "ARRAY_TYPE_DESC",
-                                    "children": [{"kind":"INT_KEYWORD"
+                                    "children": [
+                                        {
+                                            "kind": "INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"
@@ -116,7 +120,9 @@
                                     "children": [
                                         {
                                             "kind": "OPTIONAL_TYPE_DESC",
-                                            "children": [{"kind":"INT_KEYWORD"
+                                            "children": [
+                                                {
+                                                    "kind": "INT_KEYWORD"
                                                 },
                                                 {
                                                     "kind": "QUESTION_MARK_TOKEN"
@@ -160,7 +166,9 @@
                                             "children": [
                                                 {
                                                     "kind": "OPTIONAL_TYPE_DESC",
-                                                    "children": [{"kind":"INT_KEYWORD"
+                                                    "children": [
+                                                        {
+                                                            "kind": "INT_KEYWORD"
                                                         },
                                                         {
                                                             "kind": "QUESTION_MARK_TOKEN"
@@ -202,7 +210,9 @@
                                     "children": [
                                         {
                                             "kind": "ARRAY_TYPE_DESC",
-                                            "children": [{"kind":"INT_KEYWORD"
+                                            "children": [
+                                                {
+                                                    "kind": "INT_KEYWORD"
                                                 },
                                                 {
                                                     "kind": "OPEN_BRACKET_TOKEN"
@@ -239,7 +249,9 @@
                                 },
                                 {
                                     "kind": "ARRAY_TYPE_DESC",
-                                    "children": [{"kind":"INT_KEYWORD"
+                                    "children": [
+                                        {
+                                            "kind": "INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"
@@ -284,7 +296,9 @@
                                 },
                                 {
                                     "kind": "ARRAY_TYPE_DESC",
-                                    "children": [{"kind":"INT_KEYWORD"
+                                    "children": [
+                                        {
+                                            "kind": "INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"

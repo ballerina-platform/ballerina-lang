@@ -51,7 +51,9 @@
                                 },
                                 {
                                     "kind": "ARRAY_TYPE_DESC",
-                                    "children": [{"kind":"INT_KEYWORD"
+                                    "children": [
+                                        {
+                                            "kind": "INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"
@@ -85,7 +87,9 @@
                                 },
                                 {
                                     "kind": "ARRAY_TYPE_DESC",
-                                    "children": [{"kind":"INT_KEYWORD"
+                                    "children": [
+                                        {
+                                            "kind": "INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"
@@ -119,7 +123,9 @@
                                 },
                                 {
                                     "kind": "ARRAY_TYPE_DESC",
-                                    "children": [{"kind":"INT_KEYWORD"
+                                    "children": [
+                                        {
+                                            "kind": "INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"
@@ -148,7 +154,9 @@
                                 },
                                 {
                                     "kind": "ARRAY_TYPE_DESC",
-                                    "children": [{"kind":"INT_KEYWORD"
+                                    "children": [
+                                        {
+                                            "kind": "INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"

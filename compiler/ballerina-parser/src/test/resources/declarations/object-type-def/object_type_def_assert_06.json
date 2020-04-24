@@ -100,7 +100,9 @@
                                             ]
                                         }
                                     ]
-                                },{"kind":"INT_KEYWORD"
+                                },
+                                {
+                                    "kind": "INT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -123,7 +125,9 @@
                                             ]
                                         }
                                     ]
-                                },{"kind":"INT_KEYWORD"
+                                },
+                                {
+                                    "kind": "INT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",

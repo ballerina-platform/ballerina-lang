@@ -6,7 +6,8 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": []
+                    "children": [
+                    ]
                 }
             ]
         },
@@ -25,7 +26,8 @@
         },
         {
             "kind": "LIST",
-            "children": []
+            "children": [
+            ]
         },
         {
             "kind": "CLOSE_PAREN_TOKEN"
@@ -59,8 +61,11 @@
                                                     "children": [
                                                         {
                                                             "kind": "LIST",
-                                                            "children": []
-                                                        },{"kind":"INT_KEYWORD"
+                                                            "children": [
+                                                            ]
+                                                        },
+                                                        {
+                                                            "kind": "INT_KEYWORD"
                                                         },
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
@@ -76,14 +81,16 @@
                                                     "children": [
                                                         {
                                                             "kind": "LIST",
-                                                            "children": []
+                                                            "children": [
+                                                            ]
                                                         },
                                                         {
                                                             "kind": "OBJECT_TYPE_DESC",
                                                             "children": [
                                                                 {
                                                                     "kind": "LIST",
-                                                                    "children": []
+                                                                    "children": [
+                                                                    ]
                                                                 },
                                                                 {
                                                                     "kind": "OBJECT_KEYWORD"
@@ -102,10 +109,13 @@
                                                                                     "children": [
                                                                                         {
                                                                                             "kind": "LIST",
-                                                                                            "children": []
+                                                                                            "children": [
+                                                                                            ]
                                                                                         }
                                                                                     ]
-                                                                                },{"kind":"INT_KEYWORD"
+                                                                                },
+                                                                                {
+                                                                                    "kind": "INT_KEYWORD"
                                                                                 },
                                                                                 {
                                                                                     "kind": "IDENTIFIER_TOKEN",
@@ -125,7 +135,8 @@
                                                                                     "children": [
                                                                                         {
                                                                                             "kind": "LIST",
-                                                                                            "children": []
+                                                                                            "children": [
+                                                                                            ]
                                                                                         }
                                                                                     ]
                                                                                 },
@@ -141,7 +152,8 @@
                                                                                 },
                                                                                 {
                                                                                     "kind": "LIST",
-                                                                                    "children": []
+                                                                                    "children": [
+                                                                                    ]
                                                                                 },
                                                                                 {
                                                                                     "kind": "CLOSE_PAREN_TOKEN"
@@ -155,7 +167,8 @@
                                                                                         },
                                                                                         {
                                                                                             "kind": "LIST",
-                                                                                            "children": []
+                                                                                            "children": [
+                                                                                            ]
                                                                                         },
                                                                                         {
                                                                                             "kind": "CLOSE_BRACE_TOKEN"

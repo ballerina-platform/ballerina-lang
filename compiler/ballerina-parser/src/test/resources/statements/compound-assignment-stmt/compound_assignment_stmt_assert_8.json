@@ -18,10 +18,10 @@
             ]
         },
         {
-            "kind":"PLUS_TOKEN"
+            "kind": "PLUS_TOKEN"
         },
         {
-            "kind":"EQUAL_TOKEN"
+            "kind": "EQUAL_TOKEN"
         },
         {
             "kind": "IDENTIFIER_TOKEN",

@@ -48,7 +48,9 @@
                                     "kind": "LIST",
                                     "children": [
                                     ]
-                                },{"kind":"INT_KEYWORD"
+                                },
+                                {
+                                    "kind": "INT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -66,7 +68,9 @@
                                     "kind": "LIST",
                                     "children": [
                                     ]
-                                },{"kind":"STRING_KEYWORD"
+                                },
+                                {
+                                    "kind": "STRING_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -84,7 +88,9 @@
                                     "kind": "LIST",
                                     "children": [
                                     ]
-                                },{"kind":"FLOAT_KEYWORD"
+                                },
+                                {
+                                    "kind": "FLOAT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -102,7 +108,9 @@
                                     "kind": "LIST",
                                     "children": [
                                     ]
-                                },{"kind":"BOOLEAN_KEYWORD"
+                                },
+                                {
+                                    "kind": "BOOLEAN_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",

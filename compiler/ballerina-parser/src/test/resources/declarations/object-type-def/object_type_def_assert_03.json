@@ -47,7 +47,9 @@
                                             ]
                                         }
                                     ]
-                                },{"kind":"INT_KEYWORD"
+                                },
+                                {
+                                    "kind": "INT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -89,7 +91,9 @@
                                             ]
                                         }
                                     ]
-                                },{"kind":"STRING_KEYWORD"
+                                },
+                                {
+                                    "kind": "STRING_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -115,7 +119,9 @@
                                 },
                                 {
                                     "kind": "PUBLIC_KEYWORD"
-                                },{"kind":"INT_KEYWORD"
+                                },
+                                {
+                                    "kind": "INT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -148,7 +154,9 @@
                                 },
                                 {
                                     "kind": "PRIVATE_KEYWORD"
-                                },{"kind":"FLOAT_KEYWORD"
+                                },
+                                {
+                                    "kind": "FLOAT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
