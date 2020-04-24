@@ -58,11 +58,9 @@ public class CodeGenerator {
 
     private static final CompilerContext.Key<CodeGenerator> CODE_GEN = new CompilerContext.Key<>();
 
-    public static BLangDiagnosticLogHelper dlog;
-
-    //TODO: remove static
-    static SymbolTable symbolTable;
-    public static PackageCache packageCache;
+    private BLangDiagnosticLogHelper dlog;
+    private SymbolTable symbolTable;
+    private PackageCache packageCache;
 
     private Map<String, BIRNode.BIRPackage> compiledPkgCache = new HashMap<>();
 
@@ -90,7 +88,7 @@ public class CodeGenerator {
             return;
         }
 
-        intiPackageGen();
+        intiPackageGen(dlog, packageCache);
         JvmPackageGen.symbolTable = symbolTable;
         JvmMethodGen.errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
         compiledPkgCache.put(entryMod.org.value + entryMod.name.value, entryMod);

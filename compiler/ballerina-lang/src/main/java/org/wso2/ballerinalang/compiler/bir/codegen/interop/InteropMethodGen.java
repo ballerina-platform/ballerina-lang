@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -126,7 +127,8 @@ public class InteropMethodGen {
 
     static void genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
                                          ClassWriter cw,
-                                         BIRPackage birModule) {
+                                         BIRPackage birModule,
+                                         PackageCache packageCache) {
 
         String currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
 
@@ -145,7 +147,7 @@ public class InteropMethodGen {
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, birModule);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, currentPackageName);
         LabelGenerator labelGen = new LabelGenerator();
-        JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, birModule);
+        JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, birModule, packageCache);
         mv.visitCode();
 
         Label paramLoadLabel = labelGen.getLabel("param_load");

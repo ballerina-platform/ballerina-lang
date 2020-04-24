@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
@@ -163,15 +164,17 @@ public class JvmTerminatorGen {
     private JvmErrorGen errorGen;
     private BIRNode.BIRPackage module;
     private String currentPackageName;
+    private PackageCache packageCache;
 
     public JvmTerminatorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, LabelGenerator labelGen,
-                            JvmErrorGen errorGen, BIRNode.BIRPackage module) {
+                            JvmErrorGen errorGen, BIRNode.BIRPackage module, PackageCache packageCache) {
 
         this.mv = mv;
         this.indexMap = indexMap;
         this.labelGen = labelGen;
         this.errorGen = errorGen;
         this.module = module;
+        this.packageCache = packageCache;
         this.currentPackageName = getPackageName(this.module.org.value, this.module.name.value);
     }
 
@@ -697,7 +700,7 @@ public class JvmTerminatorGen {
             methodDesc = isBString ? functionWrapper.jvmMethodDescriptionBString :
                          functionWrapper.jvmMethodDescription;
         } else {
-            BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
+            BPackageSymbol symbol = packageCache.getSymbol(orgName + "/" + moduleName);
             BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(methodName)).symbol;
             BInvokableType type = (BInvokableType) funcSymbol.type;
             ArrayList<BType> params = new ArrayList<>(type.paramTypes);

@@ -20,11 +20,13 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.objectweb.asm.ClassTooLargeException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ObjectGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarFile;
@@ -54,6 +56,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -140,7 +144,10 @@ public class JvmPackageGen {
     private static Map<String, String> globalVarClassNames;
     private static Map<String, PackageID> dependentModules;
 
-    static void intiPackageGen() {
+    private static BLangDiagnosticLogHelper dlog;
+    private static PackageCache packageCache;
+
+    static void intiPackageGen(BLangDiagnosticLogHelper diagnosticLog, PackageCache pkgCache) {
 
         birFunctionMap = new HashMap<>();
         globalVarClassNames = new HashMap<>();
@@ -152,6 +159,9 @@ public class JvmPackageGen {
         symbolTable = null;
         String bStringProp = System.getProperty("ballerina.bstring");
         isBString = (bStringProp != null && !"".equals(bStringProp));
+
+        dlog = diagnosticLog;
+        packageCache = pkgCache;
     }
 
     public static BType lookupTypeDef(NewInstance objectNewIns) {
@@ -160,7 +170,7 @@ public class JvmPackageGen {
             return objectNewIns.def.type;
         } else {
             PackageID id = objectNewIns.externalPackageId;
-            BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(id.orgName + "/" + id.name);
+            BPackageSymbol symbol = packageCache.getSymbol(id.orgName + "/" + id.name);
             if (symbol != null) {
                 BObjectTypeSymbol objectTypeSymbol =
                         (BObjectTypeSymbol) symbol.scope.lookup(new Name(objectNewIns.objectName)).symbol;
@@ -226,10 +236,10 @@ public class JvmPackageGen {
 
         addBuiltinImports(module, dependentModuleSet);
         for (BIRNode.BIRImportModule importModule : module.importModules) {
-            BPackageSymbol pkgSymbol = CodeGenerator.packageCache.getSymbol(getBvmAlias(importModule.org.value,
+            BPackageSymbol pkgSymbol = packageCache.getSymbol(getBvmAlias(importModule.org.value,
                                                                                         importModule.name.value));
             generateDependencyList(pkgSymbol, jarFile, interopValidator);
-            if (CodeGenerator.dlog.getErrorCount() > 0) {
+            if (dlog.getErrorCount() > 0) {
                 return;
             }
         }
@@ -237,7 +247,7 @@ public class JvmPackageGen {
         String typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
                 interopValidator, isEntry);
-        if (!isEntry || CodeGenerator.dlog.getErrorCount() > 0) {
+        if (!isEntry || dlog.getErrorCount() > 0) {
             return;
         }
 
@@ -259,7 +269,7 @@ public class JvmPackageGen {
         rewriteRecordInits(module.typeDefs);
 
         // generate object/record value classes
-        ObjectGenerator objGen = new ObjectGenerator(module);
+        ObjectGenerator objGen = new ObjectGenerator(module, packageCache);
         objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
         generateFrameClasses(module, jarFile.pkgEntries);
         for (Map.Entry<String, JavaClass> entry : jvmClassMap.entrySet()) {
@@ -306,13 +316,13 @@ public class JvmPackageGen {
             // generate methods
             for (BIRFunction func : v.functions) {
                 String workerName = getFunction(func).workerName == null ? null : func.workerName.value;
-                generateMethod(getFunction(func), cw, module, null, false, workerName);
+                generateMethod(getFunction(func), cw, module, null, false, workerName, packageCache);
             }
             // generate lambdas created during generating methods
             for (Map.Entry<String, BIRInstruction> l : lambdas.entrySet()) {
                 String name = l.getKey();
                 BIRInstruction call = l.getValue();
-                generateLambdaMethod(call, cw, name);
+                generateLambdaMethod(call, cw, name, packageCache);
             }
 
             // clear the lambdas
@@ -637,7 +647,7 @@ public class JvmPackageGen {
                                 birModuleClassName);
                     }
                 } catch (JInteropException e) {
-                    CodeGenerator.dlog.error(birFunc.pos, e.getCode(), e.getMessage());
+                    dlog.error(birFunc.pos, e.getCode(), e.getMessage());
                     continue;
                 }
                 birFunctionMap.put(pkgName + birFuncName, birFuncWrapperOrError);
@@ -749,10 +759,10 @@ public class JvmPackageGen {
         } catch (MethodTooLargeException e) {
             String funcName = e.getMethodName();
             BIRFunction func = findFunction(node, funcName);
-            CodeGenerator.dlog.error(func.pos, DiagnosticCode.METHOD_TOO_LARGE, func.name.value);
+            dlog.error(func.pos, DiagnosticCode.METHOD_TOO_LARGE, func.name.value);
             result = new byte[0];
         } catch (ClassTooLargeException e) {
-            CodeGenerator.dlog.error(node.pos, DiagnosticCode.FILE_TOO_LARGE, e.getClassName());
+            dlog.error(node.pos, DiagnosticCode.FILE_TOO_LARGE, e.getClassName());
             result = new byte[0];
         } catch (Exception e) {
             throw new BLangCompilerException(e.getMessage(), e);

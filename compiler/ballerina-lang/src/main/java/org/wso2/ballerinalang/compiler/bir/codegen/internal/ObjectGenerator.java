@@ -22,6 +22,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.BallerinaClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
@@ -97,7 +98,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNSUPPORTED_OPERATION_EXCEPTION;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
@@ -119,12 +120,19 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc
 public class ObjectGenerator {
 
     private BIRNode.BIRPackage module;
+    private PackageCache packageCache;
     private BObjectType currentObjectType = null;
+
+    public ObjectGenerator(BIRNode.BIRPackage module, PackageCache packageCache) {
+
+        this.module = module;
+        this.packageCache = packageCache;
+    }
 
     private void createLambdas(ClassWriter cw) {
 
         for (Map.Entry<String, BIRInstruction> entry : JvmPackageGen.lambdas.entrySet()) {
-            generateLambdaMethod(entry.getValue(), cw, entry.getKey());
+            generateLambdaMethod(entry.getValue(), cw, entry.getKey(), packageCache);
         }
 
         JvmPackageGen.lambdas = new HashMap<>();
@@ -152,7 +160,7 @@ public class ObjectGenerator {
             if (func == null) {
                 continue;
             }
-            generateMethod(func, cw, this.module, this.currentObjectType, isService, typeName);
+            generateMethod(func, cw, this.module, this.currentObjectType, isService, typeName, packageCache);
         }
     }
 
@@ -407,7 +415,7 @@ public class ObjectGenerator {
             if (func == null) {
                 continue;
             }
-            generateMethod(func, cw, this.module, null, false, "");
+            generateMethod(func, cw, this.module, null, false, "", packageCache);
         }
     }
 
@@ -995,11 +1003,6 @@ public class ObjectGenerator {
         mv.visitInsn(ARETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
-    }
-
-    public ObjectGenerator(BIRNode.BIRPackage module) {
-
-        this.module = module;
     }
 
     public void generateValueClasses(List<BIRNode.BIRTypeDefinition> typeDefs, Map<String, byte[]> jarEntries) {

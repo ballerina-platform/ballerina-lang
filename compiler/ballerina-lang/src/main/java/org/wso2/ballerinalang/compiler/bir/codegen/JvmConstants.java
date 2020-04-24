@@ -204,4 +204,7 @@ public class JvmConstants {
     public static final String CLASS_TOO_LARGE = "ClassTooLarge";
 
     public static final String GLOBAL_LOCK_NAME = "lock";
+    public static final String I_STRING_VALUE = "org/ballerinalang/jvm/values/StringValue";
+    public static final String B_STRING_VALUE = "org/ballerinalang/jvm/values/api/BString";
+    public static final String NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
 }

@@ -23,6 +23,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FunctionParamComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
@@ -165,7 +166,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WINDOWS_PATH_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.visitInvokeDyn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addUnboxInsn;
@@ -236,14 +237,15 @@ public class JvmMethodGen {
     public static void generateMethod(BIRFunction birFunc,
                                       ClassWriter cw,
                                       BIRPackage birModule,
-                                      BType attachedType /* = () */,
-                                      boolean isService /* = false */,
-                                      String serviceName /* = "" */) {
+                                      BType attachedType,
+                                      boolean isService,
+                                      String serviceName,
+                                      PackageCache packageCache) {
 
         if (isExternFunc(birFunc)) {
-            genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType);
+            genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, packageCache);
         } else {
-            genJMethodForBFunc(birFunc, cw, birModule, isService, serviceName, attachedType);
+            genJMethodForBFunc(birFunc, cw, birModule, isService, serviceName, attachedType, packageCache);
         }
     }
 
@@ -252,7 +254,8 @@ public class JvmMethodGen {
                                           BIRPackage module,
                                           boolean isService,
                                           String serviceName,
-                                          BType attachedType /* = () */) {
+                                          BType attachedType,
+                                          PackageCache packageCache) {
 
         String currentPackageName = getPackageName(module.org.value, module.name.value);
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
@@ -376,7 +379,7 @@ public class JvmMethodGen {
             i = i + 1;
         }
 
-        JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module);
+        JvmTerminatorGen termGen = new JvmTerminatorGen(mv, indexMap, labelGen, errorGen, module, packageCache);
 
         // uncomment to test yield
         // mv.visitFieldInsn(GETSTATIC, className, "i", "I");
@@ -1073,7 +1076,8 @@ public class JvmMethodGen {
         mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    public static void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName) {
+    public static void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName,
+                                            PackageCache packageCache) {
 
         BType lhsType;
         String orgName;
@@ -1236,7 +1240,7 @@ public class JvmMethodGen {
             if (functionWrapper != null) {
                 jvmClass = functionWrapper.fullQualifiedClassName;
             } else {
-                BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
+                BPackageSymbol symbol = packageCache.getSymbol(orgName + "/" + moduleName);
                 BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(funcName)).symbol;
                 BInvokableType type = (BInvokableType) funcSymbol.type;
                 ArrayList<BType> params = new ArrayList<>(type.paramTypes);

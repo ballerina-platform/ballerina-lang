@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
+import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -67,14 +68,15 @@ public class ExternalMethodGen {
     public static void genJMethodForBExternalFunc(BIRFunction birFunc,
                                                   ClassWriter cw,
                                                   BIRPackage birModule,
-                                                  BType attachedType /* = () */) {
+                                                  BType attachedType,
+                                                  PackageCache packageCache) {
 
         ExternalFunctionWrapper extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType);
 
         if (extFuncWrapper instanceof JFieldFunctionWrapper) {
-            genJFieldForInteropField((JFieldFunctionWrapper) extFuncWrapper, cw, birModule);
+            genJFieldForInteropField((JFieldFunctionWrapper) extFuncWrapper, cw, birModule, packageCache);
         } else {
-            genJMethodForBFunc(birFunc, cw, birModule, false, "", attachedType);
+            genJMethodForBFunc(birFunc, cw, birModule, false, "", attachedType, packageCache);
         }
     }
 
