@@ -30,22 +30,28 @@ import io.ballerinalang.compiler.text.TextDocumentChange;
 public class SyntaxTree {
     private final TextDocument textDocument;
     private final ModulePartNode modulePart;
+    private final String filePath;
 
-    SyntaxTree(ModulePartNode modulePart, TextDocument textDocument) {
+    SyntaxTree(ModulePartNode modulePart, TextDocument textDocument, String filePath) {
         this.modulePart = cloneWithMe(modulePart);
         this.textDocument = textDocument;
+        this.filePath = filePath;
     }
 
     public static SyntaxTree from(TextDocument textDocument) {
+        return from(textDocument, "");
+    }
+
+    public static SyntaxTree from(TextDocument textDocument, String filePath) {
         BallerinaParser parser = ParserFactory.getParser(textDocument);
-        return new SyntaxTree(parser.parse().createUnlinkedFacade(), textDocument);
+        return new SyntaxTree(parser.parse().createUnlinkedFacade(), textDocument, filePath);
     }
 
     public static SyntaxTree from(SyntaxTree oldTree, TextDocumentChange textDocumentChange) {
         // TODO Improve the logic behind the creation of the new document
         TextDocument newTextDocument = oldTree.textDocument().apply(textDocumentChange);
         BallerinaParser parser = ParserFactory.getParser(oldTree, newTextDocument, textDocumentChange);
-        return new SyntaxTree(parser.parse().createUnlinkedFacade(), newTextDocument);
+        return new SyntaxTree(parser.parse().createUnlinkedFacade(), newTextDocument, oldTree.filePath());
     }
 
     public TextDocument textDocument() {
@@ -54,6 +60,10 @@ public class SyntaxTree {
 
     public ModulePartNode modulePart() {
         return modulePart;
+    }
+
+    public String filePath() {
+        return this.filePath;
     }
 
     @Override
