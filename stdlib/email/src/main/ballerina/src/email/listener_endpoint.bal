@@ -32,6 +32,7 @@ public type Listener object {
     # + ListenerConfig - Configurations for Email endpoint
     public function __init(ListenerConfig listenerConfig) {
         self.config = listenerConfig;
+        checkpanic init(self, self.config);
     }
 
     # Starts the `email:Listener`.
@@ -128,18 +129,17 @@ public type Listener object {
 
     # Registers for the Email service.
     # ```ballerina
-    # email:Error? result = emailListener.register(helloService, hello);
+    # emailListener.register(helloService, hello);
     # ```
     #
     # + emailService - Type descriptor of the service
     # + name - Service name
-    # + return - `()` or else a `email:Error` upon failure to register the service
-    public function register(service emailService, string? name) returns error? {
-        error? response = ();
-        handle|error result = register(self, self.config,  emailService);
-        if(result is error){
-            return result;
+    public function register(service emailService, string? name) {
+        string serviceName = "";
+        if (name is string) {
+            serviceName = name;
         }
+        register(self, emailService, serviceName);
     }
 };
 
@@ -176,8 +176,13 @@ function poll(Listener listenerEndpoint) returns error? = @java:Method{
     class: "org.ballerinalang.stdlib.email.server.EmailListenerHelper"
 } external;
 
-function register(Listener listenerEndpoint, ListenerConfig config, service emailService)
-    returns handle|error = @java:Method{
+function init(Listener listenerEndpoint, ListenerConfig config)
+    returns error? = @java:Method{
+    name: "init",
+    class: "org.ballerinalang.stdlib.email.server.EmailListenerHelper"
+} external;
+
+function register(Listener listenerEndpoint, service emailService, string name) = @java:Method{
     name: "register",
     class: "org.ballerinalang.stdlib.email.server.EmailListenerHelper"
 } external;

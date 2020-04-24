@@ -47,8 +47,9 @@ public class EmailConsumer {
      *
      * @param emailProperties Map of property values
      * @param listener Forwards the received emails to Ballerina code
+     * @throws EmailConnectorException If the given protocol is invalid
      */
-    public EmailConsumer(Map<String, Object> emailProperties, EmailListener listener) {
+    public EmailConsumer(Map<String, Object> emailProperties, EmailListener listener) throws EmailConnectorException {
         this.emailListener = listener;
         String host = (String) emailProperties.get(EmailConstants.PROPS_HOST);
         String username = (String) emailProperties.get(EmailConstants.PROPS_USERNAME);
@@ -67,8 +68,7 @@ public class EmailConsumer {
                     (MapValue<Object, Object>) protocolConfig);
         } else {
             String errorMsg = "Protocol should either be 'IMAP' or 'POP'.";
-            final EmailConnectorException e = new EmailConnectorException(errorMsg);
-            emailListener.onError(BallerinaErrors.createError(e));
+            throw new EmailConnectorException(errorMsg);
         }
 
     }
@@ -96,6 +96,10 @@ public class EmailConsumer {
             log.debug("No emails found in the inbox.");
         }
 
+    }
+
+    protected EmailListener getEmailListener() {
+        return emailListener;
     }
 
 }

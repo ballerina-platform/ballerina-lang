@@ -25,6 +25,10 @@ import org.ballerinalang.stdlib.email.util.EmailConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 /**
  * Email connector listener for Ballerina.
  *
@@ -33,17 +37,17 @@ import org.slf4j.LoggerFactory;
 public class EmailListener {
 
     private static final Logger log = LoggerFactory.getLogger(EmailListener.class);
+
     private final BRuntime runtime;
-    private final ObjectValue service;
+
+    private Map<String, ObjectValue> registeredServices = new HashMap<>();
 
     /**
      * Constructor for listener class for email.
      * @param runtime Current Ballerina runtime
-     * @param service Ballerina service to be listened
      */
-    public EmailListener(BRuntime runtime, ObjectValue service) {
+    public EmailListener(BRuntime runtime) {
         this.runtime = runtime;
-        this.service = service;
     }
 
     /**
@@ -54,7 +58,10 @@ public class EmailListener {
     public boolean onMessage(EmailEvent emailEvent) {
         Object email = emailEvent.getEmailObject();
         if (runtime != null) {
-            runtime.invokeMethodSync(service, EmailConstants.ON_MESSAGE, email, true);
+            for (String serviceKey : registeredServices.keySet()) {
+                runtime.invokeMethodSync(registeredServices.get(serviceKey), EmailConstants.ON_MESSAGE, email,
+                        true);
+            }
         } else {
             log.error("Runtime should not be null.");
         }
@@ -68,9 +75,27 @@ public class EmailListener {
     public void onError(Object error) {
         log.error(((ErrorValue) error).getMessage());
         if (runtime != null) {
-            runtime.invokeMethodSync(service, EmailConstants.ON_ERROR, error, true);
+            for (String serviceKey : registeredServices.keySet()) {
+                runtime.invokeMethodSync(registeredServices.get(serviceKey), EmailConstants.ON_ERROR, error,
+                        true);
+            }
         } else {
             log.error("Runtime should not be null.");
+        }
+    }
+
+    protected void addService(ObjectValue service, String serviceName) {
+        String serviceKey;
+        if (serviceName.equals("")) {
+            UUID uuid = UUID.randomUUID();
+            serviceKey = uuid.toString();
+        } else {
+            serviceKey = serviceName;
+        }
+        if (registeredServices.containsKey(serviceKey)) {
+            registeredServices.put(serviceKey, service);
+        } else {
+            registeredServices.put(serviceKey, service);
         }
     }
 

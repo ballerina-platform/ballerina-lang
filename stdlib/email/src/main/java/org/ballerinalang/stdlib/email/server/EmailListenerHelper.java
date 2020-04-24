@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.email.server;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.email.util.EmailConstants;
 
 import java.util.HashMap;
@@ -38,20 +39,28 @@ public class EmailListenerHelper {
     }
 
     /**
-     * Register a new listener for an email server endpoint.
+     * Initialize a new EmailConnector for the listener.
      * @param emailListener Listener that places emails in Ballerina runtime
      * @param serviceEndpointConfig Email server endpoint configuration
-     * @param service Ballerina service to be listened
-     * @return Registered new Email connector with listening capability
+     * @throws EmailConnectorException If the given protocol is invalid
      */
-    public static EmailConnector register(ObjectValue emailListener, MapValue<Object, Object> serviceEndpointConfig,
-                                          ObjectValue service) {
-        EmailConnectorFactory emailConnectorFactory = new EmailConnectorFactory();
-        final EmailListener listener = new EmailListener(BRuntime.getCurrentRuntime(), service);
+    public static void init(ObjectValue emailListener, MapValue<Object, Object> serviceEndpointConfig)
+            throws EmailConnectorException {
+        final EmailListener listener = new EmailListener(BRuntime.getCurrentRuntime());
         Map<String, Object> paramMap = getServerConnectorParamMap(serviceEndpointConfig);
-        EmailConnector emailConnector = emailConnectorFactory.createServerConnector(paramMap, listener);
+        EmailConnector emailConnector = EmailConnectorFactory.createServerConnector(paramMap, listener);
         emailListener.addNativeData(EmailConstants.EMAIL_SERVER_CONNECTOR, emailConnector);
-        return emailConnector;
+    }
+
+    /**
+     * Register a new service for the listener.
+     * @param service Ballerina service to be listened
+     */
+    public static void register(ObjectValue emailListener, ObjectValue service, BString serviceName) {
+        EmailConnector emailConnector = (EmailConnector) emailListener.getNativeData(
+                EmailConstants.EMAIL_SERVER_CONNECTOR);
+        EmailListener listener = emailConnector.getEmailListener();
+        listener.addService(service, serviceName.getValue());
     }
 
     private static Map<String, Object> getServerConnectorParamMap(MapValue serviceEndpointConfig) {

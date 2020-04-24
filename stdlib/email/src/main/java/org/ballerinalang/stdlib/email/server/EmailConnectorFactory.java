@@ -27,14 +27,19 @@ import java.util.Map;
  */
 public class EmailConnectorFactory {
 
+    private EmailConnectorFactory() {
+        // Singleton class
+    }
+
     /**
      * Generates a new Email connector.
      * @param connectorConfig Configuration of Email connector
      * @param emailListener Listener that polls to email server
      * @return Generated new Email connector
+     * @throws EmailConnectorException If the given protocol is invalid
      */
-    public EmailConnector createServerConnector(Map<String, Object> connectorConfig,
-                                                EmailListener emailListener) {
+    public static EmailConnector createServerConnector(Map<String, Object> connectorConfig,
+                                                EmailListener emailListener) throws EmailConnectorException {
         return new EmailConnector(connectorConfig, emailListener);
     }
 }

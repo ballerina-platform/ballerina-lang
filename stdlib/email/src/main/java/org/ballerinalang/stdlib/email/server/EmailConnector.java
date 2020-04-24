@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Contains the functionality to retrieve emails via consuming.
@@ -33,13 +34,15 @@ public class EmailConnector {
     private static final Logger log = LoggerFactory.getLogger(EmailConnector.class);
 
     private EmailConsumer consumer;
+    private AtomicBoolean isPollOperationOccupied = new AtomicBoolean(false);
 
     /**
      * Creates the email consumer.
      * @param properties Properties to connect to the server
      * @param emailListener Listener that polls emails from the server
+     * @throws EmailConnectorException If the given protocol is invalid
      */
-    public EmailConnector(Map<String, Object> properties, EmailListener emailListener) {
+    public EmailConnector(Map<String, Object> properties, EmailListener emailListener) throws EmailConnectorException {
         log.debug("Email listener configurations: " + properties.keySet());
         consumer = new EmailConsumer(properties, emailListener);
     }
@@ -48,13 +51,23 @@ public class EmailConnector {
      * Polls to retrieve emails from the server.
      */
     public void poll() {
-        try {
-            if (log.isDebugEnabled()) {
-                log.debug("Poll method invoked.");
+        if (isPollOperationOccupied.compareAndSet(false, true)) {
+            try {
+                if (log.isDebugEnabled()) {
+                    log.debug("Poll method invoked.");
+                }
+                consumer.consume();
+            } catch (Exception e) {
+                log.error("Error executing the polling cycle of RemoteFileSystemServer", e);
+            } finally {
+                isPollOperationOccupied.set(false);
             }
-            consumer.consume();
-        } catch (Exception e) {
-            log.error("Error executing the polling cycle of RemoteFileSystemServer", e);
+        } else {
+            log.info("A scheduled email polling job was skipped as the previous job was still processing.");
         }
+    }
+
+    protected EmailListener getEmailListener() {
+        return consumer.getEmailListener();
     }
 }
