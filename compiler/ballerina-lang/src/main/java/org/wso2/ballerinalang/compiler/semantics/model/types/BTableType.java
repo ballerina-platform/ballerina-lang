@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.TableType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
 
@@ -35,6 +36,8 @@ public class BTableType extends BType implements TableType {
     public BType constraint;
     public BType keyTypeConstraint;
     public List<String> fieldNameList;
+    public DiagnosticPos keyPos;
+    public DiagnosticPos constraintPos;
 
     public BTableType(int tag, BType constraint, BTypeSymbol tSymbol) {
         super(tag, tSymbol);

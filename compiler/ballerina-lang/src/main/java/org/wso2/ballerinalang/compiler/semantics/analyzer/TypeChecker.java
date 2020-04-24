@@ -759,14 +759,14 @@ public class TypeChecker extends BLangNodeVisitor {
         BMapType anyErrorMapType = new BMapType(TypeTags.MAP, unionType, null);
 
         if (!types.isAssignable(tableType.constraint, anyErrorMapType)) {
-            dlog.error(pos, DiagnosticCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, tableType.constraint);
+            dlog.error(tableType.constraintPos, DiagnosticCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, tableType.constraint);
             resultType = symTable.semanticError;
             return false;
         }
 
         List<String> fieldNameList = tableType.fieldNameList;
         if (fieldNameList != null) {
-            return validateKeySpecifier(fieldNameList, tableType.constraint, pos) &&
+            return validateKeySpecifier(fieldNameList, tableType.constraint, tableType.keyPos) &&
                     validateTableConstructorRecordLiterals(fieldNameList, recordLiterals);
         }
 

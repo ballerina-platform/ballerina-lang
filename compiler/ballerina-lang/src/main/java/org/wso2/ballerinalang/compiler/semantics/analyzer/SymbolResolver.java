@@ -960,9 +960,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
                 typeSymbol.name, env.enclPkg.symbol.pkgID, tableType, env.scope.owner);
+        tableType.constraintPos = tableTypeNode.constraint.pos;
 
         if (tableTypeNode.tableKeyTypeConstraint != null) {
             tableType.keyTypeConstraint = resolveTypeNode(tableTypeNode.tableKeyTypeConstraint.keyType, env);
+            tableType.keyPos = tableTypeNode.tableKeyTypeConstraint.pos;
         } else if (tableTypeNode.tableKeySpecifier != null) {
             BLangTableKeySpecifier tableKeySpecifier = tableTypeNode.tableKeySpecifier;
             List<String> fieldNameList = new ArrayList<>();
@@ -970,6 +972,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 fieldNameList.add(identifier.value);
             }
             tableType.fieldNameList = fieldNameList;
+            tableType.keyPos = tableKeySpecifier.pos;
         }
 
         resultType = tableType;
