@@ -306,4 +306,13 @@ public class ComplexTypesQueryTest {
             Assert.fail("Parsing the returned date/time/timestamp value has failed", e);
         }
     }
+	
+	@Test(description = "Test string representation of stream type")
+    public void testErrorInStringRepresentation() {
+        validateError(negativeResult, 0,
+                "incompatible types: expected 'stream<Student," +
+                        "(ballerina/sql:DatabaseError|ballerina/sql:ApplicationError)>', " +
+                        "found 'stream<record {| anydata...; |}," +
+                        "(ballerina/sql:DatabaseError|ballerina/sql:ApplicationError)>'", 25, 41 );
+    }
 }
