@@ -31,13 +31,18 @@ class LineMap {
         this.length = textLines.length;
     }
 
-    LinePosition lineFrom(int position) {
+    TextLine textLine(int line) {
+        lineRangeCheck(line);
+        return textLines[line];
+    }
+
+    LinePosition linePositionFrom(int position) {
         positionRangeCheck(position);
         TextLine textLine = findLineFrom(position);
         return new LinePosition(textLine.lineNo(), position - textLine.startOffset());
     }
 
-    int positionFrom(LinePosition linePosition) {
+    int textPositionFrom(LinePosition linePosition) {
         lineRangeCheck(linePosition.line());
         TextLine textLine = textLines[linePosition.line()];
         if (textLine.length() < linePosition.offset()) {
@@ -45,13 +50,13 @@ class LineMap {
                     linePosition.offset() + "'");
         }
 
-        return textLine.startOffset + linePosition.offset();
+        return textLine.startOffset() + linePosition.offset();
     }
 
     private void positionRangeCheck(int position) {
-        if (position < 0 || position > textLines[length - 1].endOffset) {
+        if (position < 0 || position > textLines[length - 1].endOffset()) {
             throw new IndexOutOfBoundsException("Index: '" + position + "', Size: '" +
-                    textLines[length - 1].endOffset + "'");
+                    textLines[length - 1].endOffset() + "'");
         }
     }
 
@@ -75,10 +80,10 @@ class LineMap {
         int right = length - 1;
         while (left <= right) {
             int middle = (left + right) / 2;
-            if (textLines[middle].startOffset <= position && position <= textLines[middle].endOffset) {
+            if (textLines[middle].startOffset() <= position && position <= textLines[middle].endOffset()) {
                 foundTextLine = textLines[middle];
                 break;
-            } else if (textLines[middle].endOffset < position) {
+            } else if (textLines[middle].endOffset() < position) {
                 left = middle + 1;
             } else {
                 right = middle - 1;
@@ -87,46 +92,4 @@ class LineMap {
         return foundTextLine;
     }
 
-    /**
-     * A representation of a single line in the {@code TextDocument}.
-     *
-     * @since 2.0.0
-     */
-    static class TextLine {
-        /**
-         * The span of the line within the {@code TextDocument}
-         */
-        private final int startOffset;
-        private final int endOffset;
-        private final int lengthOfNewLineChars;
-
-        private final int lineNo;
-
-        TextLine(int lineNo, int startOffset, int endOffset, int lengthOfNewLineChars) {
-            this.lineNo = lineNo;
-            this.startOffset = startOffset;
-            this.endOffset = endOffset;
-            this.lengthOfNewLineChars = lengthOfNewLineChars;
-        }
-
-        int lineNo() {
-            return lineNo;
-        }
-
-        int startOffset() {
-            return startOffset;
-        }
-
-        int getEndOffset() {
-            return endOffset;
-        }
-
-        int length() {
-            return endOffset - startOffset;
-        }
-
-        int lengthWithNewLineChars() {
-            return endOffset - startOffset + lengthOfNewLineChars;
-        }
-    }
 }

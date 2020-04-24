@@ -33,12 +33,16 @@ public abstract class TextDocument {
 
     public abstract CharReader getCharacterReader();
 
-    public LinePosition textLineFrom(int position) {
-        return lines().lineFrom(position);
+    public TextLine line(int line) {
+        return lines().textLine(line);
     }
 
-    public int positionFrom(LinePosition linePosition) {
-        return lineMap.positionFrom(linePosition);
+    public LinePosition linePositionFrom(int textPosition) {
+        return lines().linePositionFrom(textPosition);
+    }
+
+    public int textPositionFrom(LinePosition linePosition) {
+        return lineMap.textPositionFrom(linePosition);
     }
 
     protected LineMap lines() {

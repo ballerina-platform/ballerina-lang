@@ -18,7 +18,6 @@
 package io.ballerinalang.compiler.text;
 
 import io.ballerinalang.compiler.internal.parser.CharReader;
-import io.ballerinalang.compiler.text.LineMap.TextLine;
 
 /**
  * The {@code StringTextDocument} represents a {@code TextDocument} created with a string.
@@ -77,8 +76,9 @@ public class StringTextDocument extends TextDocument {
         TextLine[] textLines = new TextLine[noOfLines];
         for (int index = 0; index < noOfLines; index++) {
             lengthOfNewLineChars = isLastLine(index, noOfLines) ? 0 : 1;
-            int endOffset = startOffset + strLines[index].length();
-            textLines[index] = new TextLine(index, startOffset, endOffset, lengthOfNewLineChars);
+            String strLine = strLines[index];
+            int endOffset = startOffset + strLine.length();
+            textLines[index] = new TextLine(index, strLine, startOffset, endOffset, lengthOfNewLineChars);
             startOffset = endOffset + lengthOfNewLineChars;
         }
         return textLines;

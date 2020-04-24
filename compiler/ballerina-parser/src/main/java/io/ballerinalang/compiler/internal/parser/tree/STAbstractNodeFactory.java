@@ -70,6 +70,16 @@ public abstract class STAbstractNodeFactory {
         return new SyntaxTrivia(kind, text);
     }
 
+    /**
+     * Create a Minutia node with the given text and the width.
+     * <p>
+     * This method allows the lexer to set the width that is different from the text length.
+     *
+     * @param kind  the {@code SyntaxKind}
+     * @param text  the lexeme
+     * @param width the width of the lexeme
+     * @return the Minutia node
+     */
     public static STNode createSyntaxTrivia(SyntaxKind kind, String text, int width) {
         return new SyntaxTrivia(kind, text, width);
     }
