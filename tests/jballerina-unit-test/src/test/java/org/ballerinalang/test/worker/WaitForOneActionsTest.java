@@ -101,4 +101,9 @@ public class WaitForOneActionsTest {
         Assert.assertEquals(vals.length, 1);
         Assert.assertEquals(vals[0], null);
     }
+
+    @Test
+    public void waitTest10() {
+        BRunUtil.invoke(result, "waitTest10", new BValue[0]);
+    }
 }
