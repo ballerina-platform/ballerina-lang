@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
+import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -230,6 +231,16 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testAsyncFpArgsWithXmls() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithXmls");
+        assertTrue(results[0] instanceof BInteger);
+        assertTrue(results[1] instanceof BXMLSequence);
+        assertEquals(((BInteger) results[0]).intValue(), 6021);
+        BXMLSequence bxmlSequence = (BXMLSequence) results[1];
+        assertEquals(bxmlSequence.getItem(0).children().getItem(1).getTextValue().stringValue(), "Harry Potter");
+        assertEquals(bxmlSequence.getItem(1).children().getItem(1).getTextValue().stringValue(), "Learning XML");
+    }
+
     public void testChildren() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testChildren");
     }

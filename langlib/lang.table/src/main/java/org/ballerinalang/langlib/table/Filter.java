@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
@@ -27,6 +28,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Native implementation of lang.table:filter(table&lt;Type&gt;, function).
@@ -41,15 +44,26 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Filter {
 
     public static TableValueImpl filter(Strand strand, TableValueImpl tbl, FPValue<Object, Boolean> func) {
-
         BType newTableType = tbl.getType();
         TableValueImpl newTable = new TableValueImpl((BTableType) newTableType);
-        for (Object key : tbl.getKeys()) {
-            Object value = tbl.get(key);
-            if (func.apply(new Object[]{strand, value, true})) {
-                newTable.put(key, value);
-            }
-        }
+        int size = tbl.size();
+        AtomicInteger index = new AtomicInteger(-1);
+
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                        () -> new Object[]{strand,
+                                tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
+                        result -> {
+                            if ((Boolean) result) {
+                                Object key = tbl.getKeys()[index.get()];
+                                Object value = tbl.get(key);
+                                newTable.put(key, value);
+                            }
+                        }, () -> newTable);
         return newTable;
+    }
+
+    public static TableValueImpl filter_bstring(Strand strand, TableValueImpl tbl, FPValue<Object, Boolean> func) {
+        return filter(strand, tbl, func);
     }
 }
