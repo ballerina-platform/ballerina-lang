@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -53,7 +52,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
@@ -105,7 +103,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private final Names names;
     private final Types types;
     private BLangBlockStmt parentBlock = null;
-    private int streamFunctionCount = 0;
+    private int streamElementCount = 0;
     private SymbolEnv env;
 
     private QueryDesugar(CompilerContext context) {
@@ -172,13 +170,13 @@ public class QueryDesugar extends BLangNodeVisitor {
         // --- start new stream desugar ---
         // TODO
         List<BLangNode> queryClauses = queryExpr.getQueryClauses();
-        BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(fromClause.pos);
+        BLangBlockStmt queryBlock = parentBlock;
         BLangNode initFromClause = queryClauses.get(0);
 
         final BLangVariableReference initPipeline = addPipeline(queryBlock, (BLangFromClause) initFromClause);
         BLangVariableReference initFrom = addFromFunction(queryBlock, (BLangFromClause) initFromClause);
         addStreamFunction(queryBlock, initPipeline, initFrom);
-        for (BLangNode clause : queryClauses.subList(1, queryClauses.size() - 1)) {
+        for (BLangNode clause : queryClauses.subList(1, queryClauses.size())) {
             switch (clause.getKind()) {
                 case FROM:
                     BLangVariableReference pipeline = addPipeline(queryBlock, (BLangFromClause) clause);
@@ -205,81 +203,86 @@ public class QueryDesugar extends BLangNodeVisitor {
                     break;
             }
         }
+        BLangVariableReference streamRef = addGetStreamFromPipeline(queryBlock, initPipeline);
+        BLangStatementExpression streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
+        streamStmtExpr.type = streamRef.type;
+        return streamStmtExpr;
 
-        // TODO
-        if (queryExpr.isStream) {
-            addGetStreamFromPipeline(queryBlock, initPipeline);
-        } else {
-            // to array?
-        }
-        // --- end new stream desugar ---
+//        // TODO
+//        if (queryExpr.isStream) {
+//            // addGetStreamFromPipeline(queryBlock, initPipeline);
+//        } else {
+//            // to array?
+//        }
+//        // --- end new stream desugar ---
 
-        // Create output data array variable
-        // Person[]|error $outputDataArray$ = ();
-        BType queryExpOutputType = queryExpr.type;
-        BType outputType = types.getSafeType(queryExpOutputType, true, true);
-        if (outputType.tag == TypeTags.ARRAY) {
-            BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name("$outputDataArray$"),
-                    env.scope.owner.pkgID, queryExpOutputType, env.scope.owner);
-            BLangExpression outputInitExpression = ASTBuilderUtil.createLiteral(fromClause.pos, symTable.nilType,
-                    null);
-            BLangSimpleVariable outputVariable =
-                    ASTBuilderUtil.createVariable(pos, "$outputDataArray$", queryExpOutputType,
-                            outputInitExpression, outputVarSymbol);
-            BLangSimpleVariableDef outputVariableDef =
-                    ASTBuilderUtil.createVariableDef(pos, outputVariable);
-            BLangSimpleVarRef outputVarRef = ASTBuilderUtil.createVariableRef(pos, outputVariable.symbol);
-
-            // Create temp array variable
-            // Person[] $tempDataArray$ = [];
-            BVarSymbol tempArrayVarSymbol = new BVarSymbol(0, new Name("$tempDataArray$"),
-                    env.scope.owner.pkgID, outputType, env.scope.owner);
-            BLangListConstructorExpr emptyArrayExpr = ASTBuilderUtil.createEmptyArrayLiteral(pos,
-                    (BArrayType) outputType);
-            BLangSimpleVariable tempArrayVariable = ASTBuilderUtil.createVariable(pos, "$tempDataArray$",
-                    outputType, emptyArrayExpr, tempArrayVarSymbol);
-            BLangSimpleVariableDef tempArrayVariableDef =
-                    ASTBuilderUtil.createVariableDef(pos, tempArrayVariable);
-            BLangSimpleVarRef tempArrayVarRef = ASTBuilderUtil.createVariableRef(pos, tempArrayVariable.symbol);
-
-            parentBlock.addStatement(outputVariableDef);
-            parentBlock.addStatement(tempArrayVariableDef);
-
-            BLangBlockStmt leafElseBlock = buildFromClauseBlock(fromClauseList, outputVarRef);
-
-            // Create indexed based access expression statement
-            //      $tempDataArray$.push({
-            //         firstName: person.firstName,
-            //         lastName: person.lastName
-            //      });
-            BLangBlockStmt bodyBlock = ASTBuilderUtil.createBlockStmt(pos);
-            BLangInvocation arrPushInvocation = createLangLibInvocation("push", tempArrayVarRef,
-                    new ArrayList<>(), Lists.of(ASTBuilderUtil.generateConversionExpr(selectClause.expression,
-                            symTable.anyOrErrorType, symResolver)), symTable.nilType, pos);
-            BLangExpressionStmt pushInvocationStmt = ASTBuilderUtil.createExpressionStmt(pos, bodyBlock);
-            pushInvocationStmt.expr = arrPushInvocation;
-
-            buildWhereClauseBlock(whereClauseList, letClauseList, leafElseBlock, bodyBlock, selectClause.pos);
-
-            // if (outputDataArray is ()) {
-            //     outputDataArray = tempDataArray;
-            // }
-            BLangBlockStmt nullCheckIfBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
-            BLangAssignment outputAssignment = ASTBuilderUtil
-                    .createAssignmentStmt(fromClause.pos, outputVarRef, tempArrayVarRef);
-            nullCheckIfBody.addStatement(outputAssignment);
-            BLangIf nullCheckIf = createTypeCheckIfNode(fromClause.pos, outputVarRef,
-                    desugar.getNillTypeNode(), nullCheckIfBody);
-
-            parentBlock.addStatement(nullCheckIf);
-
-            // Create statement expression with temp variable definition statements & while statement
-            BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(parentBlock, outputVarRef);
-
-            stmtExpr.type = queryExpOutputType;
-            return stmtExpr;
-        }
-        throw new IllegalStateException();
+//
+//        // Create output data array variable
+//        // Person[]|error $outputDataArray$ = ();
+//        BType queryExpOutputType = queryExpr.type;
+//        BType outputType = types.getSafeType(queryExpOutputType, true, true);
+//        if (outputType.tag == TypeTags.ARRAY) {
+//            BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name("$outputDataArray$"),
+//                    env.scope.owner.pkgID, queryExpOutputType, env.scope.owner);
+//            BLangExpression outputInitExpression = ASTBuilderUtil.createLiteral(fromClause.pos, symTable.nilType,
+//                    null);
+//            BLangSimpleVariable outputVariable =
+//                    ASTBuilderUtil.createVariable(pos, "$outputDataArray$", queryExpOutputType,
+//                            outputInitExpression, outputVarSymbol);
+//            BLangSimpleVariableDef outputVariableDef =
+//                    ASTBuilderUtil.createVariableDef(pos, outputVariable);
+//            BLangSimpleVarRef outputVarRef = ASTBuilderUtil.createVariableRef(pos, outputVariable.symbol);
+//
+//            // Create temp array variable
+//            // Person[] $tempDataArray$ = [];
+//            BVarSymbol tempArrayVarSymbol = new BVarSymbol(0, new Name("$tempDataArray$"),
+//                    env.scope.owner.pkgID, outputType, env.scope.owner);
+//            BLangListConstructorExpr emptyArrayExpr = ASTBuilderUtil.createEmptyArrayLiteral(pos,
+//                    (BArrayType) outputType);
+//            BLangSimpleVariable tempArrayVariable = ASTBuilderUtil.createVariable(pos, "$tempDataArray$",
+//                    outputType, emptyArrayExpr, tempArrayVarSymbol);
+//            BLangSimpleVariableDef tempArrayVariableDef =
+//                    ASTBuilderUtil.createVariableDef(pos, tempArrayVariable);
+//            BLangSimpleVarRef tempArrayVarRef = ASTBuilderUtil.createVariableRef(pos, tempArrayVariable.symbol);
+//
+//            parentBlock.addStatement(outputVariableDef);
+//            parentBlock.addStatement(tempArrayVariableDef);
+//
+//            BLangBlockStmt leafElseBlock = buildFromClauseBlock(fromClauseList, outputVarRef);
+//
+//            // Create indexed based access expression statement
+//            //      $tempDataArray$.push({
+//            //         firstName: person.firstName,
+//            //         lastName: person.lastName
+//            //      });
+//            BLangBlockStmt bodyBlock = ASTBuilderUtil.createBlockStmt(pos);
+//            BLangInvocation arrPushInvocation = createLangLibInvocation("push", tempArrayVarRef,
+//                    new ArrayList<>(), Lists.of(ASTBuilderUtil.generateConversionExpr(selectClause.expression,
+//                            symTable.anyOrErrorType, symResolver)), symTable.nilType, pos);
+//            BLangExpressionStmt pushInvocationStmt = ASTBuilderUtil.createExpressionStmt(pos, bodyBlock);
+//            pushInvocationStmt.expr = arrPushInvocation;
+//
+//            buildWhereClauseBlock(whereClauseList, letClauseList, leafElseBlock, bodyBlock, selectClause.pos);
+//
+//            // if (outputDataArray is ()) {
+//            //     outputDataArray = tempDataArray;
+//            // }
+//            BLangBlockStmt nullCheckIfBody = ASTBuilderUtil.createBlockStmt(fromClause.pos);
+//            BLangAssignment outputAssignment = ASTBuilderUtil
+//                    .createAssignmentStmt(fromClause.pos, outputVarRef, tempArrayVarRef);
+//            nullCheckIfBody.addStatement(outputAssignment);
+//            BLangIf nullCheckIf = createTypeCheckIfNode(fromClause.pos, outputVarRef,
+//                    desugar.getNillTypeNode(), nullCheckIfBody);
+//
+//            parentBlock.addStatement(nullCheckIf);
+//
+//            // Create statement expression with temp variable definition statements & while statement
+//            BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(parentBlock, outputVarRef);
+//
+//            stmtExpr.type = queryExpOutputType;
+//            return stmtExpr;
+//        }
+//        throw new IllegalStateException();
     }
 
     /**
@@ -291,8 +294,18 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return variableReference to created _StreamPipeline.
      */
     BLangVariableReference addPipeline(BLangBlockStmt blockStmt, BLangFromClause fromClause) {
+        BLangExpression collection = fromClause.collection;
+        DiagnosticPos pos = fromClause.pos;
+        String name = getNewVarName();
+        BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString(name), env.scope.owner.pkgID,
+                collection.type, this.env.scope.owner);
+        BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(fromClause.pos, name,
+                collection.type, collection, dataSymbol);
+        BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(fromClause.pos, dataVariable);
+        BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, dataSymbol);
+        blockStmt.addStatement(dataVarDef);
         return getStreamFunctionVariableRef(blockStmt, Names.QUERY_CREATE_PIPELINE_FUNCTION,
-                Lists.of(fromClause.collection), fromClause.pos);
+                Lists.of(valueVarRef), fromClause.pos);
     }
 
     /**
@@ -312,19 +325,20 @@ public class QueryDesugar extends BLangNodeVisitor {
         // function(_Frame frame) returns _Frame|error? { return frame; }
         BLangLambdaFunction lambda = createPassthroughLambda(pos);
 
-//        // frame["x"] = x;, note: stmts will get added in reverse order.
-//        List<BVarSymbol> symbols = getIntroducedSymbols((BLangVariable)
-//                fromClause.variableDefinitionNode.getVariable());
-//        Collections.reverse(symbols);
-//        for (BVarSymbol symbol : symbols) {
-//            addToFrameFunction(lambda, symbol);
-//        }
+        // frame["x"] = x;, note: stmts will get added in reverse order.
+        List<BVarSymbol> symbols = getIntroducedSymbols((BLangVariable)
+                fromClause.variableDefinitionNode.getVariable());
+        Collections.reverse(symbols);
+        for (BVarSymbol symbol : symbols) {
+            addToFrameFunction(lambda, symbol);
+        }
 
-        /// ---- ISSUE ----
         // int x = <int> frame["value"];, note: stmts will get added in reverse order.
         BVarSymbol fSymbol = lambda.function.requiredParams.get(0).symbol;
-        BLangFieldBasedAccess valueAccessExpr = desugar.getValueAccessExpression(fromClause.pos, symTable.anyOrErrorType, fSymbol);
-        valueAccessExpr.expr = desugar.addConversionExprIfRequired(valueAccessExpr.expr, types.getSafeType(valueAccessExpr.expr.type, true, false));
+        BLangFieldBasedAccess valueAccessExpr = desugar.getValueAccessExpression(fromClause.pos,
+                symTable.anyOrErrorType, fSymbol);
+        valueAccessExpr.expr = desugar.addConversionExprIfRequired(valueAccessExpr.expr,
+                types.getSafeType(valueAccessExpr.expr.type, true, false));
         VariableDefinitionNode variableDefinitionNode = fromClause.variableDefinitionNode;
         BLangVariable variable = (BLangVariable) variableDefinitionNode.getVariable();
         variable.setInitialExpression(desugar.addConversionExprIfRequired(valueAccessExpr, fromClause.varType));
@@ -332,8 +346,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
         // add at 0, otherwise, this goes under existing stmts.
         body.stmts.add(0, (BLangStatement) variableDefinitionNode);
-
-        /// ---- ISSUE END ----
 
         // at this point;
         // function(_Frame frame) returns _Frame|error? {
@@ -474,8 +486,12 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return variableReference to stream.
      */
     BLangVariableReference addGetStreamFromPipeline(BLangBlockStmt blockStmt, BLangVariableReference pipelineRef) {
-        // TODO
-        return null;
+        DiagnosticPos pos = pipelineRef.pos;
+        // TODO: instead of null, send the expected type;??
+        // TODO: for now type will be stream<any|error, error?> ; we can pass the expected type and add a cast
+        BLangVariableReference streamVarRef = getStreamFunctionVariableRef(blockStmt,
+                Names.QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION, null, Lists.of(pipelineRef), pos);
+        return streamVarRef;
     }
 
     /**
@@ -626,15 +642,43 @@ public class QueryDesugar extends BLangNodeVisitor {
                                                                 Name functionName,
                                                                 List<BLangExpression> requiredArgs,
                                                                 DiagnosticPos pos) {
-        String name = "$streamFunction$" + streamFunctionCount++;
+        return getStreamFunctionVariableRef(blockStmt, functionName, null, requiredArgs, pos);
+    }
+
+    /**
+     * Creates a variable to hold what function invocation returns,
+     * and then return a varRef to that variable.
+     *
+     * @param blockStmt    parent block to write the varDef into.
+     * @param functionName function name.
+     * @param type         expected type of the variable.
+     * @param requiredArgs required args.
+     * @param pos          pos diagnostic pos.
+     * @return varRef to the created variable.
+     */
+    private BLangVariableReference getStreamFunctionVariableRef(BLangBlockStmt blockStmt,
+                                                                Name functionName,
+                                                                BType type,
+                                                                List<BLangExpression> requiredArgs,
+                                                                DiagnosticPos pos) {
+        String name = getNewVarName();
         BLangInvocation queryLibInvocation = createQueryLibInvocation(functionName, requiredArgs, pos);
-        BType type = queryLibInvocation.type;
+        type = (type == null) ? queryLibInvocation.type : type;
         BVarSymbol varSymbol = new BVarSymbol(0, new Name(name), env.scope.owner.pkgID, type, env.scope.owner);
-        BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, name, type, queryLibInvocation, varSymbol);
+        BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, name, type,
+                desugar.addConversionExprIfRequired(queryLibInvocation, type), varSymbol);
         BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
-        variableDef.desugared = true;
         blockStmt.addStatement(variableDef);
         return ASTBuilderUtil.createVariableRef(pos, variable.symbol);
+    }
+
+    /**
+     * Get unique variable name.
+     *
+     * @return new variable name.
+     */
+    private String getNewVarName() {
+        return "$streamElement$" + streamElementCount++;
     }
 
     /**
@@ -679,7 +723,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         DiagnosticPos pos = lambda.pos;
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
         BVarSymbol fSymbol = lambda.function.requiredParams.get(0).symbol;
-        BLangSimpleVariable fVar = ASTBuilderUtil.createVariable(pos, null, fSymbol.type, null, fSymbol);
         BLangVariableReference frameVarRef = ASTBuilderUtil.createVariableRef(pos, fSymbol);
         BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, valueSymbol);
         BLangLiteral keyLiteral = ASTBuilderUtil.createLiteral(pos, symTable.stringType, valueSymbol.name.value);

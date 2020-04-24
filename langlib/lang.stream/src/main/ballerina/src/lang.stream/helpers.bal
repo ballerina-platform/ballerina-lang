@@ -52,6 +52,10 @@ public function addStreamFunction(@tainted _StreamPipeline pipeline, @tainted _S
     pipeline.addStreamFunction(streamFunction);
 }
 
+public function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<any|error, error?> {
+    return pipeline.getStream();
+}
+
 public function addToFrame(_Frame frame, string key, any|error value) returns _Frame {
     frame[key] = value;
     return frame;
