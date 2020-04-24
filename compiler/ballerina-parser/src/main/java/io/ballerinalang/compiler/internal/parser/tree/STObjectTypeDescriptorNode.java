@@ -40,7 +40,7 @@ public class STObjectTypeDescriptorNode extends STTypeDescriptorNode {
             STNode openBrace,
             STNode members,
             STNode closeBrace) {
-        super(SyntaxKind.OBJECT_TYPE_DESCRIPTOR);
+        super(SyntaxKind.OBJECT_TYPE_DESC);
         this.objectTypeQualifiers = objectTypeQualifiers;
         this.objectKeyword = objectKeyword;
         this.openBrace = openBrace;

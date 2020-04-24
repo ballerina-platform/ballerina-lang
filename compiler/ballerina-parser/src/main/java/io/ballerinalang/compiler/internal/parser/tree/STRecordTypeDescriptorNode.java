@@ -38,7 +38,7 @@ public class STRecordTypeDescriptorNode extends STTypeDescriptorNode {
             STNode bodyStartDelimiter,
             STNode fields,
             STNode bodyEndDelimiter) {
-        super(SyntaxKind.RECORD_TYPE_DESCRIPTOR);
+        super(SyntaxKind.RECORD_TYPE_DESC);
         this.objectKeyword = objectKeyword;
         this.bodyStartDelimiter = bodyStartDelimiter;
         this.fields = fields;

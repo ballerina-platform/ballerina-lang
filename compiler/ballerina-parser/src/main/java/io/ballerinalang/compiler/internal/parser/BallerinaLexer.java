@@ -596,7 +596,7 @@ public class BallerinaLexer {
             case LexerTerminals.NEVER:
                 return getSyntaxToken(SyntaxKind.NEVER_KEYWORD);
             case LexerTerminals.BYTE:
-                return getSyntaxToken(SyntaxKind.NEVER_KEYWORD);
+                return getSyntaxToken(SyntaxKind.BYTE_KEYWORD);
 
             // Keywords
             case LexerTerminals.PUBLIC:

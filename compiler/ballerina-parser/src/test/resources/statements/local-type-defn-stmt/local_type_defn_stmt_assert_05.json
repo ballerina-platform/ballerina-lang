@@ -54,7 +54,7 @@
                                     "value": "Student"
                                 },
                                 {
-                                    "kind": "OBJECT_TYPE_DESCRIPTOR",
+                                    "kind": "OBJECT_TYPE_DESC",
                                     "children": [
                                         {
                                             "kind": "LIST",

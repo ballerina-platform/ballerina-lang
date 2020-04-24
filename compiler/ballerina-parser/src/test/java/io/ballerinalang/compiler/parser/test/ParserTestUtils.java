@@ -21,7 +21,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
@@ -586,40 +585,40 @@ public class ParserTestUtils {
             // Types
             case "TYPE_DESC":
                 return SyntaxKind.TYPE_DESC;
-            case "INT_TYPE":
-                return SyntaxKind.INT_TYPE;
-            case "FLOAT_TYPE":
-                return SyntaxKind.FLOAT_TYPE;
-            case "DECIMAL_TYPE":
-                return SyntaxKind.DECIMAL_TYPE;
-            case "BOOLEAN_TYPE":
-                return SyntaxKind.BOOLEAN_TYPE;
-            case "STRING_TYPE":
-                return SyntaxKind.STRING_TYPE;
-            case "BYTE_TYPE":
-                return SyntaxKind.BYTE_TYPE;
-            case "XML_TYPE":
-                return SyntaxKind.XML_TYPE;
-            case "JSON_TYPE":
-                return SyntaxKind.JSON_TYPE;
-            case "HANDLE_TYPE":
-                return SyntaxKind.HANDLE_TYPE;
-            case "ANY_TYPE":
-                return SyntaxKind.ANY_TYPE;
-            case "ANYDATA_TYPE":
-                return SyntaxKind.ANYDATA_TYPE;
-            case "NEVER_TYPE":
-                return SyntaxKind.NEVER_TYPE;
-            case "NIL_TYPE":
-                return SyntaxKind.NIL_TYPE;
-            case "OPTIONAL_TYPE":
-                return SyntaxKind.OPTIONAL_TYPE;
-            case "ARRAY_TYPE":
-                return SyntaxKind.ARRAY_TYPE;
-            case "RECORD_TYPE_DESCRIPTOR":
-                return SyntaxKind.RECORD_TYPE_DESCRIPTOR;
-            case "OBJECT_TYPE_DESCRIPTOR":
-                return SyntaxKind.OBJECT_TYPE_DESCRIPTOR;
+            case "INT_TYPE_DESC":
+                return SyntaxKind.INT_TYPE_DESC;
+            case "FLOAT_TYPE_DESC":
+                return SyntaxKind.FLOAT_TYPE_DESC;
+            case "DECIMAL_TYPE_DESC":
+                return SyntaxKind.DECIMAL_TYPE_DESC;
+            case "BOOLEAN_TYPE_DESC":
+                return SyntaxKind.BOOLEAN_TYPE_DESC;
+            case "STRING_TYPE_DESC":
+                return SyntaxKind.STRING_TYPE_DESC;
+            case "BYTE_TYPE_DESC":
+                return SyntaxKind.BYTE_TYPE_DESC;
+            case "XML_TYPE_DESC":
+                return SyntaxKind.XML_TYPE_DESC;
+            case "JSON_TYPE_DESC":
+                return SyntaxKind.JSON_TYPE_DESC;
+            case "HANDLE_TYPE_DESC":
+                return SyntaxKind.HANDLE_TYPE_DESC;
+            case "ANY_TYPE_DESC":
+                return SyntaxKind.ANY_TYPE_DESC;
+            case "ANYDATA_TYPE_DESC":
+                return SyntaxKind.ANYDATA_TYPE_DESC;
+            case "NEVER_TYPE_DESC":
+                return SyntaxKind.NEVER_TYPE_DESC;
+            case "NIL_TYPE_DESC":
+                return SyntaxKind.NIL_TYPE_DESC;
+            case "OPTIONAL_TYPE_DESC":
+                return SyntaxKind.OPTIONAL_TYPE_DESC;
+            case "ARRAY_TYPE_DESC":
+                return SyntaxKind.ARRAY_TYPE_DESC;
+            case "RECORD_TYPE_DESC":
+                return SyntaxKind.RECORD_TYPE_DESC;
+            case "OBJECT_TYPE_DESC":
+                return SyntaxKind.OBJECT_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":

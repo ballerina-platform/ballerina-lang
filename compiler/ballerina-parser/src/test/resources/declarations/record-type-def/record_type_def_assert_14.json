@@ -33,7 +33,7 @@
                             ]
                         },
                         {
-                            "kind": "RECORD_TYPE_DESCRIPTOR",
+                            "kind": "RECORD_TYPE_DESC",
                             "children": [
                                 {
                                     "kind": "RECORD_KEYWORD"
@@ -134,7 +134,7 @@
                                                     ]
                                                 },
                                                 {
-                                                    "kind": "RECORD_TYPE_DESCRIPTOR",
+                                                    "kind": "RECORD_TYPE_DESC",
                                                     "children": [
                                                         {
                                                             "kind": "RECORD_KEYWORD"

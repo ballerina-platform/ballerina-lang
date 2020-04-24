@@ -1103,7 +1103,7 @@
         {
             "name": "ObjectTypeDescriptorNode",
             "base": "TypeDescriptorNode",
-            "kind": "OBJECT_TYPE_DESCRIPTOR",
+            "kind": "OBJECT_TYPE_DESC",
             "attributes": [
                 {
                     "name": "objectTypeQualifiers",
@@ -1132,7 +1132,7 @@
         {
             "name": "RecordTypeDescriptorNode",
             "base": "TypeDescriptorNode",
-            "kind": "RECORD_TYPE_DESCRIPTOR",
+            "kind": "RECORD_TYPE_DESC",
             "attributes": [
                 {
                     "name": "objectKeyword",
@@ -1176,7 +1176,7 @@
         {
             "name": "NilTypeDescriptorNode",
             "base": "Node",
-            "kind": "NIL_TYPE",
+            "kind": "NIL_TYPE_DESC",
             "attributes": [
                 {
                     "name": "openParenToken",
@@ -1191,7 +1191,7 @@
         {
             "name": "OptionalTypeDescriptorNode",
             "base": "TypeDescriptorNode",
-            "kind": "OPTIONAL_TYPE",
+            "kind": "OPTIONAL_TYPE_DESC",
             "attributes": [
                 {
                     "name": "typeDescriptor",
@@ -1450,7 +1450,7 @@
         {
             "name": "ArrayTypeDescriptorNode",
             "base": "TypeDescriptorNode",
-            "kind": "ARRAY_TYPE",
+            "kind": "ARRAY_TYPE_DESC",
             "attributes": [
                 {
                     "name": "typeDescriptorNode",

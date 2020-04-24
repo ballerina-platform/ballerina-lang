@@ -34,7 +34,7 @@ public class STOptionalTypeDescriptorNode extends STTypeDescriptorNode {
     STOptionalTypeDescriptorNode(
             STNode typeDescriptor,
             STNode questionMarkToken) {
-        super(SyntaxKind.OPTIONAL_TYPE);
+        super(SyntaxKind.OPTIONAL_TYPE_DESC);
         this.typeDescriptor = typeDescriptor;
         this.questionMarkToken = questionMarkToken;
 

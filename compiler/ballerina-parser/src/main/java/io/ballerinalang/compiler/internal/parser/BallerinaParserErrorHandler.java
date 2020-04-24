@@ -2736,15 +2736,15 @@ public class BallerinaParserErrorHandler {
             case CONST_DECL_TYPE:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case NIL_TYPE_DESCRIPTOR:
-                return SyntaxKind.NIL_TYPE;
+                return SyntaxKind.NIL_TYPE_DESC;
             case TYPEOF_KEYWORD:
                 return SyntaxKind.TYPEOF_KEYWORD;
             case OPTIONAL_TYPE_DESCRIPTOR:
-                return SyntaxKind.OPTIONAL_TYPE;
+                return SyntaxKind.OPTIONAL_TYPE_DESC;
             case UNARY_OPERATOR:
                 return SyntaxKind.PLUS_TOKEN;
             case ARRAY_TYPE_DESCRIPTOR:
-                return SyntaxKind.ARRAY_TYPE;
+                return SyntaxKind.ARRAY_TYPE_DESC;
             case AT:
                 return SyntaxKind.AT_TOKEN;
             case FIELD_DESCRIPTOR_RHS:

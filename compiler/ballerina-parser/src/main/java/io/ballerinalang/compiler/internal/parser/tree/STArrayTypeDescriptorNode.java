@@ -38,7 +38,7 @@ public class STArrayTypeDescriptorNode extends STTypeDescriptorNode {
             STNode openBracketToken,
             STNode arrayLengthNode,
             STNode closeBracketToken) {
-        super(SyntaxKind.ARRAY_TYPE);
+        super(SyntaxKind.ARRAY_TYPE_DESC);
         this.typeDescriptorNode = typeDescriptorNode;
         this.openBracketToken = openBracketToken;
         this.arrayLengthNode = arrayLengthNode;

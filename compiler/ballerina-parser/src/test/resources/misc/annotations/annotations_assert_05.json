@@ -140,7 +140,7 @@
                             "value": "foo"
                         },
                         {
-                            "kind": "RECORD_TYPE_DESCRIPTOR",
+                            "kind": "RECORD_TYPE_DESC",
                             "children": [
                                 {
                                     "kind": "RECORD_KEYWORD"
@@ -266,7 +266,7 @@
                             "value": "foo"
                         },
                         {
-                            "kind": "OBJECT_TYPE_DESCRIPTOR",
+                            "kind": "OBJECT_TYPE_DESC",
                             "children": [
                                 {
                                     "kind": "LIST",

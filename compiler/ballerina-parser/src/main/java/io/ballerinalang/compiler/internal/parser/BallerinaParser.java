@@ -6587,33 +6587,33 @@ public class BallerinaParser {
     private SyntaxKind getTypeSyntaxKind(SyntaxKind typeKeyword) {
         switch (typeKeyword) {
             case INT_KEYWORD:
-                return SyntaxKind.INT_TYPE;
+                return SyntaxKind.INT_TYPE_DESC;
             case FLOAT_KEYWORD:
-                return SyntaxKind.FLOAT_TYPE;
+                return SyntaxKind.FLOAT_TYPE_DESC;
             case DECIMAL_KEYWORD:
-                return SyntaxKind.DECIMAL_TYPE;
+                return SyntaxKind.DECIMAL_TYPE_DESC;
             case BOOLEAN_KEYWORD:
-                return SyntaxKind.BOOLEAN_TYPE;
+                return SyntaxKind.BOOLEAN_TYPE_DESC;
             case STRING_KEYWORD:
-                return SyntaxKind.STRING_TYPE;
+                return SyntaxKind.STRING_TYPE_DESC;
             case BYTE_KEYWORD:
-                return SyntaxKind.BYTE_TYPE;
+                return SyntaxKind.BYTE_TYPE_DESC;
             case XML_KEYWORD:
-                return SyntaxKind.XML_TYPE;
+                return SyntaxKind.XML_TYPE_DESC;
             case JSON_KEYWORD:
-                return SyntaxKind.JSON_TYPE;
+                return SyntaxKind.JSON_TYPE_DESC;
             case HANDLE_KEYWORD:
-                return SyntaxKind.HANDLE_TYPE;
+                return SyntaxKind.HANDLE_TYPE_DESC;
             case ANY_KEYWORD:
-                return SyntaxKind.ANY_TYPE;
+                return SyntaxKind.ANY_TYPE_DESC;
             case ANYDATA_KEYWORD:
-                return SyntaxKind.ANYDATA_TYPE;
+                return SyntaxKind.ANYDATA_TYPE_DESC;
             case NEVER_KEYWORD:
-                return SyntaxKind.NEVER_TYPE;
+                return SyntaxKind.NEVER_TYPE_DESC;
             case SERVICE_KEYWORD:
-                return SyntaxKind.SERVICE_KEYWORD;
+                return SyntaxKind.SERVICE_TYPE_DESC;
             case VAR_KEYWORD:
-                return SyntaxKind.VAR_TYPE;
+                return SyntaxKind.VAR_TYPE_DESC;
             default:
                 return SyntaxKind.TYPE_DESC;
         }

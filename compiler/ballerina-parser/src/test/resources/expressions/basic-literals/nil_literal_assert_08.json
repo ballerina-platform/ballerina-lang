@@ -31,7 +31,7 @@
                             "children": []
                         },
                         {
-                            "kind": "NIL_TYPE",
+                            "kind": "NIL_TYPE_DESC",
                             "children": [
                                 {
                                     "kind": "OPEN_PAREN_TOKEN"

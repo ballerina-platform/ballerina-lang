@@ -11,7 +11,7 @@
             ]
         },
         {
-            "kind": "ARRAY_TYPE",
+            "kind": "ARRAY_TYPE_DESC",
             "children": [{"kind":"INT_KEYWORD"
                 },
                 {

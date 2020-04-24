@@ -40,7 +40,7 @@
                         "annotations": [
                         ],
                         "type": {
-                            "kind": "STRING_TYPE",
+                            "kind": "STRING_TYPE_DESC",
                             "value": {
                                 "name": {
                                     "kind": "STRING_KEYWORD",
@@ -64,7 +64,7 @@
                                     "annotations": [
                                     ],
                                     "typeName": {
-                                        "kind": "INT_TYPE",
+                                        "kind": "INT_TYPE_DESC",
                                         "value": {
                                             "name": {
                                                 "kind": "INT_KEYWORD",
