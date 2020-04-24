@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.table;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
@@ -25,6 +26,9 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Native implementation of lang.table:reduce(table&lt;Type&gt;, function).
@@ -39,12 +43,20 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class Reduce {
 
-    public static Object reduce(Strand strand, TableValueImpl tbl, FPValue<Object, Boolean> func, Object initial) {
-        Object accum = initial;
-        for (Object key : tbl.getKeys()) {
-            Object value = tbl.get(key);
-            accum = func.apply(new Object[]{strand, accum, true, value, true});
-        }
-        return accum;
+    public static Object reduce(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func, Object initial) {
+        int size = tbl.values().size();
+        AtomicReference<Object> accum = new AtomicReference<>(initial);
+        AtomicInteger index = new AtomicInteger(-1);
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                        () -> new Object[]{strand, accum.get(), true,
+                                tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
+                        accum::set, accum::get);
+        return accum.get();
+    }
+
+    public static Object reduce_bstring(Strand strand, TableValueImpl tbl,
+                                        FPValue<Object, Object> func, Object initial) {
+        return reduce(strand, tbl, func, initial);
     }
 }
