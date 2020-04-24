@@ -34,8 +34,8 @@ public class ListConstructorExpressionNode extends ExpressionNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<Node> expressions() {
-        return new SeparatedNodeList<>(childInBucket(1));
+    public NodeList<ExpressionListItemNode> expressions() {
+        return new NodeList<>(childInBucket(1));
     }
 
     public Token closeBracket() {
@@ -62,7 +62,7 @@ public class ListConstructorExpressionNode extends ExpressionNode {
 
     public ListConstructorExpressionNode modify(
             Token openBracket,
-            SeparatedNodeList<Node> expressions,
+            NodeList<ExpressionListItemNode> expressions,
             Token closeBracket) {
         if (checkForReferenceEquality(
                 openBracket,

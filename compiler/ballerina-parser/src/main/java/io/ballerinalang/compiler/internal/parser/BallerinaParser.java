@@ -3195,6 +3195,9 @@ public class BallerinaParser {
                         peek().kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
                     return parseNilLiteral();
                 }
+                if (solution.recoveredNode.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
+                    return parseListConstructorExpr();
+                }
 
                 return solution.recoveredNode;
         }
@@ -6736,48 +6739,24 @@ public class BallerinaParser {
     private STNode parseListConstructorExpr() {
         startContext(ParserRuleContext.LIST_CONSTRUCTOR);
         STNode openBracket = parseOpenBracket();
-        STNode expressions = parseExpressionList();
+        STNode expressions = parseOptionalExpressionsList();
         STNode closeBracket = parseCloseBracket();
         endContext();
         return STNodeFactory.createListConstructorExpressionNode(openBracket, expressions, closeBracket);
     }
 
     /**
-     * Parse expression list for list constructor expression.
+     * Parse optional expression list.
      *
      * @return Parsed node
      */
-    private STNode parseExpressionList() {
-        List<STNode> expressions = new ArrayList<>();
+    private STNode parseOptionalExpressionsList() {
         STToken nextToken = peek();
 
-        if (isEndOfListConstructor(nextToken.kind)) {
-            return STNodeFactory.createNodeList(expressions);
+        // Return an empty list if list is empty
+        if (isEndOfListenersList(nextToken.kind) ){
+            return STNodeFactory.createNodeList(new ArrayList<>());
         }
-
-        // Parse first expression, that has no leading comma
-        STNode expr = parseExpression();
-        expressions.add(expr);
-
-        // Parse the remaining expressions
-        nextToken = peek();
-        STNode leadingComma;
-        while (!isEndOfListConstructor(nextToken.kind)) {
-            leadingComma = parseComma();
-            expressions.add(leadingComma);
-            expr = parseExpression();
-            expressions.add(expr);
-            nextToken = peek();
-        }
-
-        return STNodeFactory.createNodeList(expressions);
-    }
-
-    private boolean isEndOfListConstructor(SyntaxKind tokenKind) {
-        if (tokenKind == SyntaxKind.COMMA_TOKEN){
-            return false;
-        } else {
-            return isEndOfExpression(tokenKind, true);
-        }
+        return parseListeners();
     }
 }

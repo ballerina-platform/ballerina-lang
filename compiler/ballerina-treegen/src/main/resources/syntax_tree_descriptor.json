@@ -1740,8 +1740,8 @@
                 },
                 {
                     "name": "expressions",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE_SEPARATED"
+                    "type": "ExpressionListItemNode",
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "closeBracket",
