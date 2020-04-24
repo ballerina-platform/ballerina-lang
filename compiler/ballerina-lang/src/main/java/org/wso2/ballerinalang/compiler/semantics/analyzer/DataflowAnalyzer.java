@@ -18,14 +18,6 @@
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.jvm.types.BTupleType;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.IteratorValue;
-import org.ballerinalang.jvm.values.MapValue;
-import org.ballerinalang.jvm.values.RefValue;
-import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.model.clauses.FromClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -43,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -190,14 +183,12 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.AbstractMap;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -598,18 +589,29 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     private void checkForDuplicateKeys(BLangTableConstructorExpr tableConstructorExpr) {
         Set<Integer> keyHashSet = new HashSet<>();
-        BLangTableKeySpecifier tableKeySpecifier = (BLangTableKeySpecifier) tableConstructorExpr.getTableKeySpecifier();
-        for (BLangRecordLiteral literal : tableConstructorExpr.recordLiteralList) {
-            List<BLangExpression> keyArray = createKeyArray(literal, tableKeySpecifier);
-            int hashInt = generateHash(keyArray);
+        List<String> fieldNames = getFieldNames(tableConstructorExpr);
+        if (!fieldNames.isEmpty()) {
+            for (BLangRecordLiteral literal : tableConstructorExpr.recordLiteralList) {
+                List<BLangExpression> keyArray = createKeyArray(literal, fieldNames);
+                int hashInt = generateHash(keyArray);
+                if (!keyHashSet.add(hashInt)) {
+                    String fields = String.join(", ", fieldNames);
+                    String values = keyArray.stream().map(Object::toString).collect(Collectors.joining(", "));
+                    dlog.error(literal.pos, DiagnosticCode.DUPLICATE_KEY_IN_TABLE_LITERAL, fields, values);
+                }
+            }
         }
     }
 
     private int generateHash(List<BLangExpression> keyArray) {
-
+        int result = 0;
+        for (BLangExpression expr : keyArray) {
+            result = 31 * result + hash(expr);
+        }
+        return result;
     }
 
-    public static Integer hash(Node node) {
+    public Integer hash(Node node) {
         int result = 0;
 
         if (node.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
@@ -626,7 +628,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             for (BLangExpression expr : arrayLiteral.exprs) {
                 result = 31 * result + hash(expr);
             }
-        } else if (node.getKind() == NodeKind.LITERAL) {
+        } else if (node.getKind() == NodeKind.LITERAL | node.getKind() == NodeKind.NUMERIC_LITERAL) {
             BLangLiteral literal = (BLangLiteral) node;
             result = Objects.hash(literal.value);
         } else if (node.getKind() == NodeKind.XML_TEXT_LITERAL) {
@@ -675,19 +677,37 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             BLangIdentifier identifier = (BLangIdentifier) node;
             result = identifier.value.hashCode();
         } else {
-            this.dlog.error(node.getPosition(), DiagnosticCode.);
+            dlog.error(((BLangExpression) node).pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
         return result;
     }
-    private List<BLangExpression> createKeyArray(BLangRecordLiteral literal, BLangTableKeySpecifier tableKeySpecifier) {
-        List<String> fieldNames = tableKeySpecifier.fieldNameIdentifierList.stream().map(fieldName -> fieldName.value)
-                .collect(Collectors.toList());
+
+    private List<BLangExpression> createKeyArray(BLangRecordLiteral literal, List<String> fieldNames) {
         //fieldNames have to be literals in table constructor's record literal list
         Map<String, BLangExpression> fieldMap =
                 literal.fields.stream().map(recordField -> (BLangRecordLiteral.BLangRecordKeyValueField) recordField)
-                        .map(d -> new SimpleEntry<>((String) ((BLangLiteral) d.key.expr).value, d.valueExpr)).
+                        .map(d -> new SimpleEntry<>(d.key.expr.toString(), d.valueExpr)).
                         collect(Collectors.toMap(SimpleEntry::getKey, SimpleEntry::getValue));
         return fieldNames.stream().map(fieldMap::get).collect(Collectors.toList());
+    }
+
+    private List<String> getFieldNames(BLangTableConstructorExpr constructorExpr) {
+        List<String> fieldNames = ((BTableType) constructorExpr.type).fieldNameList;
+
+        if (fieldNames != null) {
+            return fieldNames;
+        }
+
+        if (constructorExpr.tableKeySpecifier != null &&
+                !constructorExpr.tableKeySpecifier.fieldNameIdentifierList.isEmpty()) {
+            BLangTableKeySpecifier tableKeySpecifier = constructorExpr.tableKeySpecifier;
+            fieldNames = tableKeySpecifier.fieldNameIdentifierList.stream().map(fieldName -> fieldName.value)
+                    .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
+        }
+
+        return fieldNames;
     }
 
     @Override
