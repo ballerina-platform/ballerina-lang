@@ -3,5 +3,7 @@ package org.ballerinalang.packageloader;
 
 public interface ModuleLoader {
 
-    void load();
+    ModuleId resolveVersion(ModuleId moduleId);
+
+    ModuleResolution resolveModule(ModuleId moduleId);
 }
