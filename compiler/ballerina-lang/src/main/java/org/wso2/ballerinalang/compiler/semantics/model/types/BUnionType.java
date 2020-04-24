@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.UnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -42,13 +43,16 @@ import java.util.stream.Stream;
  * @since 0.966.0
  */
 public class BUnionType extends BType implements UnionType {
+
+    public BType immutableType;
+
     private boolean nullable;
 
     private LinkedHashSet<BType> memberTypes;
     private Optional<Boolean> isAnyData = Optional.empty();
     private Optional<Boolean> isPureType = Optional.empty();
 
-    private BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable) {
+    protected BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable) {
         super(TypeTags.UNION, tsymbol);
         this.memberTypes = memberTypes;
         this.nullable = nullable;
@@ -222,4 +226,26 @@ public class BUnionType extends BType implements UnionType {
         return false;
     }
 
+    @Override
+    public Type getImmutableType() {
+        return this.immutableType;
+    }
+
+    /**
+     * Represent the intersection type `T1|T2 & readonly`.
+     *
+     * @since 1.3.0
+     */
+    public static class BImmutableUnionType extends BUnionType {
+
+        public BImmutableUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable) {
+            super(tsymbol, memberTypes, nullable);
+            this.flags |= Flags.READONLY;
+        }
+
+        @Override
+        public String toString() {
+            return getKind().typeName().concat(" & readonly");
+        }
+    }
 }

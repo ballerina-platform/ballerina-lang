@@ -18,19 +18,28 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ConstrainedType;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * @since 0.94
  */
-public class BMapType extends BBuiltInRefType implements ConstrainedType {
+public class BMapType extends BBuiltInRefType implements ConstrainedType, SelectivelyImmutableReferenceType {
 
     public BType constraint;
+    public BImmutableMapType immutableType;
 
     public BMapType(int tag, BType constraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
+        this.constraint = constraint;
+    }
+
+    protected BMapType(int tag, BType constraint, BTypeSymbol tsymbol, int flags) {
+        super(tag, tsymbol, flags);
         this.constraint = constraint;
     }
 
@@ -60,5 +69,28 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType {
 
     public final boolean isAnydata() {
         return this.constraint.isPureType();
+    }
+
+    @Override
+    public Type getImmutableType() {
+        return this.immutableType;
+    }
+
+    /**
+     * Represent the intersection type `map & readonly`.
+     *
+     * @since 1.3.0
+     */
+    public static class BImmutableMapType extends BMapType {
+
+        public BImmutableMapType(int tag, BType constraint, BTypeSymbol tsymbol, int flags) {
+            super(tag, constraint, tsymbol, flags);
+            this.flags |= Flags.READONLY;
+        }
+
+        @Override
+        public String toString() {
+            return super.toString().concat(" & readonly");
+        }
     }
 }

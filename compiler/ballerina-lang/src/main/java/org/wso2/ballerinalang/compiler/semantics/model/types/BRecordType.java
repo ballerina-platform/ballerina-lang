@@ -18,13 +18,16 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.RecordType;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -47,10 +50,16 @@ public class BRecordType extends BStructureType implements RecordType {
     public BType restFieldType;
     private Optional<Boolean> isAnyData = Optional.empty();
     private boolean resolving = false;
+    public BImmutableRecordType immutableType;
 
     public BRecordType(BTypeSymbol tSymbol) {
         super(TypeTags.RECORD, tSymbol);
         this.fields = new ArrayList<>();
+    }
+
+    protected BRecordType(BTypeSymbol tSymbol, List<BField> fields, int flags) {
+        super(TypeTags.RECORD, tSymbol, flags);
+        this.fields = fields;
     }
 
     @Override
@@ -111,5 +120,28 @@ public class BRecordType extends BStructureType implements RecordType {
         }
 
         return (this.sealed || this.restFieldType.isPureType());
+    }
+
+    @Override
+    public Type getImmutableType() {
+        return this.immutableType;
+    }
+
+    /**
+     * Represent the intersection type `rec & readonly`.
+     *
+     * @since 1.3.0
+     */
+    public static class BImmutableRecordType extends BRecordType {
+
+        public BImmutableRecordType(BTypeSymbol tSymbol, List<BField> fields, int flags) {
+            super(tSymbol, fields, flags);
+            this.flags |= Flags.READONLY;
+        }
+
+        @Override
+        public String toString() {
+            return super.toString().concat(" & readonly");
+        }
     }
 }

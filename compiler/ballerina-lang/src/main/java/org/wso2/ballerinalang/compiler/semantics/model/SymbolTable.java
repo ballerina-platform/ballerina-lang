@@ -101,12 +101,12 @@ public class SymbolTable {
 
     public final BType noType = new BNoType(TypeTags.NONE);
     public final BType nilType = new BNilType();
-    public final BType intType = new BType(TypeTags.INT, null);
-    public final BType byteType = new BType(TypeTags.BYTE, null);
-    public final BType floatType = new BType(TypeTags.FLOAT, null);
-    public final BType decimalType = new BType(TypeTags.DECIMAL, null);
-    public final BType stringType = new BType(TypeTags.STRING, null);
-    public final BType booleanType = new BType(TypeTags.BOOLEAN, null);
+    public final BType intType = new BType(TypeTags.INT, null, Flags.READONLY);
+    public final BType byteType = new BType(TypeTags.BYTE, null, Flags.READONLY);
+    public final BType floatType = new BType(TypeTags.FLOAT, null, Flags.READONLY);
+    public final BType decimalType = new BType(TypeTags.DECIMAL, null, Flags.READONLY);
+    public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY);
+    public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY);
     public final BType jsonType = new BJSONType(TypeTags.JSON, null);
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BType anydataType = new BAnydataType(TypeTags.ANYDATA, null);

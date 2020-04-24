@@ -50,6 +50,11 @@ public class BObjectType extends BStructureType implements ObjectType {
         this.fields = new ArrayList<>();
     }
 
+    public BObjectType(BTypeSymbol tSymbol, int flags) {
+        super(TypeTags.OBJECT, tSymbol, flags);
+        this.fields = new ArrayList<>();
+    }
+
     @Override
     public TypeKind getKind() {
         return TypeKind.OBJECT;

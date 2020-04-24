@@ -861,7 +861,7 @@ public class Types {
         return checkFunctionTypeEquality(source, target, unresolvedTypes, (s, t, ut) -> isAssignable(t, s, ut));
     }
 
-    boolean isReadonlyType(BType sourceType) {
+    public boolean isReadonlyType(BType sourceType) {
         if (isValueType(sourceType)) {
             return true;
         }
@@ -879,9 +879,11 @@ public class Types {
         return false;
     }
 
-    boolean isSelectivelyImmutableType(BType sourceType) {
+    public boolean isSelectivelyImmutableType(BType sourceType) {
         switch (sourceType.tag) {
+            case TypeTags.ANY:
             case TypeTags.ANYDATA:
+            case TypeTags.JSON:
             case TypeTags.XML:
                 return true;
             case TypeTags.ARRAY:
@@ -920,6 +922,14 @@ public class Types {
                 BType constraintType = ((BMapType) sourceType).constraint;
                 return isReadonlyType(constraintType) || isSelectivelyImmutableType(constraintType);
             // TODO: 4/23/20 Table
+            case TypeTags.UNION:
+                boolean readonlyIntersectionExists = false;
+                for (BType memberType : ((BUnionType) sourceType).getMemberTypes()) {
+                    if (isReadonlyType(memberType) || isSelectivelyImmutableType(memberType)) {
+                        readonlyIntersectionExists = true;
+                    }
+                }
+                return readonlyIntersectionExists;
         }
         return false;
     }

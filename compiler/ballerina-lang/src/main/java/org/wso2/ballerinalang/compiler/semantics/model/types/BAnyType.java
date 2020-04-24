@@ -18,16 +18,20 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.Name;
+import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * @since 0.94
  */
-public class BAnyType extends BBuiltInRefType {
+public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
     private boolean nullable = true;
+    public BImmutableAnyType immutableType;
 
     public BAnyType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
@@ -42,6 +46,14 @@ public class BAnyType extends BBuiltInRefType {
 
     public BAnyType(int tag, BTypeSymbol tsymbol, boolean nullable) {
         super(tag, tsymbol);
+        this.nullable = nullable;
+    }
+
+    protected BAnyType(int tag, BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
+
+        super(tag, tsymbol);
+        this.name = name;
+        this.flags = flags;
         this.nullable = nullable;
     }
 
@@ -62,5 +74,28 @@ public class BAnyType extends BBuiltInRefType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    @Override
+    public Type getImmutableType() {
+        return this.immutableType;
+    }
+
+    /**
+     * Represent the intersection type `any & readonly`.
+     *
+     * @since 1.3.0
+     */
+    public static class BImmutableAnyType extends BAnyType {
+
+        public BImmutableAnyType(int tag, BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
+            super(tag, tsymbol, name, flags, nullable);
+            this.flags |= Flags.READONLY;
+        }
+
+        @Override
+        public String toString() {
+            return getKind().typeName().concat(" & readonly");
+        }
     }
 }

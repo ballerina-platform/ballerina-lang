@@ -18,11 +18,13 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.ArrayType;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * @since 0.94
@@ -32,6 +34,7 @@ public class BArrayType extends BType implements ArrayType {
     private static final String SEMI_COLON = ";";
 
     public BType eType;
+    public BImmutableArrayType immutableType;
 
     public int size = -1;
 
@@ -49,6 +52,13 @@ public class BArrayType extends BType implements ArrayType {
 
     public BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state) {
         super(TypeTags.ARRAY, tsymbol);
+        this.eType = elementType;
+        this.size = size;
+        this.state = state;
+    }
+
+    protected BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state, int flags) {
+        super(TypeTags.ARRAY, tsymbol, flags);
         this.eType = elementType;
         this.size = size;
         this.state = state;
@@ -96,5 +106,28 @@ public class BArrayType extends BType implements ArrayType {
     @Override
     public final boolean isAnydata() {
         return this.eType.isPureType();
+    }
+
+    @Override
+    public Type getImmutableType() {
+        return this.immutableType;
+    }
+
+    /**
+     * Represent the intersection type `array & readonly`.
+     *
+     * @since 1.3.0
+     */
+    public static class BImmutableArrayType extends BArrayType {
+
+        public BImmutableArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state, int flags) {
+            super(elementType, tsymbol, size, state, flags);
+            this.flags |= Flags.READONLY;
+        }
+
+        @Override
+        public String toString() {
+            return super.toString().concat(" & readonly");
+        }
     }
 }

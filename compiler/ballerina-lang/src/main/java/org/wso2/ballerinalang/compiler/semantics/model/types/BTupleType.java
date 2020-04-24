@@ -17,10 +17,12 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.TupleType;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,6 +39,8 @@ public class BTupleType extends BType implements TupleType {
     public BType restType;
     private Optional<Boolean> isAnyData = Optional.empty();
 
+    public BImmutableTupleType immutableType;
+
     public BTupleType(List<BType> tupleTypes) {
         super(TypeTags.TUPLE, null);
         this.tupleTypes = tupleTypes;
@@ -45,6 +49,12 @@ public class BTupleType extends BType implements TupleType {
     public BTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes) {
         super(TypeTags.TUPLE, tsymbol);
         this.tupleTypes = tupleTypes;
+    }
+
+    protected BTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes, BType restType, int flags) {
+        super(TypeTags.TUPLE, tsymbol, flags);
+        this.tupleTypes = tupleTypes;
+        this.restType = restType;
     }
 
     @Override
@@ -93,5 +103,28 @@ public class BTupleType extends BType implements TupleType {
 
         this.isAnyData = Optional.of(true);
         return true;
+    }
+
+    @Override
+    public Type getImmutableType() {
+        return this.immutableType;
+    }
+
+    /**
+     * Represent the intersection type `tuple & readonly`.
+     *
+     * @since 1.3.0
+     */
+    public static class BImmutableTupleType extends BTupleType {
+
+        public BImmutableTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes, BType restType, int flags) {
+            super(tsymbol, tupleTypes, restType, flags);
+            this.flags |= Flags.READONLY;
+        }
+
+        @Override
+        public String toString() {
+            return super.toString().concat(" & readonly");
+        }
     }
 }

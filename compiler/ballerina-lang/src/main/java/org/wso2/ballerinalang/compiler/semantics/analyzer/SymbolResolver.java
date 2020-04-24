@@ -79,6 +79,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -900,8 +901,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return;
             }
 
-            rhsType.flags |= Flags.READONLY;
-            resultType = rhsType;
+            resultType = ImmutableTypeCloner.setImmutableType(intersectionTypeNode.pos, types, rhsType, env,
+                                                              symTable, anonymousModelHelper, names);
             return;
         }
 
@@ -917,8 +918,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return;
             }
 
-            lhsType.flags |= Flags.READONLY;
-            resultType = lhsType;
+            resultType = ImmutableTypeCloner.setImmutableType(intersectionTypeNode.pos, types, lhsType, env,
+                                                              symTable, anonymousModelHelper, names);
             return;
         }
 
