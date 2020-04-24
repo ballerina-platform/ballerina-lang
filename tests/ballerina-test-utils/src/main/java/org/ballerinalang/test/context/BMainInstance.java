@@ -19,6 +19,8 @@ package org.ballerinalang.test.context;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.terminator.Terminator;
+import org.ballerinalang.test.util.terminator.TerminatorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +42,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.ballerinalang.test.util.terminator.OSUtils.getOperatingSystem;
 
 /**
  * This class hold the server information and manage the a server instance.
@@ -294,6 +298,7 @@ public class BMainInstance implements BMain {
             scriptName = Constant.BALLERINA_SERVER_SCRIPT_NAME;
         }
         String[] cmdArray;
+        String[] cmdArgs = new String[0];
         Process process = null;
         try {
 
@@ -305,7 +310,7 @@ public class BMainInstance implements BMain {
                         File.separator + "bin/" + scriptName, command};
             }
 
-            String[] cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
+            cmdArgs = Stream.concat(Arrays.stream(cmdArray), Arrays.stream(args)).toArray(String[]::new);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).directory(new File(commandDir));
             if (envProperties != null) {
                 Map<String, String> env = processBuilder.environment();
@@ -352,9 +357,7 @@ public class BMainInstance implements BMain {
 
             // If the process is still alive, either the program is suspended in debug mode (as expected), or still
             // being executed.
-            if (process.isAlive()) {
-                process.destroyForcibly();
-            }
+            terminateProcess(process, cmdArgs);
 
             infoReader.stop();
             infoReader.removeAllLeechers();
@@ -378,9 +381,7 @@ public class BMainInstance implements BMain {
         } finally {
             // If the process is still alive, either the program is suspended in debug mode (as expected), or still
             // being executed.
-            if (process != null && process.isAlive()) {
-                process.destroyForcibly();
-            }
+            terminateProcess(process, cmdArgs);
         }
     }
 
@@ -403,6 +404,40 @@ public class BMainInstance implements BMain {
             }
         }
         return true;
+    }
+
+    /**
+     * Cleans up all the (sub)processes spawn during ballerina command execution.
+     *
+     * @param process parent process instance.
+     * @param cmdArgs ballerina command args.
+     */
+    private void terminateProcess(Process process, String[] cmdArgs) {
+
+        // Kills the bash process.
+        if (process != null && process.isAlive()) {
+            process.destroyForcibly();
+            process = null;
+        }
+
+        // Extracts the debug port from the command arguments.
+        String port = "";
+        for (int i = 0; i < cmdArgs.length; i++) {
+            if (cmdArgs[i].equals("--debug")) {
+                port = cmdArgs[i + 1];
+                break;
+            }
+        }
+        if (port.isEmpty()) {
+            return;
+        }
+
+        // Terminates the suspended jvm process and its sub-processes(if any), using the os-specific process terminator
+        // implementation.
+        Terminator terminator = TerminatorFactory.getTerminator(getOperatingSystem());
+        if (terminator != null) {
+            terminator.terminate("address=" + port);
+        }
     }
 
     /**
