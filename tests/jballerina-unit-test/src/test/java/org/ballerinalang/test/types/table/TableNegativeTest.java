@@ -51,7 +51,7 @@ public class TableNegativeTest {
         validateError(compileResult, index++, "member access is not supported for keyless table " +
                 "'customerTable'", 45, 21);
         validateError(compileResult, index++, "invalid constraint type. expected subtype of " +
-                "'map<anydata|error>' but 'int'", 47, 41);
+                "'map<any|error>' but 'int'", 47, 41);
         validateError(compileResult, index++, "multi key member access is not supported for " +
                 "type 'map'. only support for subtype of 'table'", 52, 13);
         validateError(compileResult, index++, "field 'name' used in key specifier must be a readonly " +
