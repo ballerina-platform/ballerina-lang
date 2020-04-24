@@ -43,4 +43,24 @@ public class ListConstructorTest extends AbstractExpressionsTest {
 
     // Recovery tests
 
+    @Test
+    public void testListWithMissingCloseBracket() {
+        test("[", "list-constructor/list_constructor_assert_04.json");
+        test("[ a, b + c ", "list-constructor/list_constructor_assert_05.json");
+    }
+
+    @Test
+    public void testListWithMissingOpenBracket() {
+        test("]", "list-constructor/list_constructor_assert_06.json");
+    }
+
+    @Test
+    public void testListWithOnlyCommas() {
+        test("[,,];", "list-constructor/list_constructor_assert_07.json");
+    }
+
+    @Test
+    public void testListWithMissingCommas() {
+        test("[a b c]", "list-constructor/list_constructor_assert_08.json");
+    }
 }

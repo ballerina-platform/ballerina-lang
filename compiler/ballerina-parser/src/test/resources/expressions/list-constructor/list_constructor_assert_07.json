@@ -1,0 +1,49 @@
+{
+    "kind": "LIST_CONSTRUCTOR",
+    "children": [
+        {
+            "kind": "OPEN_BRACKET_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+                {
+                    "kind": "EXPRESSION_LIST_ITEM",
+                    "children": [
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "isMissing": true
+                        }
+                    ]
+                },
+                {
+                    "kind": "EXPRESSION_LIST_ITEM",
+                    "children": [
+                        {
+                            "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "isMissing": true
+                        }
+                    ]
+                },
+                {
+                    "kind": "EXPRESSION_LIST_ITEM",
+                    "children": [
+                        {
+                            "kind": "COMMA_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "isMissing": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "kind": "CLOSE_BRACKET_TOKEN"
+        }
+    ]
+}
