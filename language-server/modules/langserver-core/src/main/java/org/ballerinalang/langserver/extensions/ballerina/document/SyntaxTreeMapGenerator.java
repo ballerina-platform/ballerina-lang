@@ -17,47 +17,44 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.document;
 
-import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import io.ballerinalang.compiler.syntax.tree.ChildNodeEntry;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Generates a Map<String, Object> for a given SyntaxTree.
  */
-public class SyntaxTreeMapGenerator extends NodeTransformer<Map<String, Object>> {
+public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
     @Override
-    protected Map<String, Object> transformSyntaxNode(Node node) {
-        Map<String, Object> childEntryMap = new LinkedTreeMap<>();
+    protected JsonElement transformSyntaxNode(Node node) {
+        JsonObject nodeJson = new JsonObject();
         NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
         for (ChildNodeEntry childNodeEntry : nonTerminalNode.childEntries()) {
             if (childNodeEntry.isList()) {
-                List<Object> childList = new ArrayList<>();
+                JsonArray childList = new JsonArray();
                 for (Node listChildNode : childNodeEntry.nodeList()) {
                     childList.add(apply(listChildNode));
                 }
-                childEntryMap.put(childNodeEntry.name(), childList);
+                nodeJson.add(childNodeEntry.name(), childList);
             } else if (childNodeEntry.node().isPresent()) {
-                childEntryMap.put(childNodeEntry.name(), apply(childNodeEntry.node().get()));
+                nodeJson.add(childNodeEntry.name(), apply(childNodeEntry.node().get()));
             }
         }
-        return childEntryMap;
+        return nodeJson;
     }
 
-    private Map<String, Object> apply(Node node) {
-        Map<String, Object> nodeInfo = new LinkedHashMap<>();
-        nodeInfo.put("kind", node.kind().toString());
+    private JsonElement apply(Node node) {
+        JsonObject nodeInfo = new JsonObject();
+        nodeInfo.addProperty("kind", node.kind().toString());
         if (node instanceof Token) {
-            nodeInfo.put("value", ((Token) node).text());
+            nodeInfo.addProperty("value", ((Token) node).text());
         } else {
-            nodeInfo.put("value", node.apply(this));
+            nodeInfo.add("value", node.apply(this));
         }
         return nodeInfo;
     }

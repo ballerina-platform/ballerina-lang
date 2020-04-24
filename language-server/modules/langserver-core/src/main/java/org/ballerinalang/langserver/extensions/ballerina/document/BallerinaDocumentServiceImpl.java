@@ -302,14 +302,56 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             TextDocument doc = new StringTextDocument(documentManager.getFileContent(compilationPath));
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
             SyntaxTree syntaxTree = BLModules.parse(doc);
-            Map<String, Object> transform = mapGenerator.transform(syntaxTree.getModulePart());
-            Gson gson = new Gson();
-            JsonElement jsonElement = gson.toJsonTree(transform);
-            reply.setSyntaxTree(jsonElement);
+            reply.setSyntaxTree(mapGenerator.transform(syntaxTree.getModulePart()));
             reply.setParseSuccess(true);
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/syntaxTree' failed!";
+            logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+        } finally {
+            lock.ifPresent(Lock::unlock);
+        }
+        return CompletableFuture.supplyAsync(() -> reply);
+    }
+
+    @Override
+    public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeModify(BallerinaSyntaxTreeModifyRequest request) {
+        BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
+        String fileUri = request.getDocumentIdentifier().getUri();
+        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        if (!filePath.isPresent()) {
+            return CompletableFuture.supplyAsync(() -> reply);
+        }
+        Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
+        Optional<Lock> lock = documentManager.lockFile(compilationPath);
+        try {
+            String fileContent = documentManager.getFileContent(compilationPath);
+            TextDocument textDocument = TextDocuments.from(fileContent);
+            SyntaxTree oldTree = BLModules.parse(textDocument);
+
+            ArrayList<io.ballerinalang.compiler.text.TextEdit> edits =
+                    new ArrayList<>(request.getAstModifications().length);
+            for (int i = 0; i < request.getAstModifications().length; i++) {
+                ASTModification astModification = request.getAstModifications()[i];
+                String mapping = BallerinaSyntaxTreeModifyUtil.resolveMapping(astModification.getType(),
+                        astModification.getConfig() == null ? new JsonObject() : astModification.getConfig());
+                if (mapping != null) {
+                    edits.add(new io.ballerinalang.compiler.text.TextEdit(
+                            new io.ballerinalang.compiler.text.TextRange(astModification.getStartOffset(),
+                                    astModification.getEndOffset()), mapping));
+                }
+            }
+            TextDocumentChange textDocumentChange = new TextDocumentChange(edits.toArray(
+                    new io.ballerinalang.compiler.text.TextEdit[0]));
+            SyntaxTree updatedTree = BLModules.parse(oldTree, textDocumentChange);
+            documentManager.updateFile(compilationPath, updatedTree.toString());
+
+            SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
+            reply.setSyntaxTree( mapGenerator.transform(updatedTree.getModulePart()));
+            reply.setParseSuccess(true);
+        } catch (Throwable e) {
+            reply.setParseSuccess(false);
+            String msg = "Operation 'ballerinaDocument/syntaxTreeModify' failed!";
             logError(msg, e, request.getDocumentIdentifier(), (Position) null);
         } finally {
             lock.ifPresent(Lock::unlock);
