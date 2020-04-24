@@ -303,7 +303,7 @@ public class JvmPackageGen {
                             cleanupPathSeperators(cleanupBalExt(mainFunc.pos.getSource().cUnitName)));
                 }
 
-                generateMainMethod(mainFunc, cw, module, mainClass, moduleClass, serviceEPAvailable);
+                generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable);
                 if (mainFunc != null) {
                     generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
                 }

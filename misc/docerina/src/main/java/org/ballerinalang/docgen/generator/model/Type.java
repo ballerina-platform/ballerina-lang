@@ -56,6 +56,7 @@ public class Type {
     public boolean isNullable;
     public boolean isTuple;
     public boolean isLambda;
+    public boolean isDeprecated;
     public boolean generateUserDefinedTypeLink = true;
     public List<Type> memberTypes = new ArrayList<>();
     public List<Type> paramTypes = new ArrayList<>();
@@ -112,9 +113,10 @@ public class Type {
         setCategory(type.type);
     }
 
-    public Type(String name, String description) {
+    public Type(String name, String description, boolean isDeprecated) {
         this.name = name;
         this.description = description;
+        this.isDeprecated = isDeprecated;
     }
 
     public static Type fromTypeNode(BLangType type, BType bType, String currentModule) {
@@ -173,6 +175,10 @@ public class Type {
         typeModel.isNullable = type.nullable;
         if (type.type instanceof BNilType) {
             typeModel.name = "()";
+        }
+        // If anonymous type substitute the name
+        if (typeModel.name != null && typeModel.name.contains("$anonType$")) {
+            typeModel.name = "T" + typeModel.name.substring(typeModel.name.lastIndexOf('$') + 1);;
         }
         return typeModel;
     }

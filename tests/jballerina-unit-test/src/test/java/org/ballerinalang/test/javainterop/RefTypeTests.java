@@ -360,7 +360,7 @@ public class RefTypeTests {
     }
 
     public static int useFunctionPointer(FPValue fp) {
-        return ((Long) fp.call(new Object[] { Scheduler.getStrand(), 3, true, 4, true })).intValue();
+        return ((Long) fp.call(new Object[]{Scheduler.getStrand(), 3, true, 4, true})).intValue();
     }
 
     public static FPValue getFunctionPointer(Object fp) {
