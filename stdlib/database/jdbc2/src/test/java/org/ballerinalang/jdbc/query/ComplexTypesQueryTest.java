@@ -302,7 +302,6 @@ public class ComplexTypesQueryTest {
             Assert.fail("Parsing the returned date/time/timestamp value has failed", e);
         }
     }
-	
     @Test(description = "Test string representation of stream type")
     public void testErrorInStringRepresentation() {
         validateError(negativeResult, 0,
