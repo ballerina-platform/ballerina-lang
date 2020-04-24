@@ -85,7 +85,7 @@ public function decodeJwt(string jwt) returns @tainted ([JwtHeader, JwtPayload]|
 
 function getJwtComponents(string jwt) returns string[]|Error {
     string[] jwtComponents = stringutils:split(jwt, "\\.");
-    if (jwtComponents.length() < 2 || jwtComponents.length() > 3) {
+    if (jwtComponents.length() != 3) {
         return prepareError("Invalid JWT.");
     }
     return jwtComponents;
