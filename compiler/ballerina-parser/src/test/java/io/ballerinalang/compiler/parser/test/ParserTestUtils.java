@@ -115,7 +115,7 @@ public class ParserTestUtils {
     public static SyntaxTree parseFile(Path sourceFilePath) {
         String text = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(text);
-        return SyntaxTree.from(textDocument);
+        return SyntaxTree.from(textDocument, sourceFilePath.getFileName().toString());
     }
 
     private static JsonObject readAssertFile(Path filePath) {
