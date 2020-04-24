@@ -2922,15 +2922,19 @@ public class TypeChecker extends BLangNodeVisitor {
         for (WhereClauseNode whereClauseNode : whereClauseList) {
             whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, selectClause, parentEnv);
         }
-
+        BType actualType;
         //TODO: type checking should go in different flows here;
         if (queryExpr.isStream) {
-
+            //temporarily setting actual type to stream<any|error, error?>
+            BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null,
+                    symTable.streamType.tsymbol);
+            bStreamType.constraint = BUnionType.create(null, symTable.anyType, symTable.errorType);
+            bStreamType.error = symTable.errorOrNilType;
+            actualType = bStreamType;
         } else {
-
+            actualType = findAssignableType(whereEnv, selectClause.expression,  collectionNode.type, expType);
         }
 
-        BType actualType = findAssignableType(whereEnv, selectClause.expression,  collectionNode.type, expType);
         if (actualType != symTable.semanticError) {
             resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
         } else {
