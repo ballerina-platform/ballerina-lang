@@ -375,6 +375,88 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return bLFuncBody;
     }
 
+    // -----------------------------------------------Expressions-------------------------------------------------------
+    @Override
+    public BLangNode transform(MappingConstructorExpressionNode mapConstruct) {
+        BLangRecordLiteral bLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        for (MappingFieldNode field : mapConstruct.fields()) {
+            if (field.kind() == SyntaxKind.SPREAD_FIELD) {
+                SpreadFieldNode spreadFieldNode = (SpreadFieldNode) field;
+                BLangRecordSpreadOperatorField bLRecordSpreadOpField =
+                        (BLangRecordSpreadOperatorField) TreeBuilder.createRecordSpreadOperatorField();
+                bLRecordSpreadOpField.expr = createExpression(spreadFieldNode.valueExpr());
+                bLiteralNode.fields.add(bLRecordSpreadOpField);
+            } else {
+                SpecificFieldNode specificField = (SpecificFieldNode) field;
+                BLangRecordKeyValueField bLRecordKeyValueField =
+                        (BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
+                bLRecordKeyValueField.valueExpr = createExpression(specificField.valueExpr());
+                bLRecordKeyValueField.key = new BLangRecordLiteral.BLangRecordKey(
+                        createExpression(specificField.fieldName()));
+                bLRecordKeyValueField.key.computedKey = false;
+                bLiteralNode.fields.add(bLRecordKeyValueField);
+            }
+        }
+        bLiteralNode.pos = emptyPos;
+        return bLiteralNode;
+    }
+
+    @Override
+    public BLangNode transform(UnaryExpressionNode unaryExprNode) {
+        BLangUnaryExpr bLUnaryExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
+        bLUnaryExpr.pos = emptyPos;
+        bLUnaryExpr.expr = createExpression(unaryExprNode.expression());
+        bLUnaryExpr.operator = OperatorKind.valueFrom(unaryExprNode.unaryOperator().text());
+        return bLUnaryExpr;
+    }
+
+    @Override
+    public BLangNode transform(BinaryExpressionNode binaryExprNode) {
+        BLangBinaryExpr bLBinaryExpr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        bLBinaryExpr.pos = emptyPos;
+        bLBinaryExpr.lhsExpr = createExpression(binaryExprNode.lhsExpr());
+        bLBinaryExpr.rhsExpr = createExpression(binaryExprNode.rhsExpr());
+        bLBinaryExpr.opKind = OperatorKind.valueFrom(binaryExprNode.operator().text());
+        return bLBinaryExpr;
+    }
+
+    @Override
+    public BLangNode transform(FieldAccessExpressionNode fieldAccessExprNode) {
+        BLangFieldBasedAccess bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+        Token fieldName = fieldAccessExprNode.fieldName();
+        bLFieldBasedAccess.pos = emptyPos;
+        BLangNameReference nameRef = getBLangNameReference(fieldName);
+        bLFieldBasedAccess.field = createIdentifier(emptyPos, nameRef.name.getValue());
+        bLFieldBasedAccess.field.pos = emptyPos;
+        bLFieldBasedAccess.expr = createExpression(fieldAccessExprNode.expression());
+        bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
+        // TODO: Fix this when optional field access is available
+        bLFieldBasedAccess.optionalFieldAccess = false;
+        return bLFieldBasedAccess;
+    }
+
+    @Override
+    public BLangNode transform(BracedExpressionNode brcExprOut) {
+        return createExpression(brcExprOut.expression());
+    }
+
+    public BLangNode transform(FunctionCallExpressionNode functionCallNode) {
+        BLangInvocation bLInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
+        Node nameNode = functionCallNode.functionName();
+        BLangNameReference reference = getBLangNameReference(nameNode);
+        bLInvocation.pkgAlias = (BLangIdentifier) reference.pkgAlias;
+        bLInvocation.name = (BLangIdentifier) reference.name;
+
+        List<BLangExpression> args = new ArrayList<>();
+        functionCallNode.arguments().iterator().forEachRemaining(arg -> {
+            args.add((BLangExpression) arg.apply(this));
+        });
+        bLInvocation.argExprs = args;
+        bLInvocation.pos = emptyPos;
+
+        return bLInvocation;
+    }
+
     // -----------------------------------------------Statements--------------------------------------------------------
     @Override
     public BLangNode transform(ReturnStatementNode returnStmtNode) {
@@ -449,17 +531,17 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(IfElseStatementNode ifElseStmtNode) {
-        BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
-        ifNode.pos = emptyPos;
-        ifNode.setCondition(createExpression(ifElseStmtNode.condition()));
-        ifNode.setBody((BLangBlockStmt) ifElseStmtNode.ifBody().apply(this));
+        BLangIf bLIf = (BLangIf) TreeBuilder.createIfElseStatementNode();
+        bLIf.pos = emptyPos;
+        bLIf.setCondition(createExpression(ifElseStmtNode.condition()));
+        bLIf.setBody((BLangBlockStmt) ifElseStmtNode.ifBody().apply(this));
 
         ifElseStmtNode.elseBody().ifPresent(elseBody -> {
             ElseBlockNode elseNode = (ElseBlockNode) elseBody;
-            ifNode.setElseStatement((org.ballerinalang.model.tree.statements.StatementNode) elseNode.elseBody().apply(this));
+            bLIf.setElseStatement(
+                    (org.ballerinalang.model.tree.statements.StatementNode) elseNode.elseBody().apply(this));
         });
-
-        return ifNode;
+        return bLIf;
     }
 
     @Override
@@ -492,23 +574,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLExpressionStmt.expr = (BLangExpression) expressionStatement.expression().apply(this);
         bLExpressionStmt.pos = emptyPos;
         return bLExpressionStmt;
-    }
-
-    public BLangNode transform(FunctionCallExpressionNode functionCallNode) {
-        BLangInvocation bLInvocation = (BLangInvocation) TreeBuilder.createInvocationNode();
-        Node nameNode = functionCallNode.functionName();
-        BLangNameReference reference = getBLangNameReference(nameNode);
-        bLInvocation.pkgAlias = (BLangIdentifier) reference.pkgAlias;
-        bLInvocation.name = (BLangIdentifier) reference.name;
-
-        List<BLangExpression> args = new ArrayList<>();
-        functionCallNode.arguments().iterator().forEachRemaining(arg -> {
-            args.add((BLangExpression) arg.apply(this));
-        });
-        bLInvocation.argExprs = args;
-        bLInvocation.pos = emptyPos;
-
-        return bLInvocation;
     }
 
     // -------------------------------------------------Misc------------------------------------------------------------
@@ -576,7 +641,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     protected BLangNode transformSyntaxNode(Node node) {
-        throw new RuntimeException("Node not supported: " + node);
+        throw new RuntimeException("Node not supported: " + node.getClass().getSimpleName());
     }
 
     // ------------------------------------------private methods--------------------------------------------------------
@@ -594,8 +659,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         // Set Return Type
         Optional<Node> retNode = funcDefNode.returnTypeDesc();
         if (retNode.isPresent()) {
-            VariableDeclarationNode returnType = (VariableDeclarationNode) retNode.get();
-            bLFunction.setReturnTypeNode((BLangType) createTypeNode(returnType.typeName()));
+            ReturnTypeDescriptorNode returnType = (ReturnTypeDescriptorNode) retNode.get();
+            bLFunction.setReturnTypeNode(createTypeNode(returnType.type()));
         } else {
             BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
             bLValueType.pos = emptyPos;
@@ -608,71 +673,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (isSimpleLiteral(expression.kind())) {
             return createSimpleLiteral(expression);
         } else if (expression.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
-            // Variable Reference
+            // Variable References
             IdentifierToken identifier = (IdentifierToken) expression;
             BLangSimpleVarRef bLVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
             bLVarRef.pos = emptyPos;
             bLVarRef.pkgAlias = this.createIdentifier(emptyPos, "");
             bLVarRef.variableName = this.createIdentifier(emptyPos, identifier.text());
             return bLVarRef;
-        } else if (expression.kind() == SyntaxKind.MAPPING_CONSTRUCTOR) {
-            BLangRecordLiteral bLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
-            MappingConstructorExpressionNode mapConstruct = (MappingConstructorExpressionNode) expression;
-            for (MappingFieldNode field : mapConstruct.fields()) {
-                if (field.kind() == SyntaxKind.SPREAD_FIELD) {
-                    SpreadFieldNode spreadFieldNode = (SpreadFieldNode) field;
-                    BLangRecordSpreadOperatorField bLRecordSpreadOpField =
-                            (BLangRecordSpreadOperatorField) TreeBuilder.createRecordSpreadOperatorField();
-                    bLRecordSpreadOpField.expr = createExpression(spreadFieldNode.valueExpr());
-                    bLiteralNode.fields.add(bLRecordSpreadOpField);
-                } else {
-                    SpecificFieldNode specificField = (SpecificFieldNode) field;
-                    BLangRecordKeyValueField bLRecordKeyValueField =
-                            (BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
-                    bLRecordKeyValueField.valueExpr = createExpression(specificField.valueExpr());
-                    bLRecordKeyValueField.key = new BLangRecordLiteral.BLangRecordKey(
-                            createExpression(specificField.fieldName()));
-                    bLRecordKeyValueField.key.computedKey = false;
-                    bLiteralNode.fields.add(bLRecordKeyValueField);
-                }
-            }
-            bLiteralNode.pos = emptyPos;
-            return bLiteralNode;
-        } else if (expression.kind() == SyntaxKind.UNARY_EXPRESSION) {
-            BLangUnaryExpr bLUnaryExpr = (BLangUnaryExpr) TreeBuilder.createUnaryExpressionNode();
-            UnaryExpressionNode unaryExpressionNode = (UnaryExpressionNode) expression;
-            bLUnaryExpr.pos = emptyPos;
-            bLUnaryExpr.expr = createExpression(unaryExpressionNode.expression());
-            bLUnaryExpr.operator = OperatorKind.valueFrom(unaryExpressionNode.unaryOperator().text());
-            return bLUnaryExpr;
-        } else if (expression.kind() == SyntaxKind.BINARY_EXPRESSION) {
-            BLangBinaryExpr binaryExpr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-            BinaryExpressionNode bLBinaryExpr = (BinaryExpressionNode) expression;
-            binaryExpr.pos = emptyPos;
-            binaryExpr.lhsExpr = createExpression(bLBinaryExpr.lhsExpr());
-            binaryExpr.rhsExpr = createExpression(bLBinaryExpr.rhsExpr());
-            binaryExpr.opKind = OperatorKind.valueFrom(bLBinaryExpr.operator().text());
-            return binaryExpr;
-        } else if (expression.kind() == SyntaxKind.FIELD_ACCESS) {
-            BLangFieldBasedAccess bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
-            FieldAccessExpressionNode fieldAccessExpressionNode = (FieldAccessExpressionNode) expression;
-            Token fieldName = fieldAccessExpressionNode.fieldName();
-            bLFieldBasedAccess.pos = emptyPos;
-            BLangNameReference nameRef = getBLangNameReference(fieldName);
-            bLFieldBasedAccess.field = createIdentifier(emptyPos, nameRef.name.getValue());
-            bLFieldBasedAccess.field.pos = emptyPos;
-            bLFieldBasedAccess.expr = createExpression(fieldAccessExpressionNode.expression());
-            bLFieldBasedAccess.fieldKind = FieldKind.SINGLE;
-            // TODO: Fix this when optional field access is available
-            bLFieldBasedAccess.optionalFieldAccess = false;
-            return bLFieldBasedAccess;
-        } else if (expression.kind() == SyntaxKind.BRACED_EXPRESSION) {
-            BracedExpressionNode brcExprOut = (BracedExpressionNode) expression;
-            return createExpression(brcExprOut.expression());
+        } else {
+            return (BLangExpression) expression.apply(this);
         }
-        //TODO: Remove this
-        dlog.error(emptyPos, DiagnosticCode.UNDEFINED_SYMBOL, expression.kind());
-        return null;
     }
 
     private BLangSimpleVariable createSimpleVar(String name, Node type) {
@@ -819,10 +829,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangType createTypeNode(Node type) {
-        if (type instanceof Token || type.kind() == SyntaxKind.NIL_TYPE) {
+        if (type instanceof Token || type.kind() == SyntaxKind.NIL_TYPE_DESC) {
             // Default type
             BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
-            String typeText = (type.kind() != SyntaxKind.NIL_TYPE) ? ((Token) type).text() : "()";
+            String typeText = (type.kind() != SyntaxKind.NIL_TYPE_DESC) ? ((Token) type).text() : "()";
             bLValueType.typeKind = TreeUtils.stringToTypeKind(typeText.replaceAll("\\s+", ""));
             bLValueType.pos = emptyPos;
             return bLValueType;
@@ -856,7 +866,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLUserDefinedType.pos = emptyPos;
 
             return bLUserDefinedType;
-        } else if (type.kind() == SyntaxKind.OPTIONAL_TYPE) {
+        } else if (type.kind() == SyntaxKind.OPTIONAL_TYPE_DESC) {
             OptionalTypeDescriptorNode optTypeDescriptor = (OptionalTypeDescriptorNode) type;
 
             BLangValueType nilTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
