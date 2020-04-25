@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
+import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
@@ -73,9 +74,11 @@ import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.IdentifierNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -93,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -104,9 +108,14 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLang
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -119,6 +128,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Constants;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
@@ -400,6 +410,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangBreak bLBreak = (BLangBreak) TreeBuilder.createBreakNode();
         bLBreak.pos = emptyPos;
         return bLBreak;
+    }
+
+    @Override
+    public BLangNode transform(AssignmentStatementNode assignmentStmtNode) {
+        BLangAssignment bLAssignment = (BLangAssignment) TreeBuilder.createAssignmentNode();
+        BLangExpression lhsExpr = createExpression(assignmentStmtNode.expression());
+        validateLvexpr(lhsExpr, DiagnosticCode.INVALID_INVOCATION_LVALUE_ASSIGNMENT);
+        bLAssignment.setExpression(lhsExpr);
+        bLAssignment.pos = emptyPos;
+        bLAssignment.varRef = createExpression(assignmentStmtNode.varRef());
+        return bLAssignment;
+    }
+
+    private void validateLvexpr(ExpressionNode lExprNode, DiagnosticCode errorCode) {
+        if (lExprNode.getKind() == NodeKind.INVOCATION) {
+            dlog.error(((BLangInvocation) lExprNode).pos, errorCode);
+        }
+        if (lExprNode.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
+                || lExprNode.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+            validateLvexpr(((BLangAccessExpression) lExprNode).expr, errorCode);
+        }
     }
 
     @Override
