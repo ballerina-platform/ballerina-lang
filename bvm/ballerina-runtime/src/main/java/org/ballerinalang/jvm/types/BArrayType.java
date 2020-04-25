@@ -128,18 +128,26 @@ public class BArrayType extends BType {
 
     @Override
     public String toString() {
-        String arrayString = "";
-        String arrayTypeName = getTypeName();
-        arrayString = size != -1 ? arrayString + "[" + size + "]" : arrayString + "[]";
-        arrayString = arrayString + elementType.toString();
-        if (arrayString.contains(arrayTypeName)) {
-            arrayString = arrayTypeName + arrayString.replace(arrayTypeName, "");
+        StringBuilder sb = new StringBuilder();
+        sb.append(getTypeName());
+        sb.append(getSizeString());
+        BType element = elementType;
+        while (element instanceof BArrayType) {
+            sb.append(((BArrayType) element).getSizeString());
+            if (!(((BArrayType) element).elementType instanceof BArrayType)) {
+                break;
+            }
+            element = ((BArrayType) element).elementType;
         }
-        return arrayString;
+        return sb.toString();
     }
 
-    public String getTypeName() {
-        if (elementType instanceof  BMapType) {
+    private String getSizeString() {
+        return size != -1 ? "[" + size + "]" : "[]";
+    }
+
+    private String getTypeName() {
+        if (elementType instanceof BMapType) {
             return elementType.toString();
         }
         if (elementType instanceof BArrayType) {
