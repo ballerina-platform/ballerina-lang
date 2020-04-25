@@ -482,6 +482,65 @@ public class ParamsQueryTest {
         Assert.assertNull(result.get("BLOB_ARRAY"));
     }
 
+    @Test
+    public void testQueryUUIDParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryUUIDParam", args);
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        LinkedHashMap result = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(result.size(), 2);
+        Assert.assertEquals(((BInteger) result.get("id")).intValue(), 1);
+        Assert.assertNotNull(result.get("data"));
+    }
+
+    @Test
+    public void testQueryEnumStringParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryEnumStringParam", args);
+        validateEnumTable(returns, false);
+    }
+
+    @Test
+    public void testQueryEnumStringParam2() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryEnumStringParam2", args);
+        validateEnumTable(returns, true);
+    }
+
+    @Test
+    public void testQueryGeoParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryGeoParam", args);
+        validateGeoTable(returns, false);
+    }
+
+    @Test
+    public void testQueryGeoParam2() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryGeoParam2", args);
+        validateGeoTable(returns, false);
+    }
+
+    @Test
+    public void testQueryJsonParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryJsonParam", args);
+        validateJsonTable(returns, false);
+    }
+
+    @Test
+    public void testQueryJsonParam2() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryJsonParam2", args);
+        validateJsonTable(returns, true);
+    }
+
+    @Test
+    public void testQueryJsonParam3() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryJsonParam3", args);
+        validateJsonTable(returns, true);
+    }
+
+    @Test
+    public void testQueryIntervalParam() {
+        BValue[] returns = BRunUtil.invokeFunction(result, "queryIntervalParam", args);
+        validateIntervalTable(returns, false);
+    }
+
     private void validateDataTableResult(BValue[] returns) {
         SQLDBUtils.assertNotError(returns[0]);
         Assert.assertTrue(returns[0] instanceof BMap);
@@ -572,5 +631,67 @@ public class ParamsQueryTest {
         BValueArray stringArray = (BValueArray) result.get("STRING_ARRAY");
         Assert.assertEquals(stringArray.getBValue(0).stringValue().trim(), "Hello");
         Assert.assertEquals(stringArray.getBValue(1).stringValue().trim(), "Ballerina");
+    }
+
+    private void validateEnumTable(BValue[] returns, boolean isLowercase) {
+        String id = "ID";
+        String enumType = "ENUM_TYPE";
+        if (isLowercase) {
+            id = id.toLowerCase();
+            enumType = enumType.toLowerCase();
+        }
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        LinkedHashMap result = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(result.size(), 2);
+        Assert.assertEquals(((BInteger) result.get(id)).intValue(), 1);
+        Assert.assertEquals(result.get(enumType).toString(), "doctor");
+    }
+
+    private void validateGeoTable(BValue[] returns, boolean isLowercase) {
+        String id = "ID";
+        String type = "GEOM";
+        if (isLowercase) {
+            id = id.toLowerCase();
+            type = type.toLowerCase();
+        }
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        LinkedHashMap result = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(result.size(), 2);
+        Assert.assertEquals(((BInteger) result.get(id)).intValue(), 1);
+        Assert.assertEquals(result.get(type).toString(), "POINT (7 52)");
+    }
+
+    private void validateJsonTable(BValue[] returns, boolean isLowercase) {
+        String id = "ID";
+        String type = "JSON_TYPE";
+        if (isLowercase) {
+            id = id.toLowerCase();
+            type = type.toLowerCase();
+        }
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        LinkedHashMap result = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(result.size(), 2);
+        Assert.assertEquals(((BInteger) result.get(id)).intValue(), 1);
+        String jsonString = result.get(type).toString();
+        Assert.assertTrue(jsonString.equalsIgnoreCase("{\"id\":100,\"name\":\"Joe\",\"groups\":[2,5]}")
+                || jsonString.equalsIgnoreCase("{\"id\":100, \"name\":\"Joe\", \"groups\":[2, 5]}"));
+    }
+
+    private void validateIntervalTable(BValue[] returns, boolean isLowercase) {
+        String id = "ID";
+        String type = "INTERVAL_TYPE";
+        if (isLowercase) {
+            id = id.toLowerCase();
+            type = type.toLowerCase();
+        }
+        SQLDBUtils.assertNotError(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        LinkedHashMap result = ((BMap) returns[0]).getMap();
+        Assert.assertEquals(result.size(), 2);
+        Assert.assertEquals(((BInteger) result.get(id)).intValue(), 1);
+        Assert.assertEquals(result.get(type).toString(), "INTERVAL '2:00' HOUR TO MINUTE");
     }
 }

@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
@@ -150,9 +151,19 @@ class Utils {
                 }
             } else if (object instanceof MapValue) {
                 MapValue<String, Object> recordValue = (MapValue<String, Object>) object;
-                setSqlTypedParam(connection, preparedStatement, index, recordValue);
+                if ((recordValue.getType().getTag() == TypeTags.RECORD_TYPE_TAG)) {
+                    setSqlTypedParam(connection, preparedStatement, index, recordValue);
+                } else if (recordValue.getType() instanceof BMapType &&
+                        ((BMapType) recordValue.getType()).getConstrainedType().getTag() == TypeTags.JSON_TAG) {
+                    preparedStatement.setString(index, ((MapValueImpl) recordValue).getJSONString());
+                } else {
+                    throw new ApplicationError("Unsupported type:" +
+                            recordValue.getType().getQualifiedName() + " in column index: " + index);
+                }
             } else if (object instanceof XMLValue) {
                 preparedStatement.setObject(index, ((XMLValue) object).getTextValue(), Types.SQLXML);
+            } else {
+                throw new ApplicationError("Unsupported type passed in column index: " + index);
             }
         }
     }
@@ -687,12 +698,17 @@ class Utils {
         return returnResult;
     }
 
-    static Object convert(String value, int sqlType, BType bType) throws ApplicationError {
+    static String convert(String value, int sqlType, BType bType) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, "SQL String");
         return value;
     }
 
-    static Object convert(byte[] value, int sqlType, String sqlTypeName, BType bType) throws ApplicationError {
+    static Object convert(String value, int sqlType, BType bType, String sqlTypeName) throws ApplicationError {
+        validatedInvalidFieldAssignment(sqlType, bType, sqlTypeName);
+        return value;
+    }
+
+    static Object convert(byte[] value, int sqlType, BType bType, String sqlTypeName) throws ApplicationError {
         validatedInvalidFieldAssignment(sqlType, bType, sqlTypeName);
         if (value != null) {
             return BValueCreator.createArrayValue(value);
@@ -876,7 +892,6 @@ class Utils {
         }
         return struct;
     }
-
 
     private static MapValue<String, Object> createTimeStruct(long millis) {
         return TimeUtils.createTimeRecord(TimeUtils.getTimeZoneRecord(), TimeUtils.getTimeRecord(), millis,
@@ -1080,14 +1095,26 @@ class Utils {
                     int elementTypeTag = ((BArrayType) bType).getElementType().getTag();
                     return elementTypeTag == TypeTags.BYTE_TAG;
                 }
-                return bType.getTag() == TypeTags.BYTE_ARRAY_TAG;
+                return bType.getTag() == TypeTags.STRING_TAG || bType.getTag() == TypeTags.BYTE_ARRAY_TAG;
             case Types.REF:
             case Types.STRUCT:
                 return bType.getTag() == TypeTags.RECORD_TYPE_TAG;
             case Types.SQLXML:
                 return bType.getTag() == TypeTags.XML_TAG;
             default:
-                return bType.getTag() == TypeTags.ANY_TAG;
+                //If user is passing the intended type variable for the sql types, then it will use
+                // those types to resolve the result.
+                return bType.getTag() == TypeTags.ANY_TAG ||
+                        bType.getTag() == TypeTags.ANYDATA_TAG ||
+                        (bType.getTag() == TypeTags.ARRAY_TAG &&
+                                ((BArrayType) bType).getElementType().getTag() == TypeTags.BYTE_TAG) ||
+                        bType.getTag() == TypeTags.STRING_TAG ||
+                        bType.getTag() == TypeTags.INT_TAG ||
+                        bType.getTag() == TypeTags.BOOLEAN_TAG ||
+                        bType.getTag() == TypeTags.XML_TAG ||
+                        bType.getTag() == TypeTags.FLOAT_TAG ||
+                        bType.getTag() == TypeTags.DECIMAL_TAG ||
+                        bType.getTag() == TypeTags.JSON_TAG;
         }
     }
 }

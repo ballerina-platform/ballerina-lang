@@ -96,7 +96,7 @@ public type TypedValue record {|
 |};
 
 # Possible type of parameters that can be passed into the SQL query.
-public type Value string|int|boolean|float|decimal|byte[]|xml|TypedValue;
+public type Value string|int|boolean|float|decimal|byte[]|xml|json|TypedValue;
 
 # Temporay solution util the language supports `Backtick string` natively as mentioned in
 # https://github.com/ballerina-platform/ballerina-spec/issues/442.

@@ -265,7 +265,7 @@ function queryTypeIntIntParam(string url, string user, string password) returns 
 
 function queryTypeTinyIntIntParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:INTEGER,
+        sqlType: sql:SMALLINT,
         value: 127
     };
     sql:ParameterizedString sqlQuery = {
@@ -786,6 +786,104 @@ function queryArrayBasicNullParams(string url, string user, string password) ret
     return queryJdbcClient(url, user, password, sqlQuery);
 }
 
+type UUIDResult record {|
+    int id;
+    string data;
+|};
+
+function queryUUIDParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from UUIDTable WHERE id = ", ""],
+        insertions: [1]
+    };
+    record{}? result = check queryJdbcClient(url, user, password, sqlQuery, resultType=UUIDResult);
+    if(result is record{}){
+        UUIDResult uuid = <UUIDResult>result;
+        sql:ParameterizedString sqlQuery2 = {
+            parts: ["SELECT * from UUIDTable WHERE data = ", ""],
+            insertions: [<@untainted>uuid.data]
+        };
+        return queryJdbcClient(url, user, password, sqlQuery2, resultType=UUIDResult);
+    } else {
+        return ();
+    }
+}
+
+function queryEnumStringParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT * from ENUMTable where enum_type=", ""],
+            insertions: ["doctor"]
+     };
+    return queryJdbcClient(url, user, password, sqlQuery);
+}
+
+type EnumResult record {|
+    int id;
+    string enum_type;
+|};
+
+function queryEnumStringParam2(string url, string user, string password) returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT * from ENUMTable where enum_type=", ""],
+            insertions: ["doctor"]
+     };
+    return queryJdbcClient(url, user, password, sqlQuery, resultType=EnumResult);
+}
+
+function queryGeoParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT * from GEOTable"],
+            insertions: []
+     };
+    return queryJdbcClient(url, user, password, sqlQuery);
+}
+
+function queryGeoParam2(string url, string user, string password) returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT * from GEOTable where geom =", ""],
+            insertions: ["POINT (7 52)"]
+     };
+    return queryJdbcClient(url, user, password, sqlQuery);
+}
+
+function queryJsonParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT * from JsonTable"],
+            insertions: []
+     };
+    return queryJdbcClient(url, user, password, sqlQuery);
+}
+
+type JsonResult record {|
+    int id;
+    json json_type;
+|};
+
+function queryJsonParam2(string url, string user, string password) returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT * from JsonTable"],
+            insertions: []
+     };
+    return queryJdbcClient(url, user, password, sqlQuery, resultType=JsonResult);
+}
+
+function queryJsonParam3(string url, string user, string password) returns @tainted record {}|error? {
+    json jsonType = {"id":100,"name":"Joe","groups":[2,5]};
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from JsonTable where json_type=JSON_OBJECT('id': ", ", 'name':", ", 'groups': ",  "FORMAT JSON)"],
+        insertions: [100, "Joe", "[2, 5]"]
+     };
+    return queryJdbcClient(url, user, password, sqlQuery, resultType=JsonResult);
+}
+
+function queryIntervalParam(string url, string user, string password) returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT * from IntervalTable"],
+            insertions: []
+     };
+    return queryJdbcClient(url, user, password, sqlQuery);
+}
+
 function getByteColumnChannel() returns @untainted io:ReadableByteChannel|error {
     io:ReadableByteChannel byteChannel = check io:openReadableFile("./src/test/resources/files/byteValue.txt");
     return byteChannel;
@@ -802,10 +900,11 @@ function getClobColumnChannel() returns @untainted io:ReadableCharacterChannel|e
     return sourceChannel;
 }
 
-function queryJdbcClient(string url, string user, string password,@untainted string|sql:ParameterizedString sqlQuery)
+function queryJdbcClient(string url, string user, string password,@untainted string|sql:ParameterizedString sqlQuery,
+typedesc<record{}>? resultType = ())
 returns @tainted record {}|error? {
     jdbc:Client dbClient = check new (url = url, user = user, password = password);
-    stream<record{}, error> streamData = dbClient->query(sqlQuery);
+    stream<record{}, error> streamData = dbClient->query(sqlQuery, resultType);
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
     record {}? value = data?.value;

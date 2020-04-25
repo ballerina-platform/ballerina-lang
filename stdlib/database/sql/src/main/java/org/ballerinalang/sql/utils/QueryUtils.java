@@ -87,8 +87,8 @@ public class QueryUtils {
                         } else {
                             flags += Flags.REQUIRED;
                         }
-                        fieldMap.put(column.getSqlName(), new BField(column.getBallerinaType(), column.getSqlName(),
-                                flags));
+                        fieldMap.put(column.getColumnName(), new BField(column.getBallerinaType(),
+                                column.getColumnName(), flags));
                     }
                     defaultRecord.setFields(fieldMap);
                     streamConstraint = defaultRecord;
@@ -190,7 +190,7 @@ public class QueryUtils {
             ballerinaType = getDefaultBallerinaType(sqlType);
             ballerinaFieldName = columnName;
         }
-        return new ColumnDefinition(columnName, ballerinaFieldName, sqlType, ballerinaType, isNullable);
+        return new ColumnDefinition(columnName, ballerinaFieldName, sqlType, sqlTypeName, ballerinaType, isNullable);
 
     }
 

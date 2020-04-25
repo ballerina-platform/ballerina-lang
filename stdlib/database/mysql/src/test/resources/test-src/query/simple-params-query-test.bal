@@ -269,7 +269,7 @@ function queryTypeIntIntParam() returns @tainted record {}|error? {
 
 function queryTypeTinyIntIntParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:INTEGER,
+        sqlType: sql:SMALLINT,
         value: 127
     };
     sql:ParameterizedString sqlQuery = {
@@ -286,6 +286,18 @@ function queryTypeSmallIntIntParam() returns @tainted record {}|error? {
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE smallint_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMysqlClient(sqlQuery);
+}
+
+function queryTypeMediumIntIntParam() returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+        sqlType: sql:INTEGER,
+        value: 8388607
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from NumericTypes WHERE mediumint_type = ", ""],
         insertions: [typeVal]
     };
     return queryMysqlClient(sqlQuery);
@@ -481,6 +493,20 @@ function queryTypeVarBinaryReadableByteChannelParam() returns @tainted record {}
     return queryMysqlClient(sqlQuery);
 }
 
+function queryTypeTinyBlobByteParam() returns @tainted record {}|error? {
+    record {}|error? value = queryMysqlClient("Select * from ComplexTypes where row_id = 1");
+    byte[] binaryData = <byte[]>getUntaintedData(value, "tinyblob_type");
+    sql:TypedValue typeVal = {
+        sqlType: sql:BLOB,
+        value: binaryData
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE tinyblob_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMysqlClient(sqlQuery);
+}
+
 function queryTypeBlobByteParam() returns @tainted record {}|error? {
     record {}|error? value = queryMysqlClient("Select * from ComplexTypes where row_id = 1");
     byte[] binaryData = <byte[]>getUntaintedData(value, "blob_type");
@@ -490,6 +516,34 @@ function queryTypeBlobByteParam() returns @tainted record {}|error? {
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from ComplexTypes WHERE blob_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMysqlClient(sqlQuery);
+}
+
+function queryTypeMediumBlobByteParam() returns @tainted record {}|error? {
+    record {}|error? value = queryMysqlClient("Select * from ComplexTypes where row_id = 1");
+    byte[] binaryData = <byte[]>getUntaintedData(value, "mediumblob_type");
+    sql:TypedValue typeVal = {
+        sqlType: sql:BLOB,
+        value: binaryData
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE mediumblob_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMysqlClient(sqlQuery);
+}
+
+function queryTypeLongBlobByteParam() returns @tainted record {}|error? {
+    record {}|error? value = queryMysqlClient("Select * from ComplexTypes where row_id = 1");
+    byte[] binaryData = <byte[]>getUntaintedData(value, "longblob_type");
+    sql:TypedValue typeVal = {
+        sqlType: sql:BLOB,
+        value: binaryData
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE longblob_type = ", ""],
         insertions: [typeVal]
     };
     return queryMysqlClient(sqlQuery);
@@ -508,39 +562,76 @@ function queryTypeBlobReadableByteChannelParam() returns @tainted record {}|erro
     return queryMysqlClient(sqlQuery);
 }
 
-function queryTypeClobStringParam() returns @tainted record {}|error? {
+function queryTypeTinyTextStringParam() returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
-        sqlType: sql:CLOB,
+        sqlType: sql:TEXT,
         value: "very long text"
     };
     sql:ParameterizedString sqlQuery = {
-        parts: ["SELECT * from ComplexTypes WHERE clob_type = ", ""],
+        parts: ["SELECT * from ComplexTypes WHERE tinytext_type = ", ""],
         insertions: [typeVal]
     };
     return queryMysqlClient(sqlQuery);
 }
 
-function queryTypeClobReadableCharChannelParam() returns @tainted record {}|error? {
-    io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
+function queryTypeTextStringParam() returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+        sqlType: sql:TEXT,
+        value: "very long text"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE text_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMysqlClient(sqlQuery);
+}
+
+function queryTypeMediumTextStringParam() returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+        sqlType: sql:TEXT,
+        value: "very long text"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE mediumtext_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMysqlClient(sqlQuery);
+}
+
+function queryTypeLongTextStringParam() returns @tainted record {}|error? {
+    sql:TypedValue typeVal = {
+        sqlType: sql:TEXT,
+        value: "very long text"
+    };
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from ComplexTypes WHERE longtext_type = ", ""],
+        insertions: [typeVal]
+    };
+    return queryMysqlClient(sqlQuery);
+}
+
+
+function queryTypeTextReadableCharChannelParam() returns @tainted record {}|error? {
+    io:ReadableCharacterChannel clobChannel = check getTextColumnChannel();
     sql:TypedValue typeVal = {
         sqlType: sql:CLOB,
         value: clobChannel
     };
     sql:ParameterizedString sqlQuery = {
-        parts: ["SELECT * from ComplexTypes WHERE clob_type = ", ""],
+        parts: ["SELECT * from ComplexTypes WHERE text_type = ", ""],
         insertions: [typeVal]
     };
     return queryMysqlClient(sqlQuery);
 }
 
-function queryTypeNClobReadableCharChannelParam() returns @tainted record {}|error? {
-    io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
+function queryTypeNTextReadableCharChannelParam() returns @tainted record {}|error? {
+    io:ReadableCharacterChannel clobChannel = check getTextColumnChannel();
     sql:TypedValue typeVal = {
         sqlType: sql:NCLOB,
         value: clobChannel
     };
     sql:ParameterizedString sqlQuery = {
-        parts: ["SELECT * from ComplexTypes WHERE clob_type = ", ""],
+        parts: ["SELECT * from ComplexTypes WHERE text_type = ", ""],
         insertions: [typeVal]
     };
     return queryMysqlClient(sqlQuery);
@@ -619,6 +710,80 @@ function queryTimestampStringInvalidParam() returns @tainted record {}|error? {
     return queryMysqlClient(sqlQuery);
 }
 
+function queryEnumStringParam() returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT * from ENUMTable where enum_type=", ""],
+            insertions: ["doctor"]
+     };
+    return queryMysqlClient(sqlQuery);
+}
+
+type EnumResult record {|
+    int id;
+    string enum_type;
+|};
+
+function queryEnumStringParam2() returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT * from ENUMTable where enum_type=", ""],
+            insertions: ["doctor"]
+     };
+    return queryMysqlClient(sqlQuery, resultType=EnumResult);
+}
+
+function querySetStringParam() returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT * from SetTable where set_type=", ""],
+            insertions: ["a,d"]
+     };
+    return queryMysqlClient(sqlQuery);
+}
+
+function queryGeoParam() returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT id, ST_AsText(geom) as geomText from GEOTable"],
+            insertions: []
+     };
+    return  queryMysqlClient(sqlQuery);
+}
+
+function queryGeoParam2() returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT id, ST_AsText(geom) as geomText from GEOTable where geom = ST_GeomFromText(", ")"],
+            insertions: ["POINT (7 52)"]
+     };
+    return  queryMysqlClient(sqlQuery);
+}
+
+function queryJsonParam() returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT * from JsonTable"],
+            insertions: []
+     };
+    return queryMysqlClient(sqlQuery);
+}
+
+type JsonResult record {|
+    int id;
+    json json_type;
+|};
+
+function queryJsonParam2() returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+            parts: ["SELECT * from JsonTable"],
+            insertions: []
+     };
+    return queryMysqlClient(sqlQuery, resultType=JsonResult);
+}
+
+function queryJsonParam3() returns @tainted record {}|error? {
+    sql:ParameterizedString sqlQuery = {
+        parts: ["SELECT * from JsonTable where json_type->'$.id'=", ""],
+        insertions: [100]
+     };
+    return queryMysqlClient(sqlQuery, resultType=JsonResult);
+}
+
 function getByteColumnChannel() returns @untainted io:ReadableByteChannel|error {
     io:ReadableByteChannel byteChannel = check io:openReadableFile("./src/test/resources/files/byteValue.txt");
     return byteChannel;
@@ -629,16 +794,16 @@ function getBlobColumnChannel() returns @untainted io:ReadableByteChannel|error 
     return byteChannel;
 }
 
-function getClobColumnChannel() returns @untainted io:ReadableCharacterChannel|error {
+function getTextColumnChannel() returns @untainted io:ReadableCharacterChannel|error {
     io:ReadableByteChannel byteChannel = check io:openReadableFile("./src/test/resources/files/clobValue.txt");
     io:ReadableCharacterChannel sourceChannel = new (byteChannel, "UTF-8");
     return sourceChannel;
 }
 
-function queryMysqlClient(@untainted string|sql:ParameterizedString sqlQuery)
+function queryMysqlClient(@untainted string|sql:ParameterizedString sqlQuery, typedesc<record{}>? resultType = ())
 returns @tainted record {}|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
-    stream<record{}, error> streamData = dbClient->query(sqlQuery);
+    stream<record{}, error> streamData = dbClient->query(sqlQuery, resultType);
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
     record {}? value = data?.value;
@@ -651,4 +816,3 @@ function writeToFile(byte[] data) returns @tainted error? {
     int leng = check byteChannel.write(data, 0);
     return check byteChannel.close();
 }
-
