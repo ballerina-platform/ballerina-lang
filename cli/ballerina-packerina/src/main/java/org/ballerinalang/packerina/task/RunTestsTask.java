@@ -54,6 +54,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import static org.ballerinalang.packerina.utils.DebugUtils.getDebugArgs;
+import static org.ballerinalang.packerina.utils.DebugUtils.isInDebugMode;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.DOT;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.FILE_PROTOCOL;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_DATA_PLACEHOLDER;
@@ -323,7 +325,12 @@ public class RunTestsTask implements Task {
             }
 
             String classPath = getClassPath(getTestRuntimeJar(buildContext), testDependencies);
-            cmdArgs.addAll(Lists.of("-cp", classPath, mainClassName, jsonPath.toString()));
+            cmdArgs.addAll(Lists.of("-cp", classPath));
+            if (isInDebugMode()) {
+                cmdArgs.add(getDebugArgs(buildContext));
+            }
+            cmdArgs.add(mainClassName);
+            cmdArgs.add(jsonPath.toString());
             cmdArgs.addAll(Arrays.asList(args));
             cmdArgs.add(targetDir.toString());
             cmdArgs.add(testJarPath.toString());

@@ -127,6 +127,10 @@ public class Scheduler {
      */
     public FutureValue scheduleLocal(Object[] params, FPValue<?, ?> fp, Strand parent, BType returnType) {
         FutureValue future = createFuture(parent, null, null, returnType);
+        return scheduleLocal(params, fp, parent, future);
+    }
+
+    public FutureValue scheduleLocal(Object[] params, FPValue<?, ?> fp, Strand parent, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(fp.getFunction(), params, future);
         future.strand.schedulerItem = item;
@@ -433,7 +437,7 @@ public class Scheduler {
         }
     }
 
-    private FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties,
+    public FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties,
                                      BType constraint) {
         Strand newStrand = new Strand(this, parent, properties);
         if (parent != null) {
