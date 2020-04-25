@@ -56,6 +56,8 @@ import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
+import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
@@ -362,6 +364,22 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     // -----------------------------------------------Statements--------------------------------------------------------
+    @Override
+    public BLangNode transform(ReturnStatementNode returnStmtNode) {
+        BLangReturn bLReturn = (BLangReturn) TreeBuilder.createReturnNode();
+        bLReturn.pos = emptyPos;
+        if (returnStmtNode.expression().kind() != SyntaxKind.NONE) {
+            bLReturn.expr = createExpression(returnStmtNode.expression());
+        } else {
+            BLangLiteral nilLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            nilLiteral.pos = emptyPos;
+            nilLiteral.value = Names.NIL_VALUE;
+            nilLiteral.type = symTable.nilType;
+            bLReturn.expr = nilLiteral;
+        }
+        return bLReturn;
+    }
+
     @Override
     public BLangNode transform(PanicStatementNode panicStmtNode) {
         BLangPanic bLPanic = (BLangPanic) TreeBuilder.createPanicNode();
