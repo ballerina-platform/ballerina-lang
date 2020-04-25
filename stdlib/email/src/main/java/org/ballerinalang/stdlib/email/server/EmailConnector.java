@@ -63,7 +63,7 @@ public class EmailConnector {
                 isPollOperationOccupied.set(false);
             }
         } else {
-            log.info("A scheduled email polling job was skipped as the previous job was still processing.");
+            log.warn("A scheduled email polling job was skipped as the previous job was still processing.");
         }
     }
 

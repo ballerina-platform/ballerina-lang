@@ -54,7 +54,9 @@ public class EmailListenerHelper {
 
     /**
      * Register a new service for the listener.
+     * @param emailListener Ballerina email listener
      * @param service Ballerina service to be listened
+     * @param serviceName Name of the Ballerina service to be listened
      */
     public static void register(ObjectValue emailListener, ObjectValue service, BString serviceName) {
         EmailConnector emailConnector = (EmailConnector) emailListener.getNativeData(
