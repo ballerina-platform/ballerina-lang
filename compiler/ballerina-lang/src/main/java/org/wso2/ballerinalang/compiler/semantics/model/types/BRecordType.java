@@ -138,10 +138,5 @@ public class BRecordType extends BStructureType implements RecordType {
             super(tSymbol, fields, flags);
             this.flags |= Flags.READONLY;
         }
-
-        @Override
-        public String toString() {
-            return super.toString().concat(" & readonly");
-        }
     }
 }

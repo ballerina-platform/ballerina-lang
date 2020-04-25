@@ -241,8 +241,7 @@ public class ImmutableTypeCloner {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(origRecordType.tsymbol.flags |= Flags.READONLY,
-                                           names.fromString(origRecordType.tsymbol.name.getValue()
-                                                                    .concat(" & readonly")),
+                                           getImmutableTypeName(names, origRecordType.tsymbol),
                                            pkgID, null, env.scope.owner);
 
         BInvokableType bInvokableType = new BInvokableType(new ArrayList<>(), symTable.nilType, null);
@@ -282,10 +281,7 @@ public class ImmutableTypeCloner {
                 new BRecordType.BImmutableRecordType(recordSymbol, fields, origRecordType.flags);
 
         immutableRecordType.sealed = origRecordType.sealed;
-
-        if (origRecordType.restFieldType != null && origRecordType.restFieldType != symTable.noType) {
-            immutableRecordType.restFieldType = origRecordType.restFieldType;
-        }
+        immutableRecordType.restFieldType = origRecordType.restFieldType;
 
         recordSymbol.type = immutableRecordType;
         immutableRecordType.tsymbol = recordSymbol;
