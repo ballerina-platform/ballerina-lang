@@ -479,13 +479,13 @@ class JvmObservabilityGen {
                         func.localVars.add(trappedErrorVariableDcl);
                         BIROperand trappedErrorOperand = new BIROperand(trappedErrorVariableDcl);
 
-                        injectCheckErrorCalls(errorCheckBB, errorReportBB, currentBB.terminator.thenBB,
-                                func.localVars, currentBB.terminator.pos, trappedErrorOperand,
+                        injectCheckErrorCalls(errorCheckBB, errorReportBB, newCurrentBB.terminator.thenBB,
+                                func.localVars, newCurrentBB.terminator.pos, trappedErrorOperand,
                                 INVOCATION_INSTRUMENTATION_TYPE);
-                        injectReportErrorCall(errorReportBB, func.localVars, currentBB.terminator.pos,
+                        injectReportErrorCall(errorReportBB, func.localVars, newCurrentBB.terminator.pos,
                                 trappedErrorOperand, INVOCATION_INSTRUMENTATION_TYPE);
-                        injectObserveEndCall(observeEndBB, currentBB.terminator.pos);
-                        rePanicBB.terminator = new Panic(currentBB.terminator.pos, trappedErrorOperand);
+                        injectObserveEndCall(observeEndBB, newCurrentBB.terminator.pos);
+                        rePanicBB.terminator = new Panic(newCurrentBB.terminator.pos, trappedErrorOperand);
 
                         BIRErrorEntry errorEntry = new BIRErrorEntry(newCurrentBB, newCurrentBB,
                                 trappedErrorOperand, errorCheckBB);
