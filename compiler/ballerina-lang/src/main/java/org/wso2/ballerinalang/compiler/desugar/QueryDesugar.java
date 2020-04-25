@@ -18,6 +18,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -55,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
@@ -392,7 +394,8 @@ public class QueryDesugar extends BLangNodeVisitor {
             addToFrameFunction(lambda, symbol);
         }
 
-        // TODO: have to re-write with Frame access
+        // TODO: have to mark all closure variables in expression
+        // TODO: have to re-write all non closure variables with Frame access
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
             // add at 0, otherwise, this goes under existing stmts.
@@ -413,12 +416,16 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return variableReference to created filter _StreamFunction.
      */
     BLangVariableReference addFilterFunction(BLangBlockStmt blockStmt, BLangWhereClause whereClause) {
-//        DiagnosticPos pos = whereClause.pos;
-//        BLangLambdaFunction lambda = createFilterLambda(pos);
-//        // TODO: add statements to lambda body
-//        addStatements(lambda, Lists.of());
-//        return getStreamFunctionVariableRef(blockStmt, Names.QUERY_CREATE_FILTER_FUNCTION, Lists.of(lambda), pos);
-        return null;
+        DiagnosticPos pos = whereClause.pos;
+        BLangLambdaFunction lambda = createFilterLambda(pos);
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
+        returnNode.pos = pos;
+        // TODO: have to mark all closure variables in expression
+        // TODO: have to re-write all non closure variables with Frame access
+        returnNode.setExpression(whereClause.expression);
+        body.addStatement(returnNode);
+        return getStreamFunctionVariableRef(blockStmt, Names.QUERY_CREATE_FILTER_FUNCTION, Lists.of(lambda), pos);
     }
 
     /**
@@ -437,7 +444,12 @@ public class QueryDesugar extends BLangNodeVisitor {
     BLangVariableReference addSelectFunction(BLangBlockStmt blockStmt, BLangSelectClause selectClause) {
         DiagnosticPos pos = selectClause.pos;
         BLangLambdaFunction lambda = createPassthroughLambda(pos);
-        // TODO: add statements to lambda body
+        if (selectClause.expression.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
+            // TODO: Support spread operator as well
+            List<RecordLiteralNode.RecordField> fields = ((BLangRecordLiteral) selectClause.expression).fields;
+        }
+        // TODO: have to mark all closure variables in expression
+        // TODO: have to re-write all non closure variables with Frame access
         addStatements(lambda, Lists.of(), true);
         return getStreamFunctionVariableRef(blockStmt, Names.QUERY_CREATE_SELECT_FUNCTION, Lists.of(lambda), pos);
     }
@@ -456,7 +468,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     BLangVariableReference addDoFunction(BLangBlockStmt blockStmt, BLangDoClause doClause) {
         DiagnosticPos pos = doClause.pos;
         BLangLambdaFunction lambda = createActionLambda(pos);
-        // TODO: add statements to lambda body
+        // TODO: have to mark all closure variables in expression
+        // TODO: have to re-write all non closure variables with Frame access
         addStatements(lambda, Lists.of(), false);
         return getStreamFunctionVariableRef(blockStmt, Names.QUERY_CREATE_DO_FUNCTION, Lists.of(lambda), pos);
     }
