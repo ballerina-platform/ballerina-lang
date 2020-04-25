@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -58,9 +59,10 @@ public class EmailListener {
     public boolean onMessage(EmailEvent emailEvent) {
         Object email = emailEvent.getEmailObject();
         if (runtime != null) {
-            for (String serviceKey : registeredServices.keySet()) {
-                runtime.invokeMethodSync(registeredServices.get(serviceKey), EmailConstants.ON_MESSAGE, email,
-                        true);
+            Set<Map.Entry<String, ObjectValue>> services = registeredServices.entrySet();
+            for (Map.Entry<String, ObjectValue> service : services) {
+                runtime.invokeMethodSync(registeredServices.get(service.getKey()), EmailConstants.ON_MESSAGE,
+                        email, true);
             }
         } else {
             log.error("Runtime should not be null.");
@@ -75,9 +77,10 @@ public class EmailListener {
     public void onError(Object error) {
         log.error(((ErrorValue) error).getMessage());
         if (runtime != null) {
-            for (String serviceKey : registeredServices.keySet()) {
-                runtime.invokeMethodSync(registeredServices.get(serviceKey), EmailConstants.ON_ERROR, error,
-                        true);
+            Set<Map.Entry<String, ObjectValue>> services = registeredServices.entrySet();
+            for (Map.Entry<String, ObjectValue> service : services) {
+                runtime.invokeMethodSync(registeredServices.get(service.getKey()), EmailConstants.ON_ERROR,
+                        error, true);
             }
         } else {
             log.error("Runtime should not be null.");
@@ -92,11 +95,7 @@ public class EmailListener {
         } else {
             serviceKey = serviceName;
         }
-        if (registeredServices.containsKey(serviceKey)) {
-            registeredServices.put(serviceKey, service);
-        } else {
-            registeredServices.put(serviceKey, service);
-        }
+        registeredServices.put(serviceKey, service);
     }
 
 }
