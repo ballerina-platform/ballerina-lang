@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.syntax.tree;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
+
 import java.util.Objects;
 
 /**
@@ -329,7 +330,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ElseBlockNode createElseBlockNode(
             Token elseKeyword,
-            BlockStatementNode elseBody) {
+            StatementNode elseBody) {
         Objects.requireNonNull(elseKeyword, "elseKeyword must not be null");
         Objects.requireNonNull(elseBody, "elseBody must not be null");
 
@@ -762,7 +763,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static SpecificFieldNode createSpecificFieldNode(
             Token leadingComma,
-            IdentifierToken fieldName,
+            Token fieldName,
             Token colon,
             ExpressionNode valueExpr) {
         Objects.requireNonNull(leadingComma, "leadingComma must not be null");
@@ -1015,21 +1016,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 typeName.internalNode(),
                 semicolonToken.internalNode());
         return stTypeReferenceNode.createUnlinkedFacade();
-    }
-
-    public static QualifiedIdentifierNode createQualifiedIdentifierNode(
-            Token modulePrefix,
-            Node colon,
-            IdentifierToken identifier) {
-        Objects.requireNonNull(modulePrefix, "modulePrefix must not be null");
-        Objects.requireNonNull(colon, "colon must not be null");
-        Objects.requireNonNull(identifier, "identifier must not be null");
-
-        STNode stQualifiedIdentifierNode = STNodeFactory.createQualifiedIdentifierNode(
-                modulePrefix.internalNode(),
-                colon.internalNode(),
-                identifier.internalNode());
-        return stQualifiedIdentifierNode.createUnlinkedFacade();
     }
 
     public static ServiceBodyNode createServiceBodyNode(
@@ -1292,6 +1278,52 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stDocumentationStringNode = STNodeFactory.createDocumentationStringNode(
                 documentationLines.underlyingListNode().internalNode());
         return stDocumentationStringNode.createUnlinkedFacade();
+    }
+
+    public static BasicLiteralNode createBasicLiteralNode(
+            SyntaxKind kind,
+            Token literalToken) {
+        Objects.requireNonNull(literalToken, "literalToken must not be null");
+
+        STNode stBasicLiteralNode = STNodeFactory.createBasicLiteralNode(
+                kind,
+                literalToken.internalNode());
+        return stBasicLiteralNode.createUnlinkedFacade();
+    }
+
+    public static SimpleNameReferenceNode createSimpleNameReferenceNode(
+            Token name) {
+        Objects.requireNonNull(name, "name must not be null");
+
+        STNode stSimpleNameReferenceNode = STNodeFactory.createSimpleNameReferenceNode(
+                name.internalNode());
+        return stSimpleNameReferenceNode.createUnlinkedFacade();
+    }
+
+    public static QualifiedNameReferenceNode createQualifiedNameReferenceNode(
+            Token modulePrefix,
+            Node colon,
+            IdentifierToken identifier) {
+        Objects.requireNonNull(modulePrefix, "modulePrefix must not be null");
+        Objects.requireNonNull(colon, "colon must not be null");
+        Objects.requireNonNull(identifier, "identifier must not be null");
+
+        STNode stQualifiedNameReferenceNode = STNodeFactory.createQualifiedNameReferenceNode(
+                modulePrefix.internalNode(),
+                colon.internalNode(),
+                identifier.internalNode());
+        return stQualifiedNameReferenceNode.createUnlinkedFacade();
+    }
+
+    public static BuiltinSimpleNameReferenceNode createBuiltinSimpleNameReferenceNode(
+            SyntaxKind kind,
+            Token name) {
+        Objects.requireNonNull(name, "name must not be null");
+
+        STNode stBuiltinSimpleNameReferenceNode = STNodeFactory.createBuiltinSimpleNameReferenceNode(
+                kind,
+                name.internalNode());
+        return stBuiltinSimpleNameReferenceNode.createUnlinkedFacade();
     }
 }
 

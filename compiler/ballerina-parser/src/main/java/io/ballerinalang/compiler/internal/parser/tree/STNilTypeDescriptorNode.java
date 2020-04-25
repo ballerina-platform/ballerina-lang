@@ -34,7 +34,7 @@ public class STNilTypeDescriptorNode extends STNode {
     STNilTypeDescriptorNode(
             STNode openParenToken,
             STNode closeParenToken) {
-        super(SyntaxKind.NIL_TYPE);
+        super(SyntaxKind.NIL_TYPE_DESC);
         this.openParenToken = openParenToken;
         this.closeParenToken = closeParenToken;
 

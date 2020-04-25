@@ -47,8 +47,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "int"
+                                    "kind": "INT_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",

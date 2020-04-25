@@ -27,14 +27,14 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STOptionalTypeDescriptorNode extends STNode {
+public class STOptionalTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode typeDescriptor;
     public final STNode questionMarkToken;
 
     STOptionalTypeDescriptorNode(
             STNode typeDescriptor,
             STNode questionMarkToken) {
-        super(SyntaxKind.OPTIONAL_TYPE);
+        super(SyntaxKind.OPTIONAL_TYPE_DESC);
         this.typeDescriptor = typeDescriptor;
         this.questionMarkToken = questionMarkToken;
 

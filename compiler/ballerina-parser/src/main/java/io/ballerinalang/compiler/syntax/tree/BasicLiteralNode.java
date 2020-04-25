@@ -24,22 +24,14 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class QualifiedIdentifierNode extends NonTerminalNode {
+public class BasicLiteralNode extends ExpressionNode {
 
-    public QualifiedIdentifierNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public BasicLiteralNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token modulePrefix() {
+    public Token literalToken() {
         return childInBucket(0);
-    }
-
-    public Node colon() {
-        return childInBucket(1);
-    }
-
-    public IdentifierToken identifier() {
-        return childInBucket(2);
     }
 
     @Override
@@ -55,25 +47,19 @@ public class QualifiedIdentifierNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "modulePrefix",
-                "colon",
-                "identifier"};
+                "literalToken"};
     }
 
-    public QualifiedIdentifierNode modify(
-            Token modulePrefix,
-            Node colon,
-            IdentifierToken identifier) {
+    public BasicLiteralNode modify(
+            SyntaxKind kind,
+            Token literalToken) {
         if (checkForReferenceEquality(
-                modulePrefix,
-                colon,
-                identifier)) {
+                literalToken)) {
             return this;
         }
 
-        return NodeFactory.createQualifiedIdentifierNode(
-                modulePrefix,
-                colon,
-                identifier);
+        return NodeFactory.createBasicLiteralNode(
+                kind,
+                literalToken);
     }
 }
