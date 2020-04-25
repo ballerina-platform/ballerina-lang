@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.parser;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.BreakStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
@@ -43,6 +45,7 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
 import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -359,6 +362,28 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     // -----------------------------------------------Statements--------------------------------------------------------
+    @Override
+    public BLangNode transform(PanicStatementNode panicStmtNode) {
+        BLangPanic bLPanic = (BLangPanic) TreeBuilder.createPanicNode();
+        bLPanic.pos = emptyPos;
+        bLPanic.expr = createExpression(panicStmtNode.expression());
+        return bLPanic;
+    }
+
+    @Override
+    public BLangNode transform(ContinueStatementNode continueStmtNode) {
+        BLangContinue bLContinue = (BLangContinue) TreeBuilder.createContinueNode();
+        bLContinue.pos = emptyPos;
+        return bLContinue;
+    }
+
+    @Override
+    public BLangNode transform(BreakStatementNode breakStmtNode) {
+        BLangBreak bLBreak = (BLangBreak) TreeBuilder.createBreakNode();
+        bLBreak.pos = emptyPos;
+        return bLBreak;
+    }
+
     @Override
     public BLangNode transform(IfElseStatementNode ifElseStmtNode) {
         BLangIf ifNode = (BLangIf) TreeBuilder.createIfElseStatementNode();
