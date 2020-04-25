@@ -4804,8 +4804,13 @@ public class Desugar extends BLangNodeVisitor {
 
     // Foreach desugar helper method.
     BLangFieldBasedAccess getValueAccessExpression(DiagnosticPos pos, BType varType, BVarSymbol resultSymbol) {
+        return getFieldAccessExpression(pos, "value", varType, resultSymbol);
+    }
+
+    BLangFieldBasedAccess getFieldAccessExpression(DiagnosticPos pos, String fieldName, BType varType,
+                                                   BVarSymbol resultSymbol) {
         BLangSimpleVarRef resultReferenceInVariableDef = ASTBuilderUtil.createVariableRef(pos, resultSymbol);
-        BLangIdentifier valueIdentifier = ASTBuilderUtil.createIdentifier(pos, "value");
+        BLangIdentifier valueIdentifier = ASTBuilderUtil.createIdentifier(pos, fieldName);
 
         BLangFieldBasedAccess fieldBasedAccessExpression =
                 ASTBuilderUtil.createFieldAccessExpr(resultReferenceInVariableDef, valueIdentifier);

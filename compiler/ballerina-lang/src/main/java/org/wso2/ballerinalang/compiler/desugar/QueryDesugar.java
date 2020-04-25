@@ -30,11 +30,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -48,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -59,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -85,7 +90,9 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class responsible for desugar query pipeline into actual Ballerina code.
@@ -326,26 +333,25 @@ public class QueryDesugar extends BLangNodeVisitor {
         DiagnosticPos pos = fromClause.pos;
         // function(_Frame frame) returns _Frame|error? { return frame; }
         BLangLambdaFunction lambda = createPassthroughLambda(pos);
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        BVarSymbol frameSymbol = lambda.function.requiredParams.get(0).symbol;
 
         // frame["x"] = x;, note: stmts will get added in reverse order.
         List<BVarSymbol> symbols = getIntroducedSymbols((BLangVariable)
                 fromClause.variableDefinitionNode.getVariable());
         Collections.reverse(symbols);
         for (BVarSymbol symbol : symbols) {
-            addToFrameFunction(lambda, symbol);
+            body.stmts.add(0, addToFrameFunctionStmt(pos, frameSymbol, symbol));
         }
 
         // int x = <int> frame["value"];, note: stmts will get added in reverse order.
-        BVarSymbol fSymbol = lambda.function.requiredParams.get(0).symbol;
         BLangFieldBasedAccess valueAccessExpr = desugar.getValueAccessExpression(fromClause.pos,
-                symTable.anyOrErrorType, fSymbol);
+                symTable.anyOrErrorType, frameSymbol);
         valueAccessExpr.expr = desugar.addConversionExprIfRequired(valueAccessExpr.expr,
                 types.getSafeType(valueAccessExpr.expr.type, true, false));
         VariableDefinitionNode variableDefinitionNode = fromClause.variableDefinitionNode;
         BLangVariable variable = (BLangVariable) variableDefinitionNode.getVariable();
         variable.setInitialExpression(desugar.addConversionExprIfRequired(valueAccessExpr, fromClause.varType));
-
-        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
         // add at 0, otherwise, this goes under existing stmts.
         body.stmts.add(0, (BLangStatement) variableDefinitionNode);
 
@@ -355,6 +361,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         //      frame["x"] = x;
         //      return frame;
         // }
+        lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, Names.QUERY_CREATE_FROM_FUNCTION, Lists.of(lambda), pos);
     }
 
@@ -386,22 +393,23 @@ public class QueryDesugar extends BLangNodeVisitor {
         DiagnosticPos pos = letClause.pos;
         // function(_Frame frame) returns _Frame|error? { return frame; }
         BLangLambdaFunction lambda = createPassthroughLambda(pos);
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        BVarSymbol frameSymbol = lambda.function.requiredParams.get(0).symbol;
 
         // frame["x"] = x;, note: stmts will get added in reverse order.
         List<BVarSymbol> symbols = getIntroducedSymbols(letClause);
         Collections.reverse(symbols);
         for (BVarSymbol symbol : symbols) {
-            addToFrameFunction(lambda, symbol);
+            body.stmts.add(0, addToFrameFunctionStmt(pos, frameSymbol, symbol));
         }
 
         // TODO: have to mark all closure variables in expression
         // TODO: have to re-write all non closure variables with Frame access
-        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
             // add at 0, otherwise, this goes under existing stmts.
             body.stmts.add(0, (BLangStatement) letVariable.definitionNode);
         }
-
+        lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, Names.QUERY_CREATE_LET_FUNCTION, Lists.of(lambda), pos);
     }
 
@@ -421,10 +429,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
         BLangReturn returnNode = (BLangReturn) TreeBuilder.createReturnNode();
         returnNode.pos = pos;
-        // TODO: have to mark all closure variables in expression
-        // TODO: have to re-write all non closure variables with Frame access
         returnNode.setExpression(whereClause.expression);
         body.addStatement(returnNode);
+        lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, Names.QUERY_CREATE_FILTER_FUNCTION, Lists.of(lambda), pos);
     }
 
@@ -433,8 +440,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * _StreamFunction selectFunc = createSelectFunction(function(_Frame frame) returns _Frame|error? {
      * int x2 = <int> frame["x2"];
      * int y2 = <int> frame["y2"];
-     * _Frame f = {"value": x2 + y2};
-     * return f;
+     * _Frame frame = {"value": x2 + y2};
+     * return frame;
      * });
      *
      * @param blockStmt    parent block to write to.
@@ -444,13 +451,16 @@ public class QueryDesugar extends BLangNodeVisitor {
     BLangVariableReference addSelectFunction(BLangBlockStmt blockStmt, BLangSelectClause selectClause) {
         DiagnosticPos pos = selectClause.pos;
         BLangLambdaFunction lambda = createPassthroughLambda(pos);
-        if (selectClause.expression.getKind() == NodeKind.RECORD_LITERAL_EXPR) {
-            // TODO: Support spread operator as well
-            List<RecordLiteralNode.RecordField> fields = ((BLangRecordLiteral) selectClause.expression).fields;
-        }
-        // TODO: have to mark all closure variables in expression
-        // TODO: have to re-write all non closure variables with Frame access
-        addStatements(lambda, Lists.of(), true);
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        BVarSymbol frameSymbol = lambda.function.requiredParams.get(0).symbol;
+        BLangSimpleVarRef frameRef = ASTBuilderUtil.createVariableRef(pos, frameSymbol);
+        // frame = {"value": x2 + y2};;
+        // return frame; <- this comes from createPassthroughLambda()
+        // TODO: temp solution
+//        selectClause.expression.type = frameSymbol.type;
+//        BLangAssignment frameAssignment = ASTBuilderUtil.createAssignmentStmt(pos, frameRef, selectClause.expression);
+//        body.stmts.add(body.stmts.size() - 1, frameAssignment);
+        lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, Names.QUERY_CREATE_SELECT_FUNCTION, Lists.of(lambda), pos);
     }
 
@@ -468,9 +478,11 @@ public class QueryDesugar extends BLangNodeVisitor {
     BLangVariableReference addDoFunction(BLangBlockStmt blockStmt, BLangDoClause doClause) {
         DiagnosticPos pos = doClause.pos;
         BLangLambdaFunction lambda = createActionLambda(pos);
-        // TODO: have to mark all closure variables in expression
-        // TODO: have to re-write all non closure variables with Frame access
-        addStatements(lambda, Lists.of(), false);
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        for (BLangStatement stmt : doClause.body.stmts) {
+            body.addStatement(stmt);
+        }
+        lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, Names.QUERY_CREATE_DO_FUNCTION, Lists.of(lambda), pos);
     }
 
@@ -507,49 +519,121 @@ public class QueryDesugar extends BLangNodeVisitor {
         return streamVarRef;
     }
 
-    /**
-     * Re-write stmts with index access where necessary, and add that to lambda body.
-     *
-     * @param lambda lambda function to add stmts to.
-     * @param stmts  to be re-written and added to the lambda.
-     */
-    private void addStatements(BLangLambdaFunction lambda, List<BLangStatement> stmts) {
-        addStatements(lambda, stmts, true);
+    private BVarSymbol currectFrameSymbol;
+    private BLangBlockFunctionBody currectLambdaBody;
+    private Map<BLangIdentifier, BVarSymbol> identifiers;
+
+    @Override
+    public void visit(BLangLambdaFunction lambda) {
+        BLangFunction function = lambda.function;
+        currectFrameSymbol = function.requiredParams.get(0).symbol;
+        identifiers = new HashMap<>();
+        currectLambdaBody = (BLangBlockFunctionBody) function.getBody();
+        List<BLangStatement> stmts = new ArrayList<>(currectLambdaBody.getStatements());
+        stmts.forEach(stmt -> stmt.accept(this));
+        currectFrameSymbol = null;
+        identifiers = null;
+        currectLambdaBody = null;
     }
 
-    /**
-     * TODO - re-write with index access
-     * Re-write stmts with index access where necessary, and add that to lambda body.
-     *
-     * @param lambda lambda function to add stmts to.
-     * @param stmts  to be re-written and added to the lambda.
-     */
-    private void addStatements(BLangLambdaFunction lambda, List<BLangStatement> stmts, boolean keepExistingStmts) {
-        DiagnosticPos pos = lambda.pos;
-        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
-        List<BLangStatement> reWrittenStmts = new ArrayList<>();
-        if (!lambda.function.requiredParams.isEmpty()) {
-            // re-write if _Frame frame param exists.
-            BVarSymbol frameSymbol = lambda.function.requiredParams.get(0).symbol;
-            BLangSimpleVariable frameVariable = ASTBuilderUtil.createVariable(pos, null,
-                    frameSymbol.type, null, frameSymbol);
-            BLangVariableReference frameVarRef = ASTBuilderUtil.createVariableRef(pos, frameSymbol);
+    @Override
+    public void visit(BLangSimpleVariableDef bLangSimpleVariableDef) {
+        bLangSimpleVariableDef.getVariable().accept(this);
+    }
 
-            for (BLangStatement stmt : stmts) {
-                // TODO
-                // re-write stmt with record access (i.e p.getName will be replaced with frame[p].getName)
-                reWrittenStmts.add(stmt);
+    @Override
+    public void visit(BLangSimpleVariable bLangSimpleVariable) {
+        bLangSimpleVariable.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangTypeConversionExpr conversionExpr) {
+        conversionExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        fieldAccessExpr.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangExpressionStmt exprStmtNode) {
+        exprStmtNode.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangInvocation invocationExpr) {
+        invocationExpr.requiredArgs.forEach(arg -> arg.accept(this));
+        invocationExpr.restArgs.forEach(arg -> arg.accept(this));
+    }
+
+    @Override
+    public void visit(BLangLiteral literalExpr) {
+        // do nothing;
+    }
+
+    @Override
+    public void visit(BLangReturn bLangReturn) {
+        bLangReturn.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangBinaryExpr bLangBinaryExpr) {
+        bLangBinaryExpr.lhsExpr.accept(this);
+        bLangBinaryExpr.rhsExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangAssignment bLangAssignment) {
+        bLangAssignment.varRef.accept(this);
+        bLangAssignment.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral bLangRecordLiteral) {
+        for (RecordLiteralNode.RecordField field : bLangRecordLiteral.fields) {
+            ((BLangNode) field).accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue) {
+        recordKeyValue.key.accept(this);
+        recordKeyValue.valueExpr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOperatorField) {
+        spreadOperatorField.expr.accept(this);
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
+        BSymbol symbol = bLangSimpleVarRef.symbol;
+        if (symbol == null) {
+            if (!identifiers.containsKey(bLangSimpleVarRef.variableName)) {
+                // TODO: have to re-write all non closure variables with Frame access
+                //      Either define a new variable with the symbol, i.e Person person = <Person> frame["person"];
+                DiagnosticPos pos = currectLambdaBody.pos;
+                BVarSymbol newsSymbol = new BVarSymbol(0, names.fromIdNode(bLangSimpleVarRef.variableName),
+                        this.env.scope.owner.pkgID, symTable.anyType, this.env.scope.owner);
+                BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos,
+                        newsSymbol.name.getValue(), symTable.anyOrErrorType, currectFrameSymbol);
+                frameAccessExpr.expr = desugar.addConversionExprIfRequired(frameAccessExpr.expr,
+                        types.getSafeType(frameAccessExpr.expr.type, true, false));
+                BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, null, newsSymbol.type,
+                        desugar.addConversionExprIfRequired(frameAccessExpr, newsSymbol.type), newsSymbol);
+                BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
+                identifiers.put(bLangSimpleVarRef.variableName, newsSymbol);
+                currectLambdaBody.stmts.add(0, variableDef);
             }
+            bLangSimpleVarRef.type = symTable.anyOrErrorType;
+            bLangSimpleVarRef.symbol = identifiers.get(bLangSimpleVarRef.variableName);
         } else {
-            // no need to rewrite.
-            reWrittenStmts.addAll(stmts);
+            BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env, symbol.name, SymTag.VARIABLE);
+            resolvedSymbol.closure = (resolvedSymbol != symTable.notFoundSymbol);
         }
 
-        // add existing return stmts, etc... if there's any.
-        if (keepExistingStmts) {
-            reWrittenStmts.addAll(body.stmts);
-        }
-        body.stmts = reWrittenStmts;
     }
 
     /**
@@ -732,11 +816,10 @@ public class QueryDesugar extends BLangNodeVisitor {
         return getQueryLibInvokableSymbol(names.fromString("lambdaTemplate"));
     }
 
-    private void addToFrameFunction(BLangLambdaFunction lambda, BVarSymbol valueSymbol) {
-        DiagnosticPos pos = lambda.pos;
-        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
-        BVarSymbol fSymbol = lambda.function.requiredParams.get(0).symbol;
-        BLangVariableReference frameVarRef = ASTBuilderUtil.createVariableRef(pos, fSymbol);
+    private BLangExpressionStmt addToFrameFunctionStmt(DiagnosticPos pos,
+                                                       BVarSymbol frameSymbol,
+                                                       BVarSymbol valueSymbol) {
+        BLangVariableReference frameVarRef = ASTBuilderUtil.createVariableRef(pos, frameSymbol);
         BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, valueSymbol);
         BLangLiteral keyLiteral = ASTBuilderUtil.createLiteral(pos, symTable.stringType, valueSymbol.name.value);
         BLangInvocation addToFrameInvocation = createQueryLibInvocation(Names.QUERY_ADD_TO_FRAME_FUNCTION,
@@ -744,8 +827,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         final BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
         exprStmt.expr = addToFrameInvocation;
         exprStmt.pos = pos;
-        // add at 0, otherwise, this goes under existing return stmt.
-        body.stmts.add(0, exprStmt);
+        return exprStmt;
     }
 
     private List<BVarSymbol> getIntroducedSymbols(BLangLetClause letClause) {
