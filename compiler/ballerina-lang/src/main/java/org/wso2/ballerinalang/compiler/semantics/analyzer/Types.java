@@ -844,14 +844,17 @@ public class Types {
             if (targetArrayType.size == source.size) {
                 return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
             }
-            return false;
-        }
-
-        if ((target.tag == TypeTags.UNION) || (target.tag == TypeTags.JSON)) {
+        } else if (target.tag == TypeTags.JSON) {
             return isAssignable(sourceElementType, target, unresolvedTypes);
+        } else if (target.tag == TypeTags.UNION) {
+            return isAssignable(sourceElementType, target, unresolvedTypes);
+//            for (BType memberType : ((BUnionType) target).getMemberTypes()) {
+//                if (isArrayTypesAssignable(source, memberType, unresolvedTypes)) {
+//                    return true;
+//                }
+//            }
         }
-
-        return (target.tag == TypeTags.ANY) && (sourceElementType.tag != TypeTags.ERROR);
+        return false;
     }
 
     private boolean isFunctionTypeAssignable(BInvokableType source, BInvokableType target,

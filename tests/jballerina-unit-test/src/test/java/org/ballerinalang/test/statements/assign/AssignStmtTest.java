@@ -207,6 +207,20 @@ public class AssignStmtTest {
                 "invalid record binding pattern with type 'error'", 92, 9);
         BAssertUtil.validateError(resultNegative, i++,
                 "invalid record variable; expecting a record type but found 'error' in type definition", 92, 20);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected 'any[]', found 'error[]'", 98, 15);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected 'error[]', found 'any[]'", 100, 26);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected '(CError|LError)?[]', found 'error?[]'", 118, 19);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected '(CError|LError)?[]', found 'error?[]'", 119, 11);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected '(error|int[])', found 'error[]'", 127, 21);
+        BAssertUtil.validateError(resultNegative, i++,
+                                  "incompatible types: expected '(int|error[])', found 'error'", 132, 21);
+//        BAssertUtil.validateError(resultNegative, i++,
+//                                  "incompatible types: expected '(int|error[])', found 'error'", 132, 21);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

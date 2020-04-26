@@ -86,3 +86,27 @@ public function restActionResultAssignment() returns [int, int, string, string, 
     var error(r2, failedAttempts = failedAttempts) = c->foo3();
     return [a, b, d, r, r2, <int>failedAttempts];
 }
+
+function testAssignErrorArrayToAnyArray() {
+    string errorMessage = "Test Error";
+    error testError = error("Test Error");
+    error[] errorArray = [testError];
+    any anyArray = errorArray;
+    error[] errorArrayBack = <error[]>anyArray;
+    assertEquality(errorMessage, errorArrayBack[0].reason());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+type AssertionError error<ASSERTION_ERROR_REASON>;
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
