@@ -266,4 +266,9 @@ public class AssignStmtTest {
     public void testAssignErrorArrayToAnyArray() {
         BRunUtil.invoke(result, "testAssignErrorArrayToAnyArray");
     }
+
+    @Test()
+    public void testAssignIntArrayToJson() {
+        BRunUtil.invoke(result, "testAssignIntArrayToJson");
+    }
 }

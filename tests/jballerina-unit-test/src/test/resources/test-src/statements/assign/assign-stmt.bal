@@ -96,6 +96,13 @@ function testAssignErrorArrayToAnyArray() {
     assertEquality(errorMessage, errorArrayBack[0].reason());
 }
 
+function testAssignIntArrayToJson() {
+    int[*] intArray = [1, 2];
+    json jsonObjectOfIntArray = intArray;
+    json jsonToJson = jsonObjectOfIntArray;
+    assertEquality("1 2", jsonToJson.toString());
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 type AssertionError error<ASSERTION_ERROR_REASON>;
 
