@@ -35,7 +35,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "getCodePoint",
+        orgName = "ballerina", packageName = "lang.string", version = "1.1.0", functionName = "getCodePoint",
         args = {@Argument(name = "str", type = TypeKind.STRING), @Argument(name = "i", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true

@@ -38,7 +38,7 @@ import java.util.List;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = "0.8.0",
         functionName = "concat",
         args = {@Argument(name = "arrayValue", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.XML)},

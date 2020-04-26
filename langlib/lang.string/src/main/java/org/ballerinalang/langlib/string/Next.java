@@ -40,7 +40,7 @@ import java.text.StringCharacterIterator;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "next",
+        orgName = "ballerina", packageName = "lang.string", version = "1.1.0", functionName = "next",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "StringIterator",
                 structPackage = "ballerina/lang.string"),
         returnType = {@ReturnType(type = TypeKind.RECORD)},

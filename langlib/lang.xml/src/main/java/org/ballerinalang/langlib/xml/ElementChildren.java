@@ -37,7 +37,7 @@ import java.util.List;
  * @since 1.2
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = "0.8.0",
         functionName = "elementChildren",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML), @Argument(name = "nm", type = TypeKind.UNION)},
         returnType = {@ReturnType(type = TypeKind.XML)},

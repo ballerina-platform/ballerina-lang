@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", functionName = "length",
+        orgName = "ballerina", packageName = "lang.xml", version = "0.8.0", functionName = "length",
         args = {@Argument(name = "x", type = TypeKind.XML)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true

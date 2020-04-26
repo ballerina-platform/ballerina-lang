@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "concat",
+        orgName = "ballerina", packageName = "lang.string", version = "1.1.0", functionName = "concat",
         args = {@Argument(name = "str", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

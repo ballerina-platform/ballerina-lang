@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.decimal", functionName = "max",
+        orgName = "ballerina", packageName = "lang.decimal", version = "1.0.0", functionName = "max",
         args = {@Argument(name = "n", type = TypeKind.DECIMAL), @Argument(name = "ns", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.DECIMAL)},
         isPublic = true

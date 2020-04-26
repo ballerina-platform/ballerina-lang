@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * ballerina.model.map:hasKey(string)
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "hasKey",
+        orgName = "ballerina", packageName = "lang.map", version = "1.1.0", functionName = "hasKey",
         args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true

@@ -36,7 +36,7 @@ import java.util.ArrayList;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0",
         functionName = "getElements",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML),
                 @Argument(name = "elemNames", type = TypeKind.ARRAY)},

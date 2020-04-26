@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  */
 @BallerinaFunction(
         orgName = "ballerina",
-        packageName = "lang.value",
+        packageName = "lang.value", version = "1.0.0",
         functionName = "isReadOnly",
         args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
         returnType = { @ReturnType(type = TypeKind.BOOLEAN) }

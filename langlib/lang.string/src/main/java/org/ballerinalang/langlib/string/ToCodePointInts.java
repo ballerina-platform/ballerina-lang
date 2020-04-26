@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "toCodePointInts",
+        orgName = "ballerina", packageName = "lang.string", version = "1.1.0", functionName = "toCodePointInts",
         args = {@Argument(name = "str", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ARRAY)},
         isPublic = true

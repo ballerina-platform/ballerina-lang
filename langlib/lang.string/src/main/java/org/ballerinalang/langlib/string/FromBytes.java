@@ -34,7 +34,7 @@ import java.nio.charset.Charset;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "fromBytes",
+        orgName = "ballerina", packageName = "lang.string", version = "1.1.0", functionName = "fromBytes",
         args = {@Argument(name = "bytes", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true

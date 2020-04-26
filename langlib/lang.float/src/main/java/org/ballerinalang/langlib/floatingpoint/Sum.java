@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * Native implementation of lang.float:sum(float...).
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.float", functionName = "sum",
+        orgName = "ballerina", packageName = "lang.float", version = "1.0.0", functionName = "sum",
         args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true

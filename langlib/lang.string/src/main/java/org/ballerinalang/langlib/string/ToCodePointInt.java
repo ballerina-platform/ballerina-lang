@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "toCodePointInt",
+        orgName = "ballerina", packageName = "lang.string", version = "1.1.0", functionName = "toCodePointInt",
         args = {@Argument(name = "ch", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true

@@ -36,7 +36,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunc
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "reduce",
+        orgName = "ballerina", packageName = "lang.array", version = "1.1.0", functionName = "reduce",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION),
                 @Argument(name = "initial", type = TypeKind.ANY)},
         returnType = {@ReturnType(type = TypeKind.ARRAY)},

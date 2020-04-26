@@ -51,7 +51,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_LANG_ERROR_PKG
  * @since 0.990.4
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.error",
+        orgName = "ballerina", packageName = "lang.error", version = "1.0.0",
         functionName = "stackTrace",
         args = {@Argument(name = "value", type = TypeKind.ERROR)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)})

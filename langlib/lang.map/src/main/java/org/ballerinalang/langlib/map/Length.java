@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "length",
+        orgName = "ballerina", packageName = "lang.map", version = "1.1.0", functionName = "length",
         args = {@Argument(name = "m", type = TypeKind.MAP)},
         isPublic = true
 )

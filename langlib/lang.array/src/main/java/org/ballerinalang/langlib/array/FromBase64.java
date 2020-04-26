@@ -34,7 +34,7 @@ import java.util.Base64;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "fromBase64",
+        orgName = "ballerina", packageName = "lang.array", version = "1.1.0", functionName = "fromBase64",
         args = {@Argument(name = "str", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true

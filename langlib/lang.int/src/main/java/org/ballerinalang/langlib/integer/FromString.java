@@ -39,7 +39,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.int", functionName = "fromString",
+        orgName = "ballerina", packageName = "lang.int", version = "1.1.0", functionName = "fromString",
         args = {@Argument(name = "s", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.UNION)},
         isPublic = true

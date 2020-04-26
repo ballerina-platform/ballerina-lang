@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.value",
+        orgName = "ballerina", packageName = "lang.value", version = "1.0.0",
         functionName = "mergeJson",
         args = {@Argument(name = "j1", type = TypeKind.JSON), @Argument(name = "j2", type = TypeKind.JSON)},
         returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.ERROR)},

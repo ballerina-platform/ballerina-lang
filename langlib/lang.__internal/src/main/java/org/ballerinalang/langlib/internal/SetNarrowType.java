@@ -40,7 +40,7 @@ import java.util.HashMap;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal", functionName = "setNarrowType",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0", functionName = "setNarrowType",
         args = {@Argument(name = "td", type = TypeKind.TYPEDESC), @Argument(name = "val", type = TypeKind.RECORD)},
         returnType = {@ReturnType(type = TypeKind.RECORD)}
 )

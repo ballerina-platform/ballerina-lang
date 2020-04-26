@@ -32,7 +32,7 @@ import java.math.BigDecimal;
  * Native implementation of lang.decimal:sum(decimal...).
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.decimal", functionName = "sum",
+        orgName = "ballerina", packageName = "lang.decimal", version = "1.0.0", functionName = "sum",
         args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.DECIMAL)},
         isPublic = true

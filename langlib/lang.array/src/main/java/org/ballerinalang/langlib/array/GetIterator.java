@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "iterator",
+        orgName = "ballerina", packageName = "lang.array", version = "1.1.0", functionName = "iterator",
         args = {@Argument(name = "m", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true

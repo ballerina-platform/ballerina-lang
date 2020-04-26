@@ -43,7 +43,7 @@ import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map",
+        orgName = "ballerina", packageName = "lang.map", version = "1.1.0",
         functionName = "toArray",
         args = {@Argument(name = "m", type = TypeKind.MAP)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANY)},

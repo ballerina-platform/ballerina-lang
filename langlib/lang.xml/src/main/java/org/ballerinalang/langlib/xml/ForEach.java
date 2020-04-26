@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", functionName = "forEach",
+        orgName = "ballerina", packageName = "lang.xml", version = "0.8.0", functionName = "forEach",
         args = {
                 @Argument(name = "x", type = TypeKind.XML),
                 @Argument(name = "func", type = TypeKind.FUNCTION)},

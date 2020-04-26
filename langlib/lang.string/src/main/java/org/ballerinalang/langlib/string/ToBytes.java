@@ -32,7 +32,7 @@ import java.nio.charset.StandardCharsets;
  * Convert String to byte array.
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
+        orgName = "ballerina", packageName = "lang.string", version = "1.1.0",
         functionName = "toBytes",
         args = {@Argument(name = "string", type = TypeKind.STRING),
                 @Argument(name = "encoding", type = TypeKind.STRING)},

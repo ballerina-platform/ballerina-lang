@@ -33,7 +33,7 @@ import java.math.RoundingMode;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.decimal", functionName = "ceiling",
+        orgName = "ballerina", packageName = "lang.decimal", version = "1.0.0", functionName = "ceiling",
         args = {@Argument(name = "x", type = TypeKind.DECIMAL)},
         returnType = {@ReturnType(type = TypeKind.DECIMAL)},
         isPublic = true

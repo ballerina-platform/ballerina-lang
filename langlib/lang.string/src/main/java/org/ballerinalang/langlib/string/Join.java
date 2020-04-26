@@ -35,7 +35,7 @@ import java.util.StringJoiner;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "join",
+        orgName = "ballerina", packageName = "lang.string", version = "1.1.0", functionName = "join",
         args = {@Argument(name = "separator", type = TypeKind.STRING), @Argument(name = "strs", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

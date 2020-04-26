@@ -68,7 +68,7 @@ import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_C
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.typedesc", functionName = "constructFrom",
+        orgName = "ballerina", packageName = "lang.typedesc", version = "1.0.0", functionName = "constructFrom",
         args = {
                 @Argument(name = "t", type = TypeKind.TYPEDESC),
                 @Argument(name = "v", type = TypeKind.ANYDATA)

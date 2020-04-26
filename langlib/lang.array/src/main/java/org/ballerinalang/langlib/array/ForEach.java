@@ -35,7 +35,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunc
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "forEach",
+        orgName = "ballerina", packageName = "lang.array", version = "1.1.0", functionName = "forEach",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
         isPublic = true
 )

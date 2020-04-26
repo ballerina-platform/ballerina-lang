@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "reverse",
+        orgName = "ballerina", packageName = "lang.array", version = "1.1.0", functionName = "reverse",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.ARRAY)},
         isPublic = true

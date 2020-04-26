@@ -25,7 +25,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * Extern function future.cancel().
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.future",
+        orgName = "ballerina", packageName = "lang.future", version = "1.0.0",
         functionName = "cancel",
         args = {@Argument(name = "f", type = TypeKind.FUTURE)},
         isPublic = true

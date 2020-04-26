@@ -32,7 +32,7 @@ import java.util.PrimitiveIterator;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "codePointCompare",
+        orgName = "ballerina", packageName = "lang.string", version = "1.1.0", functionName = "codePointCompare",
         args = {@Argument(name = "str1", type = TypeKind.STRING), @Argument(name = "str2", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true

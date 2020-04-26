@@ -37,7 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml", functionName = "next",
+        orgName = "ballerina", packageName = "lang.xml", version = "0.8.0", functionName = "next",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "XMLIterator", structPackage = "ballerina/lang.xml"),
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true

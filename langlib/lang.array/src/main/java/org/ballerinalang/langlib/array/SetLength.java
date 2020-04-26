@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "setLength",
+        orgName = "ballerina", packageName = "lang.array", version = "1.1.0", functionName = "setLength",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "i", type = TypeKind.INT)},
         isPublic = true
 )

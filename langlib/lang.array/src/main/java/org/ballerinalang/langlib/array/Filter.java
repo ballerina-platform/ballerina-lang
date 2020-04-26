@@ -34,7 +34,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "filter",
+        orgName = "ballerina", packageName = "lang.array", version = "1.1.0", functionName = "filter",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "func", type = TypeKind.FUNCTION)},
         returnType = {@ReturnType(type = TypeKind.ARRAY)},
         isPublic = true

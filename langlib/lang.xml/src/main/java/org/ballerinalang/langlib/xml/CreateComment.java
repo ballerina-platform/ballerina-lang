@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = "0.8.0",
         functionName = "createComment",
         args = {@Argument(name = "string", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.XML)},

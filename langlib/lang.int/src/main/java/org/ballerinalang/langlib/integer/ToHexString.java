@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.int", functionName = "toHexString",
+        orgName = "ballerina", packageName = "lang.int", version = "1.1.0", functionName = "toHexString",
         args = {@Argument(name = "n", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

@@ -42,7 +42,7 @@ import java.util.Arrays;
  * @since 0.88
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = "0.8.0",
         functionName = "setChildren",
         args = {@Argument(name = "children", type = TypeKind.UNION)},
         isPublic = true

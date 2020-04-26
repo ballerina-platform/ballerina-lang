@@ -44,7 +44,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupported
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "enumerate",
+        orgName = "ballerina", packageName = "lang.array", version = "1.1.0", functionName = "enumerate",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.TUPLE)},
         isPublic = true

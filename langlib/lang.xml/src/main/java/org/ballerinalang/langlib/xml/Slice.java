@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.88
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = "0.8.0",
         functionName = "slice",
         args = { @Argument(name = "startIndex", type = TypeKind.INT),
                 @Argument(name = "endIndex", type = TypeKind.INT) },

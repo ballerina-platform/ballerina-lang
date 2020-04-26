@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 0.982.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = "0.8.0",
         functionName = "removeChildren",
         args = {@Argument(name = "qname", type = TypeKind.STRING)},
         isPublic = true

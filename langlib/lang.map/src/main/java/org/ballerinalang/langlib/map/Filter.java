@@ -40,7 +40,7 @@ import static org.ballerinalang.jvm.MapUtils.createOpNotSupportedError;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "filter",
+        orgName = "ballerina", packageName = "lang.map", version = "1.1.0", functionName = "filter",
         args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "func", type = TypeKind.FUNCTION)},
         returnType = {@ReturnType(type = TypeKind.MAP)},
         isPublic = true

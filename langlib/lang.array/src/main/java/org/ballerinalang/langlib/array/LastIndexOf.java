@@ -36,7 +36,7 @@ import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunc
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "lastIndexOf",
+        orgName = "ballerina", packageName = "lang.array", version = "1.1.0", functionName = "lastIndexOf",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY), @Argument(name = "val", type = TypeKind.UNION),
                 @Argument(name = "startIndex", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.UNION)},

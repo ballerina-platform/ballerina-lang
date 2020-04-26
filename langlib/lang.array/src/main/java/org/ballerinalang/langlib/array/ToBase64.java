@@ -41,7 +41,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "toBase64",
+        orgName = "ballerina", packageName = "lang.array", version = "1.1.0", functionName = "toBase64",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

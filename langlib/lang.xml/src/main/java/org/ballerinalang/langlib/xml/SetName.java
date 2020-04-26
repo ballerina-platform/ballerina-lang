@@ -36,7 +36,7 @@ import javax.xml.namespace.QName;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = "0.8.0",
         functionName = "setName",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML),
                 @Argument(name = "newName", type = TypeKind.STRING)},

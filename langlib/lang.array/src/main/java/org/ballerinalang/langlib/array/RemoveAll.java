@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.array", functionName = "removeAll",
+        orgName = "ballerina", packageName = "lang.array", version = "1.1.0", functionName = "removeAll",
         args = {@Argument(name = "arr", type = TypeKind.ARRAY)},
         isPublic = true
 )

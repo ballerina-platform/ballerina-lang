@@ -39,7 +39,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
  * @since 0.8.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
+        orgName = "ballerina", packageName = "lang.string", version = "1.1.0",
         functionName = "indexOf",
         args = {@Argument(name = "s", type = TypeKind.STRING),
                 @Argument(name = "substring", type = TypeKind.STRING)},

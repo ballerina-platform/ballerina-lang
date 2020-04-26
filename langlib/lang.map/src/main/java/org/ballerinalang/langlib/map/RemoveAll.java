@@ -34,7 +34,7 @@ import static org.ballerinalang.jvm.MapUtils.validateRecord;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "removeAll",
+        orgName = "ballerina", packageName = "lang.map", version = "1.1.0", functionName = "removeAll",
         args = {@Argument(name = "m", type = TypeKind.MAP)},
         isPublic = true
 )

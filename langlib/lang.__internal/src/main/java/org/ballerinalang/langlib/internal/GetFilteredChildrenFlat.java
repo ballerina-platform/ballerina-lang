@@ -40,7 +40,7 @@ import java.util.List;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0",
         functionName = "getFilteredChildrenFlat",
         args = {@Argument(name = "xmlValue", type = TypeKind.XML),
                 @Argument(name = "index", type = TypeKind.INT),

@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * Native implementation of lang.int:sum(int...).
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.int", functionName = "sum",
+        orgName = "ballerina", packageName = "lang.int", version = "1.1.0", functionName = "sum",
         args = {@Argument(name = "ns", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true

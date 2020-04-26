@@ -35,7 +35,7 @@ import java.nio.charset.CharsetDecoder;
  * @since 1.2
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string", functionName = "equalsIgnoreCaseAscii",
+        orgName = "ballerina", packageName = "lang.string", version = "1.1.0", functionName = "equalsIgnoreCaseAscii",
         args = {@Argument(name = "str1", type = TypeKind.STRING), @Argument(name = "str2", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true

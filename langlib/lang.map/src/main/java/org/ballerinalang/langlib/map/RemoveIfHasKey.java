@@ -37,7 +37,7 @@ import static org.ballerinalang.jvm.MapUtils.validateRequiredFieldForRecord;
  * @since 1.2.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.map", functionName = "removeIfHasKey",
+        orgName = "ballerina", packageName = "lang.map", version = "1.1.0", functionName = "removeIfHasKey",
         args = {@Argument(name = "m", type = TypeKind.MAP), @Argument(name = "k", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ANY)},
         isPublic = true

@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * Extern function ballerina.model.arrays:substring(string, int, int).
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.string",
+        orgName = "ballerina", packageName = "lang.string", version = "1.1.0",
         functionName = "substring",
         args = {@Argument(name = "mainString", type = TypeKind.STRING),
                 @Argument(name = "startIndex", type = TypeKind.INT),

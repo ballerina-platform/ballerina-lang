@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 1.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.float", functionName = "atan2",
+        orgName = "ballerina", packageName = "lang.float", version = "1.0.0", functionName = "atan2",
         args = {@Argument(name = "y", type = TypeKind.FLOAT), @Argument(name = "x", type = TypeKind.FLOAT)},
         returnType = {@ReturnType(type = TypeKind.FLOAT)},
         isPublic = true

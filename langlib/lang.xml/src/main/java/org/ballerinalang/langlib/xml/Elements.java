@@ -37,7 +37,7 @@ import java.util.List;
  * @since 0.88
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = "0.8.0",
         functionName = "elements",
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true
