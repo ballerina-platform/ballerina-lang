@@ -171,6 +171,7 @@ public class BCompileUtil {
             throws ClassNotFoundException {
         String initClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
                                                                bLangPackage.packageID.name.value,
+                                                               bLangPackage.packageID.version.value,
                                                                TestConstant.MODULE_INIT_CLASS_NAME);
         Class<?> initClazz = classLoader.loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
@@ -636,7 +637,7 @@ public class BCompileUtil {
     public static ExitDetails run(CompileResult compileResult, String[] args) {
         BLangPackage compiledPkg = ((BLangPackage) compileResult.getAST());
         String initClassName = BFileUtil.getQualifiedClassName(compiledPkg.packageID.orgName.value,
-                compiledPkg.packageID.name.value, MODULE_INIT_CLASS_NAME);
+                compiledPkg.packageID.name.value,  compiledPkg.packageID.version.value, MODULE_INIT_CLASS_NAME);
         URLClassLoader classLoader = compileResult.classLoader;
 
 
