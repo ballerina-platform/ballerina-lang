@@ -57,7 +57,7 @@
                                     "value": "Foo"
                                 },
                                 {
-                                    "kind": "OBJECT_TYPE_DESCRIPTOR",
+                                    "kind": "OBJECT_TYPE_DESC",
                                     "children": [
                                         {
                                             "kind": "LIST",
@@ -84,7 +84,7 @@
                                     "kind": "SEMICOLON_TOKEN"
                                 }
                             ]
-                        }                        
+                        }
                     ]
                 },
                 {
@@ -94,4 +94,3 @@
         }
     ]
 }
-

@@ -65,7 +65,7 @@ public class LexerTerminals {
     public static final String PARAMETER = "parameter";
     public static final String FIELD = "field";
     public static final String XMLNS = "xmlns";
-
+    
     // Types
     public static final String INT = "int";
     public static final String FLOAT = "float";
@@ -80,6 +80,7 @@ public class LexerTerminals {
     public static final String SERVICE = "service";
     public static final String VAR = "var";
     public static final String NEVER = "never";
+    public static final String BYTE = "byte";
 
     // Separators
     public static final char SEMICOLON = ';';

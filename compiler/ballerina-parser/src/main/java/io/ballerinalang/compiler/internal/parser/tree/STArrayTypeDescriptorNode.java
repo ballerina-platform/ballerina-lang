@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STArrayTypeDescriptorNode extends STNode {
+public class STArrayTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode typeDescriptorNode;
     public final STNode openBracketToken;
     public final STNode arrayLengthNode;
@@ -38,7 +38,7 @@ public class STArrayTypeDescriptorNode extends STNode {
             STNode openBracketToken,
             STNode arrayLengthNode,
             STNode closeBracketToken) {
-        super(SyntaxKind.ARRAY_TYPE);
+        super(SyntaxKind.ARRAY_TYPE_DESC);
         this.typeDescriptorNode = typeDescriptorNode;
         this.openBracketToken = openBracketToken;
         this.arrayLengthNode = arrayLengthNode;

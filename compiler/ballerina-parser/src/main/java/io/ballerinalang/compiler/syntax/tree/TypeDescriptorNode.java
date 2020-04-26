@@ -15,24 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.internal.parser.tree;
+package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
-public class STTypeToken extends STToken {
-    public final String text;
+/**
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
+ */
+public abstract class TypeDescriptorNode extends ExpressionNode {
 
-    STTypeToken(SyntaxKind kind, String text, STNode leadingTrivia, STNode trailingTrivia) {
-        super(kind, text.length(), leadingTrivia, trailingTrivia);
-        this.text = text;
-    }
-
-    public String text() {
-        return text;
-    }
-
-    @Override
-    public String toString() {
-        return leadingTrivia + text + trailingTrivia;
+    public TypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 }

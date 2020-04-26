@@ -2,7 +2,7 @@
     "kind": "BINARY_EXPRESSION",
     "children": [
         {
-            "kind": "QUALIFIED_IDENTIFIER",
+            "kind": "QUALIFIED_NAME_REFERENCE",
             "children": [
                 {
                     "kind": "IDENTIFIER_TOKEN",
@@ -25,7 +25,7 @@
             "kind": "FUNCTION_CALL",
             "children": [
                 {
-                    "kind": "QUALIFIED_IDENTIFIER",
+                    "kind": "QUALIFIED_NAME_REFERENCE",
                     "children": [
                         {
                             "kind": "IDENTIFIER_TOKEN",

@@ -9,7 +9,7 @@
             "kind": "IS_KEYWORD"
         },
         {
-            "kind": "SIMPLE_TYPE",
+            "kind": "TYPE_DESC",
             "isMissing": true
         }
     ]

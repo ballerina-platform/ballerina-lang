@@ -50,11 +50,10 @@
                                     ]
                                 },
                                 {
-                                    "kind": "ARRAY_TYPE",
+                                    "kind": "ARRAY_TYPE_DESC",
                                     "children": [
                                         {
-                                            "kind": "SIMPLE_TYPE",
-                                            "value": "int"
+                                            "kind": "INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"
@@ -87,11 +86,10 @@
                                     ]
                                 },
                                 {
-                                    "kind": "ARRAY_TYPE",
+                                    "kind": "ARRAY_TYPE_DESC",
                                     "children": [
                                         {
-                                            "kind": "SIMPLE_TYPE",
-                                            "value": "int"
+                                            "kind": "INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"
@@ -124,11 +122,10 @@
                                     ]
                                 },
                                 {
-                                    "kind": "ARRAY_TYPE",
+                                    "kind": "ARRAY_TYPE_DESC",
                                     "children": [
                                         {
-                                            "kind": "SIMPLE_TYPE",
-                                            "value": "int"
+                                            "kind": "INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"
@@ -156,11 +153,10 @@
                                     ]
                                 },
                                 {
-                                    "kind": "ARRAY_TYPE",
+                                    "kind": "ARRAY_TYPE_DESC",
                                     "children": [
                                         {
-                                            "kind": "SIMPLE_TYPE",
-                                            "value": "int"
+                                            "kind": "INT_KEYWORD"
                                         },
                                         {
                                             "kind": "OPEN_BRACKET_TOKEN"

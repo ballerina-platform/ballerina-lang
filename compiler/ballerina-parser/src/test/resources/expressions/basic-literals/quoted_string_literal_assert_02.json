@@ -45,9 +45,9 @@
                                     "kind": "LIST",
                                     "children": [
                                     ]
-                                },                                {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "string"
+                                },
+                                {
+                                    "kind": "STRING_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
@@ -73,9 +73,9 @@
                                     "kind": "LIST",
                                     "children": [
                                     ]
-                                },                                {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "string"
+                                },
+                                {
+                                    "kind": "STRING_KEYWORD"
                                 },
                                 {
                                     "kind": "IDENTIFIER_TOKEN",
