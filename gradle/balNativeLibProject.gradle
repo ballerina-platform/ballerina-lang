@@ -36,6 +36,7 @@ project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filte
     f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
 }.singleFile.name
 
+project.ext.version = file('src/main/ballerina/Ballerina.toml').text.split("\n")[2].split("=")[1].split("\"")[1]
 
 
 dependencies {
@@ -118,7 +119,8 @@ task createBalo(type: CreateBaloTask) {
     inputs.files(configurations.baloImplementation)
     inputs.files("$buildDir/build/classes/java/main/META-INF/this.map.json")
     outputs.dir("$buildDir/generated-balo")
-    outputs.files("$buildDir/generated-bir-jar/" + project.ext.orgName + "." + project.ext.moduleName + ".jar")
+    outputs.files("$buildDir/generated-bir-jar/" + project.ext.orgName + "." +  project.ext.moduleName + "." +
+            project.ext.version + ".jar")
     outputs.files(interopJars)
     outputs.cacheIf { true }
 }
@@ -149,7 +151,8 @@ task createBStringBalo(type: CreateBaloTask) {
     inputs.files(configurations.baloImplementation)
     inputs.files("$buildDir/build/classes/java/main/META-INF/this.map.json")
     outputs.dir("$buildDir/generated-balo")
-    outputs.files("$buildDir/generated-bir-jar/" + project.ext.orgName + "." + project.ext.moduleName + "-bstring.jar")
+    outputs.files("$buildDir/generated-bir-jar/" + project.ext.orgName + "." + project.ext.moduleName + "." + project
+            .ext.version + "-bstring.jar")
     outputs.files(interopJars)
     outputs.cacheIf { true }
     
