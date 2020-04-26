@@ -138,12 +138,16 @@ public class GenerateBalo {
 
         for (BLangPackage pkg : buildPackages) {
             String suffix = "";
+            String version = "";
             String bStringProp = System.getProperty("ballerina.bstring");
             if (bStringProp != null && !"".equals(bStringProp)) {
                 suffix = "-bstring";
             }
+            if (!pkg.packageID.version.value.equals("")) {
+                version = "." + pkg.packageID.version;
+            }
             Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.orgName + "." + pkg.packageID.name +
-                                       suffix + ".jar");
+                                               version + suffix + ".jar");
             Path parent = jarOutput.getParent();
             if (parent != null) {
                 Files.createDirectories(parent);
@@ -215,7 +219,7 @@ public class GenerateBalo {
             String dirName = fileName.endsWith(BLANG_COMPILED_PKG_EXT) ?
                              fileName.substring(0, fileName.length() - BLANG_COMPILED_PKG_EXT.length()) :
                              fileName;
-            Path path = Paths.get(targetDir, dirName, Names.DEFAULT_VERSION.getValue());
+            Path path = Paths.get(targetDir, dirName, compiledPackage.getPackageID().version.value);
             super.saveCompiledPackage(compiledPackage, path, fileName);
         }
     }

@@ -55,11 +55,13 @@ public class CoverageReport {
     private Path sourceJarPath;
     private String orgName;
     private String moduleName;
+    private String version;
 
-    public CoverageReport(Path sourceJarPath, Path targetDirPath, String orgName, String moduleName) {
+    public CoverageReport(Path sourceJarPath, Path targetDirPath, String orgName, String moduleName, String version) {
         this.sourceJarPath = sourceJarPath;
         this.orgName = orgName;
         this.moduleName = moduleName;
+        this.version = version;
         this.projectDir = targetDirPath.resolve(TesterinaConstants.COVERAGE_DIR);
         this.title = projectDir.toFile().getName();
         this.classesDirectory = projectDir.resolve(TesterinaConstants.BIN_DIR);
@@ -73,7 +75,7 @@ public class CoverageReport {
      * @throws IOException when file operations are failed
      */
     public void generateReport() throws IOException {
-        CodeCoverageUtils.unzipCompiledSource(sourceJarPath, projectDir, orgName, moduleName);
+        CodeCoverageUtils.unzipCompiledSource(sourceJarPath, projectDir, orgName, moduleName, version);
         execFileLoader.load(executionDataFile.toFile());
 
         final IBundleCoverage bundleCoverage = analyzeStructure();

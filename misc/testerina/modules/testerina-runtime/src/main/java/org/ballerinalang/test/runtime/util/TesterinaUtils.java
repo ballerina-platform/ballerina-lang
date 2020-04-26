@@ -109,11 +109,16 @@ public class TesterinaUtils {
      *
      * @param orgName     Org name
      * @param packageName Package name
+     * @param version Package version
      * @param className   Class name
      * @return Qualified class name
      */
-    public static String getQualifiedClassName(String orgName, String packageName, String className) {
+    public static String getQualifiedClassName(String orgName, String packageName,
+                                               String version, String className) {
         if (!DOT.equals(packageName)) {
+            if (!"".equals(version)) {
+                className = version.replace('.', '_') + "." + className;
+            }
             className = packageName.replace('.', '_') + "." + className;
         }
         if (!ANON_ORG.equals(orgName)) {
