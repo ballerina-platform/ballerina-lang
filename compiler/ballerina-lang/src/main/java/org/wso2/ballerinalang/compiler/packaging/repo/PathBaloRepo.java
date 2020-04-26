@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.wso2.ballerinalang.compiler.packaging.Patten.NULL;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
 /**
@@ -97,7 +98,7 @@ public class PathBaloRepo implements Repo<Path> {
                 moduleID.version = new Name(dep.getMetadata().getVersion());
             }
         }
-    
+
         Manifest manifestFromBalo = RepoUtils.getManifestFromBalo(baloPath.toAbsolutePath());
         // if version is not set, then resolve by the balo path's manifest
         if (moduleID.version.value.isEmpty()) {

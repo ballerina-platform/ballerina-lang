@@ -254,7 +254,7 @@ public class JvmMethodGen {
                                           String serviceName,
                                           @Nilable BType attachedType /* = () */) {
 
-        String currentPackageName = getPackageName(module.org.value, module.name.value);
+        String currentPackageName = getPackageName(module.org.value, module.name.value, module.version.value);
         BalToJVMIndexMap indexMap = new BalToJVMIndexMap();
         String funcName = cleanupFunctionName(func.name.value);
         int returnVarRefIndex = -1;
@@ -1044,7 +1044,8 @@ public class JvmMethodGen {
             if (!isArg || (!(terminator instanceof Return))) {
                 generateDiagnosticPos(terminator.pos, mv);
                 if (isModuleInitFunction(module, func) && terminator instanceof Return) {
-                    generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
+                    generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value,
+                                                                          module.version.value));
                 }
                 termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
                         isObserved);
@@ -1078,6 +1079,7 @@ public class JvmMethodGen {
         @Nilable BType lhsType;
         String orgName;
         String moduleName;
+        String version;
         String funcName;
         int paramIndex = 1;
         boolean isVirtual = false;
@@ -1088,12 +1090,14 @@ public class JvmMethodGen {
             lhsType = asyncIns.lhsOp != null ? asyncIns.lhsOp.variableDcl.type : null;
             orgName = asyncIns.calleePkg.orgName.value;
             moduleName = asyncIns.calleePkg.name.value;
+            version = asyncIns.calleePkg.version.value;
             funcName = asyncIns.name.getValue();
         } else if (kind == InstructionKind.FP_LOAD) {
             FPLoad fpIns = (FPLoad) ins;
             lhsType = fpIns.lhsOp.variableDcl.type;
             orgName = fpIns.pkgId.orgName.value;
             moduleName = fpIns.pkgId.name.value;
+            version = fpIns.pkgId.version.value;
             funcName = fpIns.funcName.getValue();
         } else {
             throw new BLangCompilerException("JVM lambda method generation is not supported for instruction " +
@@ -1230,7 +1234,7 @@ public class JvmMethodGen {
             mv.visitMethodInsn(INVOKEINTERFACE, OBJECT_VALUE, "call", methodDesc, true);
         } else {
             String jvmClass;
-            String lookupKey = getPackageName(orgName, moduleName) + funcName;
+            String lookupKey = getPackageName(orgName, moduleName, version) + funcName;
             JvmPackageGen.BIRFunctionWrapper functionWrapper = birFunctionMap.get(lookupKey);
             String methodDesc = getLambdaMethodDesc(paramBTypes, returnType, closureMapsCount);
             if (functionWrapper != null) {
@@ -1252,7 +1256,7 @@ public class JvmMethodGen {
                     balFileName = MODULE_INIT_CLASS_NAME;
                 }
 
-                jvmClass = getModuleLevelClassName(orgName, moduleName,
+                jvmClass = getModuleLevelClassName(orgName, moduleName, version,
                         cleanupPathSeperators(cleanupBalExt(balFileName)));
             }
 
@@ -1642,7 +1646,7 @@ public class JvmMethodGen {
         registerShutdownListener(mv, initClass);
 
         BalToJVMIndexMap indexMap = new BalToJVMIndexMap();
-        String pkgName = getPackageName(pkg.org.value, pkg.name.value);
+        String pkgName = getPackageName(pkg.org.value, pkg.name.value, pkg.version.value);
         ErrorHandlerGenerator errorGen = new ErrorHandlerGenerator(mv, indexMap, pkgName);
 
         // add main string[] args param first
@@ -1970,10 +1974,10 @@ public class JvmMethodGen {
 
         for (PackageID id : depMods) {
             fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
-            // String lookupKey = getPackageName(id.orgName, id.name) + fullFuncName;
+            // String lookupKey = getPackageName(id.orgName, id.name, id.version) + fullFuncName;
 
             // String jvmClass = lookupFullQualifiedClassName(lookupKey);
-            String jvmClass = getPackageName(id.orgName, id.name) + MODULE_INIT_CLASS_NAME;
+            String jvmClass = getPackageName(id.orgName, id.name, id.version) + MODULE_INIT_CLASS_NAME;
             generateLambdaForDepModStopFunc(cw, cleanupFunctionName(fullFuncName), jvmClass);
         }
     }
@@ -2257,7 +2261,7 @@ public class JvmMethodGen {
                                                       Map<String, byte[]> pkgEntries,
                                                       @Nilable BType attachedType /* = () */) {
 
-        String pkgName = getPackageName(pkg.org.value, pkg.name.value);
+        String pkgName = getPackageName(pkg.org.value, pkg.name.value, pkg.version.value);
         BIRFunction currentFunc = getFunction(func);
         String frameClassName = getFrameClassName(pkgName, currentFunc.name.value, attachedType);
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
@@ -2537,7 +2541,7 @@ public class JvmMethodGen {
         String orgName = module.org.value;
         String moduleName = module.name.value;
         String version = module.version.value;
-        String pkgName = getPackageName(orgName, moduleName);
+        String pkgName = getPackageName(orgName, moduleName, version);
 
         // Using object return type since this is similar to a ballerina function without a return.
         // A ballerina function with no returns is equivalent to a function with nil-return.
@@ -2578,7 +2582,7 @@ public class JvmMethodGen {
         String orgName = module.org.value;
         String moduleName = module.name.value;
         String version = module.version.value;
-        String pkgName = getPackageName(orgName, moduleName);
+        String pkgName = getPackageName(orgName, moduleName, version);
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, MODULE_STOP, "()V", null, null);
         mv.visitCode();
 

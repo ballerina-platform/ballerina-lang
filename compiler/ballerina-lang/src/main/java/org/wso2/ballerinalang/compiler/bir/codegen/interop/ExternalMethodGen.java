@@ -168,7 +168,7 @@ public class ExternalMethodGen {
                                                               @Nilable BType attachedType /* = () */) {
 
         String lookupKey;
-        String currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
+        String currentPackageName = getPackageName(birModule.org.value, birModule.name.value, birModule.version.value);
 
         String birFuncName = birFunc.name.value;
 
@@ -238,7 +238,7 @@ public class ExternalMethodGen {
         @Nilable InteropValidationRequest jInteropValidationReq = getInteropAnnotValue(birFunc);
         if (jInteropValidationReq == null) {
             // This is a old-style external Java interop function
-            String pkgName = getPackageName(orgName, moduleName);
+            String pkgName = getPackageName(orgName, moduleName, version);
             String jClassName = lookupExternClassName(cleanupPackageName(pkgName), birFunc.name.value);
             if (jClassName != null) {
                 if (isBallerinaBuiltinModule(orgName, moduleName)) {

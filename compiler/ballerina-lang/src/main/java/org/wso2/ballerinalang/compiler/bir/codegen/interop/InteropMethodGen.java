@@ -130,7 +130,7 @@ public class InteropMethodGen {
                                          ClassWriter cw,
                                          BIRPackage birModule) {
 
-        String currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
+        String currentPackageName = getPackageName(birModule.org.value, birModule.name.value, birModule.version.value);
 
         // Create a local variable for the strand
         BalToJVMIndexMap indexMap = new BalToJVMIndexMap();

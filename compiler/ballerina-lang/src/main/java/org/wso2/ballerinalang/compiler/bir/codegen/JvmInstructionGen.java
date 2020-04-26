@@ -254,7 +254,7 @@ public class JvmInstructionGen {
         if (varDcl.kind == VarKind.GLOBAL) {
             BIRGlobalVariableDcl globalVar = (BIRGlobalVariableDcl) varDcl;
             PackageID modId = globalVar.pkgId;
-            String moduleName = getPackageName(modId.orgName, modId.name);
+            String moduleName = getPackageName(modId.orgName, modId.name, modId.version);
 
             String varName = varDcl.name.value;
             String className = lookupGlobalVarClassName(moduleName, varName);
@@ -268,7 +268,7 @@ public class JvmInstructionGen {
         } else if (varDcl.kind == VarKind.CONSTANT) {
             String varName = varDcl.name.value;
             PackageID moduleId = ((BIRGlobalVariableDcl) varDcl).pkgId;
-            String pkgName = getPackageName(moduleId.orgName, moduleId.name);
+            String pkgName = getPackageName(moduleId.orgName, moduleId.name, moduleId.version);
             String className = lookupGlobalVarClassName(pkgName, varName);
             String typeSig = getTypeDesc(bType);
             mv.visitFieldInsn(GETSTATIC, className, varName, typeSig);
@@ -354,7 +354,7 @@ public class JvmInstructionGen {
         } else if (varDcl.kind == VarKind.CONSTANT) {
             String varName = varDcl.name.value;
             PackageID moduleId = ((BIRGlobalVariableDcl) varDcl).pkgId;
-            String pkgName = getPackageName(moduleId.orgName, moduleId.name);
+            String pkgName = getPackageName(moduleId.orgName, moduleId.name, moduleId.version);
             String className = lookupGlobalVarClassName(pkgName, varName);
             String typeSig = getTypeDesc(bType);
             mv.visitFieldInsn(PUTSTATIC, className, varName, typeSig);
@@ -442,7 +442,8 @@ public class JvmInstructionGen {
             this.mv = mv;
             this.indexMap = indexMap;
             this.currentPackage = currentPackage;
-            this.currentPackageName = getPackageName(currentPackage.org.value, currentPackage.name.value);
+            this.currentPackageName = getPackageName(currentPackage.org.value, currentPackage.name.value,
+                                                     currentPackage.version.value);
         }
 
         void generatePlatformIns(JInstruction ins) {
@@ -1410,7 +1411,7 @@ public class JvmInstructionGen {
 
             String lambdaName = inst.funcName.value + "$lambda" + lambdaIndex + "$";
             lambdaIndex += 1;
-            String pkgName = getPackageName(inst.pkgId.orgName, inst.pkgId.name);
+            String pkgName = getPackageName(inst.pkgId.orgName, inst.pkgId.name, inst.pkgId.version);
             String lookupKey = pkgName + inst.funcName.value;
 
             BType returnType = inst.lhsOp.variableDcl.type;

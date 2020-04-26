@@ -953,7 +953,7 @@ class JvmTypeGen {
 
     private static String typeRefToClassName(PackageID typeRef, String className) {
 
-        return getModuleLevelClassName(typeRef.orgName.value, typeRef.name.value, className);
+        return getModuleLevelClassName(typeRef.orgName.value, typeRef.name.value, typeRef.version.value, className);
     }
 
     // -------------------------------------------------------
@@ -1194,7 +1194,9 @@ class JvmTypeGen {
             mv.visitFieldInsn(GETSTATIC, BTYPES, TYPES_ERROR, String.format("L%s;", ERROR_TYPE));
             return;
         }
-        String typeOwner = getPackageName(packageID.orgName.value, packageID.name.value) + MODULE_INIT_CLASS_NAME;
+        String typeOwner =
+                getPackageName(packageID.orgName.value, packageID.name.value, packageID.version.value) +
+                        MODULE_INIT_CLASS_NAME;
         String fieldName = getTypeFieldName(toNameString(errorType));
         mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", BTYPE));
     }
@@ -1285,7 +1287,9 @@ class JvmTypeGen {
 
         PackageID packageID = bType.tsymbol.pkgID;
 
-        String typeOwner = getPackageName(packageID.orgName.value, packageID.name.value) + MODULE_INIT_CLASS_NAME;
+        String typeOwner =
+                getPackageName(packageID.orgName.value, packageID.name.value, packageID.version.value) +
+                        MODULE_INIT_CLASS_NAME;
         String fieldName = getTypeFieldName(toNameString(bType));
 
         mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", BTYPE));

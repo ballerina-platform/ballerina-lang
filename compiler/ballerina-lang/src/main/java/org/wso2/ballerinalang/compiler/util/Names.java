@@ -68,7 +68,6 @@ public class Names {
     public static final Name IGNORE = new Name("_");
     public static final Name INVALID = new Name("><");
     public static final Name GEN_VAR_PREFIX = new Name("_$$_");
-    public static final Name DEFAULT_VERSION = new Name("0.0.0");
     public static final Name SERVICE = new Name("service");
     public static final Name LISTENER = new Name("Listener");
     public static final Name INIT_FUNCTION_SUFFIX = new Name(".<init>");
@@ -115,6 +114,14 @@ public class Names {
     public static final Name TRX_REMOTE_PARTICIPANT_BEGIN_FUNCTION = new Name("beginRemoteParticipant");
     public static final Name CREATE_INT_RANGE = new Name("createIntRange");
     public static final Name CONSTRUCT_STREAM = new Name("construct");
+
+    // Module Versions
+    public static final Name DEFAULT_VERSION = new Name("0.0.0");
+    public static final Name VERSION_0_1_0 = new Name("0.1.0");
+    public static final Name VERSION_0_4_0 = new Name("0.4.0");
+    public static final Name VERSION_0_8_0 = new Name("0.8.0");
+    public static final Name VERSION_1_0_0 = new Name("1.0.0");
+    public static final Name VERSION_1_1_0 = new Name("1.1.0");
 
     public CompilerContext context;
 

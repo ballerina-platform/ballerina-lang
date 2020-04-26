@@ -126,7 +126,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  */
 public class JvmPackageGen {
 
-    public static Map<String, BIRFunctionWrapper> birFunctionMap;
+    public static Map<String, BIRFunctionWrapper> birFunctionMap = new HashMap<>();
     public static Map<String, BIRInstruction> lambdas;
     public static String currentClass;
     public static SymbolTable symbolTable;
@@ -139,7 +139,7 @@ public class JvmPackageGen {
 
     static void intiPackageGen() {
 
-        birFunctionMap = new HashMap<>();
+//        birFunctionMap = new HashMap<>();
         globalVarClassNames = new HashMap<>();
         lambdas = new HashMap<>();
         externalMapCache = new HashMap<>();
@@ -226,7 +226,7 @@ public class JvmPackageGen {
 
         PackageID moduleId = packageSymbol.pkgID;
 
-        String pkgName = getPackageName(moduleId.orgName, moduleId.name);
+        String pkgName = getPackageName(moduleId.orgName, moduleId.name, moduleId.version);
         if (!dependentModules.containsKey(pkgName)) {
             dependentModules.put(pkgName, moduleId);
         }
@@ -237,7 +237,8 @@ public class JvmPackageGen {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
-        String pkgName = getPackageName(orgName, moduleName);
+        String version = module.version.value;
+        String pkgName = getPackageName(orgName, moduleName, version);
 
         Set<PackageID> dependentModuleSet = new LinkedHashSet<>();
 
@@ -251,7 +252,7 @@ public class JvmPackageGen {
             }
         }
 
-        typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
+        typeOwnerClass = getModuleLevelClassName(orgName, moduleName, version, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
                 interopValidator, isEntry);
         if (!isEntry || CodeGenerator.dlog.getErrorCount() > 0) {
@@ -299,7 +300,7 @@ public class JvmPackageGen {
                 @Nilable BIRFunction mainFunc = getMainFunc(module.functions);
                 String mainClass = "";
                 if (mainFunc != null) {
-                    mainClass = getModuleLevelClassName(orgName, moduleName,
+                    mainClass = getModuleLevelClassName(orgName, moduleName, version,
                             cleanupPathSeperators(cleanupBalExt(mainFunc.pos.getSource().cUnitName)));
                 }
 
@@ -362,58 +363,35 @@ public class JvmPackageGen {
     private static void addBuiltinImports(BIRPackage currentModule, Set<PackageID> dependentModuleArray) {
         // Add the builtin and utils modules to the imported list of modules
 
-        Name ballerinaOrgName = new Name("ballerina");
-        Name builtInVersion = new Name("");
-
-        PackageID annotationsModule = new PackageID(ballerinaOrgName, new Name("lang.annotations"), builtInVersion);
-
-        if (isSameModule(currentModule, annotationsModule)) {
+        if (isSameModule(currentModule, PackageID.ANNOTATIONS)) {
             return;
         }
 
-        dependentModuleArray.add(annotationsModule);
+        dependentModuleArray.add(PackageID.ANNOTATIONS);
 
         if (isLangModule(currentModule)) {
             return;
         }
 
-        PackageID internalModule = new PackageID(ballerinaOrgName, new Name("lang.__internal"), builtInVersion);
-
-        if (isSameModule(currentModule, internalModule)) {
+        if (isSameModule(currentModule, PackageID.INTERNAL)) {
             return;
         }
 
-        dependentModuleArray.add(internalModule);
-
-        PackageID langArrayModule = new PackageID(ballerinaOrgName, new Name("lang.array"), builtInVersion);
-        PackageID langDecimalModule = new PackageID(ballerinaOrgName, new Name("lang.decimal"), builtInVersion);
-        PackageID langErrorModule = new PackageID(ballerinaOrgName, new Name("lang.error"), builtInVersion);
-        PackageID langFloatModule = new PackageID(ballerinaOrgName, new Name("lang.float"), builtInVersion);
-        PackageID langFutureModule = new PackageID(ballerinaOrgName, new Name("lang.future"), builtInVersion);
-        PackageID langIntModule = new PackageID(ballerinaOrgName, new Name("lang.int"), builtInVersion);
-        PackageID langMapModule = new PackageID(ballerinaOrgName, new Name("lang.map"), builtInVersion);
-        PackageID langObjectModule = new PackageID(ballerinaOrgName, new Name("lang.object"), builtInVersion);
-        PackageID langStreamModule = new PackageID(ballerinaOrgName, new Name("lang.stream"), builtInVersion);
-        PackageID langStringModule = new PackageID(ballerinaOrgName, new Name("lang.string"), builtInVersion);
-        PackageID langValueModule = new PackageID(ballerinaOrgName, new Name("lang.value"), builtInVersion);
-        PackageID langXmlModule = new PackageID(ballerinaOrgName, new Name("lang.xml"), builtInVersion);
-        PackageID langTypedescModule = new PackageID(ballerinaOrgName, new Name("lang.typedesc"), builtInVersion);
-        PackageID langBooleanModule = new PackageID(ballerinaOrgName, new Name("lang.boolean"), builtInVersion);
-
-        dependentModuleArray.add(langArrayModule);
-        dependentModuleArray.add(langDecimalModule);
-        dependentModuleArray.add(langErrorModule);
-        dependentModuleArray.add(langFloatModule);
-        dependentModuleArray.add(langFutureModule);
-        dependentModuleArray.add(langIntModule);
-        dependentModuleArray.add(langMapModule);
-        dependentModuleArray.add(langObjectModule);
-        dependentModuleArray.add(langStreamModule);
-        dependentModuleArray.add(langStringModule);
-        dependentModuleArray.add(langValueModule);
-        dependentModuleArray.add(langXmlModule);
-        dependentModuleArray.add(langTypedescModule);
-        dependentModuleArray.add(langBooleanModule);
+        dependentModuleArray.add(PackageID.INTERNAL);
+        dependentModuleArray.add(PackageID.ARRAY);
+        dependentModuleArray.add(PackageID.DECIMAL);
+        dependentModuleArray.add(PackageID.ERROR);
+        dependentModuleArray.add(PackageID.FLOAT);
+        dependentModuleArray.add(PackageID.FUTURE);
+        dependentModuleArray.add(PackageID.INT);
+        dependentModuleArray.add(PackageID.MAP);
+        dependentModuleArray.add(PackageID.OBJECT);
+        dependentModuleArray.add(PackageID.STREAM);
+        dependentModuleArray.add(PackageID.STRING);
+        dependentModuleArray.add(PackageID.VALUE);
+        dependentModuleArray.add(PackageID.XML);
+        dependentModuleArray.add(PackageID.TYPEDESC);
+        dependentModuleArray.add(PackageID.BOOLEAN);
     }
 
     private static boolean isSameModule(BIRPackage moduleId, PackageID importModule) {
@@ -488,14 +466,18 @@ public class JvmPackageGen {
         return "$lock" + varName;
     }
 
-    static String getModuleLevelClassName(String orgName, String moduleName, String sourceFileName) {
+    static String getModuleLevelClassName(String orgName, String moduleName, String version, String sourceFileName) {
 
         String className = cleanupSourceFileName(sourceFileName);
         // handle source file path start with '/'.
         if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
             className = className.substring(1);
         }
+
         if (!moduleName.equals(".")) {
+            if (!version.equals("")) {
+                className = cleanupName(version) + "/" + className;
+            }
             className = cleanupName(moduleName) + "/" + className;
         }
 
@@ -506,16 +488,19 @@ public class JvmPackageGen {
         return className;
     }
 
-    static String getPackageName(Name orgName, Name moduleName) {
+    static String getPackageName(Name orgName, Name moduleName, Name version) {
 
-        return getPackageName(orgName.getValue(), moduleName.getValue());
+        return getPackageName(orgName.getValue(), moduleName.getValue(), version.getValue());
     }
 
-    public static String getPackageName(String orgName, String moduleName) {
+    public static String getPackageName(String orgName, String moduleName, String version) {
 
         String packageName = "";
         if (!moduleName.equals(".")) {
-            packageName = cleanupName(moduleName) + "/";
+            if (!version.equals("")) {
+                packageName = cleanupName(version) + "/";
+            }
+            packageName = cleanupName(moduleName) + "/" + packageName;
         }
 
         if (!orgName.equalsIgnoreCase("$anon")) {
@@ -625,7 +610,7 @@ public class JvmPackageGen {
                 } else {
                     balFileName = birFunc.pos.src.cUnitName;
                 }
-                String birModuleClassName = getModuleLevelClassName(orgName, moduleName,
+                String birModuleClassName = getModuleLevelClassName(orgName, moduleName, version,
                         cleanupPathSeperators(cleanupBalExt(balFileName)));
 
                 if (!isBallerinaBuiltinModule(orgName, moduleName)) {

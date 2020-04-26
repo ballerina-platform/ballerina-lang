@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
@@ -239,7 +240,8 @@ public class JvmTerminatorGen {
                     String.format("%s", callIns));
         }
 
-        String key = getPackageName(packageID.orgName.value, packageID.name.value) + methodName;
+        String key = getPackageName(packageID.orgName.value, packageID.name.value,
+                                    packageID.version.value) + methodName;
 
         if (birFunctionMap.containsKey(key)) {
             BIRFunctionWrapper functionWrapper = getBIRFunctionWrapper(birFunctionMap.get(key));
@@ -271,7 +273,8 @@ public class JvmTerminatorGen {
             this.labelGen = labelGen;
             this.errorGen = errorGen;
             this.module = module;
-            this.currentPackageName = getPackageName(this.module.org.value, this.module.name.value);
+            this.currentPackageName = getPackageName(this.module.org.value, this.module.name.value,
+                                                     this.module.version.value);
         }
 
         void genTerminator(BIRTerminator terminator, BIRFunction func, String funcName,
@@ -441,8 +444,9 @@ public class JvmTerminatorGen {
 
             String orgName = calleePkgId.orgName.value;
             String moduleName = calleePkgId.name.value;
+            String version = calleePkgId.version.value;
             // invoke the function
-            this.genCall(callIns, orgName, moduleName, localVarOffset);
+            this.genCall(callIns, orgName, moduleName, version, localVarOffset);
 
             // store return
             this.storeReturnFromCallIns(callIns.lhsOp != null ? callIns.lhsOp.variableDcl : null);
@@ -652,10 +656,11 @@ public class JvmTerminatorGen {
             }
         }
 
-        private void genCall(BIRTerminator.Call callIns, String orgName, String moduleName, int localVarOffset) {
+        private void genCall(BIRTerminator.Call callIns, String orgName, String moduleName,
+                             String version, int localVarOffset) {
 
             if (!callIns.isVirtual) {
-                this.genFuncCall(callIns, orgName, moduleName, localVarOffset);
+                this.genFuncCall(callIns, orgName, moduleName,version, localVarOffset);
                 return;
             }
 
@@ -664,32 +669,35 @@ public class JvmTerminatorGen {
                 this.genVirtualCall(callIns, orgName, moduleName, localVarOffset);
             } else {
                 // then this is a function attached to a built-in type
-                this.genBuiltinTypeAttachedFuncCall(callIns, orgName, moduleName, localVarOffset);
+                this.genBuiltinTypeAttachedFuncCall(callIns, orgName, moduleName, version, localVarOffset);
             }
         }
 
-        private void genFuncCall(BIRTerminator.Call callIns, String orgName, String moduleName, int localVarOffset) {
+        private void genFuncCall(BIRTerminator.Call callIns, String orgName, String moduleName, String version,
+                                 int localVarOffset) {
 
             String methodName = callIns.name.value;
-            this.genStaticCall(callIns, orgName, moduleName, localVarOffset, methodName, methodName);
+            this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodName);
         }
 
-        private void genBuiltinTypeAttachedFuncCall(BIRTerminator.Call callIns, String orgName, String moduleName,
+        private void genBuiltinTypeAttachedFuncCall(BIRTerminator.Call callIns, String orgName,
+                                                    String version, String moduleName,
                                                     int localVarOffset) {
 
             String methodLookupName = callIns.name.value;
             @Nilable int optionalIndex = methodLookupName.indexOf(".");
             int index = optionalIndex != -1 ? optionalIndex + 1 : 0;
             String methodName = methodLookupName.substring(index);
-            this.genStaticCall(callIns, orgName, moduleName, localVarOffset, methodName, methodLookupName);
+            this.genStaticCall(callIns, orgName, moduleName, version, localVarOffset, methodName, methodLookupName);
         }
 
-        private void genStaticCall(BIRTerminator.Call callIns, String orgName, String moduleName, int localVarOffset,
+        private void genStaticCall(BIRTerminator.Call callIns, String orgName, String moduleName, String version,
+                                   int localVarOffset,
                                    String methodName, String methodLookupName) {
             // load strand
             this.mv.visitVarInsn(ALOAD, localVarOffset);
 
-            String lookupKey = getPackageName(orgName, moduleName) + methodLookupName;
+            String lookupKey = getPackageName(orgName, moduleName, version) + methodLookupName;
 
             int argsCount = callIns.args.size();
             int i = 0;
@@ -708,7 +716,9 @@ public class JvmTerminatorGen {
                 methodDesc = isBString ? functionWrapper.jvmMethodDescriptionBString :
                              functionWrapper.jvmMethodDescription;
             } else {
-                BPackageSymbol symbol = CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName);
+                BPackageSymbol symbol =
+                        CodeGenerator.packageCache.getSymbol(orgName + "/" + moduleName +
+                                                                     Names.VERSION_SEPARATOR.value + version);
                 BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol.scope.lookup(new Name(methodName)).symbol;
                 BInvokableType type = (BInvokableType) funcSymbol.type;
                 ArrayList<BType> params = new ArrayList<>(type.paramTypes);
@@ -724,7 +734,7 @@ public class JvmTerminatorGen {
                     balFileName = MODULE_INIT_CLASS_NAME;
                 }
 
-                jvmClass = getModuleLevelClassName(orgName, moduleName,
+                jvmClass = getModuleLevelClassName(orgName, moduleName, version,
                         cleanupPathSeperators(cleanupBalExt(balFileName)));
                 //TODO: add receiver:  BType attachedType = type.r != null ? receiver.type : null;
                 methodDesc = getMethodDesc(params, type.retType, null, false);
