@@ -134,9 +134,9 @@ public class BRecordType extends BStructureType implements RecordType {
      */
     public static class BImmutableRecordType extends BRecordType {
 
-        public BImmutableRecordType(BTypeSymbol tSymbol, List<BField> fields, int flags) {
-            super(tSymbol, fields, flags);
-            this.flags |= Flags.READONLY;
+        public BImmutableRecordType(BTypeSymbol tSymbol, int flags) {
+            super(tSymbol);
+            this.flags = flags |= Flags.READONLY;
         }
     }
 }

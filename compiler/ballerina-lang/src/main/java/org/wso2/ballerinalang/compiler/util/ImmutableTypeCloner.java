@@ -47,8 +47,10 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Helper class to create a clone of it.
@@ -60,6 +62,12 @@ public class ImmutableTypeCloner {
     public static BType setImmutableType(DiagnosticPos pos, Types types, BType type, SymbolEnv env,
                                          SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,
                                          Names names) {
+        return setImmutableType(pos, types, type, env, symTable, anonymousModelHelper, names, new HashSet<>());
+    }
+
+    private static BType setImmutableType(DiagnosticPos pos, Types types, BType type, SymbolEnv env,
+                                         SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,
+                                         Names names, Set<BType> unresolvedTypes) {
         if (types.isReadonlyType(type)) {
             return type;
         }
@@ -75,8 +83,8 @@ public class ImmutableTypeCloner {
 
                 BTypeSymbol immutableXmlTSymbol = getReadonlyTSymbol(names, origXmlType.tsymbol, env);
                 immutableXmlType = new BXMLType.BImmutableXmlType(setImmutableType(pos, types, origXmlType.constraint,
-                                                                                   env, symTable,
-                                                                                   anonymousModelHelper, names),
+                                                                                   env, symTable, anonymousModelHelper,
+                                                                                   names, unresolvedTypes),
                                                                   immutableXmlTSymbol, origXmlType.flags);
                 immutableXmlTSymbol.type = immutableXmlType;
                 origXmlType.immutableType = immutableXmlType;
@@ -92,7 +100,8 @@ public class ImmutableTypeCloner {
                 immutableArrayType = new BArrayType.BImmutableArrayType(setImmutableType(pos, types,
                                                                                          origArrayType.getElementType(),
                                                                                          env, symTable,
-                                                                                         anonymousModelHelper, names),
+                                                                                         anonymousModelHelper, names,
+                                                                                         unresolvedTypes),
                                                                         immutableArrayTSymbol, origArrayType.size,
                                                                         origArrayType.state, origArrayType.flags);
                 immutableArrayTSymbol.type = immutableArrayType;
@@ -110,7 +119,7 @@ public class ImmutableTypeCloner {
 
                 for (BType origTupleMemType : origTupleMemTypes) {
                     immutableMemTypes.add(setImmutableType(pos, types, origTupleMemType, env, symTable,
-                                                           anonymousModelHelper, names));
+                                                           anonymousModelHelper, names, unresolvedTypes));
                 }
 
                 BTypeSymbol immutableTupleTSymbol = getReadonlyTSymbol(names, origTupleType.tsymbol, env);
@@ -130,8 +139,8 @@ public class ImmutableTypeCloner {
                 immutableMapType = new BMapType.BImmutableMapType(origMapType.tag,
                                                                   setImmutableType(pos, types, origMapType.constraint,
                                                                                    env, symTable, anonymousModelHelper,
-                                                                                   names), immutableMapTSymbol,
-                                                                  origMapType.flags);
+                                                                                   names, unresolvedTypes),
+                                                                  immutableMapTSymbol, origMapType.flags);
                 immutableMapTSymbol.type = immutableMapType;
                 origMapType.immutableType = immutableMapType;
                 return immutableMapType;
@@ -143,8 +152,7 @@ public class ImmutableTypeCloner {
                 }
 
                 immutableRecordType = defineImmutableRecordType(pos, origRecordType, env, symTable,
-                                                                anonymousModelHelper, names, types);
-                origRecordType.immutableType = immutableRecordType;
+                                                                anonymousModelHelper, names, types, unresolvedTypes);
                 return immutableRecordType;
             // TODO: 4/24/20 Table
             case TypeTags.ANY:
@@ -205,7 +213,7 @@ public class ImmutableTypeCloner {
                         readOnlyMemTypes.add(memberType);
                     }
 
-                    if (!types.isSelectivelyImmutableType(memberType)) {
+                    if (!types.isSelectivelyImmutableType(memberType, unresolvedTypes)) {
                         continue;
                     }
 
@@ -214,7 +222,7 @@ public class ImmutableTypeCloner {
                     }
 
                     readOnlyMemTypes.add(setImmutableType(pos, types, memberType, env, symTable, anonymousModelHelper,
-                                                          names));
+                                                          names, unresolvedTypes));
                 }
 
                 if (readOnlyMemTypes.size() == 1) {
@@ -236,8 +244,8 @@ public class ImmutableTypeCloner {
                                                                               SymbolTable symTable,
                                                                               BLangAnonymousModelHelper
                                                                                       anonymousModelHelper,
-                                                                              Names names,
-                                                                              Types types) {
+                                                                              Names names, Types types,
+                                                                              Set<BType> unresolvedTypes) {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BRecordTypeSymbol recordSymbol =
                 Symbols.createRecordSymbol(origRecordType.tsymbol.flags |= Flags.READONLY,
@@ -256,11 +264,15 @@ public class ImmutableTypeCloner {
                 names.fromString(recordSymbol.name.value + "." + recordSymbol.initializerFunc.funcName.value),
                 recordSymbol.initializerFunc.symbol);
 
+        BRecordType.BImmutableRecordType immutableRecordType =
+                new BRecordType.BImmutableRecordType(recordSymbol, origRecordType.flags);
+        origRecordType.immutableType = immutableRecordType;
+
         List<BField> fields = new ArrayList<>();
 
         for (BField origField : origRecordType.fields) {
             BType immutableFieldType = setImmutableType(pos, types, origField.type, env, symTable,
-                                                        anonymousModelHelper, names);
+                                                        anonymousModelHelper, names, unresolvedTypes);
 
             Name origFieldName = origField.name;
             BVarSymbol immutableFieldSymbol = new BVarSymbol(origField.symbol.flags |= Flags.READONLY, origFieldName,
@@ -277,9 +289,7 @@ public class ImmutableTypeCloner {
             recordSymbol.scope.define(origFieldName, immutableFieldSymbol);
         }
 
-        BRecordType.BImmutableRecordType immutableRecordType =
-                new BRecordType.BImmutableRecordType(recordSymbol, fields, origRecordType.flags);
-
+        immutableRecordType.fields = fields;
         immutableRecordType.sealed = origRecordType.sealed;
         immutableRecordType.restFieldType = origRecordType.restFieldType;
 
