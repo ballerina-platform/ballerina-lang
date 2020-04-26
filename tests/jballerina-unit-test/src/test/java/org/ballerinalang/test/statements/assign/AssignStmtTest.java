@@ -261,4 +261,9 @@ public class AssignStmtTest {
         BAssertUtil.validateError(result, i++, "unknown type 'X'", 79, 5);
         BAssertUtil.validateError(result, i, "unknown type 'V'", 81, 5);
     }
+
+    @Test()
+    public void testAssignErrorArrayToAnyArray() {
+        BRunUtil.invoke(result, "testAssignErrorArrayToAnyArray");
+    }
 }
