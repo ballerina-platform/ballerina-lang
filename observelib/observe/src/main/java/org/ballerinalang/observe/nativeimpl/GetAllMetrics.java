@@ -50,7 +50,7 @@ import java.util.Set;
  */
 @BallerinaFunction(
         orgName = "ballerina",
-        packageName = "observe",
+        packageName = "observe", version = "0.8.0",
         functionName = "getAllMetrics",
         returnType = @ReturnType(type = TypeKind.ARRAY),
         isPublic = true
