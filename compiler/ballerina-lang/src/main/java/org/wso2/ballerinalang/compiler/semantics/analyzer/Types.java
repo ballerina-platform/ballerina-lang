@@ -832,7 +832,7 @@ public class Types {
                 .allMatch(tupleElemType -> isAssignable(source.eType, tupleElemType, unresolvedTypes));
     }
 
-    public boolean isArrayTypesAssignable(BArrayType source, BType target, Set<TypePair> unresolvedTypes) {
+    private boolean isArrayTypesAssignable(BArrayType source, BType target, Set<TypePair> unresolvedTypes) {
         BType sourceElementType = source.getElementType();
         if (target.tag == TypeTags.ARRAY) {
             BArrayType targetArrayType = (BArrayType) target;
@@ -847,12 +847,11 @@ public class Types {
         } else if (target.tag == TypeTags.JSON) {
             return isAssignable(sourceElementType, target, unresolvedTypes);
         } else if (target.tag == TypeTags.UNION) {
-            return isAssignable(sourceElementType, target, unresolvedTypes);
-//            for (BType memberType : ((BUnionType) target).getMemberTypes()) {
-//                if (isArrayTypesAssignable(source, memberType, unresolvedTypes)) {
-//                    return true;
-//                }
-//            }
+            for (BType memberType : ((BUnionType) target).getMemberTypes()) {
+                if (isArrayTypesAssignable(source, memberType, unresolvedTypes)) {
+                    return true;
+                }
+            }
         }
         return false;
     }
