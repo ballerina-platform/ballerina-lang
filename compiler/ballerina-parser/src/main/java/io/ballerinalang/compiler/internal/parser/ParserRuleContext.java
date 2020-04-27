@@ -145,6 +145,7 @@ public enum ParserRuleContext {
     EXPRESSION_STATEMENT_START("expression-statement-start"),
     LOCK_STMT("lock-stmt"),
     NAMED_WORKER_DECL("named-worker-decl"),
+    FORK_STMT("fork-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -185,6 +186,7 @@ public enum ParserRuleContext {
     SOURCE_KEYWORD("source"),
     XMLNS_KEYWORD("xmlns"),
     WORKER_KEYWORD("worker"),
+    FORK_KEYWORD("fork"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

@@ -123,6 +123,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(lockStatementNode);
     }
 
+    public void visit(ForkStatementNode forkStatementNode) {
+        visitSyntaxNode(forkStatementNode);
+    }
+
     public void visit(BinaryExpressionNode binaryExpressionNode) {
         visitSyntaxNode(binaryExpressionNode);
     }

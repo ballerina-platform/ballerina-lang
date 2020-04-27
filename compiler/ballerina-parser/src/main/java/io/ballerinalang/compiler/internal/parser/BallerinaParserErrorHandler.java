@@ -76,7 +76,7 @@ public class BallerinaParserErrorHandler {
             ParserRuleContext.CONTINUE_STATEMENT, ParserRuleContext.BREAK_STATEMENT, ParserRuleContext.RETURN_STMT,
             ParserRuleContext.COMPOUND_ASSIGNMENT_STMT, ParserRuleContext.LOCAL_TYPE_DEFINITION_STMT,
             ParserRuleContext.EXPRESSION_STATEMENT, ParserRuleContext.LOCK_STMT, ParserRuleContext.BLOCK_STMT,
-            ParserRuleContext.NAMED_WORKER_DECL };
+            ParserRuleContext.NAMED_WORKER_DECL, ParserRuleContext.FORK_STMT };
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.ASSIGN_OP };
@@ -263,7 +263,7 @@ public class BallerinaParserErrorHandler {
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
-    private int lookaheadLimit = 5;
+    private int lookaheadLimit = 3;
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader, BallerinaParser parser) {
         this.tokenReader = tokenReader;
@@ -1060,6 +1060,9 @@ public class BallerinaParserErrorHandler {
                 case WORKER_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.WORKER_KEYWORD;
                     break;
+                case FORK_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.FORK_KEYWORD;
+                    break;
                 case TYPEDESC_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPEDESC_RHS,
                             isEntryPoint);
@@ -1129,6 +1132,7 @@ public class BallerinaParserErrorHandler {
                 case ANNOT_REFERENCE:
                 case NIL_LITERAL:
                 case LOCK_STMT:
+                case FORK_STMT:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1537,6 +1541,7 @@ public class BallerinaParserErrorHandler {
             case XML_NAMESPACE_DECLARATION:
             case CONSTANT_EXPRESSION:
             case NAMED_WORKER_DECL:
+            case FORK_STMT:
             case PARAMETERIZED_TYPE_DESCRIPTOR:
                 startContext(currentCtx);
                 break;
@@ -1625,6 +1630,10 @@ public class BallerinaParserErrorHandler {
 
                 if (parentCtx == ParserRuleContext.MAPPING_CONSTRUCTOR) {
                     return ParserRuleContext.MAPPING_FIELD;
+                }
+                
+                if (parentCtx == ParserRuleContext.FORK_STMT) {
+                    return ParserRuleContext.NAMED_WORKER_DECL;
                 }
 
                 return ParserRuleContext.STATEMENT;
@@ -1960,6 +1969,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.WORKER_NAME;
             case WORKER_NAME:
                 return ParserRuleContext.RETURN_TYPE_DESCRIPTOR;
+            case FORK_STMT:
+                return ParserRuleContext.FORK_KEYWORD;
+            case FORK_KEYWORD:
+                return ParserRuleContext.OPEN_BRACE;
             case NON_RECURSIVE_TYPE:
                 return getNextRuleForTypeDescriptor();
             case PARAMETERIZED_TYPE_DESCRIPTOR:
@@ -2214,6 +2227,18 @@ public class BallerinaParserErrorHandler {
                     return ParserRuleContext.STATEMENT;
                 } else if (parentCtx == ParserRuleContext.NAMED_WORKER_DECL) {
                     endContext(); // end named-worker
+                    parentCtx = getParentContext();
+                    if (parentCtx == ParserRuleContext.FORK_STMT) {
+                        nextToken = this.tokenReader.peek(nextLookahead);
+                        switch (nextToken.kind) {
+                            case CLOSE_BRACE_TOKEN:
+                                return ParserRuleContext.CLOSE_BRACE;
+                            default:
+                                return ParserRuleContext.STATEMENT;
+                        }
+                    } else {
+                        return ParserRuleContext.STATEMENT;
+                    }
                 } else if (parentCtx == ParserRuleContext.LOCK_STMT) {
                     endContext();
                     return ParserRuleContext.STATEMENT;
@@ -2254,6 +2279,9 @@ public class BallerinaParserErrorHandler {
                         }
                         throw new IllegalStateException("annotation is ending inside a " + parentCtx);
                 }
+            case FORK_STMT:
+                endContext(); // end fork-statement
+                return ParserRuleContext.STATEMENT;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
@@ -2519,6 +2547,7 @@ public class BallerinaParserErrorHandler {
             case STMT_START_WITH_IDENTIFIER:
             case EXPRESSION_STATEMENT:
             case LOCK_STMT:
+            case FORK_STMT:
                 return true;
             default:
                 return false;
@@ -2853,6 +2882,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case NIL_LITERAL:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
+            case FORK_KEYWORD:
+                return SyntaxKind.FORK_KEYWORD;
             case PARAMETERIZED_TYPE:
                 return SyntaxKind.MAP_KEYWORD;
 
@@ -2917,6 +2948,7 @@ public class BallerinaParserErrorHandler {
             case TYPE_TEST_EXPRESSION:
             case LOCAL_TYPE_DEFINITION_STMT:
             case LOCK_STMT:
+            case FORK_STMT:
             case ANNOTATION_DECL:
             case ANNOT_ATTACH_POINTS_LIST:
             case ANNOT_OPTIONAL_ATTACH_POINTS:
