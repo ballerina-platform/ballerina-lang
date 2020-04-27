@@ -1063,6 +1063,12 @@ public class BallerinaParserErrorHandler {
                 case FORK_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.FORK_KEYWORD;
                     break;
+                case DECIMAL_FLOATING_POINT_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
+                    break;
+                case HEX_FLOATING_POINT_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.HEX_FLOATING_POINT_LITERAL;
+                    break;
                 case TYPEDESC_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPEDESC_RHS,
                             isEntryPoint);
@@ -2884,6 +2890,10 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.OPEN_PAREN_TOKEN;
             case FORK_KEYWORD:
                 return SyntaxKind.FORK_KEYWORD;
+            case DECIMAL_FLOATING_POINT_LITERAL:
+                return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
+            case HEX_FLOATING_POINT_LITERAL:
+                return SyntaxKind.HEX_FLOATING_POINT_LITERAL;
             case PARAMETERIZED_TYPE:
                 return SyntaxKind.MAP_KEYWORD;
 

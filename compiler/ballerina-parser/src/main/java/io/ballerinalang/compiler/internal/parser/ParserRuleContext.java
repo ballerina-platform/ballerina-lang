@@ -256,6 +256,8 @@ public enum ParserRuleContext {
     NIL_LITERAL("nil-literal"),
     CONSTANT_EXPRESSION("constant-expr"),
     CONSTANT_EXPRESSION_START("constant-expr-start"),
+    DECIMAL_FLOATING_POINT_LITERAL("decimal-floating-point-literal"),
+    HEX_FLOATING_POINT_LITERAL("hex-floating-point-literal"),
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),

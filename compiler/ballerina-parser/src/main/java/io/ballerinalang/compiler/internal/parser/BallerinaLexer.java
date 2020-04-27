@@ -93,7 +93,7 @@ public class BallerinaLexer {
                 token = getSyntaxToken(SyntaxKind.SEMICOLON_TOKEN);
                 break;
             case LexerTerminals.DOT:
-                token = parseDotOrEllipsis();
+                token = processDot();
                 break;
             case LexerTerminals.COMMA:
                 token = getSyntaxToken(SyntaxKind.COMMA_TOKEN);
@@ -407,14 +407,17 @@ public class BallerinaLexer {
     }
 
     /**
-     * Process dot or ellipsis token.
+     * Process dot, ellipsis or decimal floating point token.
      * 
-     * @return Dot or ellipsis token
+     * @return Dot, ellipsis or decimal floating point token
      */
-    private STToken parseDotOrEllipsis() {
+    private STToken processDot() {
         if (reader.peek() == LexerTerminals.DOT && reader.peek(1) == LexerTerminals.DOT) {
             reader.advance(2);
             return getSyntaxToken(SyntaxKind.ELLIPSIS_TOKEN);
+        }
+        if (this.mode != ParserMode.IMPORT && isDigit(reader.peek())) {
+            return processDecimalFloatLiteral();
         }
         return getSyntaxToken(SyntaxKind.DOT_TOKEN);
     }
@@ -480,6 +483,8 @@ public class BallerinaLexer {
      * <code>
      * numeric-literal := int-literal | floating-point-literal
      * <br/>
+     * floating-point-literal := DecimalFloatingPointNumber | HexFloatingPointLiteral
+     * <br/>
      * int-literal := DecimalNumber | HexIntLiteral
      * <br/>
      * DecimalNumber := 0 | NonZeroDigit Digit*
@@ -494,24 +499,31 @@ public class BallerinaLexer {
     private STToken processNumericLiteral(int startChar) {
         int nextChar = peek();
         if (isHexIndicator(startChar, nextChar)) {
-            return processHexIntLiteral();
+            return processHexLiteral();
         }
 
         int len = 1;
         while (true) {
             switch (nextChar) {
-                case '.':
+                case LexerTerminals.DOT:
                 case 'e':
                 case 'E':
+                case 'f':
+                case 'F':
+                case 'd':
+                case 'D':
                     // In sem-var mode, only decimal integer literals are supported
                     if (this.mode == ParserMode.IMPORT) {
                         break;
                     }
 
-                    // TODO: handle float
-                    reader.advance();
-                    processInvalidToken();
-                    return readToken();
+                    // Integer part of the float cannot have a leading zero
+                    if (startChar == '0' && len > 1) {
+                        break;
+                    }
+
+                    // Code would not reach here if the floating point starts with a dot
+                    return processDecimalFloatLiteral();
                 default:
                     if (isDigit(nextChar)) {
                         reader.advance();
@@ -524,9 +536,9 @@ public class BallerinaLexer {
             break;
         }
 
-        // Integer cannot have a leading zero
-        // TODO: validate whether this is an integer, once float support is added.
+        // Integer or integer part of the float cannot have a leading zero
         if (startChar == '0' && len > 1) {
+            reportLexerError("extra leading zero");
             processInvalidToken();
             return readToken();
         }
@@ -536,9 +548,141 @@ public class BallerinaLexer {
 
     /**
      * <p>
-     * Process and returns a hex integer literal.
+     * Process and returns a decimal floating point literal.
      * </p>
      * <code>
+     * DecimalFloatingPointNumber :=
+     *    DecimalNumber Exponent [FloatingPointTypeSuffix]
+     *    | DottedDecimalNumber [Exponent] [FloatingPointTypeSuffix]
+     *    | DecimalNumber FloatingPointTypeSuffix
+     * <br/>
+     * DottedDecimalNumber := DecimalNumber . Digit* | . Digit+
+     * <br/>
+     * FloatingPointTypeSuffix := DecimalTypeSuffix | FloatTypeSuffix
+     * <br/>
+     * DecimalTypeSuffix := d | D
+     * <br/>
+     * FloatTypeSuffix :=  f | F
+     * </code>
+     *
+     * @return The decimal floating point literal.
+     */
+    private STToken processDecimalFloatLiteral() {
+        int nextChar = peek();
+
+        // For float literals start with a DOT, this condition will always be false,
+        // as the reader is already advanced for the DOT before coming here.
+        if (nextChar == LexerTerminals.DOT) {
+            reader.advance();
+            nextChar = peek();
+        }
+
+        while (isDigit(nextChar)) {
+            reader.advance();
+            nextChar = peek();
+        }
+
+        switch (nextChar) {
+            case 'e':
+            case 'E':
+                return processExponent(false);
+            case 'f':
+            case 'F':
+            case 'd':
+            case 'D':
+                return parseFloatingPointTypeSuffix();
+        }
+
+        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+    }
+
+    /**
+     * <p>
+     * Process an exponent or hex-exponent.
+     * </p>
+     * <code>
+     * exponent := Exponent | HexExponent
+     * <br/>
+     * Exponent := ExponentIndicator [Sign] Digit+
+     * <br/>
+     * HexExponent := HexExponentIndicator [Sign] Digit+
+     * <br/>
+     * ExponentIndicator := e | E
+     * <br/>
+     * HexExponentIndicator := p | P
+     * <br/>
+     * Sign := + | -
+     * <br/>
+     * Digit := 0 .. 9
+     * </code>
+     *
+     * @param isHex HexExponent or not
+     * @return The decimal floating point literal.
+     */
+    private STToken processExponent(boolean isHex) {
+        // Advance reader as exponent indicator is already validated
+        reader.advance();
+        int nextChar = peek();
+
+        // Capture if there is a sign
+        if (nextChar == LexerTerminals.PLUS || nextChar == LexerTerminals.MINUS) {
+            reader.advance();
+            nextChar = peek();
+        }
+
+        // Make sure at least one digit is present after the indicator
+        if (!isDigit(nextChar)) {
+            reportLexerError("missing digit");
+            processInvalidToken();
+            return readToken();
+        }
+
+        while (isDigit(nextChar)) {
+            reader.advance();
+            nextChar = peek();
+        }
+
+        if (isHex) {
+            return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
+        }
+
+        switch (nextChar) {
+            case 'f':
+            case 'F':
+            case 'd':
+            case 'D':
+                return parseFloatingPointTypeSuffix();
+        }
+
+        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+    }
+
+    /**
+     * <p>
+     * Parse floating point type suffix.
+     * </p>
+     * <code>
+     * FloatingPointTypeSuffix := DecimalTypeSuffix | FloatTypeSuffix
+     * <br/>
+     * DecimalTypeSuffix := d | D
+     * <br/>
+     * FloatTypeSuffix :=  f | F
+     * </code>
+     *
+     * @return The decimal floating point literal.
+     */
+    private STToken parseFloatingPointTypeSuffix() {
+        reader.advance();
+        return getLiteral(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+    }
+
+    /**
+     * <p>
+     * Process and returns a hex literal.
+     * </p>
+     * <code>
+     * hex-literal := HexIntLiteral | HexFloatingPointLiteral
+     * <br/>
      * HexIntLiteral := HexIndicator HexNumber
      * <br/>
      * HexNumber := HexDigit+
@@ -547,22 +691,59 @@ public class BallerinaLexer {
      * <br/>
      * HexDigit := Digit | a .. f | A .. F
      * <br/>
+     * HexFloatingPointLiteral := HexIndicator HexFloatingPointNumber
+     * <br/>
+     * HexFloatingPointNumber := HexNumber HexExponent | DottedHexNumber [HexExponent]
+     * <br/>
+     * DottedHexNumber := HexDigit+ . HexDigit* | . HexDigit+
      * </code>
-     * 
-     * @return
+     *
+     * @return The hex literal.
      */
-    private STToken processHexIntLiteral() {
+    private STToken processHexLiteral() {
         reader.advance();
+
+        // Make sure at least one hex-digit present if processing started from a dot
+        if (peek() == LexerTerminals.DOT && !isHexDigit(reader.peek(1))) {
+            reader.advance();
+            reportLexerError("missing hex-digit");
+            processInvalidToken();
+            return readToken();
+        }
+
+        int nextChar;
         while (isHexDigit(peek())) {
             reader.advance();
         }
+        nextChar = peek();
 
-        return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL);
+        switch (nextChar) {
+            case LexerTerminals.DOT:
+                reader.advance();
+                nextChar = peek();
+                while (isHexDigit(nextChar)) {
+                    reader.advance();
+                    nextChar = peek();
+                }
+                switch (nextChar) {
+                    case 'p':
+                    case 'P':
+                        return processExponent(true);
+                }
+                break;
+            case 'p':
+            case 'P':
+                return processExponent(true);
+            default:
+                return getLiteral(SyntaxKind.HEX_INTEGER_LITERAL);
+        }
+
+        return getLiteral(SyntaxKind.HEX_FLOATING_POINT_LITERAL);
     }
 
     /**
      * Process and returns an identifier or a keyword.
-     * 
+     *
      * @return An identifier or a keyword.
      */
     private STToken processIdentifierOrKeyword() {
