@@ -37,14 +37,12 @@ public type InboundOAuth2Provider object {
     *auth:InboundAuthProvider;
 
     IntrospectionServerConfig introspectionServerConfig;
-    cache:Cache? inboundOAuth2Cache;
 
     # Provides authentication based on the provided introspection configurations.
     #
     # + introspectionServerConfig - OAuth2 introspection server configurations
-    public function __init(IntrospectionServerConfig config) {
-        self.introspectionServerConfig = config;
-        self.inboundOAuth2Cache = config?.oauth2Cache;
+    public function __init(IntrospectionServerConfig introspectionServerConfig) {
+        self.introspectionServerConfig = introspectionServerConfig;
     }
 
 # Authenticates the provider OAuth2 tokens with an introspection endpoint.
@@ -59,20 +57,8 @@ public type InboundOAuth2Provider object {
             return false;
         }
 
-        cache:Cache? oauth2Cache = self.inboundOAuth2Cache;
-        if (oauth2Cache is cache:Cache && oauth2Cache.hasKey(credential)) {
-            IntrospectionResponse? response = validateFromCache(oauth2Cache, credential);
-            if (response is IntrospectionResponse) {
-                return true;
-            }
-        }
-
         IntrospectionResponse|Error validationResult = validateOAuth2Token(credential, self.introspectionServerConfig);
         if (validationResult is IntrospectionResponse) {
-            if (oauth2Cache is cache:Cache) {
-                addToCache(oauth2Cache, credential, validationResult);
-                addToCache(oauth2Cache, credential, validationResult);
-            }
             auth:setAuthenticationContext("oauth2", credential);
             auth:setPrincipal(validationResult?.username, validationResult?.username,
                               getScopes(validationResult?.scopes));
@@ -93,6 +79,14 @@ public type InboundOAuth2Provider object {
 # + return - OAuth2 introspection server response or else a `oauth2:Error` if token validation fails
 public function validateOAuth2Token(string token, IntrospectionServerConfig config)
                                     returns @tainted (IntrospectionResponse|Error) {
+    cache:Cache? oauth2Cache = config?.oauth2Cache;
+    if (oauth2Cache is cache:Cache && oauth2Cache.hasKey(token)) {
+        IntrospectionResponse? response = validateFromCache(oauth2Cache, token);
+        if (response is IntrospectionResponse) {
+            return response;
+        }
+    }
+
     // Build the request to be send to the introspection endpoint.
     // Refer: https://tools.ietf.org/html/rfc7662#section-2.1
     http:Request req = new;
@@ -130,6 +124,10 @@ public function validateOAuth2Token(string token, IntrospectionServerConfig conf
             } else {
                 int exp = config.defaultTokenExpTimeInSeconds + (time:currentTime().time / 1000);
                 introspectionResponse.exp = exp;
+            }
+
+            if (oauth2Cache is cache:Cache) {
+                addToCache(oauth2Cache, token, introspectionResponse);
             }
         }
         return introspectionResponse;
@@ -199,6 +197,16 @@ public type IntrospectionServerConfig record {|
     cache:Cache oauth2Cache?;
     int defaultTokenExpTimeInSeconds = 3600;
     http:ClientConfiguration clientConfig = {};
+|};
+
+// TODO: Remove API since, no longer used this.
+# Represents cached OAuth2 information.
+#
+# + username - Username of the OAuth2 validated user
+# + scopes - Scopes of the OAuth2 validated user
+public type InboundOAuth2CacheEntry record {|
+    string username;
+    string scopes;
 |};
 
 # Represents introspection server response.
