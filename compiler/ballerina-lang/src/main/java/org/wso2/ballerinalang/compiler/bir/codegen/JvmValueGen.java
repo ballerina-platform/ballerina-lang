@@ -1016,7 +1016,7 @@ class JvmValueGen {
         private void createRecordClearMethod(ClassWriter cw, List<BField> fields, String className) {
             // throw an UnsupportedOperationException, since remove is not supported by for records.
             MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "remove", String.format("(L%s;)L%s;", OBJECT, OBJECT),
-                    String.format("(L%s;)TV;", OBJECT), null);
+                                              String.format("(L%s;)TV;", OBJECT), null);
             mv.visitCode();
 
             int fieldNameRegIndex = 1;
@@ -1024,7 +1024,11 @@ class JvmValueGen {
 
             // cast key to java.lang.String
             mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-            mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+            mv.visitTypeInsn(CHECKCAST, isBString ? B_STRING_VALUE : STRING_VALUE);
+            if (isBString) {
+                mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue",
+                                   String.format("()L%s;", STRING_VALUE), true);
+            }
             mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
             mv.visitVarInsn(ALOAD, 0);
@@ -1078,7 +1082,7 @@ class JvmValueGen {
             // default case
             mv.visitLabel(defaultCaseLabel);
             mv.visitVarInsn(ALOAD, 0);
-            mv.visitVarInsn(ALOAD, strKeyVarIndex);
+            mv.visitVarInsn(ALOAD, fieldNameRegIndex);
             mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "remove",
                     String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
             mv.visitInsn(ARETURN);

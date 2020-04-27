@@ -590,10 +590,6 @@ public class BRunUtil {
                             jvmArray.add(i, array.getBoolean(i) == 1);
                             break;
                         case TypeTags.STRING_TAG:
-                            if (ArrayValueImpl.USE_BSTRING) {
-                                jvmArray.add(i, StringUtils.fromString(array.getString(i)));
-                                break;
-                            }
                             jvmArray.add(i, array.getString(i));
                             break;
                         case TypeTags.FLOAT_TAG:
@@ -716,7 +712,7 @@ public class BRunUtil {
                             jvmArray.add(i, array.getBoolean(i) == 1);
                             break;
                         case TypeTags.STRING_TAG:
-                            jvmArray.add(i, StringUtils.fromString(array.getString(i)));
+                            jvmArray.add(i, array.getString(i));
                             break;
                         case TypeTags.FLOAT_TAG:
                             jvmArray.add(i, array.getFloat(i));
@@ -841,7 +837,7 @@ public class BRunUtil {
                             break;
                         case TypeTags.STRING_TAG:
                             if (ArrayValueImpl.USE_BSTRING) {
-                                jvmArray.add(i, StringUtils.fromString(array.getString(i)));
+                                jvmArray.add(i, array.getString(i));
                                 break;
                             }
                             jvmArray.add(i, array.getString(i));

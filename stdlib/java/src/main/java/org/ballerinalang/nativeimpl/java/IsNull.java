@@ -35,4 +35,8 @@ public class IsNull {
     public static boolean isNull(Strand strand, HandleValue value) {
         return value.getValue() == null;
     }
+
+    public static boolean isNull_bstring(Strand strand, HandleValue value) {
+        return isNull(strand, value);
+    }
 }

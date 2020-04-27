@@ -55,7 +55,7 @@ import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getMod
 
 /**
  * Common utility methods used for JSON manipulation.
- * 
+ *
  * @since 0.995.0
  */
 @SuppressWarnings("unchecked")
@@ -64,10 +64,13 @@ public class JSONUtils {
     public static final String OBJECT = "object";
     public static final String ARRAY = "array";
 
+    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
+    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
+
     /**
      * Check whether JSON has particular field.
      *
-     * @param json JSON to be considered.
+     * @param json        JSON to be considered.
      * @param elementName String name json field to be considered.
      * @return Boolean 'true' if JSON has given field.
      */
@@ -387,7 +390,7 @@ public class JSONUtils {
     public static MapValueImpl<String, Object> convertJSONToRecord(Object json, BStructureType structType) {
         if (json == null || !isJSONObject(json)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                    getComplexObjectTypeName(OBJECT), getTypeName(json));
+                                                           getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
         MapValueImpl<String, Object> bStruct = new MapValueImpl<>(structType);
@@ -412,6 +415,42 @@ public class JSONUtils {
         return bStruct;
     }
 
+    /**
+     * Convert a BJSON to a user defined record.
+     *
+     * @param json       JSON to convert
+     * @param structType Type (definition) of the target record
+     * @return If the provided JSON is of object-type, this method will return a {@link MapValueImpl} containing the
+     * values of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
+     */
+    public static MapValueImpl<BString, Object> convertJSONToRecord_bstring(Object json, BStructureType structType) {
+        if (json == null || !isJSONObject(json)) {
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+                                                           getComplexObjectTypeName(OBJECT), getTypeName(json));
+        }
+
+        MapValueImpl<BString, Object> bStruct = new MapValueImpl<>(structType);
+        MapValueImpl<BString, Object> jsonObject = (MapValueImpl<BString, Object>) json;
+        for (Map.Entry<String, BField> field : structType.getFields().entrySet()) {
+            BType fieldType = field.getValue().type;
+            BString fieldName = StringUtils.fromString(field.getValue().name);
+            try {
+                // If the field does not exists in the JSON, set the default value for that struct field.
+                if (!jsonObject.containsKey(fieldName)) {
+                    bStruct.put(fieldName, fieldType.getZeroValue());
+                    continue;
+                }
+
+                Object jsonValue = jsonObject.get(fieldName);
+                bStruct.put(fieldName, convertJSON(jsonValue, fieldType));
+            } catch (Exception e) {
+                handleError(e, fieldName.getValue());
+            }
+        }
+
+        return bStruct;
+    }
+
     public static Object convertJSON(Object jsonValue, BType targetType) {
         switch (targetType.getTag()) {
             case TypeTags.INT_TAG:
@@ -421,13 +460,16 @@ public class JSONUtils {
             case TypeTags.DECIMAL_TAG:
                 return jsonNodeToDecimal(jsonValue);
             case TypeTags.STRING_TAG:
+                if (jsonValue instanceof BString) {
+                    return jsonValue;
+                }
                 return jsonValue.toString();
             case TypeTags.BOOLEAN_TAG:
                 return jsonNodeToBoolean(jsonValue);
             case TypeTags.JSON_TAG:
                 if (jsonValue != null && !TypeChecker.checkIsType(jsonValue, targetType)) {
                     throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
-                            getTypeName(jsonValue));
+                                                                   getTypeName(jsonValue));
                 }
                 // fall through
             case TypeTags.ANY_TAG:
@@ -445,6 +487,9 @@ public class JSONUtils {
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
+                if (USE_BSTRING) {
+                    return convertJSONToRecord_bstring(jsonValue, (BStructureType) targetType);
+                }
                 return convertJSONToRecord(jsonValue, (BStructureType) targetType);
             case TypeTags.ARRAY_TAG:
                 return convertJSONToBArray(jsonValue, (BArrayType) targetType);

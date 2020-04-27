@@ -47,4 +47,7 @@ public class GetMapFunc {
         functionType.paramTypes[0] = new BUnionType(new BType[]{BTypes.typeAny, BTypes.typeError}, 0);
         return fpValue;
     }
+    public static FPValue getMapFunc_bstring(Strand strand, Object obj) {
+        return getMapFunc(strand, obj);
+    }
 }
