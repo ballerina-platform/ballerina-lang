@@ -228,7 +228,6 @@ public enum DiagnosticCode {
     INVALID_OBJECT_CONSTRUCTOR("invalid.object.constructor"),
     RECORD_INITIALIZER_INVOKED("explicit.invocation.of.record.init.is.not.allowed"),
     PKG_ALIAS_NOT_ALLOWED_HERE("pkg.alias.not.allowed.here"),
-    INVALID_REST_ARGS("invalid.rest.args"),
 
     MULTI_VALUE_RETURN_EXPECTED("multi.value.return.expected"),
     SINGLE_VALUE_RETURN_EXPECTED("single.value.return.expected"),
