@@ -17,7 +17,6 @@
 
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -28,11 +27,9 @@ import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableValue;
-import org.ballerinalang.jvm.values.TupleValueImpl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
 
