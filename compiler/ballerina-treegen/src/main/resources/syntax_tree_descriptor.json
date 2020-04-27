@@ -1754,6 +1754,201 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "XMLTemplateExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "XML_TEMPLATE_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "xmlKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "startBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "content",
+                    "type": "XMLItemNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "BacktickTemplateMemberNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "XMLItemNode",
+            "base": "BacktickTemplateMemberNode",
+            "isAbstract": true
+        },
+        {
+            "name": "XMLElementNode",
+            "base": "XMLItemNode",
+            "kind": "XML_ELEMENT",
+            "attributes": [
+                {
+                    "name": "startTag",
+                    "type": "XMLStartTagNode"
+                },
+                {
+                    "name": "content",
+                    "type": "XMLItemNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "endTag",
+                    "type": "XMLEndTagNode"
+                }
+            ]
+        },
+        {
+            "name": "XMLElementTagNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "XMLStartTagNode",
+            "base": "XMLElementTagNode",
+            "kind": "XML_ELEMENT_START_TAG",
+            "attributes": [
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "name",
+                    "type": "XMLNameNode"
+                },
+                {
+                    "name": "attributes",
+                    "type": "XMLAttributeNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "getToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "XMLEndTagNode",
+            "base": "XMLElementTagNode",
+            "kind": "XML_ELEMENT_END_TAG",
+            "attributes": [
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "slashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "name",
+                    "type": "XMLNameNode"
+                },
+                {
+                    "name": "getToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "XMLNameNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "XMLSimpleNameNode",
+            "base": "XMLNameNode",
+            "kind": "XML_SIMPLE_NAME",
+            "attributes": [
+                {
+                    "name": "name",
+                    "type": "XMLSimpleNameNode"
+                }
+            ]
+        },
+        {
+            "name": "XMLQualifiedNameNode",
+            "base": "XMLNameNode",
+            "kind": "XML_QUALIFIED_NAME",
+            "attributes": [
+                {
+                    "name": "prefix",
+                    "type": "XMLSimpleNameNode"
+                },
+                {
+                    "name": "colon",
+                    "type": "Token"
+                },
+                {
+                    "name": "name",
+                    "type": "XMLSimpleNameNode"
+                }
+            ]
+        },
+        {
+            "name": "XMLEmptyElementNode",
+            "base": "XMLItemNode",
+            "kind": "XML_EMPTY_ELEMENT",
+            "attributes": [
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "attributes",
+                    "type": "XMLAttributeNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "slashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "getToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "InterpolationNode",
+            "base": "XMLItemNode",
+            "kind": "INTERPOLATION",
+            "attributes": [
+                {
+                    "name": "interpolationStartToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "interpolationEndToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "XMLTextNode",
+            "base": "XMLItemNode",
+            "kind": "XML_TEXT",
+            "attributes": [
+                {
+                    "name": "content",
+                    "type": "Token"
+                }
+            ]
         }
     ]
 }

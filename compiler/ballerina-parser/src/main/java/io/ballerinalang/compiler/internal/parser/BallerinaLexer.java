@@ -51,28 +51,37 @@ public class BallerinaLexer {
      * @return Next lexical token.
      */
     public STToken nextToken() {
-        processLeadingTrivia();
         switch (this.mode) {
             case DEFAULT:
             case IMPORT:
+                processLeadingTrivia();
                 this.lastToken = readToken();
                 break;
             case XML_CONTENT:
+                // XML content have no trivia. Whitespace is captured
+                // as XML text.
+                this.leadingTriviaList = new ArrayList<>(0);
                 this.lastToken = readTokenInXMLContent();
                 break;
             case XML_ELEMENT_START_TAG:
+                processLeadingXMLTrivia();
                 this.lastToken = readTokenInXMLElement(true);
                 break;
             case XML_ELEMENT_END_TAG:
+                processLeadingXMLTrivia();
                 this.lastToken = readTokenInXMLElement(false);
                 break;
             case XML_TEXT:
+                // XML text have no trivia. Whitespace is part of the text.
+                this.leadingTriviaList = new ArrayList<>(0);
                 this.lastToken = readTokenInXMLText();
                 break;
             case INTERPOLATION:
+                processLeadingTrivia();
                 this.lastToken = readTokenInInterpolation();
                 break;
             case INTERPOLATION_BRACED_CONTENT:
+                processLeadingTrivia();
                 this.lastToken = readTokenInBracedContentInInterpolation();
                 break;
             default:
@@ -1060,67 +1069,75 @@ public class BallerinaLexer {
 
     /*
      * ------------------------------------------------------------------------------------------------------------
-     * INTERPOLATION Mode
-     * ------------------------------------------------------------------------------------------------------------
-     */
-
-    private STToken readTokenInInterpolation() {
-        int nextToken = peek();
-        switch (nextToken) {
-            case LexerTerminals.OPEN_BRACE:
-                // Start braced-content mode. This is to keep track of the
-                // open-brace and the corresponding close-brace. This way,
-                // those will not be mistaken as the close-brace of the
-                // interpolation end.
-                startMode(ParserMode.INTERPOLATION_BRACED_CONTENT);
-                return readToken();
-            case LexerTerminals.CLOSE_BRACE:
-                // Close-brace in the interpolation mode definitely means its
-                // then end of the interpolation.
-                endMode();
-                reader.advance();
-                return getSyntaxToken(SyntaxKind.CLOSE_BRACE_TOKEN);
-            case LexerTerminals.BACKTICK:
-                // If we are inside the interpolation, that means its no longer XML
-                // mode, but in default mode. Hence treat the back-tick in the same
-                // way as in the default mode.
-            default:
-                // Otherwise read the token from default mode.
-                return readToken();
-        }
-    }
-
-    /*
-     * ------------------------------------------------------------------------------------------------------------
-     * INTERPOLATION_BRACED_CONTENT Mode
-     * ------------------------------------------------------------------------------------------------------------
-     */
-
-    private STToken readTokenInBracedContentInInterpolation() {
-        int nextToken = peek();
-        switch (nextToken) {
-            case LexerTerminals.OPEN_BRACE:
-                startMode(ParserMode.INTERPOLATION_BRACED_CONTENT);
-                break;
-            case LexerTerminals.CLOSE_BRACE:
-                endMode();
-                break;
-            case LexerTerminals.BACKTICK:
-                endMode();
-                return readToken();
-            default:
-                // Otherwise read the token from default mode.
-                break;
-        }
-
-        return readToken();
-    }
-
-    /*
-     * ------------------------------------------------------------------------------------------------------------
      * XML_CONTENT Mode
      * ------------------------------------------------------------------------------------------------------------
      */
+
+    /**
+     * Process leading trivia.
+     */
+    private void processLeadingXMLTrivia() {
+        this.leadingTriviaList = new ArrayList<>(10);
+        processXMLTrivia(this.leadingTriviaList, true);
+    }
+
+    /**
+     * Process and return trailing trivia.
+     * 
+     * @return Trailing trivia
+     */
+    private STNode processTrailingXMLTrivia() {
+        List<STNode> triviaList = new ArrayList<>(10);
+        processXMLTrivia(triviaList, false);
+        return STNodeFactory.createNodeList(triviaList);
+    }
+
+    /**
+     * Process XML trivia and add it to the provided list.
+     * <p>
+     * <code>
+     * xml-trivia := (WS | invalid-tokens)+ 
+     * <br/><br/>
+     * WS := #x20 | #x9 | #xD | #xA
+     * </code>
+     * 
+     * @param triviaList List of trivia
+     * @param isLeading Flag indicating whether the currently processing leading trivia or not
+     */
+    private void processXMLTrivia(List<STNode> triviaList, boolean isLeading) {
+        while (true) {
+            reader.mark();
+            char c = reader.peek();
+            switch (c) {
+                case LexerTerminals.SPACE:
+                case LexerTerminals.TAB:
+                    triviaList.add(processWhitespaces());
+                    break;
+                case LexerTerminals.CARRIAGE_RETURN:
+                case LexerTerminals.NEWLINE:
+                    triviaList.add(processEndOfLine());
+                    if (isLeading) {
+                        break;
+                    }
+                    return;
+                default:
+                    return;
+            }
+        }
+    }
+
+    private STToken getXMLSyntaxToken(SyntaxKind kind, boolean allowLeadingWS, boolean allowTrailingWS) {
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        if (!allowLeadingWS && leadingTrivia.bucketCount() != 0) {
+            reportLexerError("invalid whitespace before: " + kind.stringValue());
+        }
+
+        STNode trailingTrivia = processTrailingXMLTrivia();
+        if (!allowTrailingWS && trailingTrivia.bucketCount() != 0) {
+            reportLexerError("invalid whitespace after: " + kind.stringValue());
+        }
+        return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
+    }
 
     /**
      * Read the next token in the {@link ParserMode#XML_CONTENT} mode.
@@ -1158,16 +1175,19 @@ public class BallerinaLexer {
                     case LexerTerminals.SLASH:
                         endMode();
                         startMode(ParserMode.XML_ELEMENT_END_TAG);
-                        return getSyntaxToken(SyntaxKind.LT_TOKEN);
+                        return getXMLSyntaxToken(SyntaxKind.LT_TOKEN, false, false);
                     default:
                         startMode(ParserMode.XML_ELEMENT_START_TAG);
-                        return getSyntaxToken(SyntaxKind.LT_TOKEN);
+                        return getXMLSyntaxToken(SyntaxKind.LT_TOKEN, false, false);
                 }
             case LexerTerminals.DOLLAR:
                 if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
                     // Switch to interpolation mode. Then the next token will be read in that mode.
                     startMode(ParserMode.INTERPOLATION);
                     reader.advance(2);
+
+                    // Trailing trivia should be captured similar to DEFAULT mode.
+                    // Hence using the 'getSyntaxToken()' method.
                     return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
                 }
                 break;
@@ -1208,7 +1228,7 @@ public class BallerinaLexer {
         switch (c) {
             case LexerTerminals.LT:
                 reader.advance();
-                return getSyntaxToken(SyntaxKind.LT_TOKEN);
+                return getXMLSyntaxToken(SyntaxKind.LT_TOKEN, false, false);
             case LexerTerminals.GT:
                 endMode();
                 if (isStartTag) {
@@ -1216,17 +1236,21 @@ public class BallerinaLexer {
                 }
 
                 reader.advance();
-                return getSyntaxToken(SyntaxKind.GT_TOKEN);
+                return getXMLSyntaxToken(SyntaxKind.GT_TOKEN, true, true);
             case LexerTerminals.SLASH:
                 reader.advance();
-                return getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+                return getXMLSyntaxToken(SyntaxKind.SLASH_TOKEN, false, false);
             case LexerTerminals.COLON:
                 reader.advance();
-                return getSyntaxToken(SyntaxKind.COLON_TOKEN);
+                return getXMLSyntaxToken(SyntaxKind.COLON_TOKEN, false, false);
             case LexerTerminals.DOLLAR:
+                // This is possible only in quoted-literals
                 if (peek() == LexerTerminals.OPEN_BRACE) {
                     reader.advance();
                     startMode(ParserMode.INTERPOLATION);
+
+                    // Trailing trivia should be captured similar to DEFAULT mode.
+                    // Hence using the 'getSyntaxToken()' method.
                     return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
                 }
                 reader.advance();
@@ -1281,7 +1305,20 @@ public class BallerinaLexer {
             reportLexerError("invalid xml name: " + text);
         }
 
-        return getIdentifierToken(text);
+        return getXMLNameToken(text);
+    }
+
+    private STToken getXMLNameToken(String tokenText) {
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+
+        // Name tokens cannot have leading WS, but can have trailing WS.
+        if (leadingTrivia.bucketCount() != 0) {
+            reportLexerError("invalid white spaces before: " + tokenText);
+        }
+
+        String lexeme = getLexeme();
+        STNode trailingTrivia = processTrailingXMLTrivia();
+        return STNodeFactory.createIdentifierToken(lexeme, leadingTrivia, trailingTrivia);
     }
 
     /*
@@ -1309,14 +1346,6 @@ public class BallerinaLexer {
 
         int nextChar = reader.peek();
         switch (nextChar) {
-            case LexerTerminals.DOLLAR:
-                if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
-                    // End XML_TEXT mode and return the next token from
-                    // the parent mode, which is the XML_CONTENT.
-                    endMode();
-                    return nextToken();
-                }
-                break;
             case LexerTerminals.BACKTICK:
                 // Back tick means the end of currently processing text as well as
                 // the end of entire XML literal. Hence end the context, and start
@@ -1335,12 +1364,9 @@ public class BallerinaLexer {
             int nextChar = this.reader.peek();
             switch (nextChar) {
                 case LexerTerminals.LT:
-                    startMode(ParserMode.XML_ELEMENT_START_TAG);
                     break;
                 case LexerTerminals.DOLLAR:
                     if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
-                        // Interpolation start is the end of the char data.
-                        endMode();
                         break;
                     }
                     reader.advance();
@@ -1361,6 +1387,73 @@ public class BallerinaLexer {
             break;
         }
 
-        return getLiteral(SyntaxKind.XML_TEXT);
+        // End of charData also means the end of XML_TEXT mode
+        endMode();
+        return getXMLText(SyntaxKind.XML_TEXT);
+    }
+
+    private STToken getXMLText(SyntaxKind kind) {
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        String lexeme = getLexeme();
+        STNode trailingTrivia = processTrailingXMLTrivia();
+        return STNodeFactory.createLiteralValueToken(kind, lexeme, -1, leadingTrivia, trailingTrivia);
+    }
+
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * INTERPOLATION Mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
+
+    private STToken readTokenInInterpolation() {
+        int nextToken = peek();
+        switch (nextToken) {
+            case LexerTerminals.OPEN_BRACE:
+                // Start braced-content mode. This is to keep track of the
+                // open-brace and the corresponding close-brace. This way,
+                // those will not be mistaken as the close-brace of the
+                // interpolation end.
+                startMode(ParserMode.INTERPOLATION_BRACED_CONTENT);
+                return readToken();
+            case LexerTerminals.CLOSE_BRACE:
+                // Close-brace in the interpolation mode definitely means its
+                // then end of the interpolation.
+                endMode();
+                reader.advance();
+                return getXMLSyntaxToken(SyntaxKind.CLOSE_BRACE_TOKEN, true, true);
+            case LexerTerminals.BACKTICK:
+                // If we are inside the interpolation, that means its no longer XML
+                // mode, but in default mode. Hence treat the back-tick in the same
+                // way as in the default mode.
+            default:
+                // Otherwise read the token from default mode.
+                return readToken();
+        }
+    }
+
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * INTERPOLATION_BRACED_CONTENT Mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
+
+    private STToken readTokenInBracedContentInInterpolation() {
+        int nextToken = peek();
+        switch (nextToken) {
+            case LexerTerminals.OPEN_BRACE:
+                startMode(ParserMode.INTERPOLATION_BRACED_CONTENT);
+                break;
+            case LexerTerminals.CLOSE_BRACE:
+                endMode();
+                break;
+            case LexerTerminals.BACKTICK:
+                endMode();
+                return readToken();
+            default:
+                // Otherwise read the token from default mode.
+                break;
+        }
+
+        return readToken();
     }
 }

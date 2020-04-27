@@ -6660,7 +6660,7 @@ public class BallerinaParser {
         STNode startingBackTick = parseBacktickToken();
         STNode content = parseXMLContent();
         STNode endingBackTick = parseBacktickToken();
-        return null;
+        return STNodeFactory.createXMLTemplateExpressionNode(xmlKeyword, startingBackTick, content, endingBackTick);
     }
 
     /**
@@ -6707,24 +6707,18 @@ public class BallerinaParser {
 
     private STNode parseXMLContentItem() {
         STToken nextToken = peek();
-        STNode content = null;
         switch (nextToken.kind) {
             case LT_TOKEN:
-                content = parseXMLElement();
-                break;
+                return parseXMLElement();
             case XML_COMMENT_START_TOKEN:
-                break;
+                return null;
             case XML_PI_START_TOKEN:
-                break;
+                return null;
             case INTERPOLATION_START_TOKEN:
-                content = parseInterpolation();
-                break;
+                return parseInterpolation();
             default:
-                content = parseXMLText();
-                break;
+                return parseXMLText();
         }
-
-        return content;
     }
 
     /**
@@ -6740,10 +6734,7 @@ public class BallerinaParser {
         STNode interpolStart = parseInterpolationStart();
         STNode expr = parseExpression();
         STNode closeBrace = parseCloseBrace();
-        System.out.println(interpolStart + "" + String.valueOf(expr) +
-                // " (" + expr == null ? "XML" : String.valueOf(expr.kind) + ")" +
-                closeBrace);
-        return null;
+        return STNodeFactory.createInterpolationNode(interpolStart, expr, closeBrace);
     }
 
     /**
@@ -6774,7 +6765,7 @@ public class BallerinaParser {
         STNode startTag = parseXMLElementStartOrEmptyTag();
         STNode content = parseXMLContent();
         STNode endTag = parseXMLElementEndTag();
-        return null;
+        return STNodeFactory.createXMLElementNode(startTag, content, endTag);
     }
 
     /**
@@ -6792,9 +6783,17 @@ public class BallerinaParser {
     private STNode parseXMLElementStartOrEmptyTag() {
         STNode tagOpen = parseLTToken();
         STNode name = parseXMLNCName();
+        STNode attributes = STNodeFactory.createEmptyNode();
+
+        if (peek().kind == SyntaxKind.SLASH_TOKEN) {
+            STNode slash = parseSlashToken();
+            STNode tagClose = parseGTToken();
+            return STNodeFactory.createXMLEmptyElementNode(tagOpen, attributes, slash, tagClose);
+
+        }
+
         STNode tagClose = parseGTToken();
-        System.out.println(tagOpen + "" + name + "" + tagClose);
-        return null;
+        return STNodeFactory.createXMLStartTagNode(tagOpen, name, attributes, tagClose);
     }
 
     /**
@@ -6811,8 +6810,7 @@ public class BallerinaParser {
         STNode slash = parseSlashToken();
         STNode name = parseXMLNCName();
         STNode tagClose = parseGTToken();
-        System.out.println(tagOpen + "" + slash + "" + name + "" + tagClose);
-        return null;
+        return STNodeFactory.createXMLEndTagNode(tagOpen, slash, name, tagClose);
     }
 
     /**
@@ -6889,25 +6887,17 @@ public class BallerinaParser {
      * @return XML text node
      */
     private STNode parseXMLText() {
-        List<STNode> items = new ArrayList<>();
         STToken nextToken = peek();
-        while (true) {
-            switch (nextToken.kind) {
-                case INTERPOLATION_START_TOKEN:
-                case EOF_TOKEN:
-                case BACKTICK_TOKEN:
-                case LT_TOKEN:
-                    break;
-                default:
-                    STNode content = parseCharData();
-                    items.add(content);
-                    nextToken = peek();
-                    continue;
-            }
-
-            break;
+        switch (nextToken.kind) {
+            case INTERPOLATION_START_TOKEN:
+            case EOF_TOKEN:
+            case BACKTICK_TOKEN:
+            case LT_TOKEN:
+                return null;
+            default:
+                STNode content = parseCharData();
+                return STNodeFactory.createXMLTextNode(content);
         }
-        return STNodeFactory.createNodeList(items);
     }
 
     /**
@@ -6916,8 +6906,6 @@ public class BallerinaParser {
      * @return XML char-data token
      */
     private STNode parseCharData() {
-        STToken text = consume();
-        System.out.println(text);
-        return text;
+        return consume();
     }
 }

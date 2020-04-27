@@ -988,5 +988,104 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 kind,
                 name);
     }
+
+    public static STNode createXMLTemplateExpressionNode(
+            STNode xmlKeyword,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick) {
+
+        return new STXMLTemplateExpressionNode(
+                xmlKeyword,
+                startBacktick,
+                content,
+                endBacktick);
+    }
+
+    public static STNode createXMLElementNode(
+            STNode startTag,
+            STNode content,
+            STNode endTag) {
+
+        return new STXMLElementNode(
+                startTag,
+                content,
+                endTag);
+    }
+
+    public static STNode createXMLStartTagNode(
+            STNode ltToken,
+            STNode name,
+            STNode attributes,
+            STNode getToken) {
+
+        return new STXMLStartTagNode(
+                ltToken,
+                name,
+                attributes,
+                getToken);
+    }
+
+    public static STNode createXMLEndTagNode(
+            STNode ltToken,
+            STNode slashToken,
+            STNode name,
+            STNode getToken) {
+
+        return new STXMLEndTagNode(
+                ltToken,
+                slashToken,
+                name,
+                getToken);
+    }
+
+    public static STNode createXMLSimpleNameNode(
+            STNode name) {
+
+        return new STXMLSimpleNameNode(
+                name);
+    }
+
+    public static STNode createXMLQualifiedNameNode(
+            STNode prefix,
+            STNode colon,
+            STNode name) {
+
+        return new STXMLQualifiedNameNode(
+                prefix,
+                colon,
+                name);
+    }
+
+    public static STNode createXMLEmptyElementNode(
+            STNode ltToken,
+            STNode attributes,
+            STNode slashToken,
+            STNode getToken) {
+
+        return new STXMLEmptyElementNode(
+                ltToken,
+                attributes,
+                slashToken,
+                getToken);
+    }
+
+    public static STNode createInterpolationNode(
+            STNode interpolationStartToken,
+            STNode expression,
+            STNode interpolationEndToken) {
+
+        return new STInterpolationNode(
+                interpolationStartToken,
+                expression,
+                interpolationEndToken);
+    }
+
+    public static STNode createXMLTextNode(
+            STNode content) {
+
+        return new STXMLTextNode(
+                content);
+    }
 }
 

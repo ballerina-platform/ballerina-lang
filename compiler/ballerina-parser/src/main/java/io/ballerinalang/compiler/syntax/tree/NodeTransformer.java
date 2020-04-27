@@ -340,6 +340,42 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(builtinSimpleNameReferenceNode);
     }
 
+    public T transform(XMLTemplateExpressionNode xMLTemplateExpressionNode) {
+        return transformSyntaxNode(xMLTemplateExpressionNode);
+    }
+
+    public T transform(XMLElementNode xMLElementNode) {
+        return transformSyntaxNode(xMLElementNode);
+    }
+
+    public T transform(XMLStartTagNode xMLStartTagNode) {
+        return transformSyntaxNode(xMLStartTagNode);
+    }
+
+    public T transform(XMLEndTagNode xMLEndTagNode) {
+        return transformSyntaxNode(xMLEndTagNode);
+    }
+
+    public T transform(XMLSimpleNameNode xMLSimpleNameNode) {
+        return transformSyntaxNode(xMLSimpleNameNode);
+    }
+
+    public T transform(XMLQualifiedNameNode xMLQualifiedNameNode) {
+        return transformSyntaxNode(xMLQualifiedNameNode);
+    }
+
+    public T transform(XMLEmptyElementNode xMLEmptyElementNode) {
+        return transformSyntaxNode(xMLEmptyElementNode);
+    }
+
+    public T transform(InterpolationNode interpolationNode) {
+        return transformSyntaxNode(interpolationNode);
+    }
+
+    public T transform(XMLTextNode xMLTextNode) {
+        return transformSyntaxNode(xMLTextNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

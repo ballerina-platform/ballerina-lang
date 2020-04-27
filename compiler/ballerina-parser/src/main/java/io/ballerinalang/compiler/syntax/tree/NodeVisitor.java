@@ -339,6 +339,42 @@ public abstract class NodeVisitor {
         visitSyntaxNode(builtinSimpleNameReferenceNode);
     }
 
+    public void visit(XMLTemplateExpressionNode xMLTemplateExpressionNode) {
+        visitSyntaxNode(xMLTemplateExpressionNode);
+    }
+
+    public void visit(XMLElementNode xMLElementNode) {
+        visitSyntaxNode(xMLElementNode);
+    }
+
+    public void visit(XMLStartTagNode xMLStartTagNode) {
+        visitSyntaxNode(xMLStartTagNode);
+    }
+
+    public void visit(XMLEndTagNode xMLEndTagNode) {
+        visitSyntaxNode(xMLEndTagNode);
+    }
+
+    public void visit(XMLSimpleNameNode xMLSimpleNameNode) {
+        visitSyntaxNode(xMLSimpleNameNode);
+    }
+
+    public void visit(XMLQualifiedNameNode xMLQualifiedNameNode) {
+        visitSyntaxNode(xMLQualifiedNameNode);
+    }
+
+    public void visit(XMLEmptyElementNode xMLEmptyElementNode) {
+        visitSyntaxNode(xMLEmptyElementNode);
+    }
+
+    public void visit(InterpolationNode interpolationNode) {
+        visitSyntaxNode(interpolationNode);
+    }
+
+    public void visit(XMLTextNode xMLTextNode) {
+        visitSyntaxNode(xMLTextNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

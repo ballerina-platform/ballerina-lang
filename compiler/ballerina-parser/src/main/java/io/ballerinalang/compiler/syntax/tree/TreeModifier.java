@@ -978,6 +978,105 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 name);
     }
 
+    @Override
+    public Node transform(XMLTemplateExpressionNode xMLTemplateExpressionNode) {
+        Token xmlKeyword = modifyToken(xMLTemplateExpressionNode.xmlKeyword());
+        Token startBacktick = modifyToken(xMLTemplateExpressionNode.startBacktick());
+        NodeList<XMLItemNode> content = modifyNodeList(xMLTemplateExpressionNode.content());
+        Token endBacktick = modifyToken(xMLTemplateExpressionNode.endBacktick());
+        return xMLTemplateExpressionNode.modify(
+                xmlKeyword,
+                startBacktick,
+                content,
+                endBacktick);
+    }
+
+    @Override
+    public Node transform(XMLElementNode xMLElementNode) {
+        XMLStartTagNode startTag = modifyNode(xMLElementNode.startTag());
+        NodeList<XMLItemNode> content = modifyNodeList(xMLElementNode.content());
+        XMLEndTagNode endTag = modifyNode(xMLElementNode.endTag());
+        return xMLElementNode.modify(
+                startTag,
+                content,
+                endTag);
+    }
+
+    @Override
+    public Node transform(XMLStartTagNode xMLStartTagNode) {
+        Token ltToken = modifyToken(xMLStartTagNode.ltToken());
+        XMLNameNode name = modifyNode(xMLStartTagNode.name());
+        NodeList<XMLAttributeNode> attributes = modifyNodeList(xMLStartTagNode.attributes());
+        Token getToken = modifyToken(xMLStartTagNode.getToken());
+        return xMLStartTagNode.modify(
+                ltToken,
+                name,
+                attributes,
+                getToken);
+    }
+
+    @Override
+    public Node transform(XMLEndTagNode xMLEndTagNode) {
+        Token ltToken = modifyToken(xMLEndTagNode.ltToken());
+        Token slashToken = modifyToken(xMLEndTagNode.slashToken());
+        XMLNameNode name = modifyNode(xMLEndTagNode.name());
+        Token getToken = modifyToken(xMLEndTagNode.getToken());
+        return xMLEndTagNode.modify(
+                ltToken,
+                slashToken,
+                name,
+                getToken);
+    }
+
+    @Override
+    public Node transform(XMLSimpleNameNode xMLSimpleNameNode) {
+        XMLSimpleNameNode name = modifyNode(xMLSimpleNameNode.name());
+        return xMLSimpleNameNode.modify(
+                name);
+    }
+
+    @Override
+    public Node transform(XMLQualifiedNameNode xMLQualifiedNameNode) {
+        XMLSimpleNameNode prefix = modifyNode(xMLQualifiedNameNode.prefix());
+        Token colon = modifyToken(xMLQualifiedNameNode.colon());
+        XMLSimpleNameNode name = modifyNode(xMLQualifiedNameNode.name());
+        return xMLQualifiedNameNode.modify(
+                prefix,
+                colon,
+                name);
+    }
+
+    @Override
+    public Node transform(XMLEmptyElementNode xMLEmptyElementNode) {
+        Token ltToken = modifyToken(xMLEmptyElementNode.ltToken());
+        NodeList<XMLAttributeNode> attributes = modifyNodeList(xMLEmptyElementNode.attributes());
+        Token slashToken = modifyToken(xMLEmptyElementNode.slashToken());
+        Token getToken = modifyToken(xMLEmptyElementNode.getToken());
+        return xMLEmptyElementNode.modify(
+                ltToken,
+                attributes,
+                slashToken,
+                getToken);
+    }
+
+    @Override
+    public Node transform(InterpolationNode interpolationNode) {
+        Token interpolationStartToken = modifyToken(interpolationNode.interpolationStartToken());
+        ExpressionNode expression = modifyNode(interpolationNode.expression());
+        Token interpolationEndToken = modifyToken(interpolationNode.interpolationEndToken());
+        return interpolationNode.modify(
+                interpolationStartToken,
+                expression,
+                interpolationEndToken);
+    }
+
+    @Override
+    public Node transform(XMLTextNode xMLTextNode) {
+        Token content = modifyToken(xMLTextNode.content());
+        return xMLTextNode.modify(
+                content);
+    }
+
     // Tokens
 
     @Override
