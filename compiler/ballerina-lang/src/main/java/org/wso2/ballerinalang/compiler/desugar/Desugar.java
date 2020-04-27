@@ -4683,13 +4683,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        BLangStatementExpression stmtExpr = queryDesugar.desugarQueryExpr(queryExpr, env);
+        BLangStatementExpression stmtExpr = queryDesugar.desugar(queryExpr, env);
         result = rewrite(stmtExpr, env);
     }
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        BLangStatementExpression stmtExpr = queryDesugar.desugarQueryAction(queryAction, env);
+        BLangStatementExpression stmtExpr = queryDesugar.desugar(queryAction, env);
         result = rewrite(stmtExpr, env);
     }
 

@@ -56,6 +56,16 @@ public function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<a
     return pipeline.getStream();
 }
 
+public function consumeStream(stream<any|error, error?> strm) returns error? {
+    any|error? v = strm.next();
+    while (!(v is () || v is error)) {
+        v = strm.next();
+    }
+    if (v is error) {
+        return v;
+    }
+}
+
 public function addToFrame(_Frame frame, string key, any|error value) {
     frame[key] = value;
 }

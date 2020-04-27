@@ -336,10 +336,12 @@ public type _DoFunction object {
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
         function(_Frame frame) f = self.doFunc;
         _Frame|error? pFrame = pf.process();
-        if (pFrame is _Frame) {
-            _Frame|error? cFrame = f(pFrame);
-        } else if (pFrame is error) {
-            panic pFrame;
+        while (pFrame is _Frame) {
+            f(pFrame);
+            pFrame = pf.process();
+        }
+        if (pFrame is error) {
+            return pFrame;
         }
     }
 
