@@ -181,7 +181,6 @@ public class CopyResourcesTask implements Task {
         } catch (IOException e) {
             throw createLauncherException("error while adding resources to module testable jar :" + e.getMessage());
         }
-
     }
 
     private FileSystem getFileSystem(URI uri) {

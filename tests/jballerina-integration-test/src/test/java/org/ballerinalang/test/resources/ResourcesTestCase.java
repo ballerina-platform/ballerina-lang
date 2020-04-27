@@ -55,7 +55,7 @@ public class ResourcesTestCase extends BaseTest {
         moduleBuildLeecher.waitForText(5000);
     }
 
-    @Test(description = "Test running the ResourceProject")
+    @Test(description = "Test running the ResourceProject", dependsOnMethods = "testResourceModuleBuild")
     public void testResourceModuleRun() throws BallerinaTestException {
         // Run and see the output
         String resourceFileMessage = "Hello Ballerina!!!";
