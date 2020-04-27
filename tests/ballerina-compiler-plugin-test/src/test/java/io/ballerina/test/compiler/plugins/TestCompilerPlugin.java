@@ -86,6 +86,16 @@ public class TestCompilerPlugin extends AbstractCompilerPlugin {
 
     }
 
+    @Override
+    public void pluginExecutionStarted(PackageID packageID) {
+        addEvent(TestEvent.Kind.PLUGIN_START, packageID.toString(), 1);
+    }
+
+    @Override
+    public void pluginExecutionCompleted(PackageID packageID) {
+        addEvent(TestEvent.Kind.PLUGIN_COMPLETE, packageID.toString(), 1);
+    }
+
     private void addEvent(TestEvent.Kind kind, String nodeName, int noOfAnnotations) {
         addEvent(new TestEvent(kind, nodeName, noOfAnnotations));
     }

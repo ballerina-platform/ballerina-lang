@@ -31,7 +31,9 @@ class TestEvent {
         FUNC_ANN("function"),
         VARIAVLE_ANN("variable"),
         ANNOTATION_ANN("annotation"),
-        CODE_GEN("codegen");
+        CODE_GEN("codegen"),
+        PLUGIN_START("pluginStart"),
+        PLUGIN_COMPLETE("pluginComplete");
 
         String name;
 
