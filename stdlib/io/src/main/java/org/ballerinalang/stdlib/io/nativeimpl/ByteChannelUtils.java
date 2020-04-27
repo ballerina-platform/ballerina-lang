@@ -192,7 +192,7 @@ public class ByteChannelUtils extends AbstractNativeChannel {
             }
             return (ArrayValue) BValueCreator.createArrayValue(results);
         } catch (IOException e) {
-//            return (ArrayValue) IOUtils.createError("Error unzipping file: " + executablePath);
+            log.error("Error unzipping file: " + executablePath);
             return null;
         }
     }
