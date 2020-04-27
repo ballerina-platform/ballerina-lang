@@ -23,8 +23,11 @@ import com.google.gson.JsonObject;
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
+import io.ballerinalang.compiler.internal.parser.tree.STBasicLiteralNode;
+import io.ballerinalang.compiler.internal.parser.tree.STBuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
@@ -85,6 +88,15 @@ public class SyntaxTreeJSONGenerator {
     }
 
     private static JsonElement getJSON(STNode treeNode) {
+        // Remove the wrappers
+        if (treeNode instanceof STBasicLiteralNode) {
+            treeNode = ((STBasicLiteralNode) treeNode).literalToken;
+        } else if (treeNode instanceof STSimpleNameReferenceNode) {
+            treeNode = ((STSimpleNameReferenceNode) treeNode).name;
+        } else if (treeNode instanceof STBuiltinSimpleNameReferenceNode) {
+            treeNode = ((STBuiltinSimpleNameReferenceNode) treeNode).name;
+        }
+
         JsonObject jsonNode = new JsonObject();
         SyntaxKind nodeKind = treeNode.kind;
         jsonNode.addProperty(KIND_FIELD, nodeKind.name());

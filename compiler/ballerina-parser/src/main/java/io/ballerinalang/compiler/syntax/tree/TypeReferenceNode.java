@@ -24,7 +24,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class TypeReferenceNode extends NonTerminalNode {
+public class TypeReferenceNode extends TypeDescriptorNode {
 
     public TypeReferenceNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

@@ -118,8 +118,7 @@
                                                     ]
                                                 },
                                                 {
-                                                    "kind": "SIMPLE_TYPE",
-                                                    "value": "int",
+                                                    "kind": "INT_KEYWORD",
                                                     "leadingTrivia": [
                                                         {
                                                             "kind": "WHITESPACE_TRIVIA",

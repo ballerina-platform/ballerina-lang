@@ -6,7 +6,8 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": []
+                    "children": [
+                    ]
                 }
             ]
         },
@@ -25,7 +26,8 @@
         },
         {
             "kind": "LIST",
-            "children": []
+            "children": [
+            ]
         },
         {
             "kind": "CLOSE_PAREN_TOKEN"
@@ -53,7 +55,8 @@
                                         },
                                         {
                                             "kind": "LIST",
-                                            "children": []
+                                            "children": [
+                                            ]
                                         },
                                         {
                                             "kind": "CLOSE_BRACE_TOKEN",

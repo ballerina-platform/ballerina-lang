@@ -90,4 +90,9 @@ public class ParameterizedTypeTest extends AbstractTypesTest {
     public void testInValidModuleLevelMapTypeWithInvalidTokenInside() {
         test("map<%> a;", "parameterized-type/parameterized_type_assert_10.json");
     }
+
+    @Test
+    public void testInValidModuleLevelParameterizedTypeMissingType() {
+        test("<int> a;", "parameterized-type/parameterized_type_assert_12.json");
+    }
 }

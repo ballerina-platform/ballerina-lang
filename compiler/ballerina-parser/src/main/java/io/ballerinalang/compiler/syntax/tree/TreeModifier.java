@@ -252,7 +252,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(ElseBlockNode elseBlockNode) {
         Token elseKeyword = modifyToken(elseBlockNode.elseKeyword());
-        BlockStatementNode elseBody = modifyNode(elseBlockNode.elseBody());
+        StatementNode elseBody = modifyNode(elseBlockNode.elseBody());
         return elseBlockNode.modify(
                 elseKeyword,
                 elseBody);
@@ -567,7 +567,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public Node transform(SpecificFieldNode specificFieldNode) {
         Token leadingComma = modifyToken(specificFieldNode.leadingComma());
-        IdentifierToken fieldName = modifyNode(specificFieldNode.fieldName());
+        Token fieldName = modifyToken(specificFieldNode.fieldName());
         Token colon = modifyToken(specificFieldNode.colon());
         ExpressionNode valueExpr = modifyNode(specificFieldNode.valueExpr());
         return specificFieldNode.modify(
@@ -749,17 +749,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 asteriskToken,
                 typeName,
                 semicolonToken);
-    }
-
-    @Override
-    public Node transform(QualifiedIdentifierNode qualifiedIdentifierNode) {
-        Token modulePrefix = modifyToken(qualifiedIdentifierNode.modulePrefix());
-        Node colon = modifyNode(qualifiedIdentifierNode.colon());
-        IdentifierToken identifier = modifyNode(qualifiedIdentifierNode.identifier());
-        return qualifiedIdentifierNode.modify(
-                modulePrefix,
-                colon,
-                identifier);
     }
 
     @Override
@@ -966,6 +955,40 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         NodeList<Token> documentationLines = modifyNodeList(documentationStringNode.documentationLines());
         return documentationStringNode.modify(
                 documentationLines);
+    }
+
+    @Override
+    public Node transform(BasicLiteralNode basicLiteralNode) {
+        Token literalToken = modifyToken(basicLiteralNode.literalToken());
+        return basicLiteralNode.modify(
+                basicLiteralNode.kind(),
+                literalToken);
+    }
+
+    @Override
+    public Node transform(SimpleNameReferenceNode simpleNameReferenceNode) {
+        Token name = modifyToken(simpleNameReferenceNode.name());
+        return simpleNameReferenceNode.modify(
+                name);
+    }
+
+    @Override
+    public Node transform(QualifiedNameReferenceNode qualifiedNameReferenceNode) {
+        Token modulePrefix = modifyToken(qualifiedNameReferenceNode.modulePrefix());
+        Node colon = modifyNode(qualifiedNameReferenceNode.colon());
+        IdentifierToken identifier = modifyNode(qualifiedNameReferenceNode.identifier());
+        return qualifiedNameReferenceNode.modify(
+                modulePrefix,
+                colon,
+                identifier);
+    }
+
+    @Override
+    public Node transform(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
+        Token name = modifyToken(builtinSimpleNameReferenceNode.name());
+        return builtinSimpleNameReferenceNode.modify(
+                builtinSimpleNameReferenceNode.kind(),
+                name);
     }
 
     // Tokens

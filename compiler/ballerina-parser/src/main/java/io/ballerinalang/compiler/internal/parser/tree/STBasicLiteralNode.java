@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedIdentifierNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,27 +27,20 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STQualifiedIdentifierNode extends STNode {
-    public final STNode modulePrefix;
-    public final STNode colon;
-    public final STNode identifier;
+public class STBasicLiteralNode extends STExpressionNode {
+    public final STNode literalToken;
 
-    STQualifiedIdentifierNode(
-            STNode modulePrefix,
-            STNode colon,
-            STNode identifier) {
-        super(SyntaxKind.QUALIFIED_IDENTIFIER);
-        this.modulePrefix = modulePrefix;
-        this.colon = colon;
-        this.identifier = identifier;
+    STBasicLiteralNode(
+            SyntaxKind kind,
+            STNode literalToken) {
+        super(kind);
+        this.literalToken = literalToken;
 
         addChildren(
-                modulePrefix,
-                colon,
-                identifier);
+                literalToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new QualifiedIdentifierNode(this, position, parent);
+        return new BasicLiteralNode(this, position, parent);
     }
 }

@@ -38,7 +38,7 @@ public class STParameterizedTypeDescriptorNode extends STNode {
             STNode ltToken,
             STNode typeNode,
             STNode gtToken) {
-        super(SyntaxKind.PARAMETERIZED_TYPE);
+        super(SyntaxKind.PARAMETERIZED_TYPE_DESC);
         this.parameterizedType = parameterizedType;
         this.ltToken = ltToken;
         this.typeNode = typeNode;
