@@ -17,14 +17,18 @@
  */
 package org.ballerinalang.jvm.values;
 
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypedescType;
+import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 
 import java.util.Map;
 
 /**
  * <p>
- * Ballerina runtime value representation of a *type*.
+ * Ballerina runtime value representation of a *type*. This class will be extended by the generated
+ * typedesc classes.
  *
  * {@code typedesc} is used to describe type of a value in Ballerina.
  * For example {@code typedesc} of number 5 is {@code int}, where as {@code typedesc} of a record value is the
@@ -53,6 +57,15 @@ public class TypedescValueImpl implements  TypedescValue {
      */
     public BType getDescribingType() {
         return describingType;
+    }
+
+    @Override
+    public Object instantiate(Strand s) {
+        if (describingType.getTag() == TypeTags.MAP_TAG) {
+            return new MapValueImpl<>(describingType);
+        }
+        // This method will be overridden for user-defined types, therefor this line shouldn't be reached.
+        throw new BallerinaException("Given type can't be instantiated at runtime : " + describingType);
     }
 
     @Override

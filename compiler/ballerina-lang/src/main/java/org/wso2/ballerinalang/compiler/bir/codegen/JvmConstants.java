@@ -167,6 +167,8 @@ public class JvmConstants {
     public static final String UNIX_PATH_SEPERATOR = "/";
     public static final String JAVA_PACKAGE_SEPERATOR = "/";
     public static final String FILE_NAME_PERIOD_SEPERATOR = "$$$";
+    public static final String VALUE_CLASS_PREFIX = "$value$";
+    public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
     public static final String BALLERINA = "ballerina";
     public static final String BUILT_IN_PACKAGE_NAME = "lang.annotations";
 
