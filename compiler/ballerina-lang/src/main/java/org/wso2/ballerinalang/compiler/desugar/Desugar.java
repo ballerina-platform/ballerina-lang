@@ -5731,6 +5731,8 @@ public class Desugar extends BLangNodeVisitor {
                 detailType = createDetailType(errorVariable.detail, errorVariable.restDetail, errorCount++);
 
                 BLangRecordTypeNode recordTypeNode = createRecordTypeNode(errorVariable, (BRecordType) detailType);
+                recordTypeNode.initFunction = TypeDefBuilderHelper
+                        .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
                 TypeDefBuilderHelper.addTypeDefinition(detailType, detailType.tsymbol, recordTypeNode, env);
             }
             BErrorType errorType = new BErrorType(errorTypeSymbol,
