@@ -383,7 +383,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 7,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
@@ -402,7 +402,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 7,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
@@ -421,7 +421,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 7,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
@@ -440,7 +440,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 7,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
@@ -459,7 +459,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 7,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
@@ -478,7 +478,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 7,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 1);
     }
@@ -500,6 +500,138 @@ public class StubGeneratorTestCase {
         assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 1,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 0);
+    }
+
+    @Test(description = "Test gateway proxy for server streaming")
+    public void testServerStreamingGateway() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("serverStreamingGateway.proto",
+                "serverStreamingGateway");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 8,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 24,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 12,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 7,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 2);
+    }
+
+    @Test(description = "Test gateway proxy for client streaming")
+    public void testClientStreamingGateway() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("clientStreamingGateway.proto",
+                "clientStreamingGateway");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 8,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 24,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 12,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 7,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 2);
+    }
+
+    @Test(description = "Test gateway proxy for bi-directional streaming")
+    public void testBidiStreamingGateway() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("bidiStreamingGateway.proto",
+                "bidiStreamingGateway");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 8,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 24,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 12,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 7,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 2);
+    }
+
+    @Test(description = "Test gateway proxy for streaming client with a complete body input")
+    public void testStreamingGatewayWithStarBody() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("streamingGatewayWithStarBody.proto",
+                "streamingGatewayWithStarBody");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 10,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 31,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 14,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 7,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 3);
+    }
+
+    @Test(description = "Test gateway proxy for streaming with a primitive type input")
+    public void testStreamingGatewayWithPrimitiveInput() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("streamingGatewayWithPrimitiveInput.proto",
+                "streamingGatewayWithPrimitiveInput");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 7,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 28,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 14,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 7,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 3);
+    }
+
+    @Test(description = "Test gateway proxy for streaming with empty input")
+    public void testStreamingGatewayWithEmptyInput() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("streamingGatewayWithEmptyInput.proto",
+                "streamingGatewayWithEmptyInput");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 2,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 9,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 30,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 14,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 7,
+                "Expected imports not found in compile results.");
+        validateAttachedResources(compileResult, 3);
+    }
+
+    @Test(description = "Test gateway proxy for streaming without a path")
+    public void testStreamingGatewayWithoutPath() throws IllegalAccessException, ClassNotFoundException,
+            InstantiationException {
+        CompileResult compileResult = getProxyCompileResult("streamingGatewayWithoutPath.proto",
+                "streamingGatewayWithoutPath");
+        assertEquals(compileResult.getDiagnostics().length, 0);
+        assertEquals(((BLangPackage) compileResult.getAST()).getCompilationUnits().size(), 1,
+                "Expected compilation units not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).typeDefinitions.size(), 6,
+                "Expected type definitions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).functions.size(), 10,
+                "Expected functions not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 1,
+                "Expected global variables not found in compile results.");
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 1,
+                "Expected imports not found in compile results.");
     }
 
     @Test(description = "Test case for protobuf any type generation")

@@ -26,7 +26,8 @@
         }
     }{{/if}}
 }
-{{/not_equal}}{{/each}}{{/not_equal}}{{/stubList}}public function invokeStreaming (string functionName, http:WebSocketCaller caller, json requestBody) {
+{{/not_equal}}{{/each}}{{/not_equal}}{{/stubList}}
+public function invokeStreaming (string functionName, http:WebSocketCaller caller, json requestBody) {
     match functionName {
         {{#stubList}}{{#not_equal stubType "blocking"}}{{#each (getAllStreamingFunctions this)}}{{#not_equal httpMethod "PATTERN_NOT_SET"}}"{{../serviceName}}_
         {{~methodName}}" => { invoke_{{../serviceName}}_{{methodName}}(caller{{#isNotNull inputType}}, requestBody{{/isNotNull}}); }

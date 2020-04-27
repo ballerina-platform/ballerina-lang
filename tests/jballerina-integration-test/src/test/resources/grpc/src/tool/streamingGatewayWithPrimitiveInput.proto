@@ -1,0 +1,24 @@
+syntax="proto3";
+package service;
+
+import "google/api/annotations.proto";
+import "google/protobuf/wrappers.proto";
+
+service ServerStreaming { 
+    rpc serverStream(google.protobuf.StringValue) returns (stream google.protobuf.StringValue) { 
+       option (google.api.http) = 
+        { 
+            get: "/test/{value}"            
+        }; 
+    }
+}
+
+service clientStreaming {
+    rpc clientStream(stream google.protobuf.FloatValue) returns (google.protobuf.StringValue) { 
+       option (google.api.http) = 
+        { 
+            get: "/test/{messageID}" 
+            body: "value"
+        }; 
+    }
+}

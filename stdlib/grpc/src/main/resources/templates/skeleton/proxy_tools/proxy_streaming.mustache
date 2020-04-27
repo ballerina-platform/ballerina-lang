@@ -21,8 +21,10 @@
             }
             webSocketEp.setAttribute(MESSAGE, gatewayRequestMessage);
             webSocketEp.setAttribute(FUNCTION, "{{service}}_{{methodName}}");
-            {{#if (checkStreamingType methodType "SERVER_STREAMING")}}webSocketEp.setAttribute(STAGE, INIT);
-            {{~else}}webSocketEp.setAttribute(STAGE, {{#unless (checkStreamingType methodType "SERVER_STREAMING")}}CLIENT_STREAM{{/unless}});
+            {{#if (checkStreamingType methodType "SERVER_STREAMING")}}{{#not_equal httpBody ""}}webSocketEp.setAttribute(STAGE, INIT);{{/not_equal}}
+            {{~#equals httpBody ""}}webSocketEp.setAttribute(STAGE, REPLY);
+            invokeStreaming("{{service}}_{{methodName}}", webSocketEp, {});{{/equals}}
+            {{~else}}webSocketEp.setAttribute(STAGE, CLIENT_STREAM);
             MessageListener responseListener = new (webSocketEp);
             any | error clientEp = {{service}}Ep->{{methodName}}(responseListener);
             if !(clientEp is error) {

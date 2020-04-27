@@ -1,0 +1,31 @@
+syntax="proto3";
+package service;
+
+import "google/api/annotations.proto";
+
+service clientStreaming {
+    rpc clientStream(stream MessageRequest) returns (MessageResponse) { 
+       option (google.api.http) = 
+        { 
+            get: "/test/{messageID}" 
+            body: "subMessage"
+        }; 
+    }
+}
+
+message MessageRequest { 
+    string messageID = 1;
+    int64 revision = 2;
+    Message subMessage = 3; 
+}
+
+message Message {
+	int64 number = 1;
+	float multiple = 2;
+}
+
+message MessageResponse {
+    string messageID = 1;
+    string text = 2;
+    float answer = 3; 
+}

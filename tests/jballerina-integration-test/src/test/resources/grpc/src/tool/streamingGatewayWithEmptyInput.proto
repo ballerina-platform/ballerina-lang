@@ -1,0 +1,29 @@
+syntax="proto3";
+package service;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+service serverStreaming {
+    rpc serverStream(google.protobuf.Empty) returns (stream MessageResponse) { 
+       option (google.api.http) = 
+        { 
+            get: "/test/" 
+        }; 
+    }
+}
+
+service clientStreaming { 
+    rpc clientStream(stream google.protobuf.Empty) returns (MessageResponse) { 
+        option (google.api.http) = 
+         { 
+             get: "/test/" 
+         }; 
+     } 
+} 
+
+message MessageResponse {
+    string messageID = 1;
+    string text = 2;
+    float answer = 3; 
+}
