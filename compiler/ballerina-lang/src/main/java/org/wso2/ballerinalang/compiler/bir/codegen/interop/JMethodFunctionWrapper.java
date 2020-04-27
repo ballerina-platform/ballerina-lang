@@ -17,8 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRFunctionWrapper;
-
 /**
  * Wrapper class of Java methods.
  *

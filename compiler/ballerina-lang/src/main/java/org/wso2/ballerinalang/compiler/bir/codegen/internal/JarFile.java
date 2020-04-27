@@ -20,6 +20,11 @@ package org.wso2.ballerinalang.compiler.bir.codegen.internal;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * A wrapper class for keeping metadata of jar file.
+ *
+ * @since 1.3.0
+ */
 public class JarFile {
 
     public Map<String, String> manifestEntries = new HashMap<>();

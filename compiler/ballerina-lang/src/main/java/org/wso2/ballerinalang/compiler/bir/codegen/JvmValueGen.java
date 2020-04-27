@@ -21,8 +21,8 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -69,24 +69,26 @@ public class JvmValueGen {
 
     public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
 
-    static void injectDefaultParamInitsToAttachedFuncs(BIRPackage module) {
+    static void injectDefaultParamInitsToAttachedFuncs(BIRPackage module, JvmMethodGen jvmMethodGen,
+                                                       JvmPackageGen jvmPackageGen) {
 
         List<BIRNode.BIRTypeDefinition> typeDefs = module.typeDefs;
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BIRNode.BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
             BType bType = typeDef.type;
             if (bType instanceof BServiceType) {
-                desugarObjectMethods(module, bType, typeDef.attachedFuncs);
+                desugarObjectMethods(module, bType, typeDef.attachedFuncs, jvmMethodGen, jvmPackageGen);
             } else if (bType.tag == TypeTags.OBJECT &&
                     !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) {
-                desugarObjectMethods(module, bType, typeDef.attachedFuncs);
+                desugarObjectMethods(module, bType, typeDef.attachedFuncs, jvmMethodGen, jvmPackageGen);
             } else if (bType.tag == TypeTags.RECORD) {
-                desugarObjectMethods(module, bType, typeDef.attachedFuncs);
+                desugarObjectMethods(module, bType, typeDef.attachedFuncs, jvmMethodGen, jvmPackageGen);
             }
         }
     }
 
-    private static void desugarObjectMethods(BIRPackage module, BType bType, List<BIRFunction> attachedFuncs) {
+    private static void desugarObjectMethods(BIRPackage module, BType bType, List<BIRFunction> attachedFuncs,
+                                             JvmMethodGen jvmMethodGen, JvmPackageGen jvmPackageGen) {
 
         if (attachedFuncs == null) {
             return;
@@ -96,15 +98,15 @@ public class JvmValueGen {
                 continue;
             }
             if (isExternFunc(func)) {
-                BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, func, bType);
+                BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, func, bType, jvmPackageGen);
                 if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
                     // TODO: Note when this support new interop, update here as well
-                    desugarOldExternFuncs(module, (OldStyleExternalFunctionWrapper) extFuncWrapper, func);
+                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, func, jvmMethodGen);
                 }
             } else {
-                addDefaultableBooleanVarsToSignature(func);
+                addDefaultableBooleanVarsToSignature(func, jvmPackageGen.symbolTable.booleanType);
             }
-            enrichWithDefaultableParamInits(getFunction(func));
+            enrichWithDefaultableParamInits(getFunction(func), jvmMethodGen);
         }
     }
 

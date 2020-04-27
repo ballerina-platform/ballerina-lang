@@ -23,11 +23,13 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -96,6 +98,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_V
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE;
@@ -135,19 +138,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERR
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
-
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getObjectField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecordField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.lookupGlobalVarClassName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createDefaultCase;
@@ -185,10 +183,11 @@ public class JvmTypeGen {
         }
     }
 
-    static void generateCreateTypesMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass) {
+    static void generateCreateTypesMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass,
+                                          SymbolTable symbolTable) {
 
         createTypesInstance(cw, typeDefs, typeOwnerClass);
-        List<String> populateTypeFuncNames = populateTypes(cw, typeDefs, typeOwnerClass);
+        List<String> populateTypeFuncNames = populateTypes(cw, typeDefs, typeOwnerClass, symbolTable);
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$createTypes", "()V", null, null);
         mv.visitCode();
@@ -240,7 +239,8 @@ public class JvmTypeGen {
         mv.visitEnd();
     }
 
-    private static List<String> populateTypes(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass) {
+    private static List<String> populateTypes(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass,
+                                              SymbolTable symbolTable) {
 
         List<String> funcNames = new ArrayList<>();
         String fieldName;
@@ -273,7 +273,7 @@ public class JvmTypeGen {
                     mv.visitInsn(DUP);
                     addObjectFields(mv, serviceType.fields);
                     addObjectAttachedFunctions(mv, ((BObjectTypeSymbol) serviceType.tsymbol).attachedFuncs, serviceType,
-                            indexMap);
+                            indexMap, symbolTable);
                 } else {
                     BObjectType objectType = (BObjectType) bType;
                     mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
@@ -281,10 +281,10 @@ public class JvmTypeGen {
                     addObjectFields(mv, objectType.fields);
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
                     addObjectInitFunction(mv, objectTypeSymbol.generatedInitializerFunc, objectType, indexMap,
-                            "$__init$", "setGeneratedInitializer");
+                            "$__init$", "setGeneratedInitializer", symbolTable);
                     addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, objectType, indexMap, "__init",
-                            "setInitializer");
-                    addObjectAttachedFunctions(mv, objectTypeSymbol.attachedFuncs, objectType, indexMap);
+                            "setInitializer", symbolTable);
+                    addObjectAttachedFunctions(mv, objectTypeSymbol.attachedFuncs, objectType, indexMap, symbolTable);
                 }
             } else if (bType.tag == TypeTags.ERROR) {
                 // populate detail field
@@ -309,7 +309,8 @@ public class JvmTypeGen {
     // -------------------------------------------------------
 
     static void generateValueCreatorMethods(ClassWriter cw, List<BIRTypeDefinition> typeDefs,
-                                            BIRNode.BIRPackage moduleId, String typeOwnerClass) {
+                                            BIRNode.BIRPackage moduleId, String typeOwnerClass,
+                                            SymbolTable symbolTable) {
 
         List<BIRTypeDefinition> recordTypeDefs = new ArrayList<>();
         List<BIRTypeDefinition> objectTypeDefs = new ArrayList<>();
@@ -336,7 +337,7 @@ public class JvmTypeGen {
         }
 
         generateRecordValueCreateMethod(cw, recordTypeDefs, moduleId, typeOwnerClass);
-        generateObjectValueCreateMethod(cw, objectTypeDefs, moduleId, typeOwnerClass);
+        generateObjectValueCreateMethod(cw, objectTypeDefs, moduleId, typeOwnerClass, symbolTable);
     }
 
     private static void generateRecordValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefs,
@@ -391,7 +392,8 @@ public class JvmTypeGen {
     }
 
     private static void generateObjectValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> objectTypeDefs,
-                                                        BIRNode.BIRPackage moduleId, String typeOwnerClass) {
+                                                        BIRNode.BIRPackage moduleId, String typeOwnerClass,
+                                                        SymbolTable symbolTable) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "createObjectValue",
                 String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;", STRING_VALUE, SCHEDULER, STRAND, MAP, OBJECT,
@@ -707,14 +709,12 @@ public class JvmTypeGen {
                 String.format("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE), false);
     }
 
-    public static void duplicateServiceTypeWithAnnots(MethodVisitor mv, BObjectType objectType, String pkgName,
+    public static void duplicateServiceTypeWithAnnots(MethodVisitor mv, BObjectType objectType, String pkgClassName,
                                                       int strandIndex) {
 
         createServiceType(mv, objectType, objectType);
         mv.visitInsn(DUP);
 
-        String pkgClassName = pkgName.equals(".") || pkgName.equals("") ? MODULE_INIT_CLASS_NAME :
-                lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
 
         mv.visitVarInsn(ALOAD, strandIndex);
@@ -816,7 +816,8 @@ public class JvmTypeGen {
      * @param indexMap          jvm index generation map for function generation
      */
     private static void addObjectAttachedFunctions(MethodVisitor mv, List<BAttachedFunction> attachedFunctions,
-                                                   BObjectType objType, BIRVarToJVMIndexMap indexMap) {
+                                                   BObjectType objType, BIRVarToJVMIndexMap indexMap,
+                                                   SymbolTable symbolTable) {
         // Create the attached function array
         mv.visitLdcInsn((long) attachedFunctions.size());
         mv.visitInsn(L2I);
@@ -851,7 +852,7 @@ public class JvmTypeGen {
 
     private static void addObjectInitFunction(MethodVisitor mv, BAttachedFunction initFunction,
                                               BObjectType objType, BIRVarToJVMIndexMap indexMap, String funcName,
-                                              String initializerFuncName) {
+                                              String initializerFuncName, SymbolTable symbolTable) {
 
         if (initFunction == null || !initFunction.funcName.value.contains(funcName)) {
             return;

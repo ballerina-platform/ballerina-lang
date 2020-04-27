@@ -35,13 +35,12 @@ public class JIMethodCall extends BIRTerminator {
     public List<BIROperand> args;
     public boolean varArgExist;
     public JType varArgType;
-    JTermKind jKind = JTermKind.JTERM_CALL;
     public String jClassName;
     public String jMethodVMSig;
     public String name;
     public int invocationType;
 
-    public JIMethodCall(DiagnosticPos pos) {
+    JIMethodCall(DiagnosticPos pos) {
 
         super(pos, InstructionKind.PLATFORM);
     }

@@ -21,11 +21,13 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JTypeTags;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -63,6 +65,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BHANDLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BMP_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
@@ -70,6 +73,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.I_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NUMBER;
@@ -84,13 +88,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CONVERTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.I_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
-
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.symbolTable;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.getSignatureForJType;
 
@@ -101,8 +100,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  */
 public class JvmCastGen {
 
-    public static void generatePlatformCheckCast(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, BType sourceType,
-                                                 BType targetType) {
+    //todo: fix this
+    static SymbolTable symbolTable;
+
+    static void generatePlatformCheckCast(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, BType sourceType,
+                                          BType targetType) {
 
         if (sourceType.tag == JTypeTags.JTYPE) {
             // If a target type is bir type, then we can guarantee source type is a jvm type, hence the cast
@@ -633,8 +635,8 @@ public class JvmCastGen {
         }
     }
 
-    private static void generateCheckCastJToBFiniteType(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, JType sourceType,
-                                                        BType targetType) {
+    private static void generateCheckCastJToBFiniteType(MethodVisitor mv, BIRVarToJVMIndexMap indexMap,
+                                                        JType sourceType, BType targetType) {
         // Finite types are stored in ref registry at ballerina side. Therefore if the return
         // type if a primitive, then add a box instruction.
         if (!(sourceType.jTag == JTypeTags.JREF || sourceType.jTag == JTypeTags.JARRAY)) {
@@ -642,7 +644,7 @@ public class JvmCastGen {
         }
     }
 
-    public static void generateCheckCast(MethodVisitor mv, BType sourceType, BType targetType, BIRVarToJVMIndexMap indexMap) {
+    static void generateCheckCast(MethodVisitor mv, BType sourceType, BType targetType, BIRVarToJVMIndexMap indexMap) {
 
         if (targetType.tag == TypeTags.INT) {
             generateCheckCastToInt(mv, sourceType);
@@ -961,10 +963,10 @@ public class JvmCastGen {
         generateNonBMPStringValue(mv, indexMap);
     }
 
+    private static void generateNonBMPStringValue(MethodVisitor mv, BIRVarToJVMIndexMap indexMap) {
 
-    static void generateNonBMPStringValue(MethodVisitor mv, BIRVarToJVMIndexMap indexMap) {
         BIRVariableDcl strVar = new BIRVariableDcl(null, symbolTable.anyType,
-                                                             new Name("str"), VarScope.FUNCTION, VarKind.LOCAL, "");
+                new Name("str"), VarScope.FUNCTION, VarKind.LOCAL, "");
         int tmpVarIndex = indexMap.getIndex(strVar);
 
         mv.visitVarInsn(ASTORE, tmpVarIndex);
@@ -1012,7 +1014,7 @@ public class JvmCastGen {
         }
     }
 
-    public static void generateCheckCastToByte(MethodVisitor mv, BType sourceType) {
+    static void generateCheckCastToByte(MethodVisitor mv, BType sourceType) {
 
         if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToByte", "(J)I", false);
@@ -1068,7 +1070,7 @@ public class JvmCastGen {
                 String.format("(L%s;L%s;)L%s;", OBJECT, BTYPE, OBJECT), false);
     }
 
-    public static String getTargetClass(BType targetType) {
+    static String getTargetClass(BType targetType) {
 
         String targetTypeClass;
         if (targetType.tag == TypeTags.ARRAY || targetType.tag == TypeTags.TUPLE) {
@@ -1106,7 +1108,6 @@ public class JvmCastGen {
         checkCast(mv, targetType);
     }
 
-
     private static void generateCheckCastToReadonlyType(MethodVisitor mv, BType sourceType, BType targetType) {
 
         generateCastToAny(mv, sourceType);
@@ -1117,7 +1118,7 @@ public class JvmCastGen {
     //   Generate Cast Methods - Performs cast without type checking
     // ------------------------------------------------------------------
 
-    public static void generateCast(MethodVisitor mv, BType sourceType, BType targetType) {
+    static void generateCast(MethodVisitor mv, BType sourceType, BType targetType) {
 
         if (TypeTags.isIntegerTypeTag(targetType.tag)) {
             generateCastToInt(mv, sourceType);

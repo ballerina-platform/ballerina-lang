@@ -31,9 +31,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VA
  *
  * @since 1.2.0
  */
-public class JvmObservabilityGen {
+class JvmObservabilityGen {
 
-    public static void emitStopObservationInvocation(MethodVisitor mv, int strandIndex) {
+    static void emitStopObservationInvocation(MethodVisitor mv, int strandIndex) {
 
         mv.visitVarInsn(ALOAD, strandIndex);
         mv.visitMethodInsn(INVOKESTATIC, OBSERVE_UTILS, "stopObservation",
@@ -59,6 +59,7 @@ public class JvmObservabilityGen {
     }
 
     private static String cleanUpServiceName(String serviceName) {
+
         final String serviceIdentifier = "$$service$";
         if (serviceName.contains(serviceIdentifier)) {
             if (serviceName.contains("$anonService$")) {

@@ -37,8 +37,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STACK_OVERFLOW_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.THROWABLE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TRAP_ERROR_METHOD;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarLoad;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.generateVarStore;
 
 /**
  * Error generator class used for holding errors and the index map.
@@ -50,12 +48,15 @@ public class JvmErrorGen {
     private MethodVisitor mv;
     private BIRVarToJVMIndexMap indexMap;
     private String currentPackageName;
+    private JvmInstructionGen jvmInstructionGen;
 
-    public JvmErrorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, String currentPackageName) {
+    public JvmErrorGen(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, String currentPackageName,
+                       JvmInstructionGen jvmInstructionGen) {
 
         this.mv = mv;
         this.indexMap = indexMap;
         this.currentPackageName = currentPackageName;
+        this.jvmInstructionGen = jvmInstructionGen;
     }
 
     private BIRNode.BIRErrorEntry findErrorEntry(List<BIRNode.BIRErrorEntry> errors, BIRNode.BIRBasicBlock currentBB) {
@@ -68,11 +69,11 @@ public class JvmErrorGen {
         return null;
     }
 
-    public void genPanic(BIRTerminator.Panic panicTerm) {
+    void genPanic(BIRTerminator.Panic panicTerm) {
 
         BIRNode.BIRVariableDcl varDcl = panicTerm.errorOp.variableDcl;
         int errorIndex = this.getJVMIndexOfVarRef(varDcl);
-        generateVarLoad(this.mv, varDcl, this.currentPackageName, errorIndex);
+        jvmInstructionGen.generateVarLoad(this.mv, varDcl, this.currentPackageName, errorIndex);
         this.mv.visitInsn(ATHROW);
     }
 
@@ -104,7 +105,7 @@ public class JvmErrorGen {
                 this.mv.visitLabel(errorValueLabel);
                 this.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, "createInteropError", String.format("(L%s;)L%s;",
                         THROWABLE, ERROR_VALUE), false);
-                generateVarStore(this.mv, retVarDcl, this.currentPackageName, retIndex);
+                jvmInstructionGen.generateVarStore(this.mv, retVarDcl, this.currentPackageName, retIndex);
                 BIRTerminator.Return term = catchIns.term;
                 termGen.genReturnTerm(term, retIndex, func, false, -1);
                 this.mv.visitJumpInsn(GOTO, jumpLabel);
@@ -137,7 +138,7 @@ public class JvmErrorGen {
 
         BIRNode.BIRVariableDcl varDcl = currentEE.errorOp.variableDcl;
         int lhsIndex = this.indexMap.getIndex(varDcl);
-        generateVarStore(this.mv, varDcl, this.currentPackageName, lhsIndex);
+        jvmInstructionGen.generateVarStore(this.mv, varDcl, this.currentPackageName, lhsIndex);
         this.mv.visitJumpInsn(GOTO, jumpLabel);
         this.mv.visitLabel(otherErrorLabel);
         this.mv.visitMethodInsn(INVOKESTATIC, BAL_ERRORS, TRAP_ERROR_METHOD,
@@ -146,7 +147,7 @@ public class JvmErrorGen {
         this.mv.visitLabel(jumpLabel);
     }
 
-    int getJVMIndexOfVarRef(BIRNode.BIRVariableDcl varDcl) {
+    private int getJVMIndexOfVarRef(BIRNode.BIRVariableDcl varDcl) {
 
         return this.indexMap.getIndex(varDcl);
     }

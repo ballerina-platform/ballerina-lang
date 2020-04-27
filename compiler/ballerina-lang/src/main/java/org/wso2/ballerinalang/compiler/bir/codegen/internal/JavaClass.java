@@ -22,6 +22,11 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Wrapper class for keeping metadata for Java class file.
+ *
+ * @since 1.3.0
+ */
 public class JavaClass {
 
     public String sourceFileName;

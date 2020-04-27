@@ -30,6 +30,7 @@ public class NameHashComparator implements Comparator<NamedNode> {
 
     @Override
     public int compare(NamedNode o1, NamedNode o2) {
+
         return Integer.compare(o1.getName().value.hashCode(), o2.getName().value.hashCode());
     }
 }

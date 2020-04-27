@@ -33,14 +33,13 @@ import java.util.List;
 public class JIConstructorCall extends BIRTerminator {
 
     public List<BIROperand> args;
-    boolean varArgExist;
-    JType varArgType;
-    JTermKind jKind = JTermKind.JTERM_NEW;
     public String jClassName;
     public String jMethodVMSig;
     public String name;
+    boolean varArgExist;
+    JType varArgType;
 
-    public JIConstructorCall(DiagnosticPos pos) {
+    JIConstructorCall(DiagnosticPos pos) {
 
         super(pos, InstructionKind.PLATFORM);
     }

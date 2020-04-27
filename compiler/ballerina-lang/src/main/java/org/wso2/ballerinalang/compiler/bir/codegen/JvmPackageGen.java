@@ -20,17 +20,15 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
-import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.objectweb.asm.ClassTooLargeException;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.PackageCache;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.ObjectGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException;
@@ -53,10 +51,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -94,21 +93,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_CREATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.rewriteRecordInits;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.isBString;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.addInitAndTypeInitInstructions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupBalExt;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupPathSeperators;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.enrichPkgWithInitializers;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateDefaultConstructor;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateExecutionStopMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateField;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateFrameClasses;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateLambdaForMain;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateLambdaForPackageInits;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateLambdaMethod;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateMainMethod;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateMethod;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateModuleInitializer;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunction;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunctions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMainFunc;
@@ -133,21 +121,27 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  */
 public class JvmPackageGen {
 
-    public static Map<String, BIRFunctionWrapper> birFunctionMap;
-    public static Map<String, BIRInstruction> lambdas;
-    public static String currentClass;
-    public static SymbolTable symbolTable;
+    private static final CompilerContext.Key<JvmPackageGen> JVM_PACKAGE_GEN_CHECKER_KEY = new CompilerContext.Key<>();
+    static boolean isBString;
 
-    public static int lambdaIndex;
-    static Map<String, String> externalMapCache;
+    static {
+        String bStringProp = System.getProperty("ballerina.bstring");
+        isBString = (bStringProp != null && !"".equals(bStringProp));
+    }
 
-    private static Map<String, String> globalVarClassNames;
-    private static Map<String, PackageID> dependentModules;
+    public Map<String, BIRFunctionWrapper> birFunctionMap;
+    public Map<String, BIRInstruction> lambdas;
+    public SymbolTable symbolTable;
+    public PackageCache packageCache;
+    public BUnionType errorOrNilType;
+    String currentClass;
+    int lambdaIndex;
+    Map<String, String> externalMapCache;
+    private Map<String, String> globalVarClassNames;
+    private Map<String, PackageID> dependentModules;
+    private BLangDiagnosticLogHelper dlog;
 
-    private static BLangDiagnosticLogHelper dlog;
-    private static PackageCache packageCache;
-
-    static void intiPackageGen(BLangDiagnosticLogHelper diagnosticLog, PackageCache pkgCache) {
+    private JvmPackageGen(CompilerContext compilerContext) {
 
         birFunctionMap = new HashMap<>();
         globalVarClassNames = new HashMap<>();
@@ -156,35 +150,27 @@ public class JvmPackageGen {
         dependentModules = new LinkedHashMap<>();
         currentClass = "";
         lambdaIndex = 0;
-        symbolTable = null;
-        String bStringProp = System.getProperty("ballerina.bstring");
-        isBString = (bStringProp != null && !"".equals(bStringProp));
+        symbolTable = SymbolTable.getInstance(compilerContext);
+        packageCache = PackageCache.getInstance(compilerContext);
+        dlog = BLangDiagnosticLogHelper.getInstance(compilerContext);
+        errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
 
-        dlog = diagnosticLog;
-        packageCache = pkgCache;
+        // todo: fix this
+        JvmCastGen.symbolTable = symbolTable;
+        JvmInstructionGen.anyType = symbolTable.anyType;
     }
 
-    public static BType lookupTypeDef(NewInstance objectNewIns) {
+    public static JvmPackageGen getInstance(CompilerContext compilerContext) {
 
-        if (!objectNewIns.isExternalDef) {
-            return objectNewIns.def.type;
-        } else {
-            PackageID id = objectNewIns.externalPackageId;
-            BPackageSymbol symbol = packageCache.getSymbol(id.orgName + "/" + id.name);
-            if (symbol != null) {
-                BObjectTypeSymbol objectTypeSymbol =
-                        (BObjectTypeSymbol) symbol.scope.lookup(new Name(objectNewIns.objectName)).symbol;
-                if (objectTypeSymbol != null) {
-                    return objectTypeSymbol.type;
-                }
-            }
-
-            throw new BLangCompilerException("Reference to unknown type " + objectNewIns.externalPackageId
-                    + "/" + objectNewIns.objectName);
+        JvmPackageGen jvmPackageGen = compilerContext.get(JVM_PACKAGE_GEN_CHECKER_KEY);
+        if (jvmPackageGen == null) {
+            jvmPackageGen = new JvmPackageGen(compilerContext);
         }
+
+        return jvmPackageGen;
     }
 
-    public static BIRFunctionWrapper getBIRFunctionWrapper(BIRFunctionWrapper wrapper) {
+    static BIRFunctionWrapper getBIRFunctionWrapper(BIRFunctionWrapper wrapper) {
 
         if (wrapper == null) {
             throw new BLangCompilerException("invalid bir function linking");
@@ -193,163 +179,12 @@ public class JvmPackageGen {
         return wrapper;
     }
 
-    public static String lookupGlobalVarClassName(String pkgName, String varName) {
-
-        String key = pkgName + varName;
-        if (!globalVarClassNames.containsKey(key)) {
-            return pkgName + MODULE_INIT_CLASS_NAME;
-        } else {
-            return globalVarClassNames.get(key);
-        }
-    }
-
-    private static void generateDependencyList(BPackageSymbol packageSymbol, JarFile jarFile,
-                                               InteropValidator interopValidator) {
-
-        if (packageSymbol.bir != null) {
-            generatePackage(packageSymbol.bir, jarFile, interopValidator, false);
-        } else {
-            for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
-                if (importPkgSymbol == null) {
-                    continue;
-                }
-                generateDependencyList(importPkgSymbol, jarFile, interopValidator);
-            }
-        }
-
-        PackageID moduleId = packageSymbol.pkgID;
-
-        String pkgName = getPackageName(moduleId.orgName, moduleId.name);
-        if (!dependentModules.containsKey(pkgName)) {
-            dependentModules.put(pkgName, moduleId);
-        }
-    }
-
-    static void generatePackage(BIRNode.BIRPackage module, JarFile jarFile, InteropValidator interopValidator,
-                                boolean isEntry) {
-
-        String orgName = module.org.value;
-        String moduleName = module.name.value;
-        String pkgName = getPackageName(orgName, moduleName);
-
-        Set<PackageID> dependentModuleSet = new LinkedHashSet<>();
-
-        addBuiltinImports(module, dependentModuleSet);
-        for (BIRNode.BIRImportModule importModule : module.importModules) {
-            BPackageSymbol pkgSymbol = packageCache.getSymbol(getBvmAlias(importModule.org.value,
-                                                                                        importModule.name.value));
-            generateDependencyList(pkgSymbol, jarFile, interopValidator);
-            if (dlog.getErrorCount() > 0) {
-                return;
-            }
-        }
-
-        String typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
-        Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
-                interopValidator, isEntry);
-        if (!isEntry || dlog.getErrorCount() > 0) {
-            return;
-        }
-
-        injectDefaultParamInits(module);
-        injectDefaultParamInitsToAttachedFuncs(module);
-        // create dependant modules flat array
-        createDependantModuleFlatArray(dependentModuleSet);
-        List<PackageID> dependentModuleArray = new ArrayList<>(dependentModuleSet);
-
-        // enrich current package with package initializers
-        enrichPkgWithInitializers(jvmClassMap, typeOwnerClass, module, dependentModuleArray);
-
-        // generate the shutdown listener class.
-        generateShutdownSignalListener(typeOwnerClass, jarFile.pkgEntries);
-
-        boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
-
-        // Desugar the record init function
-        rewriteRecordInits(module.typeDefs);
-
-        // generate object/record value classes
-        ObjectGenerator objGen = new ObjectGenerator(module, packageCache);
-        objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
-        generateFrameClasses(module, jarFile.pkgEntries);
-        for (Map.Entry<String, JavaClass> entry : jvmClassMap.entrySet()) {
-            String moduleClass = entry.getKey();
-            JavaClass v = entry.getValue();
-            ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-            currentClass = moduleClass;
-            if (Objects.equals(moduleClass, typeOwnerClass)) {
-                cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
-                generateDefaultConstructor(cw, VALUE_CREATOR);
-                generateUserDefinedTypeFields(cw, module.typeDefs);
-                generateValueCreatorMethods(cw, module.typeDefs, module, typeOwnerClass);
-                // populate global variable to class name mapping and generate them
-                for (BIRGlobalVariableDcl globalVar : module.globalVars) {
-                    if (globalVar != null) {
-                        generatePackageVariable(globalVar, cw);
-                    }
-                }
-
-                BIRFunction mainFunc = getMainFunc(module.functions);
-                String mainClass = "";
-                if (mainFunc != null) {
-                    mainClass = getModuleLevelClassName(orgName, moduleName,
-                            cleanupPathSeperators(cleanupBalExt(mainFunc.pos.getSource().cUnitName)));
-                }
-
-                generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable);
-                if (mainFunc != null) {
-                    generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
-                }
-                generateLambdaForPackageInits(cw, module, mainClass, moduleClass, dependentModuleArray);
-                jarFile.manifestEntries.put("Main-Class", moduleClass);
-
-                generateLockForVariable(cw);
-                generateStaticInitializer(cw, moduleClass, serviceEPAvailable);
-                generateCreateTypesMethod(cw, module.typeDefs, typeOwnerClass);
-                generateModuleInitializer(cw, module, typeOwnerClass);
-                generateExecutionStopMethod(cw, typeOwnerClass, module, dependentModuleArray, typeOwnerClass);
-            } else {
-                cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
-                generateDefaultConstructor(cw, OBJECT);
-            }
-            cw.visitSource(v.sourceFileName, null);
-            // generate methods
-            for (BIRFunction func : v.functions) {
-                String workerName = getFunction(func).workerName == null ? null : func.workerName.value;
-                generateMethod(getFunction(func), cw, module, null, false, workerName, packageCache);
-            }
-            // generate lambdas created during generating methods
-            for (Map.Entry<String, BIRInstruction> l : lambdas.entrySet()) {
-                String name = l.getKey();
-                BIRInstruction call = l.getValue();
-                generateLambdaMethod(call, cw, name, packageCache);
-            }
-
-            // clear the lambdas
-            lambdas = new HashMap<>();
-            lambdaIndex = 0;
-            cw.visitEnd();
-
-            byte[] bytes = getBytes(cw, module);
-            jarFile.pkgEntries.put(moduleClass + ".class", bytes);
-        }
-
-    }
-
     private static String getBvmAlias(String orgName, String moduleName) {
 
         if (Names.ANON_ORG.value.equals(orgName)) {
             return moduleName;
         }
         return orgName + "/" + moduleName;
-    }
-
-    private static void createDependantModuleFlatArray(Set<PackageID> dependentModuleArray) {
-
-        for (Map.Entry<String, PackageID> entry : dependentModules.entrySet()) {
-            PackageID id = entry.getValue();
-            dependentModuleArray.add(id);
-        }
     }
 
     private static void addBuiltinImports(BIRPackage currentModule, Set<PackageID> dependentModuleArray) {
@@ -476,12 +311,12 @@ public class JvmPackageGen {
         }
     }
 
-    public static String computeLockNameFromString(String varName) {
+    static String computeLockNameFromString(String varName) {
 
         return "$lock" + varName;
     }
 
-    public static String getModuleLevelClassName(String orgName, String moduleName, String sourceFileName) {
+    static String getModuleLevelClassName(String orgName, String moduleName, String sourceFileName) {
 
         String className = cleanupSourceFileName(sourceFileName);
         // handle source file path start with '/'.
@@ -538,6 +373,256 @@ public class JvmPackageGen {
         }
     }
 
+    public static BIRFunctionWrapper getFunctionWrapper(BIRFunction currentFunc, String orgName, String moduleName,
+                                                        String version, String moduleClass) {
+
+        BInvokableType functionTypeDesc = currentFunc.type;
+        BIRVariableDcl receiver = currentFunc.receiver;
+        BType attachedType = receiver != null ? receiver.type : null;
+        String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
+                attachedType, false);
+        String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
+                attachedType, false);
+
+        return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass, jvmMethodDescription,
+                jvmMethodDescriptionBString);
+    }
+
+    static PackageID packageToModuleId(BIRPackage mod) {
+
+        return new PackageID(mod.org, mod.name, mod.version);
+    }
+
+    private static void generateShutdownSignalListener(String initClass, Map<String, byte[]> jarEntries) {
+
+        String innerClassName = initClass + "$SignalListener";
+        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+        cw.visit(V1_8, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
+
+        // create constructor
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        mv.visitCode();
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitMethodInsn(INVOKESPECIAL, JAVA_THREAD, "<init>", "()V", false);
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        // implement run() method
+        mv = cw.visitMethod(ACC_PUBLIC, "run", "()V", null, null);
+        mv.visitCode();
+
+        mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP, "()V", false);
+
+        mv.visitInsn(RETURN);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+
+        cw.visitEnd();
+        jarEntries.put(innerClassName + ".class", cw.toByteArray());
+    }
+
+    private static BIRFunction findFunction(BIRNode parentNode, String funcName) {
+
+        BIRFunction func;
+        if (parentNode instanceof BIRTypeDefinition) {
+            BIRTypeDefinition typeDef = (BIRTypeDefinition) parentNode;
+            func = findFunction(typeDef.attachedFuncs, funcName);
+        } else if (parentNode instanceof BIRPackage) {
+            BIRPackage pkg = (BIRPackage) parentNode;
+            func = findFunction(pkg.functions, funcName);
+        } else {
+            throw new IllegalStateException();
+        }
+
+        return func;
+    }
+
+    private static BIRFunction findFunction(List<BIRFunction> functions, String funcName) {
+
+        for (BIRFunction func : functions) {
+            if (JvmMethodGen.cleanupFunctionName(func.name.value).equals(funcName)) {
+                return func;
+            }
+        }
+
+        throw new IllegalStateException("cannot find function: '" + funcName + "'");
+    }
+
+    BType lookupTypeDef(NewInstance objectNewIns) {
+
+        if (!objectNewIns.isExternalDef) {
+            return objectNewIns.def.type;
+        } else {
+            PackageID id = objectNewIns.externalPackageId;
+            BPackageSymbol symbol = packageCache.getSymbol(id.orgName + "/" + id.name);
+            if (symbol != null) {
+                BObjectTypeSymbol objectTypeSymbol =
+                        (BObjectTypeSymbol) symbol.scope.lookup(new Name(objectNewIns.objectName)).symbol;
+                if (objectTypeSymbol != null) {
+                    return objectTypeSymbol.type;
+                }
+            }
+
+            throw new BLangCompilerException("Reference to unknown type " + objectNewIns.externalPackageId
+                    + "/" + objectNewIns.objectName);
+        }
+    }
+
+    String lookupGlobalVarClassName(String pkgName, String varName) {
+
+        String key = pkgName + varName;
+        if (!globalVarClassNames.containsKey(key)) {
+            return pkgName + MODULE_INIT_CLASS_NAME;
+        } else {
+            return globalVarClassNames.get(key);
+        }
+    }
+
+    private void generateDependencyList(BPackageSymbol packageSymbol, JarFile jarFile,
+                                        InteropValidator interopValidator) {
+
+        if (packageSymbol.bir != null) {
+            generatePackage(packageSymbol.bir, jarFile, interopValidator, false);
+        } else {
+            for (BPackageSymbol importPkgSymbol : packageSymbol.imports) {
+                if (importPkgSymbol == null) {
+                    continue;
+                }
+                generateDependencyList(importPkgSymbol, jarFile, interopValidator);
+            }
+        }
+
+        PackageID moduleId = packageSymbol.pkgID;
+
+        String pkgName = getPackageName(moduleId.orgName, moduleId.name);
+        if (!dependentModules.containsKey(pkgName)) {
+            dependentModules.put(pkgName, moduleId);
+        }
+    }
+
+    void generatePackage(BIRNode.BIRPackage module, JarFile jarFile, InteropValidator interopValidator,
+                         boolean isEntry) {
+
+        String orgName = module.org.value;
+        String moduleName = module.name.value;
+        String pkgName = getPackageName(orgName, moduleName);
+
+        Set<PackageID> dependentModuleSet = new LinkedHashSet<>();
+
+        addBuiltinImports(module, dependentModuleSet);
+        for (BIRNode.BIRImportModule importModule : module.importModules) {
+            BPackageSymbol pkgSymbol = packageCache.getSymbol(getBvmAlias(importModule.org.value,
+                    importModule.name.value));
+            generateDependencyList(pkgSymbol, jarFile, interopValidator);
+            if (dlog.getErrorCount() > 0) {
+                return;
+            }
+        }
+
+        JvmMethodGen jvmMethodGen = new JvmMethodGen(this);
+
+        String typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
+        Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
+                interopValidator, jvmMethodGen, isEntry);
+        if (!isEntry || dlog.getErrorCount() > 0) {
+            return;
+        }
+
+        injectDefaultParamInits(module, jvmMethodGen, this);
+        injectDefaultParamInitsToAttachedFuncs(module, jvmMethodGen, this);
+        // create dependant modules flat array
+        createDependantModuleFlatArray(dependentModuleSet);
+        List<PackageID> dependentModuleArray = new ArrayList<>(dependentModuleSet);
+
+        // enrich current package with package initializers
+        jvmMethodGen.enrichPkgWithInitializers(jvmClassMap, typeOwnerClass, module, dependentModuleArray);
+
+        // generate the shutdown listener class.
+        generateShutdownSignalListener(typeOwnerClass, jarFile.pkgEntries);
+
+        boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
+
+        // Desugar the record init function
+        rewriteRecordInits(module.typeDefs);
+
+        // generate object/record value classes
+        JvmObjectGen objGen = new JvmObjectGen(module, this, jvmMethodGen);
+        objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
+        jvmMethodGen.generateFrameClasses(module, jarFile.pkgEntries);
+        for (Map.Entry<String, JavaClass> entry : jvmClassMap.entrySet()) {
+            String moduleClass = entry.getKey();
+            JavaClass v = entry.getValue();
+            ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
+            currentClass = moduleClass;
+            if (Objects.equals(moduleClass, typeOwnerClass)) {
+                cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
+                generateDefaultConstructor(cw, VALUE_CREATOR);
+                generateUserDefinedTypeFields(cw, module.typeDefs);
+                generateValueCreatorMethods(cw, module.typeDefs, module, typeOwnerClass, symbolTable);
+                // populate global variable to class name mapping and generate them
+                for (BIRGlobalVariableDcl globalVar : module.globalVars) {
+                    if (globalVar != null) {
+                        generatePackageVariable(globalVar, cw);
+                    }
+                }
+
+                BIRFunction mainFunc = getMainFunc(module.functions);
+                String mainClass = "";
+                if (mainFunc != null) {
+                    mainClass = getModuleLevelClassName(orgName, moduleName,
+                            cleanupPathSeperators(cleanupBalExt(mainFunc.pos.getSource().cUnitName)));
+                }
+
+                jvmMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable);
+                if (mainFunc != null) {
+                    jvmMethodGen.generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
+                }
+                jvmMethodGen.generateLambdaForPackageInits(cw, module, mainClass, moduleClass, dependentModuleArray);
+                jarFile.manifestEntries.put("Main-Class", moduleClass);
+
+                generateLockForVariable(cw);
+                generateStaticInitializer(cw, moduleClass, serviceEPAvailable);
+                generateCreateTypesMethod(cw, module.typeDefs, typeOwnerClass, symbolTable);
+                jvmMethodGen.generateModuleInitializer(cw, module, typeOwnerClass);
+                jvmMethodGen.generateExecutionStopMethod(cw, typeOwnerClass, module, dependentModuleArray,
+                        typeOwnerClass);
+            } else {
+                cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
+                generateDefaultConstructor(cw, OBJECT);
+            }
+            cw.visitSource(v.sourceFileName, null);
+            // generate methods
+            for (BIRFunction func : v.functions) {
+                String workerName = getFunction(func).workerName == null ? null : func.workerName.value;
+                jvmMethodGen.generateMethod(getFunction(func), cw, module, null, false, workerName);
+            }
+            // generate lambdas created during generating methods
+            for (Map.Entry<String, BIRInstruction> l : lambdas.entrySet()) {
+                String name = l.getKey();
+                BIRInstruction call = l.getValue();
+                jvmMethodGen.generateLambdaMethod(call, cw, name);
+            }
+
+            // clear the lambdas
+            lambdas = new HashMap<>();
+            lambdaIndex = 0;
+            cw.visitEnd();
+
+            byte[] bytes = getBytes(cw, module);
+            jarFile.pkgEntries.put(moduleClass + ".class", bytes);
+        }
+
+    }
+
+    private void createDependantModuleFlatArray(Set<PackageID> dependentModuleArray) {
+
+        for (Map.Entry<String, PackageID> entry : dependentModules.entrySet()) {
+            PackageID id = entry.getValue();
+            dependentModuleArray.add(id);
+        }
+    }
+
     /**
      * Java Class will be generate for each source file. This method add class mappings to globalVar and filters the
      * unctions based on their source file name and then returns map of associated java class contents.
@@ -549,9 +634,10 @@ public class JvmPackageGen {
      * @param isEntry          is entry module flag
      * @return The map of javaClass records on given source file name
      */
-    private static Map<String, JavaClass> generateClassNameMappings(BIRPackage module, String pkgName, String initClass,
-                                                                    InteropValidator interopValidator,
-                                                                    boolean isEntry) {
+    private Map<String, JavaClass> generateClassNameMappings(BIRPackage module, String pkgName, String initClass,
+                                                             InteropValidator interopValidator,
+                                                             JvmMethodGen jvmMethodGen,
+                                                             boolean isEntry) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;
@@ -582,7 +668,7 @@ public class JvmPackageGen {
             String functionName = initFunc.name.value;
             JavaClass klass = new JavaClass(initFunc.pos.src.cUnitName);
             klass.functions.add(0, initFunc);
-            addInitAndTypeInitInstructions(module, initFunc);
+            jvmMethodGen.addInitAndTypeInitInstructions(module, initFunc);
             jvmClassMap.put(initClass, klass);
             birFunctionMap.put(pkgName + functionName, getFunctionWrapper(initFunc, orgName, moduleName,
                     version, initClass));
@@ -638,10 +724,10 @@ public class JvmPackageGen {
                 try {
                     if (isExternFunc(getFunction(birFunc))) {
                         birFuncWrapperOrError = createExternalFunctionWrapper(interopValidator, birFunc, orgName,
-                                moduleName, version, birModuleClassName);
+                                moduleName, version, birModuleClassName, this);
                     } else {
                         if (isEntry) {
-                            addDefaultableBooleanVarsToSignature(birFunc);
+                            addDefaultableBooleanVarsToSignature(birFunc, symbolTable.booleanType);
                         }
                         birFuncWrapperOrError = getFunctionWrapper(birFunc, orgName, moduleName, version,
                                 birModuleClassName);
@@ -684,9 +770,7 @@ public class JvmPackageGen {
                     if (jClassName != null) {
                         OldStyleExternalFunctionWrapper wrapper =
                                 ExternalMethodGen.createOldStyleExternalFunctionWrapper(currentFunc, orgName,
-                                                                                        moduleName, version,
-                                                                                        jClassName, jClassName,
-                                                                                        isEntry);
+                                        moduleName, version, jClassName, jClassName, isEntry, symbolTable);
                         birFunctionMap.put(pkgName + lookupKey, wrapper);
                     } else {
                         throw new BLangCompilerException("native function not available: " +
@@ -698,60 +782,12 @@ public class JvmPackageGen {
         return jvmClassMap;
     }
 
-    public static BIRFunctionWrapper getFunctionWrapper(BIRFunction currentFunc, String orgName, String moduleName,
-                                                        String version, String moduleClass) {
+    public String lookupExternClassName(String pkgName, String functionName) {
 
-        BInvokableType functionTypeDesc = currentFunc.type;
-        BIRVariableDcl receiver = currentFunc.receiver;
-        BType attachedType = receiver != null ? receiver.type : null;
-        String jvmMethodDescription = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
-                attachedType, false);
-        String jvmMethodDescriptionBString = getMethodDesc(functionTypeDesc.paramTypes, functionTypeDesc.retType,
-                attachedType, false);
-
-        return new BIRFunctionWrapper(orgName, moduleName, version, currentFunc, moduleClass, jvmMethodDescription,
-                jvmMethodDescriptionBString);
-    }
-
-    static PackageID packageToModuleId(BIRPackage mod) {
-
-        return new PackageID(mod.org, mod.name, mod.version);
-    }
-
-    public static String lookupExternClassName(String pkgName, String functionName) {
         return externalMapCache.get(cleanupName(pkgName) + "/" + functionName);
     }
 
-    private static void generateShutdownSignalListener(String initClass, Map<String, byte[]> jarEntries) {
-
-        String innerClassName = initClass + "$SignalListener";
-        ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-        cw.visit(V1_8, ACC_SUPER, innerClassName, null, JAVA_THREAD, null);
-
-        // create constructor
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-        mv.visitCode();
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, JAVA_THREAD, "<init>", "()V", false);
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        // implement run() method
-        mv = cw.visitMethod(ACC_PUBLIC, "run", "()V", null, null);
-        mv.visitCode();
-
-        mv.visitMethodInsn(INVOKESTATIC, initClass, MODULE_STOP, "()V", false);
-
-        mv.visitInsn(RETURN);
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
-
-        cw.visitEnd();
-        jarEntries.put(innerClassName + ".class", cw.toByteArray());
-    }
-
-    public static byte[] getBytes(ClassWriter cw, BIRNode node) {
+    public byte[] getBytes(ClassWriter cw, BIRNode node) {
 
         byte[] result;
         try {
@@ -769,33 +805,6 @@ public class JvmPackageGen {
         }
 
         return result;
-    }
-
-    private static BIRFunction findFunction(BIRNode parentNode, String funcName) {
-
-        BIRFunction func;
-        if (parentNode instanceof BIRTypeDefinition) {
-            BIRTypeDefinition typeDef = (BIRTypeDefinition) parentNode;
-            func = findFunction(typeDef.attachedFuncs, funcName);
-        } else if (parentNode instanceof BIRPackage) {
-            BIRPackage pkg = (BIRPackage) parentNode;
-            func = findFunction(pkg.functions, funcName);
-        } else {
-            throw new IllegalStateException();
-        }
-
-        return func;
-    }
-
-    private static BIRFunction findFunction(List<BIRFunction> functions, String funcName) {
-
-        for (BIRFunction func : functions) {
-            if (JvmMethodGen.cleanupFunctionName(func.name.value).equals(funcName)) {
-                return func;
-            }
-        }
-
-        throw new IllegalStateException("cannot find function: '" + funcName + "'");
     }
 
 }
