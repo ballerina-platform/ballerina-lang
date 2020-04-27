@@ -19,7 +19,6 @@ package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.TypeKind;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +35,7 @@ public class UnionTypeDescriptor extends BallerinaTypeDesc {
     private UnionTypeDescriptor(TypeDescKind typeDescKind,
                                 ModuleID moduleID,
                                 List<TypeDescriptor> memberTypes) {
-        super(typeDescKind, moduleID, TypeKind.UNION);
+        super(typeDescKind, moduleID);
         this.memberTypes = memberTypes;
     }
     
@@ -65,7 +64,7 @@ public class UnionTypeDescriptor extends BallerinaTypeDesc {
          * @param moduleID     Module ID of the type descriptor
          */
         public UnionTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
-            super(typeDescKind, moduleID, TypeKind.UNION);
+            super(typeDescKind, moduleID);
         }
 
         /**

@@ -20,7 +20,6 @@ package org.ballerina.compiler.api.types;
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
@@ -45,7 +44,7 @@ public class FunctionTypeDescriptor extends BallerinaTypeDesc {
                                   List<TypeDescriptor> requiredParams,
                                   TypeDescriptor restParam,
                                   TypeDescriptor returnType) {
-        super(typeDescKind, moduleID, TypeKind.FUNCTION);
+        super(typeDescKind, moduleID);
         this.requiredParams = requiredParams;
         this.restParam = restParam;
         this.returnType = returnType;

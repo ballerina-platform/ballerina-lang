@@ -20,7 +20,6 @@ package org.ballerina.compiler.api.types;
 import org.ballerina.compiler.api.model.BallerinaField;
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.TypeKind;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,7 +43,7 @@ public class RecordTypeDescriptor extends BallerinaTypeDesc {
                                 TypeDescriptor typeReference,
                                 TypeDescriptor restTypeDesc,
                                 boolean isInclusive) {
-        super(typeDescKind, moduleID, TypeKind.RECORD);
+        super(typeDescKind, moduleID);
         this.fieldDescriptors = fieldDescriptors;
         this.typeReference = typeReference;
         this.restTypeDesc = restTypeDesc;

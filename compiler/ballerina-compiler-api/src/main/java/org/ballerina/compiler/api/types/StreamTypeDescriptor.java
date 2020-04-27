@@ -19,7 +19,6 @@ package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.TypeKind;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,7 +35,7 @@ public class StreamTypeDescriptor extends BallerinaTypeDesc {
     private StreamTypeDescriptor(TypeDescKind typeDescKind,
                                  ModuleID moduleID,
                                  List<TypeDescriptor> typeParameters) {
-        super(typeDescKind, moduleID, TypeKind.FUTURE);
+        super(typeDescKind, moduleID);
         this.typeParameters = typeParameters;
     }
     
@@ -70,7 +69,7 @@ public class StreamTypeDescriptor extends BallerinaTypeDesc {
          * @param moduleID     Module ID of the type descriptor
          */
         public FutureTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
-            super(typeDescKind, moduleID, TypeKind.FUTURE);
+            super(typeDescKind, moduleID);
         }
 
         /**

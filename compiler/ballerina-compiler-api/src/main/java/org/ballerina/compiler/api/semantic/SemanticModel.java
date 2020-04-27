@@ -26,6 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -67,7 +68,7 @@ public class SemanticModel extends AbstractSemanticModel {
         scopeSymbols.values()
                 .forEach(scopeEntries ->
                         scopeEntries.forEach(scopeEntry -> {
-                            if (scopeEntry.symbol.kind != null) {
+                            if (!(scopeEntry.symbol instanceof BOperatorSymbol)) {
                                 compiledSymbols.add(SymbolFactory.getBCompiledSymbol(scopeEntry.symbol));
                             }
                         }));

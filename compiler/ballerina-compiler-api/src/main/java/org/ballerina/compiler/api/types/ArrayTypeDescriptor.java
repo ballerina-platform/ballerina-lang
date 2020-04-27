@@ -19,7 +19,6 @@ package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.TypeKind;
 
 /**
  * Represents an array type descriptor.
@@ -31,9 +30,8 @@ public class ArrayTypeDescriptor extends BallerinaTypeDesc {
     
     public ArrayTypeDescriptor(TypeDescKind typeDescKind,
                                ModuleID moduleID,
-                               TypeKind typeKind,
                                TypeDescriptor memberTypeDesc) {
-        super(typeDescKind, moduleID, typeKind);
+        super(typeDescKind, moduleID);
         this.memberTypeDesc = memberTypeDesc;
     }
     
@@ -57,10 +55,9 @@ public class ArrayTypeDescriptor extends BallerinaTypeDesc {
          *
          * @param typeDescKind type descriptor kind
          * @param moduleID     Module ID of the type descriptor
-         * @param typeKind     kind of the type descriptor
          */
-        public ArrayTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID, TypeKind typeKind) {
-            super(typeDescKind, moduleID, typeKind);
+        public ArrayTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
+            super(typeDescKind, moduleID);
         }
 
         /**
@@ -74,7 +71,6 @@ public class ArrayTypeDescriptor extends BallerinaTypeDesc {
             }
             return new ArrayTypeDescriptor(this.typeDescKind,
                     this.moduleID,
-                    this.typeKind,
                     this.memberType);
         }
 

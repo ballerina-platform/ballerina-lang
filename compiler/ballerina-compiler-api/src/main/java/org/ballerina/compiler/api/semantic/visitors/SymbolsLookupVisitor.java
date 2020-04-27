@@ -101,7 +101,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttributeAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLCommentLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
@@ -164,15 +163,17 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 public class SymbolsLookupVisitor extends BLangNodeVisitor {
     TextPosition textPosition;
     private SymbolEnv symbolEnv;
+    private SymbolEnv scope;
     
     public SymbolsLookupVisitor(TextPosition position, SymbolEnv symbolEnv) {
         this.textPosition = position;
         this.symbolEnv = symbolEnv;
+        this.scope = symbolEnv;
     }
     
     public SymbolEnv lookUp(BLangCompilationUnit compilationUnit) {
         compilationUnit.accept(this);
-        return this.symbolEnv;
+        return this.scope;
         // return the scope
     }
 
@@ -185,6 +186,7 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
     public void visit(BLangService serviceNode) {
         if (this.withinBlock(serviceNode.getPosition())) {
             SymbolEnv serviceEnv = SymbolEnv.createServiceEnv(serviceNode, serviceNode.symbol.scope, this.symbolEnv);
+            this.scope = serviceEnv;
             serviceNode.getResources().forEach(function -> this.acceptNode(function, serviceEnv));
             return;
         }
@@ -195,6 +197,7 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
     public void visit(BLangFunction funcNode) {
         if (this.withinBlock(funcNode.getPosition())) {
             SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, this.symbolEnv);
+            this.scope = funcEnv;
             this.acceptNode(funcNode.getBody(), funcEnv);
             return;
         }
@@ -206,6 +209,7 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
     public void visit(BLangBlockFunctionBody blockFuncBody) {
         if (this.withinBlock(blockFuncBody.getPosition())) {
             SymbolEnv funcBodyEnv = SymbolEnv.createFuncBodyEnv(blockFuncBody, this.symbolEnv);
+            this.scope = funcBodyEnv;
             blockFuncBody.getStatements().forEach(bLangStatement -> this.acceptNode(bLangStatement, funcBodyEnv));
         }
     }
@@ -220,6 +224,7 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
     public void visit(BLangObjectTypeNode objectTypeNode) {
         if (this.withinBlock(objectTypeNode.getPosition())) {
             SymbolEnv env = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, this.symbolEnv);
+            this.scope = env;
             objectTypeNode.getFunctions().forEach(function -> this.acceptNode(function, env));
             this.acceptNode((BLangNode) objectTypeNode.getInitFunction(), env);
             return;
@@ -266,7 +271,7 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariable varNode) {
-        
+        this.acceptNode(varNode.expr, this.symbolEnv);
     }
 
     @Override
@@ -311,7 +316,7 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVariableDef varDefNode) {
-        
+        this.acceptNode(varDefNode.var, this.symbolEnv);
     }
 
     @Override
@@ -651,16 +656,11 @@ public class SymbolsLookupVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        
+        this.acceptNode(bLangLambdaFunction.function, this.symbolEnv);
     }
 
     @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
-        
-    }
-
-    @Override
-    public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
         
     }
 

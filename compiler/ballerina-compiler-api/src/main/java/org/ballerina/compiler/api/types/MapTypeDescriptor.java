@@ -19,7 +19,6 @@ package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.TypeKind;
 
 /**
  * Represents an array type descriptor.
@@ -32,9 +31,8 @@ public class MapTypeDescriptor extends BallerinaTypeDesc {
     private
     MapTypeDescriptor(TypeDescKind typeDescKind,
                              ModuleID moduleID,
-                             TypeKind typeKind,
                              TypeDescriptor memberTypeDesc) {
-        super(typeDescKind, moduleID, typeKind);
+        super(typeDescKind, moduleID);
         this.memberTypeDesc = memberTypeDesc;
     }
     
@@ -58,10 +56,9 @@ public class MapTypeDescriptor extends BallerinaTypeDesc {
          *
          * @param typeDescKind type descriptor kind
          * @param moduleID     Module ID of the type descriptor
-         * @param typeKind     kind of the type descriptor
          */
-        public MapTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID, TypeKind typeKind) {
-            super(typeDescKind, moduleID, typeKind);
+        public MapTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
+            super(typeDescKind, moduleID);
         }
 
         /**
@@ -75,7 +72,6 @@ public class MapTypeDescriptor extends BallerinaTypeDesc {
             }
             return new MapTypeDescriptor(this.typeDescKind,
                     this.moduleID,
-                    this.typeKind,
                     this.memberType);
         }
 

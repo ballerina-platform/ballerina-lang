@@ -38,5 +38,6 @@ public enum BallerinaSymbolKind {
     TYPE_DEF,
     VARIABLE,
     SERVICE,
-    WORKER
+    WORKER,
+    ANNOTATION
 }

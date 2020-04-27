@@ -19,6 +19,7 @@ package org.ballerina.compiler.api.semantic;
 
 import org.ballerina.compiler.api.model.AccessModifier;
 import org.ballerina.compiler.api.model.BCompiledSymbol;
+import org.ballerina.compiler.api.model.BallerinaAnnotationSymbol;
 import org.ballerina.compiler.api.model.BallerinaConstantSymbol;
 import org.ballerina.compiler.api.model.BallerinaFunctionSymbol;
 import org.ballerina.compiler.api.model.BallerinaObjectVarSymbol;
@@ -26,9 +27,11 @@ import org.ballerina.compiler.api.model.BallerinaParameter;
 import org.ballerina.compiler.api.model.BallerinaRecordVarSymbol;
 import org.ballerina.compiler.api.model.BallerinaTypeDefinition;
 import org.ballerina.compiler.api.model.BallerinaVariable;
+import org.ballerina.compiler.api.model.BallerinaWorkerSymbol;
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -36,6 +39,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -62,6 +66,9 @@ public class SymbolFactory {
             if (symbol.kind == SymbolKind.CONSTANT) {
                 return createConstantSymbol((BConstantSymbol) symbol);
             }
+            if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
+                return createWorkerSymbol((BVarSymbol) symbol);
+            }
             if (symbol.type != null && symbol.type.tsymbol != null && symbol.type.tsymbol.kind == SymbolKind.OBJECT) {
                 return createObjectVarSymbol(symbol.name.getValue(), (BObjectTypeSymbol) symbol.type.tsymbol);
             }
@@ -73,6 +80,9 @@ public class SymbolFactory {
         }
         
         if (symbol instanceof BTypeSymbol) {
+            if (symbol.kind == SymbolKind.ANNOTATION) {
+                return createAnnotationSymbol((BAnnotationSymbol) symbol);
+            }
             // create the typeDefs
             return createTypeDefinition((BTypeSymbol) symbol);
         }
@@ -151,6 +161,12 @@ public class SymbolFactory {
                 .build();
     }
     
+    public static BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol) {
+        return new BallerinaWorkerSymbol.WorkerSymbolBuilder(symbol.name.getValue(), symbol.pkgID)
+                .withReturnType(TypesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint))
+                .build();
+    }
+    
     /**
      * Create a ballerina parameter.
      * 
@@ -199,5 +215,17 @@ public class SymbolFactory {
         BallerinaConstantSymbol.ConstantSymbolBuilder symbolBuilder =
                 new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol.pkgID);
         return symbolBuilder.withConstValue(constantSymbol.getConstValue()).build();
-    } 
+    }
+
+    /**
+     * Creates an annotation Symbol.
+     * 
+     * @param symbol Annotation symbol to convert
+     * @return {@link BallerinaAnnotationSymbol}
+     */
+    public static BallerinaAnnotationSymbol createAnnotationSymbol(BAnnotationSymbol symbol) {
+        return new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.name.getValue(), symbol.pkgID)
+                .withAnnotationSymbol(symbol)
+                .build();
+    }
 }

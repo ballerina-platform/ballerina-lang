@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.semantic;
 
 import org.ballerina.compiler.api.model.BallerinaField;
+import org.ballerina.compiler.api.types.BuiltinTypeDescriptor;
 import org.ballerina.compiler.api.types.FunctionTypeDescriptor;
 import org.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import org.ballerina.compiler.api.types.RecordTypeDescriptor;
@@ -51,8 +52,10 @@ public class TypesFactory {
                 return createRecordTypeDescriptor((BRecordType) bType);
             case FUNCTION:
                 return createFunctionTypeDescriptor((BInvokableType) bType);
-            default:
+            case ANNOTATION:
                 return null;
+            default:
+                return createBuiltinTypeDesc(bType);
         }
     }
 
@@ -101,5 +104,20 @@ public class TypesFactory {
         FunctionTypeDescriptor.FunctionTypeBuilder functionTypeBuilder
                 = new FunctionTypeDescriptor.FunctionTypeBuilder(TypeDescKind.FUNCTION, pkgID);
         return functionTypeBuilder.build();
+    }
+
+    /**
+     * Create a builtin type descriptor.
+     * 
+     * @param bType {@link BType} to convert
+     * @return {@link BuiltinTypeDescriptor} generated
+     */
+    public static BuiltinTypeDescriptor createBuiltinTypeDesc(BType bType) {
+        if (bType.tsymbol == null || bType.tsymbol.name.getValue().isEmpty()) {
+            return null;
+        }
+        return new BuiltinTypeDescriptor
+                .BuiltinTypeBuilder(TypeDescKind.BUILTIN, bType.tsymbol.pkgID, bType.tsymbol)
+                .build();
     }
 }

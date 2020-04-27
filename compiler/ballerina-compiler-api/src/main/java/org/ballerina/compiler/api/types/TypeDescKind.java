@@ -28,5 +28,6 @@ public enum TypeDescKind {
     ERROR,
     SIMPLE,
     OTHER,
-    FUNCTION
+    FUNCTION,
+    BUILTIN
 }

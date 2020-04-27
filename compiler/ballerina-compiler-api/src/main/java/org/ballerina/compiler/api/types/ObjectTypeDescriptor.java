@@ -21,7 +21,6 @@ import org.ballerina.compiler.api.model.BallerinaField;
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 
@@ -49,7 +48,7 @@ public class ObjectTypeDescriptor extends BallerinaTypeDesc {
                                  List<FunctionTypeDescriptor> methods,
                                  FunctionTypeDescriptor initFunction,
                                  TypeDescriptor objectTypeReference) {
-        super(typeDescKind, moduleID, TypeKind.OBJECT);
+        super(typeDescKind, moduleID);
         this.typeQualifiers = typeQualifiers;
         this.objectFields = objectFields;
         this.methods = methods;
@@ -138,7 +137,7 @@ public class ObjectTypeDescriptor extends BallerinaTypeDesc {
          * @param moduleID     Module ID of the type descriptor
          */
         public ObjectTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
-            super(typeDescKind, moduleID, TypeKind.OBJECT);
+            super(typeDescKind, moduleID);
         }
 
         /**

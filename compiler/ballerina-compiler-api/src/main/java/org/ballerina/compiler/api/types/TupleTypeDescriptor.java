@@ -19,7 +19,6 @@ package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.TypeKind;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +36,9 @@ public class TupleTypeDescriptor extends BallerinaTypeDesc {
     
     private TupleTypeDescriptor(TypeDescKind typeDescKind,
                                ModuleID moduleID,
-                               TypeKind typeKind,
                                 List<TypeDescriptor> memberTypes,
                                 TypeDescriptor restTypeDesc) {
-        super(typeDescKind, moduleID, typeKind);
+        super(typeDescKind, moduleID);
         this.memberTypes = memberTypes;
         this.restTypeDesc = restTypeDesc;
     }
@@ -79,10 +77,9 @@ public class TupleTypeDescriptor extends BallerinaTypeDesc {
          *
          * @param typeDescKind type descriptor kind
          * @param moduleID     Module ID of the type descriptor
-         * @param typeKind     kind of the type descriptor
          */
-        public TupleTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID, TypeKind typeKind) {
-            super(typeDescKind, moduleID, typeKind);
+        public TupleTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
+            super(typeDescKind, moduleID);
         }
 
         /**
@@ -93,7 +90,6 @@ public class TupleTypeDescriptor extends BallerinaTypeDesc {
         public TypeDescriptor build() {
             return new TupleTypeDescriptor(this.typeDescKind,
                     this.moduleID,
-                    this.typeKind,
                     this.memberTypes,
                     this.restTypeDesc);
         }

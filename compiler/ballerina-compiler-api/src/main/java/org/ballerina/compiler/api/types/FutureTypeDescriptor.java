@@ -19,7 +19,6 @@ package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.TypeKind;
 
 import java.util.Optional;
 
@@ -34,7 +33,7 @@ public class FutureTypeDescriptor extends BallerinaTypeDesc {
     private FutureTypeDescriptor(TypeDescKind typeDescKind,
                                  ModuleID moduleID,
                                  TypeDescriptor memberTypeDesc) {
-        super(typeDescKind, moduleID, TypeKind.FUTURE);
+        super(typeDescKind, moduleID);
         this.memberTypeDesc = memberTypeDesc;
     }
     
@@ -66,7 +65,7 @@ public class FutureTypeDescriptor extends BallerinaTypeDesc {
          * @param moduleID     Module ID of the type descriptor
          */
         public FutureTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
-            super(typeDescKind, moduleID, TypeKind.FUTURE);
+            super(typeDescKind, moduleID);
         }
 
         /**

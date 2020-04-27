@@ -26,9 +26,24 @@ import org.ballerinalang.model.elements.PackageID;
  * @since 1.3.0
  */
 public class BallerinaWorkerSymbol extends BallerinaSymbol {
-    // TODO: represent the meta information 
-    private BallerinaWorkerSymbol(String name, PackageID moduleID, BallerinaSymbolKind ballerinaSymbolKind) {
+    // TODO: represent the meta information
+    private TypeDescriptor returnType;
+    
+    private BallerinaWorkerSymbol(String name,
+                                  PackageID moduleID,
+                                  BallerinaSymbolKind ballerinaSymbolKind,
+                                  TypeDescriptor returnType) {
         super(name, moduleID, ballerinaSymbolKind);
+        this.returnType = returnType;
+    }
+
+    /**
+     * Get the return type.
+     * 
+     * @return {@link TypeDescriptor} return type of the worker.
+     */
+    public TypeDescriptor getReturnType() {
+        return returnType;
     }
 
     /**
@@ -48,7 +63,10 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol {
         }
 
         public BallerinaWorkerSymbol build() {
-            return new BallerinaWorkerSymbol(this.name, this.moduleID, this.ballerinaSymbolKind);
+            return new BallerinaWorkerSymbol(this.name,
+                    this.moduleID,
+                    this.ballerinaSymbolKind,
+                    this.returnType);
         }
 
         public WorkerSymbolBuilder withReturnType(TypeDescriptor typeDescriptor) {

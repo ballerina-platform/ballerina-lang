@@ -19,7 +19,6 @@ package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.TypeKind;
 
 /**
  * Represents a Ballerina Type Descriptor.
@@ -29,12 +28,10 @@ import org.ballerinalang.model.types.TypeKind;
 public abstract class BallerinaTypeDesc implements TypeDescriptor {
     private TypeDescKind typeDescKind;
     private ModuleID moduleID;
-    protected TypeKind typeKind;
 
-    public BallerinaTypeDesc(TypeDescKind typeDescKind, ModuleID moduleID, TypeKind typeKind) {
+    public BallerinaTypeDesc(TypeDescKind typeDescKind, ModuleID moduleID) {
         this.typeDescKind = typeDescKind;
         this.moduleID = moduleID;
-        this.typeKind = typeKind;
     }
 
     public TypeDescKind getKind() {
@@ -54,24 +51,10 @@ public abstract class BallerinaTypeDesc implements TypeDescriptor {
     protected abstract static class TypeBuilder<T extends TypeBuilder<T>> {
         protected TypeDescKind typeDescKind;
         protected ModuleID moduleID;
-        protected TypeKind typeKind;
         
         /**
          * Symbol Builder Constructor.
          * 
-         * @param typeDescKind type descriptor kind
-         * @param moduleID Module ID of the type descriptor
-         * @param typeKind kind of the type descriptor
-         */
-        public TypeBuilder(TypeDescKind typeDescKind, PackageID moduleID, TypeKind typeKind) {
-            this.typeDescKind = typeDescKind;
-            this.moduleID = new ModuleID(moduleID);
-            this.typeKind = typeKind;
-        }
-        
-        /**
-         * Symbol Builder Constructor.
-         *
          * @param typeDescKind type descriptor kind
          * @param moduleID Module ID of the type descriptor
          */

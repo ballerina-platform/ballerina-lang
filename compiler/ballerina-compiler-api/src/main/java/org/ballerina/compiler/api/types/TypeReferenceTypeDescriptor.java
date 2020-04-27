@@ -20,7 +20,6 @@ package org.ballerina.compiler.api.types;
 import org.ballerina.compiler.api.model.BallerinaTypeDefinition;
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.TypeKind;
 
 /**
  * Represents a TypeReference type descriptor.
@@ -33,7 +32,7 @@ public class TypeReferenceTypeDescriptor extends BallerinaTypeDesc {
     private TypeReferenceTypeDescriptor(TypeDescKind typeDescKind,
                                         ModuleID moduleID,
                                         BallerinaTypeDefinition typeDefinition) {
-        super(typeDescKind, moduleID, TypeKind.NONE);
+        super(typeDescKind, moduleID);
         this.typeDefinition = typeDefinition;
     }
 
@@ -53,10 +52,9 @@ public class TypeReferenceTypeDescriptor extends BallerinaTypeDesc {
          *
          * @param typeDescKind type descriptor kind
          * @param moduleID     Module ID of the type descriptor
-         * @param typeKind     kind of the type descriptor
          */
-        public TypeReferenceBuilder(TypeDescKind typeDescKind, PackageID moduleID, TypeKind typeKind) {
-            super(typeDescKind, moduleID, typeKind);
+        public TypeReferenceBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
+            super(typeDescKind, moduleID);
         }
 
         /**

@@ -28,11 +28,20 @@ import java.util.List;
  * @since 1.3.0
  */
 public class BallerinaTypeDefinition extends BallerinaVariable {
+    
     protected BallerinaTypeDefinition(String name,
                                       PackageID moduleID,
                                       List<AccessModifier> accessModifiers,
                                       TypeDescriptor typeDescriptor) {
-        super(name, moduleID, BallerinaSymbolKind.TYPE_DEF, accessModifiers, typeDescriptor);
+        this(name, moduleID, accessModifiers, BallerinaSymbolKind.TYPE_DEF, typeDescriptor);
+    }
+    
+    protected BallerinaTypeDefinition(String name,
+                                      PackageID moduleID,
+                                      List<AccessModifier> accessModifiers,
+                                      BallerinaSymbolKind symbolKind,
+                                      TypeDescriptor typeDescriptor) {
+        super(name, moduleID, symbolKind, accessModifiers, typeDescriptor);
     }
 
     /**

@@ -19,50 +19,47 @@ package org.ballerina.compiler.api.types;
 
 import org.ballerina.compiler.api.model.ModuleID;
 import org.ballerinalang.model.elements.PackageID;
-
-import java.util.Optional;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 /**
- * Represents a typeDesc type descriptor.
+ * Represents the builtin type descriptor.
  * 
  * @since 1.3.0
  */
-public class TypeDescTypeDescriptor extends BallerinaTypeDesc {
-    private TypeDescriptor typeParameter;
+public class BuiltinTypeDescriptor extends BallerinaTypeDesc {
     
-    private TypeDescTypeDescriptor(TypeDescKind typeDescKind,
-                                   ModuleID moduleID,
-                                   TypeDescriptor typeParameter) {
+    private String typeName;
+    
+    private BuiltinTypeDescriptor(TypeDescKind typeDescKind,
+                                  ModuleID moduleID,
+                                  String name) {
         super(typeDescKind, moduleID);
-        this.typeParameter = typeParameter;
-    }
-    
-    public Optional<TypeDescriptor> getTypeParameter() {
-        return Optional.ofNullable(this.typeParameter);
+        this.typeName = name;
     }
 
     @Override
     public String getSignature() {
-        if (this.getTypeParameter().isPresent()) {
-            return this.getKind().name() + "<" + this.getTypeParameter().get().getSignature() + ">";
-        }
-        return this.getKind().name();
+        // For the builtin types, return the type kind as the type name
+        return this.typeName;
     }
 
     /**
-     * Represents a builder for TypeDesc Type Descriptor.
+     * Represents the builder for Builtin Type Descriptor.
      */
-    public static class TypeDescTypeBuilder extends TypeBuilder<TypeDescTypeBuilder> {
-        private TypeDescriptor typeParameter;
+    public static class BuiltinTypeBuilder extends TypeBuilder<BuiltinTypeBuilder> {
+        
+        private BTypeSymbol typeSymbol;
 
         /**
          * Symbol Builder Constructor.
          *
          * @param typeDescKind type descriptor kind
          * @param moduleID     Module ID of the type descriptor
+         * @param typeSymbol type symbol
          */
-        public TypeDescTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID) {
+        public BuiltinTypeBuilder(TypeDescKind typeDescKind, PackageID moduleID, BTypeSymbol typeSymbol) {
             super(typeDescKind, moduleID);
+            this.typeSymbol = typeSymbol;
         }
 
         /**
@@ -70,15 +67,10 @@ public class TypeDescTypeDescriptor extends BallerinaTypeDesc {
          *
          * @return {@link TypeDescriptor} built
          */
-        public TypeDescriptor build() {
-            return new TypeDescTypeDescriptor(this.typeDescKind,
+        public BuiltinTypeDescriptor build() {
+            return new BuiltinTypeDescriptor(this.typeDescKind,
                     this.moduleID,
-                    this.typeParameter);
-        }
-
-        public TypeDescTypeBuilder withTypeParameter(TypeDescriptor typeParameter) {
-            this.typeParameter = typeParameter;
-            return this;
+                    this.typeSymbol.getName().getValue());
         }
     }
 }
