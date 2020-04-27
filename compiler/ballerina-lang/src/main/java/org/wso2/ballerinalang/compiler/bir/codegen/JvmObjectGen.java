@@ -1006,7 +1006,7 @@ class JvmObjectGen {
         mv.visitEnd();
     }
 
-    void generateValueClasses(List<BIRNode.BIRTypeDefinition> typeDefs, Map<String, byte[]> jarEntries) {
+    void generate(List<BIRNode.BIRTypeDefinition> typeDefs, Map<String, byte[]> jarEntries) {
 
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BIRNode.BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
