@@ -50,4 +50,17 @@ public class BLangTableKeySpecifier extends BLangNode implements TableKeySpecifi
     public NodeKind getKind() {
         return NodeKind.TABLE_KEY_SPECIFIER;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder keyStringBuilder = new StringBuilder();
+        for (BLangIdentifier identifier : fieldNameIdentifierList) {
+            if (!keyStringBuilder.toString().equals("")) {
+                keyStringBuilder.append(", ");
+            }
+            keyStringBuilder.append(identifier.value);
+        }
+
+        return "key(" + keyStringBuilder.toString() + ")";
+    }
 }
