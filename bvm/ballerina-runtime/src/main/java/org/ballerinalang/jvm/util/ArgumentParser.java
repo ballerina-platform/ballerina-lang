@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.util;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
@@ -62,12 +63,15 @@ public class ArgumentParser {
     private static final String FALSE = "FALSE";
     private static final String HEX_PREFIX = "0X";
 
+    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
+    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
+
     /**
      * Method to retrieve the {@link Object} array containing the arguments to invoke the function specified as the
      * entry function. First element is ignored to keep the strand.
      *
-     * @param funcInfo {@link ParamInfo} array for the entry function
-     * @param args     the string array of arguments specified
+     * @param funcInfo     {@link ParamInfo} array for the entry function
+     * @param args         the string array of arguments specified
      * @param hasRestParam whether function accepts rest arguments
      * @return the {@link Object} array containing the arguments to invoke the function
      */
@@ -180,6 +184,9 @@ public class ArgumentParser {
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
             case TypeTags.ANY_TAG:
+                if (ArrayValueImpl.USE_BSTRING) {
+                    return StringUtils.fromString(value);
+                }
                 return value;
             case TypeTags.INT_TAG:
                 return getIntegerValue(value);
@@ -205,6 +212,9 @@ public class ArgumentParser {
                 }
             case TypeTags.RECORD_TYPE_TAG:
                 try {
+                    if (USE_BSTRING) {
+                        return JSONUtils.convertJSONToRecord_bstring(JSONParser.parse(value), (BStructureType) type);
+                    }
                     return JSONUtils.convertJSONToRecord(JSONParser.parse(value), (BStructureType) type);
                 } catch (BallerinaException e) {
                     throw BallerinaErrors.createError("invalid argument '" + value
@@ -400,7 +410,7 @@ public class ArgumentParser {
         }
 
         if (unionMemberTypes.contains(BTypes.typeString)) {
-            return unionArg;
+            return getBValue(BTypes.typeString, unionArg);
         }
 
         for (int memberTypeIndex = 0; memberTypeIndex < unionMemberTypes.size(); ) {

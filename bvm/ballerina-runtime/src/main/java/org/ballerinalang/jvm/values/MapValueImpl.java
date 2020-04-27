@@ -173,8 +173,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         if (this.type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             BRecordType recordType = (BRecordType) this.type;
             Map fields = recordType.getFields();
-            if (fields.containsKey(key)) {
-                expectedType = ((BField) fields.get(key)).type;
+            if (fields.containsKey(key.toString())) {
+                expectedType = ((BField) fields.get(key.toString())).type;
             } else {
                 if (recordType.sealed) {
                     // Panic if this record type does not contain a key by the specified name.
