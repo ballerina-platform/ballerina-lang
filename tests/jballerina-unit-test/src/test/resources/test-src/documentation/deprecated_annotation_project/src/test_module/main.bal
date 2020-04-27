@@ -53,6 +53,7 @@ public type Person object {
 };
 
 public type Student object {
+    @deprecated
     public string name = "Saman";
     public int age = 15;
 
@@ -109,6 +110,33 @@ public type InvalidAccountTypeError error<INVALID_ACC_TYPE, InvalidAccountTypeEr
 # Invalid bank error
 public type InvalidBankTypeError error<INVALID_ACC_TYPE, InvalidAccountTypeErrorData>;
 
+//========= MODULE_LEVEL ANNOTATION DECL ====================
+
+# This record defines the fields of the @hello:Greeting annotation.
+#
+# + salutation - The greeting message
+public type HelloConfiguration record {|
+    string salutation = "Hello!";
+|};
+
+# This record defines the fields of the @hello:Bye annotation.
+#
+# + salutation - The greeting message
+public type ByeConfiguration record {|
+    string salutation = "Hello!";
+|};
+
+# Define an annotation named `Greeting`. Its type is `HelloConfiguration` and it can be
+# attached to functions.
+public annotation HelloConfiguration Greeting on function;
+
+# Define an annotation named `Bye`. Its type is `ByeConfiguration` and it can be
+# attached to functions.
+#
+# # Deprecated
+@deprecated
+public annotation ByeConfiguration Bye on function;
+
 //========= MODULE-LEVEL FUNCTION DEF =======================
 
 # Creates and returns a `Person` object given the parameters.
@@ -138,6 +166,37 @@ public function createPerson(string fname, string lname, string street,
 public function sayHello(string name) {
     io:println("Hello " + name);
 }
+
+//========= REQUIRED AND DEFAULTABLE FUNCTION PARAMS ======
+
+# Create full name
+#
+# + title - title of the person
+# + fName - first name
+# + mName - middle name
+# + lName - last name
+# + return - full name
+public function getFullName(string title, @deprecated string fName,  string mName = "Chris",
+                                                    @deprecated string lName = "Wood") returns string {
+    return fName + mName + lName;
+}
+
+//========= OBJECT MEMBERS ================================
+
+public type Player object {
+    @deprecated
+    public string name = "Saman";
+    public int age = 15;
+
+    @deprecated
+    public function getName() returns string {
+        return self.name;
+    }
+
+    public function getAge() returns int {
+        return self.age;
+    }
+};
 
 // main method
 
