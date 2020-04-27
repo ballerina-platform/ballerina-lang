@@ -3551,66 +3551,25 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation iExpr) {
-        BLangInvocation genIExpr = iExpr;
-
         if (iExpr.symbol != null && iExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
             result = rewriteErrorConstructor(iExpr);
         }
 
-        if (!enclLocks.isEmpty()) {
-            BLangLockStmt lock = enclLocks.peek();
-            lock.lockVariables.addAll(((BInvokableSymbol) iExpr.symbol).dependentGlobalVars);
-        }
-
-        // Reorder the arguments to match the original function signature.
-        reorderArguments(iExpr);
-
-        iExpr.requiredArgs = rewriteExprs(iExpr.requiredArgs);
-        fixNonRestArgTypeCastInTypeParamInvocation(iExpr);
-
-        iExpr.restArgs = rewriteExprs(iExpr.restArgs);
-
-        annotationDesugar.defineStatementAnnotations(iExpr.annAttachments, iExpr.pos, iExpr.symbol.pkgID,
-                                                     iExpr.symbol.owner, env);
-
-        if (iExpr.functionPointerInvocation) {
-            visitFunctionPointerInvocation(iExpr);
-            return;
-        }
-        iExpr.expr = rewriteExpr(iExpr.expr);
-        result = genIExpr;
-
-
-        if (iExpr.expr == null) {
-            fixTypeCastInTypeParamInvocation(iExpr, genIExpr);
-            if (iExpr.exprSymbol == null) {
-                return;
-            }
-            iExpr.expr = ASTBuilderUtil.createVariableRef(iExpr.pos, iExpr.exprSymbol);
-            iExpr.expr = rewriteExpr(iExpr.expr);
-        }
-        switch (iExpr.expr.type.tag) {
-            case TypeTags.OBJECT:
-            case TypeTags.RECORD:
-                if (!iExpr.langLibInvocation) {
-                    List<BLangExpression> argExprs = new ArrayList<>(iExpr.requiredArgs);
-                    argExprs.add(0, iExpr.expr);
-                    BLangAttachedFunctionInvocation attachedFunctionInvocation =
-                            new BLangAttachedFunctionInvocation(iExpr.pos, argExprs, iExpr.restArgs, iExpr.symbol,
-                                                                iExpr.type, iExpr.expr, false);
-                    attachedFunctionInvocation.name = iExpr.name;
-                    attachedFunctionInvocation.annAttachments = iExpr.annAttachments;
-                    result = genIExpr = attachedFunctionInvocation;
-                }
-                break;
-        }
-
-        fixTypeCastInTypeParamInvocation(iExpr, genIExpr);
+        rewriteInvocation(iExpr, false);
     }
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
-        BLangInvocation genIExpr = actionInvocation;
+        rewriteInvocation(actionInvocation, actionInvocation.async);
+    }
+
+    private void rewriteInvocation(BLangInvocation actionInvocation, boolean async) {
+        BLangInvocation invRef = actionInvocation;
+
+        if (!enclLocks.isEmpty()) {
+            BLangLockStmt lock = enclLocks.peek();
+            lock.lockVariables.addAll(((BInvokableSymbol) actionInvocation.symbol).dependentGlobalVars);
+        }
 
         // Reorder the arguments to match the original function signature.
         reorderArguments(actionInvocation);
@@ -3620,25 +3579,24 @@ public class Desugar extends BLangNodeVisitor {
 
         actionInvocation.restArgs = rewriteExprs(actionInvocation.restArgs);
 
-        annotationDesugar.defineStatementAnnotations(actionInvocation.annAttachments, actionInvocation.pos,
-                                                     actionInvocation.symbol.pkgID, actionInvocation.symbol.owner, env);
+        annotationDesugar.defineStatementAnnotations(actionInvocation.annAttachments, actionInvocation.pos, actionInvocation.symbol.pkgID,
+                                                     actionInvocation.symbol.owner, env);
 
         if (actionInvocation.functionPointerInvocation) {
             visitFunctionPointerInvocation(actionInvocation);
             return;
         }
         actionInvocation.expr = rewriteExpr(actionInvocation.expr);
-        result = genIExpr;
+        result = invRef;
 
         if (actionInvocation.expr == null) {
-            fixTypeCastInTypeParamInvocation(actionInvocation, genIExpr);
+            fixTypeCastInTypeParamInvocation(actionInvocation, invRef);
             if (actionInvocation.exprSymbol == null) {
                 return;
             }
             actionInvocation.expr = ASTBuilderUtil.createVariableRef(actionInvocation.pos, actionInvocation.exprSymbol);
             actionInvocation.expr = rewriteExpr(actionInvocation.expr);
         }
-
         switch (actionInvocation.expr.type.tag) {
             case TypeTags.OBJECT:
             case TypeTags.RECORD:
@@ -3646,18 +3604,17 @@ public class Desugar extends BLangNodeVisitor {
                     List<BLangExpression> argExprs = new ArrayList<>(actionInvocation.requiredArgs);
                     argExprs.add(0, actionInvocation.expr);
                     BLangAttachedFunctionInvocation attachedFunctionInvocation =
-                            new BLangAttachedFunctionInvocation(actionInvocation.pos, argExprs,
-                                                                actionInvocation.restArgs, actionInvocation.symbol,
-                                                                actionInvocation.type, actionInvocation.expr,
-                                                                actionInvocation.async);
+                            new BLangAttachedFunctionInvocation(actionInvocation.pos, argExprs, actionInvocation.restArgs,
+                                                                actionInvocation.symbol, actionInvocation.type, actionInvocation.expr,
+                                                                async);
                     attachedFunctionInvocation.name = actionInvocation.name;
                     attachedFunctionInvocation.annAttachments = actionInvocation.annAttachments;
-                    result = genIExpr = attachedFunctionInvocation;
+                    result = invRef = attachedFunctionInvocation;
                 }
                 break;
         }
 
-        fixTypeCastInTypeParamInvocation(actionInvocation, genIExpr);
+        fixTypeCastInTypeParamInvocation(actionInvocation, invRef);
     }
 
     private void fixNonRestArgTypeCastInTypeParamInvocation(BLangInvocation iExpr) {
