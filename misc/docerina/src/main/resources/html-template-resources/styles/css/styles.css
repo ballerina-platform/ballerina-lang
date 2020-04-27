@@ -40,6 +40,9 @@ body .content-wrapper pre.ballerina-snippet {
   padding: 20px;
   overflow-x: auto;
 }
+body .content-wrapper table pre.ballerina-snippet {
+  width: 540px;
+}
 body .content-wrapper pre.ballerina-snippet code.language-ballerina {
   background: none;
 }
