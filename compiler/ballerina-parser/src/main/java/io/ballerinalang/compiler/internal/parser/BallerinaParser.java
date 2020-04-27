@@ -2840,6 +2840,8 @@ public class BallerinaParser {
                 // then validates it based on the context. This is done to provide
                 // better error messages
                 return parseNamedWorkerDeclaration(getAnnotations(annots));
+            case FORK_KEYWORD:
+                return parseForkStatement();
             default:
                 if (isTypeStartingToken(tokenKind)) {
                     // If the statement starts with a type, then its a var declaration.
@@ -3054,6 +3056,7 @@ public class BallerinaParser {
         switch (expression.kind) {
             case IDENTIFIER_TOKEN:
             case QUALIFIED_NAME_REFERENCE:
+            case SIMPLE_NAME_REFERENCE:
                 return true;
             case FIELD_ACCESS:
                 return isValidLVExpr(((STFieldAccessExpressionNode) expression).expression);
@@ -3105,6 +3108,8 @@ public class BallerinaParser {
             case NULL_KEYWORD:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
                 return parseBasicLiteral();
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
