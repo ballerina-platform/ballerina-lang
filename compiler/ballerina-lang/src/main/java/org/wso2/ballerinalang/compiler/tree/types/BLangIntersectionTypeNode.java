@@ -26,9 +26,7 @@ import java.util.List;
 import java.util.StringJoiner;
 
 /**
- * {@code BLangIntersectionTypeNode} represents an implementation of an intersection type node in Ballerina
- * <p>
- * e.g. int[] & readonly
+ * {@code BLangIntersectionTypeNode} represents an implementation of an intersection type node in Ballerina.
  *
  * @since 1.3.0
  */

@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.Flags;
 
 /**
@@ -32,7 +33,7 @@ import org.wso2.ballerinalang.util.Flags;
 public class BAnydataType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
     private boolean nullable = true;
-    public BImmutableAnydataType immutableType;
+    public BAnydataType immutableType;
 
     public BAnydataType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
@@ -50,7 +51,7 @@ public class BAnydataType extends BBuiltInRefType implements SelectivelyImmutabl
         this.nullable = nullable;
     }
 
-    protected BAnydataType(int tag, BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
+    public BAnydataType(int tag, BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
 
         super(tag, tsymbol);
         this.name = name;
@@ -73,25 +74,13 @@ public class BAnydataType extends BBuiltInRefType implements SelectivelyImmutabl
     }
 
     @Override
-    public Type getImmutableType() {
-        return this.immutableType;
+    public String toString() {
+        return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
+                getKind().typeName().concat(" & readonly");
     }
 
-    /**
-     * Represent the intersection type `anydata & readonly`.
-     *
-     * @since 1.3.0
-     */
-    public static class BImmutableAnydataType extends BAnydataType {
-
-        public BImmutableAnydataType(int tag, BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
-            super(tag, tsymbol, name, flags, nullable);
-            this.flags |= Flags.READONLY;
-        }
-
-        @Override
-        public String toString() {
-            return getKind().typeName().concat(" & readonly");
-        }
+    @Override
+    public Type getImmutableType() {
+        return this.immutableType;
     }
 }

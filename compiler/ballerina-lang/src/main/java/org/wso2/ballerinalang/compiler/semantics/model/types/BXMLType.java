@@ -20,6 +20,7 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -32,26 +33,30 @@ import org.wso2.ballerinalang.util.Flags;
 public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
     public BType constraint;
-    public BImmutableXmlType immutableType;
+    public BXMLType immutableType;
 
     public BXMLType(BType constraint, BTypeSymbol tsymbol) {
         super(TypeTags.XML, tsymbol);
         this.constraint = constraint;
     }
 
-    protected BXMLType(BType constraint, BTypeSymbol tsymbol, int flags) {
+    public BXMLType(BType constraint, BTypeSymbol tsymbol, int flags) {
         super(TypeTags.XML, tsymbol, flags);
         this.constraint = constraint;
     }
 
     @Override
     public String toString() {
+        String stringRep;
         if (constraint != null && !(constraint.tag == TypeTags.UNION &&
                 constraint instanceof BUnionType &&
                 ((BUnionType) constraint).getMemberTypes().size() == 4)) {
-            return Names.XML.value + "<" + constraint + ">";
+            stringRep = Names.XML.value + "<" + constraint + ">";
+        } else {
+            stringRep = Names.XML.value;
         }
-        return Names.XML.value;
+
+        return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
     }
 
     @Override
@@ -67,23 +72,5 @@ public class BXMLType extends BBuiltInRefType implements SelectivelyImmutableRef
     @Override
     public Type getImmutableType() {
         return this.immutableType;
-    }
-
-    /**
-     * Represent the intersection type `xml & readonly`.
-     *
-     * @since 1.3.0
-     */
-    public static class BImmutableXmlType extends BXMLType {
-
-        public BImmutableXmlType(BType constraint, BTypeSymbol tsymbol, int flags) {
-            super(constraint, tsymbol, flags);
-            this.flags |= Flags.READONLY;
-        }
-
-        @Override
-        public String toString() {
-            return getKind().typeName().concat(" & readonly");
-        }
     }
 }

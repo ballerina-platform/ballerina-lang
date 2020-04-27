@@ -21,6 +21,7 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.Flags;
 
 /**
@@ -29,7 +30,7 @@ import org.wso2.ballerinalang.util.Flags;
 public class BJSONType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
     private boolean nullable = true;
-    public BImmutableJsonType immutableType;
+    public BJSONType immutableType;
 
     public BJSONType(int tag, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
@@ -40,7 +41,7 @@ public class BJSONType extends BBuiltInRefType implements SelectivelyImmutableRe
         this.nullable = nullable;
     }
 
-    protected BJSONType(int tag, BTypeSymbol tsymbol, boolean nullable, int flags) {
+    public BJSONType(int tag, BTypeSymbol tsymbol, boolean nullable, int flags) {
         this(tag, tsymbol);
         this.nullable = nullable;
         this.flags = flags;
@@ -69,21 +70,9 @@ public class BJSONType extends BBuiltInRefType implements SelectivelyImmutableRe
         return this.immutableType;
     }
 
-    /**
-     * Represent the intersection type `json & readonly`.
-     *
-     * @since 1.3.0
-     */
-    public static class BImmutableJsonType extends BJSONType {
-
-        public BImmutableJsonType(int tag, BTypeSymbol tsymbol, boolean nullable, int flags) {
-            super(tag, tsymbol, nullable, flags);
-            this.flags |= Flags.READONLY;
-        }
-
-        @Override
-        public String toString() {
-            return getKind().typeName().concat(" & readonly");
-        }
+    @Override
+    public String toString() {
+        return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
+                getKind().typeName().concat(" & readonly");
     }
 }

@@ -1877,8 +1877,7 @@ public class Types {
                             && (TypeParamAnalyzer.isTypeParam(t) || TypeParamAnalyzer.isTypeParam(s));
                 case TypeTags.ANY:
                 case TypeTags.ANYDATA:
-                    return t.tag == s.tag
-                            && Symbols.isFlagOn(t.flags, Flags.READONLY) == Symbols.isFlagOn(s.flags, Flags.READONLY)
+                    return t.tag == s.tag && hasSameReadonlyFlag(s, t)
                             && (TypeParamAnalyzer.isTypeParam(t) || TypeParamAnalyzer.isTypeParam(s));
                 default:
                     break;
@@ -1904,8 +1903,7 @@ public class Types {
 
         @Override
         public Boolean visit(BMapType t, BType s) {
-            if (s.tag != TypeTags.MAP ||
-                    Symbols.isFlagOn(s.flags, Flags.READONLY) != Symbols.isFlagOn(t.flags, Flags.READONLY)) {
+            if (s.tag != TypeTags.MAP || !hasSameReadonlyFlag(s, t)) {
                 return false;
             }
             // At this point both source and target types are of map types. Inorder to be equal in type as whole
@@ -1926,14 +1924,12 @@ public class Types {
 
         @Override
         public Boolean visit(BJSONType t, BType s) {
-            return s.tag == TypeTags.JSON &&
-                    Symbols.isFlagOn(t.flags, Flags.READONLY) == Symbols.isFlagOn(s.flags, Flags.READONLY);
+            return s.tag == TypeTags.JSON && hasSameReadonlyFlag(s, t);
         }
 
         @Override
         public Boolean visit(BArrayType t, BType s) {
-            return s.tag == TypeTags.ARRAY &&
-                    Symbols.isFlagOn(s.flags, Flags.READONLY) == Symbols.isFlagOn(t.flags, Flags.READONLY) &&
+            return s.tag == TypeTags.ARRAY && hasSameReadonlyFlag(s, t) &&
                     isSameArrayType(s, t, this.unresolvedTypes, this.unresolvedReadonlyTypes);
         }
 
@@ -1956,8 +1952,7 @@ public class Types {
             if (t == s) {
                 return true;
             }
-            if (s.tag != TypeTags.RECORD ||
-                    Symbols.isFlagOn(s.flags, Flags.READONLY) != Symbols.isFlagOn(t.flags, Flags.READONLY)) {
+            if (s.tag != TypeTags.RECORD || !hasSameReadonlyFlag(s, t)) {
                 return false;
             }
             BRecordType source = (BRecordType) s;
@@ -1984,9 +1979,12 @@ public class Types {
             return ((s.flags & Flags.OPTIONAL) ^ (t.flags & Flags.OPTIONAL)) != Flags.OPTIONAL;
         }
 
+        private boolean hasSameReadonlyFlag(BType source, BType target) {
+            return Symbols.isFlagOn(target.flags, Flags.READONLY) == Symbols.isFlagOn(source.flags, Flags.READONLY);
+        }
+
         public Boolean visit(BTupleType t, BType s) {
-            if (s.tag != TypeTags.TUPLE ||
-                    Symbols.isFlagOn(s.flags, Flags.READONLY) != Symbols.isFlagOn(t.flags, Flags.READONLY)) {
+            if (s.tag != TypeTags.TUPLE || !hasSameReadonlyFlag(s, t)) {
                 return false;
             }
             BTupleType source = (BTupleType) s;
@@ -2018,8 +2016,7 @@ public class Types {
 
         @Override
         public Boolean visit(BUnionType tUnionType, BType s) {
-            if (s.tag != TypeTags.UNION ||
-                    Symbols.isFlagOn(s.flags, Flags.READONLY) != Symbols.isFlagOn(tUnionType.flags, Flags.READONLY)) {
+            if (s.tag != TypeTags.UNION || !hasSameReadonlyFlag(s, tUnionType)) {
                 return false;
             }
 

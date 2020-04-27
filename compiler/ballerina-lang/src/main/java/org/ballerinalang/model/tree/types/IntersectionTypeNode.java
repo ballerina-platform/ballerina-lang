@@ -20,9 +20,7 @@ package org.ballerinalang.model.tree.types;
 import java.util.List;
 
 /**
- * {@code IntersectionTypeNode} represents an intersection type node in Ballerina
- * <p>
- * e.g. int[] & readonly
+ * {@code IntersectionTypeNode} represents an intersection type node in Ballerina.
  *
  * @since 1.3.0
  */

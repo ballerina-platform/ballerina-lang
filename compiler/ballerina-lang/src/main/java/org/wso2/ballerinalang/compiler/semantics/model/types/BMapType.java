@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.Type;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -31,14 +32,14 @@ import org.wso2.ballerinalang.util.Flags;
 public class BMapType extends BBuiltInRefType implements ConstrainedType, SelectivelyImmutableReferenceType {
 
     public BType constraint;
-    public BImmutableMapType immutableType;
+    public BMapType immutableType;
 
     public BMapType(int tag, BType constraint, BTypeSymbol tsymbol) {
         super(tag, tsymbol);
         this.constraint = constraint;
     }
 
-    protected BMapType(int tag, BType constraint, BTypeSymbol tsymbol, int flags) {
+    public BMapType(int tag, BType constraint, BTypeSymbol tsymbol, int flags) {
         super(tag, tsymbol, flags);
         this.constraint = constraint;
     }
@@ -55,11 +56,15 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
 
     @Override
     public String toString() {
+        String stringRep;
+
         if (constraint.tag == TypeTags.ANY) {
-            return super.toString();
+            stringRep = super.toString();
+        } else {
+            stringRep = super.toString() + "<" + constraint + ">";
         }
 
-        return super.toString() + "<" + constraint + ">";
+        return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
     }
 
     @Override
@@ -74,23 +79,5 @@ public class BMapType extends BBuiltInRefType implements ConstrainedType, Select
     @Override
     public Type getImmutableType() {
         return this.immutableType;
-    }
-
-    /**
-     * Represent the intersection type `map & readonly`.
-     *
-     * @since 1.3.0
-     */
-    public static class BImmutableMapType extends BMapType {
-
-        public BImmutableMapType(int tag, BType constraint, BTypeSymbol tsymbol, int flags) {
-            super(tag, constraint, tsymbol, flags);
-            this.flags |= Flags.READONLY;
-        }
-
-        @Override
-        public String toString() {
-            return super.toString().concat(" & readonly");
-        }
     }
 }

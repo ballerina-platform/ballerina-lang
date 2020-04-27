@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -50,16 +49,16 @@ public class BRecordType extends BStructureType implements RecordType {
     public BType restFieldType;
     private Optional<Boolean> isAnyData = Optional.empty();
     private boolean resolving = false;
-    public BImmutableRecordType immutableType;
+    public BRecordType immutableType;
 
     public BRecordType(BTypeSymbol tSymbol) {
         super(TypeTags.RECORD, tSymbol);
         this.fields = new ArrayList<>();
     }
 
-    protected BRecordType(BTypeSymbol tSymbol, List<BField> fields, int flags) {
+    public BRecordType(BTypeSymbol tSymbol, int flags) {
         super(TypeTags.RECORD, tSymbol, flags);
-        this.fields = fields;
+        this.fields = new ArrayList<>();
     }
 
     @Override
@@ -90,10 +89,11 @@ public class BRecordType extends BStructureType implements RecordType {
             }
             if (sealed) {
                 sb.append(SPACE).append(CLOSE_RIGHT);
-                return sb.toString();
+                return !Symbols.isFlagOn(this.flags, Flags.READONLY) ? sb.toString() :
+                        sb.toString().concat(" & readonly");
             }
             sb.append(SPACE).append(restFieldType).append(REST).append(SEMI).append(SPACE).append(CLOSE_RIGHT);
-            return sb.toString();
+            return !Symbols.isFlagOn(this.flags, Flags.READONLY) ? sb.toString() : sb.toString().concat(" & readonly");
         }
         return this.tsymbol.toString();
     }
@@ -125,18 +125,5 @@ public class BRecordType extends BStructureType implements RecordType {
     @Override
     public Type getImmutableType() {
         return this.immutableType;
-    }
-
-    /**
-     * Represent the intersection type `rec & readonly`.
-     *
-     * @since 1.3.0
-     */
-    public static class BImmutableRecordType extends BRecordType {
-
-        public BImmutableRecordType(BTypeSymbol tSymbol, int flags) {
-            super(tSymbol);
-            this.flags = flags |= Flags.READONLY;
-        }
     }
 }

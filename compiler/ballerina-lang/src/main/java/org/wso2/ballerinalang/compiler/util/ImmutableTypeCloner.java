@@ -76,40 +76,37 @@ public class ImmutableTypeCloner {
             case TypeTags.XML:
                 // TODO: 4/24/20 Handle XML subtypes.
                 BXMLType origXmlType = (BXMLType) type;
-                BXMLType.BImmutableXmlType immutableXmlType = origXmlType.immutableType;
+                BXMLType immutableXmlType = origXmlType.immutableType;
                 if (immutableXmlType != null) {
                     return immutableXmlType;
                 }
 
                 BTypeSymbol immutableXmlTSymbol = getReadonlyTSymbol(names, origXmlType.tsymbol, env);
-                immutableXmlType = new BXMLType.BImmutableXmlType(setImmutableType(pos, types, origXmlType.constraint,
-                                                                                   env, symTable, anonymousModelHelper,
-                                                                                   names, unresolvedTypes),
-                                                                  immutableXmlTSymbol, origXmlType.flags);
+                immutableXmlType = new BXMLType(setImmutableType(pos, types, origXmlType.constraint, env, symTable,
+                                                                 anonymousModelHelper, names, unresolvedTypes),
+                                                immutableXmlTSymbol, origXmlType.flags | Flags.READONLY);
                 immutableXmlTSymbol.type = immutableXmlType;
                 origXmlType.immutableType = immutableXmlType;
                 return immutableXmlType;
             case TypeTags.ARRAY:
                 BArrayType origArrayType = (BArrayType) type;
-                BArrayType.BImmutableArrayType immutableArrayType = origArrayType.immutableType;
+                BArrayType immutableArrayType = origArrayType.immutableType;
                 if (immutableArrayType != null) {
                     return immutableArrayType;
                 }
 
                 BTypeSymbol immutableArrayTSymbol = getReadonlyTSymbol(names, origArrayType.tsymbol, env);
-                immutableArrayType = new BArrayType.BImmutableArrayType(setImmutableType(pos, types,
-                                                                                         origArrayType.getElementType(),
-                                                                                         env, symTable,
-                                                                                         anonymousModelHelper, names,
-                                                                                         unresolvedTypes),
-                                                                        immutableArrayTSymbol, origArrayType.size,
-                                                                        origArrayType.state, origArrayType.flags);
+                immutableArrayType = new BArrayType(setImmutableType(pos, types, origArrayType.getElementType(), env,
+                                                                     symTable, anonymousModelHelper, names,
+                                                                     unresolvedTypes),
+                                                    immutableArrayTSymbol, origArrayType.size, origArrayType.state,
+                                                    origArrayType.flags | Flags.READONLY);
                 immutableArrayTSymbol.type = immutableArrayType;
                 origArrayType.immutableType = immutableArrayType;
                 return immutableArrayType;
             case TypeTags.TUPLE:
                 BTupleType origTupleType = (BTupleType) type;
-                BTupleType.BImmutableTupleType immutableTupleType = origTupleType.immutableType;
+                BTupleType immutableTupleType = origTupleType.immutableType;
                 if (immutableTupleType != null) {
                     return immutableTupleType;
                 }
@@ -123,30 +120,29 @@ public class ImmutableTypeCloner {
                 }
 
                 BTypeSymbol immutableTupleTSymbol = getReadonlyTSymbol(names, origTupleType.tsymbol, env);
-                immutableTupleType = new BTupleType.BImmutableTupleType(immutableTupleTSymbol, immutableMemTypes,
-                                                                        origTupleType.restType, origTupleType.flags);
+                immutableTupleType = new BTupleType(immutableTupleTSymbol, immutableMemTypes, origTupleType.restType,
+                                                    origTupleType.flags | Flags.READONLY);
                 immutableTupleTSymbol.type = immutableTupleType;
                 origTupleType.immutableType = immutableTupleType;
                 return immutableTupleType;
             case TypeTags.MAP:
                 BMapType origMapType = (BMapType) type;
-                BMapType.BImmutableMapType immutableMapType = origMapType.immutableType;
+                BMapType immutableMapType = origMapType.immutableType;
                 if (immutableMapType != null) {
                     return immutableMapType;
                 }
 
                 BTypeSymbol immutableMapTSymbol = getReadonlyTSymbol(names, origMapType.tsymbol, env);
-                immutableMapType = new BMapType.BImmutableMapType(origMapType.tag,
-                                                                  setImmutableType(pos, types, origMapType.constraint,
-                                                                                   env, symTable, anonymousModelHelper,
-                                                                                   names, unresolvedTypes),
-                                                                  immutableMapTSymbol, origMapType.flags);
+                immutableMapType = new BMapType(origMapType.tag, setImmutableType(pos, types, origMapType.constraint,
+                                                                                  env, symTable, anonymousModelHelper,
+                                                                                  names, unresolvedTypes),
+                                                immutableMapTSymbol, origMapType.flags | Flags.READONLY);
                 immutableMapTSymbol.type = immutableMapType;
                 origMapType.immutableType = immutableMapType;
                 return immutableMapType;
             case TypeTags.RECORD:
                 BRecordType origRecordType = (BRecordType) type;
-                BRecordType.BImmutableRecordType immutableRecordType = origRecordType.immutableType;
+                BRecordType immutableRecordType = origRecordType.immutableType;
                 if (immutableRecordType != null) {
                     return immutableRecordType;
                 }
@@ -157,44 +153,42 @@ public class ImmutableTypeCloner {
             // TODO: 4/24/20 Table
             case TypeTags.ANY:
                 BAnyType origAnyType = (BAnyType) type;
-                BAnyType.BImmutableAnyType immutableAnyType = origAnyType.immutableType;
+                BAnyType immutableAnyType = origAnyType.immutableType;
                 if (immutableAnyType != null) {
                     return immutableAnyType;
                 }
 
                 BTypeSymbol immutableAnyTSymbol = getReadonlyTSymbol(names, origAnyType.tsymbol, env);
-                immutableAnyType = new BAnyType.BImmutableAnyType(origAnyType.tag, immutableAnyTSymbol,
-                                                                  immutableAnyTSymbol.name,
-                                                                  origAnyType.flags, origAnyType.isNullable());
+                immutableAnyType = new BAnyType(origAnyType.tag, immutableAnyTSymbol, immutableAnyTSymbol.name,
+                                                origAnyType.flags | Flags.READONLY, origAnyType.isNullable());
                 immutableAnyTSymbol.type = immutableAnyType;
                 origAnyType.immutableType = immutableAnyType;
                 return immutableAnyType;
             case TypeTags.ANYDATA:
                 BAnydataType origAnydataType = (BAnydataType) type;
-                BAnydataType.BImmutableAnydataType immutableAnydataType = origAnydataType.immutableType;
+                BAnydataType immutableAnydataType = origAnydataType.immutableType;
                 if (immutableAnydataType != null) {
                     return immutableAnydataType;
                 }
 
                 BTypeSymbol immutableAnydataTSymbol = getReadonlyTSymbol(names, origAnydataType.tsymbol, env);
-                immutableAnydataType = new BAnydataType.BImmutableAnydataType(origAnydataType.tag,
-                                                                              immutableAnydataTSymbol,
-                                                                              immutableAnydataTSymbol.name,
-                                                                              origAnydataType.flags,
-                                                                              origAnydataType.isNullable());
+                immutableAnydataType = new BAnydataType(origAnydataType.tag, immutableAnydataTSymbol,
+                                                        immutableAnydataTSymbol.name,
+                                                        origAnydataType.flags | Flags.READONLY,
+                                                        origAnydataType.isNullable());
                 immutableAnydataTSymbol.type = immutableAnydataType;
                 origAnydataType.immutableType = immutableAnydataType;
                 return immutableAnydataType;
             case TypeTags.JSON:
                 BJSONType origJsonType = (BJSONType) type;
-                BJSONType.BImmutableJsonType immutableJsonType = origJsonType.immutableType;
+                BJSONType immutableJsonType = origJsonType.immutableType;
                 if (immutableJsonType != null) {
                     return immutableJsonType;
                 }
 
                 BTypeSymbol immutableJsonTSymbol = getReadonlyTSymbol(names, origJsonType.tsymbol, env);
-                immutableJsonType = new BJSONType.BImmutableJsonType(origJsonType.tag, immutableJsonTSymbol,
-                                                                     origJsonType.isNullable(), origJsonType.flags);
+                immutableJsonType = new BJSONType(origJsonType.tag, immutableJsonTSymbol, origJsonType.isNullable(),
+                                                  origJsonType.flags | Flags.READONLY);
                 immutableJsonTSymbol.type = immutableJsonType;
                 origJsonType.immutableType = immutableJsonType;
                 return immutableJsonType;
@@ -206,7 +200,6 @@ public class ImmutableTypeCloner {
                 }
 
                 LinkedHashSet<BType> readOnlyMemTypes = new LinkedHashSet<>();
-                boolean hasNilableMem = false;
 
                 for (BType memberType : origUnionType.getMemberTypes()) {
                     if (types.isReadonlyType(memberType)) {
@@ -217,10 +210,6 @@ public class ImmutableTypeCloner {
                         continue;
                     }
 
-                    if (!hasNilableMem && memberType.isNullable()) {
-                        hasNilableMem = true;
-                    }
-
                     readOnlyMemTypes.add(setImmutableType(pos, types, memberType, env, symTable, anonymousModelHelper,
                                                           names, unresolvedTypes));
                 }
@@ -229,8 +218,8 @@ public class ImmutableTypeCloner {
                     immutableType = readOnlyMemTypes.iterator().next();
                 } else {
                     BTypeSymbol immutableUnionTSymbol = getReadonlyTSymbol(names, origUnionType.tsymbol, env);
-                    immutableType = new BUnionType.BImmutableUnionType(immutableUnionTSymbol, readOnlyMemTypes,
-                                                                       hasNilableMem);
+                    immutableType = BUnionType.create(immutableUnionTSymbol, readOnlyMemTypes);
+                    immutableType.flags |= (origUnionType.flags | Flags.READONLY);
                     immutableUnionTSymbol.type = immutableType;
                 }
                 origUnionType.immutableType = immutableType;
@@ -238,17 +227,13 @@ public class ImmutableTypeCloner {
         }
     }
 
-    private static BRecordType.BImmutableRecordType defineImmutableRecordType(DiagnosticPos pos,
-                                                                              BRecordType origRecordType,
-                                                                              SymbolEnv env,
-                                                                              SymbolTable symTable,
-                                                                              BLangAnonymousModelHelper
-                                                                                      anonymousModelHelper,
-                                                                              Names names, Types types,
-                                                                              Set<BType> unresolvedTypes) {
+    private static BRecordType defineImmutableRecordType(DiagnosticPos pos, BRecordType origRecordType, SymbolEnv env,
+                                                         SymbolTable symTable,
+                                                         BLangAnonymousModelHelper anonymousModelHelper,
+                                                         Names names, Types types, Set<BType> unresolvedTypes) {
         PackageID pkgID = env.enclPkg.symbol.pkgID;
         BRecordTypeSymbol recordSymbol =
-                Symbols.createRecordSymbol(origRecordType.tsymbol.flags |= Flags.READONLY,
+                Symbols.createRecordSymbol(origRecordType.tsymbol.flags | Flags.READONLY,
                                            getImmutableTypeName(names, origRecordType.tsymbol),
                                            pkgID, null, env.scope.owner);
 
@@ -264,8 +249,7 @@ public class ImmutableTypeCloner {
                 names.fromString(recordSymbol.name.value + "." + recordSymbol.initializerFunc.funcName.value),
                 recordSymbol.initializerFunc.symbol);
 
-        BRecordType.BImmutableRecordType immutableRecordType =
-                new BRecordType.BImmutableRecordType(recordSymbol, origRecordType.flags);
+        BRecordType immutableRecordType = new BRecordType(recordSymbol, origRecordType.flags | Flags.READONLY);
         origRecordType.immutableType = immutableRecordType;
 
         List<BField> fields = new ArrayList<>();
@@ -275,7 +259,7 @@ public class ImmutableTypeCloner {
                                                         anonymousModelHelper, names, unresolvedTypes);
 
             Name origFieldName = origField.name;
-            BVarSymbol immutableFieldSymbol = new BVarSymbol(origField.symbol.flags |= Flags.READONLY, origFieldName,
+            BVarSymbol immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | Flags.READONLY, origFieldName,
                                                              pkgID, immutableFieldType, recordSymbol);
             if (immutableFieldType.tag == TypeTags.INVOKABLE && immutableFieldType.tsymbol != null) {
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) immutableFieldType.tsymbol;
@@ -306,7 +290,7 @@ public class ImmutableTypeCloner {
     }
 
     private static BTypeSymbol getReadonlyTSymbol(Names names, BTypeSymbol originalTSymbol, SymbolEnv env) {
-        return Symbols.createTypeSymbol(originalTSymbol.tag, originalTSymbol.flags |= Flags.READONLY,
+        return Symbols.createTypeSymbol(originalTSymbol.tag, originalTSymbol.flags | Flags.READONLY,
                                         getImmutableTypeName(names, originalTSymbol), env.enclPkg.symbol.pkgID, null,
                                         env.scope.owner);
     }

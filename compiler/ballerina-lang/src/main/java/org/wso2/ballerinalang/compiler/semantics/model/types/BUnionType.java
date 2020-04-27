@@ -92,7 +92,8 @@ public class BUnionType extends BType implements UnionType {
         String typeStr = this.memberTypes.stream().filter(memberType -> memberType.tag != TypeTags.NIL).count() > 1
                 ? "(" + joiner.toString() + ")" : joiner.toString();
         boolean hasNilType = this.memberTypes.stream().anyMatch(type -> type.tag == TypeTags.NIL);
-        return (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
+        String stringRep = (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
+        return !Symbols.isFlagOn(this.flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
     }
 
     public void setNullable(boolean nullable) {
@@ -229,23 +230,5 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public Type getImmutableType() {
         return this.immutableType;
-    }
-
-    /**
-     * Represent the intersection type `T1|T2 & readonly`.
-     *
-     * @since 1.3.0
-     */
-    public static class BImmutableUnionType extends BUnionType {
-
-        public BImmutableUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable) {
-            super(tsymbol, memberTypes, nullable);
-            this.flags |= Flags.READONLY;
-        }
-
-        @Override
-        public String toString() {
-            return getKind().typeName().concat(" & readonly");
-        }
     }
 }

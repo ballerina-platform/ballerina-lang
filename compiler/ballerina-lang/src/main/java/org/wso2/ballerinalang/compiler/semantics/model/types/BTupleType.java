@@ -21,6 +21,7 @@ import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -39,7 +40,7 @@ public class BTupleType extends BType implements TupleType {
     public BType restType;
     private Optional<Boolean> isAnyData = Optional.empty();
 
-    public BImmutableTupleType immutableType;
+    public BTupleType immutableType;
 
     public BTupleType(List<BType> tupleTypes) {
         super(TypeTags.TUPLE, null);
@@ -51,7 +52,7 @@ public class BTupleType extends BType implements TupleType {
         this.tupleTypes = tupleTypes;
     }
 
-    protected BTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes, BType restType, int flags) {
+    public BTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes, BType restType, int flags) {
         super(TypeTags.TUPLE, tsymbol, flags);
         this.tupleTypes = tupleTypes;
         this.restType = restType;
@@ -79,8 +80,10 @@ public class BTupleType extends BType implements TupleType {
 
     @Override
     public String toString() {
-        return "[" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(","))
+        String stringRep = "[" + tupleTypes.stream().map(BType::toString).collect(Collectors.joining(","))
                 + ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
+
+        return !Symbols.isFlagOn(flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
     }
 
     @Override
@@ -108,23 +111,5 @@ public class BTupleType extends BType implements TupleType {
     @Override
     public Type getImmutableType() {
         return this.immutableType;
-    }
-
-    /**
-     * Represent the intersection type `tuple & readonly`.
-     *
-     * @since 1.3.0
-     */
-    public static class BImmutableTupleType extends BTupleType {
-
-        public BImmutableTupleType(BTypeSymbol tsymbol, List<BType> tupleTypes, BType restType, int flags) {
-            super(tsymbol, tupleTypes, restType, flags);
-            this.flags |= Flags.READONLY;
-        }
-
-        @Override
-        public String toString() {
-            return super.toString().concat(" & readonly");
-        }
     }
 }
