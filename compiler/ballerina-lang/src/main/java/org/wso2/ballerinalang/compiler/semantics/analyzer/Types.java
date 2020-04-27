@@ -21,6 +21,8 @@ import org.ballerinalang.model.Name;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.types.TupleType;
+import org.ballerinalang.model.types.Type;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.BLangCompilerConstants;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
@@ -549,15 +551,11 @@ public class Types {
 
         //TODO Need to check the key specifier
         if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
-            return isAssignable(((BTableType) source).constraint, ((BTableType) target).constraint, unresolvedTypes);
+            return isAssignableTableType((BTableType) source, (BTableType) target);
         }
 
         if (targetTag == TypeTags.STREAM && sourceTag == TypeTags.STREAM) {
             return isAssignable(((BStreamType) source).constraint, ((BStreamType) target).constraint, unresolvedTypes);
-        }
-
-        if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
-            return isAssignable(((BTableType) source).constraint, ((BTableType) target).constraint, unresolvedTypes);
         }
 
         if (isBuiltInTypeWidenPossible(source, target) == TypeTestResult.TRUE) {
@@ -661,6 +659,68 @@ public class Types {
         }
 
         return true;
+    }
+
+    private boolean isAssignableTableType(BTableType sourceTableType, BTableType targetTableType) {
+        if (!isAssignable(sourceTableType.constraint, targetTableType.constraint)) {
+            return false;
+        }
+
+        if (targetTableType.keyTypeConstraint != null) {
+            if (sourceTableType.fieldNameList == null) {
+                return false;
+            }
+
+            List<BType> memberTypes = new ArrayList<>();
+            if (targetTableType.keyTypeConstraint.tag == TypeTags.TUPLE) {
+                for (Type type : ((TupleType) targetTableType.keyTypeConstraint).getTupleTypes()) {
+                    memberTypes.add((BType) type);
+                }
+            } else {
+                memberTypes.add(targetTableType.keyTypeConstraint);
+            }
+
+            if (memberTypes.size() != sourceTableType.fieldNameList.size()) {
+                return false;
+            }
+
+            int index = 0;
+            for (String fieldName : sourceTableType.fieldNameList) {
+                BField field = getTableConstraintField(sourceTableType.constraint, fieldName);
+                if (field == null) {
+                    //NOT POSSIBLE
+                    return false;
+                }
+
+                BType fieldType = field.type;
+                if (memberTypes.get(index).tag != fieldType.tag) {
+                    return false;
+                }
+                index++;
+            }
+        }
+
+//        if (sourceTableType.fieldNameList != null) {
+//            if (targetTableType.keyTypeConstraint == null && targetTableType.fieldNameList == null) {
+//                return false;
+//            }
+//
+//            return sourceTableType.fieldNameList.equals(targetTableType.fieldNameList);
+//        }
+
+        return true;
+    }
+
+    BField getTableConstraintField(BType constraintType, String fieldName) {
+        List<BField> fieldList = ((BRecordType) constraintType).getFields();
+
+        for (BField field : fieldList) {
+            if (field.name.toString().equals(fieldName)) {
+                return field;
+            }
+        }
+
+        return null;
     }
 
     private boolean isAssignableMapType(BMapType sourceMapType, BRecordType targetRecType) {

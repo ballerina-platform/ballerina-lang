@@ -224,7 +224,7 @@ function testTableWithMultiKeySpecifier2() {
              { id: 23 , name: "James" , lname: "Clark"}];
 
     //TODO: Need to fix here. At this line, compiler passes even if the key type is incompatible
-    table<Customer> key<anydata> customerTable = cusTable;
+    table<Customer> key<int> customerTable = cusTable;
 
     assertEquality(2, customerTable.length());
     var lname = customerTable[13]["lname"];
