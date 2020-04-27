@@ -184,7 +184,6 @@ public enum SyntaxKind {
     SIMPLE_NAME_REFERENCE(1213),
 
     // Type descriptors
-
     TYPE_DESC(2000),
     RECORD_TYPE_DESC(2001),
     OBJECT_TYPE_DESC(2002),
@@ -206,7 +205,6 @@ public enum SyntaxKind {
     VAR_TYPE_DESC(2018),
     SERVICE_TYPE_DESC(2019),
     PARAMETERIZED_TYPE_DESC(2020),
-
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),

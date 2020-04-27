@@ -1092,7 +1092,6 @@ public class BallerinaParser {
                 }
 
                 return parseModuleVarDecl(metadata, qualifier);
-
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
