@@ -900,7 +900,7 @@ function getClobColumnChannel() returns @untainted io:ReadableCharacterChannel|e
     return sourceChannel;
 }
 
-function queryJdbcClient(string url, string user, string password,@untainted string|sql:ParameterizedString sqlQuery,
+function queryJdbcClient(string url, string user, string password, @untainted string|sql:ParameterizedString sqlQuery,
 typedesc<record{}>? resultType = ())
 returns @tainted record {}|error? {
     jdbc:Client dbClient = check new (url = url, user = user, password = password);
@@ -917,4 +917,3 @@ function writeToFile(byte[] data) returns @tainted error? {
     int leng = check byteChannel.write(data, 0);
     return check byteChannel.close();
 }
-
