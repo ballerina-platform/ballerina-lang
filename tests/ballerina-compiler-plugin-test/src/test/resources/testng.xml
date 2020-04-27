@@ -21,14 +21,10 @@ under the License.
 
 <suite name="ballerina-compiler-plugin-test-suite">
 
-    <!--<listeners>-->
-        <!--<listener class-name="org.ballerinalang.test.utils.TestSuiteListener"/>-->
-    <!--</listeners>-->
-
-    <!-- Ballerina language Test Cases. -->
+    <!-- Ballerina language Compile Plugin Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
         <packages>
-            <!--<package name="org.ballerinalang.test.compiler.plugins.*"/>-->
+            <package name="io.ballerina.test.compiler.plugins"/>
         </packages>
     </test>
 </suite>
