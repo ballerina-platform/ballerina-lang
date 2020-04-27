@@ -29,7 +29,7 @@ import ballerina/time;
 #     trustStoreConfig: {
 #         certificateAlias: "ballerina",
 #         trustStore: {
-#             path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+#             path: "/path/to/truststore.p12",
 #             password: "ballerina"
 #         }
 #     }

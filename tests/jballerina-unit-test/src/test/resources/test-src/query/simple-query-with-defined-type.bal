@@ -16,6 +16,42 @@ type Employee record {|
     string company;
 |};
 
+type Person1 record {|
+   string firstName;
+   string lastName;
+   string deptAccess;
+   Address address;
+|};
+
+type Address record{|
+    string city;
+    string country;
+|};
+
+type Student record{|
+    string firstName;
+    string lastName;
+    float score;
+|};
+
+type Teacher1 record{
+	//record type referencing
+	*Person1;
+	Student[] classStudents?;
+	//anonymous record type
+	record {|
+		int duration;
+		string qualitifications;
+	|} experience;
+};
+
+type Subscription record{|
+    string firstName;
+    string lastName;
+    float score;
+    string degree;
+|};
+
 type NumberGenerator object {
     int i = 0;
     public function next() returns record {|int value;|}|error? {
@@ -294,4 +330,96 @@ public function testQueryStreamWithError() returns int[]|error {
                                 where (num % 2 == 1)
                                 select num;
     return oddNumberList;
+}
+
+function testOthersAssociatedWithRecordTypes() returns Teacher1[]{
+
+    Person1 p1 = {firstName: "Alex", lastName: "George", deptAccess: "XYZ", address:{city:"NY", country:"America"}};
+    Person1 p2 = {firstName: "Ranjan", lastName: "Fonseka", deptAccess: "XYZ", address:{city:"NY", country:"America"}};
+
+    Student s1 = {firstName: "Alex", lastName: "George", score: 82.5};
+    Student s2 = {firstName: "Ranjan", lastName: "Fonseka", score: 90.6};
+
+    Person1[] personList = [p1, p2];
+    Student[] studentList = [s1, s2];
+
+    Teacher1[] outputteacherList =
+    	from var person in personList
+    	let int period = 10, string degree = "B.Sc."
+        select{
+    		//change order of the record fields
+    		firstName:person.firstName,
+    		address: person.address,
+    		//optional field
+    		classStudents: studentList,
+    		deptAccess: person.deptAccess,
+    		//member access
+    		lastName:person["lastName"],
+    		//values for anonymous record fields
+    		experience: {
+    			duration: period,
+    			qualitifications: degree
+    		}
+    	};
+
+    return  outputteacherList;
+}
+
+function testQueryExprTupleTypedBinding2() returns int[]{
+
+   	[int,int][] arr1 = [[1,2],[2,3],[3,4]];
+    [int,int] arr2 = [1,2];
+
+    int[] ouputList =
+    	from [int,int] [a,b] in arr1
+    	let [int,int] [d1,d2] = arr2, int x=d1+d2
+    	where b > x
+    	select a;
+
+    return  ouputList;
+}
+
+function testQueryExprWithTypeConversion() returns Person1[]{
+
+    Person1 p1 = {firstName: "Alex", lastName: "George", deptAccess: "XYZ", address:{city:"NY", country:"America"}};
+    Person1 p2 = {firstName: "Ranjan", lastName: "Fonseka", deptAccess: "XYZ", address:{city:"NY", country:"America"}};
+
+	map<anydata> m = {city:"New York", country:"America"};
+
+	Person1[] personList = [p1, p2];
+
+	Person1[] outputPersonList =
+		from var person in personList
+		select{
+			firstName: person.firstName,
+			lastName: person.lastName,
+			deptAccess: person.deptAccess,
+			address: <Address>Address.constructFrom(m)
+		};
+
+    return  outputPersonList;
+}
+
+function testQueryExprWithStreamMapAndFilter() returns Subscription[]{
+
+    Student s1 = {firstName: "Alex", lastName: "George", score: 82.5};
+    Student s2 = {firstName: "Ranjan", lastName: "Fonseka", score: 90.6};
+
+    Student[] studentList = [s1, s2];
+
+	Subscription[] outputSubscriptionList =
+		from var subs in <stream<Subscription>>studentList.toStream().filter(function (Student student) returns boolean {
+			return student.score > 85.3;
+			}).'map(function (Student student) returns Subscription {
+				Subscription subscription = {
+					firstName: student.firstName,
+					lastName: student.lastName,
+					score: student.score,
+					degree: "Bachelor of Medicine"
+				};
+				return subscription;
+				})
+		select subs;
+
+	return  outputSubscriptionList;
 }
