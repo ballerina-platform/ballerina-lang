@@ -81,13 +81,13 @@ public class BallerinaValues {
     public static ObjectValue createObjectValue(BPackage packageId, String objectTypeName, Object... fieldValues) {
         ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
         Object[] fields = new Object[fieldValues.length * 2];
-
+        Strand currentStrand = getStrand();
         // Adding boolean values for each arg
         for (int i = 0, j = 0; i < fieldValues.length; i++) {
             fields[j++] = fieldValues[i];
             fields[j++] = true;
         }
-        return valueCreator.createObjectValue(objectTypeName, getScheduler(), getStrand(), null, fields);
+        return valueCreator.createObjectValue(objectTypeName, getScheduler(currentStrand), currentStrand, null, fields);
     }
 
     public static ObjectValue createObjectValue(BPackage packageId, String objectTypeName, Strand currentStrand,
@@ -106,13 +106,12 @@ public class BallerinaValues {
                 null, fields);
     }
 
-    private static Scheduler getScheduler() {
+    private static Scheduler getScheduler(Strand currentStrand) {
         try {
-            return Scheduler.getStrand().scheduler;
+            return currentStrand.scheduler;
         } catch (Exception ex) {
-            //ignore :issue is opened to fix this
+            return null;
         }
-        return null;
     }
 
     private static Strand getStrand() {

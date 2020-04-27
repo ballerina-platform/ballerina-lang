@@ -484,16 +484,12 @@ class JvmTypeGen {
             mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>",
                     String.format("(L%s;L%s;L%s;)V", SCHEDULER, STRAND, MAP), false);
             mv.visitVarInsn(ASTORE, strandVarIndex);
-            Label conditionLinkLabel = new Label();
-            mv.visitLabel(conditionLinkLabel);
             Label endConditionLabel = new Label();
             mv.visitJumpInsn(GOTO, endConditionLabel);
             mv.visitLabel(parentNonNullLabel);
-            mv.visitFrame(F_SAME, 0, null, 0, null);
             mv.visitVarInsn(ALOAD, parentIndex);
             mv.visitVarInsn(ASTORE, strandVarIndex);
             mv.visitLabel(endConditionLabel);
-            mv.visitFrame(F_APPEND, 1, new Object[]{STRAND}, 0, null);
 
             mv.visitVarInsn(ALOAD, tempVarIndex);
             mv.visitVarInsn(ALOAD, strandVarIndex);
