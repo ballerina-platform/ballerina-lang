@@ -842,12 +842,6 @@ public class Types {
             }
         } else if (target.tag == TypeTags.JSON) {
             return isAssignable(sourceElementType, target, unresolvedTypes);
-        } else if (target.tag == TypeTags.UNION) {
-            for (BType memberType : ((BUnionType) target).getMemberTypes()) {
-                if (isArrayTypesAssignable(source, memberType, unresolvedTypes)) {
-                    return true;
-                }
-            }
         }
         return false;
     }
