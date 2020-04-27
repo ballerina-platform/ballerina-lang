@@ -90,9 +90,9 @@ public class BallerinaValues {
         return valueCreator.createObjectValue(objectTypeName, getScheduler(), getStrand(), null, fields);
     }
 
-    public static ObjectValue createObjectValueWithCurrentStrandScheduler(BPackage packageId, String objectTypeName,
-                                                      Object... fieldValues) {
-        //This method duplicates the createObjectValue with referencing the fix for issue #22871
+    public static ObjectValue createObjectValue(BPackage packageId, String objectTypeName, Strand currentStrand,
+                                                Object... fieldValues) {
+        //This method duplicates the createObjectValue with referencing the issue in runtime API getting strand
         ValueCreator valueCreator = ValueCreator.getValueCreator(packageId.toString());
         Object[] fields = new Object[fieldValues.length * 2];
 
@@ -102,7 +102,7 @@ public class BallerinaValues {
             fields[j++] = true;
         }
         //passing scheduler of current strand
-        return valueCreator.createObjectValue(objectTypeName, Scheduler.getStrand().scheduler, Scheduler.getStrand(),
+        return valueCreator.createObjectValue(objectTypeName, currentStrand.scheduler, currentStrand,
                 null, fields);
     }
 
@@ -110,7 +110,7 @@ public class BallerinaValues {
         try {
             return Scheduler.getStrand().scheduler;
         } catch (Exception ex) {
-            //ignore : #22871 is opened to fix this
+            //ignore :issue is opened to fix this
         }
         return null;
     }
@@ -119,7 +119,7 @@ public class BallerinaValues {
         try {
             return Scheduler.getStrand();
         } catch (Exception ex) {
-            //ignore : #22871 is opened to fix this
+            //ignore : isssue is opened to fix this
         }
         return null;
     }
