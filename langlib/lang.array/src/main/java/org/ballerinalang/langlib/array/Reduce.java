@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.array;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -27,6 +28,9 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.getElementAccessFunction;
 
@@ -47,13 +51,16 @@ public class Reduce {
     public static Object reduce(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func, Object initial) {
         BType arrType = arr.getType();
         int size = arr.size();
-        Object accum = initial;
         GetFunction getFn = getElementAccessFunction(arrType, "reduce()");
+        AtomicReference<Object> accum = new AtomicReference<>(initial);
+        AtomicInteger index = new AtomicInteger(-1);
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                                                       () -> new Object[]{strand, accum.get(), true,
+                                                               getFn.get(arr, index.incrementAndGet()), true},
+                                                       accum::set, accum::get);
+        return accum.get();
 
-        for (int i = 0; i < size; i++) {
-            accum = func.apply(new Object[]{strand, accum, true, getFn.get(arr, i), true});
-        }
-
-        return accum;
+        
     }
 }

@@ -141,6 +141,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_RETURNED_ERROR_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_STOP_PANIC_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_THROWABLE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
@@ -1629,10 +1630,16 @@ public class JvmMethodGen {
                 String.format("(L%s;L%s;Z)V", FUNCTION, BTYPE), false);
     }
 
-    static void generateMainMethod(@Nilable BIRFunction userMainFunc, ClassWriter cw, BIRPackage pkg, String
-            mainClass, String initClass, boolean serviceEPAvailable) {
+    static void generateMainMethod(@Nilable BIRFunction userMainFunc, ClassWriter cw, BIRPackage pkg,
+                                   String initClass, boolean serviceEPAvailable) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "main", "([Ljava/lang/String;)V", null, null);
+        mv.visitCode();
+        Label tryCatchStart = new Label();
+        Label tryCatchEnd = new Label();
+        Label tryCatchHandle = new Label();
+        mv.visitTryCatchBlock(tryCatchStart, tryCatchEnd, tryCatchHandle, THROWABLE);
+        mv.visitLabel(tryCatchStart);
 
         // check for java compatibility
         generateJavaCompatibilityCheck(mv);
@@ -1646,8 +1653,6 @@ public class JvmMethodGen {
         registerShutdownListener(mv, initClass);
 
         BalToJVMIndexMap indexMap = new BalToJVMIndexMap();
-        String pkgName = getPackageName(pkg.org.value, pkg.name.value, pkg.version.value);
-        ErrorHandlerGenerator errorGen = new ErrorHandlerGenerator(mv, indexMap, pkgName);
 
         // add main string[] args param first
         BIRVariableDcl argsVar = new BIRVariableDcl(symbolTable.anyType, new Name("argsdummy"), VarScope.FUNCTION,
@@ -1689,7 +1694,7 @@ public class JvmMethodGen {
             mv.visitIntInsn(BIPUSH, 100);
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
             mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
-            errorGen.printStackTraceFromFutureValue(mv, indexMap);
+            handleErrorFromFutureValue(mv);
 
             BIRVariableDcl futureVar = new BIRVariableDcl(symbolTable.anyType, new Name("initdummy"),
                     VarScope.FUNCTION, VarKind.ARG);
@@ -1726,7 +1731,7 @@ public class JvmMethodGen {
             mv.visitIntInsn(BIPUSH, 100);
             mv.visitTypeInsn(ANEWARRAY, OBJECT);
             mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
-            errorGen.printStackTraceFromFutureValue(mv, indexMap);
+            handleErrorFromFutureValue(mv);
 
             // At this point we are done executing all the functions including asyncs
             if (!isVoidFunction) {
@@ -1744,7 +1749,7 @@ public class JvmMethodGen {
         }
 
         if (hasInitFunction(pkg)) {
-            scheduleStartMethod(mv, pkg, initClass, serviceEPAvailable, errorGen, indexMap, schedulerVarIndex);
+            scheduleStartMethod(mv, initClass, serviceEPAvailable, indexMap, schedulerVarIndex);
         }
 
         // stop all listeners
@@ -1754,9 +1759,33 @@ public class JvmMethodGen {
             mv.visitInsn(ICONST_0);
             mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "exit", "(I)V", false);
         }
+
+        mv.visitLabel(tryCatchEnd);
+        mv.visitInsn(RETURN);
+        mv.visitLabel(tryCatchHandle);
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD,
+                String.format("(L%s;)V", THROWABLE), false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private static void handleErrorFromFutureValue(MethodVisitor mv) {
+        mv.visitInsn(DUP);
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, "strand", String.format("L%s;", STRAND));
+        mv.visitFieldInsn(GETFIELD, STRAND, "scheduler", String.format("L%s;", SCHEDULER));
+        mv.visitMethodInsn(INVOKEVIRTUAL, SCHEDULER, SCHEDULER_START_METHOD, "()V", false);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
+
+        // handle any runtime errors
+        Label labelIf = new Label();
+        mv.visitJumpInsn(IFNULL, labelIf);
+        mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
+        mv.visitMethodInsn(INVOKESTATIC, RUNTIME_UTILS, HANDLE_THROWABLE_METHOD,
+                String.format("(L%s;)V", THROWABLE), false);
+        mv.visitInsn(RETURN);
+        mv.visitLabel(labelIf);
     }
 
     private static void initConfigurations(MethodVisitor mv) {
@@ -1790,8 +1819,7 @@ public class JvmMethodGen {
                 false);
     }
 
-    private static void scheduleStartMethod(MethodVisitor mv, BIRPackage pkg, String initClass,
-                                            boolean serviceEPAvailable, ErrorHandlerGenerator errorGen,
+    private static void scheduleStartMethod(MethodVisitor mv, String initClass, boolean serviceEPAvailable,
                                             BalToJVMIndexMap indexMap, int schedulerVarIndex) {
 
         mv.visitVarInsn(ALOAD, schedulerVarIndex);
@@ -1817,7 +1845,7 @@ public class JvmMethodGen {
         mv.visitIntInsn(BIPUSH, 100);
         mv.visitTypeInsn(ANEWARRAY, OBJECT);
         mv.visitFieldInsn(PUTFIELD, STRAND, "frames", String.format("[L%s;", OBJECT));
-        errorGen.printStackTraceFromFutureValue(mv, indexMap);
+        handleErrorFromFutureValue(mv);
 
         BIRVariableDcl futureVar = new BIRVariableDcl(symbolTable.anyType, new Name("startdummy"), VarScope.FUNCTION,
                 VarKind.ARG);

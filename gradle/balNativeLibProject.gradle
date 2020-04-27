@@ -63,7 +63,7 @@ class CreateBaloTask extends JavaExec {
         args << "${project.buildDir}/ballerina-home/main"
         args << skipWarnings
         args << jvmTarget
-        args << "lang.__internal,lang.annotations,bir,jvm,utils,ldap"
+        args << "lang.__internal,lang.annotations,bir,jvm,utils"
 
         super.setArgs(args)
         super.exec()
