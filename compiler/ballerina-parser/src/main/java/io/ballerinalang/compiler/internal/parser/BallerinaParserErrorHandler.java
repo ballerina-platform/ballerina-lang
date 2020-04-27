@@ -1050,6 +1050,13 @@ public class BallerinaParserErrorHandler {
                 case FORK_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.FORK_KEYWORD;
                     break;
+                case DECIMAL_FLOATING_POINT_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
+                    break;
+                case HEX_FLOATING_POINT_LITERAL:
+                    hasMatch = nextToken.kind == SyntaxKind.HEX_FLOATING_POINT_LITERAL;
+                    break;
+
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
                 case FUNC_DEFINITION:
@@ -1612,7 +1619,7 @@ public class BallerinaParserErrorHandler {
                 if (parentCtx == ParserRuleContext.MAPPING_CONSTRUCTOR) {
                     return ParserRuleContext.MAPPING_FIELD;
                 }
-                
+
                 if (parentCtx == ParserRuleContext.FORK_STMT) {
                     return ParserRuleContext.NAMED_WORKER_DECL;
                 }
@@ -2851,6 +2858,10 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.OPEN_PAREN_TOKEN;
             case FORK_KEYWORD:
                 return SyntaxKind.FORK_KEYWORD;
+            case DECIMAL_FLOATING_POINT_LITERAL:
+                return SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL;
+            case HEX_FLOATING_POINT_LITERAL:
+                return SyntaxKind.HEX_FLOATING_POINT_LITERAL;
 
             // TODO:
             case COMP_UNIT:

@@ -322,6 +322,10 @@ public class BallerinaParser {
                 return parseWorkerName();
             case FORK_KEYWORD:
                 return parseForkKeyword();
+            case DECIMAL_FLOATING_POINT_LITERAL:
+                return parseDecimalFloatingPointLiteral();
+            case HEX_FLOATING_POINT_LITERAL:
+                return parseHexFloatingPointLiteral();
             default:
                 throw new IllegalStateException("Cannot re-parse rule: " + context);
         }
@@ -3052,6 +3056,7 @@ public class BallerinaParser {
         switch (expression.kind) {
             case IDENTIFIER_TOKEN:
             case QUALIFIED_NAME_REFERENCE:
+            case SIMPLE_NAME_REFERENCE:
                 return true;
             case FIELD_ACCESS:
                 return isValidLVExpr(((STFieldAccessExpressionNode) expression).expression);
@@ -3103,6 +3108,8 @@ public class BallerinaParser {
             case NULL_KEYWORD:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
                 return parseBasicLiteral();
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
@@ -3606,6 +3613,8 @@ public class BallerinaParser {
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
             case NULL_KEYWORD:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
             default:
                 expr = parseExpression();
                 return STNodeFactory.createPositionalArgumentNode(leadingComma, expr);
@@ -5772,6 +5781,8 @@ public class BallerinaParser {
             case TYPEOF_KEYWORD:
             case NEGATION_TOKEN:
             case EXCLAMATION_MARK_TOKEN:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
                 return true;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
@@ -6372,6 +6383,7 @@ public class BallerinaParser {
             case HEX_FLOATING_POINT_LITERAL:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
+            case NULL_KEYWORD:
                 expr = consume();
                 break;
             case IDENTIFIER_TOKEN:
@@ -6640,10 +6652,10 @@ public class BallerinaParser {
     }
 
     /**
-    * Parse multiple named worker declarations.
-    *
-    * @return named-worker-declarations node array
-    */
+     * Parse multiple named worker declarations.
+     *
+     * @return named-worker-declarations node array
+     */
     private STNode parseMultileNamedWorkerDeclarations() {
         STToken token = peek();
         ArrayList<STNode> workers = new ArrayList<>();
@@ -6664,7 +6676,7 @@ public class BallerinaParser {
             }
             token = peek();
         }
-        
+
         if (workers.isEmpty()) {
             this.errorHandler.reportInvalidNode(null, "Fork Statement must contain atleast one named-worker");
         }
@@ -6686,5 +6698,35 @@ public class BallerinaParser {
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createForkStatementNode(forkKeyword, openBrace, namedWorkerDeclarations, closeBrace);
+    }
+
+    /**
+     * Parse decimal floating point literal.
+     *
+     * @return Parsed node
+     */
+    private STNode parseDecimalFloatingPointLiteral() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.DECIMAL_FLOATING_POINT_LITERAL);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse hex floating point literal.
+     *
+     * @return Parsed node
+     */
+    private STNode parseHexFloatingPointLiteral() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.HEX_FLOATING_POINT_LITERAL) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.HEX_FLOATING_POINT_LITERAL);
+            return sol.recoveredNode;
+        }
     }
 }
