@@ -119,14 +119,8 @@ public class BallerinaParserErrorHandler {
             { ParserRuleContext.CLOSED_RECORD_BODY_END, ParserRuleContext.CLOSE_BRACE };
 
     // Give object the higher priority over records, since record body is a subset of object body.
-    // TODO: add other type descriptors
+    // Array, optional and unary type descriptors are not added to the list since they are left recursive.
     private static final ParserRuleContext[] TYPE_DESCRIPTORS =
-            { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.OBJECT_TYPE_DESCRIPTOR,
-                    ParserRuleContext.RECORD_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR,
-                    ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR, ParserRuleContext.ARRAY_TYPE_DESCRIPTOR,
-                    ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR};
-
-    private static final ParserRuleContext[] TYPE_DESCRIPTORS_WITHOUT_COMPLEX =
             { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.OBJECT_TYPE_DESCRIPTOR,
                     ParserRuleContext.RECORD_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR,
                     ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR};
@@ -262,6 +256,9 @@ public class BallerinaParserErrorHandler {
 
     private static final ParserRuleContext[] CONSTANT_EXPRESSION =
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.VARIABLE_REF };
+
+    private static final ParserRuleContext[] TYPEDESC_RHS = {ParserRuleContext.ARRAY_TYPE_DESCRIPTOR,
+            ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR, ParserRuleContext.NON_RECURSIVE_TYPE};
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -761,16 +758,8 @@ public class BallerinaParserErrorHandler {
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, RECORD_BODY_START,
                             isEntryPoint);
                 case TYPE_DESCRIPTOR:
-                    parentCtx = getParentContext();
-                    switch (parentCtx) {
-                        case ARRAY_TYPE_DESCRIPTOR:
-                        case OPTIONAL_TYPE_DESCRIPTOR:
-                            return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
-                                    TYPE_DESCRIPTORS_WITHOUT_COMPLEX, isEntryPoint);
-                        default:
-                            return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
-                                    TYPE_DESCRIPTORS, isEntryPoint);
-                    }
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
+                            TYPE_DESCRIPTORS, isEntryPoint);
                 case RECORD_FIELD_OR_RECORD_END:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount,
                             RECORD_FIELD_OR_RECORD_END, isEntryPoint);
@@ -1070,6 +1059,9 @@ public class BallerinaParserErrorHandler {
                 case WORKER_KEYWORD:
                     hasMatch = nextToken.kind == SyntaxKind.WORKER_KEYWORD;
                     break;
+                case TYPEDESC_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPEDESC_RHS,
+                            isEntryPoint);
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1128,6 +1120,7 @@ public class BallerinaParserErrorHandler {
                 case NAMED_WORKERS:
                 case NAMED_WORKER_DECL:
                 case PARAMETERIZED_TYPE_DESCRIPTOR:
+                case NON_RECURSIVE_TYPE:
                     // start a context, so that we know where to fall back, and continue
                     // having the qualified-identifier as the next rule.
                 case VARIABLE_REF:
@@ -1607,7 +1600,7 @@ public class BallerinaParserErrorHandler {
                 if (parentCtx == ParserRuleContext.NIL_TYPE_DESCRIPTOR) {
                     endContext();
                     // After parsing nil type descriptor all the other parsing is same as next rule of simple type
-                    return getNextRuleForTypeDescriptor();
+                    return ParserRuleContext.TYPEDESC_RHS;
                 }
                 if (parentCtx == ParserRuleContext.NIL_LITERAL) {
                     endContext();
@@ -1669,7 +1662,7 @@ public class BallerinaParserErrorHandler {
             case SEMICOLON:
                 return getNextRuleForSemicolon(nextLookahead);
             case SIMPLE_TYPE_DESCRIPTOR:
-                return getNextRuleForTypeDescriptor();
+                return ParserRuleContext.TYPEDESC_RHS;
             case VARIABLE_NAME:
             case PARAMETER_RHS:
                 return getNextRuleForVarName(nextLookahead);
@@ -1708,7 +1701,7 @@ public class BallerinaParserErrorHandler {
                 if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
                     return ParserRuleContext.EOF;
                 }
-                return getNextRuleForTypeDescriptor();
+                return ParserRuleContext.TYPEDESC_RHS;
             case CLOSED_RECORD_BODY_START:
                 return ParserRuleContext.RECORD_FIELD_OR_RECORD_END;
             case ELLIPSIS:
@@ -1718,7 +1711,7 @@ public class BallerinaParserErrorHandler {
                 }
                 return ParserRuleContext.VARIABLE_NAME;
             case QUESTION_MARK:
-                return getNextRuleForQuestionMark(nextLookahead);
+                return getNextRuleForQuestionMark();
             case RECORD_KEYWORD:
                 return ParserRuleContext.RECORD_BODY_START;
             case TYPE_KEYWORD:
@@ -1748,7 +1741,7 @@ public class BallerinaParserErrorHandler {
             case OPEN_BRACKET:
                 return getNextRuleForOpenBracket();
             case CLOSE_BRACKET:
-                return getNextRuleForCloseBracket(nextLookahead);
+                return getNextRuleForCloseBracket();
             case FIELD_OR_FUNC_NAME:
                 return ParserRuleContext.EXPRESSION_RHS;
             case DOT:
@@ -1870,13 +1863,13 @@ public class BallerinaParserErrorHandler {
             case TYPEOF_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
             case OPTIONAL_TYPE_DESCRIPTOR:
-                return ParserRuleContext.TYPE_DESCRIPTOR;
+                return ParserRuleContext.QUESTION_MARK;
             case UNARY_EXPRESSION:
                 return ParserRuleContext.UNARY_OPERATOR;
             case UNARY_OPERATOR:
                 return ParserRuleContext.EXPRESSION;
             case ARRAY_TYPE_DESCRIPTOR:
-                return ParserRuleContext.TYPE_DESCRIPTOR;
+                return ParserRuleContext.OPEN_BRACKET;
             case ARRAY_LENGTH:
                 return ParserRuleContext.CLOSE_BRACKET;
             case AT:
@@ -1978,6 +1971,8 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.WORKER_NAME;
             case WORKER_NAME:
                 return ParserRuleContext.RETURN_TYPE_DESCRIPTOR;
+            case NON_RECURSIVE_TYPE:
+                return getNextRuleForTypeDescriptor();
             case PARAMETERIZED_TYPE_DESCRIPTOR:
                 return ParserRuleContext.PARAMETERIZED_TYPE;
             case PARAMETERIZED_TYPE:
@@ -1989,7 +1984,7 @@ public class BallerinaParserErrorHandler {
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR) {
                     endContext();
-                    return getNextRuleForTypeDescriptor();
+                    return ParserRuleContext.TYPEDESC_RHS;
                 }
                 // fall through
 
@@ -2218,7 +2213,7 @@ public class BallerinaParserErrorHandler {
             case RECORD_TYPE_DESCRIPTOR:
             case OBJECT_TYPE_DESCRIPTOR:
                 endContext(); // end record/object type def
-                return getNextRuleForTypeDescriptor();
+                return ParserRuleContext.TYPEDESC_RHS;
             case BLOCK_STMT:
                 endContext(); // end block stmt
                 parentCtx = getParentContext();
@@ -2431,22 +2426,12 @@ public class BallerinaParserErrorHandler {
      *
      * @return Next parser context
      */
-    private ParserRuleContext getNextRuleForQuestionMark(int nextLookahead) {
+    private ParserRuleContext getNextRuleForQuestionMark() {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
             case OPTIONAL_TYPE_DESCRIPTOR:
-                STToken nextToken = this.tokenReader.peek(nextLookahead);
-                //int?[] scenario
-                if (nextToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
-                    switchContext(ParserRuleContext.ARRAY_TYPE_DESCRIPTOR);
-                    return ParserRuleContext.OPEN_BRACKET;
-                }
-                //int????.. scenarios
-                if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) {
-                    return ParserRuleContext.QUESTION_MARK;
-                }
                 endContext();
-                return getNextRuleForTypeDescriptor();
+                return ParserRuleContext.TYPEDESC_RHS;
             default:
                 return ParserRuleContext.SEMICOLON;
         }
@@ -2472,21 +2457,12 @@ public class BallerinaParserErrorHandler {
      *
      * @return Next parser context
      */
-    private ParserRuleContext getNextRuleForCloseBracket(int nextLookahead) {
+    private ParserRuleContext getNextRuleForCloseBracket() {
         ParserRuleContext parentCtx = getParentContext();
-        STToken nextToken = this.tokenReader.peek(nextLookahead);
         switch (parentCtx) {
             case ARRAY_TYPE_DESCRIPTOR:
-                //int[][][]... scenario
-                if (nextToken.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
-                    return ParserRuleContext.OPEN_BRACKET;
-                } else if (nextToken.kind == SyntaxKind.QUESTION_MARK_TOKEN) { //int[]? scenario
-                    switchContext(ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR);
-                    return ParserRuleContext.QUESTION_MARK;
-                } else {
-                    endContext(); // End array type descriptor context
-                    return getNextRuleForTypeDescriptor();
-                }
+                endContext(); // End array type descriptor context
+                return ParserRuleContext.TYPEDESC_RHS;
             case COMPUTED_FIELD_NAME:
             default:
                 endContext(); // end computed-field-name

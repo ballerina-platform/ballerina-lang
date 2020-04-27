@@ -5927,7 +5927,7 @@ public class BallerinaParser {
             case TYPEDESC_KEYWORD: // typedesc type desc
                 return consume();
             default:
-                Solution sol = recover(nextToken, ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR);
+                Solution sol = recover(nextToken, ParserRuleContext.PARAMETERIZED_TYPE);
                 return sol.recoveredNode;
         }
     }

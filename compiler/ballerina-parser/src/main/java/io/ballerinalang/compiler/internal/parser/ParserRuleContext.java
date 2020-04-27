@@ -257,6 +257,8 @@ public enum ParserRuleContext {
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),
+    NON_RECURSIVE_TYPE("non-recursive-type"),
+    TYPEDESC_RHS("type-desc-rhs"),
     ;
 
     private String value;
