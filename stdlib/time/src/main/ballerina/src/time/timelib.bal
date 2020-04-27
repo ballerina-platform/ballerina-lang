@@ -16,13 +16,13 @@
 
 import ballerina/java;
 
-# Specifies the time format defined by the RFC-1123
+# Specifies the time format defined by the RFC-1123.
 public const TIME_FORMAT_RFC_1123 = "RFC_1123";
 
 # The time format defined by the RFC-1123.
 public type TimeFormat TIME_FORMAT_RFC_1123;
 
-# Ballerina TimeZone represents the time-zone information associated with a particular time.
+# Represents the time-zone information associated with a particular time.
 #
 # + id - Zone short ID or offset string
 # + offset - The offset in seconds
@@ -31,7 +31,7 @@ public type TimeZone record {|
     int offset = 0;
 |};
 
-# Ballerina Time represents a particular time with its associated time-zone.
+# Represents a particular time with its associated time-zone.
 #
 # + time - Time value as milliseconds since epoch
 # + zone - The time zone of the time
@@ -40,10 +40,15 @@ public type Time record {|
     TimeZone zone;
 |};
 
-# Returns ISO 8601 string representation of the given time.
+# Returns the ISO 8601 string representation of the given time.
+# ```ballerina
+#  time:TimeZone zoneValue = {id: "America/Panama"};
+#  time:Time time = {time: 1578488382444, zone: zoneValue};
+#  string timeString = time:toString(time);
+# ```
 #
 # + time - The Time record to be converted to string
-# + return - The ISO 8601 formatted string of the given time
+# + return - The ISO 8601-formatted string of the given time
 public function toString(Time time) returns string {
     var result = java:toString(externToString(time));
     if (result is string) {
@@ -58,11 +63,16 @@ function externToString(Time time) returns handle = @java:Method {
     class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
-# Returns formatted string representation of the given time.
+# Returns the formatted string representation of the given time.
+# ```ballerina
+#  time:TimeZone zoneValue = {id: "America/Panama"};
+#  time:Time time = {time: 1578488382444, zone: zoneValue};
+#  string|error timeString = time:format(time, time:TIME_FORMAT_RFC_1123);
+# ```
 #
 # + time - The Time record to be formatted
-# + timeFormat - The format which is used to format the time represented by this object
-# + return - The formatted string of the given time or an `time:Error` if failed to format the time
+# + timeFormat - The format, which is used to format the time represented by this object
+# + return - The formatted string of the given time or else a `time:Error` if failed to format the time
 public function format(Time time, string timeFormat) returns string|Error {
     var result = externFormat(time, java:fromString(timeFormat));
     if (result is Error) {
@@ -83,8 +93,13 @@ function externFormat(Time time, handle timeFormat) returns handle|Error = @java
 } external;
 
 # Returns the year representation of the given time.
+# ```ballerina
+#  time:TimeZone zoneValue = {id: "America/Panama"};
+#  time:Time time = {time: 1578488382444, zone: zoneValue};
+#  int year = time:getYear(time);
+# ```
 #
-# + time - The Time record to retrieve the year representation from
+# + time - The Time record to retrieve the year representation
 # + return - The year representation
 public function getYear(Time time) returns int {
     return externGetYear(time);
@@ -96,9 +111,14 @@ function externGetYear(Time time) returns int = @java:Method {
 } external;
 
 # Returns the month representation of the given time.
+# ```ballerina
+#  time:TimeZone zoneValue = {id: "America/Panama"};
+#  time:Time time = {time: 1578488382444, zone: zoneValue};
+#  int month = time:getMonth(time);
+# ```
 #
 # + time - The Time record to get the month representation from
-# + return - The month-of-year, from 1 (January) to 12 (December)
+# + return - The month-of-year from 1 (January) to 12 (December)
 public function getMonth(Time time) returns int {
     return externGetMonth(time);
 }
@@ -109,9 +129,14 @@ function externGetMonth(Time time) returns int = @java:Method {
 } external;
 
 # Returns the date representation of the given time.
+# ```ballerina
+#  time:TimeZone zoneValue = {id: "America/Panama"};
+#  time:Time time = {time: 1578488382444, zone: zoneValue};
+#  int day = time:getDay(time);
+# ```
 #
-# + time - The Time record to get the date representation from
-# + return - The day-of-month, from 1 to 31
+# + time - The Time record to get the date representation
+# + return - The day-of-month from 1 to 31
 public function getDay(Time time) returns int {
     return externGetDay(time);
 }
@@ -122,8 +147,13 @@ function externGetDay(Time time) returns int = @java:Method {
 } external;
 
 # Returns the weekday representation of the given time.
+# ```ballerina
+#  time:TimeZone zoneValue = {id: "America/Panama"};
+#  time:Time time = {time: 1578488382444, zone: zoneValue};
+#  string weekDay = time:getWeekday(time);
+# ```
 #
-# + time - The Time record to get the weekday representation from
+# + time - The Time record to get the weekday representation
 # + return - The weekday representation from SUNDAY to SATURDAY
 public function getWeekday(Time time) returns string {
     var result = java:toString(externGetWeekday(time));
@@ -140,9 +170,14 @@ function externGetWeekday(Time time) returns handle = @java:Method {
 } external;
 
 # Returns the hour representation of the given time.
+# ```ballerina
+#  time:TimeZone zoneValue = {id: "America/Panama"};
+#  time:Time time = {time: 1578488382444, zone: zoneValue};
+#  int hour = time:getHour(time);
+# ```
 #
-# + time - The Time record to get the  hour representation from
-# + return - The hour-of-day, from 0 to 23
+# + time - The Time record to get the hour representation
+# + return - The hour-of-day from 0 to 23
 public function getHour(Time time) returns int {
     return externGetHour(time);
 }
@@ -153,9 +188,14 @@ function externGetHour(Time time) returns int = @java:Method {
 } external;
 
 # Returns the minute representation of the given time.
+# ```ballerina
+#  time:TimeZone zoneValue = {id: "America/Panama"};
+#  time:Time time = {time: 1578488382444, zone: zoneValue};
+#  int minute = time:getMinute(time);
+# ```
 #
-# + time - The Time record to get the  minute representation from
-# + return - The minute-of-hour to represent, from 0 to 59
+# + time - The Time record to get the minute representation
+# + return - The minute-of-hour to represent from 0 to 59
 public function getMinute(Time time) returns int {
     return externGetMinute(time);
 }
@@ -166,9 +206,14 @@ function externGetMinute(Time time) returns int = @java:Method {
 } external;
 
 # Returns the second representation of the given time.
+# ```ballerina
+#  time:TimeZone zoneValue = {id: "America/Panama"};
+#  time:Time time = {time: 1578488382444, zone: zoneValue};
+#  int second = time:getSecond(time);
+# ```
 #
-# + time - The Time record to get the second representation from
-# + return - The second-of-minute, from 0 to 59
+# + time - The Time record to get the second representation
+# + return - The second-of-minute from 0 to 59
 public function getSecond(Time time) returns int {
     return externGetSecond(time);
 }
@@ -179,9 +224,14 @@ function externGetSecond(Time time) returns int = @java:Method {
 } external;
 
 # Returns the millisecond representation of the given time.
+# ```ballerina
+#  time:TimeZone zoneValue = {id: "America/Panama"};
+#  time:Time time = {time: 1578488382444, zone: zoneValue};
+#  int milliSecond = time:getMilliSecond(time);
+# ```
 #
-# + time - The Time record to get the millisecond representation from
-# + return - The milli-of-second, from 0 to 999
+# + time - The Time record to get the millisecond representation
+# + return - The milli-of-second from 0 to 999
 public function getMilliSecond(Time time) returns int {
     return externGetMilliSecond(time);
 }
@@ -192,11 +242,16 @@ function externGetMilliSecond(Time time) returns int = @java:Method {
 } external;
 
 # Returns the date representation of the given time.
+# ```ballerina
+#  time:TimeZone zoneValue = {id: "America/Panama"};
+#  time:Time time = {time: 1578488382444, zone: zoneValue};
+#  [int, int, int] date = time:getDate(time);
+# ```
 #
-# + time - The Time record to get the date representation from
-# + return - The year representation.
-#            The month-of-year, from 1 (January) to 12 (December).
-#            The day-of-month, from 1 to 31.
+# + time - The Time record to get the date representation
+# + return - The year representation with
+#            the month-of-year from 1 (January) to 12 (December) and 
+#            the day-of-month from 1 to 31
 public function getDate(Time time) returns [int, int, int] {
     return externGetDate(time);
 }
@@ -207,12 +262,17 @@ function externGetDate(Time time) returns [int, int, int] = @java:Method {
 } external;
 
 # Returns the time representation of the given time.
+# ```ballerina
+#  time:TimeZone zoneValue = {id: "America/Panama"};
+#  time:Time time = {time: 1578488382444, zone: zoneValue};
+#  [int, int, int, int] timeGenerated = time:getTime(time);
+# ```
 #
 # + time - The Time record
-# + return - The hour-of-day, from 0 to 23.
-#            The minute-of-hour to represent, from 0 to 59.
-#            The second-of-minute, from 0 to 59.
-#            The milli-of-second, from 0 to 999.
+# + return - The hour-of-day to represent from 0 to 23,
+#            the minute-of-hour to represent from 0 to 59,
+#            the second-of-minute from 0 to 59,
+#            and the milli-of-second from 0 to 999
 public function getTime(Time time) returns [int, int, int, int] {
     return externGetTime(time);
 }
@@ -223,8 +283,16 @@ function externGetTime(Time time) returns [int, int, int, int] = @java:Method {
 } external;
 
 # Add specified durations to the given time value.
+# ```ballerina
+#  string timeText = "2020-06-26T09:46:22.444-0500";
+#  string timeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+#  time:Time|error originalTime = time:parse(timeText, timeFormat);
+#  if (originalTime is time:Time) {
+#      time:Time newTime = time:addDuration(originalTime, 1, 1, 1, 1, 1, 1, 1);
+#  }
+# ```
 #
-# + time - The Time record to add the duration to
+# + time - The Time record to add the duration 
 # + years - The year representation
 # + months - The month-of-year to represent, from 1 (January) to 12 (December)
 # + days - The day-of-month to represent, from 1 to 31
@@ -245,6 +313,14 @@ function externAddDuration(Time time, int years, int months, int days, int hours
 } external;
 
 # Subtract specified durations from the given time value.
+# ```ballerina
+#  string timeText = "2020-06-26T09:46:22.444-0500";
+#  string timeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+#  time:Time|error originalTime = time:parse(timeText, timeFormat);
+#  if (originalTime is time:Time) {
+#      time:Time newTime = time:subtractDuration(originalTime, 1, 1, 1, 1, 1, 1, 1);
+#  }
+# ```
 #
 # + time - The Time record to subtract the duration from
 # + years - The year representation
@@ -267,11 +343,17 @@ function externSubtractDuration(Time time, int years, int months, int days, int 
 } external;
 
 # Change the time-zone of the given time.
+# ```ballerina
+#  string zoneId = "America/Panama";
+#  time:TimeZone zoneValue = {id: zoneId};
+#  time:Time time = {time: 1578488382444, zone: zoneValue};
+#  time:Time|time:Error newTime = time:toTimeZone(time, zoneId);
+# ```
 #
-# + time - The Time record of which the time-zone to be changed
-# + zoneId - The new time-zone id
-# + return - Time object containing time and zone information after the conversion
-#            or an `time:Error` if failed to format the time
+# + time - The Time record of which the time-zone is to be changed
+# + zoneId - The new time-zone ID
+# + return - Time object containing the time and zone information after the conversion
+#            or else a `time:Error` if failed to format the time
 public function toTimeZone(Time time, string zoneId) returns Time|Error {
     return externToTimeZone(time, java:fromString(zoneId));
 }
@@ -281,9 +363,12 @@ function externToTimeZone(Time time, handle zoneId) returns Time|Error = @java:M
     class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
-# Returns the current time value with the system default time-zone.
+# Returns the current time value with the default system time-zone.
+# ```ballerina
+#  time:Time now = time:currentTime();
+# ```
 #
-# + return - Time object containing the time and zone information
+# + return - Time object containing the time and the zone information
 public function currentTime() returns Time {
     return externCurrentTime();
 }
@@ -294,8 +379,11 @@ function externCurrentTime() returns Time = @java:Method {
 } external;
 
 # Returns the current system time in nano seconds.
+# ```ballerina
+#  int now = time:nanoTime();
+# ```
 #
-# + return - Int value of the current system time in nano seconds
+# + return - Integer value of the current system time in nano seconds
 public function nanoTime() returns int {
     return externNanoTime();
 }
@@ -306,12 +394,15 @@ function externNanoTime() returns int = @java:Method {
 } external;
 
 # Returns the Time object correspoding to the given time components and time-zone.
+# ```ballerina
+#  time:Time|error dateTime = time:createTime(2020, 3, 28, 23, 42, 45, 554, "America/Panama");
+# ```
 #
 # + year - The year representation
-# + month - The month-of-year to represent, from 1 (January) to 12 (December)
-# + date - The day-of-month to represent, from 1 to 31
-# + hour - The hour-of-day to represent, from 0 to 23
-# + minute - The minute-of-hour to represent, from 0 to 59
+# + month - The month-of-year to represent from 1 (January) to 12 (December)
+# + date - The day-of-month to represent from 1 to 31
+# + hour - The hour-of-day to represent from 0 to 23
+# + minute - The minute-of-hour to represent from 0 to 59
 # + second - The second-of-minute to represent, from 0 to 59
 # + milliSecond - The milli-of-second to represent, from 0 to 999
 # + zoneId - The zone id of the required time-zone.If empty the system local time-zone will be used
@@ -328,10 +419,14 @@ function externCreateTime(int year, int month, int date, int hour, int minute, i
 } external;
 
 # Returns the time for the given string representation based on the given format string.
+# ```ballerina
+#  string timeFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+#  time:Time|error time = time:parse("2020-06-26T09:46:22.444-0500", timeFormat);
+# ```
 #
 # + data - The time text to parse
-# + timeFormat - The format which is used to parse the given text
-# + return - Time object containing time and zone information or an `time:Error` if failed to parse the given string
+# + timeFormat - The format, which is used to parse the given text
+# + return - Time object containing the time and zone information or else  a `time:Error` if failed to parse the given string
 public function parse(string data, string timeFormat) returns Time|Error {
     return externParse(java:fromString(data), java:fromString(timeFormat));
 }

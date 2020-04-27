@@ -28,9 +28,9 @@ public const LDAP_ERROR = "{ballerina/ldap}Error";
 # Represents the LDAP error type with details.
 public type Error error<LDAP_ERROR, Detail>;
 
-# Log and prepare `error` as a `auth:Error`.
+# Logs and prepares the `error` as an `auth:Error`.
 #
-# + message - Error message
+# + message - Error message as a `string`
 # + err - `error` instance
 # + return - Prepared `auth:Error` instance
 function prepareAuthError(string message, error? err = ()) returns auth:Error {

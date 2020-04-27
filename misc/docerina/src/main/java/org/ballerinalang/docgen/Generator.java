@@ -250,8 +250,8 @@ public class Generator {
         if (null != param.getInitialExpression()) {
             defaultValue = param.getInitialExpression().toString();
         }
-        return new DefaultableVariable(param.getName().value, desc, false, Type.fromTypeNode(param.typeNode, mod.id),
-                defaultValue);
+        return new DefaultableVariable(param.getName().value, desc, isDeprecated(param.getAnnotationAttachments()),
+                Type.fromTypeNode(param.typeNode, mod.id), defaultValue);
     }
 
     /**
