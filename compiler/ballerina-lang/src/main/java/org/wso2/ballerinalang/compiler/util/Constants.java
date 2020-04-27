@@ -52,4 +52,6 @@ public class Constants {
 
     public static final String REMOVE = "remove()";
 
+    public static final String STRING_TYPE = "string";
+
 }

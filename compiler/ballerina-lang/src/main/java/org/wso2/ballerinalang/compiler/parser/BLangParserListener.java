@@ -676,6 +676,27 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitEnumDefinition(BallerinaParser.EnumDefinitionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.endTypeDefinition(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                getCurrentPos(ctx.Identifier()), ctx.PUBLIC() != null);
+    }
+
+    @Override
+    public void exitEnumMember(BallerinaParser.EnumMemberContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.addEnumMember(getCurrentPos(ctx), getWS(ctx), ctx.Identifier().getText(),
+                getCurrentPos(ctx.Identifier()), ((BallerinaParser.EnumDefinitionContext) ctx.parent).PUBLIC() != null,
+                ctx.constantExpression() != null);
+    }
+
+    @Override
     public void exitConstDivMulModExpression(BallerinaParser.ConstDivMulModExpressionContext ctx) {
 
         if (isInErrorState) {

@@ -216,6 +216,7 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
+import static org.wso2.ballerinalang.compiler.util.Constants.STRING_TYPE;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
 
 /**
@@ -2311,6 +2312,24 @@ public class BLangPackageBuilder {
             identifier = StringEscapeUtils.unescapeJava(identifier).substring(1);
         }
         return identifier;
+    }
+
+    void addEnumMember(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
+                       boolean isPublic, boolean hasExpression) {
+        // Set typenode as string
+        addValueType(pos, null, STRING_TYPE);
+
+        // Set expression value if not set
+        if (!hasExpression) {
+            addLiteralValue(pos, null, TypeTags.STRING, identifier);
+        }
+
+        // Add enum member as constant
+        addConstant(pos, ws, identifier, identifierPos, isPublic, true);
+
+        // Create typenode for enum type definition member
+        addNameReference(pos, ws, null, identifier);
+        addUserDefineType(ws);
     }
 
     void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
