@@ -126,6 +126,7 @@ public class Names {
     public static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
     public static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
     public static final Name QUERY_ADD_TO_FRAME_FUNCTION = new Name("addToFrame");
+    public static final Name QUERY_SPREAD_TO_FRAME_FUNCTION = new Name("spreadToFrame");
     public static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
 
     public CompilerContext context;

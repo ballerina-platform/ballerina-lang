@@ -69,7 +69,7 @@ public type _StreamPipeline object {
                 _StreamPipeline p = self.pipeline;
                 _Frame|error? f = p.next();
                 if (f is _Frame) {
-                    record {|any|error value;|} r = {value: f["value"]};
+                    record {|any|error value;|} r = {value: f};
                     return r;
                 } else {
                     return f;

@@ -56,11 +56,20 @@ public function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<a
     return pipeline.getStream();
 }
 
-public function addToFrame(_Frame frame, string key, any|error value) returns _Frame {
+public function addToFrame(_Frame frame, string key, any|error value) {
     frame[key] = value;
-    return frame;
+}
+
+public function spreadToFrame(_Frame frame, record{} value) {
+    foreach string k in value.keys() {
+        frame[k] = value[k];
+    }
 }
 
 function lambdaTemplate(_Frame frame) returns _Frame|error? {
     return frame;
 }
+
+// TODO: This for debugging purposes, remove once completed.
+public function print(any|error? data) = external;
+
