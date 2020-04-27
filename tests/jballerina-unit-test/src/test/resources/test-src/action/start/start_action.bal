@@ -44,7 +44,7 @@ function testObjectMethodsAsAsyncCalls() {
     int resulti = wait fi;
     assert(100, resulti);
 
-    future<string> fs = start bo->getName();
+    future<string> fs = start bo.getName();
     string results = wait fs;
     assert("BAR", results);
 }

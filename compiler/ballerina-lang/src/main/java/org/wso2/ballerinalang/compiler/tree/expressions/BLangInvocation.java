@@ -208,19 +208,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
      */
     public static class BLangActionInvocation extends BLangInvocation implements ActionNode {
 
-        public BLangActionInvocation(DiagnosticPos pos,
-                                     List<BLangExpression> requiredArgs,
-                                     List<BLangExpression> restArgs,
-                                     BSymbol symbol,
-                                     BType type,
-                                     boolean async) {
-            this.pos = pos;
-            this.requiredArgs = requiredArgs;
-            this.restArgs = restArgs;
-            this.symbol = symbol;
-            this.type = type;
-            this.async = async;
-        }
+        public boolean remoteMethodCall = false;
 
         public BLangActionInvocation() {
         }

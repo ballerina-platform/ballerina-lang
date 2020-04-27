@@ -2571,8 +2571,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         int numAnnotations = ctx.annotationAttachment().size();
-        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx), ctx.START() != null,
-                numAnnotations);
+        this.pkgBuilder.createActionInvocationNode(getCurrentPos(ctx), getWS(ctx), ctx.START() != null, true,
+                                                   numAnnotations);
     }
 
     @Override

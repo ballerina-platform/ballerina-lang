@@ -1656,10 +1656,10 @@ public class BLangPackageBuilder {
     }
 
     void createFunctionInvocation(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable,
-                                  boolean remoteMethodCall) {
+                                  boolean actionInvocation) {
         BLangInvocation invocationNode;
 
-        if (remoteMethodCall) {
+        if (actionInvocation) {
             invocationNode = (BLangInvocation) TreeBuilder.createActionInvocation();
         } else {
             invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
@@ -1732,12 +1732,14 @@ public class BLangPackageBuilder {
         addExpressionNode(invocationNode);
     }
 
-    void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, boolean async, int numAnnotations) {
+    void createActionInvocationNode(DiagnosticPos pos, Set<Whitespace> ws, boolean async, boolean remoteMethodCall,
+                                    int numAnnotations) {
         BLangInvocation.BLangActionInvocation actionInvocation =
                 (BLangInvocation.BLangActionInvocation) exprNodeStack.pop();
         actionInvocation.pos = pos;
         actionInvocation.addWS(ws);
         actionInvocation.async = async;
+        actionInvocation.remoteMethodCall = remoteMethodCall;
 
         actionInvocation.expr = (BLangExpression) exprNodeStack.pop();
         attachAnnotations(actionInvocation, numAnnotations, false);

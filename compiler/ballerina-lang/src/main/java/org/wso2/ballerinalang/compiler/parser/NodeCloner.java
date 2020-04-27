@@ -921,6 +921,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.functionPointerInvocation = source.functionPointerInvocation;
         clone.langLibInvocation = source.langLibInvocation;
         clone.async = source.async;
+        clone.remoteMethodCall = source.remoteMethodCall;
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.annAttachments = cloneList(source.annAttachments);
         clone.requiredArgs = cloneList(source.requiredArgs);

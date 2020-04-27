@@ -1831,18 +1831,20 @@ public class TypeChecker extends BLangNodeVisitor {
 
         switch (varRef.type.tag) {
             case TypeTags.OBJECT:
-                checkActionInvocation(aInv, varRef.type);
+                checkActionInvocation(aInv, (BObjectType) varRef.type);
                 break;
             case TypeTags.RECORD:
                 checkFieldFunctionPointer(aInv, this.env);
                 break;
             case TypeTags.NONE:
                 dlog.error(aInv.pos, DiagnosticCode.UNDEFINED_FUNCTION, aInv.name);
+                resultType = symTable.semanticError;
                 break;
             case TypeTags.SEMANTIC_ERROR:
-                break;
             default:
-                checkInLangLib(aInv, varRef.type);
+                dlog.error(aInv.pos, DiagnosticCode.INVALID_ACTION_INVOCATION, varRef.type);
+                resultType = symTable.semanticError;
+                break;
         }
     }
 
@@ -3437,7 +3439,7 @@ public class TypeChecker extends BLangNodeVisitor {
             markAndRegisterClosureVariable(funcSymbol, iExpr.pos);
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
-            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX, iExpr.name.value);
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
@@ -3808,7 +3810,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.REMOTE)) {
-            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX);
+            dlog.error(iExpr.pos, DiagnosticCode.INVALID_ACTION_INVOCATION_SYNTAX, iExpr.name.value);
         }
         if (Symbols.isFlagOn(funcSymbol.flags, Flags.RESOURCE)) {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
@@ -3819,30 +3821,33 @@ public class TypeChecker extends BLangNodeVisitor {
     // Here, an action invocation can be either of the following two forms:
     // - foo->bar();
     // - start foo.bar(); or start foo->bar()
-    private void checkActionInvocation(BLangInvocation aInv, BType expType) {
+    private void checkActionInvocation(BLangInvocation.BLangActionInvocation aInv, BObjectType expType) {
         BLangVariableReference varRef = (BLangVariableReference) aInv.expr;
-        BType actualType = symTable.semanticError;
-        if (expType == symTable.semanticError || expType.tag != TypeTags.OBJECT
-                || ((varRef.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) && !aInv.async) {
-            dlog.error(aInv.pos, DiagnosticCode.INVALID_ACTION_INVOCATION);
-            resultType = actualType;
+
+        if (((varRef.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) && !aInv.async) {
+            dlog.error(aInv.pos, DiagnosticCode.INVALID_ACTION_INVOCATION, varRef.type);
+            this.resultType = symTable.semanticError;
             return;
         }
 
-        final BVarSymbol epSymbol = (BVarSymbol) varRef.symbol;
+        BVarSymbol epSymbol = (BVarSymbol) varRef.symbol;
 
-        Name remoteFuncQName = names
+        Name remoteMethodQName = names
                 .fromString(Symbols.getAttachedFuncSymbolName(expType.tsymbol.name.value, aInv.name.value));
         Name actionName = names.fromIdNode(aInv.name);
         BSymbol remoteFuncSymbol = symResolver
                 .lookupMemberSymbol(aInv.pos, ((BObjectTypeSymbol) epSymbol.type.tsymbol).methodScope, env,
-                                    remoteFuncQName, SymTag.FUNCTION);
+                                    remoteMethodQName, SymTag.FUNCTION);
 
-        // TODO: break this in to two separate error messages
-        if (remoteFuncSymbol == symTable.notFoundSymbol
-                || (!Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE) && !aInv.async)) {
-            dlog.error(aInv.pos, DiagnosticCode.UNDEFINED_ACTION, actionName, epSymbol.type.tsymbol.name);
-            resultType = actualType;
+        if (remoteFuncSymbol == symTable.notFoundSymbol && !checkLangLibMethodInvocationExpr(aInv, expType)) {
+            dlog.error(aInv.name.pos, DiagnosticCode.UNDEFINED_METHOD_IN_OBJECT, aInv.name.value, expType);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        if (!Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE) && aInv.remoteMethodCall) {
+            dlog.error(aInv.pos, DiagnosticCode.INVALID_METHOD_INVOCATION_SYNTAX, actionName);
+            this.resultType = symTable.semanticError;
             return;
         }
 
