@@ -133,11 +133,12 @@ public class BArrayType extends BType {
         sb.append(getSizeString());
         BType element = elementType;
         while (element instanceof BArrayType) {
-            sb.append(((BArrayType) element).getSizeString());
-            if (!(((BArrayType) element).elementType instanceof BArrayType)) {
+            BArrayType arrayElement = (BArrayType) element;
+            sb.append(arrayElement.getSizeString());
+            if (!(arrayElement.elementType instanceof BArrayType)) {
                 break;
             }
-            element = ((BArrayType) element).elementType;
+            element = arrayElement.elementType;
         }
         return sb.toString();
     }
