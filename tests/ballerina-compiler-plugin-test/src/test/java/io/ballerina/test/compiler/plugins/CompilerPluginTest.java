@@ -53,8 +53,26 @@ public class CompilerPluginTest {
         Map<TestEvent.Kind, Set<TestEvent>> allEvents = TestCompilerPlugin.testEventMap;
         Map<TestEvent.Kind, Set<TestEvent>> funcEvents = FunctionsTestCompilerPlugin.testEventMap;
 
-        Assert.assertEquals(allEvents.size(), 4,
+        Assert.assertEquals(allEvents.size(), 6,
                 "All the process methods haven't been invoked by the compiler plugin");
+
+        assertData(TestEvent.Kind.PLUGIN_START,
+                allEvents,
+                new ArrayList<TestEvent>() {{
+                    add(new TestEvent(TestEvent.Kind.PLUGIN_START, "testOrg/functions:1.0.0", 1));
+                    add(new TestEvent(TestEvent.Kind.PLUGIN_START, "testOrg/services:1.0.0", 1));
+                    add(new TestEvent(TestEvent.Kind.PLUGIN_START, "testOrg/types:1.0.0", 1));
+                    add(new TestEvent(TestEvent.Kind.PLUGIN_START, ".", 1));
+                }});
+
+        assertData(TestEvent.Kind.PLUGIN_COMPLETE,
+                allEvents,
+                new ArrayList<TestEvent>() {{
+                    add(new TestEvent(TestEvent.Kind.PLUGIN_COMPLETE, "testOrg/functions:1.0.0", 1));
+                    add(new TestEvent(TestEvent.Kind.PLUGIN_COMPLETE, "testOrg/services:1.0.0", 1));
+                    add(new TestEvent(TestEvent.Kind.PLUGIN_COMPLETE, "testOrg/types:1.0.0", 1));
+                    add(new TestEvent(TestEvent.Kind.PLUGIN_COMPLETE, ".", 1));
+                }});
 
         // Test service events
         assertData(TestEvent.Kind.SERVICE_ANN,
