@@ -653,7 +653,8 @@ public class BallerinaParserErrorHandler {
                     }
                     break;
                 case SIMPLE_TYPE_DESCRIPTOR:
-                    hasMatch = isTypeToken(nextToken.kind);
+                    hasMatch = BallerinaParser.isSimpleType(nextToken.kind) ||
+                            nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
                     break;
                 case FUNC_BODY:
                     return seekInFuncBodies(lookahead, currentDepth, matchingRulesCount, isEntryPoint);
@@ -1150,18 +1151,6 @@ public class BallerinaParserErrorHandler {
         result.solution =
                 new Solution(Action.KEEP, currentCtx, getExpectedTokenKind(currentCtx), currentCtx.toString());
         return result;
-    }
-
-    private boolean isTypeToken(SyntaxKind tokenKind) {
-        switch (tokenKind) {
-            case SIMPLE_TYPE:
-            case SERVICE_KEYWORD:
-            case IDENTIFIER_TOKEN:
-            case VAR_KEYWORD:
-                return true;
-            default:
-                return false;
-        }
     }
 
     /**
@@ -2639,10 +2628,6 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case PUBLIC_KEYWORD:
                 return SyntaxKind.PUBLIC_KEYWORD;
-            case SIMPLE_TYPE_DESCRIPTOR:
-                // TODO: return type token
-                // return SyntaxKind.IDENTIFIER_TOKEN;
-                return SyntaxKind.SIMPLE_TYPE;
             case ASSIGNMENT_STMT:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case EXPRESSION_RHS:
@@ -2657,18 +2642,15 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.OPEN_BRACE_TOKEN;
             case FUNC_DEFINITION:
                 return SyntaxKind.FUNCTION_KEYWORD;
-            case REQUIRED_PARAM:
-                return SyntaxKind.SIMPLE_TYPE;
-            case VAR_DECL_STMT:
-                return SyntaxKind.SIMPLE_TYPE;
             case VAR_DECL_STMT_RHS:
                 return SyntaxKind.SEMICOLON_TOKEN;
+            case SIMPLE_TYPE_DESCRIPTOR:
+            case REQUIRED_PARAM:
+            case VAR_DECL_STMT:
             case ASSIGNMENT_OR_VAR_DECL_STMT:
-                return SyntaxKind.SIMPLE_TYPE;
             case DEFAULTABLE_PARAM:
-                return SyntaxKind.SIMPLE_TYPE;
             case REST_PARAM:
-                return SyntaxKind.SIMPLE_TYPE;
+                return SyntaxKind.TYPE_DESC;
             case ASTERISK:
                 return SyntaxKind.ASTERISK_TOKEN;
             case CLOSED_RECORD_BODY_END:
@@ -2782,15 +2764,15 @@ public class BallerinaParserErrorHandler {
             case CONST_DECL_TYPE:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case NIL_TYPE_DESCRIPTOR:
-                return SyntaxKind.NIL_TYPE;
+                return SyntaxKind.NIL_TYPE_DESC;
             case TYPEOF_KEYWORD:
                 return SyntaxKind.TYPEOF_KEYWORD;
             case OPTIONAL_TYPE_DESCRIPTOR:
-                return SyntaxKind.OPTIONAL_TYPE;
+                return SyntaxKind.OPTIONAL_TYPE_DESC;
             case UNARY_OPERATOR:
                 return SyntaxKind.PLUS_TOKEN;
             case ARRAY_TYPE_DESCRIPTOR:
-                return SyntaxKind.ARRAY_TYPE;
+                return SyntaxKind.ARRAY_TYPE_DESC;
             case AT:
                 return SyntaxKind.AT_TOKEN;
             case FIELD_DESCRIPTOR_RHS:
@@ -2801,12 +2783,11 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.EQUAL_TOKEN;
             case IS_KEYWORD:
                 return SyntaxKind.IS_KEYWORD;
-            case TYPE_DESCRIPTOR:
-                return SyntaxKind.SIMPLE_TYPE;
             case OBJECT_MEMBER_WITHOUT_METADATA:
             case RECORD_FIELD_WITHOUT_METADATA:
             case PARAMETER_WITHOUT_ANNOTS:
-                return SyntaxKind.SIMPLE_TYPE;
+            case TYPE_DESCRIPTOR:
+                return SyntaxKind.TYPE_DESC;
             case TYPEOF_EXPRESSION:
                 return SyntaxKind.TYPEOF_KEYWORD;
             case RIGHT_ARROW:

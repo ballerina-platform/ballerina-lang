@@ -18,7 +18,7 @@
             "value": "Person"
         },
         {
-            "kind": "RECORD_TYPE_DESCRIPTOR",
+            "kind": "RECORD_TYPE_DESC",
             "children": [
                 {
                     "kind": "RECORD_KEYWORD"
@@ -42,7 +42,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "NIL_TYPE",
+                                    "kind": "NIL_TYPE_DESC",
                                     "children": [
                                         {
                                             "kind": "OPEN_PAREN_TOKEN"
@@ -88,7 +88,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "NIL_TYPE",
+                                    "kind": "NIL_TYPE_DESC",
                                     "children": [
                                         {
                                             "kind": "OPEN_PAREN_TOKEN"
