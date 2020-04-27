@@ -364,25 +364,27 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                 throw BallerinaErrors.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR, "A value found for key '" +
                         key + "'");
             }
+
             if (nextKeySupported && (keys.size() == 0 || maxIntKey < TypeChecker.anyToInt(key))) {
                 maxIntKey = ((Long) TypeChecker.anyToInt(key)).intValue();
             }
+
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(key, data);
-            Integer hash = TableUtils.hash(key);
+            Integer hash = TableUtils.hash(key, new ArrayList<>());
             keys.put(hash, (K) key);
             values.put(hash, (V) data);
             entries.put(hash, entry);
         }
 
         public V getData(K key) {
-            return values.get(TableUtils.hash(key));
+            return values.get(TableUtils.hash(key, new ArrayList<>()));
         }
 
         public V putData(K key, V data) {
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
-            Object acutalKey = this.keyWrapper.wrapKey((MapValue) data);
-            Integer actualHash = TableUtils.hash(acutalKey);
-            Integer hash = TableUtils.hash(key);
+            Object actualKey = this.keyWrapper.wrapKey((MapValue) data);
+            Integer actualHash = TableUtils.hash(actualKey, new ArrayList<>());
+            Integer hash = TableUtils.hash(key, new ArrayList<>());
 
             if (!hash.equals(actualHash)) {
                 throw BallerinaErrors.createError(TABLE_KEY_NOT_FOUND_ERROR, "The key '" +
@@ -395,14 +397,14 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V remove(K key) {
-            Integer hash = TableUtils.hash(key);
+            Integer hash = TableUtils.hash(key, new ArrayList<>());
             entries.remove(hash);
             keys.remove(hash);
             return values.remove(hash);
         }
 
         public boolean containsKey(K key) {
-            return keys.containsKey(TableUtils.hash(key));
+            return keys.containsKey(TableUtils.hash(key, new ArrayList<>()));
         }
 
         private class DefaultKeyWrapper {
@@ -415,12 +417,14 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
                     }
                 }
             }
+
             public Object wrapKey(MapValue data) {
                 return data.get(fieldNames[0]);
             }
         }
 
         private class MultiKeyWrapper extends DefaultKeyWrapper {
+
             public Object wrapKey(MapValue data) {
                 TupleValueImpl arr = (TupleValueImpl) BValueCreator
                         .createTupleValue(new BTupleType(keyTypes));
