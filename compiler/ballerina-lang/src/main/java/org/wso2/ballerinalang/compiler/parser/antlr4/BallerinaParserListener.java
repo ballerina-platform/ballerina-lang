@@ -338,6 +338,26 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitConstantDefinition(BallerinaParser.ConstantDefinitionContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#enumDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void enterEnumDefinition(BallerinaParser.EnumDefinitionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#enumDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void exitEnumDefinition(BallerinaParser.EnumDefinitionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#enumMember}.
+	 * @param ctx the parse tree
+	 */
+	void enterEnumMember(BallerinaParser.EnumMemberContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#enumMember}.
+	 * @param ctx the parse tree
+	 */
+	void exitEnumMember(BallerinaParser.EnumMemberContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#globalVariableDefinition}.
 	 * @param ctx the parse tree
 	 */
