@@ -6,7 +6,7 @@ import java.io.PrintStream;
 
 public class ModuleLoaderImpl implements ModuleLoader {
 
-    ModuleLoaderImpl(Project project) {
+    public ModuleLoaderImpl(Project project) {
 
         // define repo list
 

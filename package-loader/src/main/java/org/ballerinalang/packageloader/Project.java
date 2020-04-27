@@ -4,11 +4,27 @@ import java.util.Set;
 
 public class Project {
 
-    BallerinaToml getBallerinaToml() {
+
+
+    org.ballerinalang.toml.model.Project getBallerinaToml() {
         return null;
     }
 
-    Set<ModuleId> getModules() {
+    public Set<ModuleId> getModules() {
 
     }
+
+    public void parseBallerinaToml(String toml) {
+
+    }
+
+    public void isLockFileExists() {
+
+    }
+
+    public void getLockFile() {
+
+    }
+
+
 }
