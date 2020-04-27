@@ -108,7 +108,7 @@ public function validateOAuth2Token(string token, IntrospectionServerConfig conf
         IntrospectionResponse introspectionResponse = prepareIntrospectionResponse(<json>result);
         if (introspectionResponse.active) {
             if (oauth2Cache is cache:Cache) {
-                addToCache(oauth2Cache, token, introspectionResponse);
+                addToCache(oauth2Cache, token, introspectionResponse, config.defaultTokenExpTimeInSeconds);
             }
         }
         return introspectionResponse;
@@ -160,8 +160,16 @@ function prepareIntrospectionResponse(json payload) returns IntrospectionRespons
     return introspectionResponse;
 }
 
-function addToCache(cache:Cache oauth2Cache, string token, IntrospectionResponse response) {
-    cache:Error? result = oauth2Cache.put(token, response);
+function addToCache(cache:Cache oauth2Cache, string token, IntrospectionResponse response,
+                    int defaultTokenExpTimeInSeconds) {
+    cache:Error? result;
+    if (response?.exp is int) {
+        result = oauth2Cache.put(token, response);
+    } else {
+        // If the exp parameter is not set by introspection response, use cache default expiry by
+        // defaultTokenExpTimeInSeconds. Then the cached value will be removed when retrieving.
+        result = oauth2Cache.put(token, response, defaultTokenExpTimeInSeconds);
+    }
     if (result is cache:Error) {
         log:printDebug(function() returns string {
             return "Failed to add OAuth2 token to the cache. Introspection response: " + response.toString();
@@ -174,9 +182,24 @@ function addToCache(cache:Cache oauth2Cache, string token, IntrospectionResponse
 }
 
 function validateFromCache(cache:Cache oauth2Cache, string token) returns IntrospectionResponse? {
-    IntrospectionResponse response = <IntrospectionResponse>oauth2Cache.get(token);
+    any|cache:Error cachedValue = oauth2Cache.get(token);
+    if (cachedValue is ()) {
+        // If the cached value is expired (defaultTokenExpTimeInSeconds is passed), it will return ().
+        log:printDebug(function() returns string {
+            return "Failed to validate token from from the cache, since token is expired.";
+        });
+        return;
+    }
+    if (cachedValue is cache:Error) {
+        log:printDebug(function() returns string {
+            return "Failed to validate token from from the cache. Cache error: " + cachedValue.toString();
+        });
+        return;
+    }
+    IntrospectionResponse response = <IntrospectionResponse>cachedValue;
     int? expTime = response?.exp;
-    // convert to current time and check the expiry time
+    // expTime can be (), that means the defaultTokenExpTimeInSeconds is not exceeded yet. Hence the token is still
+    // valid. Convert to current time and check the expiry time is exceeds if the expTime is int.
     if (expTime is () || expTime > (time:currentTime().time / 1000)) {
         log:printDebug(function() returns string {
             return "OAuth2 token validated from the cache. Introspection response: " + response.toString();
