@@ -59,10 +59,12 @@ public type InboundOAuth2Provider object {
 
         IntrospectionResponse|Error validationResult = validateOAuth2Token(credential, self.introspectionServerConfig);
         if (validationResult is IntrospectionResponse) {
-            auth:setAuthenticationContext("oauth2", credential);
-            auth:setPrincipal(validationResult?.username, validationResult?.username,
-                              getScopes(validationResult?.scopes));
-            return true;
+            if (validationResult.active) {
+                auth:setAuthenticationContext("oauth2", credential);
+                auth:setPrincipal(validationResult?.username, validationResult?.username,
+                                  getScopes(validationResult?.scopes));
+            }
+            return validationResult.active;
         } else {
             return prepareAuthError("OAuth2 validation failed.", validationResult);
         }
@@ -70,7 +72,7 @@ public type InboundOAuth2Provider object {
 };
 
 # Validates the given OAuth2 token.
-#```ballerina
+# ```ballerina
 # oauth2:IntrospectionResponse|oauth2:Error result = oauth2:validateOAuth2Token(token, introspectionServerConfig);
 # ```
 #
@@ -103,29 +105,8 @@ public function validateOAuth2Token(string token, IntrospectionServerConfig conf
         if (result is error) {
             return <@untainted> prepareError(result.reason(), result);
         }
-
-        json payload = <json>result;
-        boolean active = <boolean>payload.active;
-        IntrospectionResponse introspectionResponse = {
-            active: active
-        };
-        if (active) {
-            if (payload.username is string) {
-                string username = <@untainted> <string>payload.username;
-                introspectionResponse.username = username;
-            }
-            if (payload.scope is string) {
-                string scopes = <@untainted> <string>payload.scope;
-                introspectionResponse.scopes = scopes;
-            }
-            if (payload.exp is int) {
-                int exp = <@untainted> <int>payload.exp;
-                introspectionResponse.exp = exp;
-            } else {
-                int exp = config.defaultTokenExpTimeInSeconds + (time:currentTime().time / 1000);
-                introspectionResponse.exp = exp;
-            }
-
+        IntrospectionResponse introspectionResponse = prepareIntrospectionResponse(<json>result);
+        if (introspectionResponse.active) {
             if (oauth2Cache is cache:Cache) {
                 addToCache(oauth2Cache, token, introspectionResponse);
             }
@@ -134,6 +115,49 @@ public function validateOAuth2Token(string token, IntrospectionServerConfig conf
     } else {
         return prepareError("Failed to call the introspection endpoint.", response);
     }
+}
+
+function prepareIntrospectionResponse(json payload) returns IntrospectionResponse {
+    boolean active = <boolean>payload.active;
+    IntrospectionResponse introspectionResponse = {
+        active: active
+    };
+    if (active) {
+        if (payload.scope is string) {
+            introspectionResponse.scopes = <@untainted> <string>payload.scope;
+        }
+        if (payload.client_id is string) {
+            introspectionResponse.clientId = <@untainted> <string>payload.client_id;
+        }
+        if (payload.username is string) {
+            introspectionResponse.username = <@untainted> <string>payload.username;
+        }
+        if (payload.token_type is string) {
+            introspectionResponse.tokenType = <@untainted> <string>payload.token_type;
+        }
+        if (payload.exp is int) {
+            introspectionResponse.exp = <@untainted> <int>payload.exp;
+        }
+        if (payload.iat is int) {
+            introspectionResponse.iat = <@untainted> <int>payload.iat;
+        }
+        if (payload.nbf is int) {
+            introspectionResponse.nbf = <@untainted> <int>payload.nbf;
+        }
+        if (payload.sub is string) {
+            introspectionResponse.sub = <@untainted> <string>payload.sub;
+        }
+        if (payload.aud is string) {
+            introspectionResponse.aud = <@untainted> <string>payload.aud;
+        }
+        if (payload.iss is string) {
+            introspectionResponse.iss = <@untainted> <string>payload.iss;
+        }
+        if (payload.jti is string) {
+            introspectionResponse.jti = <@untainted> <string>payload.jti;
+        }
+    }
+    return introspectionResponse;
 }
 
 function addToCache(cache:Cache oauth2Cache, string token, IntrospectionResponse response) {
@@ -212,12 +236,28 @@ public type InboundOAuth2CacheEntry record {|
 # Represents introspection server response.
 #
 # + active - Boolean indicator of whether or not the presented token is currently active
-# + username - Scopes of the OAuth2 validated user
 # + scopes - A JSON string containing a space-separated list of scopes associated with this token
-# + exp - Scopes of the OAuth2 validated user
+# + clientId - Client identifier for the OAuth 2.0 client that requested this token
+# + username - Resource owner who authorized this token
+# + tokenType - Type of the token
+# + exp - Expiry time (seconds since the Epoch)
+# + iat - Token originally issued time (seconds since the Epoch)
+# + nbf - Token is not to be used before time (seconds since the Epoch)
+# + sub - Subject of the token
+# + aud - Intended audience of the token
+# + iss - Issuer of the token
+# + jti - String identifier for the token
 public type IntrospectionResponse record {|
     boolean active;
-    string username?;
     string scopes?;
+    string clientId?;
+    string username?;
+    string tokenType?;
     int exp?;
+    int iat?;
+    int nbf?;
+    string sub?;
+    string aud?;
+    string iss?;
+    string jti?;
 |};
