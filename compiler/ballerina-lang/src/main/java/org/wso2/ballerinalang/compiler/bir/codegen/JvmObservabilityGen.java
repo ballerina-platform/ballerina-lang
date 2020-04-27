@@ -107,13 +107,14 @@ class JvmObservabilityGen {
     private static final String FUNC_BODY_INSTRUMENTATION_TYPE = "funcBody";
 
     // Observability tags related constants
-    private static final String SRC_TAG_KEYS_PREFIX = "source.";
+    private static final String SRC_TAG_KEYS_PREFIX = "src.";
     private static final String ENTRY_POINT_TAG_KEYS_PREFIX = SRC_TAG_KEYS_PREFIX + "entry_point.";
     private static final String IS_MAIN_ENTRY_POINT_TAG_KEY = ENTRY_POINT_TAG_KEYS_PREFIX + "main";
     private static final String IS_RESOURCE_ENTRY_POINT_TAG_KEY = ENTRY_POINT_TAG_KEYS_PREFIX + "resource";
     private static final String IS_REMOTE_TAG_KEY = SRC_TAG_KEYS_PREFIX + "remote";
     private static final String IS_WORKER_TAG_KEY = SRC_TAG_KEYS_PREFIX + "worker";
-    private static final String INVOCATION_FQN_TAG_KEY = SRC_TAG_KEYS_PREFIX + "invocation_fqn";
+    private static final String MODULE_TAG_KEY = SRC_TAG_KEYS_PREFIX + "module";
+    private static final String INVOCATION_POSITION_TAG_KEY = SRC_TAG_KEYS_PREFIX + "position";
     private static final String TAG_VALUE_TRUE = "true";
 
     // Index for making the the lambda names unique
@@ -702,8 +703,8 @@ class JvmObservabilityGen {
      */
     private static Map<String, String> generatePositionTags(BIRPackage pkg, DiagnosticPos pos) {
         Map<String, String> tags = new HashMap<>();
-        tags.put(INVOCATION_FQN_TAG_KEY, String.format("%s:%s:%s:%s:%d:%d", pkg.org.value, pkg.name.value,
-                pkg.version.value, pos.src.cUnitName, pos.sLine, pos.sCol));
+        tags.put(MODULE_TAG_KEY, String.format("%s/%s:%s", pkg.org.value, pkg.name.value, pkg.version.value));
+        tags.put(INVOCATION_POSITION_TAG_KEY, String.format("%s:%d:%d", pos.src.cUnitName, pos.sLine, pos.sCol));
         return tags;
     }
 
