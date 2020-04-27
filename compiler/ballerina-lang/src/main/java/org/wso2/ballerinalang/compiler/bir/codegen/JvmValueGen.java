@@ -65,9 +65,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  *
  * @since 1.2.0
  */
-public class JvmValueGen {
+class JvmValueGen {
 
-    public static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
+    static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
 
     static void injectDefaultParamInitsToAttachedFuncs(BIRPackage module, JvmMethodGen jvmMethodGen,
                                                        JvmPackageGen jvmPackageGen) {
@@ -110,8 +110,8 @@ public class JvmValueGen {
         }
     }
 
-    public static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
-                                                    List<? extends NamedNode> nodes, Label defaultCaseLabel) {
+    static List<Label> createLabelsForSwitch(MethodVisitor mv, int nameRegIndex,
+                                             List<? extends NamedNode> nodes, Label defaultCaseLabel) {
 
         mv.visitVarInsn(ALOAD, nameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRING_VALUE, "hashCode", "()I", false);
@@ -131,7 +131,7 @@ public class JvmValueGen {
         return labels;
     }
 
-    public static void createDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex) {
+    static void createDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex) {
 
         mv.visitLabel(defaultCaseLabel);
         mv.visitTypeInsn(NEW, BLANG_RUNTIME_EXCEPTION);
@@ -152,7 +152,7 @@ public class JvmValueGen {
         mv.visitInsn(ATHROW);
     }
 
-    public static String getTypeValueClassName(Object module, String typeName) {
+    static String getTypeValueClassName(Object module, String typeName) {
 
         String packageName;
         if (module instanceof BIRPackage) {
@@ -169,9 +169,9 @@ public class JvmValueGen {
         return packageName + "$value$" + cleanupTypeName(typeName);
     }
 
-    public static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
-                                                        List<? extends NamedNode> nodes,
-                                                        List<Label> labels, Label defaultCaseLabel) {
+    static List<Label> createLabelsForEqualCheck(MethodVisitor mv, int nameRegIndex,
+                                                 List<? extends NamedNode> nodes,
+                                                 List<Label> labels, Label defaultCaseLabel) {
 
         List<Label> targetLabels = new ArrayList<>();
         int i = 0;

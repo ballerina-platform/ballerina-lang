@@ -158,7 +158,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
  *
  * @since 1.2.0
  */
-public class JvmTypeGen {
+class JvmTypeGen {
 
     /**
      * Create static fields to hold the user defined types.
