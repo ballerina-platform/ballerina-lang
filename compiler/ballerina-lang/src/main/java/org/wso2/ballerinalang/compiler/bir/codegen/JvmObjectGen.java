@@ -22,6 +22,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaGenMetadata;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -34,7 +35,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -136,13 +136,11 @@ class JvmObjectGen {
         return func;
     }
 
-    private void createLambdas(ClassWriter cw) {
+    private void createLambdas(ClassWriter cw, LambdaGenMetadata lambdaGenMetadata) {
 
-        for (Map.Entry<String, BIRInstruction> entry : jvmPackageGen.lambdas.entrySet()) {
+        for (Map.Entry<String, BIRInstruction> entry : lambdaGenMetadata.getLambdas().entrySet()) {
             jvmMethodGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey());
         }
-
-        jvmPackageGen.lambdas = new HashMap<>();
     }
 
     private void createObjectFields(ClassWriter cw, List<BField> fields) {
@@ -161,13 +159,14 @@ class JvmObjectGen {
     }
 
     private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, boolean isService,
-                                     String className, String typeName) {
+                                     String typeName, LambdaGenMetadata lambdaGenMetadata) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, this.module, this.currentObjectType, isService, typeName);
+            jvmMethodGen.generateMethod(func, cw, this.module, this.currentObjectType, isService, typeName,
+                    lambdaGenMetadata);
         }
     }
 
@@ -377,14 +376,14 @@ class JvmObjectGen {
         } else {
             cw.visitSource(className, null);
         }
-        jvmPackageGen.currentClass = className;
+        LambdaGenMetadata lambdaGenMetadata = new LambdaGenMetadata(className);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
                 String.format("<K:L%s;V:L%s;>L%s<TK;TV;>;L%s<TK;TV;>;", OBJECT, OBJECT, MAP_VALUE_IMPL, MAP_VALUE),
                 MAP_VALUE_IMPL, new String[]{MAP_VALUE});
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createRecordMethods(cw, attachedFuncs);
+            this.createRecordMethods(cw, attachedFuncs, lambdaGenMetadata);
         }
 
         List<BField> fields = recordType.fields;
@@ -401,19 +400,20 @@ class JvmObjectGen {
 
         this.createRecordConstructor(cw, className);
         this.createRecordInitWrapper(cw, className, typeDef);
-        this.createLambdas(cw);
+        this.createLambdas(cw, lambdaGenMetadata);
         cw.visitEnd();
 
         return jvmPackageGen.getBytes(cw, typeDef);
     }
 
-    private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs) {
+    private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs,
+                                     LambdaGenMetadata lambdaGenMetadata) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, this.module, null, false, "");
+            jvmMethodGen.generateMethod(func, cw, this.module, null, false, "", lambdaGenMetadata);
         }
     }
 
@@ -1006,7 +1006,7 @@ class JvmObjectGen {
         mv.visitEnd();
     }
 
-    public void generateValueClasses(List<BIRNode.BIRTypeDefinition> typeDefs, Map<String, byte[]> jarEntries) {
+    void generateValueClasses(List<BIRNode.BIRTypeDefinition> typeDefs, Map<String, byte[]> jarEntries) {
 
         for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
             BIRNode.BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
@@ -1038,7 +1038,8 @@ class JvmObjectGen {
 
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.getSource().cUnitName, null);
-        jvmPackageGen.currentClass = className;
+
+        LambdaGenMetadata lambdaGenMetadata = new LambdaGenMetadata(className);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{OBJECT_VALUE});
 
         List<BField> fields = objectType.fields;
@@ -1046,14 +1047,14 @@ class JvmObjectGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createObjectMethods(cw, attachedFuncs, isService, className, typeDef.name.value);
+            this.createObjectMethods(cw, attachedFuncs, isService, typeDef.name.value, lambdaGenMetadata);
         }
 
         this.createObjectInit(cw, fields, className);
         this.createCallMethod(cw, attachedFuncs, className, toNameString(objectType), isService);
         this.createObjectGetMethod(cw, fields, className);
         this.createObjectSetMethod(cw, fields, className);
-        this.createLambdas(cw);
+        this.createLambdas(cw, lambdaGenMetadata);
 
         cw.visitEnd();
         return jvmPackageGen.getBytes(cw, typeDef);

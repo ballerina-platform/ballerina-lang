@@ -24,6 +24,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaGenMetadata;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIConstructorCall;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JIMethodCall;
@@ -224,7 +225,7 @@ public class JvmTerminatorGen {
 
     void genTerminator(BIRTerminator terminator, BIRNode.BIRFunction func, String funcName,
                        int localVarOffset, int returnVarRefIndex, BType attachedType,
-                       boolean isObserved /* = false */) {
+                       boolean isObserved, LambdaGenMetadata javaLambdaGenMetadata) {
 
         switch (terminator.kind) {
             case LOCK:
@@ -240,7 +241,7 @@ public class JvmTerminatorGen {
                 this.genCallTerm((BIRTerminator.Call) terminator, funcName, localVarOffset);
                 return;
             case ASYNC_CALL:
-                this.genAsyncCallTerm((BIRTerminator.AsyncCall) terminator, localVarOffset);
+                this.genAsyncCallTerm((BIRTerminator.AsyncCall) terminator, localVarOffset, javaLambdaGenMetadata);
                 return;
             case BRANCH:
                 this.genBranchTerm((BIRTerminator.Branch) terminator, funcName);
@@ -754,7 +755,8 @@ public class JvmTerminatorGen {
         return true;
     }
 
-    private void genAsyncCallTerm(BIRTerminator.AsyncCall callIns, int localVarOffset) {
+    private void genAsyncCallTerm(BIRTerminator.AsyncCall callIns, int localVarOffset,
+                                  LambdaGenMetadata lambdaGenMetadata) {
 
         PackageID calleePkgId = callIns.calleePkg;
 
@@ -803,11 +805,11 @@ public class JvmTerminatorGen {
             paramIndex += 1;
         }
         String funcName = callIns.name.value;
-        String lambdaName = "$" + funcName + "$lambda$" + jvmPackageGen.lambdaIndex + "$";
+        String lambdaName = "$" + funcName + "$lambda$" + lambdaGenMetadata.getLambdaIndex() + "$";
 
-        createFunctionPointer(this.mv, jvmPackageGen.currentClass, lambdaName, 0);
-        jvmPackageGen.lambdas.put(lambdaName, callIns);
-        jvmPackageGen.lambdaIndex += 1;
+        createFunctionPointer(this.mv, lambdaGenMetadata.getEnclosingClass(), lambdaName, 0);
+        lambdaGenMetadata.add(lambdaName, callIns);
+        lambdaGenMetadata.incrementLambdaIndex();
 
         boolean concurrent = false;
         // check for concurrent annotation

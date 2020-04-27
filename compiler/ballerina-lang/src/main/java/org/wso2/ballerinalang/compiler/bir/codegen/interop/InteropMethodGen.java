@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaGenMetadata;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -119,7 +120,8 @@ public class InteropMethodGen {
                                          ClassWriter classWriter,
                                          BIRPackage birModule,
                                          JvmPackageGen jvmPackageGen,
-                                         JvmMethodGen jvmMethodGen) {
+                                         JvmMethodGen jvmMethodGen,
+                                         LambdaGenMetadata lambdaGenMetadata) {
 
         String currentPackageName = getPackageName(birModule.org.value, birModule.name.value);
 
@@ -183,7 +185,7 @@ public class InteropMethodGen {
 
             List<BIRBasicBlock> basicBlocks = birFunc.parameters.get(birFuncParam);
             jvmMethodGen.generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1, -1,
-                    strandParamIndex, true, birModule, currentPackageName, null, false, false, null);
+                    strandParamIndex, true, birModule, null, false, false, null, lambdaGenMetadata);
             mv.visitLabel(paramNextLabel);
 
             birFuncParamIndex += 1;

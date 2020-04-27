@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FunctionParamComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaGenMetadata;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JType;
@@ -1401,17 +1402,13 @@ public class JvmMethodGen {
         return nextId++;
     }
 
-    public void generateMethod(BIRFunction birFunc,
-                               ClassWriter cw,
-                               BIRPackage birModule,
-                               BType attachedType,
-                               boolean isService,
-                               String serviceName) {
+    void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
+                        boolean isService, String serviceName, LambdaGenMetadata lambdaGenMetadata) {
 
         if (isExternFunc(birFunc)) {
-            genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen);
+            genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen, lambdaGenMetadata);
         } else {
-            genJMethodForBFunc(birFunc, cw, birModule, isService, serviceName, attachedType);
+            genJMethodForBFunc(birFunc, cw, birModule, isService, serviceName, attachedType, lambdaGenMetadata);
         }
     }
 
@@ -1420,7 +1417,8 @@ public class JvmMethodGen {
                                    BIRPackage module,
                                    boolean isService,
                                    String serviceName,
-                                   BType attachedType) {
+                                   BType attachedType,
+                                   LambdaGenMetadata lambdaGenMetadata) {
 
         String currentPackageName = getPackageName(module.org.value, module.name.value);
         BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
@@ -1563,8 +1561,8 @@ public class JvmMethodGen {
         mv.visitLookupSwitchInsn(yieldLable, toIntArray(states), lables.toArray(new Label[0]));
 
         generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, func, returnVarRefIndex,
-                stateVarIndex, localVarOffset, false, module, currentPackageName, attachedType, isObserved, isService,
-                serviceName);
+                stateVarIndex, localVarOffset, false, module, attachedType, isObserved, isService,
+                serviceName, lambdaGenMetadata);
 
         String frameName = getFrameClassName(currentPackageName, funcName, attachedType);
         mv.visitLabel(resumeLable);
@@ -1706,10 +1704,9 @@ public class JvmMethodGen {
                                     LabelGenerator labelGen, JvmErrorGen errorGen,
                                     JvmInstructionGen instGen, JvmTerminatorGen termGen,
                                     BIRFunction func, int returnVarRefIndex, int stateVarIndex,
-                                    int localVarOffset, boolean isArg, BIRPackage module,
-                                    String currentPackageName, BType attachedType,
-                                    boolean isObserved /* = false */,
-                                    boolean isService /* = false */, String serviceName /* = "" */) {
+                                    int localVarOffset, boolean isArg, BIRPackage module, BType attachedType,
+                                    boolean isObserved, boolean isService, String serviceName,
+                                    LambdaGenMetadata lambdaGenMetadata) {
 
         int j = 0;
         String funcName = cleanupFunctionName(func.name.value);
@@ -1846,7 +1843,7 @@ public class JvmMethodGen {
                             instGen.generateXMLAttrLoadIns((FieldAccess) inst);
                             break;
                         case FP_LOAD:
-                            instGen.generateFPLoadIns((FPLoad) inst);
+                            instGen.generateFPLoadIns((FPLoad) inst, lambdaGenMetadata);
                             break;
                         case STRING_LOAD:
                             instGen.generateStringLoadIns((FieldAccess) inst);
@@ -1892,7 +1889,7 @@ public class JvmMethodGen {
                     generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value));
                 }
                 termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
-                        isObserved);
+                        isObserved, lambdaGenMetadata);
             }
 
             errorGen.generateTryCatch(func, funcName, bb, instGen, termGen, labelGen);
@@ -2656,7 +2653,8 @@ public class JvmMethodGen {
         if (currentFunc.pos != null && currentFunc.pos.src != null) {
             cw.visitSource(currentFunc.pos.src.cUnitName, null);
         }
-        jvmPackageGen.currentClass = frameClassName;
+        // TODO: check this?
+//        jvmPackageGen.currentClass = frameClassName;
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, frameClassName, null, OBJECT, null);
         generateDefaultConstructor(cw, OBJECT);
 
