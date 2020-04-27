@@ -3563,58 +3563,58 @@ public class Desugar extends BLangNodeVisitor {
         rewriteInvocation(actionInvocation, actionInvocation.async);
     }
 
-    private void rewriteInvocation(BLangInvocation actionInvocation, boolean async) {
-        BLangInvocation invRef = actionInvocation;
+    private void rewriteInvocation(BLangInvocation invocation, boolean async) {
+        BLangInvocation invRef = invocation;
 
         if (!enclLocks.isEmpty()) {
             BLangLockStmt lock = enclLocks.peek();
-            lock.lockVariables.addAll(((BInvokableSymbol) actionInvocation.symbol).dependentGlobalVars);
+            lock.lockVariables.addAll(((BInvokableSymbol) invocation.symbol).dependentGlobalVars);
         }
 
         // Reorder the arguments to match the original function signature.
-        reorderArguments(actionInvocation);
+        reorderArguments(invocation);
 
-        actionInvocation.requiredArgs = rewriteExprs(actionInvocation.requiredArgs);
-        fixNonRestArgTypeCastInTypeParamInvocation(actionInvocation);
+        invocation.requiredArgs = rewriteExprs(invocation.requiredArgs);
+        fixNonRestArgTypeCastInTypeParamInvocation(invocation);
 
-        actionInvocation.restArgs = rewriteExprs(actionInvocation.restArgs);
+        invocation.restArgs = rewriteExprs(invocation.restArgs);
 
-        annotationDesugar.defineStatementAnnotations(actionInvocation.annAttachments, actionInvocation.pos, actionInvocation.symbol.pkgID,
-                                                     actionInvocation.symbol.owner, env);
+        annotationDesugar.defineStatementAnnotations(invocation.annAttachments, invocation.pos,
+                                                     invocation.symbol.pkgID, invocation.symbol.owner, env);
 
-        if (actionInvocation.functionPointerInvocation) {
-            visitFunctionPointerInvocation(actionInvocation);
+        if (invocation.functionPointerInvocation) {
+            visitFunctionPointerInvocation(invocation);
             return;
         }
-        actionInvocation.expr = rewriteExpr(actionInvocation.expr);
+        invocation.expr = rewriteExpr(invocation.expr);
         result = invRef;
 
-        if (actionInvocation.expr == null) {
-            fixTypeCastInTypeParamInvocation(actionInvocation, invRef);
-            if (actionInvocation.exprSymbol == null) {
+        if (invocation.expr == null) {
+            fixTypeCastInTypeParamInvocation(invocation, invRef);
+            if (invocation.exprSymbol == null) {
                 return;
             }
-            actionInvocation.expr = ASTBuilderUtil.createVariableRef(actionInvocation.pos, actionInvocation.exprSymbol);
-            actionInvocation.expr = rewriteExpr(actionInvocation.expr);
+            invocation.expr = ASTBuilderUtil.createVariableRef(invocation.pos, invocation.exprSymbol);
+            invocation.expr = rewriteExpr(invocation.expr);
         }
-        switch (actionInvocation.expr.type.tag) {
+        switch (invocation.expr.type.tag) {
             case TypeTags.OBJECT:
             case TypeTags.RECORD:
-                if (!actionInvocation.langLibInvocation) {
-                    List<BLangExpression> argExprs = new ArrayList<>(actionInvocation.requiredArgs);
-                    argExprs.add(0, actionInvocation.expr);
+                if (!invocation.langLibInvocation) {
+                    List<BLangExpression> argExprs = new ArrayList<>(invocation.requiredArgs);
+                    argExprs.add(0, invocation.expr);
                     BLangAttachedFunctionInvocation attachedFunctionInvocation =
-                            new BLangAttachedFunctionInvocation(actionInvocation.pos, argExprs, actionInvocation.restArgs,
-                                                                actionInvocation.symbol, actionInvocation.type, actionInvocation.expr,
+                            new BLangAttachedFunctionInvocation(invocation.pos, argExprs, invocation.restArgs,
+                                                                invocation.symbol, invocation.type, invocation.expr,
                                                                 async);
-                    attachedFunctionInvocation.name = actionInvocation.name;
-                    attachedFunctionInvocation.annAttachments = actionInvocation.annAttachments;
+                    attachedFunctionInvocation.name = invocation.name;
+                    attachedFunctionInvocation.annAttachments = invocation.annAttachments;
                     result = invRef = attachedFunctionInvocation;
                 }
                 break;
         }
 
-        fixTypeCastInTypeParamInvocation(actionInvocation, invRef);
+        fixTypeCastInTypeParamInvocation(invocation, invRef);
     }
 
     private void fixNonRestArgTypeCastInTypeParamInvocation(BLangInvocation iExpr) {
