@@ -143,8 +143,9 @@ public class Parser {
         TextDocument sourceText = TextDocuments.from(new String(code));
         SyntaxTree syntaxTree = BLModules.parse(sourceText);
         // TODO we need a ModulePart -> BLCompilationUnit converter
-        BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(this.context, diagnosticSource);
-        return (BLangCompilationUnit) bLangNodeTransformer.accept(syntaxTree.getModulePart()).get(0);
+        BLangCompUnitGen bLangCompUnitGen = new BLangCompUnitGen();
+        return bLangCompUnitGen.getCompilationUnit(
+                syntaxTree.getModulePart(), this.context, diagnosticSource);
     }
 
     public BLangPackage parse(PackageSource pkgSource, Path sourceRootPath) {
