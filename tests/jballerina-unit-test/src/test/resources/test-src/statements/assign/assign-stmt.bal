@@ -103,6 +103,13 @@ function testAssignIntArrayToJson() {
     assertEquality("1 2", jsonToJson.toString());
 }
 
+function testAssignIntOrStringArrayIntOrFloatOrStringUnionArray() {
+    int[]|string[] intOrStringArray = <int[]>[1, 2];
+    (int|float)[]|string[] intOrFloatArray = intOrStringArray;
+    assertEquality(1, intOrFloatArray[0]);
+    assertEquality(2, intOrFloatArray[1]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 type AssertionError error<ASSERTION_ERROR_REASON>;
 
