@@ -320,6 +320,8 @@ public class BallerinaParser {
                 return parseWorkerKeyword();
             case WORKER_NAME:
                 return parseWorkerName();
+            case FORK_KEYWORD:
+                return parseForkKeyword();
             case DECIMAL_FLOATING_POINT_LITERAL:
                 return parseDecimalFloatingPointLiteral();
             case HEX_FLOATING_POINT_LITERAL:
@@ -2735,6 +2737,7 @@ public class BallerinaParser {
             case TYPE_KEYWORD:
             case LOCK_KEYWORD:
             case OPEN_BRACE_TOKEN:
+            case FORK_KEYWORD:
 
                 // Even-though worker is not a statement, we parse it as statements.
                 // then validates it based on the context. This is done to provide
@@ -3051,7 +3054,6 @@ public class BallerinaParser {
         switch (expression.kind) {
             case IDENTIFIER_TOKEN:
             case QUALIFIED_NAME_REFERENCE:
-            case SIMPLE_NAME_REFERENCE:
                 return true;
             case FIELD_ACCESS:
                 return isValidLVExpr(((STFieldAccessExpressionNode) expression).expression);
@@ -3103,8 +3105,6 @@ public class BallerinaParser {
             case NULL_KEYWORD:
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
                 return parseBasicLiteral();
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
@@ -3569,8 +3569,6 @@ public class BallerinaParser {
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
             case NULL_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
             default:
                 expr = parseExpression();
                 arg = STNodeFactory.createPositionalArgumentNode(leadingComma, expr);
@@ -5730,7 +5728,7 @@ public class BallerinaParser {
      * Parse remote method call action, given the starting expression.
      * <p>
      * <code>remote-method-call-action := expression -> method-name ( arg-list )</code>
-     *
+     * 
      * @param expression LHS expression
      * @return
      */
@@ -5761,7 +5759,7 @@ public class BallerinaParser {
 
     /**
      * Check whether this is a valid lhs expression.
-     *
+     * 
      * @param tokenKind Kind of the next token
      * @return <code>true</code>if this is a start of an expression. <code>false</code> otherwise
      */
@@ -5883,7 +5881,7 @@ public class BallerinaParser {
      * Parse annotation tag.
      * <p>
      * <code>annot-tag := identifier</code>
-     *
+     * 
      * @return
      */
     private STNode parseAnnotationTag() {
@@ -5914,7 +5912,7 @@ public class BallerinaParser {
      * Parse the component that follows the first identifier in an annotation decl. The identifier
      * can be either the type-name (a user defined type) or the annot-tag, where the type-name
      * is not present.
-     *
+     * 
      * @param metadata Metadata
      * @param qualifier Qualifier that precedes the annotation decl
      * @param constKeyword Const keyword
@@ -6034,7 +6032,7 @@ public class BallerinaParser {
      *     | listener
      *     | worker
      * </code>
-     *
+     * 
      * @return Parsed node
      */
     private STNode parseAnnotationAttachPoints() {
@@ -6081,7 +6079,7 @@ public class BallerinaParser {
 
     /**
      * Parse annotation attach point end.
-     *
+     * 
      * @return Parsed node
      */
     private STNode parseAttachPointEnd() {
@@ -6164,7 +6162,7 @@ public class BallerinaParser {
 
     /**
      * Parse source keyword.
-     *
+     * 
      * @return Parsed node
      */
     private STNode parseSourceKeyword() {
@@ -6186,7 +6184,7 @@ public class BallerinaParser {
      * dual-attach-point-ident := [object] type | [object|resource] function | parameter
      *                            | return | service | [object|record] field
      * </code>
-     *
+     * 
      * @param sourceKeyword Source keyword
      * @return Parsed node
      */
@@ -6229,7 +6227,7 @@ public class BallerinaParser {
 
     /**
      * Parse dual-attach-point ident.
-     *
+     * 
      * @param sourceKeyword Source keyword
      * @param firstIdent first part of the dual attach-point
      * @return Parsed node
@@ -6262,7 +6260,7 @@ public class BallerinaParser {
 
     /**
      * Parse the idents that are supported after object-ident.
-     *
+     * 
      * @return Parsed node
      */
     private STNode parseIdentAfterObjectIdent() {
@@ -6280,7 +6278,7 @@ public class BallerinaParser {
 
     /**
      * Parse function ident.
-     *
+     * 
      * @return Parsed node
      */
     private STNode parseFunctionIdent() {
@@ -6295,7 +6293,7 @@ public class BallerinaParser {
 
     /**
      * Parse field ident.
-     *
+     * 
      * @return Parsed node
      */
     private STNode parseFieldIdent() {
@@ -6317,7 +6315,7 @@ public class BallerinaParser {
      * <br/>
      * xml-namespace-prefix := identifier
      * </code>
-     *
+     * 
      * @return
      */
     private STNode parseXMLNamepsaceDeclaration() {
@@ -6331,7 +6329,7 @@ public class BallerinaParser {
 
     /**
      * Parse xmlns keyword.
-     *
+     * 
      * @return Parsed node
      */
     private STNode parseXMLNSKeyword() {
@@ -6346,7 +6344,7 @@ public class BallerinaParser {
 
     /**
      * Parse namespace uri.
-     *
+     * 
      * @return Parsed node
      */
     private STNode parseXMLNamespaceUri() {
@@ -6401,7 +6399,7 @@ public class BallerinaParser {
 
     /**
      * Parse the portion after the namsepsace-uri of an XML declaration.
-     *
+     * 
      * @param xmlnsKeyword XMLNS keyword
      * @param namespaceUri Namespace URI
      * @return Parsed node
@@ -6459,7 +6457,7 @@ public class BallerinaParser {
      * Parse named worker declaration.
      * <p>
      * <code>named-worker-decl := [annots] worker worker-name return-type-descriptor { sequence-stmt }</code>
-     *
+     * 
      * @param annots Annotations attached to the worker decl
      * @return Parsed node
      */
@@ -6493,7 +6491,7 @@ public class BallerinaParser {
      * Parse worker name.
      * <p>
      * <code>worker-name := identifier</code>
-     *
+     * 
      * @return Parsed node
      */
     private STNode parseWorkerName() {
@@ -6512,7 +6510,7 @@ public class BallerinaParser {
      * <code>DocumentationString := DocumentationLine +</code>
      * <p>
      * Refer {@link BallerinaLexer#processDocumentationLine}
-     *
+     * 
      * @return Parsed node
      */
     private STNode parseDocumentationString() {
@@ -6631,6 +6629,70 @@ public class BallerinaParser {
             default:
                 return SyntaxKind.TYPE_DESC;
         }
+    }
+
+    /**
+     * Parse fork-keyword.
+     *
+     * @return Fork-keyword node
+     */
+    private STNode parseForkKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.FORK_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.FORK_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse multiple named worker declarations.
+     *
+     * @return named-worker-declarations node array
+     */
+    private STNode parseMultileNamedWorkerDeclarations() {
+        STToken token = peek();
+        ArrayList<STNode> workers = new ArrayList<>();
+
+        while (!isEndOfStatements(token.kind)) {
+            STNode stmt = parseStatement();
+            if (stmt == null) {
+                break;
+            }
+
+            switch (stmt.kind) {
+                case NAMED_WORKER_DECLARATION:
+                    workers.add(stmt);
+                    break;
+                default:
+                    this.errorHandler.reportInvalidNode(null, "Only named-workers are allowed here");
+                    break;
+            }
+            token = peek();
+        }
+
+        if (workers.isEmpty()) {
+            this.errorHandler.reportInvalidNode(null, "Fork Statement must contain atleast one named-worker");
+        }
+        STNode namedWorkers = STNodeFactory.createNodeList(workers);
+        return namedWorkers;
+    }
+
+    /**
+     * Parse fork statement.
+     * <code>fork-stmt := fork { named-worker-decl+ }</code>
+     *
+     * @return Fork statement
+     */
+    private STNode parseForkStatement() {
+        startContext(ParserRuleContext.FORK_STMT);
+        STNode forkKeyword = parseForkKeyword();
+        STNode openBrace = parseOpenBrace();
+        STNode namedWorkerDeclarations = parseMultileNamedWorkerDeclarations();
+        STNode closeBrace = parseCloseBrace();
+        endContext();
+        return STNodeFactory.createForkStatementNode(forkKeyword, openBrace, namedWorkerDeclarations, closeBrace);
     }
 
     /**

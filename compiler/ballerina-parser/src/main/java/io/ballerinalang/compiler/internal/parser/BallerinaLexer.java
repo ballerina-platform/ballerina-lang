@@ -864,6 +864,8 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.FIELD_KEYWORD);
             case LexerTerminals.XMLNS:
                 return getSyntaxToken(SyntaxKind.XMLNS_KEYWORD);
+            case LexerTerminals.FORK:
+                return getSyntaxToken(SyntaxKind.FORK_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
