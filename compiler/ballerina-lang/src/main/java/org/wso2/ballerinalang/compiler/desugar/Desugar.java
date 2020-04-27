@@ -2236,13 +2236,14 @@ public class Desugar extends BLangNodeVisitor {
                     arrayAccessExpr.expr = parentIndexAccessExpr;
                 }
                 createVarRefAssignmentStmts((BLangRecordVarRef) expression, parentBlockStmt, tupleVarSymbol,
-                        arrayAccessExpr);
+                                            arrayAccessExpr);
 
-                TypeDefBuilderHelper.addTypeDefinition(recordVarRef.type, recordVarRef.type.tsymbol,
-                                                       TypeDefBuilderHelper.createRecordTypeNode(
-                                                                  (BRecordType) recordVarRef.type,
-                                                                  env.enclPkg.packageID, symTable, recordVarRef.pos),
-                                                       env);
+                BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(
+                        (BRecordType) recordVarRef.type, env.enclPkg.packageID, symTable, recordVarRef.pos);
+                recordTypeNode.initFunction = TypeDefBuilderHelper
+                        .createInitFunctionForRecordType(recordTypeNode, env, names, symTable);
+                TypeDefBuilderHelper
+                        .addTypeDefinition(recordVarRef.type, recordVarRef.type.tsymbol, recordTypeNode, env);
 
                 continue;
             }

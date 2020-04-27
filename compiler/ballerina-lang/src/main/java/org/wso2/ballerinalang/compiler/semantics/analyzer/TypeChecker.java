@@ -1625,9 +1625,12 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangRecordVarRef varRefExpr) {
         List<BField> fields = new ArrayList<>();
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0,
-                names.fromString(this.anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.symbol.pkgID)),
-                env.enclPkg.symbol.pkgID, null, env.scope.owner);
+
+        String recordName = this.anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.symbol.pkgID);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(0, names.fromString(recordName),
+                                                                    env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        symbolEnter.defineSymbol(varRefExpr.pos, recordSymbol, env);
+
         boolean unresolvedReference = false;
         for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
             ((BLangVariableReference) recordRefField.variableReference).lhsVar = true;
