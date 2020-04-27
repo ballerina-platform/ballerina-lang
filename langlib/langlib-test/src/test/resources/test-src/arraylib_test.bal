@@ -89,6 +89,21 @@ function testPushAfterSliceFixed() returns [int, int, int[]] {
      return [sl, slp, s];
 }
 
+function testSliceOnTupleWithRestDesc() {
+    [int, string...] x = [1, "hello", "world"];
+    (int|string)[] a = x.slice(1);
+    assertValueEquality(2, a.length());
+    assertValueEquality("hello", a[0]);
+    assertValueEquality("world", a[1]);
+
+    [int, int, boolean...] y = [1, 2, true, false, true];
+    (int|boolean)[] b = y.slice(1, 4);
+    assertValueEquality(3, b.length());
+    assertValueEquality(2, b[0]);
+    assertTrue(b[1]);
+    assertFalse(b[2]);
+}
+
 function testRemove() returns [string, string[]] {
     string[] arr = ["Foo", "Bar", "FooFoo", "BarBar"];
     string elem = arr.remove(2);
