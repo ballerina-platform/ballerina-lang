@@ -714,6 +714,7 @@ public class TypeChecker extends BLangNodeVisitor {
             for (BType memType : memTypes) {
                 if (memType == symTable.semanticError) {
                     resultType = symTable.semanticError;
+                    return;
                 }
             }
 
@@ -744,7 +745,17 @@ public class TypeChecker extends BLangNodeVisitor {
                 return;
             }
 
-            resultType = expType;
+            BType actualType = checkExpr(tableConstructorExpr, env, symTable.noType);
+            if (types.isAssignable(actualType, expType)) {
+                BTableType actualTableType = (BTableType) actualType;
+                BTableType expectedTableType = (BTableType) expType;
+                if (expectedTableType.fieldNameList != null && actualTableType.fieldNameList == null) {
+                    actualTableType.fieldNameList = expectedTableType.fieldNameList;
+                    resultType = actualType;
+                }
+            } else {
+                resultType = symTable.semanticError;
+            }
         } else {
             resultType = symTable.semanticError;
         }

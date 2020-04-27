@@ -182,7 +182,8 @@ function testMemberAccessWithInvalidMultiKey() {
 function runTableTestcasesWithVarType() {
     testSimpleTableInitializationWithVarType();
     testTableWithKeySpecifier();
-    testTableWithMultiKeySpecifier();
+    testTableWithMultiKeySpecifier1();
+    testTableWithMultiKeySpecifier2();
 }
 
 function testSimpleTableInitializationWithVarType() {
@@ -200,13 +201,34 @@ function testTableWithKeySpecifier() {
     assertEquality("Sanjiva", customerTable[13]["name"]);
 }
 
-function testTableWithMultiKeySpecifier() {
-    var customerTable = table key(id, name) [{ id: 13 , name: "Sanjiva", lname: {name: "Weerawarana"}, address: xml `<city>COL</city>` },
+function testTableWithMultiKeySpecifier1() {
+    var customerTable1 = table key(id, name) [{ id: 13 , name: "Sanjiva", lname: {name: "Weerawarana"}, address: xml `<city>COL</city>` },
                                         { id: 23 , name: "James" , lname: {name:"Clark"} , address: xml `<city>BNK</city>`}];
 
+    CustomerTableWithCKTC customerTable2 = table key(id, name)
+            [{ id: 13 , name: "Sanjiva", lname: "Weerawarana", "address": xml `<city>COL</city>` },
+             { id: 23 , name: "James" , lname: "Clark" , "address": xml `<city>BNK</city>`}];
+
+    assertEquality(2, customerTable1.length());
+    var lname1 = customerTable1[13, "Sanjiva"]["lname"];
+    assertEquality("Weerawarana", lname1["name"]);
+
+    assertEquality(2, customerTable2.length());
+    var lname2 = customerTable2[13, "Sanjiva"]["lname"];
+    assertEquality("Weerawarana", lname2);
+}
+
+function testTableWithMultiKeySpecifier2() {
+    table<Customer> key<int> cusTable = table key(id)
+            [{ id: 13 , name: "Sanjiva", lname: "Weerawarana"},
+             { id: 23 , name: "James" , lname: "Clark"}];
+
+    //TODO: Need to fix here. At this line, compiler passes even if the key type is incompatible
+    table<Customer> key<anydata> customerTable = cusTable;
+
     assertEquality(2, customerTable.length());
-    var lname = customerTable[13, "Sanjiva"]["lname"];
-    assertEquality("Weerawarana", lname["name"]);
+    var lname = customerTable[13]["lname"];
+    assertEquality("Weerawarana", lname);
 }
 
 function testVarTypeTableInvalidMemberAccess() {

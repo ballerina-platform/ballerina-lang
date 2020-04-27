@@ -51,7 +51,7 @@ public class TableUtils {
      * @return The hash value
      */
     public static Integer hash(Object obj, List<Object> checkedValues) {
-        int result;
+        int result = 0;
 
         if (checkedValues.contains(obj)) {
             throw new BallerinaException(CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR,
@@ -66,24 +66,14 @@ public class TableUtils {
             BType refType = refValue.getType();
             if (refType.getTag() == TypeTags.MAP_TAG || refType.getTag() == TypeTags.RECORD_TYPE_TAG) {
                 MapValue mapValue = (MapValue) refValue;
-                result = mapValue.getType().hashCode();
                 for (Object entry : mapValue.entrySet()) {
                     result = 31 * result + hash(((Map.Entry) entry).getKey(), checkedValues) +
                             (((Map.Entry) entry).getValue() == null ? 0 : hash(((Map.Entry) entry).getValue(),
                                     checkedValues));
                 }
                 return result;
-            } else if (refType.getTag() == TypeTags.ARRAY_TAG) {
+            } else if (refType.getTag() == TypeTags.ARRAY_TAG || refType.getTag() == TypeTags.TUPLE_TAG) {
                 ArrayValue arrayValue = (ArrayValue) refValue;
-                result = Objects.hash(refType, arrayValue.getElementType());
-                IteratorValue arrayIterator = arrayValue.getIterator();
-                while (arrayIterator.hasNext()) {
-                    result = 31 * result + hash(arrayIterator.next(), checkedValues);
-                }
-                return result;
-            } else if (refType.getTag() == TypeTags.TUPLE_TAG) {
-                TupleValueImpl arrayValue = (TupleValueImpl) refValue;
-                result = Objects.hash(refType, ((BTupleType) refType).getTupleTypes());
                 IteratorValue arrayIterator = arrayValue.getIterator();
                 while (arrayIterator.hasNext()) {
                     result = 31 * result + hash(arrayIterator.next(), checkedValues);
