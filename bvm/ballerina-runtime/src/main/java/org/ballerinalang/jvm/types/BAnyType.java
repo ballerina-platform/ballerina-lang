@@ -26,13 +26,16 @@ import org.ballerinalang.jvm.values.RefValue;
  */
 public class BAnyType extends BType {
 
+    private final boolean readonly;
+
     /**
      * Create a {@code BAnyType} which represents the any type.
      *
      * @param typeName string name of the type
      */
-    BAnyType(String typeName, BPackage pkg) {
+    BAnyType(String typeName, BPackage pkg, boolean readonly) {
         super(typeName, pkg, RefValue.class);
+        this.readonly = readonly;
     }
 
     @Override
@@ -52,5 +55,10 @@ public class BAnyType extends BType {
 
     public boolean isNilable() {
         return true;
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return this.readonly;
     }
 }

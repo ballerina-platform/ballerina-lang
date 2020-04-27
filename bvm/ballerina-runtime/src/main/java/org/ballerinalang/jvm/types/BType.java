@@ -140,4 +140,8 @@ public abstract class BType {
     public boolean isPureType() {
         return this.getTag() == TypeTags.ERROR_TAG || this.isAnydata();
     }
+
+    public boolean isReadOnly() {
+        return false;
+    }
 }

@@ -33,6 +33,7 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 public class BMapType extends BType {
 
     private BType constraint;
+    private final boolean readonly;
 
     /**
      * Create a type from the given name.
@@ -44,11 +45,17 @@ public class BMapType extends BType {
     public BMapType(String typeName, BType constraint, BPackage pkg) {
         super(typeName, pkg, MapValueImpl.class);
         this.constraint = constraint;
+        this.readonly = false;
     }
 
     public BMapType(BType constraint) {
+        this(constraint, false);
+    }
+
+    public BMapType(BType constraint, boolean readonly) {
         super(TypeConstants.MAP_TNAME, null, MapValueImpl.class);
         this.constraint = constraint;
+        this.readonly = readonly;
     }
 
     /**
@@ -112,5 +119,10 @@ public class BMapType extends BType {
     @Override
     public boolean isAnydata() {
         return this.constraint.isPureType();
+    }
+
+    @Override
+    public boolean isReadOnly() {
+        return this.readonly;
     }
 }

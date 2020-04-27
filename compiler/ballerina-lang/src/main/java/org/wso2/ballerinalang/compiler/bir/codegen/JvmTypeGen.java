@@ -72,6 +72,8 @@ import static org.objectweb.asm.Opcodes.ATHROW;
 import static org.objectweb.asm.Opcodes.CHECKCAST;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INSTANCEOF;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
@@ -1011,11 +1013,11 @@ class JvmTypeGen {
         } else if (bType.tag == TypeTags.BYTE) {
             typeFieldName = "typeByte";
         } else if (bType.tag == TypeTags.ANY) {
-            typeFieldName = "typeAny";
+            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyAny" : "typeAny";
         } else if (bType.tag == TypeTags.ANYDATA) {
-            typeFieldName = "typeAnydata";
+            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyAnydata" : "typeAnydata";
         } else if (bType.tag == TypeTags.JSON) {
-            typeFieldName = "typeJSON";
+            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyJSON" : "typeJSON";
         } else if (bType.tag == TypeTags.XML) {
             loadXmlType(mv, (BXMLType) bType);
             return;
@@ -1106,8 +1108,10 @@ class JvmTypeGen {
         mv.visitLdcInsn((long) arraySize);
         mv.visitInsn(L2I);
 
+        loadReadonlyFlag(mv, bType);
+
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", String.format("(L%s;I)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", String.format("(L%s;IZ)V", BTYPE), false);
     }
 
     /**
@@ -1144,8 +1148,18 @@ class JvmTypeGen {
         // Load the constraint type
         loadType(mv, bType.constraint);
 
+        loadReadonlyFlag(mv, bType);
+
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", String.format("(L%s;Z)V", BTYPE), false);
+    }
+
+    private static void loadReadonlyFlag(MethodVisitor mv, BType bType) {
+        if (Symbols.isFlagOn(bType.flags, Flags.READONLY)) {
+            mv.visitInsn(ICONST_1);
+        } else {
+            mv.visitInsn(ICONST_0);
+        }
     }
 
     /**
@@ -1272,7 +1286,9 @@ class JvmTypeGen {
         // Load type flags
         mv.visitLdcInsn(typeFlag(bType));
 
-        mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", String.format("(L%s;L%s;I)V", LIST, BTYPE), false);
+        loadReadonlyFlag(mv, bType);
+
+        mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", String.format("(L%s;L%s;IZ)V", LIST, BTYPE), false);
     }
 
     /**
