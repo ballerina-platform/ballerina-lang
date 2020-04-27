@@ -17,7 +17,10 @@
 function testSimpleUnionReturnParameterNarrowing() {
     int[]|float[] arr = <int[]>[1, 2];
     [int, (int|float)][] y = arr.enumerate();
-    assertTrue(true);
+    assertTrue(y[0][0] is int);
+    assertTrue(y[0][1] is int);
+    assertEqual(1, y[0][1][0]);
+    assertEqual(2, y[0][1][1]);
 }
 
 function testUnionOfMapsReturnParameterNarrowing() {
