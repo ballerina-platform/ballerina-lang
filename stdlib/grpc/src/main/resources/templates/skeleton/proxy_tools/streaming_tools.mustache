@@ -47,7 +47,7 @@ service socketHandler = @http:WebSocketServiceConfig {} service {
     }
 };
 
-public function sendCompleteSignal (http:WebSocketCaller caller) {
+public function sendCompleteSignal(http:WebSocketCaller caller) {
     any streamingClient = caller.getAttribute(CLIENT_EP);
     if (streamingClient is grpc:StreamingClient) {
         grpc:Error? response = streamingClient->complete();
@@ -68,13 +68,13 @@ function sendSocketResponse(http:WebSocketCaller caller, anydata | error respons
         if (responseJson is json) {
             responseMessage= responseJson.toJsonString();
         } else {
-            log:printError("Error in creating response");
+            log:printError(io:sprintf("Error in creating response : %s - %s", responseJson.reason(), {{#literal "<string>"}}{{/literal}} responseJson.detail()["message"]));
             return;
         }
     }
     var sent = caller->pushText(responseMessage);
     if (sent is error) {
-        log:printError(sent.reason());
+        log:printError(io:sprintf("Error when responding : %s - %s", sent.reason(), {{#literal "<string>"}}{{/literal}} sent.detail()["message"]));
     }
     if (closeConnection) {
         var close = caller->close();

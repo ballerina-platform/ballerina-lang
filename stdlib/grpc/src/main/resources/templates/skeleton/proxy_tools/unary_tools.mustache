@@ -13,7 +13,7 @@ public function sendResponse (http:Caller caller, any | error responseData) {
         var noPayload => {
             if (noPayload is error) {
                 httpResponse.statusCode = 500;
-                httpResponse.setPayload(noPayload.reason());
+                httpResponse.setPayload({{#literal "<string>"}}{{/literal}} noPayload.detail()["message"]);
             } else if (noPayload is grpc:Headers) {
                 httpResponse.statusCode = 200;
             }
@@ -21,6 +21,6 @@ public function sendResponse (http:Caller caller, any | error responseData) {
     }
     var sent = caller->respond(httpResponse);
     if (sent is error) {
-        log:printInfo("Error when responding : " + sent.reason());
+        log:printInfo(io:sprintf("Error when responding : %s - %s", sent.reason(), {{#literal "<string>"}}{{/literal}} sent.detail()["message"]));
     }
 }

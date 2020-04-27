@@ -224,7 +224,7 @@ public class BallerinaFileBuilder {
                     }
                 }
                 if (proxyAvailable) {
-                    serviceStubBuilder.setProxyAvailable();
+                    serviceStubBuilder.enableProxy();
                 }
                 if (isUnaryContains) {
                     stubFileObject.addServiceStub(serviceStubBuilder.build(ServiceStub.StubType.BLOCKING));

@@ -86,7 +86,7 @@ public class ServiceStub {
             return this;
         }
 
-        public void setProxyAvailable() {
+        public void enableProxy() {
             this.proxyAvailable = true;
         }
 
