@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 /**
  * Test parsing Fork Statements.
  */
-public class ForkStatement extends AbstractStatementTest {
+public class ForkStatementTest extends AbstractStatementTest {
 
     // Valid syntax tests
 

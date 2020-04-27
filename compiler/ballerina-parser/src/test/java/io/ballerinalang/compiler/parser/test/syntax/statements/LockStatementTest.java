@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 /**
  * Test parsing Lock statements.
  */
-public class LockStatement extends AbstractStatementTest {
+public class LockStatementTest extends AbstractStatementTest {
 
     // Valid syntax tests
 

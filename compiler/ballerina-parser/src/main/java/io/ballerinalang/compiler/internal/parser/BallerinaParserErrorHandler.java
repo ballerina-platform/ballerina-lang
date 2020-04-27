@@ -2203,12 +2203,13 @@ public class BallerinaParserErrorHandler {
                     if (parentCtx == ParserRuleContext.FORK_STMT) {
                         nextToken = this.tokenReader.peek(nextLookahead);
                         switch (nextToken.kind) {
-                            case AT_TOKEN:
-                            case WORKER_KEYWORD:
-                                return ParserRuleContext.NAMED_WORKER_DECL;
-                            default:
+                            case CLOSE_BRACE_TOKEN:
                                 return ParserRuleContext.CLOSE_BRACE;
+                            default:
+                                return ParserRuleContext.STATEMENT;
                         }
+                    } else {
+                        return ParserRuleContext.STATEMENT;
                     }
                 } else if (parentCtx == ParserRuleContext.LOCK_STMT) {
                     endContext();

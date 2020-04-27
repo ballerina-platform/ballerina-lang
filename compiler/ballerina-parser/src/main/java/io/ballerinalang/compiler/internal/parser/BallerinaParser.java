@@ -6665,9 +6665,7 @@ public class BallerinaParser {
     * @return named-worker-declarations node array
     */
     private STNode parseMultileNamedWorkerDeclarations() {
-
         STToken token = peek();
-
         ArrayList<STNode> workers = new ArrayList<>();
 
         while (!isEndOfStatements(token.kind)) {
