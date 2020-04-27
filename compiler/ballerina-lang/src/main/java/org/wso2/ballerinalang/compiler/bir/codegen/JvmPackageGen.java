@@ -140,6 +140,8 @@ public class JvmPackageGen {
     private Map<String, PackageID> dependentModules;
     private BLangDiagnosticLogHelper dlog;
 
+    private final JvmMethodGen jvmMethodGen;
+
     private JvmPackageGen(CompilerContext compilerContext) {
 
         birFunctionMap = new ConcurrentHashMap<>();
@@ -150,6 +152,7 @@ public class JvmPackageGen {
         packageCache = PackageCache.getInstance(compilerContext);
         dlog = BLangDiagnosticLogHelper.getInstance(compilerContext);
         errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
+        jvmMethodGen = new JvmMethodGen(this);
 
         // todo: fix this
         JvmCastGen.symbolTable = symbolTable;
@@ -507,6 +510,7 @@ public class JvmPackageGen {
         Set<PackageID> dependentModuleSet = new LinkedHashSet<>();
 
         addBuiltinImports(module, dependentModuleSet);
+
         for (BIRNode.BIRImportModule importModule : module.importModules) {
             BPackageSymbol pkgSymbol = packageCache.getSymbol(getBvmAlias(importModule.org.value,
                     importModule.name.value));
@@ -516,17 +520,17 @@ public class JvmPackageGen {
             }
         }
 
-        JvmMethodGen jvmMethodGen = new JvmMethodGen(this);
-
         String typeOwnerClass = getModuleLevelClassName(orgName, moduleName, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMap = generateClassNameMappings(module, pkgName, typeOwnerClass,
-                interopValidator, jvmMethodGen, isEntry);
+                interopValidator, isEntry);
         if (!isEntry || dlog.getErrorCount() > 0) {
             return;
         }
 
+        // desugar parameter initialization
         injectDefaultParamInits(module, jvmMethodGen, this);
         injectDefaultParamInitsToAttachedFuncs(module, jvmMethodGen, this);
+
         // create dependant modules flat array
         createDependantModuleFlatArray(dependentModuleSet);
         List<PackageID> dependentModuleArray = new ArrayList<>(dependentModuleSet);
@@ -537,16 +541,19 @@ public class JvmPackageGen {
         // generate the shutdown listener class.
         generateShutdownSignalListener(typeOwnerClass, jarFile.pkgEntries);
 
-        boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
-
-        // Desugar the record init function
+        // desugar the record init function
         rewriteRecordInits(module.typeDefs);
 
         // generate object/record value classes
         JvmObjectGen objGen = new JvmObjectGen(module, this, jvmMethodGen);
-        objGen.generateValueClasses(module.typeDefs, jarFile.pkgEntries);
+        objGen.generate(module.typeDefs, jarFile.pkgEntries);
+
+        // generate frame classes
         jvmMethodGen.generateFrameClasses(module, jarFile.pkgEntries);
 
+        boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
+
+        // generate classes
         for (Map.Entry<String, JavaClass> entry : jvmClassMap.entrySet()) {
             String moduleClass = entry.getKey();
             JavaClass javaClass = entry.getValue();
@@ -630,7 +637,6 @@ public class JvmPackageGen {
      */
     private Map<String, JavaClass> generateClassNameMappings(BIRPackage module, String pkgName, String initClass,
                                                              InteropValidator interopValidator,
-                                                             JvmMethodGen jvmMethodGen,
                                                              boolean isEntry) {
 
         String orgName = module.org.value;
