@@ -602,13 +602,13 @@ public class BallerinaParser {
      */
     private STNode parseImportDecl() {
         startContext(ParserRuleContext.IMPORT_DECL);
-        this.tokenReader.switchMode(ParserMode.IMPORT);
+        this.tokenReader.startMode(ParserMode.IMPORT);
         STNode importKeyword = parseImportKeyword();
         STNode identifier = parseIdentifier(ParserRuleContext.IMPORT_ORG_OR_MODULE_NAME);
 
         STToken token = peek();
         STNode importDecl = parseImportDecl(token.kind, importKeyword, identifier);
-        this.tokenReader.resetMode();
+        this.tokenReader.endMode();
         endContext();
         return importDecl;
     }
@@ -3128,8 +3128,8 @@ public class BallerinaParser {
                 return parseUnaryExpression(isRhsExpr);
             case XML_KEYWORD:
                 nextNextToken = getNextNextToken(kind);
-                if (nextNextToken.kind == SyntaxKind.BACKTICK_STRING) {
-                    return parseXMLTemplateLiteral();
+                if (nextNextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
+                    return parseXMLTemplateExpression();
                 }
                 // fall through
             default:
@@ -6630,16 +6630,8 @@ public class BallerinaParser {
         }
     }
 
-    private STNode parseXMLTemplateLiteral() {
-        STNode xmlKeyword = parseXMLKeyword();
-        STToken backtickString = consume();
-        BallerinaBacktickTemplateParser templateParser = ParserFactory.getStringTemplateParser(backtickString.text());
-        STNode xml = templateParser.parse(xmlKeyword);
-        return null;
-    }
-
     /**
-     * Parse xml keyword.
+     * Parse <code>xml</code> keyword.
      *
      * @return xml keyword node
      */
@@ -6651,5 +6643,281 @@ public class BallerinaParser {
             Solution sol = recover(token, ParserRuleContext.XML_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse XML template expression.
+     * <p>
+     * <code>xml-template-expr := xml BacktickString</code>
+     * <br/>
+     * <br/>
+     * BacktickString := ` content `
+     * 
+     * @return XML template expression
+     */
+    private STNode parseXMLTemplateExpression() {
+        STNode xmlKeyword = parseXMLKeyword();
+        STNode startingBackTick = parseBacktickToken();
+        STNode content = parseXMLContent();
+        STNode endingBackTick = parseBacktickToken();
+        return null;
+    }
+
+    /**
+     * Parse XML content.
+     * <p>
+     * <code>
+     * content :=  CharData? ((element | Reference | CDSect | PI | Comment) CharData?)*
+     * </code>
+     * 
+     * @return XML content node
+     */
+    private STNode parseXMLContent() {
+        List<STNode> items = new ArrayList<>();
+        STToken nextToken = peek();
+        while (!isEndOfXMLContent(nextToken.kind)) {
+            STNode contentItem = parseXMLContentItem();
+            items.add(contentItem);
+            nextToken = peek();
+        }
+        return STNodeFactory.createNodeList(items);
+    }
+
+    /**
+     * Check whether the parser has reached the end of the back-tick literal.
+     * 
+     * @param kind Next token kind
+     * @return <code>true</code> if this is the end of the back-tick literal. <code>false</code> otherwise
+     */
+    private boolean isEndOfXMLContent(SyntaxKind kind) {
+        switch (kind) {
+            case EOF_TOKEN:
+            case BACKTICK_TOKEN:
+                return true;
+            case LT_TOKEN:
+                STToken nextNextToken = getNextNextToken(kind);
+                if (nextNextToken.kind == SyntaxKind.SLASH_TOKEN) {
+                    return true;
+                }
+                return false;
+            default:
+                return false;
+        }
+    }
+
+    private STNode parseXMLContentItem() {
+        STToken nextToken = peek();
+        STNode content = null;
+        switch (nextToken.kind) {
+            case LT_TOKEN:
+                content = parseXMLElement();
+                break;
+            case XML_COMMENT_START_TOKEN:
+                break;
+            case XML_PI_START_TOKEN:
+                break;
+            case INTERPOLATION_START_TOKEN:
+                content = parseInterpolation();
+                break;
+            default:
+                content = parseXMLText();
+                break;
+        }
+
+        return content;
+    }
+
+    /**
+     * Parse interpolation of a back-tick string.
+     * <p>
+     * <code>
+     * interpolation := ${ expression }
+     * </code>
+     * 
+     * @return Interpolation node
+     */
+    private STNode parseInterpolation() {
+        STNode interpolStart = parseInterpolationStart();
+        STNode expr = parseExpression();
+        STNode closeBrace = parseCloseBrace();
+        System.out.println(interpolStart + "" + String.valueOf(expr) +
+                // " (" + expr == null ? "XML" : String.valueOf(expr.kind) + ")" +
+                closeBrace);
+        return null;
+    }
+
+    /**
+     * Parse back-tick token.
+     *
+     * @return Back-tick token
+     */
+    private STNode parseBacktickToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.BACKTICK_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.BACKTICK_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse XML element.
+     * <p>
+     * <code>
+     * element := EmptyElemTag | STag content ETag 
+     * </code>
+     * 
+     * @return
+     */
+    private STNode parseXMLElement() {
+        STNode startTag = parseXMLElementStartOrEmptyTag();
+        STNode content = parseXMLContent();
+        STNode endTag = parseXMLElementEndTag();
+        return null;
+    }
+
+    /**
+     * Parse XML element start-tag or empty-tag.
+     * <p>
+     * <code>STag := '<' Name (S Attribute)* S? '>'
+     * <br/><br/>
+     * Attribute := Name Eq AttValue
+     * <br/><br/>
+     * EmptyElemTag := '<' Name (S Attribute)* S? '/>'
+     * </code>
+     * 
+     * @return XML element start tag
+     */
+    private STNode parseXMLElementStartOrEmptyTag() {
+        STNode tagOpen = parseLTToken();
+        STNode name = parseXMLNCName();
+        STNode tagClose = parseGTToken();
+        System.out.println(tagOpen + "" + name + "" + tagClose);
+        return null;
+    }
+
+    /**
+     * Parse XML element end tag.
+     * <p>
+     * <code>
+     * ETag := '< /' Name S? '>'
+     * </code>
+     * 
+     * @return XML element end tag
+     */
+    private STNode parseXMLElementEndTag() {
+        STNode tagOpen = parseLTToken();
+        STNode slash = parseSlashToken();
+        STNode name = parseXMLNCName();
+        STNode tagClose = parseGTToken();
+        System.out.println(tagOpen + "" + slash + "" + name + "" + tagClose);
+        return null;
+    }
+
+    /**
+     * Parse 'less-than' token (<).
+     *
+     * @return Less-than token
+     */
+    private STNode parseLTToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.LT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.LT_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse 'greater-than' token (>).
+     *
+     * @return greater-than token
+     */
+    private STNode parseGTToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.GT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.GT_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse XML name in non-canonicalized form.
+     * 
+     * @return XML name node
+     */
+    private STNode parseXMLNCName() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            return parseQualifiedIdentifier(consume());
+        } else {
+            Solution sol = recover(token, ParserRuleContext.XML_NAME);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse interpolation start token.
+     * <p>
+     * <code>interpolation-start := ${</code>
+     * 
+     * @return Interpolation start token
+     */
+    private STNode parseInterpolationStart() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.INTERPOLATION_START_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.INTERPOLATION_START_TOKEN);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse XML text.
+     * <p>
+     * <code>
+     * text := CharData?
+     * <br/>
+     * CharData :=  [^<&]* - ([^<&]* ']]>' [^<&]*)
+     * </code>
+     * 
+     * @return XML text node
+     */
+    private STNode parseXMLText() {
+        List<STNode> items = new ArrayList<>();
+        STToken nextToken = peek();
+        while (true) {
+            switch (nextToken.kind) {
+                case INTERPOLATION_START_TOKEN:
+                case EOF_TOKEN:
+                case BACKTICK_TOKEN:
+                case LT_TOKEN:
+                    break;
+                default:
+                    STNode content = parseCharData();
+                    items.add(content);
+                    nextToken = peek();
+                    continue;
+            }
+
+            break;
+        }
+        return STNodeFactory.createNodeList(items);
+    }
+
+    /**
+     * parse XML char-data.
+     * 
+     * @return XML char-data token
+     */
+    private STNode parseCharData() {
+        STToken text = consume();
+        System.out.println(text);
+        return text;
     }
 }

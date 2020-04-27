@@ -78,7 +78,7 @@ public class BallerinaBacktickTemplateParser extends BallerinaParser {
     }
 
     private STNode parseXML(STNode xmlKeyword) {
-        this.tokenReader.switchMode(ParserMode.XML_CONTENT);
+        this.tokenReader.startMode(ParserMode.XML_CONTENT);
         STNode startingBackTick = parseBacktickToken();
         STNode content = parseXMLContent();
         STNode endingBackTick = parseBacktickToken();
@@ -145,11 +145,11 @@ public class BallerinaBacktickTemplateParser extends BallerinaParser {
         STNode interpolStart = parseInterpolationStart();
 
         // switch to default mode and parse expressions.
-        this.tokenReader.resetMode();
+        this.tokenReader.endMode();
         STNode expr = parseExpression();
 
         // Revert back the to previous mode
-        this.tokenReader.switchMode(currentMode);
+        this.tokenReader.startMode(currentMode);
 
         STNode closeBrace = parseCloseBrace();
         System.out.println(interpolStart + "" + String.valueOf(expr) +
@@ -248,7 +248,7 @@ public class BallerinaBacktickTemplateParser extends BallerinaParser {
     }
 
     private STNode parseXMLText() {
-        this.tokenReader.switchMode(ParserMode.XML_TEXT);
+        this.tokenReader.startMode(ParserMode.XML_TEXT);
         List<STNode> items = new ArrayList<>();
         STToken nextToken = peek();
         while (true) {

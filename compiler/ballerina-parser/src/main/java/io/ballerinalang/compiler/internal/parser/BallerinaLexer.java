@@ -22,6 +22,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,11 +35,14 @@ public class BallerinaLexer {
 
     private CharReader reader;
     private List<STNode> leadingTriviaList;
-    private ParserMode mode = ParserMode.DEFAULT;
+    private ParserMode mode;
+    private ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
     private final BallerinaParserErrorListener errorListener = new BallerinaParserErrorListener();
+    private STToken lastToken = null;
 
     public BallerinaLexer(CharReader charReader) {
         this.reader = charReader;
+        startMode(ParserMode.DEFAULT);
     }
 
     /**
@@ -51,17 +55,32 @@ public class BallerinaLexer {
         switch (this.mode) {
             case DEFAULT:
             case IMPORT:
-                return readToken();
+                this.lastToken = readToken();
+                break;
             case XML_CONTENT:
-                return readXMLContentToken();
-            case XML_ELEMENT:
-                return readXMLElementToken();
+                this.lastToken = readTokenInXMLContent();
+                break;
+            case XML_ELEMENT_START_TAG:
+                this.lastToken = readTokenInXMLElement(true);
+                break;
+            case XML_ELEMENT_END_TAG:
+                this.lastToken = readTokenInXMLElement(false);
+                break;
             case XML_TEXT:
-                return readXMLTextToken();
+                this.lastToken = readTokenInXMLText();
+                break;
+            case INTERPOLATION:
+                this.lastToken = readTokenInInterpolation();
+                break;
+            case INTERPOLATION_BRACED_CONTENT:
+                this.lastToken = readTokenInBracedContentInInterpolation();
+                break;
             default:
                 // should never reach here.
-                return null;
+                break;
         }
+
+        return this.lastToken;
     }
 
     public void reset(int offset) {
@@ -69,19 +88,21 @@ public class BallerinaLexer {
     }
 
     /**
-     * Switch the mode of the lexer to the given mode.
+     * Start the given operation mode of the lexer.
      * 
      * @param mode Mode to switch on to
      */
-    public void switchMode(ParserMode mode) {
+    public void startMode(ParserMode mode) {
         this.mode = mode;
+        this.modeStack.push(mode);
     }
 
     /**
-     * Switch the mode of the lexer to {@link ParserMode#DEFAULT}.
+     * End the current mode the mode of the lexer and fall back the previous mode.
      */
-    public void resetMode() {
-        this.mode = ParserMode.DEFAULT;
+    public void endMode() {
+        this.modeStack.pop();
+        this.mode = this.modeStack.peek();
     }
 
     /*
@@ -208,8 +229,10 @@ public class BallerinaLexer {
                 token = getSyntaxToken(SyntaxKind.NEGATION_TOKEN);
                 break;
             case LexerTerminals.BACKTICK:
-                // token = getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
-                token = processBacktickString();
+                if (this.lastToken.kind == SyntaxKind.XML_KEYWORD) {
+                    startMode(ParserMode.XML_CONTENT);
+                }
+                token = getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
                 break;
 
             // Numbers
@@ -1035,101 +1058,62 @@ public class BallerinaLexer {
         return STNodeFactory.createDocumentationLineToken(lexeme, leadingTrivia, trailingTrivia);
     }
 
-    private STToken processBacktickString() {
-        int nextToken;
-        while (!reader.isEOF()) {
-            nextToken = peek();
-            switch (nextToken) {
-                case LexerTerminals.BACKTICK:
-                    reader.advance();
-                    break;
-                case LexerTerminals.DOLLAR:
-                    if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
-                        reader.advance(2);
-                        processInterpolation();
-                        continue;
-                    }
-                    // fall through
-                default:
-                    reader.advance();
-                    nextToken = peek();
-                    continue;
-            }
-            break;
-        }
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * INTERPOLATION Mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
 
-        return getLiteral(SyntaxKind.BACKTICK_STRING);
-    }
-
-    private void processInterpolation() {
-        int nextToken;
-        while (!reader.isEOF()) {
-            nextToken = peek();
-            switch (nextToken) {
-                case LexerTerminals.DOUBLE_QUOTE:
-                    reader.advance();
-                    processQuotedStringInInterpolation();
-                    continue;
-                case LexerTerminals.OPEN_BRACE:
-                    reader.advance();
-                    processBracedExprInInterpolation();
-                    continue;
-                case LexerTerminals.CLOSE_BRACE:
-                    reader.advance();
-                    return;
-                default:
-                    reader.advance();
-                    nextToken = peek();
-                    continue;
-            }
+    private STToken readTokenInInterpolation() {
+        int nextToken = peek();
+        switch (nextToken) {
+            case LexerTerminals.OPEN_BRACE:
+                // Start braced-content mode. This is to keep track of the
+                // open-brace and the corresponding close-brace. This way,
+                // those will not be mistaken as the close-brace of the
+                // interpolation end.
+                startMode(ParserMode.INTERPOLATION_BRACED_CONTENT);
+                return readToken();
+            case LexerTerminals.CLOSE_BRACE:
+                // Close-brace in the interpolation mode definitely means its
+                // then end of the interpolation.
+                endMode();
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+            case LexerTerminals.BACKTICK:
+                // If we are inside the interpolation, that means its no longer XML
+                // mode, but in default mode. Hence treat the back-tick in the same
+                // way as in the default mode.
+            default:
+                // Otherwise read the token from default mode.
+                return readToken();
         }
     }
 
-    private void processBracedExprInInterpolation() {
-        int nextToken;
-        while (!reader.isEOF()) {
-            nextToken = peek();
-            switch (nextToken) {
-                case LexerTerminals.DOUBLE_QUOTE:
-                    reader.advance();
-                    processQuotedStringInInterpolation();
-                    continue;
-                case LexerTerminals.OPEN_BRACE:
-                    reader.advance();
-                    processBracedExprInInterpolation();
-                    continue;
-                case LexerTerminals.CLOSE_BRACE:
-                    reader.advance();
-                    return;
-                default:
-                    reader.advance();
-                    nextToken = peek();
-                    continue;
-            }
-        }
-    }
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * INTERPOLATION_BRACED_CONTENT Mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
 
-    private void processQuotedStringInInterpolation() {
-        int nextToken;
-        while (!reader.isEOF()) {
-            nextToken = peek();
-            switch (nextToken) {
-                case LexerTerminals.DOUBLE_QUOTE:
-                    reader.advance();
-                    return;
-                case LexerTerminals.BACKSLASH:
-                    if (reader.peek(1) == LexerTerminals.DOUBLE_QUOTE) {
-                        reader.advance(2);
-                    } else {
-                        reader.advance();
-                    }
-                    continue;
-                default:
-                    reader.advance();
-                    continue;
-            }
+    private STToken readTokenInBracedContentInInterpolation() {
+        int nextToken = peek();
+        switch (nextToken) {
+            case LexerTerminals.OPEN_BRACE:
+                startMode(ParserMode.INTERPOLATION_BRACED_CONTENT);
+                break;
+            case LexerTerminals.CLOSE_BRACE:
+                endMode();
+                break;
+            case LexerTerminals.BACKTICK:
+                endMode();
+                return readToken();
+            default:
+                // Otherwise read the token from default mode.
+                break;
         }
 
+        return readToken();
     }
 
     /*
@@ -1138,7 +1122,16 @@ public class BallerinaLexer {
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readXMLContentToken() {
+    /**
+     * Read the next token in the {@link ParserMode#XML_CONTENT} mode.
+     * <p>
+     * <code>
+     * content :=  CharData? ((element | Reference | CDSect | PI | Comment) CharData?)*
+     * </code>
+     * 
+     * @return Next token
+     */
+    private STToken readTokenInXMLContent() {
         reader.mark();
         if (reader.isEOF()) {
             return getSyntaxToken(SyntaxKind.EOF_TOKEN);
@@ -1147,8 +1140,11 @@ public class BallerinaLexer {
         int nextChar = reader.peek();
         switch (nextChar) {
             case LexerTerminals.BACKTICK:
-                reader.advance();
-                return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+                // Back tick means the end of currently processing xml content as
+                // well as the end of entire XML literal. Hence end the context,
+                // and start unwinding.
+                endMode();
+                return nextToken();
             case LexerTerminals.LT:
                 reader.advance();
                 nextChar = reader.peek();
@@ -1160,17 +1156,21 @@ public class BallerinaLexer {
                         // TODO: XML-PI
                         break;
                     case LexerTerminals.SLASH:
-                        // this is the end token.
+                        endMode();
+                        startMode(ParserMode.XML_ELEMENT_END_TAG);
+                        return getSyntaxToken(SyntaxKind.LT_TOKEN);
                     default:
-                        switchMode(ParserMode.XML_ELEMENT);
+                        startMode(ParserMode.XML_ELEMENT_START_TAG);
                         return getSyntaxToken(SyntaxKind.LT_TOKEN);
                 }
             case LexerTerminals.DOLLAR:
-                if (peek() != LexerTerminals.OPEN_BRACE) {
-                    break;
+                if (reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                    // Switch to interpolation mode. Then the next token will be read in that mode.
+                    startMode(ParserMode.INTERPOLATION);
+                    reader.advance(2);
+                    return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
                 }
-                reader.advance();
-                return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
+                break;
             case LexerTerminals.GT:
                 reportLexerError("invalid token: " + String.valueOf(nextChar));
                 break;
@@ -1179,7 +1179,8 @@ public class BallerinaLexer {
         }
 
         // Everything else treat as charData
-        return readXMLTextToken();
+        startMode(ParserMode.XML_TEXT);
+        return readTokenInXMLText();
     }
 
     /*
@@ -1188,47 +1189,83 @@ public class BallerinaLexer {
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readXMLElementToken() {
+    /**
+     * Read the next token in an XML element. Precisely this will operate on {@link ParserMode#XML_ELEMENT_START_TAG} or
+     * {@link ParserMode#XML_ELEMENT_END_TAG} mode.
+     * <p>
+     * <code>element := EmptyElemTag | STag content ETag</code>
+     * 
+     * @param isStartTag Flag indicating whether the next token should be read in start-tag or the end-tag
+     * @return Next token
+     */
+    private STToken readTokenInXMLElement(boolean isStartTag) {
         reader.mark();
         if (reader.isEOF()) {
             return getSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
 
         int c = reader.peek();
-        reader.advance();
-        STToken token;
         switch (c) {
-            // Separators
             case LexerTerminals.LT:
-                token = getSyntaxToken(SyntaxKind.LT_TOKEN);
-                break;
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.LT_TOKEN);
             case LexerTerminals.GT:
-                token = getSyntaxToken(SyntaxKind.GT_TOKEN);
-                switchMode(ParserMode.XML_CONTENT);
-                break;
+                endMode();
+                if (isStartTag) {
+                    startMode(ParserMode.XML_CONTENT);
+                }
+
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.GT_TOKEN);
             case LexerTerminals.SLASH:
-                token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
-                break;
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.SLASH_TOKEN);
             case LexerTerminals.COLON:
-                token = getSyntaxToken(SyntaxKind.COLON_TOKEN);
-                break;
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.COLON_TOKEN);
             case LexerTerminals.DOLLAR:
                 if (peek() == LexerTerminals.OPEN_BRACE) {
                     reader.advance();
-                    token = getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
-                    break;
+                    startMode(ParserMode.INTERPOLATION);
+                    return getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
                 }
-                // fall through
+                reader.advance();
+                break;
             case LexerTerminals.BACKTICK:
-                // TODO:
+                // Back tick means the end of currently processing element as well as
+                // the end of entire XML literal. Hence end the context, and start
+                // unwinding.
+                endMode();
+                return nextToken();
             default:
-                token = processXMLName(c);
                 break;
         }
 
-        return token;
+        return processXMLName(c);
     }
 
+    /**
+     * Process XML name token in the non-canonicalized form.
+     * <p>
+     * <code>
+     * NCName := Name - (Char* ':' Char*)
+     * <br/><br/>
+     * Name := NameStartChar (NameChar)*
+     * <br/><br/>
+     * NameStartChar := ":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D]
+     *                | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF]
+     *                | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
+     * <br/><br/>
+     * NameChar := NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
+     * <br/><br/>
+     * Char := #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
+     * 
+     * </code>
+     * 
+     * 
+     * @param startChar Starting character of the XML name
+     * @return XML name token
+     */
     private STToken processXMLName(int startChar) {
         boolean isValid = true;
         if (!XMLValidator.isNCNameStart(startChar)) {
@@ -1253,43 +1290,57 @@ public class BallerinaLexer {
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readXMLTextToken() {
-        switchMode(ParserMode.XML_TEXT);
+    /**
+     * Read token form the XML text (i.e.: charData).
+     * <p>
+     * <code>
+     * text := CharData?
+     * <br/>
+     * CharData :=  [^<&]* - ([^<&]* ']]>' [^<&]*)
+     * </code>
+     * 
+     * @return Next token
+     */
+    private STToken readTokenInXMLText() {
         reader.mark();
         if (reader.isEOF()) {
             return getSyntaxToken(SyntaxKind.EOF_TOKEN);
         }
 
         int nextChar = reader.peek();
-        STToken token;
         switch (nextChar) {
             case LexerTerminals.DOLLAR:
                 if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
-                    reader.advance(2);
-                    token = getSyntaxToken(SyntaxKind.INTERPOLATION_START_TOKEN);
-                    break;
+                    // End XML_TEXT mode and return the next token from
+                    // the parent mode, which is the XML_CONTENT.
+                    endMode();
+                    return nextToken();
                 }
-                // fall through
+                break;
+            case LexerTerminals.BACKTICK:
+                // Back tick means the end of currently processing text as well as
+                // the end of entire XML literal. Hence end the context, and start
+                // unwinding.
+                endMode();
+                return nextToken();
             default:
-                token = getXMLCharacterData();
                 break;
         }
 
-        return token;
+        return getXMLCharacterData();
     }
 
     private STToken getXMLCharacterData() {
         while (!reader.isEOF()) {
             int nextChar = this.reader.peek();
             switch (nextChar) {
-                case LexerTerminals.BACKTICK:
-                    switchMode(ParserMode.XML_CONTENT);
-                    break;
                 case LexerTerminals.LT:
-                    switchMode(ParserMode.XML_ELEMENT);
+                    startMode(ParserMode.XML_ELEMENT_START_TAG);
                     break;
                 case LexerTerminals.DOLLAR:
                     if (this.reader.peek(1) == LexerTerminals.OPEN_BRACE) {
+                        // Interpolation start is the end of the char data.
+                        endMode();
                         break;
                     }
                     reader.advance();
@@ -1299,6 +1350,8 @@ public class BallerinaLexer {
                     reportLexerError("invalid token in xml text: " + nextChar);
                     reader.advance();
                     continue;
+                case LexerTerminals.BACKTICK:
+                    break;
                 default:
                     // TODO: ']]>' should also terminate charData?
                     reader.advance();
