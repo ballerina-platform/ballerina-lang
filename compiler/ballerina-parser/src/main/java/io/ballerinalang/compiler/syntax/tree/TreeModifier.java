@@ -316,6 +316,19 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(ForkStatementNode forkStatementNode) {
+        Token forkKeyword = modifyToken(forkStatementNode.forkKeyword());
+        Token openBraceToken = modifyToken(forkStatementNode.openBraceToken());
+        NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations = modifyNodeList(forkStatementNode.namedWorkerDeclarations());
+        Token closeBraceToken = modifyToken(forkStatementNode.closeBraceToken());
+        return forkStatementNode.modify(
+                forkKeyword,
+                openBraceToken,
+                namedWorkerDeclarations,
+                closeBraceToken);
+    }
+
+    @Override
     public Node transform(BinaryExpressionNode binaryExpressionNode) {
         Node lhsExpr = modifyNode(binaryExpressionNode.lhsExpr());
         Token operator = modifyToken(binaryExpressionNode.operator());

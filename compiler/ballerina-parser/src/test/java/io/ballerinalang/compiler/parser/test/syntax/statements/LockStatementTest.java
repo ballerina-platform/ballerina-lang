@@ -20,9 +20,9 @@ package io.ballerinalang.compiler.parser.test.syntax.statements;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing object type definitions.
+ * Test parsing Lock statements.
  */
-public class LockStatement extends AbstractStatementTest {
+public class LockStatementTest extends AbstractStatementTest {
 
     // Valid syntax tests
 

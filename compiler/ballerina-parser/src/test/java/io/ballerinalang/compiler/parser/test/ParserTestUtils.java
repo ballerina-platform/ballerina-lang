@@ -413,6 +413,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ANYDATA_KEYWORD;
             case "NEVER_KEYWORD":
                 return SyntaxKind.NEVER_KEYWORD;
+            case "FORK_KEYWORD":
+                return SyntaxKind.FORK_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -581,6 +583,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ACTION_STATEMENT;
             case "LOCK_STATEMENT":
                 return SyntaxKind.LOCK_STATEMENT;
+            case "FORK_STATEMENT":
+                return SyntaxKind.FORK_STATEMENT;
 
             // Types
             case "TYPE_DESC":
