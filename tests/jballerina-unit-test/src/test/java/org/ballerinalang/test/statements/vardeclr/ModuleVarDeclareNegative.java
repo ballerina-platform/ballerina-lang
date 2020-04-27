@@ -25,19 +25,19 @@ import org.testng.annotations.Test;
 /**
  * Class to test module variable declaration negative.
  *
- * @since 1.2.2
+ * @since 1.3.0
  */
 public class ModuleVarDeclareNegative {
 
     @Test
     public void setup() {
-        CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/module-var-declare-negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/module_var_declare_negative.bal");
 
         Assert.assertEquals(result.getErrorCount(), 4);
         int i = 0;
-        BAssertUtil.validateError(result, i++, "uninitialized variable 's'", 2, 1);
-        BAssertUtil.validateError(result, i++, "uninitialized variable 'a'", 3, 1);
-        BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 16, 13);
-        BAssertUtil.validateError(result, i, "variable 's' is not initialized", 17, 18);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 's'", 18, 1);
+        BAssertUtil.validateError(result, i++, "uninitialized variable 'a'", 19, 1);
+        BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 32, 13);
+        BAssertUtil.validateError(result, i, "variable 's' is not initialized", 33, 18);
     }
 }

@@ -25,7 +25,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test module variable declaration.
  *
- * @since 1.2.2
+ * @since 1.3.0
  */
 public class ModuleVarDeclareTest {
 
@@ -33,7 +33,7 @@ public class ModuleVarDeclareTest {
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/statements/vardeclr/module-var-declare.bal");
+        result = BCompileUtil.compile("test-src/statements/vardeclr/module_var_declare.bal");
     }
 
     @Test

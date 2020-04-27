@@ -274,14 +274,14 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             }
         });
 
-        sortedListOfNodes.forEach(topLevelNode -> {
+        for (TopLevelNode topLevelNode : sortedListOfNodes) {
             if (isModuleInitFunction((BLangNode) topLevelNode)) {
                 analyzeModuleInitFunc((BLangFunction) topLevelNode);
-                checkForUninitializedGlobalVar(pkgNode.globalVars);
             } else {
                 analyzeNode((BLangNode) topLevelNode, env);
             }
-        });
+        }
+        checkForUninitializedGlobalVars(pkgNode.globalVars);
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         this.globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
         this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency);
@@ -290,24 +290,24 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isModuleInitFunction(BLangNode node) {
-        if (node.getKind() == NodeKind.FUNCTION &&
-                Names.USER_DEFINED_INIT_SUFFIX.value.equals(((BLangFunction) node).name.value)) {
-            return true;
-        }
-        return false;
+        return node.getKind() == NodeKind.FUNCTION &&
+                Names.USER_DEFINED_INIT_SUFFIX.value.equals(((BLangFunction) node).name.value);
     }
 
     private void analyzeModuleInitFunc(BLangFunction funcNode) {
         this.currDependentSymbol.push(funcNode.symbol);
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
+        for (BLangAnnotationAttachment bLangAnnotationAttachment : funcNode.annAttachments) {
+            analyzeNode(bLangAnnotationAttachment.expr, env);
+        }
         analyzeNode(funcNode.body, funcEnv);
         this.currDependentSymbol.pop();
     }
 
-    private void checkForUninitializedGlobalVar(List<BLangSimpleVariable> globalVars) {
+    private void checkForUninitializedGlobalVars(List<BLangSimpleVariable> globalVars) {
         for (BLangSimpleVariable globalVar : globalVars) {
             if (this.uninitializedVars.containsKey(globalVar.symbol)) {
-                this.dlog.error(globalVar.pos, DiagnosticCode.UNINITIALIZED_MODULE_VARIABLE, globalVar.name);
+                this.dlog.error(globalVar.pos, DiagnosticCode.UNINITIALIZED_VARIABLE, globalVar.name);
             }
         }
     }
@@ -1190,7 +1190,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.closureVarSymbols.forEach(closureVarSymbol -> {
             if (this.uninitializedVars.keySet().contains(closureVarSymbol.bSymbol)) {
-                this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.UNINITIALIZED_VARIABLE,
+                this.dlog.error(closureVarSymbol.diagnosticPos, DiagnosticCode.USAGE_OF_UNINITIALIZED_VARIABLE,
                         closureVarSymbol.bSymbol);
             }
         });
@@ -1543,7 +1543,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         }
 
         if (initStatus == InitStatus.UN_INIT) {
-            this.dlog.error(pos, DiagnosticCode.UNINITIALIZED_VARIABLE, symbol.name);
+            this.dlog.error(pos, DiagnosticCode.USAGE_OF_UNINITIALIZED_VARIABLE, symbol.name);
             return;
         }
 
