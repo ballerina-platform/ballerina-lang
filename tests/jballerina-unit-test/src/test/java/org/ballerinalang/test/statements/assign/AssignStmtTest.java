@@ -219,8 +219,6 @@ public class AssignStmtTest {
                                   "incompatible types: expected '(error|int[])', found 'error[]'", 127, 21);
         BAssertUtil.validateError(resultNegative, i++,
                                   "incompatible types: expected '(int|error[])', found 'error'", 132, 21);
-//        BAssertUtil.validateError(resultNegative, i++,
-//                                  "incompatible types: expected '(int|error[])', found 'error'", 132, 21);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
