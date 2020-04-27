@@ -1509,7 +1509,7 @@
         },
         {
             "name": "ParameterizedTypeDescriptorNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "PARAMETERIZED_TYPE_DESC",
             "attributes": [
                 {
