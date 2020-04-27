@@ -82,6 +82,8 @@ public class ProjectDirConstants {
 
     public static final String FILE_NAME_DELIMITER = "-";
 
+    public static final String JAR_FILE_SYSTEM = "jar:";
+
     // Balo specific constants
     public static final String BALO_METADATA_DIR_NAME = "metadata";
     public static final String BALO_METADATA_FILE = "BALO.toml";

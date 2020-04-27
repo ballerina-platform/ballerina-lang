@@ -69,6 +69,7 @@ public class ByteChannelUtils extends AbstractNativeChannel {
     private static final String TARGET = "target";
     private static final String BIN = "bin";
     private static final String JAR = ".jar";
+    private static final String DEFAULT_BAL_PROJECT_VERSION = "0.1.0";
 
     private ByteChannelUtils() {
     }
@@ -149,7 +150,7 @@ public class ByteChannelUtils extends AbstractNativeChannel {
     public static Object getResource(String pathUrl) {
         String[] className = Thread.currentThread().getStackTrace()[4].getClassName().split("\\.");
         String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1]
-                + File.separator + pathUrl;
+                + File.separator + DEFAULT_BAL_PROJECT_VERSION + File.separator + pathUrl;
         String executablePath = TARGET + File.separator + BIN + File.separator + className[1] + JAR;
 
         InputStream resourceAsStream = ByteChannelUtils.class.getClassLoader().getResourceAsStream(resourcePath);
@@ -175,7 +176,7 @@ public class ByteChannelUtils extends AbstractNativeChannel {
         String[] className = Thread.currentThread().getStackTrace()[5].getClassName().split("\\.");
         String executablePath = TARGET + File.separator + BIN + File.separator + className[1] + JAR;
         String resourcePath = RESOURCES + File.separator + className[0] + File.separator + className[1]
-                + File.separator;
+                + File.separator + DEFAULT_BAL_PROJECT_VERSION + File.separator;
 
         try (ZipFile zipFile = new ZipFile(executablePath)) {
             Enumeration<? extends ZipEntry> entries = zipFile.entries();
@@ -191,7 +192,7 @@ public class ByteChannelUtils extends AbstractNativeChannel {
             }
             return (ArrayValue) BValueCreator.createArrayValue(results);
         } catch (IOException e) {
-            return null;
+            return (ArrayValue) IOUtils.createError("Error unzipping file: " + executablePath);
         }
     }
 
