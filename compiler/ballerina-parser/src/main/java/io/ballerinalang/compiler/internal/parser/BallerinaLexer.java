@@ -417,7 +417,7 @@ public class BallerinaLexer {
             return getSyntaxToken(SyntaxKind.ELLIPSIS_TOKEN);
         }
         if (this.mode != ParserMode.IMPORT && isDigit(reader.peek())) {
-            return processDecimalFloatLiteral(true);
+            return processDecimalFloatLiteral();
         }
         return getSyntaxToken(SyntaxKind.DOT_TOKEN);
     }
@@ -519,11 +519,11 @@ public class BallerinaLexer {
 
                     // Integer part of the float cannot have a leading zero
                     if (startChar == '0' && len > 1) {
-                        processInvalidToken();
-                        return readToken();
+                        break;
                     }
 
-                    return processDecimalFloatLiteral(false);
+                    // Code would not reach here if the floating point starts with a dot
+                    return processDecimalFloatLiteral();
                 default:
                     if (isDigit(nextChar)) {
                         reader.advance();
@@ -536,8 +536,9 @@ public class BallerinaLexer {
             break;
         }
 
-        // Integer cannot have a leading zero
+        // Integer or integer part of the float cannot have a leading zero
         if (startChar == '0' && len > 1) {
+            reportLexerError("extra leading zero");
             processInvalidToken();
             return readToken();
         }
@@ -564,42 +565,24 @@ public class BallerinaLexer {
      * FloatTypeSuffix :=  f | F
      * </code>
      *
-     * @param isDotStart Whether process starts from a dot
      * @return The decimal floating point literal.
      */
-    private STToken processDecimalFloatLiteral(boolean isDotStart) {
+    private STToken processDecimalFloatLiteral() {
         int nextChar = peek();
 
-        // Direct process to the dot switch case
-        if (isDotStart) {
-            nextChar = LexerTerminals.DOT;
+        // For float literals start with a DOT, this condition will always be false,
+        // as the reader is already advanced for the DOT before coming here.
+        if (nextChar == LexerTerminals.DOT) {
+            reader.advance();
+            nextChar = peek();
+        }
+
+        while (isDigit(nextChar)) {
+            reader.advance();
+            nextChar = peek();
         }
 
         switch (nextChar) {
-            case LexerTerminals.DOT:
-                if (!isDotStart) { // Advance only if it is not already validated
-                    reader.advance();
-                }
-                nextChar = peek();
-                while (true) {
-                    if (isDigit(nextChar)) {
-                        reader.advance();
-                        nextChar = peek();
-                        continue;
-                    }
-                    break;
-                }
-                switch (nextChar) {
-                    case 'e':
-                    case 'E':
-                        return processExponent(false);
-                    case 'f':
-                    case 'F':
-                    case 'd':
-                    case 'D':
-                        return parseFloatingPointTypeSuffix();
-                }
-                break;
             case 'e':
             case 'E':
                 return processExponent(false);
@@ -649,17 +632,14 @@ public class BallerinaLexer {
 
         // Make sure at least one digit is present after the indicator
         if (!isDigit(nextChar)) {
+            reportLexerError("missing digit");
             processInvalidToken();
             return readToken();
         }
 
-        while (true) {
-            if (isDigit(nextChar)) {
-                reader.advance();
-                nextChar = peek();
-                continue;
-            }
-            break;
+        while (isDigit(nextChar)) {
+            reader.advance();
+            nextChar = peek();
         }
 
         if (isHex) {
@@ -724,12 +704,11 @@ public class BallerinaLexer {
         reader.advance();
 
         // Make sure at least one hex-digit present if processing started from a dot
-        if (peek() == LexerTerminals.DOT) {
-            if (!isHexDigit(reader.peek(1))) {
-                reader.advance();
-                processInvalidToken();
-                return readToken();
-            }
+        if (peek() == LexerTerminals.DOT && !isHexDigit(reader.peek(1))) {
+            reader.advance();
+            reportLexerError("missing hex-digit");
+            processInvalidToken();
+            return readToken();
         }
 
         int nextChar;
@@ -742,13 +721,9 @@ public class BallerinaLexer {
             case LexerTerminals.DOT:
                 reader.advance();
                 nextChar = peek();
-                while (true) {
-                    if (isHexDigit(nextChar)) {
-                        reader.advance();
-                        nextChar = peek();
-                        continue;
-                    }
-                    break;
+                while (isHexDigit(nextChar)) {
+                    reader.advance();
+                    nextChar = peek();
                 }
                 switch (nextChar) {
                     case 'p':

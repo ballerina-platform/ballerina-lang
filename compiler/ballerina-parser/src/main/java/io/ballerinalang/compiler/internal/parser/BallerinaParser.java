@@ -3051,6 +3051,7 @@ public class BallerinaParser {
         switch (expression.kind) {
             case IDENTIFIER_TOKEN:
             case QUALIFIED_NAME_REFERENCE:
+            case SIMPLE_NAME_REFERENCE:
                 return true;
             case FIELD_ACCESS:
                 return isValidLVExpr(((STFieldAccessExpressionNode) expression).expression);
