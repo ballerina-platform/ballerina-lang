@@ -24,7 +24,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class ElseBlockNode extends StatementNode {
+public class ElseBlockNode extends NonTerminalNode {
 
     public ElseBlockNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
@@ -34,7 +34,7 @@ public class ElseBlockNode extends StatementNode {
         return childInBucket(0);
     }
 
-    public BlockStatementNode elseBody() {
+    public StatementNode elseBody() {
         return childInBucket(1);
     }
 
@@ -57,7 +57,7 @@ public class ElseBlockNode extends StatementNode {
 
     public ElseBlockNode modify(
             Token elseKeyword,
-            BlockStatementNode elseBody) {
+            StatementNode elseBody) {
         if (checkForReferenceEquality(
                 elseKeyword,
                 elseBody)) {

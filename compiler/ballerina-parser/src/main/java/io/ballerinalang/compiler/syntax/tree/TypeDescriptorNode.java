@@ -15,34 +15,18 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.text;
+package io.ballerinalang.compiler.syntax.tree;
+
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 /**
- * A representation of a startOffset in the {@code TextDocument} in terms of a zero-based line number
- * and a zero-based character offset on that line.
+ * This is a generated syntax tree node.
+ *
+ * @since 1.3.0
  */
-public class TextPosition {
+public abstract class TypeDescriptorNode extends ExpressionNode {
 
-    /**
-     * Line number
-     */
-    private int line;
-
-    /**
-     * A zero-based character offset on the line
-     */
-    private int offset;
-
-    public TextPosition(int line, int offset) {
-        this.line = line;
-        this.offset = offset;
-    }
-
-    public int line() {
-        return line;
-    }
-
-    public int offset() {
-        return offset;
+    public TypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
+        super(internalNode, position, parent);
     }
 }

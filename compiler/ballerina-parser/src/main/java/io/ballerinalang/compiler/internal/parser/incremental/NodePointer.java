@@ -146,6 +146,6 @@ class NodePointer {
     }
 
     private boolean isZeroWidthNode(Node node) {
-        return node.spanWithMinutiae().width() == 0;
+        return node.textRangeWithMinutiae().length() == 0;
     }
 }

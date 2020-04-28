@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STObjectTypeDescriptorNode extends STNode {
+public class STObjectTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode objectTypeQualifiers;
     public final STNode objectKeyword;
     public final STNode openBrace;
@@ -40,7 +40,7 @@ public class STObjectTypeDescriptorNode extends STNode {
             STNode openBrace,
             STNode members,
             STNode closeBrace) {
-        super(SyntaxKind.OBJECT_TYPE_DESCRIPTOR);
+        super(SyntaxKind.OBJECT_TYPE_DESC);
         this.objectTypeQualifiers = objectTypeQualifiers;
         this.objectKeyword = objectKeyword;
         this.openBrace = openBrace;

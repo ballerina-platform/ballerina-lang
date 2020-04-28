@@ -39,7 +39,7 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testVarDeclStmtModification() {
         SyntaxTree syntaxTree = parseFile("variable_decl_stmt_modify.bal");
-        ModulePartNode oldRoot = syntaxTree.getModulePart();
+        ModulePartNode oldRoot = syntaxTree.modulePart();
 
         VariableDeclModifier variableDeclModifier = new VariableDeclModifier();
         ModulePartNode newRoot = (ModulePartNode) oldRoot.apply(variableDeclModifier);
@@ -55,13 +55,13 @@ public class SyntaxTreeModifierTest extends AbstractSyntaxTreeAPITest {
         Assert.assertNotEquals(newFuncNode, oldFuncNode);
         Assert.assertNotEquals(newStmt, oldStmt);
         Assert.assertEquals(newStmt.variableName().text(), oldStmt.variableName().text() + "new");
-        Assert.assertEquals(newStmt.spanWithMinutiae().width(), oldStmt.spanWithMinutiae().width() + 2);
+        Assert.assertEquals(newStmt.textRangeWithMinutiae().length(), oldStmt.textRangeWithMinutiae().length() + 2);
     }
 
     @Test
     public void testRenameIdentifierWithoutTrivia() {
         SyntaxTree syntaxTree = parseFile("variable_decl_stmt_modify.bal");
-        ModulePartNode oldRoot = syntaxTree.getModulePart();
+        ModulePartNode oldRoot = syntaxTree.modulePart();
 
         IdentifierModifier identifierModifier = new IdentifierModifier();
         ModulePartNode newRoot = (ModulePartNode) oldRoot.apply(identifierModifier);

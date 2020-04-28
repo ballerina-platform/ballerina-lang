@@ -17,7 +17,6 @@
 */
 package org.wso2.ballerinalang.compiler.parser;
 
-import io.ballerinalang.compiler.syntax.BLModules;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocuments;
@@ -141,11 +140,11 @@ public class Parser {
 
         // TODO We need a way to create a TextDocument from a byte[]
         TextDocument sourceText = TextDocuments.from(new String(code));
-        SyntaxTree syntaxTree = BLModules.parse(sourceText);
+        SyntaxTree syntaxTree = SyntaxTree.from(sourceText);
         // TODO we need a ModulePart -> BLCompilationUnit converter
         BLangCompUnitGen bLangCompUnitGen = new BLangCompUnitGen();
         return bLangCompUnitGen.getCompilationUnit(
-                syntaxTree.getModulePart(), this.context, diagnosticSource);
+                syntaxTree.modulePart(), this.context, diagnosticSource);
     }
 
     public BLangPackage parse(PackageSource pkgSource, Path sourceRootPath) {

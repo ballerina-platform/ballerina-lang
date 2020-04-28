@@ -18,10 +18,15 @@
 package io.ballerinalang.compiler.text;
 
 import io.ballerinalang.compiler.internal.parser.CharReader;
-import io.ballerinalang.compiler.text.TextLineMap.TextLine;
 
+/**
+ * The {@code StringTextDocument} represents a {@code TextDocument} created with a string.
+ *
+ * @since 2.0.0
+ */
 public class StringTextDocument extends TextDocument {
     private final String text;
+    private LineMap textLineMap;
 
     StringTextDocument(String text) {
         this.text = text;
@@ -44,18 +49,12 @@ public class StringTextDocument extends TextDocument {
     }
 
     @Override
-    // TODO Can we find a better alternative? This is the first approach that occurred to me ;-)
-    protected TextLine[] populateTextLineMap() {
-        String[] lines = text.split("\\R", -1);
-        TextLine[] textLines = new TextLine[lines.length];
-        int startingOffset = 0;
-        for (int line = 0; line < lines.length; line++) {
-            String text = lines[line];
-            int length = text.length();
-            textLines[line] = new TextLine(line, new TextRange(startingOffset, length), text);
-            startingOffset += length;
+    protected LineMap populateTextLineMap() {
+        if (textLineMap != null) {
+            return textLineMap;
         }
-        return textLines;
+        textLineMap = new LineMap(calculateTextLines());
+        return textLineMap;
     }
 
     @Override
@@ -65,5 +64,27 @@ public class StringTextDocument extends TextDocument {
 
     public String toString() {
         return text;
+    }
+
+    private TextLine[] calculateTextLines() {
+        // TODO Can we find a better alternative? This is the first approach that occurred to me ;-)
+        // TODO Here we are considering both \r and \n characters, but for now lengthOfNewLineChars=1
+        int lengthOfNewLineChars;
+        int startOffset = 0;
+        String[] strLines = text.split("\\r?\\n", -1);
+        int noOfLines = strLines.length;
+        TextLine[] textLines = new TextLine[noOfLines];
+        for (int index = 0; index < noOfLines; index++) {
+            lengthOfNewLineChars = isLastLine(index, noOfLines) ? 0 : 1;
+            String strLine = strLines[index];
+            int endOffset = startOffset + strLine.length();
+            textLines[index] = new TextLine(index, strLine, startOffset, endOffset, lengthOfNewLineChars);
+            startOffset = endOffset + lengthOfNewLineChars;
+        }
+        return textLines;
+    }
+
+    private boolean isLastLine(int index, int noOfLines) {
+        return index == (noOfLines - 1);
     }
 }

@@ -15,24 +15,30 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.internal.parser.tree;
+package io.ballerinalang.compiler.syntax.tree;
 
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.text.TextRange;
+import io.ballerinalang.compiler.text.LineRange;
 
-public class STTypeToken extends STToken {
-    public final String text;
+/**
+ * The {@code NodeLocation} represent the location of a {@code Node} in source code.
+ * <p>
+ * It is a combination of source file path, start and end line numbers, and start and end column numbers.
+ *
+ * @since 2.0.0
+ */
+public class NodeLocation {
+    private final Node node;
 
-    STTypeToken(SyntaxKind kind, String text, STNode leadingTrivia, STNode trailingTrivia) {
-        super(kind, text.length(), leadingTrivia, trailingTrivia);
-        this.text = text;
+    NodeLocation(Node node) {
+        this.node = node;
     }
 
-    public String text() {
-        return text;
+    public LineRange lineRange() {
+        return node.lineRange();
     }
 
-    @Override
-    public String toString() {
-        return leadingTrivia + text + trailingTrivia;
+    public TextRange textRange() {
+        return node.textRange();
     }
 }

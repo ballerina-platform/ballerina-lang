@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STElseBlockNode extends STStatementNode {
+public class STElseBlockNode extends STNode {
     public final STNode elseKeyword;
     public final STNode elseBody;
 

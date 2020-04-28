@@ -197,8 +197,6 @@ public class BallerinaParser {
                 return parseElseBody();
             case WHILE_KEYWORD:
                 return parseWhileKeyword();
-            case BOOLEAN_LITERAL:
-                return parseBooleanLiteral();
             case PANIC_KEYWORD:
                 return parsePanicKeyword();
             case MAJOR_VERSION:
@@ -285,6 +283,12 @@ public class BallerinaParser {
                 return parseConstDecl((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             case STMT_START_WITH_IDENTIFIER:
                 return parseStatementStartsWithIdentifier((STNode) args[0], (STNode) args[1]);
+            case PARAMETERIZED_TYPE_DESCRIPTOR:
+                return parseParameterizedTypeDescriptor();
+            case LT:
+                return parseLTToken();
+            case GT:
+                return parseGTToken();
             case NIL_LITERAL:
                 return parseNilLiteral();
             case RECORD_FIELD_OR_RECORD_END:
@@ -322,6 +326,8 @@ public class BallerinaParser {
                 return parseWorkerKeyword();
             case WORKER_NAME:
                 return parseWorkerName();
+            case FORK_KEYWORD:
+                return parseForkKeyword();
             case DECIMAL_FLOATING_POINT_LITERAL:
                 return parseDecimalFloatingPointLiteral();
             case HEX_FLOATING_POINT_LITERAL:
@@ -441,16 +447,7 @@ public class BallerinaParser {
             case CONST_KEYWORD:
             case ANNOTATION_KEYWORD:
             case XMLNS_KEYWORD:
-
             case SERVICE_KEYWORD:
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case RECORD_KEYWORD:
-            case OBJECT_KEYWORD:
-            case ABSTRACT_KEYWORD:
-            case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
-                // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
                 // TODO: add type binding pattern
                 metadata = createEmptyMetadata();
                 break;
@@ -463,6 +460,11 @@ public class BallerinaParser {
                 }
                 // Else fall through
             default:
+                if (isTypeStartingToken(tokenKind) && tokenKind != SyntaxKind.IDENTIFIER_TOKEN) {
+                    metadata = createEmptyMetadata();
+                    break;
+                }
+
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE);
 
@@ -518,17 +520,7 @@ public class BallerinaParser {
             case IMPORT_KEYWORD:
             case ANNOTATION_KEYWORD:
             case XMLNS_KEYWORD:
-
-                // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
                 // TODO: add type binding pattern
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case RECORD_KEYWORD:
-            case OBJECT_KEYWORD:
-            case ABSTRACT_KEYWORD:
-            case CLIENT_KEYWORD:
-            case SERVICE_KEYWORD:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
                 break;
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
@@ -539,6 +531,10 @@ public class BallerinaParser {
                 }
                 // Else fall through
             default:
+                if (isTypeStartingToken(tokenKind) && tokenKind != SyntaxKind.IDENTIFIER_TOKEN) {
+                    break;
+                }
+
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_METADATA, metadata);
 
@@ -1104,14 +1100,6 @@ public class BallerinaParser {
                 }
 
                 return parseModuleVarDecl(metadata, qualifier);
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case RECORD_KEYWORD:
-            case OBJECT_KEYWORD:
-            case ABSTRACT_KEYWORD:
-            case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
-                return parseModuleVarDecl(metadata, qualifier);
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
@@ -1120,6 +1108,10 @@ public class BallerinaParser {
                 }
                 // fall through
             default:
+                if (isTypeStartingToken(tokenKind) && tokenKind != SyntaxKind.IDENTIFIER_TOKEN) {
+                    return parseModuleVarDecl(metadata, qualifier);
+                }
+
                 STToken token = peek();
                 Solution solution =
                         recover(token, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER, metadata, qualifier);
@@ -1353,19 +1345,8 @@ public class BallerinaParser {
                 nextTokenKind = peek().kind;
                 break;
             case PUBLIC_KEYWORD:
-
-                // Type starting tokens. That means actual param starting
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case SERVICE_KEYWORD:
-            case RECORD_KEYWORD:
-            case OBJECT_KEYWORD:
-            case ABSTRACT_KEYWORD:
-            case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
                 annots = STNodeFactory.createNodeList(new ArrayList<>());
                 break;
-
             case IDENTIFIER_TOKEN:
                 // This is a early exit
                 if (isParamWithoutAnnotStart(nextTokenOffset)) {
@@ -1373,9 +1354,13 @@ public class BallerinaParser {
                     STNode qualifier = STNodeFactory.createEmptyNode();
                     return parseParamGivenAnnotsAndQualifier(leadingComma, annots, qualifier);
                 }
-
                 // else fall through
             default:
+                if (nextTokenKind != SyntaxKind.IDENTIFIER_TOKEN && isTypeStartingToken(nextTokenKind)) {
+                    annots = STNodeFactory.createNodeList(new ArrayList<>());
+                    break;
+                }
+
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.PARAMETER, leadingComma, nextTokenOffset);
 
@@ -1413,16 +1398,6 @@ public class BallerinaParser {
             case PUBLIC_KEYWORD:
                 qualifier = parseQualifier();
                 break;
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case SERVICE_KEYWORD:
-            case RECORD_KEYWORD:
-            case OBJECT_KEYWORD:
-            case ABSTRACT_KEYWORD:
-            case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
-                qualifier = STNodeFactory.createEmptyNode();
-                break;
             case IDENTIFIER_TOKEN:
                 // This is a early exit
                 if (isParamWithoutAnnotStart(nextTokenOffset)) {
@@ -1432,6 +1407,11 @@ public class BallerinaParser {
                 // fall through
             case AT_TOKEN: // Annotations can't reach here
             default:
+                if (isTypeStartingToken(nextTokenKind) && nextTokenKind != SyntaxKind.IDENTIFIER_TOKEN) {
+                    qualifier = STNodeFactory.createEmptyNode();
+                    break;
+                }
+
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.PARAMETER_WITHOUT_ANNOTS, leadingComma, annots,
                         nextTokenOffset);
@@ -1748,13 +1728,7 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseTypeDescriptor(SyntaxKind tokenKind) {
-
         switch (tokenKind) {
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case SERVICE_KEYWORD:
-                // simple type descriptor
-                return parseSimpleTypeDescriptor();
             case IDENTIFIER_TOKEN:
                 return parseTypeReference();
             case RECORD_KEYWORD:
@@ -1768,7 +1742,15 @@ public class BallerinaParser {
             case OPEN_PAREN_TOKEN:
                 // nil type descriptor '()'
                 return parseNilTypeDescriptor();
+            case MAP_KEYWORD: // map type desc
+            case FUTURE_KEYWORD: // future type desc
+            case TYPEDESC_KEYWORD: // typedesc type desc
+                return parseParameterizedTypeDescriptor();
             default:
+                if (isSimpleType(tokenKind)) {
+                    return parseSimpleTypeDescriptor();
+                }
+
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.TYPE_DESCRIPTOR);
 
@@ -1790,14 +1772,13 @@ public class BallerinaParser {
      */
     private STNode parseSimpleTypeDescriptor() {
         STToken node = peek();
-        switch (node.kind) {
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case SERVICE_KEYWORD:
-                return consume();
-            default:
-                Solution sol = recover(peek(), ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
-                return sol.recoveredNode;
+        if (isSimpleType(node.kind)) {
+            STToken token = consume();
+            SyntaxKind typeKind = getTypeSyntaxKind(token.kind);
+            return STNodeFactory.createBuiltinSimpleNameReferenceNode(typeKind, token);
+        } else {
+            Solution sol = recover(peek(), ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
+            return sol.recoveredNode;
         }
     }
 
@@ -2488,24 +2469,17 @@ public class BallerinaParser {
                 STNode fieldOrRestDesc = parseFieldDescriptor(isInclusive, type, metadata);
                 endContext();
                 return fieldOrRestDesc;
-            // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case SERVICE_KEYWORD:
-            case RECORD_KEYWORD:
-            case OBJECT_KEYWORD:
-            case ABSTRACT_KEYWORD:
-            case CLIENT_KEYWORD:
-            case IDENTIFIER_TOKEN:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
-                // individual-field-descriptor
-                startContext(ParserRuleContext.RECORD_FIELD);
-                metadata = createEmptyMetadata();
-                type = parseTypeDescriptor(nextTokenKind);
-                fieldOrRestDesc = parseFieldDescriptor(isInclusive, type, metadata);
-                endContext();
-                return fieldOrRestDesc;
             default:
+                if (isTypeStartingToken(nextTokenKind)) {
+                    // individual-field-descriptor
+                    startContext(ParserRuleContext.RECORD_FIELD);
+                    metadata = createEmptyMetadata();
+                    type = parseTypeDescriptor(nextTokenKind);
+                    fieldOrRestDesc = parseFieldDescriptor(isInclusive, type, metadata);
+                    endContext();
+                    return fieldOrRestDesc;
+                }
+
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.RECORD_FIELD_OR_RECORD_END, isInclusive);
 
@@ -2564,14 +2538,14 @@ public class BallerinaParser {
     private STNode parseQualifiedIdentifier(STNode identifier) {
         STToken nextToken = peek(1);
         if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
-            return identifier;
+            return STNodeFactory.createSimpleNameReferenceNode(identifier);
         }
 
         STToken nextNextToken = peek(2);
         if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             STToken colon = consume();
             STToken varOrFuncName = consume();
-            return STNodeFactory.createQualifiedIdentifierNode(identifier, colon, varOrFuncName);
+            return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
         } else {
             this.errorHandler.removeInvalidToken();
             return parseQualifiedIdentifier(identifier);
@@ -2763,18 +2737,7 @@ public class BallerinaParser {
                 break;
             case FINAL_KEYWORD:
 
-                // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case SERVICE_KEYWORD:
-            case RECORD_KEYWORD:
-            case OBJECT_KEYWORD:
-            case ABSTRACT_KEYWORD:
-            case CLIENT_KEYWORD:
-            case IDENTIFIER_TOKEN:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
-
-                // Other statements
+                // Statements starts other than var-decl
             case IF_KEYWORD:
             case WHILE_KEYWORD:
             case PANIC_KEYWORD:
@@ -2786,6 +2749,7 @@ public class BallerinaParser {
             case TYPE_KEYWORD:
             case LOCK_KEYWORD:
             case OPEN_BRACE_TOKEN:
+            case FORK_KEYWORD:
 
                 // Even-though worker is not a statement, we parse it as statements.
                 // then validates it based on the context. This is done to provide
@@ -2793,6 +2757,12 @@ public class BallerinaParser {
             case WORKER_KEYWORD:
                 break;
             default:
+                // Var-decl-stmt start
+                if (isTypeStartingToken(tokenKind)) {
+                    break;
+                }
+
+                // Expression-stmt start
                 if (isValidLHSExpression(tokenKind)) {
                     break;
                 }
@@ -2844,20 +2814,6 @@ public class BallerinaParser {
             case FINAL_KEYWORD:
                 STNode finalKeyword = parseFinalKeyword();
                 return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
-            // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case SERVICE_KEYWORD:
-            case RECORD_KEYWORD:
-            case OBJECT_KEYWORD:
-            case ABSTRACT_KEYWORD:
-            case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
-                // If the statement starts with a type, then its a var declaration.
-                // This is an optimization since if we know the next token is a type, then
-                // we can parse the var-def faster.
-                finalKeyword = STNodeFactory.createEmptyNode();
-                return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
             case IF_KEYWORD:
                 return parseIfElseBlock();
             case WHILE_KEYWORD:
@@ -2896,7 +2852,16 @@ public class BallerinaParser {
                 // then validates it based on the context. This is done to provide
                 // better error messages
                 return parseNamedWorkerDeclaration(getAnnotations(annots));
+            case FORK_KEYWORD:
+                return parseForkStatement();
             default:
+                if (isTypeStartingToken(tokenKind)) {
+                    // If the statement starts with a type, then its a var declaration.
+                    // This is an optimization since if we know the next token is a type, then
+                    // we can parse the var-def faster.
+                    finalKeyword = STNodeFactory.createEmptyNode();
+                    return parseVariableDecl(getAnnotations(annots), finalKeyword, false);
+                }
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.STATEMENT_WITHOUT_ANNOTS, annots);
 
@@ -3102,7 +3067,8 @@ public class BallerinaParser {
     private boolean isValidLVExpr(STNode expression) {
         switch (expression.kind) {
             case IDENTIFIER_TOKEN:
-            case QUALIFIED_IDENTIFIER:
+            case QUALIFIED_NAME_REFERENCE:
+            case SIMPLE_NAME_REFERENCE:
                 return true;
             case FIELD_ACCESS:
                 return isValidLVExpr(((STFieldAccessExpressionNode) expression).expression);
@@ -3152,9 +3118,11 @@ public class BallerinaParser {
             case HEX_INTEGER_LITERAL:
             case STRING_LITERAL:
             case NULL_KEYWORD:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
-                return parseLiteral();
+                return parseBasicLiteral();
             case IDENTIFIER_TOKEN:
                 return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
             case OPEN_PAREN_TOKEN:
@@ -3164,9 +3132,6 @@ public class BallerinaParser {
                     return parseNilLiteral();
                 }
                 return parseBracedExpression(isRhsExpr, allowActions);
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-                return parseBooleanLiteral();
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
                 // In the checking action, nested actions are allowed. And thats the only
@@ -3455,8 +3420,6 @@ public class BallerinaParser {
             case PUBLIC_KEYWORD:
             case FUNCTION_KEYWORD:
             case EOF_TOKEN:
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
             case CONST_KEYWORD:
             case LISTENER_KEYWORD:
             case EQUAL_TOKEN:
@@ -3465,17 +3428,18 @@ public class BallerinaParser {
             case AS_KEYWORD:
                 return true;
             default:
-                return false;
+                return isSimpleType(tokenKind);
         }
     }
 
     /**
-     * Parse basic literals. It is assmued that we come here after validation.
+     * Parse basic literals. It is assumed that we come here after validation.
      *
      * @return Parsed node
      */
-    private STNode parseLiteral() {
-        return consume();
+    private STNode parseBasicLiteral() {
+        STToken literalToken = consume();
+        return STNodeFactory.createBasicLiteralNode(literalToken.kind, literalToken);
     }
 
     /**
@@ -3624,8 +3588,6 @@ public class BallerinaParser {
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
             case NULL_KEYWORD:
-            case DECIMAL_FLOATING_POINT_LITERAL:
-            case HEX_FLOATING_POINT_LITERAL:
             default:
                 expr = parseExpression();
                 arg = STNodeFactory.createPositionalArgumentNode(leadingComma, expr);
@@ -3855,17 +3817,6 @@ public class BallerinaParser {
             case PRIVATE_KEYWORD:
             case REMOTE_KEYWORD:
             case FUNCTION_KEYWORD:
-
-                // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
-            case IDENTIFIER_TOKEN:
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case SERVICE_KEYWORD:
-            case RECORD_KEYWORD:
-            case OBJECT_KEYWORD:
-            case ABSTRACT_KEYWORD:
-            case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
                 metadata = createEmptyMetadata();
                 break;
             case DOCUMENTATION_LINE:
@@ -3874,6 +3825,11 @@ public class BallerinaParser {
                 nextTokenKind = peek().kind;
                 break;
             default:
+                if (isTypeStartingToken(nextTokenKind)) {
+                    metadata = createEmptyMetadata();
+                    break;
+                }
+
                 Solution solution = recover(peek(), ParserRuleContext.OBJECT_MEMBER);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
@@ -3913,20 +3869,12 @@ public class BallerinaParser {
             case FUNCTION_KEYWORD:
                 member = parseObjectMethod(metadata, STNodeFactory.createEmptyNode());
                 break;
-
-            // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
-            case IDENTIFIER_TOKEN:
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case SERVICE_KEYWORD:
-            case RECORD_KEYWORD:
-            case OBJECT_KEYWORD:
-            case ABSTRACT_KEYWORD:
-            case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
-                member = parseObjectField(metadata, STNodeFactory.createEmptyNode());
-                break;
             default:
+                if (isTypeStartingToken(nextTokenKind)) {
+                    member = parseObjectField(metadata, STNodeFactory.createEmptyNode());
+                    break;
+                }
+
                 Solution solution = recover(peek(), ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
@@ -3977,36 +3925,31 @@ public class BallerinaParser {
 
             // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             case IDENTIFIER_TOKEN:
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case SERVICE_KEYWORD:
-            case RECORD_KEYWORD:
-            case OBJECT_KEYWORD:
-            case ABSTRACT_KEYWORD:
-            case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
-
-                // Here we try to catch the common user error of missing the function keyword.
-                // In such cases, lookahead for the open-parenthesis and figure out whether
-                // this is an object-method with missing name. If yes, then try to recover.
                 if (nextNextTokenKind != SyntaxKind.OPEN_PAREN_TOKEN) {
+                    // Here we try to catch the common user error of missing the function keyword.
+                    // In such cases, lookahead for the open-parenthesis and figure out whether
+                    // this is an object-method with missing name. If yes, then try to recover.
                     return parseObjectField(metadata, visibilityQualifiers);
                 }
-
-                // Else, fall through
+                break;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY, metadata,
-                        visibilityQualifiers);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
+                if (isTypeStartingToken(nextTokenKind)) {
+                    return parseObjectField(metadata, visibilityQualifiers);
                 }
-
-                return parseObjectMethodOrField(solution.tokenKind, nextTokenKind, metadata, visibilityQualifiers);
+                break;
         }
+
+        Solution solution = recover(peek(), ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY, metadata,
+                visibilityQualifiers);
+
+        // If the parser recovered by inserting a token, then try to re-parse the same
+        // rule with the inserted token. This is done to pick the correct branch
+        // to continue the parsing.
+        if (solution.action == Action.REMOVE) {
+            return solution.recoveredNode;
+        }
+
+        return parseObjectMethodOrField(solution.tokenKind, nextTokenKind, metadata, visibilityQualifiers);
     }
 
     /**
@@ -4280,23 +4223,6 @@ public class BallerinaParser {
     }
 
     /**
-     * Parse boolean literal.
-     *
-     * @return Parsed node
-     */
-    private STNode parseBooleanLiteral() {
-        STToken token = peek();
-        switch (token.kind) {
-            case TRUE_KEYWORD:
-            case FALSE_KEYWORD:
-                return consume();
-            default:
-                Solution sol = recover(token, ParserRuleContext.BOOLEAN_LITERAL);
-                return sol.recoveredNode;
-        }
-    }
-
-    /**
      * Parse check expression. This method is used to parse both check expression
      * as well as check action.
      *
@@ -4502,6 +4428,8 @@ public class BallerinaParser {
 
     private boolean isEndOfMappingConstructor(SyntaxKind tokenKind) {
         switch (tokenKind) {
+            case IDENTIFIER_TOKEN:
+                return false;
             case EOF_TOKEN:
             case AT_TOKEN:
             case DOCUMENTATION_LINE:
@@ -4520,11 +4448,9 @@ public class BallerinaParser {
             case CONST_KEYWORD:
             case FINAL_KEYWORD:
             case RESOURCE_KEYWORD:
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
                 return true;
             default:
-                return false;
+                return isSimpleType(tokenKind);
         }
     }
 
@@ -4900,6 +4826,9 @@ public class BallerinaParser {
 
     private boolean isEndOfListenersList(SyntaxKind tokenKind) {
         switch (tokenKind) {
+            case COMMA_TOKEN:
+            case IDENTIFIER_TOKEN:
+                return false;
             case CLOSE_BRACE_TOKEN:
             case CLOSE_PAREN_TOKEN:
             case CLOSE_BRACKET_TOKEN:
@@ -4918,11 +4847,9 @@ public class BallerinaParser {
             case TYPE_KEYWORD:
             case CONST_KEYWORD:
             case FINAL_KEYWORD:
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
                 return true;
             default:
-                return false;
+                return isSimpleType(tokenKind);
         }
     }
 
@@ -5181,26 +5108,12 @@ public class BallerinaParser {
             case ANNOTATION_KEYWORD:
                 switchContext(ParserRuleContext.ANNOTATION_DECL);
                 return parseAnnotationDeclaration(metadata, qualifier, constKeyword);
-
-            // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case SERVICE_KEYWORD:
-            case RECORD_KEYWORD:
-            case OBJECT_KEYWORD:
-            case ABSTRACT_KEYWORD:
-            case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
-                STNode typeDesc = parseTypeDescriptor();
-                STNode variableName = parseVariableName();
-                STNode equalsToken = parseAssignOp();
-                STNode initializer = parseExpression();
-                STNode semicolonToken = parseSemicolon();
-                return STNodeFactory.createConstantDeclarationNode(metadata, qualifier, constKeyword, typeDesc,
-                        variableName, equalsToken, initializer, semicolonToken);
             case IDENTIFIER_TOKEN:
                 return parseConstantDeclWithOptionalType(metadata, qualifier, constKeyword);
             default:
+                if (isTypeStartingToken(nextTokenKind)) {
+                    break;
+                }
                 STToken token = peek();
                 Solution solution =
                         recover(token, ParserRuleContext.CONST_DECL_TYPE, metadata, qualifier, constKeyword);
@@ -5214,6 +5127,14 @@ public class BallerinaParser {
 
                 return parseConstDeclFromType(solution.tokenKind, metadata, qualifier, constKeyword);
         }
+
+        STNode typeDesc = parseTypeDescriptor();
+        STNode variableName = parseVariableName();
+        STNode equalsToken = parseAssignOp();
+        STNode initializer = parseExpression();
+        STNode semicolonToken = parseSemicolon();
+        return STNodeFactory.createConstantDeclarationNode(metadata, qualifier, constKeyword, typeDesc, variableName,
+                equalsToken, initializer, semicolonToken);
     }
 
     private STNode parseConstantDeclWithOptionalType(STNode metadata, STNode qualifier, STNode constKeyword) {
@@ -5887,6 +5808,73 @@ public class BallerinaParser {
     }
 
     /**
+     * Parse parameterized type descriptor.
+     * parameterized-type-descriptor := map type-parameter | future type-parameter | typedesc type-parameter
+     *
+     * @return Parsed node
+     */
+    private STNode parseParameterizedTypeDescriptor() {
+        startContext(ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR);
+        STNode parameterizedTypeKeyword = parseParameterizedTypeKeyword();
+
+        STNode ltToken = parseLTToken();
+        STNode typeNode = parseTypeDescriptor();
+        STNode gtToken = parseGTToken();
+
+        endContext();
+        return STNodeFactory.createParameterizedTypeDescriptorNode(parameterizedTypeKeyword, ltToken, typeNode,
+                gtToken);
+    }
+
+    /**
+     * Parse <code>map</code> or <code>future</code> or <code>typedesc</code> keyword token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseParameterizedTypeKeyword() {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case MAP_KEYWORD: // map type desc
+            case FUTURE_KEYWORD: // future type desc
+            case TYPEDESC_KEYWORD: // typedesc type desc
+                return consume();
+            default:
+                Solution sol = recover(nextToken, ParserRuleContext.PARAMETERIZED_TYPE);
+                return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse <code> < </code> token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseGTToken() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.GT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(nextToken, ParserRuleContext.GT);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse <code> > </code> token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseLTToken() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(nextToken, ParserRuleContext.LT);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
      * Parse nil literal. Here nil literal is only referred to ( ).
      *
      * @return Parsed node
@@ -5948,25 +5936,13 @@ public class BallerinaParser {
     private STNode parseAnnotationDeclFromType(SyntaxKind nextTokenKind, STNode metadata, STNode qualifier,
                                                STNode constKeyword, STNode annotationKeyword) {
         switch (nextTokenKind) {
-            // TODO: add all 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
-            case SIMPLE_TYPE:
-            case VAR_KEYWORD:
-            case SERVICE_KEYWORD:
-            case RECORD_KEYWORD:
-            case OBJECT_KEYWORD:
-            case ABSTRACT_KEYWORD:
-            case CLIENT_KEYWORD:
-            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
-                STNode typeDesc = parseTypeDescriptor();
-                STNode annotTag = parseAnnotationTag();
-                STNode equalsToken = parseAssignOp();
-                STNode initializer = parseExpression();
-                STNode semicolonToken = parseSemicolon();
-                return STNodeFactory.createConstantDeclarationNode(metadata, qualifier, constKeyword, typeDesc,
-                        annotTag, equalsToken, initializer, semicolonToken);
             case IDENTIFIER_TOKEN:
                 return parseAnnotationDeclWithOptionalType(metadata, qualifier, constKeyword, annotationKeyword);
             default:
+                if (isTypeStartingToken(nextTokenKind)) {
+                    break;
+                }
+
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.ANNOT_DECL_OPTIONAL_TYPE, metadata, qualifier,
                         constKeyword, annotationKeyword);
@@ -5977,6 +5953,14 @@ public class BallerinaParser {
                 return parseAnnotationDeclFromType(solution.tokenKind, metadata, qualifier, constKeyword,
                         annotationKeyword);
         }
+
+        STNode typeDesc = parseTypeDescriptor();
+        STNode annotTag = parseAnnotationTag();
+        STNode equalsToken = parseAssignOp();
+        STNode initializer = parseExpression();
+        STNode semicolonToken = parseSemicolon();
+        return STNodeFactory.createConstantDeclarationNode(metadata, qualifier, constKeyword, typeDesc, annotTag,
+                equalsToken, initializer, semicolonToken);
     }
 
     /**
@@ -5999,9 +5983,9 @@ public class BallerinaParser {
     private STNode parseAnnotationDeclWithOptionalType(STNode metadata, STNode qualifier, STNode constKeyword,
                                                        STNode annotationKeyword) {
         // We come here if the type name also and identifier.
-        // However, if it is a qualified identifier, then it to be the type-desc.
+        // However, if it is a qualified identifier, then it has to be the type-desc.
         STNode typeDescOrAnnotTag = parseAnnotationTag();
-        if (typeDescOrAnnotTag.kind == SyntaxKind.QUALIFIED_IDENTIFIER) {
+        if (typeDescOrAnnotTag.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             STNode annotTag = parseAnnotationTag();
             return parseAnnotationDeclAttachPoints(metadata, qualifier, constKeyword, annotationKeyword,
                     typeDescOrAnnotTag, annotTag);
@@ -6454,7 +6438,7 @@ public class BallerinaParser {
         switch (expr.kind) {
             case STRING_LITERAL:
             case IDENTIFIER_TOKEN:
-            case QUALIFIED_IDENTIFIER:
+            case QUALIFIED_NAME_REFERENCE:
                 break;
             default:
                 this.errorHandler.reportInvalidNode(null, "namespace uri must be a subtype of string");
@@ -6654,6 +6638,150 @@ public class BallerinaParser {
             Solution sol = recover(token, ParserRuleContext.LOCK_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    private boolean isTypeStartingToken(SyntaxKind nodeKind) {
+        switch (nodeKind) {
+            case IDENTIFIER_TOKEN:
+            case SERVICE_KEYWORD:
+            case RECORD_KEYWORD:
+            case OBJECT_KEYWORD:
+            case ABSTRACT_KEYWORD:
+            case CLIENT_KEYWORD:
+            case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+            case MAP_KEYWORD: // map type desc
+            case FUTURE_KEYWORD: // future type desc
+            case TYPEDESC_KEYWORD: // typedesc type desc
+                return true;
+            default:
+                return isSimpleType(nodeKind);
+        }
+    }
+
+    static boolean isSimpleType(SyntaxKind nodeKind) {
+        switch (nodeKind) {
+            case INT_KEYWORD:
+            case FLOAT_KEYWORD:
+            case DECIMAL_KEYWORD:
+            case BOOLEAN_KEYWORD:
+            case STRING_KEYWORD:
+            case BYTE_KEYWORD:
+            case XML_KEYWORD:
+            case JSON_KEYWORD:
+            case HANDLE_KEYWORD:
+            case ANY_KEYWORD:
+            case ANYDATA_KEYWORD:
+            case NEVER_KEYWORD:
+            case SERVICE_KEYWORD:
+            case VAR_KEYWORD:
+                return true;
+            case TYPE_DESC:
+                // This is a special case. TYPE_DESC is only return from
+                // error recovery. when a type is missing. Hence we treat it as
+                // a simple type
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private SyntaxKind getTypeSyntaxKind(SyntaxKind typeKeyword) {
+        switch (typeKeyword) {
+            case INT_KEYWORD:
+                return SyntaxKind.INT_TYPE_DESC;
+            case FLOAT_KEYWORD:
+                return SyntaxKind.FLOAT_TYPE_DESC;
+            case DECIMAL_KEYWORD:
+                return SyntaxKind.DECIMAL_TYPE_DESC;
+            case BOOLEAN_KEYWORD:
+                return SyntaxKind.BOOLEAN_TYPE_DESC;
+            case STRING_KEYWORD:
+                return SyntaxKind.STRING_TYPE_DESC;
+            case BYTE_KEYWORD:
+                return SyntaxKind.BYTE_TYPE_DESC;
+            case XML_KEYWORD:
+                return SyntaxKind.XML_TYPE_DESC;
+            case JSON_KEYWORD:
+                return SyntaxKind.JSON_TYPE_DESC;
+            case HANDLE_KEYWORD:
+                return SyntaxKind.HANDLE_TYPE_DESC;
+            case ANY_KEYWORD:
+                return SyntaxKind.ANY_TYPE_DESC;
+            case ANYDATA_KEYWORD:
+                return SyntaxKind.ANYDATA_TYPE_DESC;
+            case NEVER_KEYWORD:
+                return SyntaxKind.NEVER_TYPE_DESC;
+            case SERVICE_KEYWORD:
+                return SyntaxKind.SERVICE_TYPE_DESC;
+            case VAR_KEYWORD:
+                return SyntaxKind.VAR_TYPE_DESC;
+            default:
+                return SyntaxKind.TYPE_DESC;
+        }
+    }
+
+    /**
+     * Parse fork-keyword.
+     *
+     * @return Fork-keyword node
+     */
+    private STNode parseForkKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.FORK_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.FORK_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse multiple named worker declarations.
+     *
+     * @return named-worker-declarations node array
+     */
+    private STNode parseMultileNamedWorkerDeclarations() {
+        STToken token = peek();
+        ArrayList<STNode> workers = new ArrayList<>();
+
+        while (!isEndOfStatements(token.kind)) {
+            STNode stmt = parseStatement();
+            if (stmt == null) {
+                break;
+            }
+
+            switch (stmt.kind) {
+                case NAMED_WORKER_DECLARATION:
+                    workers.add(stmt);
+                    break;
+                default:
+                    this.errorHandler.reportInvalidNode(null, "Only named-workers are allowed here");
+                    break;
+            }
+            token = peek();
+        }
+
+        if (workers.isEmpty()) {
+            this.errorHandler.reportInvalidNode(null, "Fork Statement must contain atleast one named-worker");
+        }
+        STNode namedWorkers = STNodeFactory.createNodeList(workers);
+        return namedWorkers;
+    }
+
+    /**
+     * Parse fork statement.
+     * <code>fork-stmt := fork { named-worker-decl+ }</code>
+     *
+     * @return Fork statement
+     */
+    private STNode parseForkStatement() {
+        startContext(ParserRuleContext.FORK_STMT);
+        STNode forkKeyword = parseForkKeyword();
+        STNode openBrace = parseOpenBrace();
+        STNode namedWorkerDeclarations = parseMultileNamedWorkerDeclarations();
+        STNode closeBrace = parseCloseBrace();
+        endContext();
+        return STNodeFactory.createForkStatementNode(forkKeyword, openBrace, namedWorkerDeclarations, closeBrace);
     }
 
     /**

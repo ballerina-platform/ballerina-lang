@@ -53,7 +53,7 @@
                             "kind": "XMLNS_KEYWORD"
                         },
                         {
-                            "kind": "QUALIFIED_IDENTIFIER",
+                            "kind": "QUALIFIED_NAME_REFERENCE",
                             "children": [
                                 {
                                     "kind": "IDENTIFIER_TOKEN",

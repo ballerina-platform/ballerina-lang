@@ -15,35 +15,30 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.syntax.tree;
+package io.ballerinalang.compiler.text;
 
 import java.util.Objects;
 
-public class Span {
-    private final int startOffset;
-    private final int endOffset;
-    private final int width;
+/**
+ * The {@code LineInfo} represents a line number and a character offset from the start of the line.
+ *
+ * @since 2.0.0
+ */
+public class LinePosition {
+    private final int line;
+    private final int offset;
 
-    public Span(int position, int width) {
-        this.startOffset = position;
-        this.width = width;
-        this.endOffset = position + width;
+    public LinePosition(int line, int offset) {
+        this.line = line;
+        this.offset = offset;
     }
 
-    public int startOffset() {
-        return startOffset;
+    public int line() {
+        return line;
     }
 
-    public int endOffset() {
-        return endOffset;
-    }
-
-    public int width() {
-        return width;
-    }
-
-    public boolean contains(int position) {
-        return startOffset <= position && position < endOffset;
+    public int offset() {
+        return offset;
     }
 
     @Override
@@ -51,23 +46,21 @@ public class Span {
         if (this == o) {
             return true;
         }
-
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        Span span = (Span) o;
-        return startOffset == span.startOffset &&
-                endOffset == span.endOffset;
+        LinePosition linePosition = (LinePosition) o;
+        return line == linePosition.line &&
+                offset == linePosition.offset;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(startOffset, endOffset);
+        return Objects.hash(line, offset);
     }
 
     @Override
     public String toString() {
-        return "(" + startOffset + "," + endOffset + ")";
+        return line + ":" + offset;
     }
 }

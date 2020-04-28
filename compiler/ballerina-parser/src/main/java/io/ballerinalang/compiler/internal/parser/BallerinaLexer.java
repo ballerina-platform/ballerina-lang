@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * A LL(k) lexer for ballerina.
- * 
+ *
  * @since 1.2.0
  */
 public class BallerinaLexer {
@@ -43,7 +43,7 @@ public class BallerinaLexer {
 
     /**
      * Get the next lexical token.
-     * 
+     *
      * @return Next lexical token.
      */
     public STToken nextToken() {
@@ -57,7 +57,7 @@ public class BallerinaLexer {
 
     /**
      * Switch the mode of the lexer to the given mode.
-     * 
+     *
      * @param mode Mode to switch on to
      */
     public void switchMode(ParserMode mode) {
@@ -296,13 +296,6 @@ public class BallerinaLexer {
         return STNodeFactory.createLiteralValueToken(kind, lexeme, -1, leadingTrivia, trailingTrivia);
     }
 
-    private STToken getTypeToken(String tokenText) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        String lexeme = getLexeme();
-        STNode trailingTrivia = processTrailingTrivia();
-        return STNodeFactory.createTypeToken(SyntaxKind.SIMPLE_TYPE, lexeme, leadingTrivia, trailingTrivia);
-    }
-
     /**
      * Process leading trivia.
      */
@@ -313,7 +306,7 @@ public class BallerinaLexer {
 
     /**
      * Process and return trailing trivia.
-     * 
+     *
      * @return Trailing trivia
      */
     private STNode processTrailingTrivia() {
@@ -326,7 +319,7 @@ public class BallerinaLexer {
      * Process syntax trivia and add it to the provided list.
      * <p>
      * <code>syntax-trivia := whitespace | end-of-line | comments</code>
-     * 
+     *
      * @param triviaList List of trivia
      * @param isLeading Flag indicating whether the currently processing leading trivia or not
      */
@@ -363,7 +356,7 @@ public class BallerinaLexer {
      * Process whitespace up to an end of line.
      * <p>
      * <code>whitespace := 0x9 | 0xC | 0x20</code>
-     * 
+     *
      * @return Whitespace trivia
      */
     private STNode processWhitespaces() {
@@ -393,7 +386,7 @@ public class BallerinaLexer {
      * Process end of line.
      * <p>
      * <code>end-of-line := 0xA | 0xD</code>
-     * 
+     *
      * @return End of line trivia
      */
     private STNode processEndOfLine() {
@@ -407,7 +400,15 @@ public class BallerinaLexer {
                 if (reader.peek() == LexerTerminals.NEWLINE) {
                     reader.advance();
                 }
-                return STNodeFactory.createSyntaxTrivia(SyntaxKind.END_OF_LINE_TRIVIA, getLexeme());
+                // Ballerina spec 2020R1/#lexical_structure section says that you should
+                // normalize newline chars as follows.
+                //   - the two character sequence 0xD 0xA is replaced by 0xA
+                //   - a single 0xD character that is not followed by 0xD is replaced by 0xA
+                //
+                // This implementation does not replace any characters to maintain
+                // the exact source text as it is, but it does not count \r\n as two characters.
+                // Therefore, we have to specifically send the width of the lexeme when creating the Minutia node.
+                return STNodeFactory.createSyntaxTrivia(SyntaxKind.END_OF_LINE_TRIVIA, getLexeme(), 1);
             default:
                 throw new IllegalStateException();
         }
@@ -415,7 +416,7 @@ public class BallerinaLexer {
 
     /**
      * Process dot, ellipsis or decimal floating point token.
-     * 
+     *
      * @return Dot, ellipsis or decimal floating point token
      */
     private STToken processDot() {
@@ -424,7 +425,7 @@ public class BallerinaLexer {
             return getSyntaxToken(SyntaxKind.ELLIPSIS_TOKEN);
         }
         if (this.mode != ParserMode.IMPORT && isDigit(reader.peek())) {
-            return processDecimalFloatLiteral(true);
+            return processDecimalFloatLiteral();
         }
         return getSyntaxToken(SyntaxKind.DOT_TOKEN);
     }
@@ -458,7 +459,7 @@ public class BallerinaLexer {
 
     /**
      * Process any token that starts with '='.
-     * 
+     *
      * @return One of the tokens: <code>'=', '==', '=>', '==='</code>
      */
     private STToken processEqualOperator() {
@@ -500,7 +501,7 @@ public class BallerinaLexer {
      * <br/>
      * NonZeroDigit := 1 .. 9
      * </code>
-     * 
+     *
      * @return The numeric literal.
      */
     private STToken processNumericLiteral(int startChar) {
@@ -526,11 +527,11 @@ public class BallerinaLexer {
 
                     // Integer part of the float cannot have a leading zero
                     if (startChar == '0' && len > 1) {
-                        processInvalidToken();
-                        return readToken();
+                        break;
                     }
 
-                    return processDecimalFloatLiteral(false);
+                    // Code would not reach here if the floating point starts with a dot
+                    return processDecimalFloatLiteral();
                 default:
                     if (isDigit(nextChar)) {
                         reader.advance();
@@ -543,8 +544,9 @@ public class BallerinaLexer {
             break;
         }
 
-        // Integer cannot have a leading zero
+        // Integer or integer part of the float cannot have a leading zero
         if (startChar == '0' && len > 1) {
+            reportLexerError("extra leading zero");
             processInvalidToken();
             return readToken();
         }
@@ -571,42 +573,24 @@ public class BallerinaLexer {
      * FloatTypeSuffix :=  f | F
      * </code>
      *
-     * @param isDotStart Whether process starts from a dot
      * @return The decimal floating point literal.
      */
-    private STToken processDecimalFloatLiteral(boolean isDotStart) {
+    private STToken processDecimalFloatLiteral() {
         int nextChar = peek();
 
-        // Direct process to the dot switch case
-        if (isDotStart) {
-            nextChar = LexerTerminals.DOT;
+        // For float literals start with a DOT, this condition will always be false,
+        // as the reader is already advanced for the DOT before coming here.
+        if (nextChar == LexerTerminals.DOT) {
+            reader.advance();
+            nextChar = peek();
+        }
+
+        while (isDigit(nextChar)) {
+            reader.advance();
+            nextChar = peek();
         }
 
         switch (nextChar) {
-            case LexerTerminals.DOT:
-                if (!isDotStart) { // Advance only if it is not already validated
-                    reader.advance();
-                }
-                nextChar = peek();
-                while (true) {
-                    if (isDigit(nextChar)) {
-                        reader.advance();
-                        nextChar = peek();
-                        continue;
-                    }
-                    break;
-                }
-                switch (nextChar) {
-                    case 'e':
-                    case 'E':
-                        return processExponent(false);
-                    case 'f':
-                    case 'F':
-                    case 'd':
-                    case 'D':
-                        return parseFloatingPointTypeSuffix();
-                }
-                break;
             case 'e':
             case 'E':
                 return processExponent(false);
@@ -656,17 +640,14 @@ public class BallerinaLexer {
 
         // Make sure at least one digit is present after the indicator
         if (!isDigit(nextChar)) {
+            reportLexerError("missing digit");
             processInvalidToken();
             return readToken();
         }
 
-        while (true) {
-            if (isDigit(nextChar)) {
-                reader.advance();
-                nextChar = peek();
-                continue;
-            }
-            break;
+        while (isDigit(nextChar)) {
+            reader.advance();
+            nextChar = peek();
         }
 
         if (isHex) {
@@ -731,12 +712,11 @@ public class BallerinaLexer {
         reader.advance();
 
         // Make sure at least one hex-digit present if processing started from a dot
-        if (peek() == LexerTerminals.DOT) {
-            if (!isHexDigit(reader.peek(1))) {
-                reader.advance();
-                processInvalidToken();
-                return readToken();
-            }
+        if (peek() == LexerTerminals.DOT && !isHexDigit(reader.peek(1))) {
+            reader.advance();
+            reportLexerError("missing hex-digit");
+            processInvalidToken();
+            return readToken();
         }
 
         int nextChar;
@@ -749,13 +729,9 @@ public class BallerinaLexer {
             case LexerTerminals.DOT:
                 reader.advance();
                 nextChar = peek();
-                while (true) {
-                    if (isHexDigit(nextChar)) {
-                        reader.advance();
-                        nextChar = peek();
-                        continue;
-                    }
-                    break;
+                while (isHexDigit(nextChar)) {
+                    reader.advance();
+                    nextChar = peek();
                 }
                 switch (nextChar) {
                     case 'p':
@@ -785,19 +761,31 @@ public class BallerinaLexer {
 
         String tokenText = getLexeme();
         switch (tokenText) {
-            // Simple types
+            // built-in named-types
             case LexerTerminals.INT:
+                return getSyntaxToken(SyntaxKind.INT_KEYWORD);
             case LexerTerminals.FLOAT:
+                return getSyntaxToken(SyntaxKind.FLOAT_KEYWORD);
             case LexerTerminals.STRING:
+                return getSyntaxToken(SyntaxKind.STRING_KEYWORD);
             case LexerTerminals.BOOLEAN:
+                return getSyntaxToken(SyntaxKind.BOOLEAN_KEYWORD);
             case LexerTerminals.DECIMAL:
+                return getSyntaxToken(SyntaxKind.DECIMAL_KEYWORD);
             case LexerTerminals.XML:
+                return getSyntaxToken(SyntaxKind.XML_KEYWORD);
             case LexerTerminals.JSON:
+                return getSyntaxToken(SyntaxKind.JSON_KEYWORD);
             case LexerTerminals.HANDLE:
+                return getSyntaxToken(SyntaxKind.HANDLE_KEYWORD);
             case LexerTerminals.ANY:
+                return getSyntaxToken(SyntaxKind.ANY_KEYWORD);
             case LexerTerminals.ANYDATA:
+                return getSyntaxToken(SyntaxKind.ANYDATA_KEYWORD);
             case LexerTerminals.NEVER:
-                return getTypeToken(tokenText);
+                return getSyntaxToken(SyntaxKind.NEVER_KEYWORD);
+            case LexerTerminals.BYTE:
+                return getSyntaxToken(SyntaxKind.BYTE_KEYWORD);
 
             // Keywords
             case LexerTerminals.PUBLIC:
@@ -884,6 +872,14 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.FIELD_KEYWORD);
             case LexerTerminals.XMLNS:
                 return getSyntaxToken(SyntaxKind.XMLNS_KEYWORD);
+            case LexerTerminals.FORK:
+                return getSyntaxToken(SyntaxKind.FORK_KEYWORD);
+            case LexerTerminals.MAP:
+                return getSyntaxToken(SyntaxKind.MAP_KEYWORD);
+            case LexerTerminals.FUTURE:
+                return getSyntaxToken(SyntaxKind.FUTURE_KEYWORD);
+            case LexerTerminals.TYPEDESC:
+                return getSyntaxToken(SyntaxKind.TYPEDESC_KEYWORD);
             case LexerTerminals.TRAP:
                 return getSyntaxToken(SyntaxKind.TRAP_KEYWORD);
             default:
@@ -894,7 +890,7 @@ public class BallerinaLexer {
     /**
      * Process and returns an invalid token. Consumes the input until {@link #isEndOfInvalidToken()}
      * is reached.
-     * 
+     *
      * @return The invalid token.
      */
     private void processInvalidToken() {
@@ -914,7 +910,7 @@ public class BallerinaLexer {
      * <li>semicolon</li>
      * <li>newline</li>
      * </ul>
-     * 
+     *
      * @return <code>true</code>, if the end of an invalid token is reached, <code>false</code> otherwise
      */
     private boolean isEndOfInvalidToken() {
@@ -942,7 +938,7 @@ public class BallerinaLexer {
      * Check whether a given char is an identifier start char.
      * </p>
      * <code>IdentifierInitialChar := A .. Z | a .. z | _ | UnicodeIdentifierChar</code>
-     * 
+     *
      * @param c character to check
      * @return <code>true</code>, if the character is an identifier start char. <code>false</code> otherwise.
      */
@@ -969,7 +965,7 @@ public class BallerinaLexer {
      * Check whether a given char is an identifier following char.
      * </p>
      * <code>IdentifierFollowingChar := IdentifierInitialChar | Digit</code>
-     * 
+     *
      * @param c character to check
      * @return <code>true</code>, if the character is an identifier following char. <code>false</code> otherwise.
      */
@@ -982,7 +978,7 @@ public class BallerinaLexer {
      * Check whether a given char is a digit.
      * </p>
      * <code>Digit := 0..9</code>
-     * 
+     *
      * @param c character to check
      * @return <code>true</code>, if the character represents a digit. <code>false</code> otherwise.
      */
@@ -995,7 +991,7 @@ public class BallerinaLexer {
      * Check whether a given char is a hexa digit.
      * </p>
      * <code>HexDigit := Digit | a .. f | A .. F</code>
-     * 
+     *
      * @param c character to check
      * @return <code>true</code>, if the character represents a hex digit. <code>false</code> otherwise.
      */
@@ -1014,7 +1010,7 @@ public class BallerinaLexer {
      * Check whether current input index points to a start of a hex-numeric literal.
      * </p>
      * <code>HexIndicator := 0x | 0X</code>
-     * 
+     *
      * @param startChar Starting character of the literal
      * @param nextChar Second character of the literal
      * @return <code>true</code>, if the current input points to a start of a hex-numeric literal.
@@ -1026,7 +1022,7 @@ public class BallerinaLexer {
 
     /**
      * Returns the next character from the reader, without consuming the stream.
-     * 
+     *
      * @return Next character
      */
     private int peek() {
@@ -1035,7 +1031,7 @@ public class BallerinaLexer {
 
     /**
      * Get the text associated with the current token.
-     * 
+     *
      * @return Text associated with the current token.
      */
     private String getLexeme() {
@@ -1059,7 +1055,7 @@ public class BallerinaLexer {
      * <br/>
      * CodePoint := HexDigit+
      * </code>
-     * 
+     *
      * @return String literal token
      */
     private STToken processStringLiteral() {
@@ -1194,7 +1190,7 @@ public class BallerinaLexer {
      * <br/>
      * Tab := 0x9
      * </code>
-     * 
+     *
      * @return Documentation line token
      */
     private STToken processDocumentationLine() {

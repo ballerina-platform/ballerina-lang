@@ -6,10 +6,10 @@
             "value": "a"
         },
         {
-            "kind":"PLUS_TOKEN"
+            "kind": "PLUS_TOKEN"
         },
         {
-            "kind":"EQUAL_TOKEN"
+            "kind": "EQUAL_TOKEN"
         },
         {
             "kind": "DECIMAL_INTEGER_LITERAL",

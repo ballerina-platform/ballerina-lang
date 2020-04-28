@@ -39,7 +39,7 @@ public class SeparatedNodeListTest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testModuleNameCountInImportDeclaration() {
         SyntaxTree syntaxTree = parseFile("separated_node_list_import_decl.bal");
-        NodeList<ImportDeclarationNode> imports = syntaxTree.getModulePart().imports();
+        NodeList<ImportDeclarationNode> imports = syntaxTree.modulePart().imports();
 
         SeparatedNodeList<IdentifierToken> moduleName = imports.get(0).moduleName();
         Assert.assertEquals(moduleName.size(), 1, "Module name part size does not match");
@@ -57,7 +57,7 @@ public class SeparatedNodeListTest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testModuleNamePartsInImportDeclaration() {
         SyntaxTree syntaxTree = parseFile("separated_node_list_import_decl.bal");
-        NodeList<ImportDeclarationNode> imports = syntaxTree.getModulePart().imports();
+        NodeList<ImportDeclarationNode> imports = syntaxTree.modulePart().imports();
 
         SeparatedNodeList<IdentifierToken> moduleName = imports.get(0).moduleName();
         Assert.assertEquals(moduleName.get(0).text(), "foo", "Module name parts do not match");

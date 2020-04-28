@@ -110,7 +110,7 @@ public class ChildNodeList implements Iterable<Node> {
 
     private void rangeCheck(int childIndex) {
         if (childIndex >= size || childIndex < 0)
-            throw new IndexOutOfBoundsException("Index: " + childIndex + ", Size: " + size);
+            throw new IndexOutOfBoundsException("Index: '" + childIndex + "', Size: '" + size + "'");
     }
 
     /**

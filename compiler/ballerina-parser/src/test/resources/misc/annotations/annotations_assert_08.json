@@ -51,7 +51,7 @@
                                                             "kind": "AT_TOKEN"
                                                         },
                                                         {
-                                                            "kind": "QUALIFIED_IDENTIFIER",
+                                                            "kind": "QUALIFIED_NAME_REFERENCE",
                                                             "children": [
                                                                 {
                                                                     "kind": "IDENTIFIER_TOKEN",
@@ -88,8 +88,7 @@
                                             ]
                                         },
                                         {
-                                            "kind": "SIMPLE_TYPE",
-                                            "value": "int"
+                                            "kind": "INT_KEYWORD"
                                         },
                                         {
                                             "kind": "IDENTIFIER_TOKEN",
@@ -125,7 +124,7 @@
                                                     "kind": "AT_TOKEN"
                                                 },
                                                 {
-                                                    "kind": "QUALIFIED_IDENTIFIER",
+                                                    "kind": "QUALIFIED_NAME_REFERENCE",
                                                     "children": [
                                                         {
                                                             "kind": "IDENTIFIER_TOKEN",
@@ -162,8 +161,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "SIMPLE_TYPE",
-                                    "value": "string"
+                                    "kind": "STRING_KEYWORD"
                                 }
                             ]
                         },
@@ -189,7 +187,7 @@
                                                                     "kind": "AT_TOKEN"
                                                                 },
                                                                 {
-                                                                    "kind": "QUALIFIED_IDENTIFIER",
+                                                                    "kind": "QUALIFIED_NAME_REFERENCE",
                                                                     "children": [
                                                                         {
                                                                             "kind": "IDENTIFIER_TOKEN",
