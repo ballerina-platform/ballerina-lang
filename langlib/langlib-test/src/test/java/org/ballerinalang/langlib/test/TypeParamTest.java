@@ -117,5 +117,6 @@ public class TypeParamTest {
         BRunUtil.invoke(result, "testStringIntFloatSimpleAndArrayUnionReturnParameterNarrowing");
         BRunUtil.invoke(result, "testIntFloatSimpleAndMapUnionReturnParameterNarrowing");
         BRunUtil.invoke(result, "testIntFloatSimpleArrayMapUnionReturnParameterNarrowing");
+        BRunUtil.invoke(result, "testStreamTypeParamNarrowing");
     }
 }

@@ -14,6 +14,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(any|error actual) {
+    if actual is boolean && actual {
+        return;
+    }
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected 'true', found '" + actual.toString () + "'");
+}
+
+function assertEqual(anydata|error expected, anydata|error actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
+
 function testSimpleUnionReturnParameterNarrowing() {
     int[]|float[] arr = <int[]>[1, 2];
     [int, (int|float)][] y = arr.enumerate();
@@ -62,21 +81,19 @@ function testIntFloatSimpleArrayMapUnionReturnParameterNarrowing() {
     }
 }
 
-const ASSERTION_ERROR_REASON = "AssertionError";
+type Foo record {
+    string id;
+};
 
-function assertTrue(any|error actual) {
-    if actual is boolean && actual {
-        return;
-    }
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected 'true', found '" + actual.toString () + "'");
-}
+type Bar record {
+    int id;
+};
 
-function assertEqual(anydata|error expected, anydata|error actual) {
-    if expected == actual {
-        return;
-    }
-
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
-}
+//function testStreamTypeParamNarrowing() {
+//    Foo[] fooList = [{id: "1234"}, {id: "5678"}];
+//    stream<Foo> fooStream = fooList.toStream();
+//    stream<Foo>|stream<Bar> fooBarStream = fooStream;
+//
+//    var res = fooBarStream.next();
+//    Foo|Bar retValue = <Foo|Bar>res;
+//}

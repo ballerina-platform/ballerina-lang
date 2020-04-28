@@ -314,8 +314,8 @@ public class TypeParamAnalyzer {
                                                 result);
                 }
                 if (actualType.tag == TypeTags.UNION) {
-                    findTypeParamInUnion(pos, ((BMapType) expType).constraint, (BUnionType) actualType, env, resolvedTypes,
-                                         result);
+                    findTypeParamInUnion(pos, ((BMapType) expType).constraint, (BUnionType) actualType, env,
+                                         resolvedTypes, result);
                 }
                 return;
             case TypeTags.STREAM:
@@ -323,6 +323,7 @@ public class TypeParamAnalyzer {
                     findTypeParamInStream(pos, ((BStreamType) expType), ((BStreamType) actualType), env, resolvedTypes,
                                           result);
                 }
+                // TODO : Handle unions
                 return;
             case TypeTags.TUPLE:
                 if (actualType.tag == TypeTags.TUPLE) {
