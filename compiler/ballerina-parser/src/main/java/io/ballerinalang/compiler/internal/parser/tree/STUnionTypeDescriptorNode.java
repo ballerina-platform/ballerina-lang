@@ -36,7 +36,7 @@ public class STUnionTypeDescriptorNode extends STNode {
             STNode leftTypeDesc,
             STNode pipeToken,
             STNode rightTypeDesc) {
-        super(SyntaxKind.UNION_TYPE);
+        super(SyntaxKind.UNION_TYPE_DESC);
         this.leftTypeDesc = leftTypeDesc;
         this.pipeToken = pipeToken;
         this.rightTypeDesc = rightTypeDesc;

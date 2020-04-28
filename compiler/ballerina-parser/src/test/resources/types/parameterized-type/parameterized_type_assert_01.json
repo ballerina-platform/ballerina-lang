@@ -50,7 +50,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "PARAMETERIZED_TYPE",
+                                    "kind": "PARAMETERIZED_TYPE_DESC",
                                     "children": [
                                         {
                                             "kind": "MAP_KEYWORD"
@@ -59,8 +59,7 @@
                                             "kind": "LT_TOKEN"
                                         },
                                         {
-                                            "kind": "SIMPLE_TYPE",
-                                            "value": "string"
+                                            "kind": "STRING_KEYWORD"
                                         },
                                         {
                                             "kind": "GT_TOKEN"
@@ -85,7 +84,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "PARAMETERIZED_TYPE",
+                                    "kind": "PARAMETERIZED_TYPE_DESC",
                                     "children": [
                                         {
                                             "kind": "MAP_KEYWORD"
@@ -120,7 +119,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "PARAMETERIZED_TYPE",
+                                    "kind": "PARAMETERIZED_TYPE_DESC",
                                     "children": [
                                         {
                                             "kind": "FUTURE_KEYWORD"
@@ -129,11 +128,10 @@
                                             "kind": "LT_TOKEN"
                                         },
                                         {
-                                            "kind": "ARRAY_TYPE",
+                                            "kind": "ARRAY_TYPE_DESC",
                                             "children": [
                                                 {
-                                                    "kind": "SIMPLE_TYPE",
-                                                    "value": "string"
+                                                    "kind": "STRING_KEYWORD"
                                                 },
                                                 {
                                                     "kind": "OPEN_BRACKET_TOKEN"
@@ -166,7 +164,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "PARAMETERIZED_TYPE",
+                                    "kind": "PARAMETERIZED_TYPE_DESC",
                                     "children": [
                                         {
                                             "kind": "FUTURE_KEYWORD"
@@ -175,7 +173,7 @@
                                             "kind": "LT_TOKEN"
                                         },
                                         {
-                                            "kind": "OPTIONAL_TYPE",
+                                            "kind": "OPTIONAL_TYPE_DESC",
                                             "children": [
                                                 {
                                                     "kind": "IDENTIFIER_TOKEN",
@@ -209,7 +207,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "PARAMETERIZED_TYPE",
+                                    "kind": "PARAMETERIZED_TYPE_DESC",
                                     "children": [
                                         {
                                             "kind": "TYPEDESC_KEYWORD"
@@ -218,7 +216,7 @@
                                             "kind": "LT_TOKEN"
                                         },
                                         {
-                                            "kind": "NIL_TYPE",
+                                            "kind": "NIL_TYPE_DESC",
                                             "children": [
                                                 {
                                                     "kind": "OPEN_PAREN_TOKEN"
@@ -251,7 +249,7 @@
                                     ]
                                 },
                                 {
-                                    "kind": "PARAMETERIZED_TYPE",
+                                    "kind": "PARAMETERIZED_TYPE_DESC",
                                     "children": [
                                         {
                                             "kind": "TYPEDESC_KEYWORD"
@@ -260,7 +258,7 @@
                                             "kind": "LT_TOKEN"
                                         },
                                         {
-                                            "kind": "OBJECT_TYPE_DESCRIPTOR",
+                                            "kind": "OBJECT_TYPE_DESC",
                                             "children": [
                                                 {
                                                     "kind": "LIST",

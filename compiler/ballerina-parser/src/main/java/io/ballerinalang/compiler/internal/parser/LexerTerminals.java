@@ -65,6 +65,7 @@ public class LexerTerminals {
     public static final String PARAMETER = "parameter";
     public static final String FIELD = "field";
     public static final String XMLNS = "xmlns";
+    public static final String FORK = "fork";
 
     // Types
     public static final String INT = "int";
@@ -83,6 +84,7 @@ public class LexerTerminals {
     public static final String MAP = "map";
     public static final String FUTURE = "future";
     public static final String TYPEDESC = "typedesc";
+    public static final String BYTE = "byte";
 
     // Separators
     public static final char SEMICOLON = ';';

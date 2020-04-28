@@ -100,9 +100,7 @@ public enum ParserRuleContext {
     DOC_STRING("doc-string"),
     QUALIFIED_IDENTIFIER("qualified-identifier"),
     EQUAL_OR_RIGHT_ARROW("equal-or-right-arrow"),
-    MAP_TYPE_DESCRIPTOR("map-type-descriptor"),
-    FUTURE_TYPE_DESCRIPTOR("future-type-descriptor"),
-    TYPEDESC_TYPE_DESCRIPTOR("typedesc-type-descriptor"),
+    PARAMETERIZED_TYPE_DESCRIPTOR("parameterized-type-descriptor"),
     ANNOTATION_DECL("annotation-decl"),
     ANNOT_DECL_OPTIONAL_TYPE("annot-decl-optional-type"),
     ANNOT_DECL_RHS("annot-decl-rhs"),
@@ -148,6 +146,7 @@ public enum ParserRuleContext {
     EXPRESSION_STATEMENT_START("expression-statement-start"),
     LOCK_STMT("lock-stmt"),
     NAMED_WORKER_DECL("named-worker-decl"),
+    FORK_STMT("fork-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -188,6 +187,7 @@ public enum ParserRuleContext {
     SOURCE_KEYWORD("source"),
     XMLNS_KEYWORD("xmlns"),
     WORKER_KEYWORD("worker"),
+    FORK_KEYWORD("fork"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -258,6 +258,13 @@ public enum ParserRuleContext {
     NIL_LITERAL("nil-literal"),
     CONSTANT_EXPRESSION("constant-expr"),
     CONSTANT_EXPRESSION_START("constant-expr-start"),
+    DECIMAL_FLOATING_POINT_LITERAL("decimal-floating-point-literal"),
+    HEX_FLOATING_POINT_LITERAL("hex-floating-point-literal"),
+
+    //Other
+    PARAMETERIZED_TYPE("parameterized-type"),
+    NON_RECURSIVE_TYPE("non-recursive-type"),
+    TYPEDESC_RHS("type-desc-rhs"),
     ;
 
     private String value;

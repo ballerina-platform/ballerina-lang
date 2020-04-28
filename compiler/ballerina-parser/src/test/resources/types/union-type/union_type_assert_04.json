@@ -11,18 +11,16 @@
             ]
         },
         {
-            "kind": "UNION_TYPE",
+            "kind": "UNION_TYPE_DESC",
             "children": [
                 {
-                    "kind": "SIMPLE_TYPE",
-                    "value": "int"
+                    "kind": "INT_KEYWORD"
                 },
                 {
                     "kind": "PIPE_TOKEN"
                 },
                 {
-                    "kind": "SIMPLE_TYPE",
-                    "value": "string"
+                    "kind": "STRING_KEYWORD"
                 }
             ]
         },

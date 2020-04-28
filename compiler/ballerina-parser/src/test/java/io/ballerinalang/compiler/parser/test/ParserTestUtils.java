@@ -24,15 +24,16 @@ import com.google.gson.JsonObject;
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
+import io.ballerinalang.compiler.internal.parser.tree.STBasicLiteralNode;
+import io.ballerinalang.compiler.internal.parser.tree.STBuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STDocumentationLineToken;
 import io.ballerinalang.compiler.internal.parser.tree.STIdentifierToken;
 import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.internal.parser.tree.STTypeToken;
 import io.ballerinalang.compiler.internal.parser.tree.SyntaxTrivia;
-import io.ballerinalang.compiler.syntax.BLModules;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
@@ -116,7 +117,7 @@ public class ParserTestUtils {
     public static SyntaxTree parseFile(Path sourceFilePath) {
         String text = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(text);
-        return BLModules.parse(textDocument);
+        return SyntaxTree.from(textDocument, sourceFilePath.getFileName().toString());
     }
 
     private static JsonObject readAssertFile(Path filePath) {
@@ -129,6 +130,15 @@ public class ParserTestUtils {
     }
 
     private static void assertNode(STNode node, JsonObject json) {
+        // Remove the wrappers
+        if (node instanceof STBasicLiteralNode) {
+            node = ((STBasicLiteralNode) node).literalToken;
+        } else if (node instanceof STSimpleNameReferenceNode) {
+            node = ((STSimpleNameReferenceNode) node).name;
+        } else if (node instanceof STBuiltinSimpleNameReferenceNode) {
+            node = ((STBuiltinSimpleNameReferenceNode) node).name;
+        }
+
         aseertNodeKind(json, node);
 
         if (isMissingToken(json)) {
@@ -256,9 +266,9 @@ public class ParserTestUtils {
                 return val.substring(1, lastCharPosition);
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
                 return ((STLiteralValueToken) token).text;
-            case SIMPLE_TYPE:
-                return ((STTypeToken) token).text;
             case WHITESPACE_TRIVIA:
             case END_OF_LINE_TRIVIA:
             case COMMENT:
@@ -386,6 +396,32 @@ public class ParserTestUtils {
                 return SyntaxKind.FIELD_KEYWORD;
             case "XMLNS_KEYWORD":
                 return SyntaxKind.XMLNS_KEYWORD;
+            case "INT_KEYWORD":
+                return SyntaxKind.INT_KEYWORD;
+            case "FLOAT_KEYWORD":
+                return SyntaxKind.FLOAT_KEYWORD;
+            case "DECIMAL_KEYWORD":
+                return SyntaxKind.DECIMAL_KEYWORD;
+            case "BOOLEAN_KEYWORD":
+                return SyntaxKind.BOOLEAN_KEYWORD;
+            case "STRING_KEYWORD":
+                return SyntaxKind.STRING_KEYWORD;
+            case "BYTE_KEYWORD":
+                return SyntaxKind.BYTE_KEYWORD;
+            case "XML_KEYWORD":
+                return SyntaxKind.XML_KEYWORD;
+            case "JSON_KEYWORD":
+                return SyntaxKind.JSON_KEYWORD;
+            case "HANDLE_KEYWORD":
+                return SyntaxKind.HANDLE_KEYWORD;
+            case "ANY_KEYWORD":
+                return SyntaxKind.ANY_KEYWORD;
+            case "ANYDATA_KEYWORD":
+                return SyntaxKind.ANYDATA_KEYWORD;
+            case "NEVER_KEYWORD":
+                return SyntaxKind.NEVER_KEYWORD;
+            case "FORK_KEYWORD":
+                return SyntaxKind.FORK_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -492,8 +528,8 @@ public class ParserTestUtils {
                 return SyntaxKind.NAMED_ARG;
             case "REST_ARG":
                 return SyntaxKind.REST_ARG;
-            case "QUALIFIED_IDENTIFIER":
-                return SyntaxKind.QUALIFIED_IDENTIFIER;
+            case "QUALIFIED_NAME_REFERENCE":
+                return SyntaxKind.QUALIFIED_NAME_REFERENCE;
             case "FIELD_ACCESS":
                 return SyntaxKind.FIELD_ACCESS;
             case "METHOD_CALL":
@@ -512,6 +548,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_TEST_EXPRESSION;
             case "NIL_LITERAL":
                 return SyntaxKind.NIL_LITERAL;
+            case "SIMPLE_NAME_REFERENCE":
+                return SyntaxKind.SIMPLE_NAME_REFERENCE;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -552,12 +590,50 @@ public class ParserTestUtils {
                 return SyntaxKind.ACTION_STATEMENT;
             case "LOCK_STATEMENT":
                 return SyntaxKind.LOCK_STATEMENT;
+            case "FORK_STATEMENT":
+                return SyntaxKind.FORK_STATEMENT;
+
+            // Types
+            case "TYPE_DESC":
+                return SyntaxKind.TYPE_DESC;
+            case "INT_TYPE_DESC":
+                return SyntaxKind.INT_TYPE_DESC;
+            case "FLOAT_TYPE_DESC":
+                return SyntaxKind.FLOAT_TYPE_DESC;
+            case "DECIMAL_TYPE_DESC":
+                return SyntaxKind.DECIMAL_TYPE_DESC;
+            case "BOOLEAN_TYPE_DESC":
+                return SyntaxKind.BOOLEAN_TYPE_DESC;
+            case "STRING_TYPE_DESC":
+                return SyntaxKind.STRING_TYPE_DESC;
+            case "BYTE_TYPE_DESC":
+                return SyntaxKind.BYTE_TYPE_DESC;
+            case "XML_TYPE_DESC":
+                return SyntaxKind.XML_TYPE_DESC;
+            case "JSON_TYPE_DESC":
+                return SyntaxKind.JSON_TYPE_DESC;
+            case "HANDLE_TYPE_DESC":
+                return SyntaxKind.HANDLE_TYPE_DESC;
+            case "ANY_TYPE_DESC":
+                return SyntaxKind.ANY_TYPE_DESC;
+            case "ANYDATA_TYPE_DESC":
+                return SyntaxKind.ANYDATA_TYPE_DESC;
+            case "NEVER_TYPE_DESC":
+                return SyntaxKind.NEVER_TYPE_DESC;
+            case "NIL_TYPE_DESC":
+                return SyntaxKind.NIL_TYPE_DESC;
+            case "OPTIONAL_TYPE_DESC":
+                return SyntaxKind.OPTIONAL_TYPE_DESC;
+            case "ARRAY_TYPE_DESC":
+                return SyntaxKind.ARRAY_TYPE_DESC;
+            case "RECORD_TYPE_DESC":
+                return SyntaxKind.RECORD_TYPE_DESC;
+            case "OBJECT_TYPE_DESC":
+                return SyntaxKind.OBJECT_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":
                 return SyntaxKind.FUNCTION_BODY_BLOCK;
-            case "SIMPLE_TYPE":
-                return SyntaxKind.SIMPLE_TYPE;
             case "LIST":
                 return SyntaxKind.LIST;
             case "RETURN_TYPE_DESCRIPTOR":
@@ -570,8 +646,6 @@ public class ParserTestUtils {
                 return SyntaxKind.DEFAULTABLE_PARAM;
             case "REST_PARAM":
                 return SyntaxKind.REST_PARAM;
-            case "RECORD_TYPE_DESCRIPTOR":
-                return SyntaxKind.RECORD_TYPE_DESCRIPTOR;
             case "RECORD_FIELD":
                 return SyntaxKind.RECORD_FIELD;
             case "RECORD_FIELD_WITH_DEFAULT_VALUE":
@@ -582,8 +656,6 @@ public class ParserTestUtils {
                 return SyntaxKind.RECORD_REST_TYPE;
             case "OBJECT_FIELD":
                 return SyntaxKind.OBJECT_FIELD;
-            case "OBJECT_TYPE_DESCRIPTOR":
-                return SyntaxKind.OBJECT_TYPE_DESCRIPTOR;
             case "IMPORT_ORG_NAME":
                 return SyntaxKind.IMPORT_ORG_NAME;
             case "MODULE_NAME":
@@ -606,20 +678,14 @@ public class ParserTestUtils {
                 return SyntaxKind.SERVICE_BODY;
             case "EXPRESSION_LIST_ITEM":
                 return SyntaxKind.EXPRESSION_LIST_ITEM;
-            case "NIL_TYPE":
-                return SyntaxKind.NIL_TYPE;
-            case "OPTIONAL_TYPE":
-                return SyntaxKind.OPTIONAL_TYPE;
-            case "ARRAY_TYPE":
-                return SyntaxKind.ARRAY_TYPE;
             case "ARRAY_DIMENSION":
                 return SyntaxKind.ARRAY_DIMENSION;
             case "METADATA":
                 return SyntaxKind.METADATA;
             case "ANNOTATION":
                 return SyntaxKind.ANNOTATION;
-            case "PARAMETERIZED_TYPE":
-                return SyntaxKind.PARAMETERIZED_TYPE;
+            case "PARAMETERIZED_TYPE_DESC":
+                return SyntaxKind.PARAMETERIZED_TYPE_DESC;
             case "ANNOTATION_ATTACH_POINT":
                 return SyntaxKind.ANNOTATION_ATTACH_POINT;
             case "NAMED_WORKER_DECLARATION":
@@ -630,8 +696,8 @@ public class ParserTestUtils {
                 return SyntaxKind.DOCUMENTATION_STRING;
             case "DOCUMENTATION_LINE":
                 return SyntaxKind.DOCUMENTATION_LINE;
-            case "UNION_TYPE":
-                return SyntaxKind.UNION_TYPE;
+            case "UNION_TYPE_DESC":
+                return SyntaxKind.UNION_TYPE_DESC;
 
             // Trivia
             case "EOF_TOKEN":

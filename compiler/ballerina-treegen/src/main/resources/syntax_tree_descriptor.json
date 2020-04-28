@@ -431,7 +431,7 @@
         },
         {
             "name": "ElseBlockNode",
-            "base": "StatementNode",
+            "base": "Node",
             "kind": "ELSE_BLOCK",
             "attributes": [
                 {
@@ -440,7 +440,7 @@
                 },
                 {
                     "name": "elseBody",
-                    "type": "BlockStatementNode"
+                    "type": "StatementNode"
                 }
             ]
         },
@@ -541,6 +541,30 @@
                 {
                     "name": "blockStatement",
                     "type": "StatementNode"
+                }
+            ]
+        },
+        {
+            "name": "ForkStatementNode",
+            "base": "StatementNode",
+            "kind": "FORK_STATEMENT",
+            "attributes": [
+                {
+                    "name": "forkKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "namedWorkerDeclarations",
+                    "type": "NamedWorkerDeclarationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
                 }
             ]
         },
@@ -1007,7 +1031,7 @@
                 },
                 {
                     "name": "fieldName",
-                    "type": "IdentifierToken"
+                    "type": "Token"
                 },
                 {
                     "name": "colon",
@@ -1102,8 +1126,8 @@
         },
         {
             "name": "ObjectTypeDescriptorNode",
-            "base": "Node",
-            "kind": "OBJECT_TYPE_DESCRIPTOR",
+            "base": "TypeDescriptorNode",
+            "kind": "OBJECT_TYPE_DESC",
             "attributes": [
                 {
                     "name": "objectTypeQualifiers",
@@ -1131,8 +1155,8 @@
         },
         {
             "name": "RecordTypeDescriptorNode",
-            "base": "Node",
-            "kind": "RECORD_TYPE_DESCRIPTOR",
+            "base": "TypeDescriptorNode",
+            "kind": "RECORD_TYPE_DESC",
             "attributes": [
                 {
                     "name": "objectKeyword",
@@ -1176,7 +1200,7 @@
         {
             "name": "NilTypeDescriptorNode",
             "base": "Node",
-            "kind": "NIL_TYPE",
+            "kind": "NIL_TYPE_DESC",
             "attributes": [
                 {
                     "name": "openParenToken",
@@ -1190,8 +1214,8 @@
         },
         {
             "name": "OptionalTypeDescriptorNode",
-            "base": "Node",
-            "kind": "OPTIONAL_TYPE",
+            "base": "TypeDescriptorNode",
+            "kind": "OPTIONAL_TYPE_DESC",
             "attributes": [
                 {
                     "name": "typeDescriptor",
@@ -1318,7 +1342,7 @@
         },
         {
             "name": "TypeReferenceNode",
-            "base": "Node",
+            "base": "TypeDescriptorNode",
             "kind": "TYPE_REFERENCE",
             "attributes": [
                 {
@@ -1332,25 +1356,6 @@
                 {
                     "name": "semicolonToken",
                     "type": "Token"
-                }
-            ]
-        },
-        {
-            "name": "QualifiedIdentifierNode",
-            "base": "Node",
-            "kind": "QUALIFIED_IDENTIFIER",
-            "attributes": [
-                {
-                    "name": "modulePrefix",
-                    "type": "Token"
-                },
-                {
-                    "name": "colon",
-                    "type": "Node"
-                },
-                {
-                    "name": "identifier",
-                    "type": "IdentifierToken"
                 }
             ]
         },
@@ -1468,8 +1473,8 @@
         },
         {
             "name": "ArrayTypeDescriptorNode",
-            "base": "Node",
-            "kind": "ARRAY_TYPE",
+            "base": "TypeDescriptorNode",
+            "kind": "ARRAY_TYPE_DESC",
             "attributes": [
                 {
                     "name": "typeDescriptorNode",
@@ -1528,8 +1533,8 @@
         },
         {
             "name": "ParameterizedTypeDescriptorNode",
-            "base": "Node",
-            "kind": "PARAMETERIZED_TYPE",
+            "base": "TypeDescriptorNode",
+            "kind": "PARAMETERIZED_TYPE_DESC",
             "attributes": [
                 {
                     "name": "parameterizedType",
@@ -1738,9 +1743,69 @@
             ]
         },
         {
+            "name": "BasicLiteralNode",
+            "base": "ExpressionNode",
+            "attributes": [
+                {
+                    "name": "literalToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "TypeDescriptorNode",
+            "base": "ExpressionNode",
+            "isAbstract": true
+        },
+        {
+            "name": "NameReferenceNode",
+            "base": "TypeDescriptorNode",
+            "isAbstract": true
+        },
+        {
+            "name": "SimpleNameReferenceNode",
+            "base": "NameReferenceNode",
+            "kind": "SIMPLE_NAME_REFERENCE",
+            "attributes": [
+                {
+                    "name": "name",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "QualifiedNameReferenceNode",
+            "base": "NameReferenceNode",
+            "kind": "QUALIFIED_NAME_REFERENCE",
+            "attributes": [
+                {
+                    "name": "modulePrefix",
+                    "type": "Token"
+                },
+                {
+                    "name": "colon",
+                    "type": "Node"
+                },
+                {
+                    "name": "identifier",
+                    "type": "IdentifierToken"
+                }
+            ]
+        },
+        {
+            "name": "BuiltinSimpleNameReferenceNode",
+            "base": "NameReferenceNode",
+            "attributes": [
+                {
+                    "name": "name",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "UnionTypeDescriptorNode",
             "base": "Node",
-            "kind": "UNION_TYPE",
+            "kind": "UNION_TYPE_DESC",
             "attributes": [
                 {
                     "name": "leftTypeDesc",

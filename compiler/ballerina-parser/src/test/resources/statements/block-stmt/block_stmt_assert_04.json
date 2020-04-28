@@ -1,118 +1,120 @@
 {
-            "kind": "FUNCTION_DEFINITION",
+    "kind": "FUNCTION_DEFINITION",
+    "children": [
+        {
+            "kind": "METADATA",
             "children": [
                 {
-                    "kind": "METADATA",
+                    "kind": "LIST",
                     "children": [
-                        {
-                            "kind": "LIST",
-                            "children": []
-                        }
                     ]
-                },
+                }
+            ]
+        },
+        {
+            "kind": "PUBLIC_KEYWORD"
+        },
+        {
+            "kind": "FUNCTION_KEYWORD"
+        },
+        {
+            "kind": "IDENTIFIER_TOKEN",
+            "value": "foo"
+        },
+        {
+            "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+            "kind": "LIST",
+            "children": [
+            ]
+        },
+        {
+            "kind": "CLOSE_PAREN_TOKEN"
+        },
+        {
+            "kind": "FUNCTION_BODY_BLOCK",
+            "children": [
                 {
-                    "kind": "PUBLIC_KEYWORD"
-                },
-                {
-                    "kind": "FUNCTION_KEYWORD"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "foo"
-                },
-                {
-                    "kind": "OPEN_PAREN_TOKEN"
+                    "kind": "OPEN_BRACE_TOKEN"
                 },
                 {
                     "kind": "LIST",
-                    "children": []
-                },
-                {
-                    "kind": "CLOSE_PAREN_TOKEN"
-                },
-                {
-                    "kind": "FUNCTION_BODY_BLOCK",
                     "children": [
                         {
-                            "kind": "OPEN_BRACE_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
+                            "kind": "BLOCK_STATEMENT",
                             "children": [
                                 {
-                                    "kind": "BLOCK_STATEMENT",
+                                    "kind": "OPEN_BRACE_TOKEN"
+                                },
+                                {
+                                    "kind": "LIST",
                                     "children": [
                                         {
-                                            "kind": "OPEN_BRACE_TOKEN"
-                                        },
-                                        {
-                                            "kind": "LIST",
+                                            "kind": "INVALID",
                                             "children": [
                                                 {
-                                                    "kind": "INVALID",
-                                                    "children": [
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "A"
-                                                        },
-                                                        {
-                                                            "kind": "SEMICOLON_TOKEN"
-                                                        }
-                                                    ]
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "A"
                                                 },
                                                 {
-                                                    "kind": "LOCAL_VAR_DECL",
-                                                    "children": [
-                                                        {
-                                                            "kind": "LIST",
-                                                            "children": []
-                                                        },
-                                                        {
-                                                            "kind": "SIMPLE_TYPE",
-                                                            "value": "int"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "a"
-                                                        },
-                                                        {
-                                                            "kind": "SEMICOLON_TOKEN"
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "kind": "LOCAL_VAR_DECL",
-                                                    "children": [
-                                                        {
-                                                            "kind": "LIST",
-                                                            "children": []
-                                                        },
-                                                        {
-                                                            "kind": "SIMPLE_TYPE",
-                                                            "value": "int"
-                                                        },
-                                                        {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "b"
-                                                        },
-                                                        {
-                                                            "kind": "SEMICOLON_TOKEN"
-                                                        }
-                                                    ]
+                                                    "kind": "SEMICOLON_TOKEN"
                                                 }
                                             ]
                                         },
                                         {
-                                            "kind": "CLOSE_BRACE_TOKEN"
+                                            "kind": "LOCAL_VAR_DECL",
+                                            "children": [
+                                                {
+                                                    "kind": "LIST",
+                                                    "children": [
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "INT_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "a"
+                                                },
+                                                {
+                                                    "kind": "SEMICOLON_TOKEN"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "kind": "LOCAL_VAR_DECL",
+                                            "children": [
+                                                {
+                                                    "kind": "LIST",
+                                                    "children": [
+                                                    ]
+                                                },
+                                                {
+                                                    "kind": "INT_KEYWORD"
+                                                },
+                                                {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "b"
+                                                },
+                                                {
+                                                    "kind": "SEMICOLON_TOKEN"
+                                                }
+                                            ]
                                         }
                                     ]
+                                },
+                                {
+                                    "kind": "CLOSE_BRACE_TOKEN"
                                 }
                             ]
-                        },
-                        {
-                            "kind": "CLOSE_BRACE_TOKEN"
                         }
                     ]
+                },
+                {
+                    "kind": "CLOSE_BRACE_TOKEN"
                 }
             ]
         }
+    ]
+}

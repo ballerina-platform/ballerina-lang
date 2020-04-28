@@ -11,7 +11,7 @@
             ]
         },
         {
-            "kind": "UNION_TYPE",
+            "kind": "UNION_TYPE_DESC",
             "children": [
                 {
                     "kind": "IDENTIFIER_TOKEN",

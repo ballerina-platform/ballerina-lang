@@ -48,7 +48,12 @@ public class UnionTypeTest extends AbstractTypesTest {
     }
 
     @Test
-    public void testInValidLocalLevelUnionTypeExtraSimbols() {
+    public void testInValidLocalLevelUnionTypeExtraSymbols() {
         testFile("union-type/union_type_assert_03.bal", "union-type/union_type_assert_03.json");
+    }
+
+    @Test
+    public void testInValidLocalLevelUnionTypeMissingRightTypeDesc() {
+        testFile("union-type/union_type_assert_04.bal", "union-type/union_type_assert_06.json");
     }
 }

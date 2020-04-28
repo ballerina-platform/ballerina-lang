@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STParameterizedTypeDescriptorNode extends STNode {
+public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode parameterizedType;
     public final STNode ltToken;
     public final STNode typeNode;
@@ -38,7 +38,7 @@ public class STParameterizedTypeDescriptorNode extends STNode {
             STNode ltToken,
             STNode typeNode,
             STNode gtToken) {
-        super(SyntaxKind.PARAMETERIZED_TYPE);
+        super(SyntaxKind.PARAMETERIZED_TYPE_DESC);
         this.parameterizedType = parameterizedType;
         this.ltToken = ltToken;
         this.typeNode = typeNode;

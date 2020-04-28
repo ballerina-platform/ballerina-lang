@@ -24,7 +24,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STNode;
  *
  * @since 1.3.0
  */
-public class OptionalTypeDescriptorNode extends NonTerminalNode {
+public class OptionalTypeDescriptorNode extends TypeDescriptorNode {
 
     public OptionalTypeDescriptorNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

@@ -321,6 +321,19 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 blockStatement);
     }
 
+    public static STNode createForkStatementNode(
+            STNode forkKeyword,
+            STNode openBraceToken,
+            STNode namedWorkerDeclarations,
+            STNode closeBraceToken) {
+
+        return new STForkStatementNode(
+                forkKeyword,
+                openBraceToken,
+                namedWorkerDeclarations,
+                closeBraceToken);
+    }
+
     public static STNode createBinaryExpressionNode(
             SyntaxKind kind,
             STNode lhsExpr,
@@ -760,17 +773,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 semicolonToken);
     }
 
-    public static STNode createQualifiedIdentifierNode(
-            STNode modulePrefix,
-            STNode colon,
-            STNode identifier) {
-
-        return new STQualifiedIdentifierNode(
-                modulePrefix,
-                colon,
-                identifier);
-    }
-
     public static STNode createServiceBodyNode(
             STNode openBraceToken,
             STNode resources,
@@ -975,6 +977,42 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STDocumentationStringNode(
                 documentationLines);
+    }
+
+    public static STNode createBasicLiteralNode(
+            SyntaxKind kind,
+            STNode literalToken) {
+
+        return new STBasicLiteralNode(
+                kind,
+                literalToken);
+    }
+
+    public static STNode createSimpleNameReferenceNode(
+            STNode name) {
+
+        return new STSimpleNameReferenceNode(
+                name);
+    }
+
+    public static STNode createQualifiedNameReferenceNode(
+            STNode modulePrefix,
+            STNode colon,
+            STNode identifier) {
+
+        return new STQualifiedNameReferenceNode(
+                modulePrefix,
+                colon,
+                identifier);
+    }
+
+    public static STNode createBuiltinSimpleNameReferenceNode(
+            SyntaxKind kind,
+            STNode name) {
+
+        return new STBuiltinSimpleNameReferenceNode(
+                kind,
+                name);
     }
 
     public static STNode createUnionTypeDescriptorNode(

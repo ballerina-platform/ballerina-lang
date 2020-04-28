@@ -12,7 +12,7 @@
             ]
         },
         {
-            "kind": "PARAMETERIZED_TYPE",
+            "kind": "PARAMETERIZED_TYPE_DESC",
             "children": [
                 {
                     "kind": "FUTURE_KEYWORD"

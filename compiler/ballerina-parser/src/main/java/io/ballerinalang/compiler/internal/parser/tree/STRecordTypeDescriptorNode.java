@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STRecordTypeDescriptorNode extends STNode {
+public class STRecordTypeDescriptorNode extends STTypeDescriptorNode {
     public final STNode objectKeyword;
     public final STNode bodyStartDelimiter;
     public final STNode fields;
@@ -38,7 +38,7 @@ public class STRecordTypeDescriptorNode extends STNode {
             STNode bodyStartDelimiter,
             STNode fields,
             STNode bodyEndDelimiter) {
-        super(SyntaxKind.RECORD_TYPE_DESCRIPTOR);
+        super(SyntaxKind.RECORD_TYPE_DESC);
         this.objectKeyword = objectKeyword;
         this.bodyStartDelimiter = bodyStartDelimiter;
         this.fields = fields;

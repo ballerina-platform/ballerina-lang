@@ -6,8 +6,7 @@
             "children": [
                 {
                     "kind": "LIST",
-                    "children": [
-                    ]
+                    "children": []
                 }
             ]
         },
@@ -26,8 +25,7 @@
         },
         {
             "kind": "LIST",
-            "children": [
-            ]
+            "children": []
         },
         {
             "kind": "CLOSE_PAREN_TOKEN"
@@ -46,22 +44,19 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": [
-                                    ]
+                                    "children": []
                                 },
                                 {
-                                    "kind": "UNION_TYPE",
+                                    "kind": "UNION_TYPE_DESC",
                                     "children": [
                                         {
-                                            "kind": "SIMPLE_TYPE",
-                                            "value": "int"
+                                            "kind": "INT_KEYWORD"
                                         },
                                         {
                                             "kind": "PIPE_TOKEN"
                                         },
                                         {
-                                            "kind": "SIMPLE_TYPE",
-                                            "value": "string"
+                                            "kind": "STRING_KEYWORD"
                                         }
                                     ]
                                 },
@@ -79,18 +74,16 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": [
-                                    ]
+                                    "children": []
                                 },
                                 {
-                                    "kind": "UNION_TYPE",
+                                    "kind": "UNION_TYPE_DESC",
                                     "children": [
                                         {
-                                            "kind": "ARRAY_TYPE",
+                                            "kind": "ARRAY_TYPE_DESC",
                                             "children": [
                                                 {
-                                                    "kind": "SIMPLE_TYPE",
-                                                    "value": "int"
+                                                    "kind": "INT_KEYWORD"
                                                 },
                                                 {
                                                     "kind": "OPEN_BRACKET_TOKEN"
@@ -104,11 +97,10 @@
                                             "kind": "PIPE_TOKEN"
                                         },
                                         {
-                                            "kind": "ARRAY_TYPE",
+                                            "kind": "ARRAY_TYPE_DESC",
                                             "children": [
                                                 {
-                                                    "kind": "SIMPLE_TYPE",
-                                                    "value": "string"
+                                                    "kind": "STRING_KEYWORD"
                                                 },
                                                 {
                                                     "kind": "OPEN_BRACKET_TOKEN"
@@ -134,14 +126,13 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": [
-                                    ]
+                                    "children": []
                                 },
                                 {
-                                    "kind": "UNION_TYPE",
+                                    "kind": "UNION_TYPE_DESC",
                                     "children": [
                                         {
-                                            "kind": "PARAMETERIZED_TYPE",
+                                            "kind": "PARAMETERIZED_TYPE_DESC",
                                             "children": [
                                                 {
                                                     "kind": "MAP_KEYWORD"
@@ -150,8 +141,7 @@
                                                     "kind": "LT_TOKEN"
                                                 },
                                                 {
-                                                    "kind": "SIMPLE_TYPE",
-                                                    "value": "string"
+                                                    "kind": "STRING_KEYWORD"
                                                 },
                                                 {
                                                     "kind": "GT_TOKEN"
@@ -162,7 +152,7 @@
                                             "kind": "PIPE_TOKEN"
                                         },
                                         {
-                                            "kind": "ARRAY_TYPE",
+                                            "kind": "ARRAY_TYPE_DESC",
                                             "children": [
                                                 {
                                                     "kind": "IDENTIFIER_TOKEN",
@@ -192,18 +182,16 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": [
-                                    ]
+                                    "children": []
                                 },
                                 {
-                                    "kind": "UNION_TYPE",
+                                    "kind": "UNION_TYPE_DESC",
                                     "children": [
                                         {
-                                            "kind": "OPTIONAL_TYPE",
+                                            "kind": "OPTIONAL_TYPE_DESC",
                                             "children": [
                                                 {
-                                                    "kind": "SIMPLE_TYPE",
-                                                    "value": "float"
+                                                    "kind": "FLOAT_KEYWORD"
                                                 },
                                                 {
                                                     "kind": "QUESTION_MARK_TOKEN"
@@ -214,8 +202,7 @@
                                             "kind": "PIPE_TOKEN"
                                         },
                                         {
-                                            "kind": "SIMPLE_TYPE",
-                                            "value": "int"
+                                            "kind": "INT_KEYWORD"
                                         }
                                     ]
                                 },
@@ -233,24 +220,22 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": [
-                                    ]
+                                    "children": []
                                 },
                                 {
-                                    "kind": "UNION_TYPE",
+                                    "kind": "UNION_TYPE_DESC",
                                     "children": [
                                         {
-                                            "kind": "SIMPLE_TYPE",
-                                            "value": "float"
+                                            "kind": "FLOAT_KEYWORD"
                                         },
                                         {
                                             "kind": "PIPE_TOKEN"
                                         },
                                         {
-                                            "kind": "UNION_TYPE",
+                                            "kind": "UNION_TYPE_DESC",
                                             "children": [
                                                 {
-                                                    "kind": "NIL_TYPE",
+                                                    "kind": "NIL_TYPE_DESC",
                                                     "children": [
                                                         {
                                                             "kind": "OPEN_PAREN_TOKEN"
@@ -264,8 +249,7 @@
                                                     "kind": "PIPE_TOKEN"
                                                 },
                                                 {
-                                                    "kind": "SIMPLE_TYPE",
-                                                    "value": "int"
+                                                    "kind": "INT_KEYWORD"
                                                 }
                                             ]
                                         }
@@ -285,11 +269,10 @@
                             "children": [
                                 {
                                     "kind": "LIST",
-                                    "children": [
-                                    ]
+                                    "children": []
                                 },
                                 {
-                                    "kind": "UNION_TYPE",
+                                    "kind": "UNION_TYPE_DESC",
                                     "children": [
                                         {
                                             "kind": "IDENTIFIER_TOKEN",
