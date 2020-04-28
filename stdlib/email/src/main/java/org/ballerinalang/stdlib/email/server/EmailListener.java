@@ -61,7 +61,7 @@ public class EmailListener {
         if (runtime != null) {
             Set<Map.Entry<String, ObjectValue>> services = registeredServices.entrySet();
             for (Map.Entry<String, ObjectValue> service : services) {
-                runtime.invokeMethodSync(registeredServices.get(service.getKey()), EmailConstants.ON_MESSAGE,
+                runtime.invokeMethodSync(service.getValue(), EmailConstants.ON_MESSAGE,
                         email, true);
             }
         } else {
@@ -79,7 +79,7 @@ public class EmailListener {
         if (runtime != null) {
             Set<Map.Entry<String, ObjectValue>> services = registeredServices.entrySet();
             for (Map.Entry<String, ObjectValue> service : services) {
-                runtime.invokeMethodSync(registeredServices.get(service.getKey()), EmailConstants.ON_ERROR,
+                runtime.invokeMethodSync(service.getValue(), EmailConstants.ON_ERROR,
                         error, true);
             }
         } else {
