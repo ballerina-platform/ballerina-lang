@@ -17,43 +17,49 @@
 function testSimpleUnionReturnParameterNarrowing() {
     int[]|float[] arr = <int[]>[1, 2];
     [int, (int|float)][] y = arr.enumerate();
-    assertTrue(y[0][0] is int);
     assertTrue(y[0][1] is int);
-    assertEqual(1, y[0][1][0]);
-    assertEqual(2, y[0][1][1]);
+    assertEqual(1, y[0][1]);
+    assertEqual(2, y[1][1]);
 }
 
 function testUnionOfMapsReturnParameterNarrowing() {
     map<int>|map<float> m = <map<int>>{"1": 1};
     int|float x = m.get("1");
-    assertTrue(true);
+    assertEqual(1, x);
 }
 
 function testStringIntFloatSimpleAndArrayUnionReturnParameterNarrowing() {
     string | int[] | int | float[] | float arr = <int[]>[1, 2];
     if (arr is int[] | float[]) {
         [int, (int|float)][] y = arr.enumerate();
+        assertTrue(y[0][1] is int);
+        assertEqual(1, y[0][1]);
+        assertEqual(2, y[1][1]);
+    } else {
+        assertTrue(false);
     }
-    assertTrue(true);
 }
 
 function testIntFloatSimpleAndMapUnionReturnParameterNarrowing() {
     map<int> | int | map<float> | float  m = <map<int>>{"1": 1};
     if (m is map<int> | map<float>) {
-        int | float x = m.get("1");
+        int|float x = m.get("1");
+        assertTrue(x is int);
+        assertEqual(1, x);
+    } else {
+        assertTrue(false);
     }
-    assertTrue(true);
 }
 
 function testIntFloatSimpleArrayMapUnionReturnParameterNarrowing() {
     map<int> | int[] | map<float> | float[]  m = <map<int>>{"1": 1};
     if (m is map<float> | map<int>) {
-        int | float x = m.get("1");
+        int|float x = m.get("1");
+        assertTrue(x is int);
+        assertEqual(1, x);
+    } else {
+        assertTrue(false);
     }
-    if (m is int[] | float[]) {
-        [int, (int|float)][] y = m.enumerate();
-    }
-    assertTrue(true);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

@@ -314,8 +314,8 @@ public class TypeParamAnalyzer {
                                                 result);
                 }
                 if (actualType.tag == TypeTags.UNION) {
-                    findTypeParamInUnionForMap(pos, (BMapType) expType, (BUnionType) actualType, env, resolvedTypes,
-                                               result);
+                    findTypeParamInUnion(pos, ((BMapType) expType).constraint, (BUnionType) actualType, env, resolvedTypes,
+                                         result);
                 }
                 return;
             case TypeTags.STREAM:
