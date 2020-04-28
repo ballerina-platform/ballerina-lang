@@ -661,7 +661,7 @@ public class JvmTerminatorGen {
                              String version, int localVarOffset) {
 
             if (!callIns.isVirtual) {
-                this.genFuncCall(callIns, orgName, moduleName,version, localVarOffset);
+                this.genFuncCall(callIns, orgName, moduleName, version, localVarOffset);
                 return;
             }
 

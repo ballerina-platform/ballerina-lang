@@ -120,6 +120,7 @@ public class BFileUtil {
      *
      * @param orgName     Org name
      * @param packageName Package name
+     * @param version Package version
      * @param className   Class name
      * @return Qualified class name
      */
