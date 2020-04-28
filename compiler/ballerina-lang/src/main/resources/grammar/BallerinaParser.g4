@@ -58,6 +58,10 @@ blockFunctionBody
     :   LEFT_BRACE statement* (workerDeclaration+ statement*)? RIGHT_BRACE
     ;
 
+blockStatement
+    :   LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
 externalFunctionBody
     :   ASSIGN annotationAttachment* EXTERNAL
     ;
@@ -335,6 +339,7 @@ statement
     |   retryStatement
     |   lockStatement
     |   namespaceDeclarationStatement
+    |   blockStatement
     ;
 
 variableDefinitionStatement

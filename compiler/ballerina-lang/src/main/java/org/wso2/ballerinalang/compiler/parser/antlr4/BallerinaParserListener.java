@@ -108,6 +108,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitBlockFunctionBody(BallerinaParser.BlockFunctionBodyContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#blockStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterBlockStatement(BallerinaParser.BlockStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#blockStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitBlockStatement(BallerinaParser.BlockStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#externalFunctionBody}.
 	 * @param ctx the parse tree
 	 */

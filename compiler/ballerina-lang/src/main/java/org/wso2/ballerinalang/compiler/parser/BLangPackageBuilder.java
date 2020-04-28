@@ -175,6 +175,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
@@ -2922,6 +2923,18 @@ public class BLangPackageBuilder {
         whileBlock.pos = pos;
         whileNode.setBody(whileBlock);
         addStmtToCurrentBlock(whileNode);
+    }
+
+    void startBlockStmt(){ startBlock(); }
+
+    void addBlockStmt(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangBlock blockNode = (BLangBlock) TreeBuilder.createStatementBlockNode();
+        blockNode.pos = pos;
+        blockNode.addWS(ws);
+        BLangBlockStmt block = (BLangBlockStmt) this.blockNodeStack.pop();
+        block.pos = pos;
+        blockNode.setBody(block);
+        addStmtToCurrentBlock(blockNode);
     }
 
     void startLockStmt() {
