@@ -56,7 +56,7 @@ public class ListConstructorTest extends AbstractExpressionsTest {
 
     @Test
     public void testListWithOnlyCommas() {
-        test("[,,];", "list-constructor/list_constructor_assert_07.json");
+        test("[,,]", "list-constructor/list_constructor_assert_07.json");
     }
 
     @Test

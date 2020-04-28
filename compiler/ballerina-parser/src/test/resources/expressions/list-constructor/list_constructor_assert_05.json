@@ -8,35 +8,25 @@
             "kind": "LIST",
             "children": [
                 {
-                    "kind": "EXPRESSION_LIST_ITEM",
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "a"
+                },
+                {
+                    "kind": "COMMA_TOKEN"
+                },
+                {
+                    "kind": "BINARY_EXPRESSION",
                     "children": [
                         {
                             "kind": "IDENTIFIER_TOKEN",
-                            "value": "a"
-                        }
-                    ]
-                },
-                {
-                    "kind": "EXPRESSION_LIST_ITEM",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
+                            "value": "b"
                         },
                         {
-                            "kind": "BINARY_EXPRESSION",
-                            "children": [
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "b"
-                                },
-                                {
-                                    "kind": "PLUS_TOKEN"
-                                },
-                                {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "c"
-                                }
-                            ]
+                            "kind": "PLUS_TOKEN"
+                        },
+                        {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "c"
                         }
                     ]
                 }

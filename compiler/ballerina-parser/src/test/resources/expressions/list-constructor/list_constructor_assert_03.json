@@ -8,208 +8,168 @@
             "kind": "LIST",
             "children": [
                 {
-                    "kind": "EXPRESSION_LIST_ITEM",
+                    "kind": "LIST_CONSTRUCTOR",
                     "children": [
                         {
-                            "kind": "LIST_CONSTRUCTOR",
+                            "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                            "kind": "LIST",
                             "children": [
                                 {
-                                    "kind": "OPEN_BRACKET_TOKEN"
-                                },
-                                {
-                                    "kind": "LIST",
+                                    "kind": "LIST_CONSTRUCTOR",
                                     "children": [
                                         {
-                                            "kind": "EXPRESSION_LIST_ITEM",
-                                            "children": [
-                                                {
-                                                    "kind": "LIST_CONSTRUCTOR",
-                                                    "children": [
-                                                        {
-                                                            "kind": "OPEN_BRACKET_TOKEN"
-                                                        },
-                                                        {
-                                                            "kind": "LIST",
-                                                            "children": []
-                                                        },
-                                                        {
-                                                            "kind": "CLOSE_BRACKET_TOKEN"
-                                                        }
-                                                    ]
-                                                }
-                                            ]
+                                            "kind": "OPEN_BRACKET_TOKEN"
+                                        },
+                                        {
+                                            "kind": "LIST",
+                                            "children": []
+                                        },
+                                        {
+                                            "kind": "CLOSE_BRACKET_TOKEN"
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "CLOSE_BRACKET_TOKEN"
                                 }
                             ]
+                        },
+                        {
+                            "kind": "CLOSE_BRACKET_TOKEN"
                         }
                     ]
                 },
                 {
-                    "kind": "EXPRESSION_LIST_ITEM",
+                    "kind": "COMMA_TOKEN"
+                },
+                {
+                    "kind": "LIST_CONSTRUCTOR",
                     "children": [
                         {
-                            "kind": "COMMA_TOKEN"
+                            "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
-                            "kind": "LIST_CONSTRUCTOR",
+                            "kind": "LIST",
                             "children": [
                                 {
-                                    "kind": "OPEN_BRACKET_TOKEN"
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "a"
                                 },
                                 {
-                                    "kind": "LIST",
-                                    "children": [
-                                        {
-                                            "kind": "EXPRESSION_LIST_ITEM",
-                                            "children": [
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "a"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "kind": "EXPRESSION_LIST_ITEM",
-                                            "children": [
-                                                {
-                                                    "kind": "COMMA_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "b"
-                                                }
-                                            ]
-                                        }
-                                    ]
+                                    "kind": "COMMA_TOKEN"
                                 },
                                 {
-                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "b"
                                 }
                             ]
+                        },
+                        {
+                            "kind": "CLOSE_BRACKET_TOKEN"
                         }
                     ]
                 },
                 {
-                    "kind": "EXPRESSION_LIST_ITEM",
+                    "kind": "COMMA_TOKEN"
+                },
+                {
+                    "kind": "MAPPING_CONSTRUCTOR",
                     "children": [
                         {
-                            "kind": "COMMA_TOKEN"
+                            "kind": "OPEN_BRACE_TOKEN"
                         },
                         {
-                            "kind": "MAPPING_CONSTRUCTOR",
+                            "kind": "LIST",
                             "children": [
                                 {
-                                    "kind": "OPEN_BRACE_TOKEN"
-                                },
-                                {
-                                    "kind": "LIST",
+                                    "kind": "SPECIFIC_FIELD",
                                     "children": [
                                         {
-                                            "kind": "SPECIFIC_FIELD",
-                                            "children": [
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "a"
-                                                },
-                                                {
-                                                    "kind": "COLON_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "b"
-                                                }
-                                            ]
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "a"
                                         },
                                         {
-                                            "kind": "SPECIFIC_FIELD",
+                                            "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "b"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "kind": "SPECIFIC_FIELD",
+                                    "children": [
+                                        {
+                                            "kind": "COMMA_TOKEN"
+                                        },
+                                        {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "c"
+                                        },
+                                        {
+                                            "kind": "COLON_TOKEN"
+                                        },
+                                        {
+                                            "kind": "LIST_CONSTRUCTOR",
                                             "children": [
                                                 {
-                                                    "kind": "COMMA_TOKEN"
+                                                    "kind": "OPEN_BRACKET_TOKEN"
                                                 },
                                                 {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "c"
-                                                },
-                                                {
-                                                    "kind": "COLON_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "LIST_CONSTRUCTOR",
+                                                    "kind": "LIST",
                                                     "children": [
                                                         {
-                                                            "kind": "OPEN_BRACKET_TOKEN"
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "d"
                                                         },
                                                         {
-                                                            "kind": "LIST",
+                                                            "kind": "COMMA_TOKEN"
+                                                        },
+                                                        {
+                                                            "kind": "MAPPING_CONSTRUCTOR",
                                                             "children": [
                                                                 {
-                                                                    "kind": "EXPRESSION_LIST_ITEM",
-                                                                    "children": [
-                                                                        {
-                                                                            "kind": "IDENTIFIER_TOKEN",
-                                                                            "value": "d"
-                                                                        }
-                                                                    ]
+                                                                    "kind": "OPEN_BRACE_TOKEN"
                                                                 },
                                                                 {
-                                                                    "kind": "EXPRESSION_LIST_ITEM",
+                                                                    "kind": "LIST",
                                                                     "children": [
                                                                         {
-                                                                            "kind": "COMMA_TOKEN"
-                                                                        },
-                                                                        {
-                                                                            "kind": "MAPPING_CONSTRUCTOR",
+                                                                            "kind": "SPECIFIC_FIELD",
                                                                             "children": [
                                                                                 {
-                                                                                    "kind": "OPEN_BRACE_TOKEN"
+                                                                                    "kind": "IDENTIFIER_TOKEN",
+                                                                                    "value": "e"
                                                                                 },
                                                                                 {
-                                                                                    "kind": "LIST",
-                                                                                    "children": [
-                                                                                        {
-                                                                                            "kind": "SPECIFIC_FIELD",
-                                                                                            "children": [
-                                                                                                {
-                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "e"
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "COLON_TOKEN"
-                                                                                                },
-                                                                                                {
-                                                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                                                    "value": "f"
-                                                                                                }
-                                                                                            ]
-                                                                                        }
-                                                                                    ]
+                                                                                    "kind": "COLON_TOKEN"
                                                                                 },
                                                                                 {
-                                                                                    "kind": "CLOSE_BRACE_TOKEN"
+                                                                                    "kind": "IDENTIFIER_TOKEN",
+                                                                                    "value": "f"
                                                                                 }
                                                                             ]
                                                                         }
                                                                     ]
+                                                                },
+                                                                {
+                                                                    "kind": "CLOSE_BRACE_TOKEN"
                                                                 }
                                                             ]
-                                                        },
-                                                        {
-                                                            "kind": "CLOSE_BRACKET_TOKEN"
                                                         }
                                                     ]
+                                                },
+                                                {
+                                                    "kind": "CLOSE_BRACKET_TOKEN"
                                                 }
                                             ]
                                         }
                                     ]
-                                },
-                                {
-                                    "kind": "CLOSE_BRACE_TOKEN"
                                 }
                             ]
+                        },
+                        {
+                            "kind": "CLOSE_BRACE_TOKEN"
                         }
                     ]
                 }
