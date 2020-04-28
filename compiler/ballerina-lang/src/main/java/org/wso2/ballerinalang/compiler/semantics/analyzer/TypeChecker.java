@@ -905,7 +905,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BType fieldType = field.type;
-                if (memberTypes.get(index).tag != fieldType.tag) {
+                if (!types.isAssignable(fieldType, memberTypes.get(index))) {
                     dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
                             DiagnosticCode.KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT,
                             fieldNameIdentifierList.toString(), memberTypes.toString());

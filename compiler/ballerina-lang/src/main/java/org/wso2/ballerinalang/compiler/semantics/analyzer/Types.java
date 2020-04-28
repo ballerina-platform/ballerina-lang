@@ -666,10 +666,14 @@ public class Types {
             return false;
         }
 
+        if (targetTableType.keyTypeConstraint == null && targetTableType.fieldNameList == null) {
+            return true;
+        }
+
         if (targetTableType.keyTypeConstraint != null) {
             if (sourceTableType.keyTypeConstraint != null &&
-                    (!isAssignable(targetTableType.keyTypeConstraint, sourceTableType.keyTypeConstraint))) {
-                return false;
+                    (isAssignable(sourceTableType.keyTypeConstraint, targetTableType.keyTypeConstraint))) {
+                return true;
             }
 
             if (sourceTableType.fieldNameList == null) {
@@ -698,7 +702,7 @@ public class Types {
                 }
 
                 BType fieldType = field.type;
-                if (memberTypes.get(index).tag != fieldType.tag) {
+                if (!isAssignable(fieldType, memberTypes.get(index))) {
                     return false;
                 }
                 index++;

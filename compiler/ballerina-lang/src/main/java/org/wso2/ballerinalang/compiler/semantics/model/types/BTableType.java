@@ -71,7 +71,7 @@ public class BTableType extends BType implements TableType {
         }
 
         return super.toString() + "<" + constraint + "> " +
-                ((keyTypeConstraint != null) ? ("key<" + keyTypeConstraint + ">") : "");
+                ((keyTypeConstraint != null) ? ("key<" + keyTypeConstraint + ">") : "").trim();
     }
 
     @Override
