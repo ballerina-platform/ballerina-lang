@@ -348,6 +348,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(builtinSimpleNameReferenceNode);
     }
 
+    public T transform(TrapExpressionNode trapExpressionNode) {
+        return transformSyntaxNode(trapExpressionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

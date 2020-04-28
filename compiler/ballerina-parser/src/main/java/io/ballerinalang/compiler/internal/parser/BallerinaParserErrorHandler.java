@@ -1984,6 +1984,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.FORK_KEYWORD;
             case FORK_KEYWORD:
                 return ParserRuleContext.OPEN_BRACE;
+            case TRAP_EXPRESSION:
+                return ParserRuleContext.TRAP_KEYWORD;
+            case TRAP_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
             case NON_RECURSIVE_TYPE:
                 return getNextRuleForTypeDescriptor();
             case PARAMETERIZED_TYPE_DESCRIPTOR:
@@ -1999,10 +2003,6 @@ public class BallerinaParserErrorHandler {
                     endContext();
                     return ParserRuleContext.TYPEDESC_RHS;
                 }
-            case TRAP_EXPRESSION:
-                return ParserRuleContext.TRAP_KEYWORD;
-            case TRAP_KEYWORD:
-                return ParserRuleContext.EXPRESSION;
                 // fall through
 
             case OBJECT_FUNC_OR_FIELD:
