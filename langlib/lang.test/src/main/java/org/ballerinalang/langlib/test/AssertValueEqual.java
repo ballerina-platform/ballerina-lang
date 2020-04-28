@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", functionName = "assertValueEqual",
+        orgName = "ballerina", packageName = "lang.test", version = "1.0.0", functionName = "assertValueEqual",
         args = {@Argument(name = "expected", type = TypeKind.ANYDATA),
                 @Argument(name = "actual", type = TypeKind.ANYDATA)},
         isPublic = true

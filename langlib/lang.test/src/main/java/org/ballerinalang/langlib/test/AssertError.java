@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", functionName = "assertError",
+        orgName = "ballerina", packageName = "lang.test", version = "1.0.0", functionName = "assertError",
         args = {@Argument(name = "value", type = TypeKind.UNION)},
         isPublic = true
 )
