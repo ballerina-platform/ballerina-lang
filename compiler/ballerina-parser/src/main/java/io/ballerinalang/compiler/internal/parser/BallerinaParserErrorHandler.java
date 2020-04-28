@@ -195,7 +195,7 @@ public class BallerinaParserErrorHandler {
                     ParserRuleContext.ACCESS_EXPRESSION, ParserRuleContext.TYPEOF_EXPRESSION,
                     ParserRuleContext.TRAP_EXPRESSION, ParserRuleContext.UNARY_EXPRESSION,
                     ParserRuleContext.TYPE_TEST_EXPRESSION, ParserRuleContext.CHECKING_KEYWORD,
-                    ParserRuleContext.OPEN_PARENTHESIS, ParserRuleContext.LIST_CONSTRUCTOR };
+                    ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.OPEN_PARENTHESIS };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -265,8 +265,7 @@ public class BallerinaParserErrorHandler {
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.LISTENERS_LIST };
 
     /**
-     * Limit for the dis    private static final ParserRuleContext[] LIST_CONSTRUCTOR_RHS =
-            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.LISTENERS_LIST };tance to travel, to determine a successful lookahead.
+     * Limit for the distance to travel, to determine a successful lookahead.
      */
     private int lookaheadLimit = 5;
 
@@ -442,6 +441,7 @@ public class BallerinaParserErrorHandler {
             case XML_NAMESPACE_PREFIX_DECL:
             case ANNOT_DECL_OPTIONAL_TYPE:
             case ANNOT_DECL_RHS:
+            case LIST_CONSTRUCTOR_RHS:
                 return true;
             default:
                 return false;
@@ -1645,8 +1645,7 @@ public class BallerinaParserErrorHandler {
                 }
 
                 if (isEndOfBlock(this.tokenReader.peek(nextLookahead))) {
-                    return ParserRuleCcase LIST_CONSTRUCTOR:
-                return ParserRuleContext.LIST_CONSTRUCTOR_RHS;ontext.CLOSE_BRACE;
+                    return ParserRuleContext.CLOSE_BRACE;
                 }
 
                 if (parentCtx == ParserRuleContext.MAPPING_CONSTRUCTOR) {
@@ -1728,8 +1727,7 @@ public class BallerinaParserErrorHandler {
                 if (parentCtx == ParserRuleContext.MAPPING_CONSTRUCTOR || parentCtx == ParserRuleContext.ARG) {
                     return ParserRuleContext.EXPRESSION;
                 }
-                return ParserRuleContecase LIST_CONSTRUCTOR:
-                return ParserRuleContext.LIST_CONSTRUCTOR_RHS;xt.VARIABLE_NAME;
+                return ParserRuleContext.VARIABLE_NAME;
             case QUESTION_MARK:
                 return getNextRuleForQuestionMark();
             case RECORD_KEYWORD:
@@ -2081,6 +2079,7 @@ public class BallerinaParserErrorHandler {
             case LISTENERS_LIST:
             case MAPPING_CONSTRUCTOR:
             case COMPUTED_FIELD_NAME:
+            case LIST_CONSTRUCTOR:
                 return true;
             default:
                 return isStatement(ctx);
@@ -2370,8 +2369,7 @@ public class BallerinaParserErrorHandler {
      * @return <code>true</code> if the token kind refers to a binary operator. <code>false</code> otherwise
      */
     private boolean isCompoundBinaryOperator(SyntaxKind kind) {
-        switch (kind) {case LIST_CONSTRUCTOR:
-                return ParserRuleContext.LIST_CONSTRUCTOR_RHS;
+        switch (kind) {
             case PLUS_TOKEN:
             case MINUS_TOKEN:
             case SLASH_TOKEN:
@@ -2514,11 +2512,9 @@ public class BallerinaParserErrorHandler {
                 endContext(); // End array type descriptor context
                 return ParserRuleContext.TYPEDESC_RHS;
             case LIST_CONSTRUCTOR:
-                endContext(); // end list-constructor
-                return ParserRuleContext.EXPRESSION_RHS;
             case COMPUTED_FIELD_NAME:
             default:
-                endContext(); // end computed-field-name
+                endContext(); // end computed-field-name or list-constructor
                 return getNextRuleForExpr();
         }
     }

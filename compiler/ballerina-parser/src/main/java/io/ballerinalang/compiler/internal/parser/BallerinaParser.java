@@ -6882,7 +6882,7 @@ public class BallerinaParser {
         STToken nextToken = peek();
 
         // Return an empty list if list is empty
-        if (isEndOfListenersList(nextToken.kind) ){
+        if (isEndOfListenersList(nextToken.kind)) {
             return STNodeFactory.createNodeList(new ArrayList<>());
         }
         return parseListeners();
