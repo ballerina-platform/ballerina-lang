@@ -67,11 +67,6 @@ public class XMLText extends XMLNonElementItem {
     }
 
     @Override
-    public synchronized boolean isFrozen() {
-        return true;
-    }
-
-    @Override
     public String getTextValue() {
         return data;
     }

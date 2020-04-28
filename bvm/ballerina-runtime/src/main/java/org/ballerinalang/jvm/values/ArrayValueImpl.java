@@ -31,8 +31,6 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.freeze.FreezeUtils;
-import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
@@ -780,30 +778,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void attemptFreeze(Status freezeStatus) {
-        if (!FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            return;
-        }
-        this.freezeStatus = freezeStatus;
-        if (this.elementType == null || this.elementType.getTag() > TypeTags.BOOLEAN_TAG) {
-            for (int i = 0; i < this.size; i++) {
-                Object value = this.getRefValue(i);
-                if (value instanceof RefValue) {
-                    ((RefValue) value).attemptFreeze(freezeStatus);
-                }
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void freezeDirect() {
-        if (isFrozen()) {
+        if (arrayType.isReadOnly()) {
             return;
         }
-        this.freezeStatus.setFrozen();
+
+        this.arrayType = (BArrayType) ReadOnlyUtils.setImmutableType(this.arrayType);
         if (this.elementType == null || this.elementType.getTag() > TypeTags.BOOLEAN_TAG) {
             for (int i = 0; i < this.size; i++) {
                 Object value = this.getRefValue(i);
@@ -812,14 +792,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 }
             }
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized boolean isFrozen() {
-        return this.freezeStatus.isFrozen();
     }
 
     /**

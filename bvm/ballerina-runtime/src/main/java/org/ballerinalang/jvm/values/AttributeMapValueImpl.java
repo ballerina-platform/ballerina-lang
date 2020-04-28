@@ -21,8 +21,6 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.freeze.FreezeUtils;
-import org.ballerinalang.jvm.values.freeze.State;
 
 import javax.xml.XMLConstants;
 
@@ -44,7 +42,7 @@ class AttributeMapValueImpl extends MapValueImpl<String, String> {
     public String put(String key, String value) {
         synchronized (this) {
             if (super.isFrozen()) {
-                FreezeUtils.handleInvalidUpdate(State.FROZEN, XML_LANG_LIB);
+                ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
             }
         }
 

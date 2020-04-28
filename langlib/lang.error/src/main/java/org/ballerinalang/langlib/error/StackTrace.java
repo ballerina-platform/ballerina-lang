@@ -66,7 +66,7 @@ public class StackTrace {
 
         CallStack callStack = new CallStack(callStackObjType);
         callStack.callStack = getCallStackArray(value.getStackTrace());
-        callStack.freeze();
+        callStack.freezeDirect();
         return callStack;
     }
 
@@ -134,11 +134,6 @@ public class StackTrace {
         @Override
         public void set(BString fieldName, Object value) {
             throw new BLangRuntimeException("No such field or method: callStack");
-        }
-
-        @Override
-        public boolean isFrozen() {
-            return true;
         }
     }
 }

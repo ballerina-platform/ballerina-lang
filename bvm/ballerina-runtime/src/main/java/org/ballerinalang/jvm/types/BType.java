@@ -144,4 +144,9 @@ public abstract class BType {
     public boolean isReadOnly() {
         return false;
     }
+
+    public BType getImmutableType() {
+        return this;
+//        throw new BallerinaException(this.typeName + " cannot be immutable");
+    }
 }

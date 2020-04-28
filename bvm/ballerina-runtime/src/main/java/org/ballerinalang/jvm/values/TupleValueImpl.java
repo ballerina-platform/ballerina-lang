@@ -28,8 +28,6 @@ import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.jvm.values.freeze.FreezeUtils;
-import org.ballerinalang.jvm.values.freeze.Status;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 
 import java.io.IOException;
@@ -477,42 +475,18 @@ public class TupleValueImpl extends AbstractArrayValue {
      * {@inheritDoc}
      */
     @Override
-    public synchronized void attemptFreeze(Status freezeStatus) {
-        if (!FreezeUtils.isOpenForFreeze(this.freezeStatus, freezeStatus)) {
-            return;
-        }
-        this.freezeStatus = freezeStatus;
-        for (int i = 0; i < this.size; i++) {
-            Object value = this.get(i);
-            if (value instanceof RefValue) {
-                ((RefValue) value).attemptFreeze(freezeStatus);
-            }
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public void freezeDirect() {
-        if (isFrozen()) {
+        if (tupleType.isReadOnly()) {
             return;
         }
-        this.freezeStatus.setFrozen();
+
+        this.tupleType = (BTupleType) ReadOnlyUtils.setImmutableType(this.tupleType);
         for (int i = 0; i < this.size; i++) {
             Object value = this.get(i);
             if (value instanceof RefValue) {
                 ((RefValue) value).freezeDirect();
             }
         }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public synchronized boolean isFrozen() {
-        return this.freezeStatus.isFrozen();
     }
 
     /**

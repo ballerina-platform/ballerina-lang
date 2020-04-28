@@ -83,14 +83,4 @@ public class TypedescValue implements RefValue, BTypedesc {
     public Object frozenCopy(Map<Object, Object> refs) {
         return this;
     }
-
-    @Override
-    public boolean isFrozen() {
-        return true;
-    }
-
-    @Override
-    public Object freeze() {
-        return this;
-    }
 }
