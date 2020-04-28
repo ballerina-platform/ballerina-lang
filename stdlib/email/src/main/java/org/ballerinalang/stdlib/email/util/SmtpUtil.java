@@ -84,7 +84,6 @@ public class SmtpUtil {
                         + " ValueType: " + properties.get(propertyObj).getClass().getName());
             }
         }
-
         return properties;
     }
 
