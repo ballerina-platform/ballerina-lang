@@ -1376,7 +1376,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ListConstructorExpressionNode createListConstructorExpressionNode(
             Token openBracket,
-            NodeList<ExpressionListItemNode> expressions,
+            SeparatedNodeList<Node> expressions,
             Token closeBracket) {
         Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(expressions, "expressions must not be null");
