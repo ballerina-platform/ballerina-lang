@@ -89,3 +89,8 @@ Customer customerRecord = keylessCusTab[222];
 var invalidCusTable = table key(id) [{ id: 13 , firstName: "Sanjiva", lastName: "Weerawarana"},
                                 {id: idValue, firstName: "James" , lastName: "Clark"}];
 
+table<Customer> key<int> intKeyConstraintTable = table key(id)[{ id: 13 , firstName: "Sanjiva", lastName: "Weerawarana" },
+                                                { id: 23 , firstName: "James" , lastName: "Clark" }];
+
+table<Customer> key<string> stringKeyConstraintTable = intKeyConstraintTable;
+

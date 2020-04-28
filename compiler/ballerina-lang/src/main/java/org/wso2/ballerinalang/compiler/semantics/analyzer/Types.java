@@ -667,6 +667,11 @@ public class Types {
         }
 
         if (targetTableType.keyTypeConstraint != null) {
+            if (sourceTableType.keyTypeConstraint != null &&
+                    (!isAssignable(targetTableType.keyTypeConstraint, sourceTableType.keyTypeConstraint))) {
+                return false;
+            }
+
             if (sourceTableType.fieldNameList == null) {
                 return false;
             }
@@ -700,13 +705,9 @@ public class Types {
             }
         }
 
-//        if (sourceTableType.fieldNameList != null) {
-//            if (targetTableType.keyTypeConstraint == null && targetTableType.fieldNameList == null) {
-//                return false;
-//            }
-//
-//            return sourceTableType.fieldNameList.equals(targetTableType.fieldNameList);
-//        }
+        if (targetTableType.fieldNameList != null) {
+            return targetTableType.fieldNameList.equals(sourceTableType.fieldNameList);
+        }
 
         return true;
     }

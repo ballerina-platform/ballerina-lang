@@ -746,15 +746,11 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             BType actualType = checkExpr(tableConstructorExpr, env, symTable.noType);
-            if (types.isAssignable(actualType, expType)) {
-                BTableType actualTableType = (BTableType) actualType;
-                BTableType expectedTableType = (BTableType) expType;
-                if (expectedTableType.fieldNameList != null && actualTableType.fieldNameList == null) {
-                    actualTableType.fieldNameList = expectedTableType.fieldNameList;
-                    resultType = actualType;
-                }
-            } else {
-                resultType = symTable.semanticError;
+            BTableType actualTableType = (BTableType) actualType;
+            BTableType expectedTableType = (BTableType) expType;
+            if (expectedTableType.fieldNameList != null && actualTableType.fieldNameList == null) {
+                actualTableType.fieldNameList = expectedTableType.fieldNameList;
+                resultType = actualType;
             }
         } else {
             resultType = symTable.semanticError;
