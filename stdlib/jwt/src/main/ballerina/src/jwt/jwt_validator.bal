@@ -58,7 +58,7 @@ public type InboundJwtCacheEntry record {|
 
 # Validates the given JWT string.
 #```ballerina
-# jwt:JwtPayload|jwt:error result = jwt:validateJwt(jwt, validatorConfig);
+# jwt:JwtPayload|jwt:Error result = jwt:validateJwt(jwt, validatorConfig);
 # ```
 #
 # + jwt - JWT that needs to be validated

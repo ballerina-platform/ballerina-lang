@@ -759,15 +759,21 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private boolean validateTableType(BTableType tableType, DiagnosticPos pos,
                                       List<BLangRecordLiteral> recordLiterals) {
-        if (!types.isAssignable(tableType.constraint, symTable.mapAnydataType)) {
-            dlog.error(pos, DiagnosticCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, tableType.constraint);
+        LinkedHashSet<BType> memTypes = new LinkedHashSet<>();
+        memTypes.add(symTable.anyType);
+        memTypes.add(symTable.errorType);
+        BUnionType unionType = BUnionType.create(null, memTypes);
+        BMapType anyErrorMapType = new BMapType(TypeTags.MAP, unionType, null);
+
+        if (!types.isAssignable(tableType.constraint, anyErrorMapType)) {
+            dlog.error(tableType.constraintPos, DiagnosticCode.TABLE_CONSTRAINT_INVALID_SUBTYPE, tableType.constraint);
             resultType = symTable.semanticError;
             return false;
         }
 
         List<String> fieldNameList = tableType.fieldNameList;
         if (fieldNameList != null) {
-            return validateKeySpecifier(fieldNameList, tableType.constraint, pos) &&
+            return validateKeySpecifier(fieldNameList, tableType.constraint, tableType.keyPos) &&
                     validateTableConstructorRecordLiterals(fieldNameList, recordLiterals);
         }
 
@@ -4145,45 +4151,28 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkInvocationArgs(BLangInvocation iExpr, List<BType> paramTypes, BLangExpression vararg) {
-        BType actualType = symTable.semanticError;
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) iExpr.symbol;
         BInvokableType bInvokableType = (BInvokableType) invokableSymbol.type;
         BInvokableTypeSymbol invokableTypeSymbol = (BInvokableTypeSymbol) bInvokableType.tsymbol;
         List<BVarSymbol> nonRestParams = new ArrayList<>(invokableTypeSymbol.params);
-        checkNonRestArgs(nonRestParams, iExpr, paramTypes);
 
-        // Check whether the expected param count and the actual args counts are matching.
-        if (invokableTypeSymbol.restParam == null && (vararg != null || !iExpr.restArgs.isEmpty())) {
-            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
-            return actualType;
-        }
-
-        checkRestArgs(iExpr.restArgs, vararg, invokableTypeSymbol.restParam, iExpr.langLibInvocation);
-        BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
-
-        if (iExpr.async) {
-            return this.generateFutureType(invokableSymbol, retType);
-        } else {
-            return retType;
-        }
-    }
-
-    private BFutureType generateFutureType(BInvokableSymbol invocableSymbol, BType retType) {
-
-        boolean isWorkerStart = invocableSymbol.name.value.startsWith(WORKER_LAMBDA_VAR_PREFIX);
-        return new BFutureType(TypeTags.FUTURE, retType, null, isWorkerStart);
-    }
-
-    private void checkNonRestArgs(List<BVarSymbol> nonRestParams, BLangInvocation iExpr, List<BType> paramTypes) {
         List<BLangExpression> nonRestArgs = iExpr.requiredArgs;
-        List<BVarSymbol> requiredParams = nonRestParams.stream()
-                .filter(param -> !param.defaultableParam)
-                .collect(Collectors.toList());
-
         List<BVarSymbol> valueProvidedParams = new ArrayList<>();
-        for (int i = 0; i < nonRestArgs.size(); i++) {
+
+        List<BVarSymbol> requiredParams = new ArrayList<>();
+
+        for (BVarSymbol nonRestParam : nonRestParams) {
+            if (nonRestParam.defaultableParam) {
+                continue;
+            }
+
+            requiredParams.add(nonRestParam);
+        }
+
+        int i = 0;
+        for (; i < nonRestArgs.size(); i++) {
             BLangExpression arg = nonRestArgs.get(i);
-            final BType expectedType = paramTypes.get(i);
+            BType expectedType = paramTypes.get(i);
 
             // Special case handling for the first param because for parameterized invocations, we have added the
             // value on which the function is invoked as the first param of the function call. If we run checkExpr()
@@ -4203,18 +4192,21 @@ public class TypeChecker extends BLangNodeVisitor {
                     requiredParams.remove(param);
                     continue;
                 }
-                // if no such parameter, too many arg have been given.
-                dlog.error(arg.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
-                return;
+                // Arg count > required + defaultable param count.
+                break;
             }
 
             if (arg.getKind() == NodeKind.NAMED_ARGS_EXPR) {
                 // if arg is named, function should have a parameter with this name.
                 BLangIdentifier argName = ((NamedArgNode) arg).getName();
-                BVarSymbol varSym = nonRestParams.stream()
-                        .filter(param -> param.getName().value.equals(argName.value))
-                        .findAny()
-                        .orElse(null);
+                BVarSymbol varSym = null;
+
+                for (BVarSymbol nonRestParam : nonRestParams) {
+                    if (nonRestParam.getName().value.equals(argName.value)) {
+                        varSym = nonRestParam;
+                    }
+                }
+
                 if (varSym == null) {
                     dlog.error(arg.pos, DiagnosticCode.UNDEFINED_PARAMETER, argName);
                     break;
@@ -4228,36 +4220,117 @@ public class TypeChecker extends BLangNodeVisitor {
                 valueProvidedParams.add(varSym);
             }
         }
-        for (BVarSymbol reqParam : requiredParams) {
-            // log an error if any of the required parameters are not given.
-            dlog.error(iExpr.pos, DiagnosticCode.MISSING_REQUIRED_PARAMETER, reqParam.name,
-                       iExpr.name.value);
+
+        BVarSymbol restParam = invokableTypeSymbol.restParam;
+
+        boolean errored = false;
+
+        if (!requiredParams.isEmpty() && vararg == null) {
+            // Log errors if any required parameters are not given as positional/named args and there is
+            // no vararg either.
+            for (BVarSymbol requiredParam : requiredParams) {
+                dlog.error(iExpr.pos, DiagnosticCode.MISSING_REQUIRED_PARAMETER, requiredParam.name,
+                           iExpr.name.value);
+            }
+            errored = true;
+        }
+
+        if (restParam == null &&
+                (!iExpr.restArgs.isEmpty() ||
+                         (vararg != null && valueProvidedParams.size() == nonRestParams.size()))) {
+            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
+            errored = true;
+        }
+
+        if (errored) {
+            return symTable.semanticError;
+        }
+
+        BType restType = restParam == null ? null : restParam.type;
+
+        if (nonRestArgs.size() < nonRestParams.size() && vararg != null) {
+            // We only reach here if there are no named args and there is a vararg, and part of the non-rest params
+            // are provided via the vararg.
+            // Create a new tuple type as the expected rest param type with expected required/defaultable param types
+            // as members.
+            List<BType> tupleMemberTypes = new ArrayList<>();
+            BType tupleRestType = null;
+
+            for (int j = nonRestArgs.size(); j < nonRestParams.size(); j++) {
+                tupleMemberTypes.add(paramTypes.get(j));
+            }
+
+            if (restType != null) {
+                if (restType.tag == TypeTags.ARRAY) {
+                    tupleRestType = ((BArrayType) restType).eType;
+                } else if (restType.tag == TypeTags.TUPLE) {
+                    BTupleType restTupleType = (BTupleType) restType;
+                    tupleMemberTypes.addAll(restTupleType.tupleTypes);
+                    if (restTupleType.restType != null) {
+                        tupleRestType = restTupleType.restType;
+                    }
+                }
+            }
+
+            BTupleType tupleType = new BTupleType(tupleMemberTypes);
+            tupleType.restType = tupleRestType;
+            restType = tupleType;
+        }
+
+        // Check whether the expected param count and the actual args counts are matching.
+        if (restType == null && (vararg != null || !iExpr.restArgs.isEmpty())) {
+            dlog.error(iExpr.pos, DiagnosticCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
+            return symTable.semanticError;
+        }
+
+        if (vararg != null && !iExpr.restArgs.isEmpty()) {
+            // We reach here if args are provided for the rest param as both individual rest args and a vararg.
+            // Thus, the rest param type is the original rest param type which is an array type.
+            BType elementType = ((BArrayType) restType).eType;
+
+            for (BLangExpression restArg : iExpr.restArgs) {
+                checkTypeParamExpr(restArg, this.env, elementType, true);
+            }
+
+            checkTypeParamExpr(vararg, this.env, restType, iExpr.langLibInvocation);
+            iExpr.restArgs.add(vararg);
+        } else if (vararg != null) {
+            checkTypeParamExpr(vararg, this.env, restType, iExpr.langLibInvocation);
+            iExpr.restArgs.add(vararg);
+        } else if (!iExpr.restArgs.isEmpty()) {
+            if (restType.tag == TypeTags.ARRAY) {
+                BType elementType = ((BArrayType) restType).eType;
+                for (BLangExpression restArg : iExpr.restArgs) {
+                    checkTypeParamExpr(restArg, this.env, elementType, true);
+                }
+            } else {
+                BTupleType tupleType = (BTupleType) restType;
+                List<BType> tupleMemberTypes = tupleType.tupleTypes;
+                BType tupleRestType = tupleType.restType;
+
+                int tupleMemCount = tupleMemberTypes.size();
+
+                for (int j = 0; j < iExpr.restArgs.size(); j++) {
+                    BLangExpression restArg = iExpr.restArgs.get(j);
+                    BType memType = j < tupleMemCount ? tupleMemberTypes.get(j) : tupleRestType;
+                    checkTypeParamExpr(restArg, this.env, memType, true);
+                }
+            }
+        }
+
+        BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
+
+        if (iExpr.async) {
+            return this.generateFutureType(invokableSymbol, retType);
+        } else {
+            return retType;
         }
     }
 
-    private void checkRestArgs(List<BLangExpression> restArgExprs, BLangExpression vararg, BVarSymbol restParam,
-                               boolean langlibInvocation) {
-        if (vararg != null && !restArgExprs.isEmpty()) {
-            dlog.error(vararg.pos, DiagnosticCode.INVALID_REST_ARGS);
-            return;
-        }
+    private BFutureType generateFutureType(BInvokableSymbol invocableSymbol, BType retType) {
 
-        if (vararg != null) {
-            checkTypeParamExpr(vararg.getKind() == NodeKind.REST_ARGS_EXPR ?
-                                       ((BLangRestArgsExpression) vararg).expr.pos : vararg.pos,
-                               vararg, this.env, restParam.type, langlibInvocation);
-            restArgExprs.add(vararg);
-            return;
-        }
-
-        if (restArgExprs.isEmpty()) {
-            return;
-        }
-
-        BType restType = ((BArrayType) restParam.type).eType;
-        for (BLangExpression arg : restArgExprs) {
-            checkTypeParamExpr(arg, this.env, restType, true);
-        }
+        boolean isWorkerStart = invocableSymbol.name.value.startsWith(WORKER_LAMBDA_VAR_PREFIX);
+        return new BFutureType(TypeTags.FUTURE, retType, null, isWorkerStart);
     }
 
     private void checkTypeParamExpr(BLangExpression arg, SymbolEnv env, BType expectedType,

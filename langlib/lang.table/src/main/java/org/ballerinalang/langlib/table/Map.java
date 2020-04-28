@@ -18,16 +18,20 @@
 
 package org.ballerinalang.langlib.table;
 
+import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.values.FPValue;
+import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Native implementation of lang.table:map(table&lt;Type&gt;, function).
@@ -42,16 +46,23 @@ import org.ballerinalang.natives.annotations.ReturnType;
 public class Map {
 
     public static TableValueImpl map(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
-
         BType newConstraintType = ((BFunctionType) func.getType()).retType;
         BTableType newTableType = new BTableType(newConstraintType, ((BTableType) tbl.getType()).getFieldNames());
 
         TableValueImpl newTable = new TableValueImpl(newTableType);
-        for (Object key : tbl.getKeys()) {
-            Object value = tbl.get(key);
-            Object newVal = func.apply(new Object[]{strand, value, true});
-            newTable.put(key, newVal);
-        }
+        int size = tbl.size();
+        AtomicInteger index = new AtomicInteger(-1);
+        BRuntime.getCurrentRuntime()
+                .invokeFunctionPointerAsyncIteratively(func, size,
+                        () -> new Object[]{strand,
+                                tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
+                        result -> newTable
+                                .put(tbl.getKeys()[index.get()], result),
+                        () -> newTable);
         return newTable;
+    }
+
+    public static TableValue map_bstring(Strand strand, TableValueImpl tbl, FPValue<Object, Object> func) {
+        return map(strand, tbl, func);
     }
 }

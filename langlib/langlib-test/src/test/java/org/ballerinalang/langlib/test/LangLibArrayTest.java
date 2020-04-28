@@ -18,7 +18,6 @@
 
 package org.ballerinalang.langlib.test;
 
-
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
@@ -170,6 +169,11 @@ public class LangLibArrayTest {
         assertEquals(arr.getInt(0), 4);
         assertEquals(arr.getInt(1), 5);
         assertEquals(arr.getInt(2), 88);
+    }
+
+    @Test
+    public void testSliceOnTupleWithRestDesc() {
+        BRunUtil.invokeFunction(compileResult, "testSliceOnTupleWithRestDesc");
     }
 
     @Test
@@ -398,6 +402,18 @@ public class LangLibArrayTest {
     }
 
     @Test
+    public void testAsyncFpArgsWithArrays() {
+        BValue[] results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithArrays");
+        assertTrue(results[0] instanceof BInteger);
+        assertTrue(results[1] instanceof BValueArray);
+        assertEquals(((BInteger) results[0]).intValue(), 19);
+        BValueArray bValueArray = (BValueArray) results[1];
+        assertEquals(bValueArray.getInt(0), 4);
+        assertEquals(bValueArray.getInt(1), 6);
+        assertEquals(bValueArray.getInt(2), 3);
+
+    }
+
     public void callingLengthModificationFunctionsOnFixedLengthLists() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/arraylib_test_negative.bal");
         int errorIndex = 0;

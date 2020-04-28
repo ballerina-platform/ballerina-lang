@@ -49,4 +49,9 @@ public class BLangTableKeyTypeConstraint extends BLangNode implements TableKeyTy
         return NodeKind.TABLE_KEY_TYPE_CONSTRAINT;
     }
 
+    @Override
+    public String toString() {
+        return "key<" + this.keyType.toString() + ">";
+    }
+
 }

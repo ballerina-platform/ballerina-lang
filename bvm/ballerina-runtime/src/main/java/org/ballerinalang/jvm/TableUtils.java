@@ -45,6 +45,7 @@ public class TableUtils {
      * Generates a hash value which is same for the same shape.
      *
      * @param obj Ballerina value which the hash is generated from
+     * @param checkedValues List of already hashed objects
      * @return The hash value
      */
     public static Integer hash(Object obj, List<Object> checkedValues) {
