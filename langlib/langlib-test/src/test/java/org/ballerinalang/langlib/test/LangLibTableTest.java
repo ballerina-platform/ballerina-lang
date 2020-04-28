@@ -119,12 +119,6 @@ public class LangLibTableTest {
     }
 
     @Test
-    public void getKeysFromKeyLessTbl() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "getKeysFromKeyLessTbl");
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
-    }
-
-    @Test
     public void testRemoveAllFromTable() {
         BValue[] returns = BRunUtil.invoke(compileResult, "removeAllFromTable");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
@@ -140,14 +134,6 @@ public class LangLibTableTest {
     public void testNextKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNextKey");
         assertEquals(((BInteger) returns[0]).intValue(), 101);
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: OperationNotSupported message=Defined key sequence "
-                    + "is not supported with nextKey\\(\\). The key sequence should only have an Integer field.*")
-    public void testNextKeyNegative() {
-        BRunUtil.invoke(compileResult, "testNextKeyNegative");
-        Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -168,14 +154,18 @@ public class LangLibTableTest {
 
     @Test
     public void testCompilerNegativeCases() {
-        validateError(negativeResult, 0, "incompatible types: expected 'table<Employee>', " +
-                "found 'table<Person>, key<other>'", 66, 36);
+        validateError(negativeResult, 0, "incompatible types: expected 'table<Employee> " +
+                "key(name)', found 'table<Person> key<string>'", 66, 36);
         validateError(negativeResult, 1, "incompatible types: expected 'Employee', " +
                 "found 'Person'", 66, 47);
         validateError(negativeResult, 2, "incompatible types: expected " +
                         "'object { public function next () returns (record {| Employee value; |}?); }', found " +
                         "'object { public function next () returns (record {| Person value; |}?); }'",
                 75, 92);
-        assertEquals(negativeResult.getErrorCount(), 3);
+        validateError(negativeResult, 3, "incompatible types: expected 'table<(any|error)> " +
+                "key<int>', found 'table<Person> key(name)'", 82, 12);
+        validateError(negativeResult, 4, "incompatible types: expected 'table<(any|error)> " +
+                "key<anydata>', found 'table<Person>'", 94, 12);
+        assertEquals(negativeResult.getErrorCount(), 5);
     }
 }
