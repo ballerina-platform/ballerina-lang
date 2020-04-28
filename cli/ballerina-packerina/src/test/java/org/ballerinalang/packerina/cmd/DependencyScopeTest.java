@@ -40,7 +40,7 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 /**
  * Dependency scope tests.
  *
- * @since 1.2.x
+ * @since 1.3.0
  */
 public class DependencyScopeTest extends CommandTest {
 

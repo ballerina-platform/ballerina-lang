@@ -328,6 +328,7 @@
             <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
             <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
             <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>
+            <class name="org.ballerinalang.test.packaging.DependencyScopeTestCase"/>
         </classes>
     </test>
 
