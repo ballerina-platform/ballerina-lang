@@ -60,9 +60,14 @@ public class BallerinaErrors {
     public static final String GENERATE_PKG_START = "___start_";
     public static final String GENERATE_PKG_STOP = "___stop_";
     public static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
+    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
+    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
 
     @Deprecated
     public static ErrorValue createError(String reason) {
+        if (USE_BSTRING) {
+            return createError(StringUtils.fromString(reason));
+        }
         return new ErrorValue(reason, new MapValueImpl<>(BTypes.typeErrorDetail));
     }
 
@@ -72,6 +77,9 @@ public class BallerinaErrors {
 
     @Deprecated
     public static ErrorValue createError(String reason, String detail) {
+        if (USE_BSTRING) {
+            return createError(StringUtils.fromString(reason), StringUtils.fromString(detail));
+        }
         MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);
@@ -89,6 +97,9 @@ public class BallerinaErrors {
 
     @Deprecated
     public static ErrorValue createError(BType type, String reason, String detail) {
+        if (USE_BSTRING) {
+            createError(type, StringUtils.fromString(reason), StringUtils.fromString(detail));
+        }
         MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);
@@ -96,7 +107,7 @@ public class BallerinaErrors {
         return new ErrorValue(type, reason, detailMap);
     }
 
-    public static ErrorValue createError(BType type, BString reason, String detail) {
+    public static ErrorValue createError(BType type, BString reason, BString detail) {
         MapValueImpl<String, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
         if (detail != null) {
             detailMap.put(ERROR_MESSAGE_FIELD, detail);

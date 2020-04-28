@@ -51,7 +51,7 @@ public class IterableOperationsTests {
 
     @Test()
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 34);
+        Assert.assertEquals(negative.getErrorCount(), 33);
         int index = 0;
         BAssertUtil.validateError(negative, index++, "undefined function 'forEach' in type 'int'", 6, 7);
         BAssertUtil.validateError(negative, index++, "undefined function 'map' in type 'string'", 8, 7);
@@ -72,7 +72,6 @@ public class IterableOperationsTests {
                 49, 35);
         BAssertUtil.validateError(negative, index++, "too many arguments in call to 'length()'", 55, 9);
         BAssertUtil.validateError(negative, index++, "missing required parameter 'func' in call to 'filter'()", 56, 5);
-        BAssertUtil.validateError(negative, index++, "variable assignment is required", 56, 5);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected 'function ((any|error)) " +
                 "returns ()', found 'int'", 58, 15);
         BAssertUtil.validateError(negative, index++, "incompatible types: expected '[string,string,string]', found " +
