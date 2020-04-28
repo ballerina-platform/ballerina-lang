@@ -95,11 +95,15 @@ public class BMapType extends BType {
 
     @Override
     public String toString() {
+        String stringRep;
+
         if (constraint == BTypes.typeAny) {
-            return super.toString();
+            stringRep = super.toString();
+        } else {
+            stringRep = "map" + "<" + constraint.toString() + ">";
         }
 
-        return "map" + "<" + constraint.toString() + ">";
+        return !readonly ? stringRep : stringRep.concat(" & readonly");
     }
 
     @Override

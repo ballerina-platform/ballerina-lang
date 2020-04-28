@@ -67,13 +67,14 @@ public class BTypes {
             new BUnionType(Arrays.asList(typeElement, typeComment, typeProcessingInstruction, typeText)),
             new BPackage(null, null, null));
     public static BType typeJSON = new BJSONType(TypeConstants.JSON_TNAME, new BPackage(null, null, null), false);
-    public static BType typeReadonlyJSON = new BJSONType(TypeConstants.JSON_TNAME, new BPackage(null, null, null),
-                                                         true);
+    public static BType typeReadonlyJSON = new BJSONType(TypeConstants.READONLY_JSON_TNAME,
+                                                         new BPackage(null, null, null), true);
     public static BType typeAny = new BAnyType(TypeConstants.ANY_TNAME, new BPackage(null, null, null), false);
-    public static BType typeReadonlyAny = new BAnyType(TypeConstants.ANY_TNAME, new BPackage(null, null, null), true);
+    public static BType typeReadonlyAny = new BAnyType(TypeConstants.READONLY_ANY_TNAME, new BPackage(null, null, null),
+                                                       true);
     public static BType typeAnydata = new BAnydataType(TypeConstants.ANYDATA_TNAME, new BPackage(null, null, null),
                                                        false);
-    public static BType typeReadonlyAnydata = new BAnydataType(TypeConstants.ANYDATA_TNAME,
+    public static BType typeReadonlyAnydata = new BAnydataType(TypeConstants.READONLY_ANYDATA_TNAME,
                                                                new BPackage(null, null, null), true);
     public static BType typeStream = new BStreamType(TypeConstants.STREAM_TNAME, typeAny, new BPackage(null,
             null, null));

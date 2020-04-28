@@ -136,7 +136,13 @@ public class BArrayType extends BType {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(elementType.toString());
-        return size != -1 ? sb.append("[").append(size).append("]").toString() : sb.append("[]").toString();
+
+        if (size != -1) {
+            sb.append("[").append(size).append("]");
+        } else {
+            sb.append("[]");
+        }
+        return !readonly ? sb.toString() : sb.append(" & readonly").toString();
     }
 
     public int getDimensions() {
