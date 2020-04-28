@@ -255,11 +255,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isFieldAnalyseRequired = (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext
-                || ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext)
-                || ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
-        this.pkgBuilder
-                .addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, false, false, false, true);
+        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), false, false, false, true);
     }
 
     /**
@@ -493,14 +489,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                     && ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeContext
                     && ctx.parent.parent.parent.getChildCount() > 1);
 
-        boolean isFieldAnalyseRequired =
-                (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
-                        ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
         boolean isAbstract = ((ObjectTypeNameLabelContext) ctx.parent).ABSTRACT() != null;
         boolean isClient = ((ObjectTypeNameLabelContext) ctx.parent).CLIENT() != null;
-        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, isAbstract,
-                isClient, false);
+        this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isAnonymous, isAbstract, isClient, false);
     }
 
     /**
@@ -536,11 +527,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Set<Whitespace> ws = getWS(ctx);
         String name = ctx.Identifier().getText();
         DiagnosticPos identifierPos = getCurrentPos(ctx.Identifier());
+
         boolean exprAvailable = ctx.expression() != null;
         boolean isOptional = ctx.QUESTION_MARK() != null;
         boolean markdownExists = ctx.documentationString() != null;
+        boolean isReadonly = ctx.TYPE_READONLY() != null;
+
         this.pkgBuilder.addFieldVariable(currentPos, ws, name, identifierPos, exprAvailable,
-                                         ctx.annotationAttachment().size(), false, isOptional, markdownExists);
+                                         ctx.annotationAttachment().size(), false, isOptional, markdownExists,
+                                         isReadonly);
     }
 
     /**
@@ -871,13 +866,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
 
-        boolean isFieldAnalyseRequired =
-                (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
-                        ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
-
-        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous, false,
-                                      false);
+        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isAnonymous, false, false);
     }
 
     @Override
@@ -897,15 +886,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
 
-        boolean isFieldAnalyseRequired =
-                (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
-                        ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
-
         boolean hasRestField = ctx.recordRestFieldDefinition() != null;
 
-        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous,
-                                      hasRestField, true);
+        this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isAnonymous, hasRestField, true);
     }
 
     @Override
@@ -1432,12 +1415,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.Identifier() != null) {
             DiagnosticPos pos = getCurrentPos(ctx);
             this.pkgBuilder.addNameReference(pos, getWS(ctx), null, ctx.Identifier().getText());
-            this.pkgBuilder.createBLangRecordVarRefNameField(pos, getWS(ctx));
+            this.pkgBuilder.createBLangRecordVarRefNameField(pos, getWS(ctx), ctx.TYPE_READONLY() != null);
             this.pkgBuilder.addIdentifierRecordField();
         } else if (ctx.ELLIPSIS() != null) {
             this.pkgBuilder.addSpreadOpRecordField(getWS(ctx));
         } else {
-            this.pkgBuilder.addKeyValueRecordField(getWS(ctx), ctx.recordKey().LEFT_BRACKET() != null);
+            this.pkgBuilder.addKeyValueRecordField(getWS(ctx), ctx.recordKey().LEFT_BRACKET() != null,
+                                                   ctx.TYPE_READONLY() != null);
         }
     }
 

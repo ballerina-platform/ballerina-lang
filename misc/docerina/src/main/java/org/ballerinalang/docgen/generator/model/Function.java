@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,12 +23,12 @@ import java.util.List;
 public class Function extends Construct {
     public boolean isRemote;
     public boolean isExtern;
-    public List<DefaultableVarible> parameters = new ArrayList<>();
-    public List<Variable> returnParameters = new ArrayList<>();
+    public List<DefaultableVariable> parameters;
+    public List<Variable> returnParameters;
 
-    public Function(String name, String description, boolean isRemote, boolean isExtern,
-                    List<DefaultableVarible> parameters, List<Variable> returnParameters) {
-        super(name, description);
+    public Function(String name, String description, boolean isRemote, boolean isExtern, boolean isDeprecated,
+                    List<DefaultableVariable> parameters, List<Variable> returnParameters) {
+        super(name, description, isDeprecated);
         this.isRemote = isRemote;
         this.isExtern = isExtern;
         this.parameters = parameters;

@@ -71,7 +71,7 @@ function deserialize(io:ReadableByteChannel byteChannel) returns Person {
 }
 
 //Serializes and writes the record to a file.
-function writeRecordToFile(Person p, string path) returns error? {
+function writeRecordToFile(Person p, string path) returns @tainted error? {
     io:WritableByteChannel wc = check io:openWritableFile(path);
     serialize(p, wc);
 }
@@ -82,7 +82,7 @@ function readRecordFromFile(string path) returns @tainted Person|error {
     return deserialize(rc);
 }
 
-public function main() returns error? {
+public function main() returns @tainted error? {
     Person wPerson = {
         name: "Ballerina",
         age: 21,

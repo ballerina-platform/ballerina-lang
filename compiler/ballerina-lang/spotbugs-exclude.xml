@@ -138,10 +138,6 @@
         <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
     </Match>
     <Match>
-        <Class name="org.wso2.ballerinalang.compiler.bir.writer.BIRInstructionWriter"/>
-        <Bug pattern="BC_UNCONFIRMED_CAST"/>
-    </Match>
-    <Match>
         <Class name="org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType"/>
         <Bug pattern="BC_UNCONFIRMED_CAST"/>
     </Match>
@@ -150,7 +146,31 @@
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
     <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRAnnotationValue"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
         <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRFunction"/>
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRFunction"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRErrorEntry"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRTypeDefinition"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.bir.model.BIRNode$BIRVariableDcl"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer"/>
+        <Bug pattern="BC_UNCONFIRMED_CAST, BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
     </Match>
 </FindBugsFilter>

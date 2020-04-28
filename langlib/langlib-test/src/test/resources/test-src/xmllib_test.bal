@@ -15,6 +15,8 @@
 // under the License.
 
 import ballerina/lang.'xml;
+import ballerina/lang.'int as langint;
+
 'xml:Element catalog = xml `<CATALOG>
                        <CD>
                            <TITLE>Empire Burlesque</TITLE>
@@ -216,4 +218,163 @@ function testGet() returns [xml|error, xml|error, xml|error, xml|error, xml|erro
     xml|error item2 = trap s.get(-1);
 
     return [e1, e2, c1, item, item2];
+}
+
+xml bookstore = xml `<bookstore><book category="cooking">
+                            <title lang="en">Everyday Italian</title>
+                            <author>Giada De Laurentiis</author>
+                            <year>1990</year>
+                            <price>30.00</price>
+                        </book>
+                        <book category="children">
+                            <title lang="en">Harry Potter</title>
+                            <author>J. K. Rowling</author>
+                            <year>2005</year>
+                            <price>29.99</price>
+                        </book>
+                        <book category="web" cover="paperback">
+                            <title lang="en">Learning XML</title>
+                            <author>Erik T. Ray</author>
+                            <year>2020</year>
+                            <price>39.95</price>
+                        </book>
+                    </bookstore>`;
+
+function testAsyncFpArgsWithXmls() returns [int, xml] {
+
+    int sum = 0;
+    ((bookstore/*).elements()).forEach(function (xml x) {
+      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      future<int> f1 = start getRandomNumber(value);
+      int result = wait f1;
+      sum = sum + result;
+    });
+
+    var filter = ((bookstore/*).elements()).filter(function (xml x) returns boolean {
+      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      future<int> f1 = start getRandomNumber(value);
+      int result = wait f1;
+      return result > 2000;
+    });
+
+    var filter2 = (filter).map(function (xml x) returns xml {
+      int value =   <int>langint:fromString((x/<year>/*).toString()) ;
+      future<int> f1 = start getRandomNumber(value);
+      int result = wait f1;
+      return xml `<year>${result}</year>`;
+    });
+    return [sum, filter];
+}
+
+function getRandomNumber(int i) returns int {
+    return i + 2;
+}
+
+function testChildren() {
+     xml brands = xml `<Brands><!-- Comment --><Apple>IPhone</Apple><Samsung>Galaxy</Samsung><OP>OP7</OP></Brands>`;
+
+     xml p = brands.children(); // equivalent to getChildren()
+     assert(p.length(), 4);
+     assert(p.toString(), "<!-- Comment --><Apple>IPhone</Apple><Samsung>Galaxy</Samsung><OP>OP7</OP>");
+
+     xml seq = brands/*;
+     xml q = seq.children();
+     assert(q.length(), 3);
+     assert(q.toString(), "IPhoneGalaxyOP7");
+}
+
+function testElements() {
+    xml presidents = xml `<Leaders>
+                            <!-- This is a comment -->
+                            <US>Obama</US>
+                            <US>Trump</US>
+                            <RUS>Putin</RUS>
+                          </Leaders>`;
+    xml seq = presidents/*;
+
+    xml y = seq.elements();
+    assert(y.length(), 3);
+    assert(y.toString(), "<US>Obama</US><US>Trump</US><RUS>Putin</RUS>");
+
+    xml z = seq.elements("RUS");
+    assert(z.length(), 1);
+    assert(z.toString(), "<RUS>Putin</RUS>");
+}
+
+function testElementsNS() {
+    xmlns "foo" as ns;
+    xml presidents = xml `<Leaders>
+                            <!-- This is a comment -->
+                            <ns:US>Obama</ns:US>
+                            <US>Trump</US>
+                            <RUS>Putin</RUS>
+                          </Leaders>`;
+    xml seq = presidents/*;
+
+    xml usNs = seq.elements("{foo}US");
+    assert(usNs.length(), 1);
+    assert(usNs.toString(), "<ns:US xmlns:ns=\"foo\">Obama</ns:US>");
+
+    xml usNoNs = seq.elements("US");
+    assert(usNoNs.length(), 1);
+    assert(usNoNs.toString(), "<US>Trump</US>");
+}
+
+function testElementChildren() {
+    xml letter = xml `<note>
+                        <to>Tove</to>
+                        <to>Irshad</to>
+                        <!-- This is a comment -->
+                        <from>Jani</from>
+                        <body>Don't forget me this weekend!</body>
+                      </note>`;
+
+    xml p = letter.elementChildren();
+    xml q = letter.elementChildren("to");
+
+    assert(p.length(), 4);
+    assert(p.toString(), "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>");
+    assert(q.length(), 2);
+    assert(q.toString(), "<to>Tove</to><to>Irshad</to>");
+
+    xml seq = 'xml:concat(letter, letter);
+    xml y = seq.elementChildren();
+    xml z = seq.elementChildren("to");
+
+    assert(y.length(), 8);
+    assert(y.toString(), "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>" +
+                         "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>");
+    assert(z.length(), 4);
+    assert(z.toString(), "<to>Tove</to><to>Irshad</to><to>Tove</to><to>Irshad</to>");
+}
+
+function testElementChildrenNS() {
+    xmlns "foo" as ns;
+    xml letter = xml `<note>
+                            <ns:to>Tove</ns:to>
+                            <to>Irshad</to>
+                            <!-- This is a comment -->
+                            <from>Jani</from>
+                            <body>Don't forget me this weekend!</body>
+                          </note>`;
+    xml seq = 'xml:concat(letter, letter);
+
+    xml toNs = seq.elementChildren("{foo}to");
+    assert(toNs.length(), 2);
+    assert(toNs.toString(), "<ns:to xmlns:ns=\"foo\">Tove</ns:to><ns:to xmlns:ns=\"foo\">Tove</ns:to>");
+
+    xml toNoNs = seq.elementChildren("to");
+    assert(toNoNs.length(), 2);
+    assert(toNoNs.toString(), "<to>Irshad</to><to>Irshad</to>");
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
 }

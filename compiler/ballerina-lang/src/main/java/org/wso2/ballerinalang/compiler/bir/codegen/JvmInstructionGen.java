@@ -303,7 +303,8 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
-                bType.tag == TypeTags.TYPEDESC) {
+                bType.tag == TypeTags.TYPEDESC ||
+                bType.tag == TypeTags.READONLY) {
             mv.visitVarInsn(ALOAD, valueIndex);
         } else if (bType.tag == JTypeTags.JTYPE) {
             generateJVarLoad(mv, (JType) bType, currentPackageName, valueIndex);
@@ -387,7 +388,8 @@ public class JvmInstructionGen {
                 bType.tag == TypeTags.INVOKABLE ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.HANDLE ||
-                bType.tag == TypeTags.TYPEDESC) {
+                bType.tag == TypeTags.TYPEDESC ||
+                bType.tag == TypeTags.READONLY) {
             mv.visitVarInsn(ASTORE, valueIndex);
         } else if (bType.tag == JTypeTags.JTYPE) {
             generateJVarStore(mv, (JType) bType, currentPackageName, valueIndex);
@@ -1091,8 +1093,15 @@ public class JvmInstructionGen {
                         String.format("(L%s;L%s;L%s;)V", OBJECT, isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT),
                         false);
             } else {
-                String signature = String.format("(L%s;L%s;L%s;)V",
+                String signature = String.format("(L%s;L%s;L%s;Z)V",
                         MAP_VALUE, isBString ? B_STRING_VALUE : STRING_VALUE, OBJECT);
+
+                if (mapStoreIns.isStoreOnCreation) {
+                    this.mv.visitInsn(ICONST_1);
+                } else {
+                    this.mv.visitInsn(ICONST_0);
+                }
+
                 this.mv.visitMethodInsn(INVOKESTATIC, MAP_UTILS, "handleMapStore", signature, false);
             }
         }

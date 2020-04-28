@@ -54,6 +54,7 @@ TYPE            : 'type' ;
 TYPE_FUTURE     : 'future' ;
 TYPE_ANYDATA    : 'anydata' ;
 TYPE_HANDLE     : 'handle' ;
+TYPE_READONLY   : 'readonly' ;
 
 VAR         : 'var' ;
 NEW         : 'new' ;
@@ -596,7 +597,7 @@ DoubleBacktickEnd
 mode TRIPLE_BACKTICKED_DOCUMENTATION;
 
 TripleBacktickContent
-    :   ((~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n])? (DocumentationLineStart (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n]?)+
+    :   ((~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n])? (WS? DocumentationLineStart (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])* [\n]?)+
     |   (~[`\n] | BACKTICK ~[`] | BACKTICK BACKTICK ~[`])+
     ;
 

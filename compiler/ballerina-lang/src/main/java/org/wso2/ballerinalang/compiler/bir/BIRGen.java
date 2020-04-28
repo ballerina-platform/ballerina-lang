@@ -199,6 +199,12 @@ public class BIRGen extends BLangNodeVisitor {
     // This is a global variable cache
     public Map<BSymbol, BIRGlobalVariableDcl> globalVarMap = new HashMap<>();
 
+    // This map is used to create dependencies for imported module global variables
+    private Map<BSymbol, BIRGlobalVariableDcl> dummyGlobalVarMapForLocks = new HashMap<>();
+
+    // This is to cache the lockstmt to BIR Lock
+    private Map<BLangLockStmt, BIRTerminator.Lock> lockStmtMap = new HashMap<>();
+
     // Required variables for Mock function implementation
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
 
@@ -1181,11 +1187,14 @@ public class BIRGen extends BLangNodeVisitor {
         }
         if (this.env.enclBB.terminator == null) {
             this.env.unlockVars.forEach(s -> {
-                long i = s.numLocks;
+                int i = s.size();
                 while (i > 0) {
                     BIRBasicBlock unlockBB = new BIRBasicBlock(this.env.nextBBId(names));
                     this.env.enclBasicBlocks.add(unlockBB);
-                    this.env.enclBB.terminator = new BIRTerminator.Unlock(null,  unlockBB);
+                    BIRTerminator.Unlock unlock = new BIRTerminator.Unlock(null,  unlockBB);
+                    this.env.enclBB.terminator = unlock;
+                    BIRTerminator.Lock lock = s.getLock(i - 1);
+                    unlock.relatedLock = lock;
                     this.env.enclBB = unlockBB;
                     i--;
                 }
@@ -1454,7 +1463,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand keyRegIndex = this.env.targetOperand;
         if (variableStore) {
             emit(new BIRNonTerminator.FieldAccess(astMapAccessExpr.pos, InstructionKind.MAP_STORE, varRefRegIndex,
-                    keyRegIndex, rhsOp));
+                                                  keyRegIndex, rhsOp, astMapAccessExpr.isStoreOnCreation));
             return;
         }
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astMapAccessExpr.type, this.env.nextLocalVarId(names),
@@ -1929,11 +1938,14 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB = goToBB;
         }
 
-        long numLocks = toUnlock.numLocks;
+        int numLocks = toUnlock.size();
         while (numLocks > 0) {
             BIRBasicBlock unlockBB = new BIRBasicBlock(this.env.nextBBId(names));
             this.env.enclBasicBlocks.add(unlockBB);
-            this.env.enclBB.terminator = new BIRTerminator.Unlock(null, unlockBB);
+            BIRTerminator.Unlock unlock = new BIRTerminator.Unlock(null, unlockBB);
+            this.env.enclBB.terminator = unlock;
+            BIRTerminator.Lock lock = toUnlock.getLock(numLocks - 1);
+            unlock.relatedLock = lock;
             this.env.enclBB = unlockBB;
             numLocks--;
         }
@@ -1949,11 +1961,14 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.GOTO(continueStmt.pos, goToBB);
             this.env.enclBB = goToBB;
         }
-        long numLocks = toUnlock.numLocks;
+        int numLocks = toUnlock.size();
         while (numLocks > 0) {
             BIRBasicBlock unlockBB = new BIRBasicBlock(this.env.nextBBId(names));
             this.env.enclBasicBlocks.add(unlockBB);
-            this.env.enclBB.terminator = new BIRTerminator.Unlock(null,  unlockBB);
+            BIRTerminator.Unlock unlock = new BIRTerminator.Unlock(null,  unlockBB);
+            this.env.enclBB.terminator = unlock;
+            BIRTerminator.Lock lock = toUnlock.getLock(numLocks - 1);
+            unlock.relatedLock = lock;
             this.env.enclBB = unlockBB;
             numLocks--;
         }
@@ -1976,10 +1991,29 @@ public class BIRGen extends BLangNodeVisitor {
         BIRBasicBlock lockedBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(lockedBB);
         this.env.enclBasicBlocks.add(lockedBB);
-        this.env.enclBB.terminator = new BIRTerminator.Lock(null, lockedBB);
+        BIRTerminator.Lock lock = new BIRTerminator.Lock(null, lockedBB);
+        this.env.enclBB.terminator = lock;
+        lockStmtMap.put(lockStmt, lock); // Populate the cache.
+        this.env.unlockVars.peek().addLock(lock);
+        populateBirLockWithGlobalVars(lockStmt);
         this.env.enclBB = lockedBB;
 
-        this.env.unlockVars.peek().numLocks++;
+    }
+
+    private void populateBirLockWithGlobalVars(BLangLockStmt lockStmt) {
+        for (BVarSymbol globalVar : lockStmt.lockVariables) {
+            BIRGlobalVariableDcl birGlobalVar = globalVarMap.get(globalVar);
+
+            // If null query the dummy map for dummy variables.
+            if (birGlobalVar == null) {
+                birGlobalVar = dummyGlobalVarMapForLocks.computeIfAbsent(globalVar, k ->
+                        new BIRGlobalVariableDcl(null, globalVar.flags, globalVar.type, globalVar.pkgID,
+                                globalVar.name, VarScope.GLOBAL, VarKind.GLOBAL, globalVar.name.value)
+                );
+            }
+
+            ((BIRTerminator.Lock) this.env.enclBB.terminator).lockVariables.add(birGlobalVar);
+        }
     }
 
     @Override
@@ -1992,9 +2026,11 @@ public class BIRGen extends BLangNodeVisitor {
         addToTrapStack(unLockedBB);
         this.env.enclBasicBlocks.add(unLockedBB);
         this.env.enclBB.terminator = new BIRTerminator.Unlock(null, unLockedBB);
+        BIRTerminator.Lock relatedLock = lockStmtMap.get(unLockStmt.relatedLock);
+        ((BIRTerminator.Unlock) this.env.enclBB.terminator).relatedLock = relatedLock;
         this.env.enclBB = unLockedBB;
 
-        lockDetailsHolder.numLocks--;
+        lockDetailsHolder.removeLastLock();
     }
 
     private void emit(BIRNonTerminator instruction) {
@@ -2109,7 +2145,7 @@ public class BIRGen extends BLangNodeVisitor {
             BIROperand arrayIndex = this.env.targetOperand;
 
             emit(new BIRNonTerminator.FieldAccess(listConstructorExpr.pos, InstructionKind.ARRAY_STORE, toVarRef,
-                    arrayIndex, exprIndex));
+                                                  arrayIndex, exprIndex, true));
         }
         this.env.targetOperand = toVarRef;
     }
@@ -2128,7 +2164,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         if (variableStore) {
             emit(new BIRNonTerminator.FieldAccess(astArrayAccessExpr.pos, InstructionKind.ARRAY_STORE, varRefRegIndex,
-                    keyRegIndex, rhsOp));
+                                                  keyRegIndex, rhsOp, astArrayAccessExpr.isStoreOnCreation));
             return;
         }
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(astArrayAccessExpr.type, this.env.nextLocalVarId(names),
@@ -2170,7 +2206,7 @@ public class BIRGen extends BLangNodeVisitor {
                 insKind = InstructionKind.MAP_STORE;
             }
             emit(new BIRNonTerminator.FieldAccess(astIndexBasedAccessExpr.pos, insKind, varRefRegIndex, keyRegIndex,
-                    rhsOp));
+                                                  rhsOp, astIndexBasedAccessExpr.isStoreOnCreation));
         } else {
             BIRVariableDcl tempVarDcl = new BIRVariableDcl(astIndexBasedAccessExpr.type, this.env.nextLocalVarId(names),
                     VarScope.FUNCTION, VarKind.TEMP);

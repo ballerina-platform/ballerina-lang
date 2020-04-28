@@ -1,154 +1,58 @@
-## Module overview
+## Module Overview
 
-This module provides an implementation for connecting to a remote socket server or acts as a server for an incoming socket request. The module facilitates two types of endpoints called `Client` and `Listener`.
+This module provides an implementation for sending/receiving messages to/from another application process (local or remote) for both connection-oriented and connectionless protocols.
 
-## Samples
+#### TCP Client
 
-### TCP Listener endpoints
-The sample given below shows how a listener is used to listen to the incoming socket request. The `onConnect(socket:Caller)` resource function gets invoked when a new client is connected. The new client is represented using the `socket:Caller`.
-`onReadReady(socket:Caller)` resource gets invoked once the remote client sends some data.
- 
+The `socket:Client` is used to connect to a socket server and interact with it. The client can only send the data to the server and the client's call-back service can retrieve the data from the server and do multiple requests/responses between the client and the server.
+
+A Client can be defined by providing the host, port, and callbackService as follows.
+
 ```ballerina
-import ballerina/log;
-import ballerina/socket;
+socket:Client socketClient = new ({host: "localhost", port: 61598, callbackService: ClientService});
+string msg = "Hello Ballerina\n";
+byte[] message = msg.toBytes();
+var writeResult = socketClient->write(message);
+```
 
-listener socket:Listener server = new(61598);
+A client's call-back service can be defined as follows:
 
-service echoServer on server {
+```ballerina 
+service ClientService = service {
     resource function onConnect(socket:Caller caller) {
-        log:printInfo("Join: " + caller.remotePort.toString());
-    }
-
-    resource function onReadReady(socket:Caller caller) {
-        var result = caller->read();
-        if (result is [byte[], int]) {
-            var [content, length] = result;
-            if (length > 0) {
-                var writeResult = caller->write(content);
-                if (writeResult is int) {
-                    log:printInfo("Number of bytes written: " 
-                                    + writeResult.toString());
-                } else {
-                    log:printError("Unable to written the content", writeResult);
-                }
-            } else {
-                log:printInfo("Client close: " + caller.remotePort.toString());
-            }
-        } else {
-            log:printError("Unable to read the content", result);
-        }
-    }
-
-    resource function onError(socket:Caller caller, error er) {
-        log:printError("An error occurred", er);
+        io:println("connect: ", caller.remotePort);
     }
 }
 ```
 
-### TCP Client endpoints
-The client endpoint is used to connect to and interact with a socket server. The client can only send the data to the
- server. The client's `callbackService` needs to retrieve the data from the server and do multiple requests/responses between the client and the server.
-
+#### UDP Client
+The `socket:UdpClient` is used to interact with the remote UDP host and it can be defined as follows:
 ```ballerina
-import ballerina/io;
-import ballerina/socket;
+socket:UdpClient socketClient = new;
+string msg = "Hello from UDP client";
+byte[] message = msg.toBytes();
+int|socket:Error sendResult = socketClient->sendTo(message, { host: "localhost", port: 48826 });
+```
 
-public function main() {
-    socket:Client socketClient = new({ host: "localhost", 
-                                       port: 61598, 
-                                       callbackService: ClientService });
-    string msg = "Hello Ballerina\n";
-    byte[] c1 = msg.toBytes();
-    var writeResult = socketClient->write(c1);
-    if (writeResult is int) {
-        io:println("Number of bytes written: " , writeResult);
-    } else {
-        io:println("Unable to written the content", 
-                        writeResult.detail()["message"]);
-    }
-}
+#### Listener
+The `socket:Listener` is used to listen to the incoming socket request. The `onConnect(socket:Caller)` resource function gets invoked when a new client is connected. The new client is represented using the `socket:Caller`.
+The `onReadReady(socket:Caller)` resource gets invoked once the remote client sends some data.
 
-service ClientService = service {
+A `socket:Listener` can be defined as follows:
+```ballerina
+listener socket:Listener server = new(61598);
+service echoServer on server {
 
     resource function onConnect(socket:Caller caller) {
         io:println("connect: ", caller.remotePort);
     }
-    
+
     resource function onReadReady(socket:Caller caller) {
-        var result = caller->read();
-        if (result is [byte[], int]) {
-            var [content, length] = result;
-            if (length > 0) {
-                var str = getString(content);
-                if (str is string) {
-                    io:println(<@untainted> str);
-                } else {
-                    io:println(str.reason());
-                }
-                var closeResult = caller->close();
-                if (closeResult is error) {
-                    io:println(closeResult.detail()["message"]);
-                } else {
-                    io:println("Client connection closed successfully.");
-                }
-            } else {
-                io:println("Client close: ", caller.remotePort);
-            }
-        } else {
-            io:println(result);
-        }
-    }
-    
-    resource function onError(socket:Caller caller, error er) {
-        io:println(er.reason());
-    }
-};
-
-function getString(byte[] content) returns @tainted string | error {
-    io:ReadableByteChannel byteChannel = check io:createReadableChannel(content);
-    io:ReadableCharacterChannel 
-         characterChannel = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
-    return characterChannel.read(50);
-}
-```
-### UDP Client endpoints
-UDP client endpoint is used to interact with the remote UDP host.
-
-```ballerina
-import ballerina/io;
-import ballerina/socket;
-
-public function main() {
-    socket:UdpClient socketClient = new;
-    string msg = "Hello from UDP client";
-    byte[] c1 = msg.toBytes();
-    var sendResult =
-        socketClient->sendTo(c1, { host: "localhost", port: 48826 });
-    if (sendResult is int) {
-        io:println("Number of bytes written: ", sendResult);
-    } else {
-        panic sendResult;
-    }
-    var result = socketClient->receiveFrom();
-    if (result is [byte[], int, socket:Address]) {
-        var [content, length, address] = result;
-        io:ReadableByteChannel byteChannel 
-                = checkpanic io:createReadableChannel(content);
-        io:ReadableCharacterChannel characterChannel 
-                = new io:ReadableCharacterChannel(byteChannel, "UTF-8");
-        var str = characterChannel.read(60);
-        if (str is string) {
-            io:println("Received: ", <@untainted> str);
-        } else {
-            io:println(str.detail()["message"]);
-        }
-    } else {
-        io:println("An error occurred while receiving the data ", result);
-    }
-    var closeResult = socketClient->close();
-    if (closeResult is error) {
-        io:println("An error occurred while closing the connection ", 
-                    closeResult);
+        [byte[], int]|socket:ReadTimedOutError result = caller->read();
     }
 }
 ```
+
+For information on the operations, which you can perform with this module, see the below **Functions**. For examples on the usage of the operations, see the following.
+ * [Basic TCP Socket Example](https://ballerina.io/learn/by-example/tcp-socket-listener-client.html)
+ * [Basic UDP Client Socket Example](https://ballerina.io/learn/by-example/udp-socket-client.html)

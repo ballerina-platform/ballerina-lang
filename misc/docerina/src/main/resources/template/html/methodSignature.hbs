@@ -1,9 +1,12 @@
 
-<a href="#{{name}}">
-    <div class="param-sum">
-        <div class="param-name">
-        {{name}} 
-        </div>
-        <div class="param-details"> {{{ description }}} </div>
+<div class="param-sum">
+    <div class="param-name {{#if isDeprecated}}strike{{/if}}" title="{{name}}">
+        <a href="#{{name}}">{{name}} </a>
     </div>
-</a>
+    <div class="param-details">
+        {{#if isDeprecated}}
+            <span class="stab">Deprecated</span>
+        {{/if}}
+        {{{ description }}}
+    </div>
+</div>

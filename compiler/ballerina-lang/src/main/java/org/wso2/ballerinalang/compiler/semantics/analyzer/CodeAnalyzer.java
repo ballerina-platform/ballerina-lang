@@ -196,12 +196,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.tree.BLangInvokableNode.DEFAULT_WORKER_NAME;
 import static org.wso2.ballerinalang.compiler.util.Constants.MAIN_FUNCTION_NAME;
@@ -407,6 +405,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (isPublicInvokableNode(funcNode)) {
             analyzeNode(funcNode.returnTypeNode, invokableEnv);
         }
+
         /* the body can be null in the case of Object type function declarations */
         if (funcNode.body != null) {
             analyzeNode(funcNode.body, invokableEnv);
@@ -2326,8 +2325,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangRecordTypeNode recordTypeNode) {
 
         SymbolEnv recordEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
-        if (recordTypeNode.isFieldAnalyseRequired) {
-            recordTypeNode.fields.forEach(field -> analyzeNode(field, recordEnv));
+        for (BLangSimpleVariable field : recordTypeNode.fields) {
+            analyzeNode(field, recordEnv);
         }
     }
 
@@ -2335,15 +2334,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangObjectTypeNode objectTypeNode) {
 
         SymbolEnv objectEnv = SymbolEnv.createTypeEnv(objectTypeNode, objectTypeNode.symbol.scope, env);
-        if (objectTypeNode.isFieldAnalyseRequired) {
-            objectTypeNode.fields.forEach(field -> analyzeNode(field, objectEnv));
+        for (BLangSimpleVariable field : objectTypeNode.fields) {
+            analyzeNode(field, objectEnv);
+        }
+
+        List<BLangFunction> bLangFunctionList = new ArrayList<>(objectTypeNode.functions);
+        if (objectTypeNode.initFunction != null) {
+            bLangFunctionList.add(objectTypeNode.initFunction);
         }
 
         // To ensure the order of the compile errors
-        Stream.concat(objectTypeNode.functions.stream(),
-                Optional.ofNullable(objectTypeNode.initFunction).map(Stream::of).orElseGet(Stream::empty))
-                .sorted(Comparator.comparingInt(fn -> fn.pos.sLine))
-                .forEachOrdered(fn -> this.analyzeNode(fn, objectEnv));
+        bLangFunctionList.sort(Comparator.comparingInt(function -> function.pos.sLine));
+        for (BLangFunction function : bLangFunctionList) {
+            this.analyzeNode(function, objectEnv);
+        }
     }
 
     @Override

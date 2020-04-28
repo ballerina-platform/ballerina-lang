@@ -77,27 +77,38 @@ public class TypeNarrower extends BLangNodeVisitor {
     }
 
     /**
-     * Evaluate an expression to truth value. Returns an environment containing the symbols
-     * with their narrowed types, defined by the truth of the expression. If there are no 
-     * symbols that get affected by type narrowing, then this will return the same environment. 
-     * 
-     * @param expr Expression to evaluate
-     * @param targetNode node to which the type narrowing applies
-     * @param env Current environment
+     * Evaluate an expression to truth value. Returns an environment containing the symbols with their narrowed types,
+     * defined by the truth of the expression. If there are no symbols that get affected by type narrowing, then this
+     * will return the same environment.
+     *
+     * @param expr         Expression to evaluate
+     * @param targetNode   Node to which the type narrowing applies
+     * @param env          Current environment
+     * @param isBinaryExpr Indicates whether the current context is a binary expression
      * @return target environment
      */
-    public SymbolEnv evaluateTruth(BLangExpression expr, BLangNode targetNode, SymbolEnv env) {
+    public SymbolEnv evaluateTruth(BLangExpression expr, BLangNode targetNode, SymbolEnv env, boolean isBinaryExpr) {
         Map<BVarSymbol, NarrowedTypes> narrowedTypes = getNarrowedTypes(expr, env);
         if (narrowedTypes.isEmpty()) {
             return env;
         }
 
         SymbolEnv targetEnv = getTargetEnv(targetNode, env);
-        narrowedTypes.forEach((symbol, typeInfo) -> {
-            symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, getOriginalVarSymbol(symbol), typeInfo.trueType);
-        });
+        Set<Map.Entry<BVarSymbol, NarrowedTypes>> entrySet = narrowedTypes.entrySet();
+
+        for (Map.Entry<BVarSymbol, NarrowedTypes> entry : entrySet) {
+            BVarSymbol symbol = entry.getKey();
+            NarrowedTypes typeInfo = entry.getValue();
+            BType narrowedType = isBinaryExpr && typeInfo.trueType == symTable.semanticError ? typeInfo.falseType :
+                    typeInfo.trueType;
+            symbolEnter.defineTypeNarrowedSymbol(expr.pos, targetEnv, getOriginalVarSymbol(symbol), narrowedType);
+        }
 
         return targetEnv;
+    }
+
+    public SymbolEnv evaluateTruth(BLangExpression expr, BLangNode targetNode, SymbolEnv env) {
+        return evaluateTruth(expr, targetNode, env, false);
     }
 
     /**
@@ -226,6 +237,17 @@ public class TypeNarrower extends BLangNodeVisitor {
             NarrowedTypes narrowedTypes = rhsTypes.get(symbol);
             rhsTrueType = narrowedTypes.trueType;
             rhsFalseType = narrowedTypes.falseType;
+            // Swapping the types if the RHS true type is a semantic error to disregard the RHS expr when continuing
+            // with the evaluation of the expression.
+            // e.g., ((x is int && x is boolean) && x is float) where x is of type int|string|float
+            // `x is boolean` will result in a semantic error since boolean is not in the above union. The false type
+            // of this type test contains the result from the last, semantically valid type test result. Since the
+            // true type is a semantic error, we swap the true and false types to use the last known correct narrowed
+            // type for future expr evaluations.
+            if (rhsTrueType.tag == TypeTags.SEMANTIC_ERROR && operator == OperatorKind.AND) {
+                rhsTrueType = rhsFalseType;
+                rhsFalseType = types.getRemainingType(symbol.type, rhsTrueType);
+            }
         } else {
             rhsTrueType = rhsFalseType = symbol.type;
         }
@@ -274,11 +296,20 @@ public class TypeNarrower extends BLangNodeVisitor {
                 if (intersectionType != symTable.semanticError) {
                     return intersectionType;
                 }
+            } else if (type.tag == TypeTags.NULL_SET) {
+                return type;
             }
             return null;
         }).filter(type -> type != null).collect(Collectors.toCollection(LinkedHashSet::new));
 
-        if (intersection.isEmpty() || intersection.contains(symTable.semanticError)) {
+        if (intersection.isEmpty()) {
+            if (currentType.tag == TypeTags.NULL_SET) {
+                return currentType;
+            }
+            return symTable.semanticError;
+        }
+
+        if (intersection.contains(symTable.semanticError)) {
             return symTable.semanticError;
         } else if (intersection.size() == 1) {
             return intersection.toArray(new BType[0])[0];
@@ -289,9 +320,17 @@ public class TypeNarrower extends BLangNodeVisitor {
 
     private BType getTypeUnion(BType currentType, BType targetType) {
         LinkedHashSet<BType> union = new LinkedHashSet<>(types.getAllTypes(currentType));
-        types.getAllTypes(targetType).stream()
-                .filter(newType -> union.stream().anyMatch(existingType -> !types.isAssignable(newType, existingType)))
-                .forEach(newType -> union.add(newType));
+        List<BType> targetComponentTypes = types.getAllTypes(targetType);
+        for (BType newType : targetComponentTypes) {
+            if (newType.tag != TypeTags.NULL_SET) {
+                for (BType existingType : union) {
+                    if (!types.isAssignable(newType, existingType)) {
+                        union.add(newType);
+                        break;
+                    }
+                }
+            }
+        }
 
         if (union.contains(symTable.semanticError)) {
             return symTable.semanticError;

@@ -389,8 +389,8 @@ public class BLangPackageBuilder {
         this.typeNodeStack.push(tupleTypeNode);
     }
 
-    void addRecordType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous,
-                       boolean hasRestField, boolean isExclusiveTypeDesc) {
+    void addRecordType(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous, boolean hasRestField,
+                       boolean isExclusiveTypeDesc) {
         // If there is an explicitly defined rest field, take it.
         BLangType restFieldType = null;
         if (hasRestField) {
@@ -398,7 +398,6 @@ public class BLangPackageBuilder {
         }
         // Create an anonymous record and add it to the list of records in the current package.
         BLangRecordTypeNode recordTypeNode = populateRecordTypeNode(pos, ws, isAnonymous);
-        recordTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
         recordTypeNode.sealed = isExclusiveTypeDesc && !hasRestField;
         recordTypeNode.restFieldType = restFieldType;
 
@@ -440,7 +439,7 @@ public class BLangPackageBuilder {
 
     void addFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
                           boolean exprAvailable, int annotCount, boolean isPrivate, boolean isOptional,
-                          boolean markdownExists) {
+                          boolean markdownExists, boolean isReadonly) {
         BLangSimpleVariable field = addSimpleVar(pos, ws, identifier, identifierPos, exprAvailable, annotCount);
 
         if (!isPrivate) {
@@ -451,6 +450,10 @@ public class BLangPackageBuilder {
             field.flagSet.add(Flag.OPTIONAL);
         } else if (!exprAvailable) {
             field.flagSet.add(Flag.REQUIRED);
+        }
+
+        if (isReadonly) {
+            field.flagSet.add(Flag.READONLY);
         }
 
         if (markdownExists) {
@@ -1556,7 +1559,7 @@ public class BLangPackageBuilder {
         recordLiteralNodes.peek().fields.add((BLangRecordLiteral.BLangRecordVarNameField) exprNodeStack.pop());
     }
 
-    void addKeyValueRecordField(Set<Whitespace> ws, boolean computedKey) {
+    void addKeyValueRecordField(Set<Whitespace> ws, boolean computedKey, boolean isReadonly) {
         BLangRecordKeyValueField keyValue = (BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
         keyValue.addWS(ws);
         keyValue.valueExpr = (BLangExpression) exprNodeStack.pop();
@@ -1565,6 +1568,7 @@ public class BLangPackageBuilder {
             keyValue.addWS(this.recordKeyWS.pop());
         }
         keyValue.key.computedKey = computedKey;
+        keyValue.isReadonly = isReadonly;
         recordLiteralNodes.peek().fields.add(keyValue);
     }
 
@@ -1633,8 +1637,11 @@ public class BLangPackageBuilder {
         createSimpleVariableReference(pos, ws, (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode());
     }
 
-    void createBLangRecordVarRefNameField(DiagnosticPos pos, Set<Whitespace> ws) {
-        createSimpleVariableReference(pos, ws, (BLangSimpleVarRef) TreeBuilder.createRecordVarRefNameFieldNode());
+    void createBLangRecordVarRefNameField(DiagnosticPos pos, Set<Whitespace> ws, boolean isReadonly) {
+        BLangRecordLiteral.BLangRecordVarNameField varNameField =
+                (BLangRecordLiteral.BLangRecordVarNameField) TreeBuilder.createRecordVarRefNameFieldNode();
+        varNameField.isReadonly = isReadonly;
+        createSimpleVariableReference(pos, ws, varNameField);
     }
 
     private void createSimpleVariableReference(DiagnosticPos pos, Set<Whitespace> ws, BLangSimpleVarRef varRef) {
@@ -2345,11 +2352,10 @@ public class BLangPackageBuilder {
         startFieldBlockList();
     }
 
-    void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous,
-                       boolean isAbstract, boolean isClient, boolean isService) {
+    void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous, boolean isAbstract,
+                       boolean isClient, boolean isService) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
-        objectTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
 
         if (isAbstract) {
             objectTypeNode.flagSet.add(Flag.ABSTRACT);

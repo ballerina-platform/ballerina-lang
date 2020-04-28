@@ -63,7 +63,20 @@
                         <tbody>
                             <tr>
                                 <td width="30%" ><a class="functions" href="#{{name}}">{{name}}</a></td>
-                                <td width="70%">{{{ description }}}</td>
+                                <td width="70%">
+                                    <div class="function-desc">
+                                        {{{ description }}}
+                                    </div>
+                                </td>
+                                <td width="30%"><a class="functions {{#if isDeprecated}}strike{{/if}}" href="#{{name}}">{{name}}</a></td>
+                                <td width="70%">
+                                    <div class="function-desc">
+                                        {{#if isDeprecated}}
+                                            <span class="stab">Deprecated</span>
+                                        {{/if}}
+                                        {{{ description }}}
+                                    </div>
+                                </td>
                             </tr>
                         </tbody>
                     {{/each}}

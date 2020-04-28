@@ -90,6 +90,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_LOCK_NAME;
@@ -351,8 +352,9 @@ public class JvmTerminatorGen {
             Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
             String lockStore = "L" + LOCK_STORE + ";";
             String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
+            String lockName = GLOBAL_LOCK_NAME + lockIns.lockId;
             this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
-            this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
+            this.mv.visitLdcInsn(lockName);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap",
                     String.format("(L%s;)L%s;", STRING_VALUE, LOCK_VALUE), false);
             this.mv.visitVarInsn(ALOAD, localVarOffset);
@@ -373,9 +375,10 @@ public class JvmTerminatorGen {
 
             // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
             String lockStore = "L" + LOCK_STORE + ";";
+            String lockName = GLOBAL_LOCK_NAME + unlockIns.relatedLock.lockId;
             String initClassName = lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
             this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
-            this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
+            this.mv.visitLdcInsn(lockName);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", String.format("(L%s;)L%s;",
                     STRING_VALUE, LOCK_VALUE), false);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_VALUE, "unlock", "()V", false);
@@ -991,6 +994,8 @@ public class JvmTerminatorGen {
             } else {
                 // load function ref, going to directly call the fp
                 this.loadVar(fpCall.fp.variableDcl);
+                this.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "getFunction",
+                                        String.format("()L%s;", FUNCTION), false);
             }
 
             // create an object array of args
@@ -1041,9 +1046,9 @@ public class JvmTerminatorGen {
                 this.submitToScheduler(fpCall.lhsOp, localVarOffset, false);
                 this.mv.visitLabel(afterSubmit);
             } else {
-                this.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "call",
-                        String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
-                // store reult
+                this.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply",
+                                        String.format("(L%s;)L%s;", OBJECT, OBJECT), true);
+                // store result
                 @Nilable BType lhsType = fpCall.lhsOp.variableDcl.type;
                 if (lhsType != null) {
                     addUnboxInsn(this.mv, lhsType);
@@ -1220,7 +1225,8 @@ public class JvmTerminatorGen {
                     bType.tag == TypeTags.INVOKABLE ||
                     bType.tag == TypeTags.HANDLE ||
                     bType.tag == TypeTags.FINITE ||
-                    bType.tag == TypeTags.TYPEDESC) {
+                    bType.tag == TypeTags.TYPEDESC ||
+                    bType.tag == TypeTags.READONLY) {
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
             } else if (bType.tag == TypeTags.UNION) {
