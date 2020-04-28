@@ -542,8 +542,8 @@ public class JvmPackageGen {
         rewriteRecordInits(module.typeDefs);
 
         // generate object/record value classes
-        JvmObjectGen objGen = new JvmObjectGen(module, this, jvmMethodGen);
-        objGen.generate(jarFile.pkgEntries);
+        JvmValueGen valueGen = new JvmValueGen(module, this, jvmMethodGen);
+        valueGen.generate(jarFile.pkgEntries);
 
         // generate frame classes
         jvmMethodGen.generateFrameClasses(module, jarFile.pkgEntries);

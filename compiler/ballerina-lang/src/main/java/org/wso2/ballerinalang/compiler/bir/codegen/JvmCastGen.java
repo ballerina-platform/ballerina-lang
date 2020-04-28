@@ -141,7 +141,7 @@ public class JvmCastGen {
             generateCheckCastBToJRef(mv, sourceType, targetType);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java %s'",
-                                                           sourceType, targetType));
+                    sourceType, targetType));
         }
     }
 
@@ -149,10 +149,10 @@ public class JvmCastGen {
 
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
-                               String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
+                    String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java byte'",
-                                                           sourceType));
+                    sourceType));
         }
     }
 
