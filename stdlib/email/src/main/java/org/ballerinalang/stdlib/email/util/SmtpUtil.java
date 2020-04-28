@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.activation.DataHandler;
 import javax.mail.Address;
@@ -74,6 +75,16 @@ public class SmtpUtil {
         properties.put(EmailConstants.PROPS_SMTP_AUTH, "true");
         properties.put(EmailConstants.PROPS_SMTP_STARTTLS, "true");
         properties.put(EmailConstants.PROPS_ENABLE_SSL, smtpConfig.getBooleanValue(EmailConstants.PROPS_SSL));
+        CommonUtil.addCustomProperties(smtpConfig.getArrayValue(EmailConstants.PROPS_PROPERTIES), properties);
+        if (log.isDebugEnabled()) {
+            Set<String> propertySet = properties.stringPropertyNames();
+            log.debug("SMTP Properties set are as follows.");
+            for (Object propertyObj : propertySet) {
+                log.debug("Property Name: " + propertyObj + ", Value: " + properties.get(propertyObj).toString()
+                        + " ValueType: " + properties.get(propertyObj).getClass().getName());
+            }
+        }
+
         return properties;
     }
 
