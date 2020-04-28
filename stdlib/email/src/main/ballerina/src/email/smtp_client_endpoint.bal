@@ -19,7 +19,7 @@ import ballerina/java;
 # Represents an SMTP Client, which interacts with an SMTP Server.
 public type SmtpClient client object {
 
-    # Gets invoked during object initialization.
+    # Gets invoked during the `email:SmtpClient` initialization.
     #
     # + host - Host of the SMTP Client
     # + username - Username of the SMTP Client
@@ -31,10 +31,13 @@ public type SmtpClient client object {
             java:fromString(password), clientConfig);
     }
 
-    # Send a message.
-    #
-    # + email - String message
-    # + return - An `SendError` if failed to send the message to the recipient
+# Sends a message.
+# ```ballerina
+# email:Error? response = smtpClient->send(email);
+# ```
+#
+# + email - An `email:Email` message, which needs to be sent to the recipient
+# + return - An `email:SendError` if failed to send the message to the recipient or else `()`
     public remote function send(Email email) returns Error? {
         return send(self, email);
     }

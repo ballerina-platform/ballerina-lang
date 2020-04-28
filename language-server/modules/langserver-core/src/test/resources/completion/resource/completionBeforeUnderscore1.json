@@ -466,7 +466,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a ReadableByteChannel from a given file path.\n  \n**Params**  \n- `string` path: Relative/absolute path string to locate the file  \n  \n**Returns** `(io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError|io:FileNotFoundError|io:EofError)`   \n- ByteChannel representation of the file resource or `Error` if any error occurred  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a `ReadableByteChannel` from a given file path.\n```ballerina\n# io:ReadableByteChannel readableFieldResult = check io:openReadableFile(\"./files/sample.txt\");\n#```\n  \n**Params**  \n- `string` path: Relative/absolute path string to locate the file  \n  \n**Returns** `(io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError|io:FileNotFoundError|io:EofError)`   \n- The `ByteChannel` representation of the file resource or else an `io:Error` if any error occurred  \n  \n"
         }
       },
       "sortText": "120",
@@ -484,7 +484,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a WritableByteChannel from a given file path.\n  \n**Params**  \n- `string` path: Relative/absolute path string to locate the file  \n- `boolean` append: Append to end of file.(Defaultable)  \n  \n**Returns** `(io:WritableByteChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError|io:FileNotFoundError|io:EofError)`   \n- ByteChannel representation of the file resource or `Error` if any error occurred  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a `WritableByteChannel` from a given file path.\n```ballerina\n# io:WritableByteChannel writableFileResult = check io:openWritableFile(\"./files/sampleResponse.txt\");\n# ```\n  \n**Params**  \n- `string` path: Relative/absolute path string to locate the file  \n- `boolean` append: Whether to append to the end of file(Defaultable)  \n  \n**Returns** `(io:WritableByteChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError|io:FileNotFoundError|io:EofError)`   \n- The `ByteChannel` representation of the file resource or else an `io:Error` if any error occurred  \n  \n"
         }
       },
       "sortText": "120",
@@ -502,7 +502,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nCreates an in-memory channel which will reference stream of bytes.\n  \n**Params**  \n- `byte[]` content: Content which should be exposed as channel  \n  \n**Returns** `(io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError|io:FileNotFoundError|io:EofError)`   \n- ByteChannel representation to read the memory content or `Error` if any error occurred  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nCreates an in-memory channel, which will be a reference stream of bytes.\n```ballerina\n# var byteChannel = io:createReadableChannel(content);\n# ```\n  \n**Params**  \n- `byte[]` content: Content, which should be exposed as a channel  \n  \n**Returns** `(io:ReadableByteChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError|io:FileNotFoundError|io:EofError)`   \n- The `ByteChannel` representation to read the memory content or else an `io:Error` if any error occurred  \n  \n"
         }
       },
       "sortText": "120",
@@ -520,7 +520,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a give file path.\n  \n**Params**  \n- `string` path: File path which describes the location of the CSV  \n- `(,|\t|:|string)` fieldSeparator: CSV record separator (i.e comma or tab)(Defaultable)  \n- `string` charset: Encoding characters in the file represents(Defaultable)  \n- `int` skipHeaders: Number of headers which should be skipped(Defaultable)  \n  \n**Returns** `(io:ReadableCSVChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError|io:FileNotFoundError|io:EofError)`   \n- ReadableCSVChannel which could be used to iterate through the CSV records  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a readable CSV channel from a given file path.\n```ballerina\n# io:ReadableCSVChannel rCsvChannel = check io:openReadableCsvFile(srcFileName);\n# ```\n  \n**Params**  \n- `string` path: File path, which describes the location of the CSV  \n- `(,|\t|:|string)` fieldSeparator: CSV record separator (i.e., comma or tab)(Defaultable)  \n- `string` charset: Representation of the encoding characters in the file (Defaultable)  \n- `int` skipHeaders: Number of headers, which should be skipped(Defaultable)  \n  \n**Returns** `(io:ReadableCSVChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError|io:FileNotFoundError|io:EofError)`   \n- The `ReadableCSVChannel`, which could be used to iterate through the CSV records or else an `io:Error` if any error occurred.  \n  \n"
         }
       },
       "sortText": "120",
@@ -538,7 +538,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a writable CSV channel from a give file path.\n  \n**Params**  \n- `string` path: File path which describes the location of the CSV  \n- `(,|\t|:|string)` fieldSeparator: CSV record separator (i.e comma or tab)(Defaultable)  \n- `string` charset: Encoding characters in the file represents(Defaultable)  \n- `int` skipHeaders: Number of headers which should be skipped(Defaultable)  \n  \n**Returns** `(io:WritableCSVChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError|io:FileNotFoundError|io:EofError)`   \n- WritableCSVChannel which could be used to write CSV records or `Error` if any error occurred  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves a writable CSV channel from a given file path.\n```ballerina\n# io:WritableCSVChannel wCsvChannel = check io:openWritableCsvFile(srcFileName);\n# ```\n  \n**Params**  \n- `string` path: File path, which describes the location of the CSV  \n- `(,|\t|:|string)` fieldSeparator: CSV record separator (i.e., comma or tab)(Defaultable)  \n- `string` charset: Representation of the encoding characters in the file (Defaultable)  \n- `int` skipHeaders: Number of headers, which should be skipped(Defaultable)  \n  \n**Returns** `(io:WritableCSVChannel|io:GenericError|io:ConnectionTimedOutError|io:AccessDeniedError|io:FileNotFoundError|io:EofError)`   \n- The `WritableCSVChannel`, which could be used to write the CSV records or else an `io:Error` if any error occurred  \n  \n"
         }
       },
       "sortText": "120",
@@ -556,7 +556,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT.  \n**Params**  \n- `(any|error)[]` values: The value(s) to be printed."
+          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT.\n```ballerina\n#io:print(\"Start processing the CSV file from \", srcFileName);\n#```\n  \n**Params**  \n- `(any|error)[]` values: The value(s) to be printed."
         }
       },
       "sortText": "120",
@@ -574,7 +574,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT followed by a new line.  \n**Params**  \n- `(any|error)[]` values: The value(s) to be printed."
+          "value": "**Package:** _ballerina/io_  \n  \nPrints `any` or `error` value(s) to the STDOUT followed by a new line.\n```ballerina\n#io:println(\"Start processing the CSV file from \", srcFileName);\n#```\n   \n**Params**  \n- `(any|error)[]` values: The value(s) to be printed."
         }
       },
       "sortText": "120",
@@ -592,7 +592,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n\nb - boolean\n\nB - boolean (ALL_CAPS)\n\nd - int\n\nf - float\n\nx - hex\n\nX - HEX (ALL_CAPS)\n\ns - string (This specifier is applicable for any of the supported types in Ballerina.\n            These values will be converted to their string representation.)\n  \n**Params**  \n- `string` format: A format string  \n- `(any|error)[]` args: Arguments referenced by the format specifiers in the format string.  \n  \n**Returns** `string`   \n- Formatted string  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nReturns a formatted string using the specified format string and arguments. Following format specifiers are allowed.\n\nb - boolean\n\nB - boolean (ALL_CAPS)\n\nd - int\n\nf - float\n\nx - hex\n\nX - HEX (ALL_CAPS)\n\ns - string (This specifier is applicable for any of the supported types in Ballerina.\n            These values will be converted to their string representation.)\n\n```ballerina\n# string s8 = io:sprintf(\"%s scored %d for %s and has an average of %.2f.\", name, marks, subjects[0], average);\n# ```\n  \n**Params**  \n- `string` format: A format string  \n- `(any|error)[]` args: Arguments referred by the format specifiers in the format string  \n  \n**Returns** `string`   \n- The formatted string  \n  \n"
         }
       },
       "sortText": "120",
@@ -610,7 +610,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/io_  \n  \nReturns the input read from STDIN.\n  \n**Params**  \n- `any` a: Any value to be printed  \n  \n**Returns** `string`   \n- Input read from STDIN  \n  \n"
+          "value": "**Package:** _ballerina/io_  \n  \nRetrieves the input read from the STDIN.\n```ballerina\n# string choice = io:readln(\"Enter choice 1 - 5: \");\n# ```\n  \n**Params**  \n- `any` a: Any value to be printed  \n  \n**Returns** `string`   \n- Input read from the STDIN  \n  \n"
         }
       },
       "sortText": "120",

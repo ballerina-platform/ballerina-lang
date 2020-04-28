@@ -9,6 +9,7 @@
       "label": "as",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "220",
       "insertText": "as ",
       "insertTextFormat": "Snippet"
     }

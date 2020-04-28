@@ -20,7 +20,21 @@ import ballerina/log;
 import ballerina/stringutils;
 import ballerina/time;
 
-# Represents inbound JWT auth provider.
+# Represents the inbound JWT auth provider, which authenticates by validating a JWT.
+# The `jwt:InboundJwtAuthProvider` is another implementation of the `auth:InboundAuthProvider` interface.
+# ```ballerina
+# jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new({
+#     issuer: "example",
+#     audience: "ballerina",
+#     trustStoreConfig: {
+#         certificateAlias: "ballerina",
+#         trustStore: {
+#             path: "/path/to/truststore.p12",
+#             password: "ballerina"
+#         }
+#     }
+# });
+# ```
 #
 # + jwtValidatorConfig - JWT validator configurations
 public type InboundJwtAuthProvider object {
@@ -30,7 +44,7 @@ public type InboundJwtAuthProvider object {
     public JwtValidatorConfig jwtValidatorConfig;
     cache:Cache inboundJwtCache;
 
-    # Provides authentication based on the provided JWT token.
+    # Provides authentication based on the provided JWT.
     #
     # + jwtValidatorConfig - JWT validator configurations
     public function __init(JwtValidatorConfig jwtValidatorConfig) {
@@ -38,10 +52,13 @@ public type InboundJwtAuthProvider object {
         self.inboundJwtCache = jwtValidatorConfig.jwtCache;
     }
 
-    # Authenticate with a JWT token.
-    #
-    # + credential - Jwt token extracted from the authentication header
-    # + return - `true` if authentication is successful, othewise `false` or `auth:Error` occurred during JWT validation
+# Authenticates provided JWT against `jwt:JwtValidatorConfig`.
+#```ballerina
+# boolean|auth:Error result = inboundJwtAuthProvider.authenticate("<credential>");
+# ```
+#
+# + credential - JWT to be authenticated
+# + return - `true` if authentication is successful, `false` otherwise or else an `auth:Error` if JWT validation failed
     public function authenticate(string credential) returns @tainted (boolean|auth:Error) {
         string[] jwtComponents = stringutils:split(credential, "\\.");
         if (jwtComponents.length() != 3) {
@@ -70,9 +87,9 @@ public type InboundJwtAuthProvider object {
     }
 };
 
-function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns JwtPayload? {
-    if (jwtCache.hasKey(jwtToken)) {
-        InboundJwtCacheEntry jwtCacheEntry = <InboundJwtCacheEntry>jwtCache.get(jwtToken);
+function authenticateFromCache(cache:Cache jwtCache, string jwt) returns JwtPayload? {
+    if (jwtCache.hasKey(jwt)) {
+        InboundJwtCacheEntry jwtCacheEntry = <InboundJwtCacheEntry>jwtCache.get(jwt);
         int? expTime = jwtCacheEntry.expTime;
         // convert to current time and check the expiry time
         if (expTime is () || expTime > (time:currentTime().time / 1000)) {
@@ -86,7 +103,7 @@ function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns Jw
             }
             return payload;
         } else {
-            cache:Error? result = jwtCache.invalidate(jwtToken);
+            cache:Error? result = jwtCache.invalidate(jwt);
             if (result is cache:Error) {
                 log:printDebug(function() returns string {
                     return "Failed to invalidate JWT from the cache.";
@@ -96,9 +113,9 @@ function authenticateFromCache(cache:Cache jwtCache, string jwtToken) returns Jw
     }
 }
 
-function addToAuthenticationCache(cache:Cache jwtCache, string jwtToken, int? exp, JwtPayload payload) {
+function addToAuthenticationCache(cache:Cache jwtCache, string jwt, int? exp, JwtPayload payload) {
     InboundJwtCacheEntry jwtCacheEntry = {jwtPayload : payload, expTime : exp };
-    cache:Error? result = jwtCache.put(jwtToken, jwtCacheEntry);
+    cache:Error? result = jwtCache.put(jwt, jwtCacheEntry);
     if (result is cache:Error) {
         log:printDebug(function() returns string {
             return "Failed to add JWT to the cache";

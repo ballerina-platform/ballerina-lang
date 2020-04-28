@@ -16,17 +16,17 @@
 
 import ballerina/java;
 
-# NATS `StreamingProducer` would act as a client allowing to publish messages to the
-# NATS streaming server. `StreamingProducer` needs the NATS `Connection` to be initialized.
+# The streaming producer provides the capability to publish messages to the NATS streaming server.
+# The `nats:StreamingProducer` needs the `nats:Connection` to be initialized.
 public type StreamingProducer client object {
     private Connection? conn;
 
-    # Creates a new NATS `StreamingProducer`.
+    # Creates a new `nats:StreamingProducer` instance.
     #
-    # + connection - An established NATS connection.
-    # + clientId - A unique identifier representing the client.
-    # + clusterId - The ID of the cluster configured in the NATS server.
-    # + streamingConfig - The configuration related to the NATS streaming connectivity.
+    # + connection - An established NATS connection
+    # + clientId - A unique identifier of the client
+    # + clusterId - The unique identifier of the cluster configured in the NATS server
+    # + streamingConfig - The configuration related to the NATS streaming connectivity
     public function __init(Connection connection, public string? clientId = (), public string clusterId = "test-cluster",
     public StreamingConfig? streamingConfig = ()) {
         self.conn = connection;
@@ -34,15 +34,16 @@ public type StreamingProducer client object {
     }
 
     # Publishes data to a given subject.
+    # ```ballerina string|error result = producer->publish(subject, <@untainted>message);```
     #
-    # + subject - The subject to send the message to.
-    # + data - Data to publish.
-    # + return - `string` value representing the NUID (NATS Unique Identifier) of the published message, if the
-    #           message gets successfully published and acknowledged by the NATS server OR
-    #           `nats/Error` with NUID and `message` fields in case an error occurs in publishing, the timeout
-    #           elapses while waiting for the acknowledgement OR
-    #           `nats/Error` only with the `message` field in case an error occurs even before publishing
-    #           is completed
+    # + subject - The subject to send the message 
+    # + data - Data to publish
+    # + return - The `string` value representing the NUID (NATS Unique Identifier) of the published message if the
+    #            message gets successfully published and acknowledged by the NATS server,
+    #            a `nats:Error` with NUID and `message` fields in case an error occurs in publishing, the timeout
+    #            elapses while waiting for the acknowledgement, or else
+    #            a `nats:Error` only with the `message` field in case an error occurs even before publishing
+    #            is completed
     public remote function publish(string subject,@untainted Content data) returns string|Error {
         Connection? natsConnection = self.conn;
         if (natsConnection is ()) {
@@ -70,7 +71,7 @@ public type StreamingProducer client object {
 
     # Close the producer.
     #
-    # + return - Returns () or the error if unable to complete the close operation.
+    # + return - `()` or else a `nats:Error` if unable to complete the close operation.
     public function close() returns error? {
         Connection? natsConnection = self.conn;
         if (natsConnection is Connection) {

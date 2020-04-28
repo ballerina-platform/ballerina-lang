@@ -14,7 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Email message sending and receiving configurations.
+
+import ballerina/mime;
+
+# Email message properties.
 #
 # + to - TO address list
 # + cc - CC address list
@@ -24,6 +27,7 @@
 # + from - From address
 # + sender - Sender's address
 # + replyTo - Reply To addresses
+# + attachments - Email attachements
 public type Email record {|
     string[] to;
     string[] cc?;
@@ -33,6 +37,7 @@ public type Email record {|
     string 'from;
     string sender?;
     string[] replyTo?;
+    mime:Entity[] attachments?;
 |};
 
 # Optional property configurations for a protocol.

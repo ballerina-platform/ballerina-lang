@@ -7,16 +7,18 @@
   "items": [
     {
       "label": "w1",
-      "kind": "Unit",
+      "kind": "Variable",
       "detail": "future\u003c()\u003e",
+      "sortText": "130",
       "insertText": "w1",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "w2",
-      "kind": "Unit",
+      "kind": "Variable",
       "detail": "future\u003c()\u003e",
       "insertText": "w2",
+      "sortText": "130",
       "insertTextFormat": "Snippet"
     }
   ]

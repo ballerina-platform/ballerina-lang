@@ -27,6 +27,7 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
+import org.ballerinalang.bindgen.model.JField;
 import org.ballerinalang.bindgen.model.JMethod;
 import org.ballerinalang.bindgen.model.JParameter;
 
@@ -167,6 +168,32 @@ public class BindgenUtils {
             }
             return returnString;
         });
+
+        // Helper to obtain the parameters and return strings of interop functions for public methods.
+        handlebars.registerHelper("getInteropMethod", (object, options) -> {
+            String returnString = "";
+            if (object instanceof JMethod) {
+                JMethod jMethod = (JMethod) object;
+                String type = options.params[0].toString();
+                if (type.equals("param")) {
+                    returnString = getInteropMethodParam(jMethod);
+                } else if (type.equals("return")) {
+                    returnString = getInteropMethodReturn(jMethod);
+                }
+            }
+            return returnString;
+        });
+
+        // Helper to obtain the parameters string of interop functions for public fields.
+        handlebars.registerHelper("getInteropFieldParam", (object, options) -> {
+            String returnString = "";
+            if (object instanceof JField) {
+                JField jField = (JField) object;
+                returnString = getInteropFieldParam(jField);
+            }
+            return returnString;
+        });
+
         try {
             return handlebars.compile(templateName);
         } catch (FileNotFoundException e) {
@@ -174,6 +201,52 @@ public class BindgenUtils {
         } catch (IOException e) {
             throw new BindgenException("Unable to read the " + templateName + " template file: " + e.getMessage(), e);
         }
+    }
+
+    private static String getInteropFieldParam(JField jField) {
+        StringBuilder returnString = new StringBuilder();
+        if (!jField.isStatic()) {
+            returnString.append("handle receiver");
+        }
+        if (jField.isSetter()) {
+            if (!jField.isStatic()) {
+                returnString.append(", ");
+            }
+            returnString.append(jField.getExternalType()).append(" arg");
+        }
+        return returnString.toString();
+    }
+
+    private static String getInteropMethodReturn(JMethod jMethod) {
+        StringBuilder returnString = new StringBuilder();
+        if (jMethod.getHasReturn()) {
+            returnString.append(" returns ").append(jMethod.getExternalType());
+            if (jMethod.isHandleException()) {
+                returnString.append("|error");
+            }
+        } else {
+            if (jMethod.isHandleException()) {
+                returnString.append(" returns error?");
+            }
+        }
+        return returnString.toString();
+    }
+
+    private static String getInteropMethodParam(JMethod jMethod) {
+        StringBuilder returnString = new StringBuilder();
+        if (!jMethod.isStatic()) {
+            returnString.append("handle receiver");
+            if (jMethod.hasParams()) {
+                returnString.append(", ");
+            }
+        }
+        for (JParameter param: jMethod.getParameters()) {
+            returnString.append(param.getExternalType()).append(" ").append(param.getFieldName());
+            if (param.getHasNext()) {
+                returnString.append(", ");
+            }
+        }
+        return returnString.toString();
     }
 
     private static String getParamsHelper(JParameter param) {
@@ -186,6 +259,9 @@ public class BindgenUtils {
                     .append(", \"").append(param.getComponentType()).append("\")");
         } else if (param.getIsString()) {
             returnString.append("java:fromString(").append(param.getFieldName()).append(")");
+        } else if (param.getIsStringArray()) {
+            returnString.append("check getHandleFromArray(").append(param.getFieldName())
+                    .append(", \"java.lang.String\")");
         } else {
             returnString.append(param.getFieldName());
             if (param.getIsObj()) {
@@ -237,9 +313,14 @@ public class BindgenUtils {
             if (listOfFiles.size() > 1) {
                 for (String className : classList) {
                     for (File file : listOfFiles) {
-                        String fileName = className.substring(className.lastIndexOf('.') + 1) + BAL_EXTENSION;
+                        String fileName = getDependencyFileName(className);
                         if (file.getName().equals(fileName)) {
-                            outStream.println("\nPlease delete the existing dependency: " + file.getPath());
+                            try {
+                                Files.delete(file.toPath());
+                                outStream.println("\nSuccessfully deleted the existing dependency: " + file.getPath());
+                            } catch (IOException e) {
+                                errStream.println("\nFailed to delete the existing dependency: " + e.getMessage());
+                            }
                         }
                     }
                 }
@@ -255,7 +336,7 @@ public class BindgenUtils {
             if (listOfFiles.size() > 1) {
                 for (String className : classList) {
                     for (File file : listOfFiles) {
-                        String fileName = className.substring(className.lastIndexOf('.') + 1) + BAL_EXTENSION;
+                        String fileName = getDependencyFileName(className);
                         if (file.getName().equals(fileName)) {
                             removeList.add(className);
                             break;
@@ -265,6 +346,16 @@ public class BindgenUtils {
             }
         }
         return removeList;
+    }
+
+    private static String getDependencyFileName(String className) {
+        char prefix;
+        if (className.contains("$")) {
+            prefix = '$';
+        } else {
+            prefix = '.';
+        }
+        return className.substring(className.lastIndexOf(prefix) + 1) + BAL_EXTENSION;
     }
 
     public static Set<String> getUpdatedConstantsList(Path existingPath, Set<String> classList) {
@@ -356,7 +447,7 @@ public class BindgenUtils {
 
     public static boolean isAbstractClass(Class javaClass) {
         int modifiers = javaClass.getModifiers();
-        return Modifier.isAbstract(modifiers);
+        return Modifier.isAbstract(modifiers) && !javaClass.isInterface();
     }
 
     public static String getModuleName(String jarPath) {
@@ -495,19 +586,30 @@ public class BindgenUtils {
             List<String> classPaths = new ArrayList<>();
             for (String path : jarPaths) {
                 File file = FileSystems.getDefault().getPath(path).toFile();
-                String fileName = file.getName();
-                urls.add(file.toURI().toURL());
-                if (file.isFile() && fileName.substring(fileName.lastIndexOf('.')).equals(".jar")) {
-                    classPaths.add(fileName);
+                if (file.isDirectory()) {
+                    File[] paths = file.listFiles();
+                    if (paths != null) {
+                        for (File filePath: paths) {
+                            if (isJarFile(filePath)) {
+                                urls.add(filePath.toURI().toURL());
+                                classPaths.add(filePath.getName());
+                            }
+                        }
+                    }
+                } else {
+                    if (isJarFile(file)) {
+                        urls.add(file.toURI().toURL());
+                        classPaths.add(file.getName());
+                    }
                 }
             }
             if (!classPaths.isEmpty()) {
-                outStream.println("Following classpaths were detected:");
+                outStream.println("Following jars were added to the classpath:");
                 for (String path : classPaths) {
                     outStream.println("\t" + path);
                 }
             } else {
-                errStream.println("Unable to detect the provided classpaths.");
+                errStream.println("Failed to add the provided jars to classpath.");
             }
             classLoader = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction) ()
                     -> new URLClassLoader(urls.toArray(new URL[urls.size()]), parent));
@@ -515,5 +617,13 @@ public class BindgenUtils {
             throw new BindgenException("Error while processing the classpaths.", e);
         }
         return classLoader;
+    }
+
+    private static boolean isJarFile(File file) {
+        String fileName = file.getName();
+        if (file.isFile() && fileName.substring(fileName.lastIndexOf('.')).equals(".jar")) {
+            return true;
+        }
+        return false;
     }
 }

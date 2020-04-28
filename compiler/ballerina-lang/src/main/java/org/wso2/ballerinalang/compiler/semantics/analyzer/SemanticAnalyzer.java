@@ -2849,7 +2849,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         for (BLangAnnotationAttachment attachment : attachments) {
-            if (!attachment.annotationSymbol.pkgID.equals(PackageID.ANNOTATIONS)) {
+            if (attachment.annotationSymbol == null || // annotation symbol can be null on invalid attachment.
+                    !attachment.annotationSymbol.pkgID.equals(PackageID.ANNOTATIONS)) {
                 continue;
             }
             String annotationName = attachment.annotationName.value;
