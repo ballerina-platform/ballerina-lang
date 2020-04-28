@@ -14,17 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Ballerina abstract object which represents Ballerina objects mapping Java classes.
-# This abstract object will be implemented by all Ballerina bindings for Java APIs.
-# Field `jObj` stores a handle reference to the corresponding Java object.
+# The Ballerina abstract object which is to be extended by Ballerina
+# objects representing Ballerina bindings for Java classes.
+#
+# + jObj - The `handle` reference to the corresponding Java object.
 public type JObject abstract object {
 
-    handle jObj;
-
-    public function getHandle() returns handle;
+    public handle jObj;
 };
 
-function jObjToString(handle jObj) returns string {
+public function jObjToString(handle jObj) returns string {
     handle jStringValue = toStringInternal(jObj);
     return toString(jStringValue) ?: "null";
 }

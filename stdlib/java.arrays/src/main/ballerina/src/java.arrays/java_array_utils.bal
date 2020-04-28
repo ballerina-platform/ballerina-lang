@@ -164,10 +164,10 @@ public function getHandleFromArray(any[] array, string className) returns handle
             count+=1;
         } else if (array is java:JObject[]) {
             java:JObject jObject = array[count];
-            set(returnHandle, count, jObject.getHandle());
+            set(returnHandle, count, jObject.jObj);
             count+=1;
         } else {
-            return error("{ballerina/java.arrays} Handle from array conversion is not allowed for this type");
+            return error("{ballerina/java.arrays} Array to handle conversion cannot be applied on this type");
         }
     }
     return returnHandle;
