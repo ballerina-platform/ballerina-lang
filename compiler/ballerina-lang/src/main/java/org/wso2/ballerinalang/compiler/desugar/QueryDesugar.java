@@ -623,7 +623,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     /**
-     * Create and return a lambda `function(_Frame frame) returns boolean {...}`
+     * Create and return a lambda `function(_Frame frame) returns boolean {...}`.
      *
      * @param pos of the lambda.
      * @return created lambda function.
@@ -635,7 +635,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     /**
-     * Create and return a lambda `function(_Frame frame) {...}`
+     * Create and return a lambda `function(_Frame frame) {...}`.
      *
      * @param pos of the lambda.
      * @return created lambda function.
@@ -673,7 +673,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         // add `return x;`
         if (returnNode != null) {
             // passthrough will return same frame parameter
-            if (isPassthrough) returnNode.setExpression(frameVarRef);
+            if (isPassthrough) {
+                returnNode.setExpression(frameVarRef);
+            }
             body.addStatement(returnNode);
         }
         return createLambdaFunction(pos, Lists.of(frameVariable), returnType, body);
@@ -779,7 +781,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     /**
-     * Load and return symbol for function query:lambdaTemplate()
+     * Load and return symbol for function query:lambdaTemplate().
      *
      * @return symbol for above function.
      */
