@@ -21,8 +21,8 @@ package org.ballerinalang.docgen.generator.model;
 public class Variable extends Construct {
     public Type type;
 
-    public Variable(String name, String description, Type type) {
-        super(name, description);
+    public Variable(String name, String description, boolean isDeprecated, Type type) {
+        super(name, description, isDeprecated);
         this.type = type;
     }
 }

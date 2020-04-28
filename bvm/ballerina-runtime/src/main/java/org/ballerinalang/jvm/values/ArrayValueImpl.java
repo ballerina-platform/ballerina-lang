@@ -466,6 +466,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Deprecated
     @Override
     public void add(long index, String value) {
+        if (USE_BSTRING) {
+            add(index, org.ballerinalang.jvm.StringUtils.fromString(value));
+            return;
+        }
         handleFrozenArrayValue();
         prepareForAdd(index, value, BTypes.typeString, stringValues.length);
         stringValues[(int) index] = value;
@@ -861,6 +865,10 @@ public class ArrayValueImpl extends AbstractArrayValue {
                 break;
             case TypeTags.STRING_TAG:
             case TypeTags.CHAR_STRING_TAG:
+                if (USE_BSTRING) {
+                    bStringValues = Arrays.copyOf(bStringValues, newLength);
+                    break;
+                }
                 stringValues = Arrays.copyOf(stringValues, newLength);
                 break;
             default:

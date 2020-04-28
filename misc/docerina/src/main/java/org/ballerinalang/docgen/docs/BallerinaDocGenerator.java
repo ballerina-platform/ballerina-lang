@@ -139,14 +139,7 @@ public class BallerinaDocGenerator {
         Map<String, List<Path>> resources = new HashMap<>();
 
         // Generate project model
-        Project project = new Project();
-        project.isSingleFile = moduleDocList.size() == 1 &&
-                moduleDocList.get(0).bLangPackage.packageID.name.value.equals(".");
-        if (project.isSingleFile) {
-            project.sourceFileName = moduleDocList.get(0).bLangPackage.packageID.sourceFileName.value;
-        }
-        project.name = "";
-        project.description = "";
+        Project project = getDocsGenModel(moduleDocList, resources);
 
         String moduleTemplateName = System.getProperty(BallerinaDocConstants.MODULE_TEMPLATE_NAME_KEY, "module");
         String recordTemplateName = System.getProperty(BallerinaDocConstants.RECORD_TEMPLATE_NAME_KEY, "record");
@@ -165,29 +158,16 @@ public class BallerinaDocGenerator {
 
         String rootPathModuleLevel = project.isSingleFile ? "./" : "../";
         String rootPathConstructLevel = project.isSingleFile ? "../" : "../../";
-        project.modules = new ArrayList<>();
 
-        // Generate module models
-        for (ModuleDoc moduleDoc : moduleDocList) {
-            Module module = new Module();
-            module.id = moduleDoc.bLangPackage.packageID.name.toString();
-            module.orgName = moduleDoc.bLangPackage.packageID.orgName.toString();
-            String moduleVersion = moduleDoc.bLangPackage.packageID.version.toString();
-            // get version from system property if not found in bLangPackage
-            module.version = moduleVersion.equals("")
-                    ? System.getProperty(BallerinaDocConstants.VERSION)
-                    : moduleVersion;
-            module.summary = moduleDoc.summary;
-            module.description = moduleDoc.description;
-
-            // populate module constructs
-            sortModuleConstructs(moduleDoc.bLangPackage);
-            Generator.generateModuleConstructs(module, moduleDoc.bLangPackage);
-
-            // collect module's doc resources
-            resources.put(module.id, moduleDoc.resources);
-
-            project.modules.add(module);
+        // Generate module pages
+        if (project.modules == null) {
+            String errMessage =
+                    "docerina: API documentation generation failed. Couldn't create the [output directory] " + output;
+            out.println(errMessage);
+            log.error(errMessage);
+            return;
+        }
+        for (Module module : project.modules) {
             try {
                 if (BallerinaDocUtils.isDebugEnabled()) {
                     out.println("docerina: starting to generate docs for module: " + module.id);
@@ -318,7 +298,7 @@ public class BallerinaDocGenerator {
         } catch (IOException e) {
             out.println(String.format("docerina: failed to copy the docerina-theme resource. Cause: %s", e.getMessage
                     ()));
-            log.error("Failed to coxpy the docerina-theme resource.", e);
+            log.error("Failed to copy the docerina-theme resource.", e);
         }
         if (BallerinaDocUtils.isDebugEnabled()) {
             out.println("docerina: successfully copied HTML theme into " + output);
@@ -424,6 +404,50 @@ public class BallerinaDocGenerator {
 
     public static void setPrintStream(PrintStream out) {
         BallerinaDocGenerator.out = out;
+    }
+
+    /**
+     * Generate docs generator model.
+     *
+     * @param moduleDocList moduleDocList modules list whose docs to be generated
+     * @param resources     module level doc resources
+     * @return docs generator model of the project
+     */
+    public static Project getDocsGenModel(List<ModuleDoc> moduleDocList, Map<String, List<Path>> resources) {
+        Project project = new Project();
+        project.isSingleFile =
+                moduleDocList.size() == 1 && moduleDocList.get(0).bLangPackage.packageID.name.value.equals(".");
+        if (project.isSingleFile) {
+            project.sourceFileName = moduleDocList.get(0).bLangPackage.packageID.sourceFileName.value;
+        }
+        project.name = "";
+        project.description = "";
+
+        List<Module> moduleDocs = new ArrayList<>();
+        for (ModuleDoc moduleDoc : moduleDocList) {
+            // Generate module models
+            Module module = new Module();
+            module.id = moduleDoc.bLangPackage.packageID.name.toString();
+            module.orgName = moduleDoc.bLangPackage.packageID.orgName.toString();
+            String moduleVersion = moduleDoc.bLangPackage.packageID.version.toString();
+            // get version from system property if not found in bLangPackage
+            module.version = moduleVersion.equals("") ?
+                    System.getProperty(BallerinaDocConstants.VERSION) :
+                    moduleVersion;
+            module.summary = moduleDoc.summary;
+            module.description = moduleDoc.description;
+
+            // populate module constructs
+            sortModuleConstructs(moduleDoc.bLangPackage);
+            Generator.generateModuleConstructs(module, moduleDoc.bLangPackage);
+
+            // collect module's doc resources
+            resources.put(module.id, moduleDoc.resources);
+
+            moduleDocs.add(module);
+        }
+        project.modules = moduleDocs;
+        return project;
     }
 
     private static void sortModuleConstructs(BLangPackage bLangPackage) {

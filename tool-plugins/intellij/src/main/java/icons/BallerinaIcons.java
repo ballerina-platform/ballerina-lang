@@ -34,7 +34,7 @@ public class BallerinaIcons {
     public static final Icon ICON = FILE;
     public static final Icon APPLICATION_RUN = createIconWithShift(ICON, AllIcons.Nodes.RunnableMark);
     public static final Icon RUN = AllIcons.RunConfigurations.TestState.Run;
-    public static final Icon PACKAGE = PlatformIcons.DIRECTORY_CLOSED_ICON;
+    public static final Icon PACKAGE = PlatformIcons.FOLDER_ICON;
 
     public static final Icon TEST = AllIcons.RunConfigurations.TestState.Green2;
     public static final Icon RECURSIVE = AllIcons.Gutter.RecursiveMethod;
@@ -44,15 +44,11 @@ public class BallerinaIcons {
     public static final Icon PARAMETER = AllIcons.Nodes.Parameter;
     public static final Icon NAMESPACE = AllIcons.Json.Array;
     public static final Icon SERVICE = AllIcons.Nodes.Static;
-    public static final Icon RESOURCE = AllIcons.General.HideRight;
     public static final Icon ANNOTATION = AllIcons.Nodes.Annotationtype;
     public static final Icon WORKER = AllIcons.Nodes.Rw_access;
     public static final Icon ENDPOINT = AllIcons.Ide.UpDown;
     public static final Icon GLOBAL_ENDPOINT = new LayeredIcon(ENDPOINT, AllIcons.Nodes.StaticMark);
     public static final Icon TYPE = AllIcons.Nodes.Artifact;
-
-    public static final Icon PUBLIC_FIELD = createPublicFieldIcon(AllIcons.Nodes.Advice);
-    public static final Icon PRIVATE_FIELD = createPrivateFieldIcon(AllIcons.Nodes.Advice);
 
     /**
      * Contains icons used for the ballerina diagram editor(referred by plugin.xml).

@@ -20,8 +20,13 @@ package org.wso2.ballerinalang.compiler.tree.statements;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.LockNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Implementation for the lock tree node.
@@ -70,6 +75,8 @@ public class BLangLock extends BLangStatement implements LockNode {
      */
     public static class BLangLockStmt extends BLangLock {
 
+        public Set<BVarSymbol> lockVariables = new HashSet<>();
+
         public BLangLockStmt(DiagnosticPos pos) {
             this.pos = pos;
         }
@@ -81,7 +88,11 @@ public class BLangLock extends BLangStatement implements LockNode {
 
         @Override
         public String toString() {
-            return "lock []";
+            return "lock [" + lockVariables.stream().map(s -> s.name.value).collect(Collectors.joining(", "));
+        }
+
+        public boolean addLockVariable(BVarSymbol variable) {
+            return lockVariables.add(variable);
         }
     }
 
@@ -91,6 +102,8 @@ public class BLangLock extends BLangStatement implements LockNode {
      * @since 1.0.0
      */
     public static class BLangUnLockStmt extends BLangLock {
+
+        public BLangLockStmt relatedLock;
 
         public BLangUnLockStmt(DiagnosticPos pos) {
             this.pos = pos;
