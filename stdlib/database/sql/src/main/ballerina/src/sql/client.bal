@@ -32,10 +32,11 @@ public type Client abstract client object {
 
     # Executes the DDL or DML sql queries provided by the user, and returns summary of the execution.
     #
-    # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc
+    # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `string` or `ParameterizedString`
+    #              when the query has params to be passed in
     # + return - Summary of the sql update query as `ExecuteResult` or returns `Error`
     #           if any error occured when executing the query
-    public remote function execute(@untainted string sqlQuery) returns ExecuteResult|Error?;
+    public remote function execute(@untainted string|ParameterizedString sqlQuery) returns ExecuteResult|Error?;
 
     # Close the SQL client.
     #

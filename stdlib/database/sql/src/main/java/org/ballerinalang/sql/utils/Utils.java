@@ -44,6 +44,7 @@ import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.readers.CharacterChannelReader;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -133,7 +134,9 @@ class Utils {
         for (int i = 0; i < arrayValue.size(); i++) {
             Object object = arrayValue.get(i);
             int index = i + 1;
-            if (object instanceof String) {
+            if (object == null) {
+                preparedStatement.setObject(index, null);
+            } else if (object instanceof String) {
                 preparedStatement.setString(index, object.toString());
             } else if (object instanceof Long) {
                 preparedStatement.setLong(index, (Long) object);
@@ -141,6 +144,8 @@ class Utils {
                 preparedStatement.setDouble(index, (Double) object);
             } else if (object instanceof DecimalValue) {
                 preparedStatement.setBigDecimal(index, ((DecimalValue) object).decimalValue());
+            } else if (object instanceof Boolean) {
+                preparedStatement.setBoolean(index, (Boolean) object);
             } else if (object instanceof ArrayValue) {
                 ArrayValue objectArray = (ArrayValue) object;
                 if (objectArray.getElementType().getTag() == org.wso2.ballerinalang.compiler.util.TypeTags.BYTE) {

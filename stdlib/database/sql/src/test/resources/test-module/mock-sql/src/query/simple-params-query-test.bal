@@ -436,7 +436,8 @@ function queryTypeBinaryByteParam(string url, string user, string password) retu
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-function queryTypeBinaryReadableByteChannelParam(string url, string user, string password) returns @tainted record {}|error? {
+function queryTypeBinaryReadableByteChannelParam(string url, string user, string password)
+returns @tainted record {}|error? {
     io:ReadableByteChannel byteChannel = check getByteColumnChannel();
     sql:TypedValue typeVal = {
         sqlType: sql:BINARY,
@@ -449,7 +450,8 @@ function queryTypeBinaryReadableByteChannelParam(string url, string user, string
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-function queryTypeVarBinaryReadableByteChannelParam(string url, string user, string password) returns @tainted record {}|error? {
+function queryTypeVarBinaryReadableByteChannelParam(string url, string user, string password)
+returns @tainted record {}|error? {
     io:ReadableByteChannel byteChannel = check getByteColumnChannel();
     sql:TypedValue typeVal = {
         sqlType: sql:VARBINARY,
@@ -476,7 +478,8 @@ function queryTypeBlobByteParam(string url, string user, string password) return
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-function queryTypeBlobReadableByteChannelParam(string url, string user, string password) returns @tainted record {}|error? {
+function queryTypeBlobReadableByteChannelParam(string url, string user, string password)
+returns @tainted record {}|error? {
     io:ReadableByteChannel byteChannel = check getBlobColumnChannel();
     sql:TypedValue typeVal = {
         sqlType: sql:BLOB,
@@ -501,7 +504,8 @@ function queryTypeClobStringParam(string url, string user, string password) retu
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-function queryTypeClobReadableCharChannelParam(string url, string user, string password) returns @tainted record {}|error? {
+function queryTypeClobReadableCharChannelParam(string url, string user, string password)
+returns @tainted record {}|error? {
     io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
     sql:TypedValue typeVal = {
         sqlType: sql:CLOB,
@@ -514,7 +518,8 @@ function queryTypeClobReadableCharChannelParam(string url, string user, string p
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-function queryTypeNClobReadableCharChannelParam(string url, string user, string password) returns @tainted record {}|error? {
+function queryTypeNClobReadableCharChannelParam(string url, string user, string password)
+returns @tainted record {}|error? {
     io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
     sql:TypedValue typeVal = {
         sqlType: sql:NCLOB,
@@ -589,7 +594,8 @@ function queryDateTimeRecordParam(string url, string user, string password) retu
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-function queryDateTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
+function queryDateTimeRecordWithTimeZoneParam(string url, string user, string password)
+returns @tainted record {}|error? {
     time:Time date = check time:parse("2017-02-03T09:46:22.444-0500","yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     sql:TypedValue typeVal = {
         sqlType: sql:DATE,
@@ -652,7 +658,8 @@ function queryTimeTimeRecordParam(string url, string user, string password) retu
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-function queryTimeTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
+function queryTimeTimeRecordWithTimeZoneParam(string url, string user, string password)
+returns @tainted record {}|error? {
     time:Time date = check time:parse("2017-02-03T11:35:45","yyyy-MM-dd'T'HH:mm:ss");
     sql:TypedValue typeVal = {
         sqlType: sql:TIME,
@@ -677,7 +684,8 @@ function queryTimestampStringParam(string url, string user, string password) ret
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-function queryTimestampStringInvalidParam(string url, string user, string password) returns @tainted record {}|error? {
+function queryTimestampStringInvalidParam(string url, string user, string password)
+returns @tainted record {}|error? {
     sql:TypedValue typeVal = {
         sqlType: sql:TIMESTAMP,
         value: "2017/02/03 11:53:00"
@@ -715,7 +723,8 @@ function queryTimestampTimeRecordParam(string url, string user, string password)
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-function queryTimestampTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
+function queryTimestampTimeRecordWithTimeZoneParam(string url, string user, string password)
+returns @tainted record {}|error? {
     time:Time date = check time:parse("2017-02-03 11:53:00", "yyyy-MM-dd HH:mm:ss");
     sql:TypedValue typeVal = {
         sqlType: sql:TIMESTAMP,
@@ -728,7 +737,8 @@ function queryTimestampTimeRecordWithTimeZoneParam(string url, string user, stri
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-function queryDateTimeTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
+function queryDateTimeTimeRecordWithTimeZoneParam(string url, string user, string password)
+returns @tainted record {}|error? {
     time:Time date = check time:parse("2017-02-03 11:53:00", "yyyy-MM-dd HH:mm:ss");
     sql:TypedValue typeVal = {
         sqlType: sql:TIMESTAMP,
@@ -741,7 +751,8 @@ function queryDateTimeTimeRecordWithTimeZoneParam(string url, string user, strin
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-function queryTimestampTimeRecordWithTimeZone2Param(string url, string user, string password) returns @tainted record {}|error? {
+function queryTimestampTimeRecordWithTimeZone2Param(string url, string user, string password)
+returns @tainted record {}|error? {
     time:Time date = check time:parse("2008-08-08 20:08:08+0800", "yyyy-MM-dd HH:mm:ssZ");
     sql:TypedValue typeVal = {
         sqlType: sql:TIMESTAMP,
@@ -754,7 +765,8 @@ function queryTimestampTimeRecordWithTimeZone2Param(string url, string user, str
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-function queryTimeTimeRecordWithTimeZone2Param(string url, string user, string password) returns @tainted record {}|error? {
+function queryTimeTimeRecordWithTimeZone2Param(string url, string user, string password)
+returns @tainted record {}|error? {
     time:Time date = check time:parse("20:08:08-0800", "HH:mm:ssZ");
     sql:TypedValue typeVal = {
         sqlType: sql:TIME,
@@ -784,7 +796,8 @@ function queryArrayBasicParams(string url, string user, string password) returns
     sql:TypedValue paraBool = {sqlType: sql:ARRAY, value: databoolean};
 
     sql:ParameterizedString sqlQuery = {
-        parts: ["SELECT * from ArrayTypes WHERE int_array = ", "AND long_array = ",  "AND float_array = ", "AND double_array = ", "AND decimal_array = " , "AND string_array = ", "AND boolean_array = ", ""],
+        parts: ["SELECT * from ArrayTypes WHERE int_array = ", "AND long_array = ",  "AND float_array = ",
+        "AND double_array = ", "AND decimal_array = " , "AND string_array = ", "AND boolean_array = ", ""],
         insertions: [paraInt, paraLong, paraFloat, paraDouble, paraDecimal, paraString, paraBool]
     };
 
@@ -793,7 +806,9 @@ function queryArrayBasicParams(string url, string user, string password) returns
 
 function queryArrayBasicNullParams(string url, string user, string password) returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from ArrayTypes WHERE int_array is null AND long_array is null AND float_array is null AND double_array is null AND decimal_array is null AND string_array is null AND boolean_array is null"],
+            parts: ["SELECT * from ArrayTypes WHERE int_array is null AND long_array is null AND float_array " +
+            "is null AND double_array is null AND decimal_array is null AND string_array is null" +
+            " AND boolean_array is null"],
             insertions: []
      };
     return queryMockClient(url, user, password, sqlQuery);
