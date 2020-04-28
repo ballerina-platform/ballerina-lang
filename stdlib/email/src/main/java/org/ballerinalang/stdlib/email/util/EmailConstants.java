@@ -66,6 +66,7 @@ public class EmailConstants {
     public static final String DEFAULT_STORE_LOCATION = "INBOX";
     public static final String ON_MESSAGE = "onMessage";
     public static final String ON_ERROR = "onError";
+    public static final String LISTENER = "Listener";
 
     // POP related constants
     public static final String POP = "POP";
