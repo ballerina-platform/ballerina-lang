@@ -28,7 +28,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaGenMetadata;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
@@ -68,7 +68,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.ACC_FINAL;
@@ -123,29 +122,28 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  */
 public class JvmPackageGen {
 
+    static final boolean isBString;
     private static final CompilerContext.Key<JvmPackageGen> JVM_PACKAGE_GEN_CHECKER_KEY = new CompilerContext.Key<>();
-    static boolean isBString;
 
     static {
         String bStringProp = System.getProperty("ballerina.bstring");
         isBString = (bStringProp != null && !"".equals(bStringProp));
     }
 
-    public Map<String, BIRFunctionWrapper> birFunctionMap;
-    public SymbolTable symbolTable;
-    public PackageCache packageCache;
-    public BUnionType errorOrNilType;
-    Map<String, String> externalMapCache;
+    public final Map<String, BIRFunctionWrapper> birFunctionMap;
+    public final SymbolTable symbolTable;
+    public final PackageCache packageCache;
+    public final BUnionType errorOrNilType;
+    final Map<String, String> externalMapCache;
+    private final JvmMethodGen jvmMethodGen;
     private Map<String, String> globalVarClassNames;
     private Map<String, PackageID> dependentModules;
     private BLangDiagnosticLogHelper dlog;
 
-    private final JvmMethodGen jvmMethodGen;
-
     private JvmPackageGen(CompilerContext compilerContext) {
 
-        birFunctionMap = new ConcurrentHashMap<>();
-        globalVarClassNames = new ConcurrentHashMap<>();
+        birFunctionMap = new HashMap<>();
+        globalVarClassNames = new HashMap<>();
         externalMapCache = new HashMap<>();
         dependentModules = new LinkedHashMap<>();
         symbolTable = SymbolTable.getInstance(compilerContext);
@@ -154,7 +152,6 @@ public class JvmPackageGen {
         errorOrNilType = BUnionType.create(null, symbolTable.errorType, symbolTable.nilType);
         jvmMethodGen = new JvmMethodGen(this);
 
-        // todo: fix this
         JvmCastGen.symbolTable = symbolTable;
         JvmInstructionGen.anyType = symbolTable.anyType;
     }
@@ -546,20 +543,19 @@ public class JvmPackageGen {
 
         // generate object/record value classes
         JvmObjectGen objGen = new JvmObjectGen(module, this, jvmMethodGen);
-        objGen.generate(module.typeDefs, jarFile.pkgEntries);
+        objGen.generate(jarFile.pkgEntries);
 
         // generate frame classes
         jvmMethodGen.generateFrameClasses(module, jarFile.pkgEntries);
 
         boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
 
-        // generate classes
+        // generate module classes
         for (Map.Entry<String, JavaClass> entry : jvmClassMap.entrySet()) {
             String moduleClass = entry.getKey();
             JavaClass javaClass = entry.getValue();
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-
-            LambdaGenMetadata lambdaGenMetadata = new LambdaGenMetadata(moduleClass);
+            LambdaMetadata lambdaMetadata = new LambdaMetadata(moduleClass);
 
             if (Objects.equals(moduleClass, typeOwnerClass)) {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
@@ -601,10 +597,10 @@ public class JvmPackageGen {
             // generate methods
             for (BIRFunction func : javaClass.functions) {
                 String workerName = getFunction(func).workerName == null ? null : func.workerName.value;
-                jvmMethodGen.generateMethod(getFunction(func), cw, module, null, false, workerName, lambdaGenMetadata);
+                jvmMethodGen.generateMethod(getFunction(func), cw, module, null, false, workerName, lambdaMetadata);
             }
             // generate lambdas created during generating methods
-            for (Map.Entry<String, BIRInstruction> lambda : lambdaGenMetadata.getLambdas().entrySet()) {
+            for (Map.Entry<String, BIRInstruction> lambda : lambdaMetadata.getLambdas().entrySet()) {
                 String name = lambda.getKey();
                 BIRInstruction call = lambda.getValue();
                 jvmMethodGen.generateLambdaMethod(call, cw, name);

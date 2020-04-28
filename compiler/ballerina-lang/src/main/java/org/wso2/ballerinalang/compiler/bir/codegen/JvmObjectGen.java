@@ -22,7 +22,7 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaGenMetadata;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
@@ -116,7 +116,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc
 class JvmObjectGen {
 
     private BIRNode.BIRPackage module;
-    private BObjectType currentObjectType = null;
     private JvmPackageGen jvmPackageGen;
     private JvmMethodGen jvmMethodGen;
 
@@ -136,7 +135,7 @@ class JvmObjectGen {
         return func;
     }
 
-    private void createLambdas(ClassWriter cw, LambdaGenMetadata lambdaGenMetadata) {
+    private void createLambdas(ClassWriter cw, LambdaMetadata lambdaGenMetadata) {
 
         for (Map.Entry<String, BIRInstruction> entry : lambdaGenMetadata.getLambdas().entrySet()) {
             jvmMethodGen.generateLambdaMethod(entry.getValue(), cw, entry.getKey());
@@ -159,14 +158,14 @@ class JvmObjectGen {
     }
 
     private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, boolean isService,
-                                     String typeName, LambdaGenMetadata lambdaGenMetadata) {
+                                     String typeName, BObjectType currentObjectType,
+                                     LambdaMetadata lambdaGenMetadata) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, this.module, this.currentObjectType, isService, typeName,
-                    lambdaGenMetadata);
+            jvmMethodGen.generateMethod(func, cw, module, currentObjectType, isService, typeName, lambdaGenMetadata);
         }
     }
 
@@ -376,7 +375,7 @@ class JvmObjectGen {
         } else {
             cw.visitSource(className, null);
         }
-        LambdaGenMetadata lambdaGenMetadata = new LambdaGenMetadata(className);
+        LambdaMetadata lambdaGenMetadata = new LambdaMetadata(className);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className,
                 String.format("<K:L%s;V:L%s;>L%s<TK;TV;>;L%s<TK;TV;>;", OBJECT, OBJECT, MAP_VALUE_IMPL, MAP_VALUE),
                 MAP_VALUE_IMPL, new String[]{MAP_VALUE});
@@ -407,7 +406,7 @@ class JvmObjectGen {
     }
 
     private void createRecordMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs,
-                                     LambdaGenMetadata lambdaGenMetadata) {
+                                     LambdaMetadata lambdaGenMetadata) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
@@ -1006,21 +1005,19 @@ class JvmObjectGen {
         mv.visitEnd();
     }
 
-    void generate(List<BIRNode.BIRTypeDefinition> typeDefs, Map<String, byte[]> jarEntries) {
+    void generate(Map<String, byte[]> jarEntries) {
 
-        for (BIRNode.BIRTypeDefinition optionalTypeDef : typeDefs) {
+        for (BIRNode.BIRTypeDefinition optionalTypeDef : module.typeDefs) {
             BIRNode.BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
             BType bType = typeDef.type;
             if (bType instanceof BServiceType) {
                 BServiceType serviceType = (BServiceType) bType;
-                this.currentObjectType = serviceType;
                 String className = JvmValueGen.getTypeValueClassName(this.module, typeDef.name.value);
                 byte[] bytes = this.createObjectValueClass(serviceType, className, typeDef, true);
                 jarEntries.put(className + ".class", bytes);
             } else if (bType.tag == TypeTags.OBJECT &&
                     !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) {
                 BObjectType objectType = (BObjectType) bType;
-                this.currentObjectType = objectType;
                 String className = JvmValueGen.getTypeValueClassName(this.module, typeDef.name.value);
                 byte[] bytes = this.createObjectValueClass(objectType, className, typeDef, false);
                 jarEntries.put(className + ".class", bytes);
@@ -1039,7 +1036,7 @@ class JvmObjectGen {
         ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
         cw.visitSource(typeDef.pos.getSource().cUnitName, null);
 
-        LambdaGenMetadata lambdaGenMetadata = new LambdaGenMetadata(className);
+        LambdaMetadata lambdaGenMetadata = new LambdaMetadata(className);
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, ABSTRACT_OBJECT_VALUE, new String[]{OBJECT_VALUE});
 
         List<BField> fields = objectType.fields;
@@ -1047,7 +1044,7 @@ class JvmObjectGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createObjectMethods(cw, attachedFuncs, isService, typeDef.name.value, lambdaGenMetadata);
+            this.createObjectMethods(cw, attachedFuncs, isService, typeDef.name.value, objectType, lambdaGenMetadata);
         }
 
         this.createObjectInit(cw, fields, className);

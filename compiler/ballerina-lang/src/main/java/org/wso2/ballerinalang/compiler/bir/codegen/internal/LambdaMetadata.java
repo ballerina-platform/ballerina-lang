@@ -27,13 +27,13 @@ import java.util.Map;
  *
  * @since 1.3.0
  */
-public class LambdaGenMetadata {
+public class LambdaMetadata {
 
     private Map<String, BIRInstruction> lambdas;
     private int lambdaIndex = 0;
     private String enclosingClass;
 
-    public LambdaGenMetadata(String enclosingClass) {
+    public LambdaMetadata(String enclosingClass) {
 
         this.enclosingClass = enclosingClass;
         lambdas = new HashMap<>();
