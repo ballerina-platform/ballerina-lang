@@ -104,3 +104,242 @@ function testDefaultableParamOuterFunc() returns [int, string] {
     foo:Person p = new;
     return p.test2(a = 40);
 }
+
+// ------------------- Test invocations with arg/vararg mix ------------------
+function testInvocationWithArgVarargMix() {
+    testInvocationWithArgVarargMixWithoutDefaultableParam();
+    testInvocationWithArgVarargMixWithDefaultableParam();
+    testVarargEvaluationCount();
+    testMethodInvocationWithArgVarargMixWithoutDefaultableParam();
+    testMethodInvocationWithArgVarargMixWithDefaultableParam();
+    testMethodVarargEvaluationCount();
+}
+
+function testInvocationWithArgVarargMixWithoutDefaultableParam() {
+    var a = [true, false];
+    var b = [2];
+    var c = [3, false, true, false];
+
+    [int, boolean[]] res = foo:bazTwo(1, ...[true]);
+    assertValueEquality(1, res[0]);
+    assertValueEquality(1, res[1].length());
+    assertTrue(res[1][0]);
+
+    res = foo:bazTwo(1, ...a);
+    assertValueEquality(1, res[0]);
+    assertValueEquality(2, res[1].length());
+    assertTrue(res[1][0]);
+    assertFalse(res[1][1]);
+
+    res = foo:bazTwo(...b);
+    assertValueEquality(2, res[0]);
+    assertValueEquality(0, res[1].length());
+
+    res = foo:bazTwo(...c);
+    assertValueEquality(3, res[0]);
+    assertValueEquality(3, res[1].length());
+    assertFalse(res[1][0]);
+    assertTrue(res[1][1]);
+    assertFalse(res[1][2]);
+
+    res = foo:bazTwo(4, false, ...[true, true]);
+    assertValueEquality(4, res[0]);
+    assertValueEquality(3, res[1].length());
+    assertFalse(res[1][0]);
+    assertTrue(res[1][1]);
+    assertTrue(res[1][2]);
+}
+
+function testInvocationWithArgVarargMixWithDefaultableParam() {
+    var a = ["a", "b"];
+    var b = [2, "j"];
+    var c = [3, "x", "c", "d", "e"];
+
+    [int, string, string[]] res = foo:barTwo(1, "p");
+    assertValueEquality(1, res[0]);
+    assertValueEquality("p", res[1]);
+    assertValueEquality(0, res[2].length());
+
+    res = foo:barTwo(1, "p", ...a);
+    assertValueEquality(1, res[0]);
+    assertValueEquality("p", res[1]);
+    assertValueEquality(2, res[2].length());
+    assertValueEquality("a", res[2][0]);
+    assertValueEquality("b", res[2][1]);
+
+    res = foo:barTwo(1, "p", "l", ...["m"]);
+    assertValueEquality(1, res[0]);
+    assertValueEquality("p", res[1]);
+    assertValueEquality(2, res[2].length());
+    assertValueEquality("l", res[2][0]);
+    assertValueEquality("m", res[2][1]);
+
+    res = foo:barTwo(1);
+    assertValueEquality(1, res[0]);
+    assertValueEquality("hello", res[1]);
+    assertValueEquality(0, res[2].length());
+
+    res = foo:barTwo(...b);
+    assertValueEquality(2, res[0]);
+    assertValueEquality("j", res[1]);
+    assertValueEquality(0, res[2].length());
+
+    res = foo:barTwo(...c);
+    assertValueEquality(3, res[0]);
+    assertValueEquality("x", res[1]);
+    assertValueEquality(3, res[2].length());
+    assertValueEquality("c", res[2][0]);
+    assertValueEquality("d", res[2][1]);
+    assertValueEquality("e", res[2][2]);
+}
+
+function testVarargEvaluationCount() {
+    // The expression given as the vararg should only be evaluated once.
+    int counter = 0;
+
+    var fn = function () returns [int, string, string...] {
+        counter += 1;
+        return [100, "foo", "bar", "baz"];
+    };
+
+    [int, string, string[]] res = foo:barTwo(...fn());
+    assertValueEquality(100, res[0]);
+    assertValueEquality("foo", res[1]);
+    assertValueEquality(2, res[2].length());
+    assertValueEquality("bar", res[2][0]);
+    assertValueEquality("baz", res[2][1]);
+
+    assertValueEquality(1, counter);
+}
+
+function testMethodInvocationWithArgVarargMixWithoutDefaultableParam() {
+    foo:FooTwo f = new;
+
+    var a = [true, false];
+    var b = [2];
+    var c = [3, false, true, false];
+
+    [int, boolean[]] res = f.baz(1, ...[true]);
+    assertValueEquality(1, res[0]);
+    assertValueEquality(1, res[1].length());
+    assertTrue(res[1][0]);
+
+    res = f.baz(1, ...a);
+    assertValueEquality(1, res[0]);
+    assertValueEquality(2, res[1].length());
+    assertTrue(res[1][0]);
+    assertFalse(res[1][1]);
+
+    res = f.baz(...b);
+    assertValueEquality(2, res[0]);
+    assertValueEquality(0, res[1].length());
+
+    res = f.baz(...c);
+    assertValueEquality(3, res[0]);
+    assertValueEquality(3, res[1].length());
+    assertFalse(res[1][0]);
+    assertTrue(res[1][1]);
+    assertFalse(res[1][2]);
+
+    res = f.baz(4, false, ...[true, true]);
+    assertValueEquality(4, res[0]);
+    assertValueEquality(3, res[1].length());
+    assertFalse(res[1][0]);
+    assertTrue(res[1][1]);
+    assertTrue(res[1][2]);
+}
+
+function testMethodInvocationWithArgVarargMixWithDefaultableParam() {
+    foo:FooTwo f = new;
+
+    var a = ["a", "b"];
+    var b = [2, "j"];
+    var c = [3, "x", "c", "d", "e"];
+
+    [int, string, string[]] res = f->bar(1, "p");
+    assertValueEquality(1, res[0]);
+    assertValueEquality("p", res[1]);
+    assertValueEquality(0, res[2].length());
+
+    res = f->bar(1, "p", ...a);
+    assertValueEquality(1, res[0]);
+    assertValueEquality("p", res[1]);
+    assertValueEquality(2, res[2].length());
+    assertValueEquality("a", res[2][0]);
+    assertValueEquality("b", res[2][1]);
+
+    res = f->bar(1, "p", "l", ...["m"]);
+    assertValueEquality(1, res[0]);
+    assertValueEquality("p", res[1]);
+    assertValueEquality(2, res[2].length());
+    assertValueEquality("l", res[2][0]);
+    assertValueEquality("m", res[2][1]);
+
+    res = f->bar(1);
+    assertValueEquality(1, res[0]);
+    assertValueEquality("hello", res[1]);
+    assertValueEquality(0, res[2].length());
+
+    res = f->bar(...b);
+    assertValueEquality(2, res[0]);
+    assertValueEquality("j", res[1]);
+    assertValueEquality(0, res[2].length());
+
+    res = f->bar(...c);
+    assertValueEquality(3, res[0]);
+    assertValueEquality("x", res[1]);
+    assertValueEquality(3, res[2].length());
+    assertValueEquality("c", res[2][0]);
+    assertValueEquality("d", res[2][1]);
+    assertValueEquality("e", res[2][2]);
+}
+
+function testMethodVarargEvaluationCount() {
+    // The expression given as the vararg should only be evaluated once.
+    foo:FooTwo f = new;
+
+    int counter = 0;
+
+    var fn = function () returns [int, string, string...] {
+        counter += 1;
+        return [100, "foo", "bar", "baz"];
+    };
+
+    [int, string, string[]] res = f->bar(...fn());
+    assertValueEquality(100, res[0]);
+    assertValueEquality("foo", res[1]);
+    assertValueEquality(2, res[2].length());
+    assertValueEquality("bar", res[2][0]);
+    assertValueEquality("baz", res[2][1]);
+
+    assertValueEquality(1, counter);
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(any|error actual) {
+    if actual is boolean && actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected 'true', found '" + actual.toString () + "'");
+}
+
+function assertFalse(any|error actual) {
+    if actual is boolean && !actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected 'false', found '" + actual.toString () + "'");
+}
+
+function assertValueEquality(anydata|error expected, anydata|error actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
