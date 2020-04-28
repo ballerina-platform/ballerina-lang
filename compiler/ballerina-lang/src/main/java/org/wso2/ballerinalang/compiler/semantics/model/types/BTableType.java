@@ -57,10 +57,21 @@ public class BTableType extends BType implements TableType {
     public String toString() {
         if (constraint == null) {
             return super.toString();
-        } else {
-            return super.toString() + "<" + constraint + ">"
-                    + ((this.keyTypeConstraint == null) ? "" : ", key<" + this.keyTypeConstraint + ">");
         }
+
+        StringBuilder keyStringBuilder = new StringBuilder();
+        if (fieldNameList != null) {
+            for (String fieldName : fieldNameList) {
+                if (!keyStringBuilder.toString().equals("")) {
+                    keyStringBuilder.append(", ");
+                }
+                keyStringBuilder.append(fieldName);
+            }
+            return super.toString() + "<" + constraint + "> key(" + keyStringBuilder.toString() + ")";
+        }
+
+        return (super.toString() + "<" + constraint + "> " +
+                ((keyTypeConstraint != null) ? ("key<" + keyTypeConstraint + ">") : "")).trim();
     }
 
     @Override

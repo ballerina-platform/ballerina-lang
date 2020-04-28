@@ -404,8 +404,20 @@ public class TypeParamAnalyzer {
     private void findTypeParamInTable(DiagnosticPos pos, BTableType expType, BTableType actualType, SymbolEnv env,
                                       HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         findTypeParam(pos, expType.constraint, actualType.constraint, env, resolvedTypes, result);
-        if (expType.keyTypeConstraint != null && actualType.keyTypeConstraint != null) {
-            findTypeParam(pos, expType.keyTypeConstraint, actualType.keyTypeConstraint, env, resolvedTypes, result);
+        if (expType.keyTypeConstraint != null) {
+            if (actualType.keyTypeConstraint != null) {
+                findTypeParam(pos, expType.keyTypeConstraint, actualType.keyTypeConstraint, env, resolvedTypes, result);
+            } else if (actualType.fieldNameList != null) {
+                List<BType> memberTypes = new ArrayList<>();
+                actualType.fieldNameList.forEach(field -> memberTypes
+                        .add(types.getTableConstraintField(actualType.constraint, field).type));
+                if (memberTypes.size() == 1) {
+                    findTypeParam(pos, expType.keyTypeConstraint, memberTypes.get(0), env, resolvedTypes, result);
+                } else {
+                    BTupleType tupleType = new BTupleType(memberTypes);
+                    findTypeParam(pos, expType.keyTypeConstraint, tupleType, env, resolvedTypes, result);
+                }
+            }
         }
     }
 

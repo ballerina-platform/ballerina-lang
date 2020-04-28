@@ -746,15 +746,11 @@ public class TypeChecker extends BLangNodeVisitor {
             }
 
             BType actualType = checkExpr(tableConstructorExpr, env, symTable.noType);
-            if (types.isAssignable(actualType, expType)) {
-                BTableType actualTableType = (BTableType) actualType;
-                BTableType expectedTableType = (BTableType) expType;
-                if (expectedTableType.fieldNameList != null && actualTableType.fieldNameList == null) {
-                    actualTableType.fieldNameList = expectedTableType.fieldNameList;
-                    resultType = actualType;
-                }
-            } else {
-                resultType = symTable.semanticError;
+            BTableType actualTableType = (BTableType) actualType;
+            BTableType expectedTableType = (BTableType) expType;
+            if (expectedTableType.fieldNameList != null && actualTableType.fieldNameList == null) {
+                actualTableType.fieldNameList = expectedTableType.fieldNameList;
+                resultType = actualType;
             }
         } else {
             resultType = symTable.semanticError;
@@ -824,7 +820,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean validateKeySpecifier(List<String> fieldNameList, BType constraint,
                                          DiagnosticPos pos) {
         for (String fieldName : fieldNameList) {
-            BField field = getTableConstraintField(constraint, fieldName);
+            BField field = types.getTableConstraintField(constraint, fieldName);
             if (field == null) {
                 dlog.error(pos,
                         DiagnosticCode.INVALID_FIELD_NAMES_IN_KEY_SPECIFIER, fieldName, constraint);
@@ -902,14 +898,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
             int index = 0;
             for (BLangIdentifier identifier : fieldNameIdentifierList) {
-                BField field = getTableConstraintField(constraintType, identifier.value);
-                if (field == null) {
-                    //NOT POSSIBLE
-                    return false;
-                }
-
-                BType fieldType = field.type;
-                if (memberTypes.get(index).tag != fieldType.tag) {
+                BField field = types.getTableConstraintField(constraintType, identifier.value);
+                if (!types.isAssignable(field.type, memberTypes.get(index))) {
                     dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
                             DiagnosticCode.KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT,
                             fieldNameIdentifierList.toString(), memberTypes.toString());
@@ -923,17 +913,6 @@ public class TypeChecker extends BLangNodeVisitor {
         return true;
     }
 
-    private BField getTableConstraintField(BType constraintType, String fieldName) {
-        List<BField> fieldList = ((BRecordType) constraintType).getFields();
-
-        for (BField field : fieldList) {
-            if (field.name.toString().equals(fieldName)) {
-                return field;
-            }
-        }
-
-        return null;
-    }
 
     private List<String> getTableKeyNameList(BLangTableKeySpecifier tableKeySpecifier) {
         List<String> fieldNamesList = new ArrayList<>();
@@ -951,7 +930,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         List<BType> memTypes = new ArrayList<>();
         for (String fieldName : fieldNames) {
-            BType fieldType = getTableConstraintField(constraintType, fieldName).type; //null is not possible for field
+            //null is not possible for field
+            BType fieldType = types.getTableConstraintField(constraintType, fieldName).type;
             memTypes.add(fieldType);
         }
 
@@ -2003,8 +1983,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 indexBasedAccessExpr.compoundAssignmentLhsVar;
         checkExpr(indexBasedAccessExpr.expr, this.env, symTable.noType);
 
-        if (indexBasedAccessExpr.multiKeyExpr != null && !types.isAssignable(indexBasedAccessExpr.expr.type,
-                symTable.tableType)) {
+        if (indexBasedAccessExpr.multiKeyExpr != null && indexBasedAccessExpr.expr.type.tag != TypeTags.TABLE) {
             dlog.error(indexBasedAccessExpr.pos, DiagnosticCode.MULTI_KEY_MEMBER_ACCESS_NOT_SUPPORTED,
                     indexBasedAccessExpr.expr.type);
             resultType = symTable.semanticError;
@@ -5283,7 +5262,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // hence, this needs to be set to xml type
             actualType = varRefType;
             indexBasedAccessExpr.originalType = actualType;
-        } else if (types.isAssignable(varRefType, symTable.tableType)) {
+        } else if (varRefType.tag == TypeTags.TABLE) {
             BTableType tableType = (BTableType) indexBasedAccessExpr.expr.type;
             BType keyTypeConstraint = tableType.keyTypeConstraint;
             if (tableType.keyTypeConstraint == null) {

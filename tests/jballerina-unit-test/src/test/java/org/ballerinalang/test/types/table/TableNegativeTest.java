@@ -35,7 +35,7 @@ public class TableNegativeTest {
     @Test
     public void testTableNegativeCases() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/table/table-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 13);
+        Assert.assertEquals(compileResult.getErrorCount(), 14);
         int index = 0;
 
         validateError(compileResult, index++, "unknown type 'CusTable'",
@@ -64,5 +64,7 @@ public class TableNegativeTest {
                 "'keylessCusTab'", 87, 27);
         validateError(compileResult, index++, "field 'id' used in key specifier must have a " +
                 "literal value", 90, 33);
+        validateError(compileResult, index++, "incompatible types: expected 'table<Customer> " +
+                "key<string>', found 'table<Customer> key(id)'", 95, 56);
     }
 }

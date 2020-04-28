@@ -38,8 +38,6 @@ type PersonalTable table<Person> key(name);
 
 type EmployeeTable table<Employee> key(name);
 
-type PersonalKeyLessTable table<Person>;
-
 type CustomerTable table<Customer> key(id);
 
 PersonalTable tab = table key(name)[
@@ -113,17 +111,18 @@ function testMap() returns boolean {
     boolean testPassed = true;
     Person[] personList = getPersonList();
 
-    EmployeeTable empTab = tab.'map(function (Person person) returns Employee {
+    table<Employee> empTab = tab.'map(function (Person person) returns Employee {
           return {name: person.name, department : "HR"};
     });
 
     var personTblKeys = tab.keys();
-    var empTblKeys = empTab.keys();
+    var castedEmpTab = <table<Employee> key(name)> empTab;
+    var empTblKeys = castedEmpTab.keys();
     testPassed = testPassed && personTblKeys.length() == empTblKeys.length();
     //check keys of both tables are equal. Cannot check it until KeyType[] is returned
 
     int index = 0;
-    empTab.forEach(function (Employee emp) {
+    castedEmpTab.forEach(function (Employee emp) {
     testPassed = testPassed && emp.name == personList[index].name;
     testPassed = testPassed && emp.department == "HR";
     index+=1;
@@ -145,7 +144,7 @@ function testForeach() returns string {
 }
 
 function testFilter() returns boolean {
-    PersonalTable  filteredTable = tab.filter(function (Person person) returns boolean {
+    table<Person> key<string>  filteredTable = tab.filter(function (Person person) returns boolean {
                                                   return person.age < 35;
                                               });
     return filteredTable.length() == 2;
@@ -222,18 +221,4 @@ function testNextKey() returns int {
       { id: 5, firstName: "Gimantha", lastName: "Bandara" }
     ];
     return custTbl.nextKey();
-}
-
-function testNextKeyNegative() returns int {
-    return tab.nextKey();
-}
-
-function getKeysFromKeyLessTbl() returns boolean {
-    PersonalKeyLessTable keyless = table [
-      { name: "Chiran", age: 33 },
-      { name: "Mohan", age: 37 },
-      { name: "Gima", age: 38 },
-      { name: "Granier", age: 34 }
-    ];
-    return keyless.keys().length() == 0;
 }

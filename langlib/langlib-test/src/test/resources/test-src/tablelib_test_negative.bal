@@ -77,3 +77,19 @@ function testIteratorNegative() returns boolean {
     testPassed = testPassed && emp?.name == personList[0].name;
     return testPassed;
 }
+
+function testNextKeyNegative() returns int {
+    return tab.nextKey();
+}
+
+type PersonalKeyLessTable table<Person>;
+
+function getKeysFromKeyLessTbl() returns boolean {
+    PersonalKeyLessTable keyless = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+    return keyless.keys().length() == 0;
+}
