@@ -135,11 +135,7 @@ public type Listener object {
     # + emailService - Type descriptor of the service
     # + name - Service name
     public function register(service emailService, string? name) {
-        string serviceName = "";
-        if (name is string) {
-            serviceName = name;
-        }
-        register(self, emailService, serviceName);
+        register(self, emailService);
     }
 };
 
@@ -182,7 +178,7 @@ function init(Listener listenerEndpoint, ListenerConfig config)
     class: "org.ballerinalang.stdlib.email.server.EmailListenerHelper"
 } external;
 
-function register(Listener listenerEndpoint, service emailService, string name) = @java:Method{
+function register(Listener listenerEndpoint, service emailService) = @java:Method{
     name: "register",
     class: "org.ballerinalang.stdlib.email.server.EmailListenerHelper"
 } external;

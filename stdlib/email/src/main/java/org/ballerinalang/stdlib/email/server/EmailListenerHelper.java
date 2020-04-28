@@ -21,7 +21,6 @@ package org.ballerinalang.stdlib.email.server;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.stdlib.email.util.EmailConstants;
 
 import java.util.HashMap;
@@ -56,13 +55,12 @@ public class EmailListenerHelper {
      * Register a new service for the listener.
      * @param emailListener Ballerina email listener
      * @param service Ballerina service to be listened
-     * @param serviceName Name of the Ballerina service to be listened
      */
-    public static void register(ObjectValue emailListener, ObjectValue service, BString serviceName) {
+    public static void register(ObjectValue emailListener, ObjectValue service) {
         EmailConnector emailConnector = (EmailConnector) emailListener.getNativeData(
                 EmailConstants.EMAIL_SERVER_CONNECTOR);
         EmailListener listener = emailConnector.getEmailListener();
-        listener.addService(service, serviceName.getValue());
+        listener.addService(service);
     }
 
     private static Map<String, Object> getServerConnectorParamMap(MapValue serviceEndpointConfig) {

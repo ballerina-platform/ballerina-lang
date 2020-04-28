@@ -87,7 +87,8 @@ public class EmailListener {
         }
     }
 
-    protected void addService(ObjectValue service, String serviceName) {
+    protected void addService(ObjectValue service) {
+        String serviceName = service.getType().getName();
         String serviceKey;
         if (serviceName.equals("")) {
             UUID uuid = UUID.randomUUID();
