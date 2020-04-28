@@ -78,8 +78,8 @@ public class BLangTableTypeNode extends BLangType implements TableTypeNode {
 
     @Override
     public String toString() {
-        return "table<" + this.constraint.toString() + "> " +
+        return ("table<" + this.constraint.toString() + "> " +
                 ((this.tableKeySpecifier != null) ? this.tableKeySpecifier.toString() :
-                        ((this.tableKeyTypeConstraint != null) ? this.tableKeyTypeConstraint.toString() : "")).trim();
+                        ((this.tableKeyTypeConstraint != null) ? this.tableKeyTypeConstraint.toString() : ""))).trim();
     }
 }

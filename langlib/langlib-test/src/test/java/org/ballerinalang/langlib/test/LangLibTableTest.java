@@ -154,17 +154,17 @@ public class LangLibTableTest {
 
     @Test
     public void testCompilerNegativeCases() {
-        validateError(negativeResult, 0, "incompatible types: expected 'table<Employee>', " +
-                "found 'table<Person>, key<other>'", 66, 36);
+        validateError(negativeResult, 0, "incompatible types: expected 'table<Employee> " +
+                "key(name)', found 'table<Person> key<string>'", 66, 36);
         validateError(negativeResult, 1, "incompatible types: expected 'Employee', " +
                 "found 'Person'", 66, 47);
         validateError(negativeResult, 2, "incompatible types: expected " +
                         "'object { public function next () returns (record {| Employee value; |}?); }', found " +
                         "'object { public function next () returns (record {| Person value; |}?); }'",
                 75, 92);
-        validateError(negativeResult, 0, "incompatible types: expected 'table<(any|error)> " +
+        validateError(negativeResult, 3, "incompatible types: expected 'table<(any|error)> " +
                 "key<int>', found 'table<Person> key(name)'", 82, 12);
-        validateError(negativeResult, 0, "incompatible types: expected 'table<(any|error)> " +
+        validateError(negativeResult, 4, "incompatible types: expected 'table<(any|error)> " +
                 "key<anydata>', found 'table<Person>'", 94, 12);
         assertEquals(negativeResult.getErrorCount(), 5);
     }

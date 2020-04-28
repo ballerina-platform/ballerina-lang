@@ -144,7 +144,7 @@ function testForeach() returns string {
 }
 
 function testFilter() returns boolean {
-    PersonalTable  filteredTable = tab.filter(function (Person person) returns boolean {
+    table<Person> key<string>  filteredTable = tab.filter(function (Person person) returns boolean {
                                                   return person.age < 35;
                                               });
     return filteredTable.length() == 2;
