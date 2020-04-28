@@ -22,7 +22,7 @@ public class VersionResolver {
         // Check if module is an absolute version
 
         // return if version exists in moduleId
-        if (moduleId.version != null) {
+        if (moduleId.version != null && !"".equals(moduleId.version.trim())) {
             return moduleId.version;
         }
 
