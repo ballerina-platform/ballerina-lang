@@ -33,17 +33,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Custom Jaeger tracing reporter for publishing stats to Choreo cloud.
  */
 public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
-    private static final int PUBLISH_INTERVAL = 10 * 1000;
+    private static final int PUBLISH_INTERVAL = 10;
     private static final Logger LOGGER = LogFactory.getLogger();
 
+    private ScheduledExecutorService executorService;
     private Task task;
+    private int maxQueueSize;
 
     public ChoreoJaegerReporter(int maxQueueSize) {
         ChoreoClient choreoClient = ChoreoClientHolder.getChoreoClient(this);
@@ -51,40 +54,43 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
             throw new IllegalStateException("Choreo client is not initialized");
         }
 
-        Timer time = new Timer("com.wso2.choreo.TraceSpanReporter-FlushTimer", true);
-        task = new Task(choreoClient, maxQueueSize);
-        time.schedule(task, PUBLISH_INTERVAL, PUBLISH_INTERVAL);
+        this.maxQueueSize = maxQueueSize;
+        executorService = new ScheduledThreadPoolExecutor(1);
+        task = new Task(choreoClient);
+        executorService.scheduleAtFixedRate(task, PUBLISH_INTERVAL, PUBLISH_INTERVAL, TimeUnit.SECONDS);
+        LOGGER.info("started publishing traces to Choreo");
     }
 
     @Override
     public void report(JaegerSpan jaegerSpan) {
         task.append(jaegerSpan);
-        task.flushIfFull();
+        if (task.getSpanCount() >= maxQueueSize) {
+            executorService.execute(task);
+        }
     }
 
     @Override
     public void close() {
         LOGGER.info("sending all remaining traces to Choreo");
-        task.flush();
+        executorService.execute(task);
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            LOGGER.error("failed to wait for publishing traces to complete due to " + e.getMessage());
+        }
     }
 
     /**
      * Worker which handles periodically publishing metrics to Choreo.
      */
-    private static class Task extends TimerTask {
+    private static class Task implements Runnable {
         private ChoreoClient choreoClient;
         private List<ChoreoTraceSpan> traceSpans;
-        private int maxQueueSize;
 
-        private Task(ChoreoClient choreoClient, int maxQueueSize) {
+        private Task(ChoreoClient choreoClient) {
             this.choreoClient = choreoClient;
             this.traceSpans = new ArrayList<>();
-            this.maxQueueSize = maxQueueSize;
-        }
-
-        @Override
-        public void run() {
-            this.flush();
         }
 
         private synchronized void append(JaegerSpan jaegerSpan) {
@@ -111,7 +117,8 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
             traceSpans.add(traceSpan);
         }
 
-        private void flush() {
+        @Override
+        public void run() {
             ChoreoTraceSpan[] spansToBeSent;
             synchronized (this) {
                 if (traceSpans.size() > 0) {
@@ -135,10 +142,8 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
             }
         }
 
-        private void flushIfFull() {
-            if (traceSpans.size() >= maxQueueSize) {
-                flush();
-            }
+        private int getSpanCount() {
+            return traceSpans.size();
         }
     }
 }
