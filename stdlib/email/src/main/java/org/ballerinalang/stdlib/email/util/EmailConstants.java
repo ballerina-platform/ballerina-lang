@@ -44,6 +44,9 @@ public class EmailConstants {
     public static final String MESSAGE_REPLY_TO = "replyTo";
 
     // Common constants to POP and IMAP
+    public static final String KEY = "key";
+    public static final String VALUE = "value";
+    public static final String PROPS_PROPERTIES = "properties";
     public static final String PROPS_SSL = "enableSsl";
     public static final String PROPS_HOST = "host";
     public static final String PROPS_PASSWORD = "password";
