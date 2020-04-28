@@ -93,6 +93,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_LOCK_NAME;
@@ -937,6 +938,8 @@ public class JvmTerminatorGen {
         } else {
             // load function ref, going to directly call the fp
             this.loadVar(fpCall.fp.variableDcl);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "getFunction",
+                    String.format("()L%s;", FUNCTION), false);
         }
 
         // create an object array of args
@@ -987,9 +990,9 @@ public class JvmTerminatorGen {
             this.submitToScheduler(fpCall.lhsOp, localVarOffset, false);
             this.mv.visitLabel(afterSubmit);
         } else {
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, FUNCTION_POINTER, "call",
-                    String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
-            // store reult
+            this.mv.visitMethodInsn(INVOKEINTERFACE, FUNCTION, "apply",
+                    String.format("(L%s;)L%s;", OBJECT, OBJECT), true);
+            // store result
             BType lhsType = fpCall.lhsOp.variableDcl.type;
             if (lhsType != null) {
                 JvmInstructionGen.addUnboxInsn(this.mv, lhsType);

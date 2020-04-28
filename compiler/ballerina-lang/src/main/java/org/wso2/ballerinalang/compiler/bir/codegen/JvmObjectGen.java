@@ -107,6 +107,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.computeL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NAME_HASH_COMPARATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createLabelsForEqualCheck;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createLabelsForSwitch;
 
 /**
  * BIR object type to JVM byte code generation class.
@@ -118,12 +121,14 @@ class JvmObjectGen {
     private BIRNode.BIRPackage module;
     private JvmPackageGen jvmPackageGen;
     private JvmMethodGen jvmMethodGen;
+    private BType booleanType;
 
     JvmObjectGen(BIRNode.BIRPackage module, JvmPackageGen jvmPackageGen, JvmMethodGen jvmMethodGen) {
 
         this.module = module;
         this.jvmPackageGen = jvmPackageGen;
         this.jvmMethodGen = jvmMethodGen;
+        this.booleanType = jvmPackageGen.symbolTable.booleanType;
     }
 
     private static BIRNode.BIRFunction getFunction(BIRNode.BIRFunction func) {
@@ -214,10 +219,10 @@ class JvmObjectGen {
         Label defaultCaseLabel = new Label();
 
         // sort the fields before generating switch case
-        funcs.sort(JvmValueGen.NAME_HASH_COMPARATOR);
+        funcs.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = JvmValueGen.createLabelsForSwitch(mv, funcNameRegIndex, funcs, defaultCaseLabel);
-        List<Label> targetLabels = JvmValueGen.createLabelsForEqualCheck(mv, funcNameRegIndex, funcs, labels,
+        List<Label> labels = createLabelsForSwitch(mv, funcNameRegIndex, funcs, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, funcNameRegIndex, funcs, labels,
                 defaultCaseLabel);
 
         // case body
@@ -291,10 +296,10 @@ class JvmObjectGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields);
-        sortedFields.sort(JvmValueGen.NAME_HASH_COMPARATOR);
+        sortedFields.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = JvmValueGen.createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = JvmValueGen.createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
+        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         int i = 0;
@@ -340,10 +345,10 @@ class JvmObjectGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields);
-        sortedFields.sort(JvmValueGen.NAME_HASH_COMPARATOR);
+        sortedFields.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = JvmValueGen.createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = JvmValueGen.createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
+        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         // case body
@@ -490,8 +495,8 @@ class JvmObjectGen {
             fv.visitEnd();
 
             if (this.isOptionalRecordField(field)) {
-                fv = cw.visitField(0, this.getFieldIsPresentFlagName(field.name.value),
-                        getTypeDesc(jvmPackageGen.symbolTable.booleanType), null, null);
+                fv = cw.visitField(0, this.getFieldIsPresentFlagName(field.name.value), getTypeDesc(booleanType),
+                        null, null);
                 fv.visitEnd();
             }
         }
@@ -528,10 +533,10 @@ class JvmObjectGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields);
-        sortedFields.sort(JvmValueGen.NAME_HASH_COMPARATOR);
+        sortedFields.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = JvmValueGen.createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = JvmValueGen.createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+        List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         int i = 0;
@@ -546,7 +551,7 @@ class JvmObjectGen {
             if (this.isOptionalRecordField(field)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                        getTypeDesc(jvmPackageGen.symbolTable.booleanType));
+                        getTypeDesc(booleanType));
                 mv.visitJumpInsn(IFNE, ifPresentLabel);
                 mv.visitInsn(ACONST_NULL);
                 mv.visitInsn(ARETURN);
@@ -588,10 +593,10 @@ class JvmObjectGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields);
-        sortedFields.sort(JvmValueGen.NAME_HASH_COMPARATOR);
+        sortedFields.sort(NAME_HASH_COMPARATOR);
 
-        List<Label> labels = JvmValueGen.createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = JvmValueGen.createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+        List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         // case body
@@ -617,7 +622,7 @@ class JvmObjectGen {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitInsn(ICONST_1);
                 mv.visitFieldInsn(PUTFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                        getTypeDesc(jvmPackageGen.symbolTable.booleanType));
+                        getTypeDesc(booleanType));
             }
 
             mv.visitInsn(ARETURN);
@@ -674,7 +679,7 @@ class JvmObjectGen {
             if (this.isOptionalRecordField(field)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                        getTypeDesc(jvmPackageGen.symbolTable.booleanType));
+                        getTypeDesc(booleanType));
                 mv.visitJumpInsn(IFEQ, ifNotPresent);
             }
 
@@ -734,11 +739,11 @@ class JvmObjectGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields);
-        sortedFields.sort(JvmValueGen.NAME_HASH_COMPARATOR);
+        sortedFields.sort(NAME_HASH_COMPARATOR);
 
         Label defaultCaseLabel = new Label();
-        List<Label> labels = JvmValueGen.createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = JvmValueGen.createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+        List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         int i = 0;
@@ -752,7 +757,7 @@ class JvmObjectGen {
                 // if the field is optional, then return the value is the 'isPresent' flag.
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                        getTypeDesc(jvmPackageGen.symbolTable.booleanType));
+                        getTypeDesc(booleanType));
             } else {
                 // else always return true.
                 mv.visitLdcInsn(true);
@@ -794,7 +799,7 @@ class JvmObjectGen {
             if (this.isOptionalRecordField(field)) {
                 mv.visitVarInsn(ALOAD, 0); // this
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                        getTypeDesc(jvmPackageGen.symbolTable.booleanType));
+                        getTypeDesc(booleanType));
                 mv.visitJumpInsn(IFEQ, ifNotPresent);
             }
 
@@ -836,7 +841,7 @@ class JvmObjectGen {
             if (this.isOptionalRecordField(field)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                        getTypeDesc(jvmPackageGen.symbolTable.booleanType));
+                        getTypeDesc(booleanType));
                 Label l3 = new Label();
                 mv.visitJumpInsn(IFEQ, l3);
                 mv.visitIincInsn(sizeVarIndex, 1);
@@ -877,7 +882,11 @@ class JvmObjectGen {
 
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
+        mv.visitTypeInsn(CHECKCAST, isBString ? B_STRING_VALUE : STRING_VALUE);
+        if (isBString) {
+            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue",
+                    String.format("()L%s;", STRING_VALUE), true);
+        }
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
         mv.visitVarInsn(ALOAD, 0);
@@ -885,11 +894,11 @@ class JvmObjectGen {
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields);
-        sortedFields.sort(JvmValueGen.NAME_HASH_COMPARATOR);
+        sortedFields.sort(NAME_HASH_COMPARATOR);
 
         Label defaultCaseLabel = new Label();
-        List<Label> labels = JvmValueGen.createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
-        List<Label> targetLabels = JvmValueGen.createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
+        List<Label> labels = createLabelsForSwitch(mv, strKeyVarIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, strKeyVarIndex, sortedFields, labels,
                 defaultCaseLabel);
 
         int i = 0;
@@ -904,7 +913,7 @@ class JvmObjectGen {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitInsn(ICONST_0);
                 mv.visitFieldInsn(PUTFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                        getTypeDesc(jvmPackageGen.symbolTable.booleanType));
+                        getTypeDesc(booleanType));
 
                 // load the existing value to return
                 mv.visitVarInsn(ALOAD, 0);
@@ -931,7 +940,7 @@ class JvmObjectGen {
         // default case
         mv.visitLabel(defaultCaseLabel);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitVarInsn(ALOAD, strKeyVarIndex);
+        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "remove",
                 String.format("(L%s;)L%s;", OBJECT, OBJECT), false);
         mv.visitInsn(ARETURN);
@@ -973,7 +982,7 @@ class JvmObjectGen {
             if (this.isOptionalRecordField(field)) {
                 mv.visitVarInsn(ALOAD, 0); // this
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                        getTypeDesc(jvmPackageGen.symbolTable.booleanType));
+                        getTypeDesc(booleanType));
                 mv.visitJumpInsn(IFEQ, ifNotPresent);
             }
 
