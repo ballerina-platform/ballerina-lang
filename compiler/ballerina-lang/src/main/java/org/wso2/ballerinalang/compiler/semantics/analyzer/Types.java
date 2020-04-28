@@ -666,51 +666,35 @@ public class Types {
             return false;
         }
 
+        if (targetTableType.keyTypeConstraint == null && targetTableType.fieldNameList == null) {
+            return true;
+        }
+
         if (targetTableType.keyTypeConstraint != null) {
             if (sourceTableType.keyTypeConstraint != null &&
-                    (!isAssignable(targetTableType.keyTypeConstraint, sourceTableType.keyTypeConstraint))) {
-                return false;
+                    (isAssignable(sourceTableType.keyTypeConstraint, targetTableType.keyTypeConstraint))) {
+                return true;
             }
 
             if (sourceTableType.fieldNameList == null) {
                 return false;
             }
 
-            List<BType> memberTypes = new ArrayList<>();
-            if (targetTableType.keyTypeConstraint.tag == TypeTags.TUPLE) {
-                for (Type type : ((TupleType) targetTableType.keyTypeConstraint).getTupleTypes()) {
-                    memberTypes.add((BType) type);
-                }
-            } else {
-                memberTypes.add(targetTableType.keyTypeConstraint);
+            List<BType> fieldTypes = new ArrayList<>();
+            sourceTableType.fieldNameList.forEach(field -> fieldTypes
+                    .add(getTableConstraintField(sourceTableType.constraint, field).type));
+
+            if (fieldTypes.size() == 1) {
+                return isAssignable(fieldTypes.get(0), targetTableType.keyTypeConstraint);
             }
 
-            if (memberTypes.size() != sourceTableType.fieldNameList.size()) {
-                return false;
-            }
-
-            int index = 0;
-            for (String fieldName : sourceTableType.fieldNameList) {
-                BField field = getTableConstraintField(sourceTableType.constraint, fieldName);
-                if (field == null) {
-                    //NOT POSSIBLE
-                    return false;
-                }
-
-                BType fieldType = field.type;
-                if (memberTypes.get(index).tag != fieldType.tag) {
-                    return false;
-                }
-                index++;
-            }
+            BTupleType tupleType = new BTupleType(fieldTypes);
+            return isAssignable(tupleType, targetTableType.keyTypeConstraint);
         }
 
-        if (targetTableType.fieldNameList != null) {
-            return targetTableType.fieldNameList.equals(sourceTableType.fieldNameList);
-        }
-
-        return true;
+        return targetTableType.fieldNameList.equals(sourceTableType.fieldNameList);
     }
+
 
     BField getTableConstraintField(BType constraintType, String fieldName) {
         List<BField> fieldList = ((BRecordType) constraintType).getFields();
