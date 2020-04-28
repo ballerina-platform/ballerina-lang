@@ -2935,7 +2935,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType findAssignableType(SymbolEnv env, BLangExpression selectExp, BType collectionType, BType targetType,
                                      boolean isStream) {
         List<BType> assignableSelectTypes = new ArrayList<>();
-        int enclosedTypeTag = targetType.tag == TypeTags.NONE ? collectionType.tag : expType.tag;
+        int enclosedTypeTag = (targetType.tag == TypeTags.NONE && !isStream) ? collectionType.tag : expType.tag;
         BType actualType = symTable.semanticError;
 
         Map<Boolean, List<BType>> resultTypeMap = types.getAllTypes(targetType).stream()
@@ -2954,7 +2954,6 @@ public class TypeChecker extends BLangNodeVisitor {
                     break;
                 default:
                     selectType = checkExpr(selectExp, env, type);
-                    enclosedTypeTag = isStream ? TypeTags.STREAM : TypeTags.ARRAY;
             }
             if (selectType != symTable.semanticError) {
                 assignableSelectTypes.add(selectType);
@@ -2977,8 +2976,13 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (collectionType.tag) {
             case TypeTags.STREAM:
                 BErrorType errorType = (BErrorType) ((BStreamType) collectionType).error;
-                if (errorType != null) {
-                    return BUnionType.create(null, actualType, errorType);
+                if (!isStream) {
+                    actualType = new BArrayType(actualType);
+                    if (errorType != null) {
+                        return BUnionType.create(null, actualType, errorType);
+                    }
+                } else {
+                    return new BStreamType(TypeTags.STREAM, actualType, errorType, null);
                 }
                 break;
             case TypeTags.OBJECT:
@@ -3028,9 +3032,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         SymbolEnv whereEnv = parentEnv;
         for (WhereClauseNode whereClauseNode : whereClauseList) {
-            BLangWhereClause whereClause = (BLangWhereClause) whereClauseNode;
-            checkExpr(whereClause.expression, parentEnv);
-            whereEnv = typeNarrower.evaluateTruth(whereClause.expression, doClauseNode, parentEnv);
+            whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, doClauseNode, parentEnv);
         }
 
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(doClauseNode.body, whereEnv);
@@ -3062,7 +3064,7 @@ public class TypeChecker extends BLangNodeVisitor {
         return letClauseEnv;
     }
 
-    private SymbolEnv typeCheckWhereClause(BLangWhereClause whereClause, BLangSelectClause selectClause,
+    private SymbolEnv typeCheckWhereClause(BLangWhereClause whereClause, BLangNode bLangNode,
                                    SymbolEnv parentEnv) {
         checkExpr(whereClause.expression, parentEnv, symTable.booleanType);
         BType actualType = whereClause.expression.type;
@@ -3070,7 +3072,7 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(whereClause.expression.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
                        symTable.booleanType, actualType);
         }
-        return typeNarrower.evaluateTruth(whereClause.expression, selectClause, parentEnv);
+        return typeNarrower.evaluateTruth(whereClause.expression, bLangNode, parentEnv);
     }
 
     private void handleFromClauseVariables(BLangFromClause fromClause, SymbolEnv blockEnv) {
