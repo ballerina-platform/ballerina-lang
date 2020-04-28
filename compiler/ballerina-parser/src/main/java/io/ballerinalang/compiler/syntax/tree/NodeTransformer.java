@@ -296,6 +296,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(remoteMethodCallActionNode);
     }
 
+    public T transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        return transformSyntaxNode(parameterizedTypeDescriptorNode);
+    }
+
     public T transform(NilLiteralNode nilLiteralNode) {
         return transformSyntaxNode(nilLiteralNode);
     }

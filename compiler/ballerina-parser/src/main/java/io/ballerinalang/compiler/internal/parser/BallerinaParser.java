@@ -283,6 +283,12 @@ public class BallerinaParser {
                 return parseConstDecl((STNode) args[0], (STNode) args[1], (STNode) args[2]);
             case STMT_START_WITH_IDENTIFIER:
                 return parseStatementStartsWithIdentifier((STNode) args[0], (STNode) args[1]);
+            case PARAMETERIZED_TYPE_DESCRIPTOR:
+                return parseParameterizedTypeDescriptor();
+            case LT:
+                return parseLTToken();
+            case GT:
+                return parseGTToken();
             case NIL_LITERAL:
                 return parseNilLiteral();
             case RECORD_FIELD_OR_RECORD_END:
@@ -1734,6 +1740,10 @@ public class BallerinaParser {
             case OPEN_PAREN_TOKEN:
                 // nil type descriptor '()'
                 return parseNilTypeDescriptor();
+            case MAP_KEYWORD: // map type desc
+            case FUTURE_KEYWORD: // future type desc
+            case TYPEDESC_KEYWORD: // typedesc type desc
+                return parseParameterizedTypeDescriptor();
             default:
                 if (isSimpleType(tokenKind)) {
                     return parseSimpleTypeDescriptor();
@@ -5794,6 +5804,73 @@ public class BallerinaParser {
     }
 
     /**
+     * Parse parameterized type descriptor.
+     * parameterized-type-descriptor := map type-parameter | future type-parameter | typedesc type-parameter
+     *
+     * @return Parsed node
+     */
+    private STNode parseParameterizedTypeDescriptor() {
+        startContext(ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR);
+        STNode parameterizedTypeKeyword = parseParameterizedTypeKeyword();
+
+        STNode ltToken = parseLTToken();
+        STNode typeNode = parseTypeDescriptor();
+        STNode gtToken = parseGTToken();
+
+        endContext();
+        return STNodeFactory.createParameterizedTypeDescriptorNode(parameterizedTypeKeyword, ltToken, typeNode,
+                gtToken);
+    }
+
+    /**
+     * Parse <code>map</code> or <code>future</code> or <code>typedesc</code> keyword token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseParameterizedTypeKeyword() {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case MAP_KEYWORD: // map type desc
+            case FUTURE_KEYWORD: // future type desc
+            case TYPEDESC_KEYWORD: // typedesc type desc
+                return consume();
+            default:
+                Solution sol = recover(nextToken, ParserRuleContext.PARAMETERIZED_TYPE);
+                return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse <code> < </code> token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseGTToken() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.GT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(nextToken, ParserRuleContext.GT);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse <code> > </code> token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseLTToken() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.LT_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(nextToken, ParserRuleContext.LT);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
      * Parse nil literal. Here nil literal is only referred to ( ).
      *
      * @return Parsed node
@@ -6568,6 +6645,9 @@ public class BallerinaParser {
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
             case OPEN_PAREN_TOKEN: // nil type descriptor '()'
+            case MAP_KEYWORD: // map type desc
+            case FUTURE_KEYWORD: // future type desc
+            case TYPEDESC_KEYWORD: // typedesc type desc
                 return true;
             default:
                 return isSimpleType(nodeKind);

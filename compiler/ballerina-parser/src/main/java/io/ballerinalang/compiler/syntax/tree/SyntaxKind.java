@@ -79,6 +79,9 @@ public enum SyntaxKind {
     ANYDATA_KEYWORD(260, "anydata"),
     NEVER_KEYWORD(261, "never"),
     VAR_KEYWORD(262, "var"),
+    MAP_KEYWORD(263,"map"),
+    FUTURE_KEYWORD(264, "future"),
+    TYPEDESC_KEYWORD(265, "typedesc"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -203,6 +206,7 @@ public enum SyntaxKind {
     NEVER_TYPE_DESC(2017),
     VAR_TYPE_DESC(2018),
     SERVICE_TYPE_DESC(2019),
+    PARAMETERIZED_TYPE_DESC(2020),
 
     // Actions
     REMOTE_METHOD_CALL_ACTION(2500),

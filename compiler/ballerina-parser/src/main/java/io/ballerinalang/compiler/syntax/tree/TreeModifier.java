@@ -856,6 +856,19 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(ParameterizedTypeDescriptorNode parameterizedTypeDescriptorNode) {
+        Token parameterizedType = modifyToken(parameterizedTypeDescriptorNode.parameterizedType());
+        Token ltToken = modifyToken(parameterizedTypeDescriptorNode.ltToken());
+        Node typeNode = modifyNode(parameterizedTypeDescriptorNode.typeNode());
+        Token gtToken = modifyToken(parameterizedTypeDescriptorNode.gtToken());
+        return parameterizedTypeDescriptorNode.modify(
+                parameterizedType,
+                ltToken,
+                typeNode,
+                gtToken);
+    }
+
+    @Override
     public Node transform(NilLiteralNode nilLiteralNode) {
         Token openParenToken = modifyToken(nilLiteralNode.openParenToken());
         Token closeParenToken = modifyToken(nilLiteralNode.closeParenToken());

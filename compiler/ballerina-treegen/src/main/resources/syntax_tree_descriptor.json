@@ -1532,6 +1532,29 @@
             ]
         },
         {
+            "name": "ParameterizedTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "PARAMETERIZED_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "parameterizedType",
+                    "type": "Token"
+                },
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "NilLiteralNode",
             "base": "ExpressionNode",
             "kind": "NIL_LITERAL",
