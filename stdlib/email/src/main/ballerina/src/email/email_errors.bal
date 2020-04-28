@@ -14,26 +14,26 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Record type to hold the details of an error.
+# The details of an error.
 #
-# + message - Specific error message of the error.
-# + cause - Any other error, which causes this error.
+# + message - Specific error message of the error
+# + cause - Any other error, which causes this error
 public type Detail record {
     string message;
     error cause?;
 };
 
-# SMTP email send error.
+# Represents the reason for the email sending related errors.
 public const SEND_ERROR = "{ballerina/email}SendError";
 # Represents an error that occurs when sending an email fails.
 public type SendError error<SEND_ERROR, Detail>;
 
-# Identifies an email server store access failure error.
+# Represents the reason for the server access failure errors.
 public const READ_CLIENT_INIT_ERROR = "{ballerina/email}ReadClientInitError";
 # Represents an error that occurs when the email store access fails.
 public type ReadClientInitError error<READ_CLIENT_INIT_ERROR, Detail>;
 
-# Identifies email receive error.
+# Represents the reason for the email receipt related errors.
 public const READ_ERROR = "{ballerina/email}ReadError";
 # Represents an error that occurs an email read operation fails.
 public type ReadError error<READ_ERROR, Detail>;

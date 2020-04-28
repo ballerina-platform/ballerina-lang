@@ -1,0 +1,19 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file and run the `ballerina run` command.
+$ ballerina run xslt_transformation.bal
+Transformed xml : <html>
+<body>
+<h2>All time favourites</h2>
+<table border="1">
+<tr bgcolor="#9acd33">
+<th>Title</th><th>Artist</th>
+</tr>
+<tr>
+<td>Summer of 69</td><td>Bryan Adams</td>
+</tr>
+<tr>
+<td>Zombie</td><td>Bad Wolves</td>
+</tr>
+</table>
+</body>
+</html>

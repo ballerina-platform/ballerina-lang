@@ -15,7 +15,7 @@
           "value": "**Package:** _ballerina/http_  \n  \n  \n"
         }
       },
-      "sortText": "131",
+      "sortText": "120",
       "insertText": "Response();",
       "insertTextFormat": "Snippet"
     }

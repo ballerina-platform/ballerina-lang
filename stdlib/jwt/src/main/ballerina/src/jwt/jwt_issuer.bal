@@ -19,9 +19,9 @@ import ballerina/encoding;
 
 # Represents JWT validator configurations.
 #
-# + username - JWT token username
-# + issuer - JWT token issuer
-# + audience - JWT token audience
+# + username - JWT username
+# + issuer - JWT issuer
+# + audience - JWT audience
 # + customClaims - Map of custom claims
 # + expTimeInSeconds - Expiry time in seconds
 # + keyStoreConfig - JWT key store configurations
@@ -47,13 +47,16 @@ public type JwtKeyStoreConfig record {|
     string keyPassword;
 |};
 
-# Issue a JWT token based on provided header and payload. JWT will be signed (JWS) if `keyStore` information is provided
-# in the `JwtKeyStoreConfig` and the `alg` field of `JwtHeader` is not `NONE`.
+# Issues a JWT based on the provided header and payload. JWT will be signed (JWS) if `crypto:KeyStore` information is
+# provided in the `jwt:JwtKeyStoreConfig` and the `alg` field of the `jwt:JwtHeader` is not `jwt:NONE`.
+# ```ballerina
+# string|jwt:Error jwt = jwt:issueJwt(header, payload, keyStoreConfig);
+# ```
 #
 # + header - JwtHeader object
 # + payload - JwtPayload object
 # + config - JWT key store config record
-# + return - JWT token string or an `Error` if token validation fails
+# + return - JWT as a `string` or else a `jwt:Error` if token validation fails
 public function issueJwt(JwtHeader header, JwtPayload payload, JwtKeyStoreConfig? config) returns string|Error {
     string jwtHeader = check buildHeaderString(header);
     string jwtPayload = check buildPayloadString(payload);
@@ -115,10 +118,13 @@ public function issueJwt(JwtHeader header, JwtPayload payload, JwtKeyStoreConfig
     }
 }
 
-# Build the header string from the `JwtHeader` record.
+# Builds the header string from the `jwt:JwtHeader` record.
+# ```ballerina
+# string|jwt:Error jwtHeader = buildHeaderString(header);
+# ```
 #
 # + header - JWT header record to be built as a string
-# + return - The header string or an `Error` if building the string fails
+# + return - The header string or else a `jwt:Error` if building the string fails
 public function buildHeaderString(JwtHeader header) returns string|Error {
     map<json> headerJson = {};
     if (!validateMandatoryJwtHeaderFields(header)) {
@@ -162,10 +168,13 @@ public function buildHeaderString(JwtHeader header) returns string|Error {
     return encodedPayload;
 }
 
-# Build the payload string from the `JwtPayload` record.
+# Builds the payload string from the `jwt:JwtPayload` record.
+# ```ballerina
+# string|jwt:Error jwtPayload = jwt:buildPayloadString(payload);
+# ```
 #
 # + payload - JWT payload record to be built as a string
-# + return - The payload string or an `Error` if building the string fails
+# + return - The payload string or else a `jwt:Error` if building the string fails
 public function buildPayloadString(JwtPayload payload) returns string|Error {
     map<json> payloadJson = {};
     string? sub = payload?.sub;

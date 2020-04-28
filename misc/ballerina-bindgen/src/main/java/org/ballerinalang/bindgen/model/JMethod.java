@@ -42,7 +42,7 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticMethod;
 public class JMethod {
 
     private boolean isStatic;
-    private boolean noParams = true;
+    private boolean hasParams = true;
     private boolean hasReturn = false;
     private boolean isOverloaded = true;
     private boolean objectReturn = false;
@@ -77,9 +77,16 @@ public class JMethod {
         }
 
         // Set the attributes relevant to error returns.
-        if (m.getExceptionTypes().length > 0) {
-            hasException = true;
-            handleException = true;
+        for (Class<?> exceptionType : m.getExceptionTypes()) {
+            try {
+                if (!this.getClass().getClassLoader().loadClass(RuntimeException.class.getCanonicalName())
+                        .isAssignableFrom(exceptionType)) {
+                    hasException = true;
+                    handleException = true;
+                    break;
+                }
+            } catch (ClassNotFoundException ignore) {
+            }
         }
 
         // Set the attributes required to identify different parameters.
@@ -88,7 +95,7 @@ public class JMethod {
             JParameter lastParam = parameters.get(parameters.size() - 1);
             lastParam.setHasNext(false);
         } else {
-            noParams = false;
+            hasParams = false;
         }
 
         List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
@@ -135,7 +142,7 @@ public class JMethod {
                 hasPrimitiveParam = true;
                 hasException = true;
             }
-            if (parameter.isObjArrayParam()) {
+            if (parameter.isObjArrayParam() || parameter.getIsStringArray()) {
                 hasException = true;
             }
         }
@@ -179,5 +186,25 @@ public class JMethod {
 
     public void setMethodName(String methodName) {
         this.methodName = methodName;
+    }
+
+    public List<JParameter> getParameters() {
+        return parameters;
+    }
+
+    public boolean isStatic() {
+        return isStatic;
+    }
+
+    public boolean hasParams() {
+        return hasParams;
+    }
+
+    public String getExternalType() {
+        return externalType;
+    }
+
+    public boolean isHandleException() {
+        return handleException;
     }
 }

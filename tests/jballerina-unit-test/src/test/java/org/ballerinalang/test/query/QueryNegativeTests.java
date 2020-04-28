@@ -35,20 +35,31 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 9);
+        Assert.assertEquals(compileResult.getErrorCount(), 18);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
-                                  25, 18);
+                                  48, 18);
         validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
-                              "non-required field 'lastName'", 28, 30);
+                              "non-required field 'lastName'", 51, 30);
         validateError(compileResult, index++, "invalid operation: type 'Teacher' does not support field access for " +
-                              "non-required field 'age'", 29, 25);
-        validateError(compileResult, index++, "unknown type 'XYZ'", 44, 18);
-        validateError(compileResult, index++, "undefined field 'lastName' in record 'Teacher'", 64, 20);
-        validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection", 77, 32);
-        validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'", 78, 19);
-        validateError(compileResult, index++, "incompatible types: expected 'Person', found 'int'", 79, 20);
-        validateError(compileResult, index, "cannot assign a value to final 'person'", 94, 17);
+                              "non-required field 'age'", 52, 25);
+        validateError(compileResult, index++, "unknown type 'XYZ'", 67, 18);
+        validateError(compileResult, index++, "undefined field 'lastName' in record 'Teacher'", 87, 20);
+        validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection", 100, 32);
+        validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'int'", 101, 19);
+        validateError(compileResult, index++, "incompatible types: expected 'Person', found 'int'", 102, 20);
+        validateError(compileResult, index++, "cannot assign a value to final 'person'", 117, 17);
+        validateError(compileResult, index++, "missing non-defaultable required record field 'lastName'", 132, 10);
+        validateError(compileResult, index++, "incompatible types: expected 'float', found 'int'", 153, 13);
+        validateError(compileResult, index++, "undefined function 'calculateScore'", 168, 22);
+        validateError(compileResult, index++, "invalid record binding pattern; unknown field " +
+                "'fname' in record type 'Student'", 205, 12);
+        validateError(compileResult, index++, "undefined symbol 'fname'", 207, 15);
+        validateError(compileResult, index++, "incompatible types: expected 'Student', found " +
+                "'(string|float)'", 222, 10);
+        validateError(compileResult, index++, "incompatible types: expected 'Address', found 'map<string>'", 241, 13);
+        validateError(compileResult, index++, "cannot assign a value to final 'twiceScore'", 259, 10);
+        validateError(compileResult, index, "incompatible types: expected 'FullName[]', found 'error?'", 266, 13);
     }
 }

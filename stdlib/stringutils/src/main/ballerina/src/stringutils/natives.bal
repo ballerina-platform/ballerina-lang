@@ -18,58 +18,80 @@ import ballerina/java;
 import ballerina/io;
 
 # Checks whether the given string contains a particular substring.
-#
-# + originalString - the original string
-# + substring - string to match
-# + return - `true` if the original string contains the substring or `false` otherwise
+# ```ballerina
+# boolean contains = stringutils:contains("Ballerina", "in");
+# ```
+# + originalString - The string to check whether it contains the `substring`
+# + substring - The substring to find within the `originalString`
+# + return - `true` if the `originalString` contains the provided `substring`
+#            or else `false`
 public function contains(string originalString, string substring) returns boolean {
     return containsExternal(java:fromString(originalString), java:fromString(substring));
 }
 
-# Checks if two strings are equal, ignoring the case of the strings.
+# Checks if two strings are equal ignoring the case of the strings.
+# ```ballerina
+# boolean isEqual = stringutils:equalsIgnoreCase("BaLLerinA", "ballERina");
+# ```
 #
-# + firstString - first string to compare
-# + secondString - second string to compare
-# + return - `true` if the two strings are the same or `false` if the strings do not match
+# + firstString - The first string to compare
+# + secondString - The second string to compare
+# + return - `true` if the two strings are equal or else `false`
 public function equalsIgnoreCase(string firstString, string secondString) returns boolean {
     return equalsIgnoreCaseExternal(java:fromString(firstString), java:fromString(secondString));
 }
 
 # Returns a hash code for a given string.
+# ```ballerina
+# int hashCode = stringutils:hashCode("Ballerina");
+# ```
 #
-# + stringValue - string to generate the hash code
-# + return - hash code for the given string
+# + stringValue - The string to generate the hash code
+# + return - The hash code for the given string
 public function hashCode(string stringValue) returns int {
     return hashCodeExternal(java:fromString(stringValue));
 }
 
 # Returns the last index of the provided substring within a string.
+# ```ballerina
+# int lastIndex = stringutils:lastIndexOf("int values in Ballerina", "in");
+# ```
 #
-# + originalString - the original string to search in
-# + substring - string to look for
-# + return - starting point of the last appearance of the provided substring
+# + originalString - The string to search for the index of the `substring`
+# + substring - The string to search in the `originalString`
+# + return - Starting index of the last appearance of the provided substring
+#            if the `originalString` contains the `substring` or else `-1`
 public function lastIndexOf(string originalString, string substring) returns int {
     return lastIndexOfExternal(java:fromString(originalString), java:fromString(substring));
 }
 
-# Checks whether the given string matches with the provided regex.
+# Checks whether the given string matches the provided regex.
+# ```ballerina
+# boolean isMatched = stringutils:matches("Ballerina is great", "Ba[a-z ]+");
+# ```
 #
-# + stringToMatch - string to match with the regex
-# + regex - regex to match with the string
-# + return - `true` if the provided string is matched with the regex, `false` otherwise
+# + stringToMatch - The string to match the regex
+# + regex - The regex to match the string
+# + return - `true` if the provided string matches the regex or else
+#            `false`
 public function matches(string stringToMatch, string regex) returns boolean {
     return matchesExternal(java:fromString(stringToMatch), java:fromString(regex));
 }
 
-# Replaces each substring of the provided string, that matches the provided substring, with the specified replacement
-# string.
+# Replaces each occurrence of the provided `substring` inside the provided
+# `originalString` with the specified `replacement` string.
+# ```ballerina
+# string result = stringutils:replace("Ballerina is great", " ", "_");
+# ```
 #
-# + originalString - original string
-# + stringToReplace - string to replace
-# + replacement - replacement string
-# + return - the resultant string
+# + originalString - The original string to replace the substrings
+# + stringToReplace - The string to replace within the `originalString`
+# + replacement - The `replacement` string to replace the occurrences of
+#                 the `stringToReplace`
+# + return - The string with the replaced substrings
 public function replace(string originalString, string stringToReplace, string replacement) returns string {
-    handle value = replaceExternal(java:fromString(originalString), java:fromString(stringToReplace), java:fromString(replacement));
+    handle value = replaceExternal(java:fromString(originalString), java:fromString(stringToReplace),
+                                   java:fromString(replacement));
     string? updatedString = java:toString(value);
     if (updatedString is string) {
         return updatedString;
@@ -80,13 +102,19 @@ public function replace(string originalString, string stringToReplace, string re
     }
 }
 
-# Replaces each substring which matches the given regular expression, from the given original string value, with the
-# specified replacement string.
+# Replaces each occurrence of the substrings, which matches the provided
+# regular expression from the given original string value with the
+# provided replacement string.
+# ```ballerina
+# string result = stringutils:replaceAll("Ballerina is great", "\s+", "_");
+# ```
 #
-# + originalString - original string
-# + regex - Regex to find substrings to replace
-# + replacement - the replacement string
-# + return - the resultant string
+# + originalString - The original string to replace the occurrences of the
+#                    substrings that match the provided `regex`
+# + regex - The regex to match the substrings in the `originalString` to be replaced
+# + replacement - The `replacement` string to replace the subsgrings, which
+#                 match the `regex`
+# + return - The resultant string with the replaced substrings
 public function replaceAll(string originalString, string regex, string replacement) returns string {
     handle value = replaceAllExternal(java:fromString(originalString), java:fromString(regex),
                                       java:fromString(replacement));
@@ -100,12 +128,19 @@ public function replaceAll(string originalString, string regex, string replaceme
     }
 }
 
-# Replaces the first substring that matches the given regular expression, with the specified replacement string.
+# Replaces the first substring that matches the given regular expression with
+# the provided `replacement` string.
+# ```ballerina
+# string result = stringutils:replaceFirst("Ballerina is great", "\s+", "_");
+# ```
 #
-# + originalString - the original string
-# + regex - Regex to find substring to replace
-# + replacement - the replacement string
-# + return - the resultant string
+# + originalString - The original string to replace the occurrences of the
+#                    substrings that match the provided `regex`
+# + regex - The regex to match the first substring in the `originalString` to
+#           be replaced
+# + replacement - The `replacement` string to replace the first substring, which
+#                 matches the `regex`
+# + return - The resultant string with the replaced substring
 public function replaceFirst(string originalString, string regex, string replacement) returns string {
     handle value = replaceFirstExternal(java:fromString(originalString),
                                 java:fromString(regex),
@@ -120,20 +155,28 @@ public function replaceFirst(string originalString, string regex, string replace
     }
 }
 
-# Splits a string using the given delimiter.
+# Returns an array of strings by splitting a string using the provided
+# delimiter.
+# ```ballerina
+# string[] result = stringutils:split("Ballerina is great", " ");
+# ```
 #
-# + receiver - the original string
-# + delimiter - delimiter to split by
-# + return - array of strings containing the split individual strings
+# + receiver - The string to split
+# + delimiter - The delimiter to split by
+# + return - An array of strings containing the individual strings that are split
 public function split(string receiver, string delimiter) returns string[] {
     handle res = splitExternal(java:fromString(receiver), java:fromString(delimiter));
     return getBallerinaStringArray(res);
 }
 
 # Returns a boolean value of a given string.
+# ```ballerina
+# boolean result = stringutils:toBoolean("true");
+# ```
 #
 # + stringValue - string value to convert to a boolean
-# + return - `true` is the string is `"true"` (without considering the case), returns `false` otherwise
+# + return - `true` if the string is `"true"` (without considering the case)
+#            or else `false`
 public function toBoolean(string stringValue) returns boolean {
     return toBooleanExternal(java:fromString(stringValue));
 }

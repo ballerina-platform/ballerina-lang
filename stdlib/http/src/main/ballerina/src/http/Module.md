@@ -1,12 +1,12 @@
-## Module overview
+## Module Overview
 
-This module provides an implementation for connecting and interacting with HTTP, HTTP2, and WebSocket endpoints. The module facilitates two types of endpoints as ‘Client’ and ‘Listener’.
+This module provides an implementation for connecting and interacting with HTTP, HTTP2, and WebSocket endpoints. The module facilitates two types of network entry points as ‘Client’ and ‘Listener’.
 
-### Client endpoints
+### Client
 
-`Client` endpoints are used to connect to and interact with HTTP endpoints. They support connection pooling and can be configured to have a maximum number of active connections that can be made with the remote endpoint. `Client` endpoints activate connection eviction after a given idle period and also support follow-redirects so that the users do not have to manually handle 3xx HTTP status codes.
+The `Client` is used to connect to and interact with HTTP endpoints. They support connection pooling and can be configured to have a maximum number of active connections that can be made with the remote endpoint. The `Client` activates connection eviction after a given idle period and also supports follow-redirects so that the users do not have to manually handle 3xx HTTP status codes.
 
-`Client` endpoints handle resilience in multiple ways such as load balancing, circuit breaking, endpoint timeouts, and a retry mechanism.
+The `Client` handles resilience in multiple ways such as load balancing, circuit breaking, endpoint timeouts, and a retry mechanism.
 
 Load balancing is used in the round robin or failover manner.
 
@@ -14,9 +14,9 @@ When a failure occurs in the remote service, the client connections might wait f
 
 The Ballerina circuit breaker supports tripping on HTTP error status codes and I/O errors. Failure thresholds can be configured based on a sliding window (e.g., 5 failures within 10 seconds). `Client` endpoints also support a retry mechanism that allows a client to resend failed requests periodically for a given number of times.
 
-`Client` endpoints support Server Name Indication (SNI), Certificate Revocation List (CRL), Online Certificate Status Protocol (OCSP), and OCSP Stapling for SSL/TLS connections. They also support HTTP2, keep-alive, chunking, HTTP caching, data compression/decompression, and authentication/authorization.
+The `Client` supports Server Name Indication (SNI), Certificate Revocation List (CRL), Online Certificate Status Protocol (OCSP), and OCSP Stapling for SSL/TLS connections. They also support HTTP2, keep-alive, chunking, HTTP caching, data compression/decompression, and authentication/authorization.
 
-A `Client` endpoint can be defined using the URL of the remote service that the client needs to connect with, as shown below:
+A `Client` can be defined using the URL of the remote service that the client needs to connect with, as shown below:
 
 ``` ballerina
 http:Client clientEndpoint = new("https://my-simple-backend.com");
@@ -30,7 +30,7 @@ var response = clientEndpoint->get("/get?id=123");
 
 For more information, see [Client Endpoint Example](https://ballerina.io/learn/by-example/http-client-endpoint.html), [Circuit Breaker Example](https://ballerina.io/learn/by-example/http-circuit-breaker.html), [HTTP Redirects Example](https://ballerina.io/learn/by-example/http-redirects.html).
 
-### Listener endpoints
+### Listener
 
 A `Service` represents a collection of network-accessible entry points and can be exposed via a `Listener` endpoint. A resource represents one such entry point and can have its own path, HTTP methods, body format, 'consumes' and 'produces' content types, CORS headers, etc. In resources, `http:caller` and `http:Request` are mandatory parameters while `path` and `body` are optional.
 

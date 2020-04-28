@@ -8,7 +8,8 @@ listener grpc:Listener ep = new (9090, {
     host: "localhost",
     secureSocket: {
         keyStore: {
-            path: config:getAsString("b7a.home") + "bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("b7a.home") +
+                  "/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }

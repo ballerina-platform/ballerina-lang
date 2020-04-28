@@ -21,43 +21,52 @@ public type Connection object {
 
     handle amqpConnection;
 
-    # Initializes a Ballerina RabbitMQ `Connection` object.
+    # Initializes a Ballerina RabbitMQ Connection object.
     #
-    # + connectionConfiguration - Holds connection parameters required to initialize the `Connection`.
+    # + connectionConfiguration - Configurations required to initialize the `rabbitmq:Connection`
     public function __init(ConnectionConfiguration connectionConfiguration) {
         self.amqpConnection = createConnection(connectionConfiguration);
     }
 
-    # Closes the RabbitMQ `Connection` and all it's `Channel`s.
-    # It waits with a provided timeout for all the close operations to complete.
-    # When timeout is reached the socket is forced to close.
-    #
-    # + closeCode - The close code (For information, go to the "Reply Codes" section in the
-    #               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)).
-    # + closeMessage - A message indicating the reason for closing the connection.
-    # + timeoutInMillis - Timeout (in milliseconds) for completing all the close-related operations.
-    #                       Use -1 for infinity.
-    # + return - An error if an I/O problem is encountered.
+# Closes the `rabbitmq:Connection` and all its `rabbitmq:Channel`s.
+# It waits with a provided timeout for all the close operations to complete.
+# When the timeout is reached, the socket is forced to close.
+# ```ballerina
+# rabbitmq:Error? closeResult = newConnection.close();
+# ```
+#
+# + closeCode - The close code (for information, go to the "Reply Codes" section in the
+#               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf))
+# + closeMessage - A message indicating the reason for closing the connection
+# + timeoutInMillis - Timeout (in milliseconds) for completing all the close-related operations.
+#                     Use -1 for infinity
+# + return - A `rabbitmq:Error` if an I/O error is encountered or else `()`
     public function close(int? closeCode = (), string? closeMessage = (), int? timeoutInMillis = ()) returns Error? {
         return handleCloseConnection(closeCode, closeMessage, timeoutInMillis, self.amqpConnection);
     }
 
-    # Aborts the RabbitMQ `Connection` and all its `Channel`s.
-    # Forces the `Connection` to close and waits for all the close operations to complete. When timeout is reached
-    # the socket is forced to close. Any encountered exceptions in the close operations are silently discarded.
-    #
-    # + closeCode - The close code (For information, go to the "Reply Codes" section in the
-    #               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf)).
-    # + closeMessage - A message indicating the reason for closing the connection.
-    # + timeoutInMillis - Timeout (in milliseconds) for completing all the close-related operations.
-    #                       Use -1 for infinity.
+# Aborts the `rabbitmq:Connection` and all its `rabbitmq:Channel`s.
+# Forces the `rabbitmq:Connection` to close and waits for all the close operations to complete. When the timeout is reached,
+# the socket is forced to close. Any encountered exceptions in the close operations are discarded silently.
+# ```ballerina
+# connection.abortConnection(320, "Channel Aborted");
+# ```
+#
+# + closeCode - The close code (for information, go to the "Reply Codes" section in the
+#               [AMQP 0-9-1 specification] (#https://www.rabbitmq.com/resources/specs/amqp0-9-1.pdf))
+# + closeMessage - A message indicating the reason for closing the connection
+# + timeoutInMillis - Timeout (in milliseconds) for completing all the close-related operations.
+#                       Use -1 for infinity
     public function abortConnection(int? closeCode = (), string? closeMessage = (), int? timeoutInMillis = ()) {
         handleAbortConnection(closeCode, closeMessage, timeoutInMillis, self.amqpConnection);
     }
 
-    # Checks whether `close` was already called.
-    #
-    # + return - The value `true` if the `Connection` is already closed and `false` otherwise.
+# Checks whether `close` was already called.
+# ```ballerina
+# boolean closed = newConnection.isClosed();
+# ```
+#
+# + return - The value `true` if the `rabbitmq:Connection` is already closed or else `false`
     public function isClosed() returns boolean {
         return nativeIsClosed(self.amqpConnection);
     }

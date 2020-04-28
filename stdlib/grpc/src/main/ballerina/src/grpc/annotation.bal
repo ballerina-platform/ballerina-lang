@@ -14,19 +14,17 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Service configuration. Sets only for client and bidirectional streaming service.
+# Service configuration.
 #
-# + name - Resource name. This applies only for client streaming and bidirectional streaming
-#          where we can define only one resource. In order to generate proto file, service resource name need to
-#          pass as annotation parameter.
-# + requestType - Request message type of the resource. This is an optional field. If it is not specified, request
-#                   type is derived from input argument of the resource.
-# + responseType - Response message type of the resource. This is an optional field. If it is not specified, response
-#                   type is derived from the he value passed to the send() expression.
+# + name - Service name. This applies only for the dynamic service registration.
+# + requestType - Request message type of the resource. This is an optional field. If it is not specified, the request
+#                   type is derived from the input argument of the resource
+# + responseType - Response message type of the resource. This is an optional field. If it is not specified, the response
+#                   type is derived from the value passed to the send() expression
 # + clientStreaming - Client streaming flag. This applies only for client streaming and
-#                     bidirectional streaming. Flag sets to true, if the service defines as client/bidirectional streaming.
-# + serverStreaming - Server streaming flag. This applies only for bidirectional streaming. Flag
-#                     sets to true, if the service defines as bidirectional streaming.
+#                     bidirectional streaming. The flag should be set to true if the service is defined as client/bidirectional streaming
+# + serverStreaming - Server streaming flag. This applies only for bidirectional streaming. The flag
+#                     should be set to true if the service is defined as bidirectional streaming
 public type GrpcServiceConfig record {|
     string name = "";
     typedesc<anydata> requestType?;
@@ -35,12 +33,12 @@ public type GrpcServiceConfig record {|
     boolean serverStreaming = false;
 |};
 
-# Service configuration. Sets only for client and bidirectional streaming service.
+# Service configuration annotation.
 public annotation GrpcServiceConfig ServiceConfig on service;
 
-# Service resource configuration. Sets only for server streaming service.
+# Service resource configuration. This should be set only for server streaming services.
 #
-# + streaming - Server streaming flag. This flag sets to true to specify that the resource is capable of sending
+# + streaming - Server streaming flag. This flag should be set to true to specify that the resource is capable of sending
 #               multiple responses per request.
 # + requestType - Request message type of the resource. This is an optional field. If it is not specified, request
 #                   type is derived from input argument of the resource.
@@ -52,17 +50,17 @@ public type GrpcResourceConfig record {|
     typedesc<anydata> responseType?;
 |};
 
-# Service resource configuration. Sets only for server streaming service.
+# Service resource configuration annotation. This should be set only for server streaming services.
 public annotation GrpcResourceConfig ResourceConfig on resource function;
 
-# Service descriptor data. This is for internal use.
+# Service descriptor data generated at the compile time. This is for internal use.
 #
-# + descriptor - Service descriptor sets at compile time.
-# + descMap - Service dependent descriptor map sets at compile time.
+# + descriptor - Service descriptor, which should be set at the compile time
+# + descMap - Service dependent descriptor map, which should be set at the compile time
 public type ServiceDescriptorData record {|
     string descriptor = "";
     map<any> descMap = {};
 |};
 
-# Service descriptor data generated at compile time. This is for internal use.
+# Service descriptor annotation. This is for internal use.
 public annotation ServiceDescriptorData ServiceDescriptor on service;
