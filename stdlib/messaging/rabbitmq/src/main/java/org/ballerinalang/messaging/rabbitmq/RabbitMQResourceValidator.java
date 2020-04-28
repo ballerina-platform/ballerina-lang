@@ -48,8 +48,9 @@ public class RabbitMQResourceValidator {
                 break;
             default:
                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                        "Invalid resource name " + resource.getName().getValue() + " in service, only " +
-                RabbitMQConstants.FUNC_ON_MESSAGE + " and " + RabbitMQConstants.FUNC_ON_ERROR + " are allowed");
+                                   "Invalid resource name " + resource.getName().getValue() + " in service, only " +
+                                           RabbitMQConstants.FUNC_ON_MESSAGE + " and " +
+                                           RabbitMQConstants.FUNC_ON_ERROR + " are allowed");
         }
 
     }
@@ -59,7 +60,7 @@ public class RabbitMQResourceValidator {
         validateParamDetailsSize(paramDetails, 1, 2, resource, dlog);
         if (!RabbitMQConstants.MESSAGE_OBJ_FULL_NAME.equals(paramDetails.get(0).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + " resource: The first parameter should be an rabbitmq:Message");
+                    + resource.getName().getValue() + " resource: The first parameter should be a rabbitmq:Message");
         }
         if (paramDetails.size() == 2) {
             validateDataBindingParam(resource, resource.getParameters(), dlog);
@@ -68,24 +69,19 @@ public class RabbitMQResourceValidator {
 
     private static void validateOnErrorResource(BLangFunction resource, DiagnosticLog dlog) {
         List<BLangSimpleVariable> paramDetails = resource.getParameters();
-        validateParamDetailsSize(paramDetails, 2, resource, dlog);
+        if (paramDetails.size() != 2) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
+                    + resource.getName().getValue() + RESOURCE_IN_SERVICE + ". Expected first parameter (required) " +
+                    "type is rabbitmq:Message and the expected second parameter (required) type is error");
+        }
         if (!RabbitMQConstants.MESSAGE_OBJ_FULL_NAME.equals(paramDetails.get(0).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + " resource: The first parameter should be an rabbitmq:Message");
+                    + resource.getName().getValue() + " resource: The first parameter should be a rabbitmq:Message");
         }
         if (paramDetails.size() < 2 || !"error".equals(paramDetails.get(1).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, String.format(
                     "Invalid resource signature for %s resource in service : The second parameter should be an error",
                     resource.getName().getValue()));
-        }
-    }
-
-    private static void validateParamDetailsSize(List<BLangSimpleVariable> paramDetails, int expectedSize,
-                                                 BLangFunction resource, DiagnosticLog dlog) {
-        if (paramDetails == null || paramDetails.size() != expectedSize) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, INVALID_RESOURCE_SIGNATURE_FOR
-                    + resource.getName().getValue() + RESOURCE_IN_SERVICE +
-                    ": Expected parameter count = " + expectedSize);
         }
     }
 
