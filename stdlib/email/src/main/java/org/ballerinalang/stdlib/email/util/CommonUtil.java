@@ -90,6 +90,12 @@ public class CommonUtil {
         return buffer.toByteArray();
     }
 
+    /**
+     * Add custom properties from the Ballerina configuration.
+     *
+     * @param customProperties Custom properties from Ballerina
+     * @param properties Properties to be used to create the session
+     */
     public static void addCustomProperties(ArrayValue customProperties, Properties properties) {
         if (customProperties != null) {
             for (int i = 0; i < customProperties.size(); i++) {
