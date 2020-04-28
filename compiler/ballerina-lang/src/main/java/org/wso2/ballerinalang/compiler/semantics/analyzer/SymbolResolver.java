@@ -60,6 +60,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
@@ -1140,8 +1141,18 @@ public class SymbolResolver extends BLangNodeVisitor {
         //    If the package alias is not empty or null, then find the package scope,
         if (symbol == symTable.notFoundSymbol) {
             BSymbol tempSymbol = lookupMainSpaceSymbolInPackage(userDefinedTypeNode.pos, env, pkgAlias, typeName);
+
             if ((tempSymbol.tag & SymTag.TYPE) == SymTag.TYPE) {
                 symbol = tempSymbol;
+            }
+
+            if (env.node.getKind() == NodeKind.FUNCTION) {
+                BLangFunction func = (BLangFunction) env.node;
+                if (func.hasBody() && func.body.getKind() == NodeKind.EXTERN_FUNCTION_BODY) {
+                    symbol = tempSymbol;
+                } else {
+                    dlog.error(func.pos, DiagnosticCode.INVALID_RETURN_TYPE_PARAMETERIZATION);
+                }
             }
         }
 
