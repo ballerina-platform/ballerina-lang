@@ -127,6 +127,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(forkStatementNode);
     }
 
+    public void visit(ForEachStatementNode forEachStatementNode) {
+        visitSyntaxNode(forEachStatementNode);
+    }
+
     public void visit(BinaryExpressionNode binaryExpressionNode) {
         visitSyntaxNode(binaryExpressionNode);
     }
