@@ -904,8 +904,7 @@ function queryJdbcClient(string url, string user, string password,@untainted str
  typedesc<record {}>? resultType = ())
 returns @tainted record {}|error? {
     jdbc:Client dbClient = check new (url = url, user = user, password = password);
-    stream
-    <record {}, error> streamData = dbClient->query(sqlQuery, resultType);
+    stream<record {}, error> streamData = dbClient->query(sqlQuery, resultType);
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
     record {}? value = data?.value;
@@ -918,4 +917,3 @@ function writeToFile(byte[] data) returns @tainted error? {
     int leng = check byteChannel.write(data, 0);
     return check byteChannel.close();
 }
-
