@@ -1836,6 +1836,45 @@
                     "type": "Token"
                 }
             ]
+        },
+        {
+            "name": "TypeCastExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "TYPE_CAST_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeCastParam",
+                    "type": "TypeCastParamNode"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "TypeCastParamNode",
+            "base": "Node",
+            "kind": "TYPE_CAST_PARAM",
+            "attributes": [
+                {
+                    "name": "annotations",
+                    "type": "AnnotationNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "type",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }

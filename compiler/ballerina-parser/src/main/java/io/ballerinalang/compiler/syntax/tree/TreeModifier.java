@@ -1024,6 +1024,28 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 closeBracket);
     }
 
+    @Override
+    public Node transform(TypeCastExpressionNode typeCastExpressionNode) {
+        Token ltToken = modifyToken(typeCastExpressionNode.ltToken());
+        TypeCastParamNode typeCastParam = modifyNode(typeCastExpressionNode.typeCastParam());
+        Token gtToken = modifyToken(typeCastExpressionNode.gtToken());
+        ExpressionNode expression = modifyNode(typeCastExpressionNode.expression());
+        return typeCastExpressionNode.modify(
+                ltToken,
+                typeCastParam,
+                gtToken,
+                expression);
+    }
+
+    @Override
+    public Node transform(TypeCastParamNode typeCastParamNode) {
+        NodeList<AnnotationNode> annotations = modifyNodeList(typeCastParamNode.annotations());
+        Node type = modifyNode(typeCastParamNode.type());
+        return typeCastParamNode.modify(
+                annotations,
+                type);
+    }
+
     // Tokens
 
     @Override

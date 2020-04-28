@@ -3150,6 +3150,8 @@ public class BallerinaParser {
                 return parseTrapExpression(isRhsExpr);
             case OPEN_BRACKET_TOKEN:
                 return parseListConstructorExpr();
+            case LT_TOKEN:
+                return parseTypeCastExpr();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
@@ -6904,5 +6906,48 @@ public class BallerinaParser {
         }
 
         return STNodeFactory.createNodeList(expressions);
+    }
+
+    /**
+     * Parse type cast expression.
+     * <p>
+     * <code>
+     * type-cast-expr := < type-cast-param > expression
+     * <br/>
+     * type-cast-param := [annots] type-descriptor | annots
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseTypeCastExpr() {
+        STNode ltToken = parseLTToken();
+        STNode typeCastParam = parseTypeCastParam();
+        STNode gtToken = parseGTToken();
+        STNode expression = parseExpression();
+        return STNodeFactory.createTypeCastExpressionNode(ltToken, typeCastParam, gtToken, expression);
+    }
+
+    private STNode parseTypeCastParam() {
+        STNode annot;
+        STNode type;
+        STToken token = peek();
+
+        switch (token.kind) {
+            case AT_TOKEN:
+                annot = parseAnnotations();
+                token = peek();
+                if (isTypeStartingToken(token.kind)) {
+                    type = parseTypeDescriptor();
+                } else {
+                    type = STNodeFactory.createEmptyNode();
+                }
+                break;
+            default:
+                annot = STNodeFactory.createEmptyNode();
+                type = parseTypeDescriptor();
+                break;
+        }
+
+        return STNodeFactory.createTypeCastParamNode(annot, type);
     }
 }
