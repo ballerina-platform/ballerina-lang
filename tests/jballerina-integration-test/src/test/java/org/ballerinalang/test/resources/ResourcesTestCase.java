@@ -22,13 +22,18 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.jar.JarFile;
 
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 
@@ -55,7 +60,37 @@ public class ResourcesTestCase extends BaseTest {
         moduleBuildLeecher.waitForText(5000);
     }
 
-    @Test(description = "Test running the ResourceProject", dependsOnMethods = "testResourceModuleBuild")
+    @Test(description = "Test resources and imported resources added to the module jar",
+            dependsOnMethods = "testResourceModuleBuild")
+    public void testResourceAdditionToModuleJar() throws IOException {
+        Path executableJarPath = Paths.get(basePath.concat("/target/bin/resourceAPI.jar"));
+        Assert.assertTrue(Files.exists(executableJarPath));
+
+        JarFile jar = new JarFile(executableJarPath.toFile());
+        // check module resources
+        Assert.assertNotNull(jar.getJarEntry("resources/ballerina-test/resourceAPI/0.1.0/abc/pqr/resource.txt"));
+        // check imported module resources
+        Assert.assertNotNull(jar.getJarEntry("resources/praveenn/testResource/0.1.0/abc1/download.jpg"));
+    }
+
+    @Test(description = "Test resources and imported resources added to the testable jar",
+            dependsOnMethods = "testResourceAdditionToModuleJar")
+    public void testResourceAdditionToTestableJar() throws IOException {
+        String testableJar = "/target/caches/jar_cache/ballerina-test/resourceAPI/0.1.0" +
+                "/ballerina-test-resourceAPI-0.1.0-testable.jar";
+        Path testableJarPath = Paths.get(basePath.concat(testableJar));
+        Assert.assertTrue(Files.exists(testableJarPath));
+
+        JarFile jar = new JarFile(testableJarPath.toFile());
+        // check module's tests resources
+        Assert.assertNotNull(jar.getJarEntry("resources/ballerina-test/resourceAPI/0.1.0/xyz/resource.txt"));
+        // check imported module's tests resources
+        Assert.assertNotNull(jar.getJarEntry("resources/ballerinax/aws.s3/0.11.0/.keep"));
+        // check module's resources in testable jar
+        Assert.assertNotNull(jar.getJarEntry("resources/praveenn/testResource/0.1.0/abc1/download.jpg"));
+    }
+
+    @Test(description = "Test running the ResourceProject", dependsOnMethods = "testResourceAdditionToTestableJar")
     public void testResourceModuleRun() throws BallerinaTestException {
         // Run and see the output
         String resourceFileMessage = "Hello Ballerina!!!";
