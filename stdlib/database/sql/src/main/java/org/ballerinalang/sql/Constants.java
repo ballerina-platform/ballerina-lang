@@ -54,6 +54,9 @@ public final class Constants {
     public static final String AFFECTED_ROW_COUNT_FIELD = "affectedRowCount";
     public static final String LAST_INSERTED_ID_FIELD = "lastInsertId";
 
+    public static final String READ_BYTE_CHANNEL_STRUCT = "ReadableByteChannel";
+    public static final String READ_CHAR_CHANNEL_STRUCT = "ReadableCharacterChannel";
+
     /**
      * Constants related connection pool.
      */
@@ -78,6 +81,57 @@ public final class Constants {
         public static final String ERROR_CODE = "errorCode";
         public static final String SQL_STATE = "sqlState";
 
+    }
+
+    /**
+     * Constants related to parameterized string fields.
+     */
+    public static final class ParameterizedStingFields {
+        public static final String PARTS = "parts";
+        public static final String INSERTIONS = "insertions";
+    }
+
+    /**
+     * Constants related to TypedValue fields.
+     */
+    public static final class TypedValueFields {
+        public static final String SQL_TYPE = "sqlType";
+        public static final String VALUE = "value";
+    }
+
+    /**
+     * Constants related to SQL Types supported.
+     */
+    public static final class SqlTypes {
+        public static final String VARCHAR = "VARCHAR";
+        public static final String CHAR = "CHAR";
+        public static final String LONGVARCHAR = "LONGVARCHAR";
+        public static final String NCHAR = "NCHAR";
+        public static final String LONGNVARCHAR = "LONGNVARCHAR";
+        public static final String NVARCHAR = "NVARCHAR";
+        public static final String BIT = "BIT";
+        public static final String BOOLEAN = "BOOLEAN";
+        public static final String TINYINT = "TINYINT";
+        public static final String SMALLINT = "SMALLINT";
+        public static final String INTEGER = "INTEGER";
+        public static final String BIGINT = "BIGINT";
+        public static final String NUMERIC = "NUMERIC";
+        public static final String DECIMAL = "DECIMAL";
+        public static final String REAL = "REAL";
+        public static final String FLOAT = "FLOAT";
+        public static final String DOUBLE = "DOUBLE";
+        public static final String BINARY = "BINARY";
+        public static final String BLOB = "BLOB";
+        public static final String LONGVARBINARY = "LONGVARBINARY";
+        public static final String VARBINARY = "VARBINARY";
+        public static final String CLOB = "CLOB";
+        public static final String NCLOB = "NCLOB";
+        public static final String DATE = "DATE";
+        public static final String TIME = "TIME";
+        public static final String DATETIME = "DATETIME";
+        public static final String TIMESTAMP = "TIMESTAMP";
+        public static final String ARRAY = "ARRAY";
+        public static final String STRUCT = "STRUCT";
     }
 
     /**

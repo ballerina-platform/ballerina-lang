@@ -16,7 +16,7 @@
 
 import ballerina/java;
 
-# Representation of `CallStackElement`
+# Represents a data holder of the current call stack element.
 #
 # + callableName - Callable name
 # + moduleName - Module name
@@ -29,9 +29,12 @@ public type CallStackElement record {|
     int lineNumber;
 |};
 
-# Retrieves the Call Stack
+# Retrieves the array of `runtime:CallStackElement` instances.
+# ```ballerina
+# runtime:CallStackElement[] callStackElements = runtime:getCallStack();
+# ```
 #
-# + return - Array of `CallStackElement` elements
+# + return - Array of `runtime:CallStackElement` records
 public function getCallStack() returns CallStackElement[] = @java:Method {
     class: "org.ballerinalang.stdlib.runtime.nativeimpl.GetCallStack"
 } external;

@@ -123,7 +123,6 @@ dependencies {
     dist project(':ballerina-core')
     dist project(':ballerina-config')
     dist project(':ballerina-logging')
-    dist project(':toml-parser')
 
 }
 

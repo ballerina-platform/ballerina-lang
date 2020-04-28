@@ -17,8 +17,12 @@
 import ballerina/java;
 
 # Returns the Base64 URL encoded `string` value of the given byte array.
+# ```ballerina
+# string query = "Hellö Wörld@Ballerina";
+# string urlEncodedValue = encoding:encodeBase64Url(query.toBytes());
+# ```
 #
-# + input - Value to be encoded
+# + input - Byte array to be encoded
 # + return - Encoded output
 public function encodeBase64Url(byte[] input) returns string {
     return externEncodeBase64Url(input).toString();
@@ -30,9 +34,12 @@ function externEncodeBase64Url(byte[] input) returns handle = @java:Method {
 } external;
 
 # Decodes the Base64 URL encoded `string` into a byte array.
+# ```ballerina
+# byte[]|encoding:Error urlDecodedValue = encoding:decodeBase64Url("SGVsbMO2IFfDtnJsZEBCYWxsZXJpbmE");
+# ```
 #
 # + input - Value to be decoded
-# + return - Decoded output or `Error` if input is not a valid Base64 URL encoded value
+# + return - Decoded output or else a `mime:Error` if the input is not a valid Base64 URL encoded value
 public function decodeBase64Url(string input) returns byte[]|Error {
     return externDecodeBase64Url(java:fromString(input));
 }
@@ -42,7 +49,11 @@ function externDecodeBase64Url(handle input) returns byte[]|Error = @java:Method
     class: "org.ballerinalang.stdlib.encoding.nativeimpl.Decode"
 } external;
 
-# Encodes the given URI component.
+# Encodes the given URI component into a `string` using the provided charset.
+# ```ballerina
+# string urlValue = "param1=http://xyz.com/?a=12&b=55¶m2=99";
+# string|encoding:Error encodedUriComponent = encoding:encodeUriComponent(urlValue, "UTF-8");
+# ```
 #
 # + uriComponent - URI component to be encoded
 # + charset - Character set to be used in encoding the URI
@@ -57,7 +68,11 @@ function externEncodeUriComponent(handle uriComponent, handle charset) returns h
     class: "org.ballerinalang.stdlib.encoding.nativeimpl.Encode"
 } external;
 
-# Decodes the given URI component.
+# Decodes the given URI component into a `string` using the provided charset.
+# ```ballerina
+# string encodedUrl = "http://www.domain.com/?param1=http%3A%2F%2Fxyz.com%2F%3Fa%3D12%26b%3D55¶m2=99";
+# string|encoding:Error decodedUriComponent = encoding:decodeUriComponent(encodedUrl, "UTF-8");
+# ```
 #
 # + uriComponent - URI component to be decoded
 # + charset - Character set to be used in decoding the URI

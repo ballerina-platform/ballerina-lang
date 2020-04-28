@@ -723,11 +723,27 @@ public abstract class BIRNode {
      */
     public static class BIRLockDetailsHolder {
 
-        //This is the number of recursive locks in the current scope.
-        public long numLocks = 0;
+        //This is the list of recursive locks in the current scope.
+        private List<BIRTerminator.Lock> locks = new ArrayList<>();
 
         public boolean isEmpty() {
-            return numLocks == 0;
+            return locks.isEmpty();
+        }
+
+        public void removeLastLock() {
+            locks.remove(size() - 1);
+        }
+
+        public BIRTerminator.Lock getLock(int index) {
+            return locks.get(index);
+        }
+
+        public void addLock(BIRTerminator.Lock lock) {
+            locks.add(lock);
+        }
+
+        public int size() {
+            return locks.size();
         }
     }
 }

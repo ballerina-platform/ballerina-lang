@@ -253,6 +253,7 @@ import java.util.stream.Collectors;
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createBlockStmt;
+import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createExpressionStmt;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createLiteral;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createStatementExpression;
 import static org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil.createVariable;
@@ -280,6 +281,10 @@ public class Desugar extends BLangNodeVisitor {
     private static final String LENGTH_FUNCTION_NAME = "length";
     private static final String ERROR_REASON_NULL_REFERENCE_ERROR = "NullReferenceException";
     private static final String CONSTRUCT_FROM = "constructFrom";
+    private static final String SLICE_LANGLIB_METHOD = "slice";
+    private static final String PUSH_LANGLIB_METHOD = "push";
+    private static final String DESUGARED_VARARG_KEY = "$vararg$";
+
     public static final String XML_INTERNAL_SELECT_DESCENDANTS = "selectDescendants";
     public static final String XML_INTERNAL_CHILDREN = "children";
     public static final String XML_INTERNAL_GET_FILTERED_CHILDREN_FLAT = "getFilteredChildrenFlat";
@@ -312,6 +317,7 @@ public class Desugar extends BLangNodeVisitor {
     private int initFuncIndex = 0;
     private int indexExprCount = 0;
     private int letCount = 0;
+    private int varargCount = 0;
 
     // Safe navigation related variables
     private Stack<BLangMatch> matchStmtStack = new Stack<>();
@@ -1184,17 +1190,76 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariable varNode) {
-        result = varNode;
+        //  case 1:
+        //  [string, int] (a, b) = (tuple)
+        //
+        //  any[] x = (tuple);
+        //  string a = x[0];
+        //  int b = x[1];
+        //
+        //  case 2:
+        //  [[string, float], int] [[a, b], c] = (tuple)
+        //
+        //  any[] x = (tuple);
+        //  string a = x[0][0];
+        //  float b = x[0][1];
+        //  int c = x[1];
+
+        // Create tuple destruct block stmt
+        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
+
+        // Create a simple var for the array 'any[] x = (tuple)' based on the dimension for x
+        String name = "$tuple$";
+        final BLangSimpleVariable tuple =
+                ASTBuilderUtil.createVariable(varNode.pos, name, symTable.arrayAllType, null,
+                                              new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
+                                                             symTable.arrayAllType, this.env.scope.owner));
+        tuple.expr = varNode.expr;
+        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varNode.pos, blockStmt);
+        variableDef.var = tuple;
+
+        // Create the variable definition statements using the root block stmt created
+        createVarDefStmts(varNode, blockStmt, tuple.symbol, null);
+        createRestFieldVarDefStmts(varNode, blockStmt, tuple.symbol);
+
+        // Finally rewrite the populated block statement
+        result = rewrite(blockStmt, env);
     }
 
     @Override
     public void visit(BLangRecordVariable varNode) {
-        result = varNode;
+        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
+        final BLangSimpleVariable mapVariable =
+                ASTBuilderUtil.createVariable(varNode.pos, "$map$0", symTable.mapAllType, null,
+                                              new BVarSymbol(0, names.fromString("$map$0"), this.env.scope.owner.pkgID,
+                                                             symTable.mapAllType, this.env.scope.owner));
+        mapVariable.expr = varNode.expr;
+        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varNode.pos, blockStmt);
+        variableDef.var = mapVariable;
+
+        createVarDefStmts(varNode, blockStmt, mapVariable.symbol, null);
+        result = rewrite(blockStmt, env);
     }
 
     @Override
     public void visit(BLangErrorVariable varNode) {
-        result = varNode;
+        // Create error destruct block stmt.
+        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varNode.pos);
+
+        // Create a simple var for the error 'error x = ($error$)'.
+        BVarSymbol errorVarSymbol = new BVarSymbol(0, names.fromString("$error$"), this.env.scope.owner.pkgID,
+                                                   symTable.errorType, this.env.scope.owner);
+        final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varNode.pos, errorVarSymbol.name.value,
+                                                                        symTable.errorType, null, errorVarSymbol);
+        error.expr = varNode.expr;
+        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varNode.pos, blockStmt);
+        variableDef.var = error;
+
+        // Create the variable definition statements using the root block stmt created.
+        createVarDefStmts(varNode, blockStmt, error.symbol, null);
+
+        // Finally rewrite the populated block statement.
+        result = rewrite(blockStmt, env);
     }
 
     // Statements
@@ -1214,44 +1279,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTupleVariableDef varDefNode) {
-        //  case 1:
-        //  (string, int) (a, b) = (tuple)
-        //
-        //  any[] x = (tuple);
-        //  string a = x[0];
-        //  int b = x[1];
-        //
-        //  case 2:
-        //  ((string, float) int)) ((a, b), c)) = (tuple)
-        //
-        //  any[] x = (tuple);
-        //  string a = x[0][0];
-        //  float b = x[0][1];
-        //  int c = x[1];
-        varDefNode.var = rewrite(varDefNode.var, env);
-        BLangTupleVariable tupleVariable = varDefNode.var;
-
-        //create tuple destruct block stmt
-        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
-
-        //create a array of any-type based on the dimension
-        BType runTimeType = new BArrayType(symTable.anyType);
-
-        //create a simple var for the array 'any[] x = (tuple)' based on the dimension for x
-        String name = "tuple";
-        final BLangSimpleVariable tuple = ASTBuilderUtil.createVariable(varDefNode.pos, name, runTimeType, null,
-                new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID, runTimeType,
-                        this.env.scope.owner));
-        tuple.expr = tupleVariable.expr;
-        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varDefNode.pos, blockStmt);
-        variableDef.var = tuple;
-
-        //create the variable definition statements using the root block stmt created
-        createVarDefStmts(tupleVariable, blockStmt, tuple.symbol, null);
-        createRestFieldVarDefStmts(tupleVariable, blockStmt, tuple.symbol);
-
-        //finally rewrite the populated block statement
-        result = rewrite(blockStmt, env);
+        result = rewrite(varDefNode.var, env);
     }
 
     private void createRestFieldVarDefStmts(BLangTupleVariable parentTupleVariable, BLangBlockStmt blockStmt,
@@ -1307,46 +1335,12 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordVariableDef varDefNode) {
-
-        BLangRecordVariable varNode = varDefNode.var;
-
-        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
-
-        BType runTimeType = new BMapType(TypeTags.MAP, symTable.anyType, null);
-
-        final BLangSimpleVariable mapVariable = ASTBuilderUtil.createVariable(varDefNode.pos, "$map$0", runTimeType,
-                null, new BVarSymbol(0, names.fromString("$map$0"), this.env.scope.owner.pkgID,
-                        runTimeType, this.env.scope.owner));
-        mapVariable.expr = varDefNode.var.expr;
-        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varDefNode.pos, blockStmt);
-        variableDef.var = mapVariable;
-
-        createVarDefStmts(varNode, blockStmt, mapVariable.symbol, null);
-
-        result = rewrite(blockStmt, env);
+        result = rewrite(varDefNode.var, env);
     }
 
     @Override
     public void visit(BLangErrorVariableDef varDefNode) {
-        BLangErrorVariable errorVariable = varDefNode.errorVariable;
-
-        // Create error destruct block stmt.
-        final BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(varDefNode.pos);
-
-        // Create a simple var for the error 'error x = ($error$)'.
-        BVarSymbol errorVarSymbol = new BVarSymbol(0, names.fromString("$error$"),
-                this.env.scope.owner.pkgID, symTable.errorType, this.env.scope.owner);
-        final BLangSimpleVariable error = ASTBuilderUtil.createVariable(varDefNode.pos, errorVarSymbol.name.value,
-                symTable.errorType, null, errorVarSymbol);
-        error.expr = errorVariable.expr;
-        final BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDefStmt(varDefNode.pos, blockStmt);
-        variableDef.var = error;
-
-        // Create the variable definition statements using the root block stmt created.
-        createVarDefStmts(errorVariable, blockStmt, error.symbol, null);
-
-        // Finally rewrite the populated block statement.
-        result = rewrite(blockStmt, env);
+        result = rewrite(varDefNode.errorVariable, env);
     }
 
     /**
@@ -2948,6 +2942,7 @@ public class Desugar extends BLangNodeVisitor {
         blockStmt.addStatement(simpleVariableDef);
 
         BLangUnLockStmt unLockStmt = new BLangUnLockStmt(lockNode.pos);
+        unLockStmt.relatedLock = lockStmt; // Used to find the related lock to unlock.
         blockStmt.addStatement(unLockStmt);
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(lockNode.pos, nillableErrorVarSymbol);
 
@@ -3313,6 +3308,10 @@ public class Desugar extends BLangNodeVisitor {
             // Package variable | service variable.
             // We consider both of them as package level variables.
             genVarRefExpr = new BLangPackageVarRef((BVarSymbol) varRefExpr.symbol);
+
+            if (!enclLocks.isEmpty()) {
+                enclLocks.peek().addLockVariable((BVarSymbol) varRefExpr.symbol);
+            }
         }
 
         genVarRefExpr.type = varRefExpr.type;
@@ -3526,13 +3525,16 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (varRefType.tag == TypeTags.MAP) {
-            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr, indexAccessExpr.indexExpr);
+            targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
+                                                  indexAccessExpr.indexExpr, indexAccessExpr.isStoreOnCreation);
         } else if (types.isSubTypeOfMapping(types.getSafeType(varRefType, true, false))) {
             targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
-                    indexAccessExpr.indexExpr, (BVarSymbol) indexAccessExpr.symbol, false);
+                                                          indexAccessExpr.indexExpr,
+                                                          (BVarSymbol) indexAccessExpr.symbol, false,
+                                                          indexAccessExpr.isStoreOnCreation);
         } else if (types.isSubTypeOfList(varRefType)) {
             targetVarRef = new BLangArrayAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
-                    indexAccessExpr.indexExpr);
+                                                    indexAccessExpr.indexExpr, indexAccessExpr.isStoreOnCreation);
         } else if (types.isAssignable(varRefType, symTable.stringType)) {
             indexAccessExpr.expr = addConversionExprIfRequired(indexAccessExpr.expr, symTable.stringType);
             targetVarRef = new BLangStringAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
@@ -3553,6 +3555,11 @@ public class Desugar extends BLangNodeVisitor {
 
         if (iExpr.symbol != null && iExpr.symbol.kind == SymbolKind.ERROR_CONSTRUCTOR) {
             result = rewriteErrorConstructor(iExpr);
+        }
+
+        if (!enclLocks.isEmpty()) {
+            BLangLockStmt lock = enclLocks.peek();
+            lock.lockVariables.addAll(((BInvokableSymbol) iExpr.symbol).dependentGlobalVars);
         }
 
         // Reorder the arguments to match the original function signature.
@@ -5065,36 +5072,158 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
+
+        List<BLangExpression> restArgs = iExpr.restArgs;
+        int originalRequiredArgCount = iExpr.requiredArgs.size();
+
+        // Constructs used when the vararg provides args for required/defaultable params.
+        BLangExpression varargRef = null;
+        BLangBlockStmt blockStmt = null;
+
+        int restArgCount = restArgs.size();
+
+        if (restArgCount > 0 &&
+                restArgs.get(restArgCount - 1).getKind() == NodeKind.REST_ARGS_EXPR &&
+                originalRequiredArgCount < invokableSymbol.params.size()) {
+            // All or part of the args for the required and defaultable parameters are provided via the vararg.
+            // We have to first evaluate the vararg's expression, define a variable, and pass a reference to it
+            // to use for member access when adding such required arguments from the vararg.
+            BLangExpression expr = ((BLangRestArgsExpression) restArgs.get(restArgCount - 1)).expr;
+            DiagnosticPos varargExpPos = expr.pos;
+            BType varargVarType = expr.type;
+            String varargVarName = DESUGARED_VARARG_KEY + this.varargCount++;
+
+            BVarSymbol varargVarSymbol = new BVarSymbol(0, names.fromString(varargVarName), this.env.scope.owner.pkgID,
+                                                        varargVarType, this.env.scope.owner);
+            varargRef = ASTBuilderUtil.createVariableRef(varargExpPos, varargVarSymbol);
+
+            BLangSimpleVariable var = createVariable(varargExpPos, varargVarName, varargVarType, expr, varargVarSymbol);
+
+            BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(varargExpPos);
+            varDef.var = var;
+            varDef.type = varargVarType;
+
+            blockStmt = createBlockStmt(varargExpPos);
+            blockStmt.stmts.add(varDef);
+        }
+
         if (!invokableSymbol.params.isEmpty()) {
             // Re-order the arguments
-            reorderNamedArgs(iExpr, invokableSymbol);
+            reorderNamedArgs(iExpr, invokableSymbol, varargRef);
         }
 
-        if (invokableSymbol.restParam == null) {
+        // There are no rest args at all or args for the rest param are only given as individual args (i.e., no vararg).
+        if (restArgCount == 0 || restArgs.get(restArgCount - 1).getKind() != NodeKind.REST_ARGS_EXPR) {
+            if (invokableSymbol.restParam == null) {
+                return;
+            }
+
+            BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+            List<BLangExpression> exprs = new ArrayList<>();
+
+            BArrayType arrayType = (BArrayType) invokableSymbol.restParam.type;
+            BType elemType = arrayType.eType;
+
+            for (BLangExpression restArg : restArgs) {
+                exprs.add(addConversionExprIfRequired(restArg, elemType));
+            }
+
+            arrayLiteral.exprs = exprs;
+            arrayLiteral.type = arrayType;
+
+            if (restArgCount != 0) {
+                iExpr.restArgs = new ArrayList<>();
+            }
+
+            iExpr.restArgs.add(arrayLiteral);
             return;
         }
 
-        // Create an array out of all the rest arguments, and pass it as a single argument.
-        // If there is only one optional argument and its type is restArg (i.e: ...x), then
-        // leave it as is.
-        if (iExpr.restArgs.size() == 1 && iExpr.restArgs.get(0).getKind() == NodeKind.REST_ARGS_EXPR) {
+        // There are no individual rest args, but there is a single vararg.
+        if (restArgCount == 1 && restArgs.get(0).getKind() == NodeKind.REST_ARGS_EXPR) {
+
+            // If the number of expressions in `iExpr.requiredArgs` hasn't changed, the vararg only contained
+            // arguments for the rest parameter.
+            if (iExpr.requiredArgs.size() == originalRequiredArgCount) {
+                return;
+            }
+
+            // Args for some or all of the required/defaultable parameters have been provided via the vararg.
+            // Remove the first required arg and add a statement expression instead.
+            // The removed first arg is set as the expression and the vararg expression definition is set as
+            // statement(s).
+            BLangExpression firstNonRestArg = iExpr.requiredArgs.remove(0);
+            BLangStatementExpression stmtExpression = createStatementExpression(blockStmt, firstNonRestArg);
+            stmtExpression.type = firstNonRestArg.type;
+            iExpr.requiredArgs.add(0, stmtExpression);
+
+            // The original value passed as the vararg has to now be sliced to pass only the args for the rest param,
+            // if there is a rest param.
+            if (invokableSymbol.restParam == null) {
+                return;
+            }
+
+            BLangLiteral startIndex = createIntLiteral(invokableSymbol.params.size() - originalRequiredArgCount);
+            BLangInvocation sliceInvocation =
+                    createLangLibInvocationNode(SLICE_LANGLIB_METHOD, varargRef,
+                                                new ArrayList<BLangExpression>() {{
+                                                    add(startIndex);
+                                                }},
+                                                varargRef.type, varargRef.pos);
+            restArgs.remove(0);
+            restArgs.add(addConversionExprIfRequired(sliceInvocation, invokableSymbol.restParam.type));
             return;
         }
+
+        // Now the `restArgs` list has both individual rest args and a vararg, all for the rest param.
+        // We create a new array with the individual rest args and push the list passed as the vararg to it.
+        BArrayType restParamType = (BArrayType) invokableSymbol.restParam.type;
+
         BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
-        arrayLiteral.type = invokableSymbol.restParam.type;
+        arrayLiteral.type = restParamType;
 
-        BType elemType = ((BArrayType) arrayLiteral.type).eType;
-        List<BLangExpression> rewrittenRestArgs = new ArrayList<>();
-        for (BLangExpression restArg : iExpr.restArgs) {
-            rewrittenRestArgs.add(addConversionExprIfRequired(restArg, elemType));
+        BType elemType = restParamType.eType;
+        DiagnosticPos pos = restArgs.get(0).pos;
+
+        List<BLangExpression> exprs = new ArrayList<>();
+
+        for (int i = 0; i < restArgCount - 1; i++) {
+            exprs.add(addConversionExprIfRequired(restArgs.get(i), elemType));
         }
-        arrayLiteral.exprs = rewrittenRestArgs;
+        arrayLiteral.exprs = exprs;
 
-        iExpr.restArgs = new ArrayList<>();
-        iExpr.restArgs.add(arrayLiteral);
+        BLangRestArgsExpression pushRestArgsExpr = (BLangRestArgsExpression) TreeBuilder.createVarArgsNode();
+        pushRestArgsExpr.pos = pos;
+        pushRestArgsExpr.expr = restArgs.remove(restArgCount - 1);
+
+        String name = DESUGARED_VARARG_KEY + this.varargCount++;
+        BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID, restParamType,
+                                              this.env.scope.owner);
+        BLangSimpleVarRef arrayVarRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
+
+        BLangSimpleVariable var = createVariable(pos, name, restParamType, arrayLiteral, varSymbol);
+        BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(pos);
+        varDef.var = var;
+        varDef.type = restParamType;
+
+        BLangBlockStmt pushBlockStmt = createBlockStmt(pos);
+        pushBlockStmt.stmts.add(varDef);
+
+        BLangExpressionStmt expressionStmt = createExpressionStmt(pos, pushBlockStmt);
+        BLangInvocation pushInvocation = createLangLibInvocationNode(PUSH_LANGLIB_METHOD, arrayVarRef,
+                                                                     new ArrayList<BLangExpression>() {{
+                                                                         add(pushRestArgsExpr);
+                                                                     }}, restParamType, pos);
+        pushInvocation.restArgs.add(pushInvocation.requiredArgs.remove(1));
+        expressionStmt.expr = pushInvocation;
+
+        BLangStatementExpression stmtExpression = createStatementExpression(pushBlockStmt, arrayVarRef);
+        stmtExpression.type = restParamType;
+
+        iExpr.restArgs = new ArrayList<BLangExpression>(1) {{ add(stmtExpression); }};
     }
 
-    private void reorderNamedArgs(BLangInvocation iExpr, BInvokableSymbol invokableSymbol) {
+    private void reorderNamedArgs(BLangInvocation iExpr, BInvokableSymbol invokableSymbol, BLangExpression varargRef) {
         List<BLangExpression> args = new ArrayList<>();
         Map<String, BLangExpression> namedArgs = new HashMap<>();
         iExpr.requiredArgs.stream()
@@ -5103,9 +5232,18 @@ public class Desugar extends BLangNodeVisitor {
 
         List<BVarSymbol> params = invokableSymbol.params;
 
+        int varargIndex = 0;
+
+        BType varargType = null;
+        boolean tupleTypedVararg = false;
+
+        if (varargRef != null) {
+            varargType = varargRef.type;
+            tupleTypedVararg = varargType.tag == TypeTags.TUPLE;
+        }
+
         // Iterate over the required args.
-        int i = 0;
-        for (; i < params.size(); i++) {
+        for (int i = 0; i < params.size(); i++) {
             BVarSymbol param = params.get(i);
             if (iExpr.requiredArgs.size() > i && iExpr.requiredArgs.get(i).getKind() != NodeKind.NAMED_ARGS_EXPR) {
                 // If a positional arg is given in the same position, it will be used.
@@ -5113,11 +5251,23 @@ public class Desugar extends BLangNodeVisitor {
             } else if (namedArgs.containsKey(param.name.value)) {
                 // Else check if named arg is given.
                 args.add(namedArgs.get(param.name.value));
-            } else {
+            } else if (varargRef == null) {
                 // Else create a dummy expression with an ignore flag.
                 BLangExpression expr = new BLangIgnoreExpr();
                 expr.type = param.type;
                 args.add(expr);
+            } else {
+                // If a vararg is provided, no parameter defaults are added and no named args are specified.
+                // Thus, any missing args should come from the vararg.
+                BLangIndexBasedAccess memberAccessExpr =
+                        (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+                memberAccessExpr.pos = varargRef.pos;
+                memberAccessExpr.expr = varargRef;
+                memberAccessExpr.indexExpr = rewriteExpr(createIntLiteral(varargIndex));
+                memberAccessExpr.type = tupleTypedVararg ? ((BTupleType) varargType).tupleTypes.get(varargIndex) :
+                        ((BArrayType) varargType).eType;
+                varargIndex++;
+                args.add(addConversionExprIfRequired(memberAccessExpr, param.type));
             }
         }
         iExpr.requiredArgs = args;
@@ -6460,12 +6610,13 @@ public class Desugar extends BLangNodeVisitor {
                         keyExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF ?
                                 createStringLiteral(pos, ((BLangSimpleVarRef) keyExpr).variableName.value) :
                                 ((BLangLiteral) keyExpr);;
-                addMemberStoreForKeyValuePair(pos, blockStmt, mappingVarRef, indexExpr, keyValueField.valueExpr);
+                addMemberStoreForKeyValuePair(pos, blockStmt, mappingVarRef, indexExpr, keyValueField.valueExpr,
+                                              ((BLangRecordLiteral.BLangRecordKeyValueField) field).type);
             } else if (field.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef varRefField = (BLangSimpleVarRef) field;
                 addMemberStoreForKeyValuePair(pos, blockStmt, mappingVarRef,
                                               createStringLiteral(pos, varRefField.variableName.value),
-                                              varRefField);
+                                              varRefField, ((BLangSimpleVarRef) field).type);
             } else {
                 BLangRecordLiteral.BLangRecordSpreadOperatorField spreadOpField =
                         (BLangRecordLiteral.BLangRecordSpreadOperatorField) field;
@@ -6499,7 +6650,8 @@ public class Desugar extends BLangNodeVisitor {
                 valueExpr.indexExpr = rewriteExpr(createIntLiteral(1));
                 valueExpr.type = foreachVarRefType.tupleTypes.get(1);
 
-                addMemberStoreForKeyValuePair(pos, foreachBodyBlock, mappingVarRef, indexExpr, valueExpr);
+                addMemberStoreForKeyValuePair(pos, foreachBodyBlock, mappingVarRef, indexExpr, valueExpr,
+                                              valueExpr.type);
 
                 foreach.body = foreachBodyBlock;
                 blockStmt.addStatement(foreach);
@@ -6513,7 +6665,7 @@ public class Desugar extends BLangNodeVisitor {
 
     private void addMemberStoreForKeyValuePair(DiagnosticPos pos, BLangBlockStmt blockStmt,
                                                BLangExpression mappingVarRef, BLangExpression indexExpr,
-                                               BLangExpression value) {
+                                               BLangExpression value, BType accessType) {
         BLangAssignment assignmentStmt = ASTBuilderUtil.createAssignmentStmt(pos, blockStmt);
         assignmentStmt.expr = rewriteExpr(value);
 
@@ -6521,8 +6673,10 @@ public class Desugar extends BLangNodeVisitor {
         indexAccessNode.pos = pos;
         indexAccessNode.expr = mappingVarRef;
         indexAccessNode.indexExpr = rewriteExpr(indexExpr);
-        indexAccessNode.type = value.type;
+        indexAccessNode.type = accessType != null ? accessType : value.type;
         assignmentStmt.varRef = indexAccessNode;
+
+        indexAccessNode.isStoreOnCreation = true;
     }
 
     private Map<String, BLangExpression> getKeyValuePairs(BLangStatementExpression desugaredMappingConst) {
