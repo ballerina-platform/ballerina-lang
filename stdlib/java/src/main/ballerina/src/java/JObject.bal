@@ -20,6 +20,8 @@
 public type JObject abstract object {
 
     handle jObj;
+
+    public function getHandle() returns handle;
 };
 
 function jObjToString(handle jObj) returns string {
