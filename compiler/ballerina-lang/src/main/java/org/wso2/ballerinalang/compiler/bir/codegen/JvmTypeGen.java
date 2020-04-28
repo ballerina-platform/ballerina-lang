@@ -1022,11 +1022,12 @@ class JvmTypeGen {
             loadXmlType(mv, (BXMLType) bType);
             return;
         } else if (bType.tag == TypeTags.XML_ELEMENT) {
-            typeFieldName = "typeElement";
+            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyElement" : "typeElement";
         } else if (bType.tag == TypeTags.XML_PI) {
-            typeFieldName = "typeProcessingInstruction";
+            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyProcessingInstruction" :
+                    "typeProcessingInstruction";
         } else if (bType.tag == TypeTags.XML_COMMENT) {
-            typeFieldName = "typeComment";
+            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyComment" : "typeComment";
         } else if (bType.tag == TypeTags.XML_TEXT) {
             typeFieldName = "typeText";
         } else if (bType.tag == TypeTags.TYPEDESC) {
@@ -1177,8 +1178,10 @@ class JvmTypeGen {
         // Load the constraint type
         loadType(mv, bType.constraint);
 
+        loadReadonlyFlag(mv, bType);
+
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE, "<init>", String.format("(L%s;Z)V", BTYPE), false);
     }
 
     private static void loadStreamType(MethodVisitor mv, BStreamType bType) {

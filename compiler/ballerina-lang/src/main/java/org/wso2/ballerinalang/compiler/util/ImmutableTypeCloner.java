@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -59,6 +60,8 @@ import java.util.Set;
  */
 public class ImmutableTypeCloner {
 
+    private static final String AND_READONLY_SUFFIX = " & readonly";
+
     public static BType setImmutableType(DiagnosticPos pos, Types types, BType type, SymbolEnv env,
                                          SymbolTable symTable, BLangAnonymousModelHelper anonymousModelHelper,
                                          Names names) {
@@ -73,8 +76,23 @@ public class ImmutableTypeCloner {
         }
 
         switch (type.tag) {
+            case TypeTags.XML_COMMENT:
+            case TypeTags.XML_ELEMENT:
+            case TypeTags.XML_PI:
+                BXMLSubType origXmlSubType = (BXMLSubType) type;
+                BXMLSubType immutableXmlSubType = origXmlSubType.immutableType;
+                if (immutableXmlSubType != null) {
+                    return immutableXmlSubType;
+                }
+
+                // TODO: 4/28/20 Check tsymbol
+                immutableXmlSubType = new BXMLSubType(origXmlSubType.tag,
+                                                   names.fromString(origXmlSubType.name.getValue()
+                                                                            .concat(AND_READONLY_SUFFIX)),
+                                                   origXmlSubType.flags | Flags.READONLY);
+                origXmlSubType.immutableType = immutableXmlSubType;
+                return immutableXmlSubType;
             case TypeTags.XML:
-                // TODO: 4/24/20 Handle XML subtypes.
                 BXMLType origXmlType = (BXMLType) type;
                 BXMLType immutableXmlType = origXmlType.immutableType;
                 if (immutableXmlType != null) {
@@ -296,6 +314,6 @@ public class ImmutableTypeCloner {
     }
 
     private static Name getImmutableTypeName(Names names, BTypeSymbol originalTSymbol) {
-        return names.fromString(originalTSymbol.name.getValue().concat(" & readonly"));
+        return names.fromString(originalTSymbol.name.getValue().concat(AND_READONLY_SUFFIX));
     }
 }

@@ -901,6 +901,7 @@ public class Types {
         }
 
         switch (type.tag) {
+            case TypeTags.XML_TEXT:
             case TypeTags.FINITE: // Assuming a finite type will only have members from simple basic types.
             case TypeTags.READONLY:
             case TypeTags.NIL:

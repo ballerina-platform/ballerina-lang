@@ -1123,6 +1123,9 @@ public class TypeChecker {
         }
 
         switch (sourceType.getTag()) {
+            case TypeTags.XML_TEXT_TAG:
+            case TypeTags.FINITE_TYPE_TAG: // Assuming a finite type will only have members from simple basic types.
+            case TypeTags.READONLY_TAG:
             case TypeTags.NULL_TAG:
             case TypeTags.ERROR_TAG:
             case TypeTags.INVOKABLE_TAG:
