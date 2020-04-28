@@ -82,7 +82,6 @@ function queryDoubleAndFloatParam(string url, string user, string password) retu
     return queryMockClient(url, user, password, sqlQuery);
 }
 
-
 function queryDecimalParam(string url, string user, string password) returns @tainted record {}|error? {
     decimal decimalValue = 23.45;
     sql:ParameterizedString sqlQuery = {
