@@ -19,17 +19,10 @@ package io.ballerina.test.compiler.plugins;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
-import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
-import org.ballerinalang.model.tree.AnnotationNode;
 import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.SimpleVariableNode;
-import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -40,9 +33,9 @@ import java.util.Set;
  * A test implementation of the {@link org.ballerinalang.compiler.plugins.CompilerPlugin} interface.
  */
 @SupportedAnnotationPackages(
-        value = {"images.jpeg", "images.gif", "images.png"}
+        value = {"testOrg/functions"}
 )
-public class ABCCompilerPlugin extends AbstractCompilerPlugin {
+public class FunctionsTestCompilerPlugin extends AbstractCompilerPlugin {
 
     static Map<TestEvent.Kind, Set<TestEvent>> testEventMap = new HashMap<>();
 
@@ -51,39 +44,8 @@ public class ABCCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(PackageNode packageNode) {
-        addEvent(TestEvent.Kind.PKG_NODE, packageNode.toString(), 1);
-    }
-
-    @Override
-    public void process(ServiceNode serviceNode, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.SERVICE_ANN, serviceNode.getName().getValue(), annotations.size());
-    }
-
-    @Override
-    public void process(TypeDefinition typeDefinition, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.TYPEDEF_ANN, typeDefinition.getName().getValue(), annotations.size());
-    }
-
-    @Override
     public void process(FunctionNode functionNode, List<AnnotationAttachmentNode> annotations) {
         addEvent(TestEvent.Kind.FUNC_ANN, functionNode.getName().getValue(), annotations.size());
-    }
-
-    @Override
-    public void process(SimpleVariableNode variableNode, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.VARIAVLE_ANN, variableNode.getName().getValue(), annotations.size());
-    }
-
-    @Override
-    public void process(AnnotationNode annotationNode, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.ANNOTATION_ANN, annotationNode.getName().getValue(), annotations.size());
-    }
-
-    @Override
-    public void codeGenerated(PackageID packageID, Path binaryPath) {
-        addEvent(TestEvent.Kind.CODE_GEN, binaryPath.toString(), 1);
-
     }
 
     private void addEvent(TestEvent.Kind kind, String nodeName, int noOfAnnotations) {
