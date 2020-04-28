@@ -126,7 +126,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  */
 public class JvmPackageGen {
 
-    public static Map<String, BIRFunctionWrapper> birFunctionMap = new HashMap<>();
+    public static Map<String, BIRFunctionWrapper> birFunctionMap;
     public static Map<String, BIRInstruction> lambdas;
     public static String currentClass;
     public static SymbolTable symbolTable;
@@ -139,7 +139,7 @@ public class JvmPackageGen {
 
     static void intiPackageGen() {
 
-//        birFunctionMap = new HashMap<>();
+        birFunctionMap = new HashMap<>();
         globalVarClassNames = new HashMap<>();
         lambdas = new HashMap<>();
         externalMapCache = new HashMap<>();
