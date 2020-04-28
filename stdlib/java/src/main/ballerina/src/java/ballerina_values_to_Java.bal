@@ -76,8 +76,8 @@ public function getClass(string name) returns handle | error = external;
 
 type AnyType any;
 
-# Returns an `any|error`, which is obtained after casting the given JObject instance to the given
-# JObject type depending on assignability.
+# Returns an `any|error`, which is obtained after casting the provided `JObject` instance
+# to the given `JObject` type depending on assignability.
 # ```ballerina
 # any|error obj = java:cast(inputStream, typedesc<FileInputStream>);
 # if (obj is any) {
