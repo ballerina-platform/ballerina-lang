@@ -138,6 +138,7 @@ import static org.ballerinalang.model.elements.PackageID.FUTURE;
 import static org.ballerinalang.model.elements.PackageID.INT;
 import static org.ballerinalang.model.elements.PackageID.MAP;
 import static org.ballerinalang.model.elements.PackageID.OBJECT;
+import static org.ballerinalang.model.elements.PackageID.QUERY;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
 import static org.ballerinalang.model.elements.PackageID.TABLE;
@@ -441,7 +442,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         PackageID pkgId = new PackageID(orgName, nameComps, version);
 
         // Built-in Annotation module is not allowed to import.
-        if (pkgId.equals(PackageID.ANNOTATIONS) || pkgId.equals(PackageID.INTERNAL)) {
+        if (pkgId.equals(PackageID.ANNOTATIONS) || pkgId.equals(PackageID.INTERNAL) || pkgId.equals(PackageID.QUERY)) {
             // Only peer lang.* modules able to see these two modules.
             // Spec allows to annotation model to be imported, but implementation not support this.
             if (!(enclPackageID.orgName.equals(Names.BALLERINA_ORG)
@@ -1203,6 +1204,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         if (langLib.equals(BOOLEAN)) {
             symTable.langBooleanModuleSymbol = packageSymbol;
+            return;
+        }
+        if (langLib.equals(QUERY)) {
+            symTable.langQueryModuleSymbol = packageSymbol;
             return;
         }
     }

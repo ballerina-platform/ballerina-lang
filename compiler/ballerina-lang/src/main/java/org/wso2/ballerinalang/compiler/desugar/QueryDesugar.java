@@ -414,7 +414,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     BLangSimpleVariableDef getNewFrameDef(DiagnosticPos pos) {
         // Frame $streamElement1$ = {};
         String name = getNewVarName();
-        BRecordTypeSymbol frameTypeSymbol = (BRecordTypeSymbol) symTable.langStreamModuleSymbol.scope
+        BRecordTypeSymbol frameTypeSymbol = (BRecordTypeSymbol) symTable.langQueryModuleSymbol.scope
                 .lookup(names.fromString("_Frame")).symbol;
         BRecordType frameType = (BRecordType) frameTypeSymbol.type;
         BVarSymbol frameVarSymbol = new BVarSymbol(0, names.fromString(name),
@@ -765,7 +765,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return symbol for the function.
      */
     private BInvokableSymbol getQueryLibInvokableSymbol(Name functionName) {
-        return (BInvokableSymbol) symTable.langStreamModuleSymbol.scope
+        return (BInvokableSymbol) symTable.langQueryModuleSymbol.scope
                 .lookup(functionName).symbol;
     }
 
@@ -944,7 +944,7 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @return a _Frame type node.
      */
     private BLangRecordTypeNode getFrameTypeNode() {
-        BRecordTypeSymbol frameTypeSymbol = (BRecordTypeSymbol) symTable.langStreamModuleSymbol.scope
+        BRecordTypeSymbol frameTypeSymbol = (BRecordTypeSymbol) symTable.langQueryModuleSymbol.scope
                 .lookup(names.fromString("_Frame")).symbol;
         BRecordType frameType = (BRecordType) frameTypeSymbol.type;
 

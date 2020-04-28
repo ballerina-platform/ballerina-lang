@@ -18,6 +18,7 @@ import ballerina/lang.'array as lang_array;
 import ballerina/lang.'map as lang_map;
 import ballerina/lang.'string as lang_string;
 import ballerina/lang.'xml as lang_xml;
+import ballerina/lang.'stream as lang_stream;
 // TODO: import ballerina/lang.'table as lang_table;
 
 public type _Iterator abstract object {
@@ -128,7 +129,7 @@ public type _InitFunction object {
         } else {
             // stream.iterator() is not resettable.
             self.resettable = false;
-            return iterator(collection);
+            return lang_stream:iterator(collection);
         }
     }
 };
