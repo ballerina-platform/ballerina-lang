@@ -17,22 +17,36 @@
  */
 package io.ballerinalang.compiler.text;
 
-import java.util.Objects;
-
 /**
- * Describes a contiguous sequence of unicode code points in the {@code TextDocument}.
+ * A representation of a single line in the {@code TextDocument}.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
-public class TextRange {
+public class TextLine {
+    private final int lineNo;
+    private final String text;
+    /**
+     * The span of the line within the {@code TextDocument}
+     */
     private final int startOffset;
     private final int endOffset;
-    private final int length;
+    private final int lengthOfNewLineChars;
 
-    public TextRange(int startOffset, int length) {
+
+    TextLine(int lineNo, String text, int startOffset, int endOffset, int lengthOfNewLineChars) {
+        this.text = text;
+        this.lineNo = lineNo;
         this.startOffset = startOffset;
-        this.length = length;
-        this.endOffset = startOffset + length;
+        this.endOffset = endOffset;
+        this.lengthOfNewLineChars = lengthOfNewLineChars;
+    }
+
+    public int lineNo() {
+        return lineNo;
+    }
+
+    public String text() {
+        return text;
     }
 
     public int startOffset() {
@@ -44,34 +58,10 @@ public class TextRange {
     }
 
     public int length() {
-        return length;
+        return endOffset - startOffset;
     }
 
-    public boolean contains(int position) {
-        return startOffset <= position && position < endOffset;
-    }
-
-    public String toString() {
-        return "(" + startOffset + "," + endOffset + ")";
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        TextRange textRange = (TextRange) o;
-        return startOffset == textRange.startOffset &&
-                endOffset == textRange.endOffset;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(startOffset, endOffset);
+    public int lengthWithNewLineChars() {
+        return endOffset - startOffset + lengthOfNewLineChars;
     }
 }

@@ -33,9 +33,6 @@ import static io.ballerinalang.compiler.internal.parser.tree.SyntaxUtils.isSTNod
  *
  * @since 1.3.0
  */
-// TODO This class can be used by multiple threads. Since the tree is lazily constructed,
-//  we need to ensure only one tree is created.
-// TODO find a better name for this class.
 public abstract class NonTerminalNode extends Node {
 
     // The following two fields allow us to navigate the tree without the knowledge of the particular tree nodes
@@ -101,7 +98,7 @@ public abstract class NonTerminalNode extends Node {
         for (int i = 0; i < bucket; i++) {
             STNode childNode = internalNode.childInBucket(i);
             if (childNode != null) {
-                childPos += childNode.width();
+                childPos += childNode.widthWithMinutiae();
             }
         }
 
@@ -122,7 +119,7 @@ public abstract class NonTerminalNode extends Node {
 
     // TODO Can we optimize this algo?
     public Token findToken(int position) {
-        if (!spanWithMinutiae.contains(position)) {
+        if (!textRangeWithMinutiae().contains(position)) {
             // TODO Fix with a proper error message
             throw new IllegalArgumentException();
         }
@@ -136,17 +133,17 @@ public abstract class NonTerminalNode extends Node {
     }
 
     private Node findChildNode(int position) {
-        int offset = this.spanWithMinutiae.startOffset();
+        int offset = textRangeWithMinutiae().startOffset();
         for (int bucket = 0; bucket < internalNode.bucketCount(); bucket++) {
             STNode internalChildNode = internalNode.childInBucket(bucket);
             if (!isSTNodePresent(internalChildNode)) {
                 continue;
             }
-            if (position < offset + internalChildNode.width()) {
+            if (position < offset + internalChildNode.widthWithMinutiae()) {
                 // Populate the external node.
                 return this.childInBucket(bucket);
             }
-            offset += internalChildNode.width();
+            offset += internalChildNode.widthWithMinutiae();
         }
 
         // TODO It is impossible to reach this line

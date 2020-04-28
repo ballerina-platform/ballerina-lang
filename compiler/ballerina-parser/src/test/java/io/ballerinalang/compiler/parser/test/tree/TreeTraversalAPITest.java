@@ -23,6 +23,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerinalang.compiler.text.TextDocument;
+import io.ballerinalang.compiler.text.TextDocuments;
+import io.ballerinalang.compiler.text.TextLine;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -42,13 +45,18 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         String sourceFilePath = "find_token_test_1.bal";
         String sourceText = getFileContentAsString(sourceFilePath);
         SyntaxTree syntaxTree = parseFile(sourceFilePath);
-        ModulePartNode modulePart = syntaxTree.getModulePart();
+        ModulePartNode modulePart = syntaxTree.modulePart();
 
-        String expectedLexeme = sourceText.substring(115, 116);
+        // Get the expected lexemes from the TextDocument itself
+        // You will get text lines with normalized newline characters
+        TextDocument textDocument = TextDocuments.from(sourceText);
+        TextLine textLine = textDocument.line(5);
+
+        String expectedLexeme = textLine.text().substring(40, 41); // This should be the char 'g' in '....(f + g));'
         Token actualToken = modulePart.findToken(115);
         Assert.assertEquals(actualToken.toString(), expectedLexeme);
 
-        expectedLexeme = sourceText.substring(111, 113);
+        expectedLexeme = textLine.text().substring(36, 38); // This should be the chars 'f ' in '....(f + g));'
         actualToken = modulePart.findToken(111);
         Assert.assertEquals(actualToken.toString(), expectedLexeme);
     }
@@ -56,7 +64,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     @Test(enabled = false)
     public void testGetParentOfToken() {
         SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
-        ModulePartNode modulePart = syntaxTree.getModulePart();
+        ModulePartNode modulePart = syntaxTree.modulePart();
         Token token = modulePart.findToken(115);
 
         Node parent = token.parent();
@@ -69,7 +77,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testGetParentOfFunctionDef() {
         SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
-        ModulePartNode modulePart = syntaxTree.getModulePart();
+        ModulePartNode modulePart = syntaxTree.modulePart();
         Token funcToken = modulePart.findToken(50);
 
         Node funcDef = funcToken.parent();
@@ -80,7 +88,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testGenChildrenOfFunctionDef() {
         SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
-        ModulePartNode modulePart = syntaxTree.getModulePart();
+        ModulePartNode modulePart = syntaxTree.modulePart();
         Token funcToken = modulePart.findToken(50);
         NonTerminalNode funcDef = funcToken.parent();
 

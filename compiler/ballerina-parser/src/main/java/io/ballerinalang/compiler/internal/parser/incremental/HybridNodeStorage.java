@@ -52,7 +52,7 @@ public class HybridNodeStorage {
                              BallerinaLexer lexer,
                              TextDocumentChange textDocumentChange) {
         this.hybridNodeList = new ArrayList<>(20);
-        this.hybridNodeList.add(createInitialNode(oldTree.getModulePart(), lexer, textDocumentChange));
+        this.hybridNodeList.add(createInitialNode(oldTree.modulePart(), lexer, textDocumentChange));
         consumedNodeIndex++;
         peekedNodeIndex++;
     }
@@ -160,17 +160,17 @@ public class HybridNodeStorage {
         // Find the affected token in the oldTree
         Token affectedToken = oldTree.findToken(textRange.startOffset());
         // If this is the first toke, then return
-        if (affectedToken.spanWithMinutiae().startOffset() == 0) {
+        if (affectedToken.textRangeWithMinutiae().startOffset() == 0) {
             return new TextEditRange(textRange.startOffset(), textRange.endOffset(), textEdit.text().length());
         }
 
         STToken internalToken = (STToken) affectedToken.internalNode();
         for (int lbIndex = 0; lbIndex < internalToken.lookback; lbIndex++) {
             // Since the common lookback = 1, this loop runs only once
-            affectedToken = oldTree.findToken(affectedToken.spanWithMinutiae().startOffset() - 1);
+            affectedToken = oldTree.findToken(affectedToken.textRangeWithMinutiae().startOffset() - 1);
         }
 
-        int affectedTokenStartOffset = affectedToken.spanWithMinutiae().startOffset();
+        int affectedTokenStartOffset = affectedToken.textRangeWithMinutiae().startOffset();
         int newTextLength = textEdit.text().length() +
                 (textRange.startOffset() - affectedTokenStartOffset);
         return new TextEditRange(affectedTokenStartOffset, textRange.endOffset(), newTextLength);

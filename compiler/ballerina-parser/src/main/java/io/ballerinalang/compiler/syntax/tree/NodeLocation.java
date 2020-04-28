@@ -15,34 +15,30 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerinalang.compiler.text;
+package io.ballerinalang.compiler.syntax.tree;
+
+import io.ballerinalang.compiler.text.TextRange;
+import io.ballerinalang.compiler.text.LineRange;
 
 /**
- * A representation of a startOffset in the {@code TextDocument} in terms of a zero-based line number
- * and a zero-based character offset on that line.
+ * The {@code NodeLocation} represent the location of a {@code Node} in source code.
+ * <p>
+ * It is a combination of source file path, start and end line numbers, and start and end column numbers.
+ *
+ * @since 2.0.0
  */
-public class TextPosition {
+public class NodeLocation {
+    private final Node node;
 
-    /**
-     * Line number
-     */
-    private int line;
-
-    /**
-     * A zero-based character offset on the line
-     */
-    private int offset;
-
-    public TextPosition(int line, int offset) {
-        this.line = line;
-        this.offset = offset;
+    NodeLocation(Node node) {
+        this.node = node;
     }
 
-    public int line() {
-        return line;
+    public LineRange lineRange() {
+        return node.lineRange();
     }
 
-    public int offset() {
-        return offset;
+    public TextRange textRange() {
+        return node.textRange();
     }
 }

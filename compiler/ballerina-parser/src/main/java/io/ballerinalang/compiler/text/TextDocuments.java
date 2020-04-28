@@ -28,34 +28,5 @@ public class TextDocuments {
     public static TextDocument from(String text) {
         return new StringTextDocument(text);
     }
-//
-//    public static TextDocument from(TextDocument oldTextDocument, TextEdit[] textEdits) {
-//        // This algorithm assumes that all the textRanges in edits are ordered and there are no overlaps.
-//        // TODO improve this algorithm to handle overlapping edits as well as unordered edits.
-//        // TODO This is a very simple implementation. Improve this if necessary
-//
-//        // TODO this algorithm does not check bounds. FIXME
-//        // TODO `prevTextDocument.toString()` is a hack. Figure out a way to work with TextDocument abstraction
-//        String oldText = oldTextDocument.toString();
-//        StringBuilder newTextBuilder = new StringBuilder();
-//        int beginIndex = 0;
-//        for (TextEdit textEdit : textEdits) {
-//            newTextBuilder.append(oldText, beginIndex, textEdit.span().startOffset());
-//            newTextBuilder.append(textEdit.text());
-//            beginIndex = textEdit.span().endOffset();
-//        }
-//
-//        return new StringTextDocument(newTextBuilder.toString());
-//    }
-//
-//    public static TextEdit createTextEdit(TextDocument textDocument, TextRange textRange, String newText) {
-//        TextLine[] textLines = textDocument.textLines;
-//        TextLine startLine = textLines[textRange.start().line()];
-//        int startOffset = startLine.getLineSpan().startOffset() + textRange.start().offset();
-//
-//        TextLine endLine = textLines[textRange.end().line()];
-//        int endOffset = endLine.getLineSpan().startOffset() + textRange.end().offset();
-//
-//        return new TextEdit(textRange, new SourcePartSpan(startOffset, endOffset - startOffset), newText);
-//    }
+
 }

@@ -20,39 +20,32 @@ package io.ballerinalang.compiler.text;
 import java.util.Objects;
 
 /**
- * Describes a contiguous sequence of unicode code points in the {@code TextDocument}.
+ * The {@code LineRange} represents a pair of {@code LineInfo}.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
-public class TextRange {
-    private final int startOffset;
-    private final int endOffset;
-    private final int length;
+public class LineRange {
+    private final String filePath;
+    private final LinePosition startLine;
+    private final LinePosition endLine;
 
-    public TextRange(int startOffset, int length) {
-        this.startOffset = startOffset;
-        this.length = length;
-        this.endOffset = startOffset + length;
+    public LineRange(String filePath, LinePosition startLine, LinePosition endLine) {
+        Objects.requireNonNull(filePath, "filePath cannot be null");
+        this.filePath = filePath;
+        this.startLine = startLine;
+        this.endLine = endLine;
     }
 
-    public int startOffset() {
-        return startOffset;
+    public String filePath() {
+        return filePath;
     }
 
-    public int endOffset() {
-        return endOffset;
+    public LinePosition startLine() {
+        return startLine;
     }
 
-    public int length() {
-        return length;
-    }
-
-    public boolean contains(int position) {
-        return startOffset <= position && position < endOffset;
-    }
-
-    public String toString() {
-        return "(" + startOffset + "," + endOffset + ")";
+    public LinePosition endLine() {
+        return endLine;
     }
 
     @Override
@@ -60,18 +53,21 @@ public class TextRange {
         if (this == o) {
             return true;
         }
-
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
-        TextRange textRange = (TextRange) o;
-        return startOffset == textRange.startOffset &&
-                endOffset == textRange.endOffset;
+        LineRange lineRange = (LineRange) o;
+        return Objects.equals(startLine, lineRange.startLine) &&
+                Objects.equals(endLine, lineRange.endLine);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(startOffset, endOffset);
+        return Objects.hash(startLine, endLine);
+    }
+
+    @Override
+    public String toString() {
+        return "(" + startLine + "," + endLine + ")";
     }
 }
