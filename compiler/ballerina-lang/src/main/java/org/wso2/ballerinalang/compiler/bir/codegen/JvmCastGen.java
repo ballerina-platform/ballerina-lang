@@ -89,7 +89,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CONVERTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.addBoxInsn;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.isBString;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.IS_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.loadType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.getSignatureForJType;
 
@@ -132,7 +132,7 @@ public class JvmCastGen {
         } else if (targetType.jTag == JTypeTags.JDOUBLE) {
             generateCheckCastBToJDouble(mv, sourceType);
         } else if (targetType.jTag == JTypeTags.JREF) {
-            if (!isBString && ((JType.JRefType) targetType).typeValue.equals(B_STRING_VALUE)) {
+            if (!IS_BSTRING && ((JType.JRefType) targetType).typeValue.equals(B_STRING_VALUE)) {
                 generateCheckCastBToJString(mv, sourceType);
             } else {
                 generateCheckCastBToJRef(mv, sourceType, targetType);
@@ -940,7 +940,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.JSON ||
                 sourceType.tag == TypeTags.FINITE) {
             checkCast(mv, symbolTable.stringType);
-            if (isBString) {
+            if (IS_BSTRING) {
                 mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
             } else {
                 mv.visitTypeInsn(CHECKCAST, STRING_VALUE);
@@ -1206,7 +1206,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON) {
-            if (isBString) {
+            if (IS_BSTRING) {
                 mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
             } else {
                 mv.visitTypeInsn(CHECKCAST, STRING_VALUE);

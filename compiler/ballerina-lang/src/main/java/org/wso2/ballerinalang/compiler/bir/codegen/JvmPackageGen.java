@@ -122,12 +122,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  */
 public class JvmPackageGen {
 
-    static final boolean isBString;
+    static final boolean IS_BSTRING;
     private static final CompilerContext.Key<JvmPackageGen> JVM_PACKAGE_GEN_CHECKER_KEY = new CompilerContext.Key<>();
 
     static {
         String bStringProp = System.getProperty("ballerina.bstring");
-        isBString = (bStringProp != null && !"".equals(bStringProp));
+        IS_BSTRING = (bStringProp != null && !"".equals(bStringProp));
     }
 
     public final Map<String, BIRFunctionWrapper> birFunctionMap;
@@ -743,35 +743,37 @@ public class JvmPackageGen {
             BIRTypeDefinition typeDef = getTypeDef(optionalTypeDef);
             BType bType = typeDef.type;
 
-            if ((bType.tag == TypeTags.OBJECT &&
-                    !Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) ||
-                    bType instanceof BServiceType) {
-                List<BIRFunction> attachedFuncs = getFunctions(typeDef.attachedFuncs);
-                String typeName = toNameString(bType);
-                for (BIRFunction func : attachedFuncs) {
+            if ((bType.tag != TypeTags.OBJECT ||
+                    Symbols.isFlagOn(((BObjectType) bType).tsymbol.flags, Flags.ABSTRACT)) &&
+                    !(bType instanceof BServiceType)) {
+                continue;
+            }
 
-                    // link the bir function for lookup
-                    BIRFunction currentFunc = getFunction(func);
-                    String functionName = currentFunc.name.value;
-                    String lookupKey = typeName + "." + functionName;
+            List<BIRFunction> attachedFuncs = getFunctions(typeDef.attachedFuncs);
+            String typeName = toNameString(bType);
+            for (BIRFunction func : attachedFuncs) {
 
-                    if (!isExternFunc(currentFunc)) {
-                        String className = getTypeValueClassName(module, typeName);
-                        birFunctionMap.put(pkgName + lookupKey, getFunctionWrapper(currentFunc, orgName, moduleName,
-                                version, className));
-                        continue;
-                    }
+                // link the bir function for lookup
+                BIRFunction currentFunc = getFunction(func);
+                String functionName = currentFunc.name.value;
+                String lookupKey = typeName + "." + functionName;
 
-                    String jClassName = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
-                    if (jClassName != null) {
-                        OldStyleExternalFunctionWrapper wrapper =
-                                ExternalMethodGen.createOldStyleExternalFunctionWrapper(currentFunc, orgName,
-                                        moduleName, version, jClassName, jClassName, isEntry, symbolTable);
-                        birFunctionMap.put(pkgName + lookupKey, wrapper);
-                    } else {
-                        throw new BLangCompilerException("native function not available: " +
-                                pkgName + lookupKey);
-                    }
+                if (!isExternFunc(currentFunc)) {
+                    String className = getTypeValueClassName(module, typeName);
+                    birFunctionMap.put(pkgName + lookupKey, getFunctionWrapper(currentFunc, orgName, moduleName,
+                            version, className));
+                    continue;
+                }
+
+                String jClassName = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
+                if (jClassName != null) {
+                    OldStyleExternalFunctionWrapper wrapper =
+                            ExternalMethodGen.createOldStyleExternalFunctionWrapper(currentFunc, orgName,
+                                    moduleName, version, jClassName, jClassName, isEntry, symbolTable);
+                    birFunctionMap.put(pkgName + lookupKey, wrapper);
+                } else {
+                    throw new BLangCompilerException("native function not available: " +
+                            pkgName + lookupKey);
                 }
             }
         }

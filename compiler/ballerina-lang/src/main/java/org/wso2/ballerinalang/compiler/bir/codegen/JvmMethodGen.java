@@ -176,11 +176,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.em
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStartObservationInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.emitStopObservationInvocation;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmObservabilityGen.getFullQualifiedRemoteFunctionName;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.IS_BSTRING;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getBIRFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getFunctionWrapper;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.isBString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.packageToModuleId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.cleanupObjectTypeName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.loadChannelDetails;
@@ -267,7 +267,7 @@ public class JvmMethodGen {
                 mv.visitVarInsn(DSTORE, index);
             } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", isBString ? B_STRING_VALUE : STRING_VALUE));
+                        String.format("L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE));
                 mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.DECIMAL) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
@@ -398,7 +398,7 @@ public class JvmMethodGen {
             } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", isBString ? B_STRING_VALUE : STRING_VALUE));
+                        String.format("L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE));
             } else if (bType.tag == TypeTags.DECIMAL) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
@@ -779,7 +779,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.FLOAT) {
             return "D";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            return String.format("L%s;", isBString ? B_STRING_VALUE : STRING_VALUE);
+            return String.format("L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             return String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
@@ -832,7 +832,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.FLOAT) {
             return ")D";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            return String.format(")L%s;", isBString ? B_STRING_VALUE : STRING_VALUE);
+            return String.format(")L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             return String.format(")L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
@@ -1126,7 +1126,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.FLOAT) {
             typeSig = "D";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            typeSig = String.format("L%s;", isBString ? B_STRING_VALUE : STRING_VALUE);
+            typeSig = String.format("L%s;", IS_BSTRING ? B_STRING_VALUE : STRING_VALUE);
         } else if (bType.tag == TypeTags.DECIMAL) {
             typeSig = String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
@@ -2613,7 +2613,7 @@ public class JvmMethodGen {
                 jvmPackageGen.lookupGlobalVarClassName(pkgName, ANNOTATION_MAP_NAME);
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));
         loadLocalType(mv, typeDef);
-        String funcName = isBString ? "processAnnotations_bstring" : "processAnnotations";
+        String funcName = IS_BSTRING ? "processAnnotations_bstring" : "processAnnotations";
         mv.visitMethodInsn(INVOKESTATIC, String.format("%s", ANNOTATION_UTILS), funcName,
                 String.format("(L%s;L%s;)V", MAP_VALUE, BTYPE), false);
     }
