@@ -193,8 +193,9 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] EXPRESSION_START =
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.NIL_LITERAL, ParserRuleContext.VARIABLE_REF,
                     ParserRuleContext.ACCESS_EXPRESSION, ParserRuleContext.TYPEOF_EXPRESSION,
-                    ParserRuleContext.UNARY_EXPRESSION, ParserRuleContext.TYPE_TEST_EXPRESSION,
-                    ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS };
+                    ParserRuleContext.TRAP_EXPRESSION, ParserRuleContext.UNARY_EXPRESSION,
+                    ParserRuleContext.TYPE_TEST_EXPRESSION, ParserRuleContext.CHECKING_KEYWORD,
+                    ParserRuleContext.OPEN_PARENTHESIS };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -1072,6 +1073,9 @@ public class BallerinaParserErrorHandler {
                 case TYPEDESC_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPEDESC_RHS,
                             isEntryPoint);
+                case TRAP_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.TRAP_KEYWORD;
+                    break;
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1139,6 +1143,7 @@ public class BallerinaParserErrorHandler {
                 case NIL_LITERAL:
                 case LOCK_STMT:
                 case FORK_STMT:
+                case TRAP_EXPRESSION:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1979,6 +1984,10 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.FORK_KEYWORD;
             case FORK_KEYWORD:
                 return ParserRuleContext.OPEN_BRACE;
+            case TRAP_EXPRESSION:
+                return ParserRuleContext.TRAP_KEYWORD;
+            case TRAP_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
             case NON_RECURSIVE_TYPE:
                 return getNextRuleForTypeDescriptor();
             case PARAMETERIZED_TYPE_DESCRIPTOR:
@@ -2896,6 +2905,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.HEX_FLOATING_POINT_LITERAL;
             case PARAMETERIZED_TYPE:
                 return SyntaxKind.MAP_KEYWORD;
+            case TRAP_KEYWORD:
+                return SyntaxKind.TRAP_KEYWORD;
 
             // TODO:
             case COMP_UNIT:
@@ -2968,6 +2979,7 @@ public class BallerinaParserErrorHandler {
             case ATTACH_POINT:
             case DEFAULT_WORKER:
             case DEFAULT_WORKER_INIT:
+            case TRAP_EXPRESSION:
             default:
                 break;
         }

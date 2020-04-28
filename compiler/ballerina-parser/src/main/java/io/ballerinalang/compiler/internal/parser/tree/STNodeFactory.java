@@ -1014,5 +1014,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 kind,
                 name);
     }
+
+    public static STNode createTrapExpressionNode(
+            STNode trapKeyword,
+            STNode expression) {
+
+        return new STTrapExpressionNode(
+                trapKeyword,
+                expression);
+    }
 }
 

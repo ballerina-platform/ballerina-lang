@@ -1361,5 +1361,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 name.internalNode());
         return stBuiltinSimpleNameReferenceNode.createUnlinkedFacade();
     }
+
+    public static TrapExpressionNode createTrapExpressionNode(
+            Token trapKeyword,
+            ExpressionNode expression) {
+        Objects.requireNonNull(trapKeyword, "trapKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stTrapExpressionNode = STNodeFactory.createTrapExpressionNode(
+                trapKeyword.internalNode(),
+                expression.internalNode());
+        return stTrapExpressionNode.createUnlinkedFacade();
+    }
 }
 

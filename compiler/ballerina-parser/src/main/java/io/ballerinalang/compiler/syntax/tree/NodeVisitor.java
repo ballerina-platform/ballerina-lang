@@ -347,6 +347,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(builtinSimpleNameReferenceNode);
     }
 
+    public void visit(TrapExpressionNode trapExpressionNode) {
+        visitSyntaxNode(trapExpressionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {
