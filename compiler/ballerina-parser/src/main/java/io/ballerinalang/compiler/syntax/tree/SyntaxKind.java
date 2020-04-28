@@ -186,6 +186,7 @@ public enum SyntaxKind {
     BASIC_LITERAL(1312),
     SIMPLE_NAME_REFERENCE(1313),
     TRAP_EXPRESSION(1314),
+    LIST_CONSTRUCTOR(1315),
 
     // Type descriptors
     TYPE_DESC(2000),
