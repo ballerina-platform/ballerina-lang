@@ -25,6 +25,10 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 /**
  * Generates a Map<String, Object> for a given SyntaxTree.
@@ -50,12 +54,23 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
     private JsonElement apply(Node node) {
         JsonObject nodeInfo = new JsonObject();
-        nodeInfo.addProperty("kind", node.kind().toString());
+        nodeInfo.addProperty("kind", prettifyKind(node.kind().toString()));
         if (node instanceof Token) {
+            nodeInfo.addProperty("isToken", true);
             nodeInfo.addProperty("value", ((Token) node).text());
         } else {
-            nodeInfo.add("value", node.apply(this));
+            JsonElement memberValues = node.apply(this);
+            memberValues.getAsJsonObject().entrySet().forEach(memberEntry -> {
+                nodeInfo.add(memberEntry.getKey(), memberEntry.getValue());
+            });
         }
         return nodeInfo;
+    }
+
+    private String prettifyKind(String kind) {
+        return Arrays.stream(kind.split("_"))
+                .map(String::toLowerCase)
+                .map(StringUtils::capitalize)
+                .collect(Collectors.joining());
     }
 }
