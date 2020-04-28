@@ -732,6 +732,10 @@ public class Types {
             }
         }
 
+        if (lhsTupleType.tupleTypes.size() > rhsTupleType.tupleTypes.size()) {
+            return false;
+        }
+
         for (int i = 0; i < rhsTupleType.tupleTypes.size(); i++) {
             BType lhsType = (lhsTupleType.tupleTypes.size() > i)
                     ? lhsTupleType.tupleTypes.get(i) : lhsTupleType.restType;

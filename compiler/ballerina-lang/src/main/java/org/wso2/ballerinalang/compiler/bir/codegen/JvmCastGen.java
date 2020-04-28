@@ -130,7 +130,7 @@ public class JvmCastGen {
         } else if (targetType.jTag == JTypeTags.JDOUBLE) {
             generateCheckCastBToJDouble(mv, sourceType);
         } else if (targetType.jTag == JTypeTags.JREF) {
-            if (((JType.JRefType) targetType).typeValue.equals(B_STRING_VALUE)) {
+            if (!isBString && ((JType.JRefType) targetType).typeValue.equals(B_STRING_VALUE)) {
                 generateCheckCastBToJString(mv, sourceType);
             } else {
                 generateCheckCastBToJRef(mv, sourceType, targetType);
@@ -139,7 +139,7 @@ public class JvmCastGen {
             generateCheckCastBToJRef(mv, sourceType, targetType);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java %s'",
-                    sourceType, targetType));
+                                                           sourceType, targetType));
         }
     }
 
@@ -147,10 +147,10 @@ public class JvmCastGen {
 
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
-                    String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
+                               String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java byte'",
-                    sourceType));
+                                                           sourceType));
         }
     }
 
