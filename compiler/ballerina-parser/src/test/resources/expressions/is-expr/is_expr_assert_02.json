@@ -12,8 +12,7 @@
                     "kind": "IS_KEYWORD"
                 },
                 {
-                    "kind": "SIMPLE_TYPE",
-                    "value": "int"
+                    "kind": "INT_KEYWORD"
                 }
             ]
         },
@@ -21,8 +20,7 @@
             "kind": "IS_KEYWORD"
         },
         {
-            "kind": "SIMPLE_TYPE",
-            "value": "decimal"
+            "kind": "DECIMAL_KEYWORD"
         }
     ]
 }

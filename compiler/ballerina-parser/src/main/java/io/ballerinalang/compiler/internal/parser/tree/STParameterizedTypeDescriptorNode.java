@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedIdentifierNode;
+import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 /**
@@ -27,27 +27,31 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  *
  * @since 1.3.0
  */
-public class STQualifiedIdentifierNode extends STNode {
-    public final STNode modulePrefix;
-    public final STNode colon;
-    public final STNode identifier;
+public class STParameterizedTypeDescriptorNode extends STTypeDescriptorNode {
+    public final STNode parameterizedType;
+    public final STNode ltToken;
+    public final STNode typeNode;
+    public final STNode gtToken;
 
-    STQualifiedIdentifierNode(
-            STNode modulePrefix,
-            STNode colon,
-            STNode identifier) {
-        super(SyntaxKind.QUALIFIED_IDENTIFIER);
-        this.modulePrefix = modulePrefix;
-        this.colon = colon;
-        this.identifier = identifier;
+    STParameterizedTypeDescriptorNode(
+            STNode parameterizedType,
+            STNode ltToken,
+            STNode typeNode,
+            STNode gtToken) {
+        super(SyntaxKind.PARAMETERIZED_TYPE_DESC);
+        this.parameterizedType = parameterizedType;
+        this.ltToken = ltToken;
+        this.typeNode = typeNode;
+        this.gtToken = gtToken;
 
         addChildren(
-                modulePrefix,
-                colon,
-                identifier);
+                parameterizedType,
+                ltToken,
+                typeNode,
+                gtToken);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new QualifiedIdentifierNode(this, position, parent);
+        return new ParameterizedTypeDescriptorNode(this, position, parent);
     }
 }

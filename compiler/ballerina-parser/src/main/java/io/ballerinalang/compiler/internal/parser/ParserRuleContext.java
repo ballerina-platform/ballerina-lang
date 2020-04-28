@@ -99,6 +99,8 @@ public enum ParserRuleContext {
     ANNOTATIONS("annots"),
     DOC_STRING("doc-string"),
     QUALIFIED_IDENTIFIER("qualified-identifier"),
+    EQUAL_OR_RIGHT_ARROW("equal-or-right-arrow"),
+    PARAMETERIZED_TYPE_DESCRIPTOR("parameterized-type-descriptor"),
     ANNOTATION_DECL("annotation-decl"),
     ANNOT_DECL_OPTIONAL_TYPE("annot-decl-optional-type"),
     ANNOT_DECL_RHS("annot-decl-rhs"),
@@ -143,6 +145,7 @@ public enum ParserRuleContext {
     EXPRESSION_STATEMENT_START("expression-statement-start"),
     LOCK_STMT("lock-stmt"),
     NAMED_WORKER_DECL("named-worker-decl"),
+    FORK_STMT("fork-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -174,12 +177,16 @@ public enum ParserRuleContext {
     CONST_KEYWORD("const"),
     TYPEOF_KEYWORD("typeof"),
     IS_KEYWORD("is"),
+    MAP_KEYWORD("map"),
+    FUTURE_KEYWORD("future"),
+    TYPEDESC_KEYWORD("typedesc"),
     NULL_KEYWORD("null"),
     LOCK_KEYWORD("lock"),
     ANNOTATION_KEYWORD("annotation"),
     SOURCE_KEYWORD("source"),
     XMLNS_KEYWORD("xmlns"),
     WORKER_KEYWORD("worker"),
+    FORK_KEYWORD("fork"),
     TRAP_KEYWORD("trap"),
 
     // Syntax tokens
@@ -202,6 +209,8 @@ public enum ParserRuleContext {
     SLASH("/"),
     AT("@"),
     RIGHT_ARROW("->"),
+    GT(">"),
+    LT("<"),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -253,6 +262,11 @@ public enum ParserRuleContext {
     TRAP_EXPRESSION("trap-expr"),
     LIST_CONSTRUCTOR("list-constructor"),
     LIST_CONSTRUCTOR_RHS("list-constructor-rhs"),
+
+    //Other
+    PARAMETERIZED_TYPE("parameterized-type"),
+    NON_RECURSIVE_TYPE("non-recursive-type"),
+    TYPEDESC_RHS("type-desc-rhs"),
     ;
 
     private String value;

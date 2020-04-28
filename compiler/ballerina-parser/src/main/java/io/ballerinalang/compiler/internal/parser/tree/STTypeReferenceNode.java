@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
  *
  * @since 1.3.0
  */
-public class STTypeReferenceNode extends STNode {
+public class STTypeReferenceNode extends STTypeDescriptorNode {
     public final STNode asteriskToken;
     public final STNode typeName;
     public final STNode semicolonToken;
