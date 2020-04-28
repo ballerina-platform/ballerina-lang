@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
@@ -71,6 +70,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -110,6 +110,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     public static final Name QUERY_SPREAD_TO_FRAME_FUNCTION = new Name("spreadToFrame");
     public static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
     public static final Name QUERY_GET_STREAM_FROM_PIPELINE_FUNCTION = new Name("getStreamFromPipeline");
+    public static final String FRAME_PARAMETER_NAME = "frame";
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
     private final SymbolEnter symbolEnter;
     private final Desugar desugar;
@@ -482,7 +483,7 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     private BVarSymbol currectFrameSymbol;
     private BLangBlockFunctionBody currectLambdaBody;
-    private Map<BLangIdentifier, BVarSymbol> identifiers;
+    private Map<String, BSymbol> identifiers;
 
     @Override
     public void visit(BLangLambdaFunction lambda) {
@@ -503,7 +504,21 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
+        bLangRecordVariableDef.var.accept(this);
+    }
+
+    @Override
+    public void visit(BLangRecordVariable bLangRecordVariable) {
+        bLangRecordVariable.variableList.forEach(v -> {
+            BLangVariable variable = v.getValue();
+            identifiers.putIfAbsent(variable.symbol.name.value, variable.symbol);
+        });
+    }
+
+    @Override
     public void visit(BLangSimpleVariable bLangSimpleVariable) {
+        identifiers.putIfAbsent(bLangSimpleVariable.name.value, bLangSimpleVariable.symbol);
         bLangSimpleVariable.expr.accept(this);
     }
 
@@ -571,31 +586,25 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
         BSymbol symbol = bLangSimpleVarRef.symbol;
-        if (symbol == null) {
-            if (!identifiers.containsKey(bLangSimpleVarRef.variableName)) {
-                // TODO: have to re-write all non closure variables with Frame access
-                //      Either define a new variable with the symbol, i.e Person person = <Person> frame["person"];
+        // TODO: check constants?
+        BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env, symbol.name, SymTag.VARIABLE);
+        if (resolvedSymbol == symTable.notFoundSymbol) {
+            String identifier = bLangSimpleVarRef.variableName.getValue();
+            if (!FRAME_PARAMETER_NAME.equals(identifier) && !identifiers.containsKey(identifier)) {
                 DiagnosticPos pos = currectLambdaBody.pos;
-                BVarSymbol newsSymbol = new BVarSymbol(0, names.fromIdNode(bLangSimpleVarRef.variableName),
-                        this.env.scope.owner.pkgID, symTable.anyType, this.env.scope.owner);
-                BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos,
-                        newsSymbol.name.getValue(), symTable.anyOrErrorType, currectFrameSymbol);
+                BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
+                        symTable.anyOrErrorType, currectFrameSymbol);
                 frameAccessExpr.expr = desugar.addConversionExprIfRequired(frameAccessExpr.expr,
                         types.getSafeType(frameAccessExpr.expr.type, true, false));
-                BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, null, newsSymbol.type,
-                        desugar.addConversionExprIfRequired(frameAccessExpr, newsSymbol.type), newsSymbol);
+                BLangSimpleVariable variable = ASTBuilderUtil.createVariable(pos, identifier, symbol.type,
+                        desugar.addConversionExprIfRequired(frameAccessExpr, symbol.type), (BVarSymbol) symbol);
                 BLangSimpleVariableDef variableDef = ASTBuilderUtil.createVariableDef(pos, variable);
-                identifiers.put(bLangSimpleVarRef.variableName, newsSymbol);
                 currectLambdaBody.stmts.add(0, variableDef);
+                identifiers.put(identifier, symbol);
             }
-            bLangSimpleVarRef.type = symTable.anyOrErrorType;
-            bLangSimpleVarRef.symbol = identifiers.get(bLangSimpleVarRef.variableName);
-            bLangSimpleVarRef.varSymbol = identifiers.get(bLangSimpleVarRef.variableName);
         } else {
-            BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env, symbol.name, SymTag.VARIABLE);
-            resolvedSymbol.closure = (resolvedSymbol != symTable.notFoundSymbol);
+            resolvedSymbol.closure = true;
         }
-
     }
 
     /**
