@@ -332,6 +332,8 @@ public class BallerinaParser {
                 return parseDecimalFloatingPointLiteral();
             case HEX_FLOATING_POINT_LITERAL:
                 return parseHexFloatingPointLiteral();
+            case TRAP_KEYWORD:
+                return parseTrapKeyword();
             case UNION_TYPE_DESCRIPTOR:
                 return parseUnionTypeDescriptor((STNode) args[0]);
             default:
@@ -3147,7 +3149,7 @@ public class BallerinaParser {
                 return parseBracedExpression(isRhsExpr, allowActions);
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
-                // In the checking action, nested actions are allowed. And thats the only
+                // In the checking action, nested actions are allowed. And that's the only
                 // place where actions are allowed within an action or an expression.
                 return parseCheckExpression(isRhsExpr, allowActions);
             case OPEN_BRACE_TOKEN:
@@ -3159,6 +3161,10 @@ public class BallerinaParser {
             case NEGATION_TOKEN:
             case EXCLAMATION_MARK_TOKEN:
                 return parseUnaryExpression(isRhsExpr);
+            case TRAP_KEYWORD:
+                return parseTrapExpression(isRhsExpr);
+            case OPEN_BRACKET_TOKEN:
+                return parseListConstructorExpr();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.TERMINAL_EXPRESSION, isRhsExpr, allowActions);
 
@@ -3168,6 +3174,9 @@ public class BallerinaParser {
                 if (solution.recoveredNode.kind == SyntaxKind.OPEN_PAREN_TOKEN &&
                         peek().kind == SyntaxKind.CLOSE_PAREN_TOKEN) {
                     return parseNilLiteral();
+                }
+                if (solution.recoveredNode.kind == SyntaxKind.OPEN_BRACKET_TOKEN) {
+                    return parseListConstructorExpr();
                 }
 
                 return solution.recoveredNode;
@@ -4807,24 +4816,25 @@ public class BallerinaParser {
      * @return Parsed node
      */
     private STNode parseListeners() {
+        //TODO: Change body to align with parseOptionalExpressionsList()
         startContext(ParserRuleContext.LISTENERS_LIST);
         List<STNode> listeners = new ArrayList<>();
 
         STToken nextToken = peek();
-        if (isEndOfListenersList(nextToken.kind)) {
+        if (isEndOfExpressionsList(nextToken.kind)) {
             endContext();
             this.errorHandler.reportMissingTokenError("missing expression");
             return STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
         }
 
-        // Parse first field mapping, that has no leading comma
+        // Parse first expression, that has no leading comma
         STNode leadingComma = STNodeFactory.createEmptyNode();
         STNode exprListItem = parseExpressionListItem(leadingComma);
         listeners.add(exprListItem);
 
-        // Parse the remaining field mappings
+        // Parse the remaining expressions
         nextToken = peek();
-        while (!isEndOfListenersList(nextToken.kind)) {
+        while (!isEndOfExpressionsList(nextToken.kind)) {
             leadingComma = parseComma();
             exprListItem = parseExpressionListItem(leadingComma);
             listeners.add(exprListItem);
@@ -4835,7 +4845,7 @@ public class BallerinaParser {
         return STNodeFactory.createNodeList(listeners);
     }
 
-    private boolean isEndOfListenersList(SyntaxKind tokenKind) {
+    private boolean isEndOfExpressionsList(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case COMMA_TOKEN:
             case IDENTIFIER_TOKEN:
@@ -6853,5 +6863,91 @@ public class BallerinaParser {
             Solution sol = recover(token, ParserRuleContext.HEX_FLOATING_POINT_LITERAL);
             return sol.recoveredNode;
         }
+    }
+
+    /**
+     * Parse trap expression.
+     * <p>
+     * <code>
+     * trap-expr := trap expression
+     * </code>
+     *
+     * @param isRhsExpr
+     * @return Trap expression node
+     */
+    private STNode parseTrapExpression(boolean isRhsExpr) {
+        STNode trapKeyword = parseTrapKeyword();
+
+        // allow-actions flag is always false, since there will not be any actions
+        // within the trap-expression, due to the precedence.
+        STNode expr = parseExpression(OperatorPrecedence.UNARY, isRhsExpr, false);
+        return STNodeFactory.createTrapExpressionNode(trapKeyword, expr);
+    }
+
+    /**
+     * Parse trap-keyword.
+     *
+     * @return Trap-keyword node
+     */
+    private STNode parseTrapKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.TRAP_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.TRAP_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse list constructor expression.
+     * <p>
+     * <code>
+     * list-constructor-expr := [ [ expr-list ] ]
+     * <br/>
+     * expr-list := expression (, expression)*
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseListConstructorExpr() {
+        startContext(ParserRuleContext.LIST_CONSTRUCTOR);
+        STNode openBracket = parseOpenBracket();
+        STNode expressions = parseOptionalExpressionsList();
+        STNode closeBracket = parseCloseBracket();
+        endContext();
+        return STNodeFactory.createListConstructorExpressionNode(openBracket, expressions, closeBracket);
+    }
+
+    /**
+     * Parse optional expression list.
+     *
+     * @return Parsed node
+     */
+    private STNode parseOptionalExpressionsList() {
+        List<STNode> expressions = new ArrayList<>();
+        STToken nextToken = peek();
+
+        // Return an empty list if list is empty
+        if (isEndOfExpressionsList(nextToken.kind)) {
+            return STNodeFactory.createNodeList(new ArrayList<>());
+        }
+
+        // Parse first expression, that has no leading comma
+        STNode expr = parseExpression();
+        expressions.add(expr);
+
+        // Parse the remaining expressions
+        nextToken = peek();
+        STNode leadingComma;
+        while (!isEndOfExpressionsList(nextToken.kind)) {
+            leadingComma = parseComma();
+            expressions.add(leadingComma);
+            expr = parseExpression();
+            expressions.add(expr);
+            nextToken = peek();
+        }
+
+        return STNodeFactory.createNodeList(expressions);
     }
 }

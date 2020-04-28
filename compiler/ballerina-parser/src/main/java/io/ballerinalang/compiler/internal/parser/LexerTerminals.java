@@ -19,7 +19,7 @@ package io.ballerinalang.compiler.internal.parser;
 
 /**
  * Contains lexer terminal nodes. Includes keywords, syntaxes, and operators.
- * 
+ *
  * @since 1.2.0
  */
 public class LexerTerminals {
@@ -66,6 +66,7 @@ public class LexerTerminals {
     public static final String FIELD = "field";
     public static final String XMLNS = "xmlns";
     public static final String FORK = "fork";
+    public static final String TRAP = "trap";
 
     // Types
     public static final String INT = "int";

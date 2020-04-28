@@ -348,6 +348,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(builtinSimpleNameReferenceNode);
     }
 
+    public T transform(TrapExpressionNode trapExpressionNode) {
+        return transformSyntaxNode(trapExpressionNode);
+    }
+
+    public T transform(ListConstructorExpressionNode listConstructorExpressionNode) {
+        return transformSyntaxNode(listConstructorExpressionNode);
+    }
+
     public T transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {
         return transformSyntaxNode(unionTypeDescriptorNode);
     }

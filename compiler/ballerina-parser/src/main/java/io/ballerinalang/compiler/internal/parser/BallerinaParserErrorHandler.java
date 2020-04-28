@@ -123,7 +123,7 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] TYPE_DESCRIPTORS =
             { ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR, ParserRuleContext.OBJECT_TYPE_DESCRIPTOR,
                     ParserRuleContext.RECORD_TYPE_DESCRIPTOR, ParserRuleContext.NIL_TYPE_DESCRIPTOR,
-                    ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR};
+                    ParserRuleContext.PARAMETERIZED_TYPE_DESCRIPTOR };
 
     private static final ParserRuleContext[] RECORD_FIELD_OR_RECORD_END =
             { ParserRuleContext.RECORD_FIELD, ParserRuleContext.RECORD_BODY_END };
@@ -193,8 +193,9 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] EXPRESSION_START =
             { ParserRuleContext.BASIC_LITERAL, ParserRuleContext.NIL_LITERAL, ParserRuleContext.VARIABLE_REF,
                     ParserRuleContext.ACCESS_EXPRESSION, ParserRuleContext.TYPEOF_EXPRESSION,
-                    ParserRuleContext.UNARY_EXPRESSION, ParserRuleContext.TYPE_TEST_EXPRESSION,
-                    ParserRuleContext.CHECKING_KEYWORD, ParserRuleContext.OPEN_PARENTHESIS };
+                    ParserRuleContext.TRAP_EXPRESSION, ParserRuleContext.UNARY_EXPRESSION,
+                    ParserRuleContext.TYPE_TEST_EXPRESSION, ParserRuleContext.CHECKING_KEYWORD,
+                    ParserRuleContext.LIST_CONSTRUCTOR, ParserRuleContext.OPEN_PARENTHESIS };
 
     private static final ParserRuleContext[] MAPPING_FIELD_START = { ParserRuleContext.MAPPING_FIELD_NAME,
             ParserRuleContext.STRING_LITERAL, ParserRuleContext.COMPUTED_FIELD_NAME, ParserRuleContext.ELLIPSIS };
@@ -260,6 +261,9 @@ public class BallerinaParserErrorHandler {
     private static final ParserRuleContext[] TYPEDESC_RHS = {ParserRuleContext.NON_RECURSIVE_TYPE,
             ParserRuleContext.ARRAY_TYPE_DESCRIPTOR, ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR,
             ParserRuleContext.UNION_TYPE_DESCRIPTOR };
+
+    private static final ParserRuleContext[] LIST_CONSTRUCTOR_RHS =
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.EXPRESSION };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -367,7 +371,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Handle a missing token scenario.
-     *
+     * 
      * @param currentCtx Current context
      * @param fix Solution to recover from the missing token
      */
@@ -384,7 +388,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Get a snapshot of the current context stack.
-     *
+     * 
      * @return Snapshot of the current context stack
      */
     private ArrayDeque<ParserRuleContext> getCtxStackSnapshot() {
@@ -438,6 +442,7 @@ public class BallerinaParserErrorHandler {
             case XML_NAMESPACE_PREFIX_DECL:
             case ANNOT_DECL_OPTIONAL_TYPE:
             case ANNOT_DECL_RHS:
+            case LIST_CONSTRUCTOR_RHS:
                 return true;
             default:
                 return false;
@@ -450,7 +455,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Start a fresh search for a way to recover with the next immediate token (peek(1), and the current context).
-     *
+     * 
      * @param currentCtx Current parser context
      * @return Recovery result
      */
@@ -462,7 +467,7 @@ public class BallerinaParserErrorHandler {
      * Search for a solution in a sub-tree/sub-path. This will take a snapshot of the current context stack
      * and will operate on top of it, so that the original state of the parser will not be disturbed. On return
      * the previous state of the parser contexts will be restored.
-     *
+     * 
      * @param currentCtx Current context
      * @param lookahead Position of the next token to consider, from the position of the original error.
      * @param currentDepth Amount of distance traveled so far.
@@ -1073,9 +1078,16 @@ public class BallerinaParserErrorHandler {
                 case TYPEDESC_RHS:
                     return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, TYPEDESC_RHS,
                             isEntryPoint);
+                case TRAP_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.TRAP_KEYWORD;
+                    break;
+                case LIST_CONSTRUCTOR_RHS:
+                    return seekInAlternativesPaths(lookahead, currentDepth, matchingRulesCount, LIST_CONSTRUCTOR_RHS,
+                            isEntryPoint);
                 case PIPE:
                     hasMatch = nextToken.kind == SyntaxKind.PIPE_TOKEN;
                     break;
+
 
                 // Productions (Non-terminals which doesn't have alternative paths)
                 case COMP_UNIT:
@@ -1144,6 +1156,8 @@ public class BallerinaParserErrorHandler {
                 case NIL_LITERAL:
                 case LOCK_STMT:
                 case FORK_STMT:
+                case TRAP_EXPRESSION:
+                case LIST_CONSTRUCTOR:
                 default:
                     // Stay at the same place
                     skipRule = true;
@@ -1185,7 +1199,7 @@ public class BallerinaParserErrorHandler {
     /**
      * Search for matching token sequences within the function body signatures and returns the most optimal solution.
      * This will check whether the token stream best matches to a 'function-body-block' or a 'external-function-body'.
-     *
+     * 
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
      * @param currentMatches Matching tokens found so far
@@ -1198,7 +1212,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Search for matching token sequences within different kinds of statements and returns the most optimal solution.
-     *
+     * 
      * @param currentCtx Current context
      * @param nextToken Next token in the token stream
      * @param lookahead Position of the next token to consider, relative to the position of the original error
@@ -1223,7 +1237,7 @@ public class BallerinaParserErrorHandler {
     /**
      * Search for matching token sequences within access expressions and returns the most optimal solution.
      * Access expression can be one of: method-call, field-access, member-access.
-     *
+     * 
      * @param currentCtx Current context
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
@@ -1268,7 +1282,7 @@ public class BallerinaParserErrorHandler {
     /**
      * Search for a match in rhs of an expression. RHS of an expression can be the end
      * of the expression or the rhs of a binary expression.
-     *
+     * 
      * @param nextToken
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
@@ -1306,6 +1320,12 @@ public class BallerinaParserErrorHandler {
             return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
         }
 
+        if (parentCtx == ParserRuleContext.LIST_CONSTRUCTOR) {
+            ParserRuleContext[] next = { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
+                    ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.CLOSE_BRACKET };
+            return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
+        }
+
         ParserRuleContext nextContext;
         if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK) {
             nextContext = ParserRuleContext.BLOCK_STMT;
@@ -1329,7 +1349,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Search for matching token sequences within the given alternative paths, and find the most optimal solution.
-     *
+     * 
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
      * @param currentMatches Matching tokens found so far
@@ -1401,7 +1421,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Combine a given result with the current results, and get the final result.
-     *
+     * 
      * @param currentMatches Matches found so far
      * @param bestMatch Result found in the sub-tree, that requires to be merged with the current results
      * @return Final result
@@ -1423,7 +1443,7 @@ public class BallerinaParserErrorHandler {
      * Delete a token and see how far the parser can proceed.
      * </li>
      * </ol>
-     *
+     * 
      * Then decides the best action to perform (whether to insert or remove a token), using the result
      * of the above two steps, based on the following criteria:
      * <ol>
@@ -1439,7 +1459,7 @@ public class BallerinaParserErrorHandler {
      * </li>
      * </ol>
      * </p>
-     *
+     * 
      * @param currentCtx Current parser context
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
@@ -1491,7 +1511,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Get the next parser rule/context given the current parser context.
-     *
+     * 
      * @param currentCtx Current parser context
      * @param nextLookahead Position of the next token to consider, relative to the position of the original error
      * @return Next parser context
@@ -1554,6 +1574,7 @@ public class BallerinaParserErrorHandler {
             case NAMED_WORKER_DECL:
             case FORK_STMT:
             case PARAMETERIZED_TYPE_DESCRIPTOR:
+            case LIST_CONSTRUCTOR:
             case UNION_TYPE_DESCRIPTOR:
                 startContext(currentCtx);
                 break;
@@ -1985,6 +2006,12 @@ public class BallerinaParserErrorHandler {
                 return ParserRuleContext.FORK_KEYWORD;
             case FORK_KEYWORD:
                 return ParserRuleContext.OPEN_BRACE;
+            case TRAP_EXPRESSION:
+                return ParserRuleContext.TRAP_KEYWORD;
+            case TRAP_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
+            case LIST_CONSTRUCTOR:
+                return ParserRuleContext.OPEN_BRACKET;
             case UNION_TYPE_DESCRIPTOR:
                 return ParserRuleContext.PIPE;
             case PIPE:
@@ -2052,13 +2079,13 @@ public class BallerinaParserErrorHandler {
             case ANNOT_DECL_OPTIONAL_TYPE:
             case ANNOT_DECL_RHS:
             case ANNOT_OPTIONAL_ATTACH_POINTS:
-
             case ATTACH_POINT_IDENT:
             case ATTACH_POINT_END:
             case CONSTANT_EXPRESSION_START:
             case DEFAULT_WORKER:
             case DEFAULT_WORKER_INIT:
             case NAMED_WORKERS:
+            case LIST_CONSTRUCTOR_RHS:
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -2069,6 +2096,7 @@ public class BallerinaParserErrorHandler {
             case LISTENERS_LIST:
             case MAPPING_CONSTRUCTOR:
             case COMPUTED_FIELD_NAME:
+            case LIST_CONSTRUCTOR:
                 return true;
             default:
                 return isStatement(ctx);
@@ -2077,7 +2105,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Get the next parser context to visit after a {@link ParserRuleContext#AFTER_PARAMETER_TYPE}.
-     *
+     * 
      * @return Next parser context
      */
     private ParserRuleContext getNextRuleForParamType() {
@@ -2094,7 +2122,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Get the next parser context to visit after a {@link ParserRuleContext#COMMA}.
-     *
+     * 
      * @return Next parser context
      */
     private ParserRuleContext getNextRuleForComma() {
@@ -2111,6 +2139,7 @@ public class BallerinaParserErrorHandler {
             case MAPPING_CONSTRUCTOR:
                 return ParserRuleContext.MAPPING_FIELD;
             case LISTENERS_LIST:
+            case LIST_CONSTRUCTOR:
                 return ParserRuleContext.EXPRESSION;
             case ANNOT_ATTACH_POINTS_LIST:
                 return ParserRuleContext.ATTACH_POINT;
@@ -2167,7 +2196,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Get the next parser context to visit after a {@link ParserRuleContext#ASSIGN_OP}.
-     *
+     * 
      * @return Next parser context
      */
     private ParserRuleContext getNextRuleForEqualOp() {
@@ -2308,7 +2337,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Get the next parser context to visit after a variable/parameter name.
-     *
+     * 
      * @param nextLookahead Position of the next token to consider, relative to the position of the original error
      * @return Next parser context
      */
@@ -2354,7 +2383,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Check whether the given token kind is a compound binary operator.
-     *
+     * 
      * @param kind STToken kind
      * @return <code>true</code> if the token kind refers to a binary operator. <code>false</code> otherwise
      */
@@ -2483,6 +2512,8 @@ public class BallerinaParserErrorHandler {
         switch (parentCtx) {
             case ARRAY_TYPE_DESCRIPTOR:
                 return ParserRuleContext.ARRAY_LENGTH;
+            case LIST_CONSTRUCTOR:
+                return ParserRuleContext.LIST_CONSTRUCTOR_RHS;
             default:
                 return ParserRuleContext.EXPRESSION;
         }
@@ -2499,9 +2530,10 @@ public class BallerinaParserErrorHandler {
             case ARRAY_TYPE_DESCRIPTOR:
                 endContext(); // End array type descriptor context
                 return ParserRuleContext.TYPEDESC_RHS;
+            case LIST_CONSTRUCTOR:
             case COMPUTED_FIELD_NAME:
             default:
-                endContext(); // end computed-field-name
+                endContext(); // end computed-field-name or list-constructor
                 return getNextRuleForExpr();
         }
     }
@@ -2542,7 +2574,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Check whether the given context is a statement.
-     *
+     * 
      * @param ctx Parser context to check
      * @return <code>true</code> if the given context is a statement. <code>false</code> otherwise
      */
@@ -2575,7 +2607,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Check whether the given context is an expression.
-     *
+     * 
      * @param ctx Parser context to check
      * @return <code>true</code> if the given context is an expression. <code>false</code> otherwise
      */
@@ -2585,7 +2617,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Check whether the given token refers to a binary operator.
-     *
+     * 
      * @param token Token to check
      * @return <code>true</code> if the given token refers to a binary operator. <code>false</code> otherwise
      */
@@ -2634,7 +2666,7 @@ public class BallerinaParserErrorHandler {
      * Get the expected token kind at the given parser rule context. If the parser rule is a terminal,
      * then the corresponding terminal token kind is returned. If the parser rule is a production,
      * then {@link SyntaxKind#NONE} is returned.
-     *
+     * 
      * @param ctx Parser rule context
      * @return Token kind expected at the given parser rule
      */
@@ -2909,6 +2941,8 @@ public class BallerinaParserErrorHandler {
                 return SyntaxKind.HEX_FLOATING_POINT_LITERAL;
             case PARAMETERIZED_TYPE:
                 return SyntaxKind.MAP_KEYWORD;
+            case TRAP_KEYWORD:
+                return SyntaxKind.TRAP_KEYWORD;
             case PIPE:
                 return SyntaxKind.PIPE_TOKEN;
 
@@ -2983,6 +3017,8 @@ public class BallerinaParserErrorHandler {
             case ATTACH_POINT:
             case DEFAULT_WORKER:
             case DEFAULT_WORKER_INIT:
+            case TRAP_EXPRESSION:
+            case LIST_CONSTRUCTOR:
             default:
                 break;
         }
@@ -2992,7 +3028,7 @@ public class BallerinaParserErrorHandler {
 
     /**
      * Check whether a token kind is a basic literal.
-     *
+     * 
      * @param kind Token kind to check
      * @return <code>true</code> if the given token kind belongs to a basic literal.<code>false</code> otherwise
      */
@@ -3135,7 +3171,7 @@ public class BallerinaParserErrorHandler {
      * Represents a solution/fix for a parser error. A {@link Solution} consists of the parser context where the error
      * was encountered, the enclosing parser context at the same point, the token with the error, and the {@link Action}
      * required to recover from the error.
-     *
+     * 
      * @since 1.2.0
      */
     public static class Solution {

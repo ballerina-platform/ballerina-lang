@@ -422,6 +422,8 @@ public class ParserTestUtils {
                 return SyntaxKind.NEVER_KEYWORD;
             case "FORK_KEYWORD":
                 return SyntaxKind.FORK_KEYWORD;
+            case "TRAP_KEYWORD":
+                return SyntaxKind.TRAP_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -550,6 +552,10 @@ public class ParserTestUtils {
                 return SyntaxKind.NIL_LITERAL;
             case "SIMPLE_NAME_REFERENCE":
                 return SyntaxKind.SIMPLE_NAME_REFERENCE;
+            case "TRAP_EXPRESSION":
+                return SyntaxKind.TRAP_EXPRESSION;
+            case "LIST_CONSTRUCTOR":
+                return SyntaxKind.LIST_CONSTRUCTOR;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":

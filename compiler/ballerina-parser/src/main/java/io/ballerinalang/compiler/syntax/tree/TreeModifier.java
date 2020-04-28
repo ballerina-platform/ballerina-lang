@@ -1005,6 +1005,26 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public Node transform(TrapExpressionNode trapExpressionNode) {
+        Token trapKeyword = modifyToken(trapExpressionNode.trapKeyword());
+        ExpressionNode expression = modifyNode(trapExpressionNode.expression());
+        return trapExpressionNode.modify(
+                trapKeyword,
+                expression);
+    }
+
+    @Override
+    public Node transform(ListConstructorExpressionNode listConstructorExpressionNode) {
+        Token openBracket = modifyToken(listConstructorExpressionNode.openBracket());
+        SeparatedNodeList<Node> expressions = modifySeparatedNodeList(listConstructorExpressionNode.expressions());
+        Token closeBracket = modifyToken(listConstructorExpressionNode.closeBracket());
+        return listConstructorExpressionNode.modify(
+                openBracket,
+                expressions,
+                closeBracket);
+    }
+
+    @Override
     public Node transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {
         Node leftTypeDesc = modifyNode(unionTypeDescriptorNode.leftTypeDesc());
         Token pipeToken = modifyToken(unionTypeDescriptorNode.pipeToken());

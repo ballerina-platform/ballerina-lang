@@ -347,6 +347,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(builtinSimpleNameReferenceNode);
     }
 
+    public void visit(TrapExpressionNode trapExpressionNode) {
+        visitSyntaxNode(trapExpressionNode);
+    }
+
+    public void visit(ListConstructorExpressionNode listConstructorExpressionNode) {
+        visitSyntaxNode(listConstructorExpressionNode);
+    }
+
     public void visit(UnionTypeDescriptorNode unionTypeDescriptorNode) {
         visitSyntaxNode(unionTypeDescriptorNode);
     }

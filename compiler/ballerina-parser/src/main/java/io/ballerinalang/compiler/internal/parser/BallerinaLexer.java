@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * A LL(k) lexer for ballerina.
- * 
+ *
  * @since 1.2.0
  */
 public class BallerinaLexer {
@@ -43,7 +43,7 @@ public class BallerinaLexer {
 
     /**
      * Get the next lexical token.
-     * 
+     *
      * @return Next lexical token.
      */
     public STToken nextToken() {
@@ -57,7 +57,7 @@ public class BallerinaLexer {
 
     /**
      * Switch the mode of the lexer to the given mode.
-     * 
+     *
      * @param mode Mode to switch on to
      */
     public void switchMode(ParserMode mode) {
@@ -306,7 +306,7 @@ public class BallerinaLexer {
 
     /**
      * Process and return trailing trivia.
-     * 
+     *
      * @return Trailing trivia
      */
     private STNode processTrailingTrivia() {
@@ -319,7 +319,7 @@ public class BallerinaLexer {
      * Process syntax trivia and add it to the provided list.
      * <p>
      * <code>syntax-trivia := whitespace | end-of-line | comments</code>
-     * 
+     *
      * @param triviaList List of trivia
      * @param isLeading Flag indicating whether the currently processing leading trivia or not
      */
@@ -356,7 +356,7 @@ public class BallerinaLexer {
      * Process whitespace up to an end of line.
      * <p>
      * <code>whitespace := 0x9 | 0xC | 0x20</code>
-     * 
+     *
      * @return Whitespace trivia
      */
     private STNode processWhitespaces() {
@@ -386,7 +386,7 @@ public class BallerinaLexer {
      * Process end of line.
      * <p>
      * <code>end-of-line := 0xA | 0xD</code>
-     * 
+     *
      * @return End of line trivia
      */
     private STNode processEndOfLine() {
@@ -416,7 +416,7 @@ public class BallerinaLexer {
 
     /**
      * Process dot, ellipsis or decimal floating point token.
-     * 
+     *
      * @return Dot, ellipsis or decimal floating point token
      */
     private STToken processDot() {
@@ -459,7 +459,7 @@ public class BallerinaLexer {
 
     /**
      * Process any token that starts with '='.
-     * 
+     *
      * @return One of the tokens: <code>'=', '==', '=>', '==='</code>
      */
     private STToken processEqualOperator() {
@@ -501,7 +501,7 @@ public class BallerinaLexer {
      * <br/>
      * NonZeroDigit := 1 .. 9
      * </code>
-     * 
+     *
      * @return The numeric literal.
      */
     private STToken processNumericLiteral(int startChar) {
@@ -880,6 +880,8 @@ public class BallerinaLexer {
                 return getSyntaxToken(SyntaxKind.FUTURE_KEYWORD);
             case LexerTerminals.TYPEDESC:
                 return getSyntaxToken(SyntaxKind.TYPEDESC_KEYWORD);
+            case LexerTerminals.TRAP:
+                return getSyntaxToken(SyntaxKind.TRAP_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
@@ -888,7 +890,7 @@ public class BallerinaLexer {
     /**
      * Process and returns an invalid token. Consumes the input until {@link #isEndOfInvalidToken()}
      * is reached.
-     * 
+     *
      * @return The invalid token.
      */
     private void processInvalidToken() {
@@ -908,7 +910,7 @@ public class BallerinaLexer {
      * <li>semicolon</li>
      * <li>newline</li>
      * </ul>
-     * 
+     *
      * @return <code>true</code>, if the end of an invalid token is reached, <code>false</code> otherwise
      */
     private boolean isEndOfInvalidToken() {
@@ -936,7 +938,7 @@ public class BallerinaLexer {
      * Check whether a given char is an identifier start char.
      * </p>
      * <code>IdentifierInitialChar := A .. Z | a .. z | _ | UnicodeIdentifierChar</code>
-     * 
+     *
      * @param c character to check
      * @return <code>true</code>, if the character is an identifier start char. <code>false</code> otherwise.
      */
@@ -963,7 +965,7 @@ public class BallerinaLexer {
      * Check whether a given char is an identifier following char.
      * </p>
      * <code>IdentifierFollowingChar := IdentifierInitialChar | Digit</code>
-     * 
+     *
      * @param c character to check
      * @return <code>true</code>, if the character is an identifier following char. <code>false</code> otherwise.
      */
@@ -976,7 +978,7 @@ public class BallerinaLexer {
      * Check whether a given char is a digit.
      * </p>
      * <code>Digit := 0..9</code>
-     * 
+     *
      * @param c character to check
      * @return <code>true</code>, if the character represents a digit. <code>false</code> otherwise.
      */
@@ -989,7 +991,7 @@ public class BallerinaLexer {
      * Check whether a given char is a hexa digit.
      * </p>
      * <code>HexDigit := Digit | a .. f | A .. F</code>
-     * 
+     *
      * @param c character to check
      * @return <code>true</code>, if the character represents a hex digit. <code>false</code> otherwise.
      */
@@ -1008,7 +1010,7 @@ public class BallerinaLexer {
      * Check whether current input index points to a start of a hex-numeric literal.
      * </p>
      * <code>HexIndicator := 0x | 0X</code>
-     * 
+     *
      * @param startChar Starting character of the literal
      * @param nextChar Second character of the literal
      * @return <code>true</code>, if the current input points to a start of a hex-numeric literal.
@@ -1020,7 +1022,7 @@ public class BallerinaLexer {
 
     /**
      * Returns the next character from the reader, without consuming the stream.
-     * 
+     *
      * @return Next character
      */
     private int peek() {
@@ -1029,7 +1031,7 @@ public class BallerinaLexer {
 
     /**
      * Get the text associated with the current token.
-     * 
+     *
      * @return Text associated with the current token.
      */
     private String getLexeme() {
@@ -1053,7 +1055,7 @@ public class BallerinaLexer {
      * <br/>
      * CodePoint := HexDigit+
      * </code>
-     * 
+     *
      * @return String literal token
      */
     private STToken processStringLiteral() {
@@ -1188,7 +1190,7 @@ public class BallerinaLexer {
      * <br/>
      * Tab := 0x9
      * </code>
-     * 
+     *
      * @return Documentation line token
      */
     private STToken processDocumentationLine() {

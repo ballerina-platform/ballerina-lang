@@ -64,6 +64,7 @@ public enum SyntaxKind {
     NULL_KEYWORD(215, "null"),
     LOCK_KEYWORD(216, "lock"),
     FORK_KEYWORD(217, "fork"),
+    TRAP_KEYWORD(218,"trap"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -183,7 +184,9 @@ public enum SyntaxKind {
     UNARY_EXPRESSION(1310),
     TYPE_TEST_EXPRESSION(1311),
     BASIC_LITERAL(1312),
-    SIMPLE_NAME_REFERENCE(1213),
+    SIMPLE_NAME_REFERENCE(1313),
+    TRAP_EXPRESSION(1314),
+    LIST_CONSTRUCTOR(1315),
 
     // Type descriptors
     TYPE_DESC(2000),

@@ -1015,6 +1015,26 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 name);
     }
 
+    public static STNode createTrapExpressionNode(
+            STNode trapKeyword,
+            STNode expression) {
+
+        return new STTrapExpressionNode(
+                trapKeyword,
+                expression);
+    }
+
+    public static STNode createListConstructorExpressionNode(
+            STNode openBracket,
+            STNode expressions,
+            STNode closeBracket) {
+
+        return new STListConstructorExpressionNode(
+                openBracket,
+                expressions,
+                closeBracket);
+    }
+
     public static STNode createUnionTypeDescriptorNode(
             STNode leftTypeDesc,
             STNode pipeToken,

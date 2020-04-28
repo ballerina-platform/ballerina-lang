@@ -1803,6 +1803,41 @@
             ]
         },
         {
+            "name": "TrapExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "TRAP_EXPRESSION",
+            "attributes": [
+                {
+                    "name": "trapKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "ListConstructorExpressionNode",
+            "base": "ExpressionNode",
+            "kind": "LIST_CONSTRUCTOR",
+            "attributes": [
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "expressions",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "UnionTypeDescriptorNode",
             "base": "Node",
             "kind": "UNION_TYPE_DESC",

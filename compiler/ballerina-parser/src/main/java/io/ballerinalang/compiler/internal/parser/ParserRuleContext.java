@@ -188,6 +188,7 @@ public enum ParserRuleContext {
     XMLNS_KEYWORD("xmlns"),
     WORKER_KEYWORD("worker"),
     FORK_KEYWORD("fork"),
+    TRAP_KEYWORD("trap"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -260,6 +261,9 @@ public enum ParserRuleContext {
     CONSTANT_EXPRESSION_START("constant-expr-start"),
     DECIMAL_FLOATING_POINT_LITERAL("decimal-floating-point-literal"),
     HEX_FLOATING_POINT_LITERAL("hex-floating-point-literal"),
+    TRAP_EXPRESSION("trap-expr"),
+    LIST_CONSTRUCTOR("list-constructor"),
+    LIST_CONSTRUCTOR_RHS("list-constructor-rhs"),
 
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),
