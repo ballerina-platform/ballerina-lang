@@ -897,14 +897,16 @@ public class Types {
         }
 
         switch (type.tag) {
+            case TypeTags.FINITE: // Assuming a finite type will only have members from simple basic types.
             case TypeTags.READONLY:
             case TypeTags.NIL:
             case TypeTags.ERROR:
             case TypeTags.INVOKABLE:
-            case TypeTags.SERVICE:
             case TypeTags.TYPEDESC:
             case TypeTags.HANDLE:
                 return true;
+            case TypeTags.SERVICE:
+                return type instanceof BServiceType; // Since the tag for both service and object are the same.
         }
         return false;
     }

@@ -92,8 +92,7 @@ public class BUnionType extends BType implements UnionType {
         String typeStr = this.memberTypes.stream().filter(memberType -> memberType.tag != TypeTags.NIL).count() > 1
                 ? "(" + joiner.toString() + ")" : joiner.toString();
         boolean hasNilType = this.memberTypes.stream().anyMatch(type -> type.tag == TypeTags.NIL);
-        String stringRep = (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
-        return !Symbols.isFlagOn(this.flags, Flags.READONLY) ? stringRep : stringRep.concat(" & readonly");
+        return (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
     }
 
     public void setNullable(boolean nullable) {
