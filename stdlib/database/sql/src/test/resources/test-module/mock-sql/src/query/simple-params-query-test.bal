@@ -590,7 +590,7 @@ function queryDateTimeRecordParam(string url, string user, string password) retu
 }
 
 function queryDateTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
-    time:Time date = check time:parse("2017-02-03T09:46:22.444-0500","yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    time:Time date = check time:parse("2017-02-03T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     sql:TypedValue typeVal = {
         sqlType: sql:DATE,
         value: date
@@ -640,7 +640,7 @@ function queryTimeLongParam(string url, string user, string password) returns @t
 }
 
 function queryTimeTimeRecordParam(string url, string user, string password) returns @tainted record {}|error? {
-     time:Time date = check time:parse("11:35:45", "HH:mm:ss");
+    time:Time date = check time:parse("11:35:45", "HH:mm:ss");
     sql:TypedValue typeVal = {
         sqlType: sql:TIME,
         value: date
@@ -653,7 +653,7 @@ function queryTimeTimeRecordParam(string url, string user, string password) retu
 }
 
 function queryTimeTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
-    time:Time date = check time:parse("2017-02-03T11:35:45","yyyy-MM-dd'T'HH:mm:ss");
+    time:Time date = check time:parse("2017-02-03T11:35:45", "yyyy-MM-dd'T'HH:mm:ss");
     sql:TypedValue typeVal = {
         sqlType: sql:TIME,
         value: date
@@ -703,7 +703,7 @@ function queryTimestampLongParam(string url, string user, string password) retur
 }
 
 function queryTimestampTimeRecordParam(string url, string user, string password) returns @tainted record {}|error? {
-     time:Time date = check time:parse("2017-02-03 11:53:00", "yyyy-MM-dd HH:mm:ss");
+    time:Time date = check time:parse("2017-02-03 11:53:00", "yyyy-MM-dd HH:mm:ss");
     sql:TypedValue typeVal = {
         sqlType: sql:TIMESTAMP,
         value: date
@@ -784,7 +784,7 @@ function queryArrayBasicParams(string url, string user, string password) returns
     sql:TypedValue paraBool = {sqlType: sql:ARRAY, value: databoolean};
 
     sql:ParameterizedString sqlQuery = {
-        parts: ["SELECT * from ArrayTypes WHERE int_array = ", "AND long_array = ",  "AND float_array = ", "AND double_array = ", "AND decimal_array = " , "AND string_array = ", "AND boolean_array = ", ""],
+        parts: ["SELECT * from ArrayTypes WHERE int_array = ", "AND long_array = ", "AND float_array = ", "AND double_array = ", "AND decimal_array = ", "AND string_array = ", "AND boolean_array = ", ""],
         insertions: [paraInt, paraLong, paraFloat, paraDouble, paraDecimal, paraString, paraBool]
     };
 
@@ -793,9 +793,9 @@ function queryArrayBasicParams(string url, string user, string password) returns
 
 function queryArrayBasicNullParams(string url, string user, string password) returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from ArrayTypes WHERE int_array is null AND long_array is null AND float_array is null AND double_array is null AND decimal_array is null AND string_array is null AND boolean_array is null"],
-            insertions: []
-     };
+        parts: ["SELECT * from ArrayTypes WHERE int_array is null AND long_array is null AND float_array is null AND double_array is null AND decimal_array is null AND string_array is null AND boolean_array is null"],
+        insertions: []
+    };
     return queryMockClient(url, user, password, sqlQuery);
 }
 

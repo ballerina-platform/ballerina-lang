@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/io;
-import ballerina/sql;
 import ballerina/java.jdbc;
+import ballerina/sql;
 import ballerina/time;
 
 function querySingleIntParam(string url, string user, string password) returns @tainted record {}|error? {
@@ -590,7 +590,7 @@ function queryDateTimeRecordParam(string url, string user, string password) retu
 }
 
 function queryDateTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
-    time:Time date = check time:parse("2017-02-03T09:46:22.444-0500","yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+    time:Time date = check time:parse("2017-02-03T09:46:22.444-0500", "yyyy-MM-dd'T'HH:mm:ss.SSSZ");
     sql:TypedValue typeVal = {
         sqlType: sql:DATE,
         value: date
@@ -640,7 +640,7 @@ function queryTimeLongParam(string url, string user, string password) returns @t
 }
 
 function queryTimeTimeRecordParam(string url, string user, string password) returns @tainted record {}|error? {
-     time:Time date = check time:parse("11:35:45", "HH:mm:ss");
+    time:Time date = check time:parse("11:35:45", "HH:mm:ss");
     sql:TypedValue typeVal = {
         sqlType: sql:TIME,
         value: date
@@ -653,7 +653,7 @@ function queryTimeTimeRecordParam(string url, string user, string password) retu
 }
 
 function queryTimeTimeRecordWithTimeZoneParam(string url, string user, string password) returns @tainted record {}|error? {
-    time:Time date = check time:parse("2017-02-03T11:35:45","yyyy-MM-dd'T'HH:mm:ss");
+    time:Time date = check time:parse("2017-02-03T11:35:45", "yyyy-MM-dd'T'HH:mm:ss");
     sql:TypedValue typeVal = {
         sqlType: sql:TIME,
         value: date
@@ -703,7 +703,7 @@ function queryTimestampLongParam(string url, string user, string password) retur
 }
 
 function queryTimestampTimeRecordParam(string url, string user, string password) returns @tainted record {}|error? {
-     time:Time date = check time:parse("2017-02-03 11:53:00", "yyyy-MM-dd HH:mm:ss");
+    time:Time date = check time:parse("2017-02-03 11:53:00", "yyyy-MM-dd HH:mm:ss");
     sql:TypedValue typeVal = {
         sqlType: sql:TIMESTAMP,
         value: date
@@ -771,7 +771,7 @@ function queryArrayBasicParams(string url, string user, string password) returns
     sql:TypedValue paraBool = {sqlType: sql:ARRAY, value: databoolean};
 
     sql:ParameterizedString sqlQuery = {
-        parts: ["SELECT * from ArrayTypes WHERE int_array = ", "AND long_array = ",  "AND float_array = ", "AND double_array = ", "AND decimal_array = " , "AND string_array = ", "AND boolean_array = ", ""],
+        parts: ["SELECT * from ArrayTypes WHERE int_array = ", "AND long_array = ", "AND float_array = ", "AND double_array = ", "AND decimal_array = ", "AND string_array = ", "AND boolean_array = ", ""],
         insertions: [paraInt, paraLong, paraFloat, paraDouble, paraDecimal, paraString, paraBool]
     };
 
@@ -780,9 +780,9 @@ function queryArrayBasicParams(string url, string user, string password) returns
 
 function queryArrayBasicNullParams(string url, string user, string password) returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from ArrayTypes WHERE int_array is null AND long_array is null AND float_array is null AND double_array is null AND decimal_array is null AND string_array is null AND boolean_array is null"],
-            insertions: []
-     };
+        parts: ["SELECT * from ArrayTypes WHERE int_array is null AND long_array is null AND float_array is null AND double_array is null AND decimal_array is null AND string_array is null AND boolean_array is null"],
+        insertions: []
+    };
     return queryJdbcClient(url, user, password, sqlQuery);
 }
 
@@ -796,14 +796,14 @@ function queryUUIDParam(string url, string user, string password) returns @taint
         parts: ["SELECT * from UUIDTable WHERE id = ", ""],
         insertions: [1]
     };
-    record{}? result = check queryJdbcClient(url, user, password, sqlQuery, resultType=UUIDResult);
-    if(result is record{}){
+    record {}? result = check queryJdbcClient(url, user, password, sqlQuery, resultType = UUIDResult);
+    if (result is record {}) {
         UUIDResult uuid = <UUIDResult>result;
         sql:ParameterizedString sqlQuery2 = {
             parts: ["SELECT * from UUIDTable WHERE data = ", ""],
             insertions: [<@untainted>uuid.data]
         };
-        return queryJdbcClient(url, user, password, sqlQuery2, resultType=UUIDResult);
+        return queryJdbcClient(url, user, password, sqlQuery2, resultType = UUIDResult);
     } else {
         return ();
     }
@@ -811,9 +811,9 @@ function queryUUIDParam(string url, string user, string password) returns @taint
 
 function queryEnumStringParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from ENUMTable where enum_type=", ""],
-            insertions: ["doctor"]
-     };
+        parts: ["SELECT * from ENUMTable where enum_type=", ""],
+        insertions: ["doctor"]
+    };
     return queryJdbcClient(url, user, password, sqlQuery);
 }
 
@@ -824,33 +824,33 @@ type EnumResult record {|
 
 function queryEnumStringParam2(string url, string user, string password) returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from ENUMTable where enum_type=", ""],
-            insertions: ["doctor"]
-     };
-    return queryJdbcClient(url, user, password, sqlQuery, resultType=EnumResult);
+        parts: ["SELECT * from ENUMTable where enum_type=", ""],
+        insertions: ["doctor"]
+    };
+    return queryJdbcClient(url, user, password, sqlQuery, resultType = EnumResult);
 }
 
 function queryGeoParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from GEOTable"],
-            insertions: []
-     };
+        parts: ["SELECT * from GEOTable"],
+        insertions: []
+    };
     return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryGeoParam2(string url, string user, string password) returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from GEOTable where geom =", ""],
-            insertions: ["POINT (7 52)"]
-     };
+        parts: ["SELECT * from GEOTable where geom =", ""],
+        insertions: ["POINT (7 52)"]
+    };
     return queryJdbcClient(url, user, password, sqlQuery);
 }
 
 function queryJsonParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from JsonTable"],
-            insertions: []
-     };
+        parts: ["SELECT * from JsonTable"],
+        insertions: []
+    };
     return queryJdbcClient(url, user, password, sqlQuery);
 }
 
@@ -861,26 +861,26 @@ type JsonResult record {|
 
 function queryJsonParam2(string url, string user, string password) returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from JsonTable"],
-            insertions: []
-     };
-    return queryJdbcClient(url, user, password, sqlQuery, resultType=JsonResult);
+        parts: ["SELECT * from JsonTable"],
+        insertions: []
+    };
+    return queryJdbcClient(url, user, password, sqlQuery, resultType = JsonResult);
 }
 
 function queryJsonParam3(string url, string user, string password) returns @tainted record {}|error? {
-    json jsonType = {"id":100,"name":"Joe","groups":[2,5]};
+    json jsonType = {"id": 100, "name": "Joe", "groups": [2, 5]};
     sql:ParameterizedString sqlQuery = {
-        parts: ["SELECT * from JsonTable where json_type=JSON_OBJECT('id': ", ", 'name':", ", 'groups': ",  "FORMAT JSON)"],
+        parts: ["SELECT * from JsonTable where json_type=JSON_OBJECT('id': ", ", 'name':", ", 'groups': ", "FORMAT JSON)"],
         insertions: [100, "Joe", "[2, 5]"]
-     };
-    return queryJdbcClient(url, user, password, sqlQuery, resultType=JsonResult);
+    };
+    return queryJdbcClient(url, user, password, sqlQuery, resultType = JsonResult);
 }
 
 function queryIntervalParam(string url, string user, string password) returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from IntervalTable"],
-            insertions: []
-     };
+        parts: ["SELECT * from IntervalTable"],
+        insertions: []
+    };
     return queryJdbcClient(url, user, password, sqlQuery);
 }
 
@@ -901,10 +901,11 @@ function getClobColumnChannel() returns @untainted io:ReadableCharacterChannel|e
 }
 
 function queryJdbcClient(string url, string user, string password,@untainted string|sql:ParameterizedString sqlQuery,
-typedesc<record{}>? resultType = ())
+ typedesc<record {}>? resultType = ())
 returns @tainted record {}|error? {
     jdbc:Client dbClient = check new (url = url, user = user, password = password);
-    stream<record{}, error> streamData = dbClient->query(sqlQuery, resultType);
+    stream
+    <record {}, error> streamData = dbClient->query(sqlQuery, resultType);
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
     record {}? value = data?.value;

@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/io;
-import ballerina/sql;
 import ballerina/mysql;
+import ballerina/sql;
 
 string host = "localhost";
 string user = "test";
@@ -325,8 +325,8 @@ function queryTypeDoubleDoubleParam() returns @tainted record {}|error? {
         value: 1234.57
     };
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from NumericTypes WHERE float_type between ", " AND ", ""],
-            insertions: [typeVal, typeVal2]
+        parts: ["SELECT * from NumericTypes WHERE float_type between ", " AND ", ""],
+        insertions: [typeVal, typeVal2]
     };
     return queryMysqlClient(sqlQuery);
 }
@@ -351,8 +351,8 @@ function queryTypeDoubleDecimalParam() returns @tainted record {}|error? {
         value: decimalVal
     };
     sql:TypedValue typeVal2 = {
-            sqlType: sql:DOUBLE,
-            value: decimalVal2
+        sqlType: sql:DOUBLE,
+        value: decimalVal2
     };
 
     sql:ParameterizedString sqlQuery = {
@@ -369,8 +369,8 @@ function queryTypeFloatDoubleParam() returns @tainted record {}|error? {
     };
 
     sql:TypedValue typeVal2 = {
-            sqlType: sql:DOUBLE,
-            value: 1234.57
+        sqlType: sql:DOUBLE,
+        value: 1234.57
     };
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from NumericTypes WHERE float_type between ", " AND ", ""],
@@ -712,9 +712,9 @@ function queryTimestampStringInvalidParam() returns @tainted record {}|error? {
 
 function queryEnumStringParam() returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from ENUMTable where enum_type=", ""],
-            insertions: ["doctor"]
-     };
+        parts: ["SELECT * from ENUMTable where enum_type=", ""],
+        insertions: ["doctor"]
+    };
     return queryMysqlClient(sqlQuery);
 }
 
@@ -725,41 +725,41 @@ type EnumResult record {|
 
 function queryEnumStringParam2() returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from ENUMTable where enum_type=", ""],
-            insertions: ["doctor"]
-     };
-    return queryMysqlClient(sqlQuery, resultType=EnumResult);
+        parts: ["SELECT * from ENUMTable where enum_type=", ""],
+        insertions: ["doctor"]
+    };
+    return queryMysqlClient(sqlQuery, resultType = EnumResult);
 }
 
 function querySetStringParam() returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from SetTable where set_type=", ""],
-            insertions: ["a,d"]
-     };
+        parts: ["SELECT * from SetTable where set_type=", ""],
+        insertions: ["a,d"]
+    };
     return queryMysqlClient(sqlQuery);
 }
 
 function queryGeoParam() returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT id, ST_AsText(geom) as geomText from GEOTable"],
-            insertions: []
-     };
-    return  queryMysqlClient(sqlQuery);
+        parts: ["SELECT id, ST_AsText(geom) as geomText from GEOTable"],
+        insertions: []
+    };
+    return queryMysqlClient(sqlQuery);
 }
 
 function queryGeoParam2() returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT id, ST_AsText(geom) as geomText from GEOTable where geom = ST_GeomFromText(", ")"],
-            insertions: ["POINT (7 52)"]
-     };
-    return  queryMysqlClient(sqlQuery);
+        parts: ["SELECT id, ST_AsText(geom) as geomText from GEOTable where geom = ST_GeomFromText(", ")"],
+        insertions: ["POINT (7 52)"]
+    };
+    return queryMysqlClient(sqlQuery);
 }
 
 function queryJsonParam() returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from JsonTable"],
-            insertions: []
-     };
+        parts: ["SELECT * from JsonTable"],
+        insertions: []
+    };
     return queryMysqlClient(sqlQuery);
 }
 
@@ -770,18 +770,18 @@ type JsonResult record {|
 
 function queryJsonParam2() returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
-            parts: ["SELECT * from JsonTable"],
-            insertions: []
-     };
-    return queryMysqlClient(sqlQuery, resultType=JsonResult);
+        parts: ["SELECT * from JsonTable"],
+        insertions: []
+    };
+    return queryMysqlClient(sqlQuery, resultType = JsonResult);
 }
 
 function queryJsonParam3() returns @tainted record {}|error? {
     sql:ParameterizedString sqlQuery = {
         parts: ["SELECT * from JsonTable where json_type->'$.id'=", ""],
         insertions: [100]
-     };
-    return queryMysqlClient(sqlQuery, resultType=JsonResult);
+    };
+    return queryMysqlClient(sqlQuery, resultType = JsonResult);
 }
 
 function getByteColumnChannel() returns @untainted io:ReadableByteChannel|error {
@@ -800,10 +800,11 @@ function getTextColumnChannel() returns @untainted io:ReadableCharacterChannel|e
     return sourceChannel;
 }
 
-function queryMysqlClient(@untainted string|sql:ParameterizedString sqlQuery, typedesc<record{}>? resultType = ())
+function queryMysqlClient(@untainted string|sql:ParameterizedString sqlQuery, typedesc<record {}>? resultType = ())
 returns @tainted record {}|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
-    stream<record{}, error> streamData = dbClient->query(sqlQuery, resultType);
+    stream
+    <record {}, error> streamData = dbClient->query(sqlQuery, resultType);
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
     record {}? value = data?.value;
