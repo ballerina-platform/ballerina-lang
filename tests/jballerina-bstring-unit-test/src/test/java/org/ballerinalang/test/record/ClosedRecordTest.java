@@ -230,7 +230,7 @@ public class ClosedRecordTest {
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', 'readonly', '(', '[', '-', DecimalIntegerLiteral, " +
+                                          "'handle', 'readonly', '(', '[', '+', '-', DecimalIntegerLiteral, " +
                                           "HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
                                           "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
                                           "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier}",
@@ -249,7 +249,7 @@ public class ClosedRecordTest {
                                           "'abstract', 'client', 'int', 'byte', 'float', 'decimal', 'boolean', " +
                                           "'string', 'error', 'map', 'json', 'xml', 'table', 'stream', 'any', " +
                                           "'typedesc', 'future', 'anydata', " +
-                                          "'handle', 'readonly', '(', '[', '-', DecimalIntegerLiteral, " +
+                                          "'handle', 'readonly', '(', '[', '+', '-', DecimalIntegerLiteral, " +
                                           "HexIntegerLiteral, HexadecimalFloatingPointLiteral, " +
                                           "DecimalFloatingPointNumber, BooleanLiteral, QuotedStringLiteral, " +
                                           "Base16BlobLiteral, Base64BlobLiteral, 'null', Identifier}",
