@@ -19,6 +19,7 @@ package org.ballerina.compiler.api.model;
 
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.List;
 
@@ -34,8 +35,9 @@ public class BallerinaConstantSymbol extends BallerinaVariable {
                                     PackageID moduleID,
                                     List<AccessModifier> accessModifiers,
                                     TypeDescriptor typeDescriptor,
-                                    Object constValue) {
-        super(name, moduleID, BallerinaSymbolKind.CONST, accessModifiers, typeDescriptor);
+                                    Object constValue,
+                                    BSymbol bSymbol) {
+        super(name, moduleID, BallerinaSymbolKind.CONST, accessModifiers, typeDescriptor, bSymbol);
         this.constValue = constValue;
     }
 
@@ -55,14 +57,8 @@ public class BallerinaConstantSymbol extends BallerinaVariable {
         
         private Object constantValue;
         
-        /**
-         * Symbol Builder's Constructor.
-         *
-         * @param name Symbol Name
-         * @param moduleID module ID of the symbol
-         */
-        public ConstantSymbolBuilder(String name, PackageID moduleID) {
-            super(name, moduleID);
+        public ConstantSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
+            super(name, moduleID, symbol);
         }
 
         public BallerinaConstantSymbol build() {
@@ -70,7 +66,8 @@ public class BallerinaConstantSymbol extends BallerinaVariable {
                     this.moduleID,
                     this.accessModifiers,
                     this.typeDescriptor,
-                    this.constantValue);
+                    this.constantValue,
+                    this.bSymbol);
         }
 
         public ConstantSymbolBuilder withConstValue(Object constValue) {

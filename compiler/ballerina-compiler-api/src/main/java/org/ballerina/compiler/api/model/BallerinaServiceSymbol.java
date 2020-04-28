@@ -41,10 +41,15 @@ public class BallerinaServiceSymbol extends BallerinaVariable {
                                    List<AccessModifier> accessModifiers,
                                    TypeDescriptor typeDescriptor,
                                    BServiceSymbol serviceSymbol) {
-        super(name, moduleID, BallerinaSymbolKind.SERVICE, accessModifiers, typeDescriptor);
+        super(name, moduleID, BallerinaSymbolKind.SERVICE, accessModifiers, typeDescriptor, serviceSymbol);
         this.serviceSymbol = serviceSymbol;
     }
-    
+
+    /**
+     * Get the Service's resources.
+     * 
+     * @return {@link List} of resource functions
+     */
     public List<BallerinaFunctionSymbol> getResources() {
         List<BallerinaFunctionSymbol> resources = new ArrayList<>();
         if (!(this.serviceSymbol.type.tsymbol instanceof BObjectTypeSymbol)) {
@@ -62,12 +67,13 @@ public class BallerinaServiceSymbol extends BallerinaVariable {
 
     /**
      * Represents Ballerina Service Symbol Builder.
+     * 
+     * @since 1.3.0
      */
     public static class ServiceSymbolBuilder extends VariableSymbolBuilder {
-        private BServiceSymbol serviceSymbol;
         
-        public ServiceSymbolBuilder(String name, PackageID moduleID) {
-            super(name, moduleID);
+        public ServiceSymbolBuilder(String name, PackageID moduleID, BServiceSymbol serviceSymbol) {
+            super(name, moduleID, serviceSymbol);
         }
 
         public BallerinaServiceSymbol build() {
@@ -75,12 +81,7 @@ public class BallerinaServiceSymbol extends BallerinaVariable {
                     this.moduleID,
                     this.accessModifiers,
                     this.typeDescriptor,
-                    this.serviceSymbol);
-        }
-
-        public ServiceSymbolBuilder withServiceSymbol(BServiceSymbol serviceSymbol) {
-            this.serviceSymbol = serviceSymbol;
-            return this;
+                    (BServiceSymbol) this.bSymbol);
         }
     }
 }

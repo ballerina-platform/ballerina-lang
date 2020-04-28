@@ -18,6 +18,7 @@
 package org.ballerina.compiler.api.model;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 /**
  * Represents an XML Namespace Symbol.
@@ -25,8 +26,10 @@ import org.ballerinalang.model.elements.PackageID;
  * @since 1.3.0
  */
 public class BallerinaXmlNSSymbol extends BallerinaSymbol {
-    private BallerinaXmlNSSymbol(String name, PackageID moduleID, BallerinaSymbolKind ballerinaSymbolKind) {
-        super(name, moduleID, ballerinaSymbolKind);
+    private BallerinaXmlNSSymbol(String name,
+                                 PackageID moduleID,
+                                 BSymbol symbol) {
+        super(name, moduleID, BallerinaSymbolKind.XMLNS, symbol);
     }
 
     /**
@@ -38,14 +41,16 @@ public class BallerinaXmlNSSymbol extends BallerinaSymbol {
          *
          * @param name Symbol Name
          * @param moduleID module ID of the symbol
-         * @param symbolKind symbol kind
+         * @param symbol namespace symbol
          */
-        public XmlNSSymbolBuilder(String name, PackageID moduleID, BallerinaSymbolKind symbolKind) {
-            super(name, moduleID, symbolKind);
+        public XmlNSSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
+            super(name, moduleID, BallerinaSymbolKind.XMLNS, symbol);
         }
 
         public BallerinaXmlNSSymbol build() {
-            return new BallerinaXmlNSSymbol(this.name, this.moduleID, ballerinaSymbolKind);
+            return new BallerinaXmlNSSymbol(this.name,
+                    this.moduleID,
+                    this.bSymbol);
         }
     }
 }

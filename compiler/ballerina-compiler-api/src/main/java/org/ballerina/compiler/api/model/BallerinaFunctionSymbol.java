@@ -42,7 +42,7 @@ public class BallerinaFunctionSymbol extends BallerinaVariable {
                                     List<AccessModifier> accessModifiers,
                                     TypeDescriptor typeDescriptor,
                                     BInvokableSymbol invokableSymbol) {
-        super(name, moduleID, BallerinaSymbolKind.FUNCTION, accessModifiers, typeDescriptor);
+        super(name, moduleID, BallerinaSymbolKind.FUNCTION, accessModifiers, typeDescriptor, invokableSymbol);
         this.parameters = invokableSymbol.params.stream()
                 .map(SymbolFactory::createBallerinaParameter)
                 .collect(Collectors.toList());
@@ -82,26 +82,17 @@ public class BallerinaFunctionSymbol extends BallerinaVariable {
      */
     public static class FunctionSymbolBuilder extends BallerinaVariable.VariableSymbolBuilder {
         
-        private BInvokableSymbol invokableSymbol;
-        
-        /**
-         * Symbol Builder's Constructor.
-         *
-         * @param name Symbol Name
-         * @param moduleID module ID of the symbol
-         */
-        public FunctionSymbolBuilder(String name, PackageID moduleID) {
-            super(name, moduleID);
+        public FunctionSymbolBuilder(String name, PackageID moduleID, BInvokableSymbol bSymbol) {
+            super(name, moduleID, bSymbol);
         }
 
         public BallerinaFunctionSymbol build() {
-            return new BallerinaFunctionSymbol(this.name, this.moduleID, this.accessModifiers,
-                    this.typeDescriptor, this.invokableSymbol);
+            return new BallerinaFunctionSymbol(this.name,
+                    this.moduleID,
+                    this.accessModifiers,
+                    this.typeDescriptor,
+                    (BInvokableSymbol) this.bSymbol);
         }
 
-        public FunctionSymbolBuilder withInvokableSymbol(BInvokableSymbol invokableSymbol) {
-            this.invokableSymbol = invokableSymbol;
-            return this;
-        }
     }
 }

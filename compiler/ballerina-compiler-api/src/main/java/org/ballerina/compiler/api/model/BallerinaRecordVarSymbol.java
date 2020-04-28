@@ -21,6 +21,7 @@ import org.ballerina.compiler.api.semantic.TypesFactory;
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 
@@ -42,8 +43,9 @@ public class BallerinaRecordVarSymbol extends BallerinaVariable {
                                        List<AccessModifier> accessModifiers,
                                        TypeDescriptor typeDescriptor,
                                        List<BallerinaField> fields,
-                                       TypeDescriptor restType) {
-        super(name, moduleID, BallerinaSymbolKind.VARIABLE, accessModifiers, typeDescriptor);
+                                       TypeDescriptor restType,
+                                       BSymbol symbol) {
+        super(name, moduleID, BallerinaSymbolKind.VARIABLE, accessModifiers, typeDescriptor, symbol);
         this.recordFields = fields;
         this.restType = restType;
     }
@@ -65,14 +67,10 @@ public class BallerinaRecordVarSymbol extends BallerinaVariable {
         
         private List<BallerinaField> recordFields = new ArrayList<>();
         private TypeDescriptor restType;
-        /**
-         * Symbol Builder's Constructor.
-         *
-         * @param name                Symbol Name
-         * @param moduleID            module ID of the symbol
-         */
-        public RecordVarSymbolBuilder(String name, PackageID moduleID) {
-            super(name, moduleID);
+        
+        public RecordVarSymbolBuilder(String name, PackageID moduleID, BRecordTypeSymbol recordTypeSymbol) {
+            super(name, moduleID, recordTypeSymbol);
+            withRecordTypeSymbol(recordTypeSymbol);
         }
 
         @Override
@@ -85,23 +83,21 @@ public class BallerinaRecordVarSymbol extends BallerinaVariable {
                     this.accessModifiers,
                     this.typeDescriptor,
                     this.recordFields,
-                    this.restType);
+                    this.restType,
+                    this.bSymbol);
         }
 
         /**
          * Builder with the record type symbol.
          * 
          * @param recordTypeSymbol Record Type Symbol instance
-         * @return {@link RecordVarSymbolBuilder} current builder
          */
-        public RecordVarSymbolBuilder withRecordTypeSymbol(BRecordTypeSymbol recordTypeSymbol) {
+        private void withRecordTypeSymbol(BRecordTypeSymbol recordTypeSymbol) {
             for (BField field : ((BRecordType) recordTypeSymbol.getType()).fields) {
                 BallerinaField ballerinaField = new BallerinaField(field);
                 this.recordFields.add(ballerinaField);
             }
             this.restType = TypesFactory.getTypeDescriptor(((BRecordType) recordTypeSymbol.getType()).restFieldType);
-            
-            return this;
         }
 
         @Override

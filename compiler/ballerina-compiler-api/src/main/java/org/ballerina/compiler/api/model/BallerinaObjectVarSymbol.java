@@ -22,6 +22,7 @@ import org.ballerina.compiler.api.types.ObjectTypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +41,9 @@ public class BallerinaObjectVarSymbol extends BallerinaVariable {
                                      PackageID moduleID,
                                      ObjectTypeDescriptor typeDescriptor,
                                      BallerinaFunctionSymbol initFunction,
-                                     List<BallerinaFunctionSymbol> methods) {
-        super(name, moduleID, BallerinaSymbolKind.VARIABLE, new ArrayList<>(), typeDescriptor);
+                                     List<BallerinaFunctionSymbol> methods,
+                                     BSymbol symbol) {
+        super(name, moduleID, BallerinaSymbolKind.VARIABLE, new ArrayList<>(), typeDescriptor, symbol);
         this.initFunction = initFunction;
         this.methods = methods;
     }
@@ -74,14 +76,9 @@ public class BallerinaObjectVarSymbol extends BallerinaVariable {
         private BallerinaFunctionSymbol initFunction;
         private List<BallerinaFunctionSymbol> methods;
         
-        /**
-         * Symbol Builder's Constructor.
-         *
-         * @param name                Symbol Name
-         * @param moduleID            module ID of the symbol
-         */
-        public ObjectVarSymbolBuilder(String name, PackageID moduleID) {
-            super(name, moduleID);
+        public ObjectVarSymbolBuilder(String name, PackageID moduleID, BObjectTypeSymbol bObjectTypeSymbol) {
+            super(name, moduleID, bObjectTypeSymbol);
+            withObjectTypeSymbol(bObjectTypeSymbol);
         }
 
         @Override
@@ -93,18 +90,18 @@ public class BallerinaObjectVarSymbol extends BallerinaVariable {
                     this.moduleID,
                     (ObjectTypeDescriptor) this.typeDescriptor,
                     this.initFunction,
-                    this.methods);
+                    this.methods,
+                    this.bSymbol);
         }
 
-        public ObjectVarSymbolBuilder withObjectTypeSymbol(BObjectTypeSymbol objectTypeSymbol) {
+        private void withObjectTypeSymbol(BObjectTypeSymbol objectTypeSymbol) {
             this.initFunction = SymbolFactory.createFunctionSymbol(objectTypeSymbol.initializerFunc.symbol);
             List<BallerinaFunctionSymbol> list = new ArrayList<>();
             for (BAttachedFunction function : objectTypeSymbol.attachedFuncs) {
                 BallerinaFunctionSymbol functionSymbol = SymbolFactory.createFunctionSymbol(function.symbol);
                 list.add(functionSymbol);
             }
-            methods = list;
-            return this;
+            this.methods = list;
         }
     }
 }

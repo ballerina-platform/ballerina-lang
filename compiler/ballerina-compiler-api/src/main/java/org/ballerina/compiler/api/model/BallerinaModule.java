@@ -38,8 +38,9 @@ public class BallerinaModule extends BallerinaSymbol {
     
     protected BallerinaModule(String name,
                               PackageID moduleID,
-                              BallerinaSymbolKind ballerinaSymbolKind, BPackageSymbol packageSymbol) {
-        super(name, moduleID, ballerinaSymbolKind);
+                              BallerinaSymbolKind ballerinaSymbolKind,
+                              BPackageSymbol packageSymbol) {
+        super(name, moduleID, ballerinaSymbolKind, packageSymbol);
         this.packageSymbol = packageSymbol;
     }
 
@@ -116,32 +117,25 @@ public class BallerinaModule extends BallerinaSymbol {
      * @since 1.3.0
      */
     public static class ModuleSymbolBuilder extends SymbolBuilder<ModuleSymbolBuilder> {
-        BPackageSymbol packageSymbol;
         
-        /**
-         * Symbol Builder's Constructor.
-         *
-         * @param name Symbol Name
-         * @param moduleID module ID of the symbol
-         * @param symbolKind symbol kind
-         */
-        public ModuleSymbolBuilder(String name, PackageID moduleID, BallerinaSymbolKind symbolKind) {
-            super(name, moduleID, symbolKind);
+        public ModuleSymbolBuilder(String name,
+                                   PackageID moduleID,
+                                   BallerinaSymbolKind symbolKind,
+                                   BPackageSymbol packageSymbol) {
+            super(name, moduleID, symbolKind, packageSymbol);
         }
 
         /**
          * {@inheritDoc}
          */
         public BallerinaModule build() {
-            if (this.packageSymbol == null) {
+            if (this.bSymbol == null) {
                 throw new AssertionError("Package Symbol cannot be null");
             }
-            return new BallerinaModule(this.name, this.moduleID, this.ballerinaSymbolKind, this.packageSymbol);
-        }
-        
-        public ModuleSymbolBuilder withPackageSymbol(BPackageSymbol packageSymbol) {
-            this.packageSymbol = packageSymbol;
-            return this;
+            return new BallerinaModule(this.name,
+                    this.moduleID,
+                    this.ballerinaSymbolKind,
+                    (BPackageSymbol) this.bSymbol);
         }
     }
 }

@@ -19,6 +19,7 @@ package org.ballerina.compiler.api.model;
 
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 /**
  * Represents a ballerina worker.
@@ -26,14 +27,14 @@ import org.ballerinalang.model.elements.PackageID;
  * @since 1.3.0
  */
 public class BallerinaWorkerSymbol extends BallerinaSymbol {
-    // TODO: represent the meta information
     private TypeDescriptor returnType;
     
     private BallerinaWorkerSymbol(String name,
                                   PackageID moduleID,
                                   BallerinaSymbolKind ballerinaSymbolKind,
-                                  TypeDescriptor returnType) {
-        super(name, moduleID, ballerinaSymbolKind);
+                                  TypeDescriptor returnType,
+                                  BSymbol symbol) {
+        super(name, moduleID, ballerinaSymbolKind, symbol);
         this.returnType = returnType;
     }
 
@@ -50,23 +51,19 @@ public class BallerinaWorkerSymbol extends BallerinaSymbol {
      * Represents Ballerina Worker Symbol Builder.
      */
     public static class WorkerSymbolBuilder extends SymbolBuilder<WorkerSymbolBuilder> {
+        
         protected TypeDescriptor returnType;
         
-        /**
-         * Symbol Builder's Constructor.
-         *
-         * @param name Symbol Name
-         * @param moduleID module ID of the symbol
-         */
-        public WorkerSymbolBuilder(String name, PackageID moduleID) {
-            super(name, moduleID, BallerinaSymbolKind.WORKER);
+        public WorkerSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
+            super(name, moduleID, BallerinaSymbolKind.WORKER, symbol);
         }
 
         public BallerinaWorkerSymbol build() {
             return new BallerinaWorkerSymbol(this.name,
                     this.moduleID,
                     this.ballerinaSymbolKind,
-                    this.returnType);
+                    this.returnType,
+                    this.bSymbol);
         }
 
         public WorkerSymbolBuilder withReturnType(TypeDescriptor typeDescriptor) {

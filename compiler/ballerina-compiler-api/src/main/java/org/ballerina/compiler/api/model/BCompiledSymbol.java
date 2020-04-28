@@ -17,6 +17,8 @@
  */
 package org.ballerina.compiler.api.model;
 
+import java.util.Optional;
+
 /**
  * Represents a compiled language symbol.
  *
@@ -43,4 +45,11 @@ public interface BCompiledSymbol {
      * @return {@link BallerinaSymbolKind} of the symbol
      */
     BallerinaSymbolKind getKind();
+
+    /**
+     * Get the Documentation attachment bound to the symbol.
+     * 
+     * @return {@link Optional} doc attachment
+     */
+    Optional<DocAttachment> getDocAttachment();
 }

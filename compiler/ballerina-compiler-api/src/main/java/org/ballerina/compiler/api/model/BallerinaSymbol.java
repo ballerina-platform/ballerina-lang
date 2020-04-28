@@ -18,6 +18,9 @@
 package org.ballerina.compiler.api.model;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+
+import java.util.Optional;
 
 /**
  * Represents the implementation of a Compiled Ballerina Symbol.
@@ -28,11 +31,16 @@ public class BallerinaSymbol implements BCompiledSymbol {
     private String name;
     private PackageID moduleID;
     private BallerinaSymbolKind ballerinaSymbolKind;
+    private DocAttachment docAttachment;
 
-    protected BallerinaSymbol(String name, PackageID moduleID, BallerinaSymbolKind ballerinaSymbolKind) {
+    protected BallerinaSymbol(String name,
+                              PackageID moduleID,
+                              BallerinaSymbolKind ballerinaSymbolKind,
+                              BSymbol symbol) {
         this.name = name;
         this.moduleID = moduleID;
         this.ballerinaSymbolKind = ballerinaSymbolKind;
+        this.docAttachment = getDocAttachment(symbol);
     }
 
     /**
@@ -60,6 +68,18 @@ public class BallerinaSymbol implements BCompiledSymbol {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<DocAttachment> getDocAttachment() {
+        return Optional.ofNullable(this.docAttachment);
+    }
+    
+    private DocAttachment getDocAttachment(BSymbol symbol) {
+        return symbol == null ? null : new DocAttachment(symbol.markdownDocumentation);
+    }
+    
+    /**
      * Represents Ballerina Symbol Builder.
      * @param <T> Symbol Type
      */
@@ -67,17 +87,21 @@ public class BallerinaSymbol implements BCompiledSymbol {
         protected String name;
         protected PackageID moduleID;
         protected BallerinaSymbolKind ballerinaSymbolKind;
+        protected BSymbol bSymbol;
+        
         /**
          * Symbol Builder Constructor.
          * 
          * @param name Symbol Name
          * @param moduleID module ID of the symbol
          * @param symbolKind symbol kind
+         * @param bSymbol symbol to evaluate
          */
-        public SymbolBuilder(String name, PackageID moduleID, BallerinaSymbolKind symbolKind) {
+        public SymbolBuilder(String name, PackageID moduleID, BallerinaSymbolKind symbolKind, BSymbol bSymbol) {
             this.name = name;
             this.moduleID = moduleID;
             this.ballerinaSymbolKind = symbolKind;
+            this.bSymbol = bSymbol;
         }
 
         /**

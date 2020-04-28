@@ -99,9 +99,7 @@ public class SymbolFactory {
     public static BallerinaFunctionSymbol createFunctionSymbol(BInvokableSymbol invokableSymbol) {
         String name = invokableSymbol.getName().getValue();
         PackageID pkgID = invokableSymbol.pkgID;
-        return new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, pkgID)
-                .withInvokableSymbol(invokableSymbol)
-                .build();
+        return new BallerinaFunctionSymbol.FunctionSymbolBuilder(name, pkgID, invokableSymbol).build();
     }
 
     /**
@@ -115,10 +113,10 @@ public class SymbolFactory {
         if (objectTypeSymbol == null) {
             return null;
         }
-        BallerinaObjectVarSymbol.ObjectVarSymbolBuilder objectVarSymbolBuilder
-                = new BallerinaObjectVarSymbol.ObjectVarSymbolBuilder(name, objectTypeSymbol.pkgID);
+        return new BallerinaObjectVarSymbol.ObjectVarSymbolBuilder(name,
+                objectTypeSymbol.pkgID,
+                objectTypeSymbol).build();
 
-        return objectVarSymbolBuilder.withObjectTypeSymbol(objectTypeSymbol).build();
     }
 
     /**
@@ -133,11 +131,10 @@ public class SymbolFactory {
             return null;
         }
         BallerinaRecordVarSymbol.RecordVarSymbolBuilder symbolBuilder =
-                new BallerinaRecordVarSymbol.RecordVarSymbolBuilder(name, recordTypeSymbol.pkgID);
+                new BallerinaRecordVarSymbol.RecordVarSymbolBuilder(name, recordTypeSymbol.pkgID, recordTypeSymbol);
         if ((recordTypeSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withAccessModifier(AccessModifier.PUBLIC);
         }
-        symbolBuilder.withRecordTypeSymbol(recordTypeSymbol);
         
         return symbolBuilder
                 .withTypeDescriptor(TypesFactory.getTypeDescriptor(recordTypeSymbol.type))
@@ -154,7 +151,7 @@ public class SymbolFactory {
         String name = symbol.getName().getValue();
         PackageID pkgID = symbol.pkgID;
         BallerinaVariable.VariableSymbolBuilder symbolBuilder =
-                new BallerinaVariable.VariableSymbolBuilder(name, pkgID);
+                new BallerinaVariable.VariableSymbolBuilder(name, pkgID, symbol);
         
         return symbolBuilder
                 .withTypeDescriptor(TypesFactory.getTypeDescriptor(symbol.type))
@@ -162,7 +159,7 @@ public class SymbolFactory {
     }
     
     public static BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol) {
-        return new BallerinaWorkerSymbol.WorkerSymbolBuilder(symbol.name.getValue(), symbol.pkgID)
+        return new BallerinaWorkerSymbol.WorkerSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol)
                 .withReturnType(TypesFactory.getTypeDescriptor(((BFutureType) symbol.type).constraint))
                 .build();
     }
@@ -195,7 +192,9 @@ public class SymbolFactory {
      */
     public static BallerinaTypeDefinition createTypeDefinition(BTypeSymbol typeSymbol) {
         BallerinaTypeDefinition.TypeDefSymbolBuilder symbolBuilder =
-                new BallerinaTypeDefinition.TypeDefSymbolBuilder(typeSymbol.getName().getValue(), typeSymbol.pkgID);
+                new BallerinaTypeDefinition.TypeDefSymbolBuilder(typeSymbol.getName().getValue(),
+                        typeSymbol.pkgID,
+                        typeSymbol);
         if ((typeSymbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
             symbolBuilder.withAccessModifier(AccessModifier.PUBLIC);
         }
@@ -213,7 +212,7 @@ public class SymbolFactory {
     public static BallerinaConstantSymbol createConstantSymbol(BConstantSymbol constantSymbol) {
         String name = constantSymbol.name.getValue();
         BallerinaConstantSymbol.ConstantSymbolBuilder symbolBuilder =
-                new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol.pkgID);
+                new BallerinaConstantSymbol.ConstantSymbolBuilder(name, constantSymbol.pkgID, constantSymbol);
         return symbolBuilder.withConstValue(constantSymbol.getConstValue()).build();
     }
 
@@ -224,8 +223,7 @@ public class SymbolFactory {
      * @return {@link BallerinaAnnotationSymbol}
      */
     public static BallerinaAnnotationSymbol createAnnotationSymbol(BAnnotationSymbol symbol) {
-        return new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.name.getValue(), symbol.pkgID)
-                .withAnnotationSymbol(symbol)
+        return new BallerinaAnnotationSymbol.AnnotationSymbolBuilder(symbol.name.getValue(), symbol.pkgID, symbol)
                 .build();
     }
 }

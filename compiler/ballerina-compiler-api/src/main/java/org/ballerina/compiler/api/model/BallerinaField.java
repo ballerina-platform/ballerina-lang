@@ -22,19 +22,22 @@ import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Optional;
+
 /**
  * Represents a field with a name and type.
  * 
  * @since 1.3.0
  */
 public class BallerinaField {
-    // add the metadata field
+    private DocAttachment docAttachment;
     private BField bField;
     private TypeDescriptor typeDescriptor;
 
     public BallerinaField(BField bField) {
         this.bField = bField;
         this.typeDescriptor = TypesFactory.getTypeDescriptor(bField.getType());
+        this.docAttachment = new DocAttachment(bField.symbol.markdownDocumentation);
     }
 
     /**
@@ -65,6 +68,30 @@ public class BallerinaField {
     }
 
     /**
+     * Get the documentation attachment.
+     * 
+     * @return {@link DocAttachment} of the field
+     */
+    public DocAttachment getDocAttachment() {
+        return docAttachment;
+    }
+
+    /**
+     * Get the accessibility modifier if available.
+     * 
+     * @return {@link Optional} accessibility modifier
+     */
+    public Optional<AccessModifier> getAccessModifier() {
+        if ((this.bField.symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
+            return Optional.of(AccessModifier.PUBLIC);
+        } else if ((this.bField.symbol.flags & Flags.PRIVATE) == Flags.PRIVATE) {
+            return Optional.of(AccessModifier.PRIVATE);
+        }
+        
+        return Optional.empty();
+    }
+
+    /**
      * Get the signature of the field.
      * 
      * @return {}
@@ -74,7 +101,7 @@ public class BallerinaField {
         if (this.isOptional()) {
             signature.append("?");
         }
-        
+
         return signature.toString();
     }
 }

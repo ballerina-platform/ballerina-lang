@@ -19,6 +19,7 @@ package org.ballerina.compiler.api.model;
 
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +35,12 @@ public class BallerinaVariable extends BallerinaSymbol {
     private TypeDescriptor typeDescriptor;
     
     protected BallerinaVariable(String name,
-                              PackageID moduleID,
-                              BallerinaSymbolKind ballerinaSymbolKind,
-                              List<AccessModifier> accessModifiers,
-                              TypeDescriptor typeDescriptor) {
-        super(name, moduleID, ballerinaSymbolKind);
+                                PackageID moduleID,
+                                BallerinaSymbolKind ballerinaSymbolKind,
+                                List<AccessModifier> accessModifiers,
+                                TypeDescriptor typeDescriptor,
+                                BSymbol bSymbol) {
+        super(name, moduleID, ballerinaSymbolKind, bSymbol);
         this.accessModifiers = accessModifiers;
         this.typeDescriptor = typeDescriptor;
     }
@@ -67,19 +69,18 @@ public class BallerinaVariable extends BallerinaSymbol {
     public static class VariableSymbolBuilder extends SymbolBuilder<VariableSymbolBuilder> {
         protected List<AccessModifier> accessModifiers = new ArrayList<>();
         protected TypeDescriptor typeDescriptor;
-        /**
-         * Symbol Builder's Constructor.
-         *
-         * @param name Symbol Name
-         * @param moduleID module ID of the symbol
-         */
-        public VariableSymbolBuilder(String name, PackageID moduleID) {
-            super(name, moduleID, BallerinaSymbolKind.VARIABLE);
+        
+        public VariableSymbolBuilder(String name, PackageID moduleID, BSymbol bSymbol) {
+            super(name, moduleID, BallerinaSymbolKind.VARIABLE, bSymbol);
         }
 
         public BallerinaVariable build() {
-            return new BallerinaVariable(this.name, this.moduleID, this.ballerinaSymbolKind, this.accessModifiers,
-                    this.typeDescriptor);
+            return new BallerinaVariable(this.name,
+                    this.moduleID,
+                    this.ballerinaSymbolKind,
+                    this.accessModifiers,
+                    this.typeDescriptor,
+                    this.bSymbol);
         }
         
         public VariableSymbolBuilder withTypeDescriptor(TypeDescriptor typeDescriptor) {

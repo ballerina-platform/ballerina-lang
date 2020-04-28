@@ -19,6 +19,7 @@ package org.ballerina.compiler.api.model;
 
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.List;
 
@@ -32,16 +33,18 @@ public class BallerinaTypeDefinition extends BallerinaVariable {
     protected BallerinaTypeDefinition(String name,
                                       PackageID moduleID,
                                       List<AccessModifier> accessModifiers,
-                                      TypeDescriptor typeDescriptor) {
-        this(name, moduleID, accessModifiers, BallerinaSymbolKind.TYPE_DEF, typeDescriptor);
+                                      TypeDescriptor typeDescriptor,
+                                      BSymbol bSymbol) {
+        this(name, moduleID, accessModifiers, BallerinaSymbolKind.TYPE_DEF, typeDescriptor, bSymbol);
     }
     
     protected BallerinaTypeDefinition(String name,
                                       PackageID moduleID,
                                       List<AccessModifier> accessModifiers,
                                       BallerinaSymbolKind symbolKind,
-                                      TypeDescriptor typeDescriptor) {
-        super(name, moduleID, symbolKind, accessModifiers, typeDescriptor);
+                                      TypeDescriptor typeDescriptor,
+                                      BSymbol bSymbol) {
+        super(name, moduleID, symbolKind, accessModifiers, typeDescriptor, bSymbol);
     }
 
     /**
@@ -50,15 +53,9 @@ public class BallerinaTypeDefinition extends BallerinaVariable {
      * @since 1.3.0
      */
     public static class TypeDefSymbolBuilder extends BallerinaVariable.VariableSymbolBuilder {
-
-        /**
-         * Symbol Builder's Constructor.
-         *
-         * @param name     Symbol Name
-         * @param moduleID module ID of the symbol
-         */
-        public TypeDefSymbolBuilder(String name, PackageID moduleID) {
-            super(name, moduleID);
+        
+        public TypeDefSymbolBuilder(String name, PackageID moduleID, BSymbol symbol) {
+            super(name, moduleID, symbol);
         }
 
         @Override
@@ -73,7 +70,11 @@ public class BallerinaTypeDefinition extends BallerinaVariable {
 
         @Override
         public BallerinaTypeDefinition build() {
-            return new BallerinaTypeDefinition(this.name, this.moduleID, this.accessModifiers, this.typeDescriptor);
+            return new BallerinaTypeDefinition(this.name,
+                    this.moduleID,
+                    this.accessModifiers,
+                    this.typeDescriptor,
+                    this.bSymbol);
         }
     }
 }

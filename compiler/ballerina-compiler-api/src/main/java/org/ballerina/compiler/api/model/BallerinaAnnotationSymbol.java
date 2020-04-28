@@ -20,6 +20,7 @@ package org.ballerina.compiler.api.model;
 import org.ballerina.compiler.api.types.TypeDescriptor;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +38,9 @@ public class BallerinaAnnotationSymbol extends BallerinaTypeDefinition {
                                       PackageID moduleID,
                                       List<AccessModifier> accessModifiers,
                                       TypeDescriptor typeDescriptor,
-                                      List<AnnotationAttachPoint> attachPoints) {
-        super(name, moduleID, accessModifiers, BallerinaSymbolKind.ANNOTATION, typeDescriptor);
+                                      List<AnnotationAttachPoint> attachPoints,
+                                      BSymbol bSymbol) {
+        super(name, moduleID, accessModifiers, BallerinaSymbolKind.ANNOTATION, typeDescriptor, bSymbol);
         this.attachPoints = attachPoints;
     }
 
@@ -60,14 +62,9 @@ public class BallerinaAnnotationSymbol extends BallerinaTypeDefinition {
         
         private List<AnnotationAttachPoint> attachPoints = new ArrayList<>();
         
-        /**
-         * Symbol Builder's Constructor.
-         *
-         * @param name Symbol Name
-         * @param moduleID module ID of the symbol
-         */
-        public AnnotationSymbolBuilder(String name, PackageID moduleID) {
-            super(name, moduleID);
+        public AnnotationSymbolBuilder(String name, PackageID moduleID, BAnnotationSymbol annotationSymbol) {
+            super(name, moduleID, annotationSymbol);
+            withAnnotationSymbol(annotationSymbol);
         }
 
         public BallerinaAnnotationSymbol build() {
@@ -75,18 +72,17 @@ public class BallerinaAnnotationSymbol extends BallerinaTypeDefinition {
                     this.moduleID,
                     this.accessModifiers,
                     this.typeDescriptor,
-                    this.attachPoints);
+                    this.attachPoints,
+                    this.bSymbol);
         }
 
         /**
          * Set the attach points from the annotation symbol.
          * 
          * @param annotationSymbol annotation symbol to evaluate
-         * @return {@link AnnotationSymbolBuilder} annotation builder 
          */
-        public AnnotationSymbolBuilder withAnnotationSymbol(BAnnotationSymbol annotationSymbol) {
+        private void withAnnotationSymbol(BAnnotationSymbol annotationSymbol) {
             this.attachPoints.addAll(AnnotationAttachPoint.getAttachPoints(annotationSymbol.maskedPoints));
-            return this;
         }
     }
 }
