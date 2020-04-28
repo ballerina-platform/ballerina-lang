@@ -262,7 +262,7 @@ public class BallerinaParserErrorHandler {
             ParserRuleContext.ARRAY_TYPE_DESCRIPTOR, ParserRuleContext.OPTIONAL_TYPE_DESCRIPTOR };
 
     private static final ParserRuleContext[] LIST_CONSTRUCTOR_RHS =
-            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.LISTENERS_LIST };
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.EXPRESSION };
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
@@ -1314,6 +1314,12 @@ public class BallerinaParserErrorHandler {
             return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
         }
 
+        if (parentCtx == ParserRuleContext.LIST_CONSTRUCTOR) {
+            ParserRuleContext[] next = { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
+                    ParserRuleContext.DOT, ParserRuleContext.OPEN_BRACKET, ParserRuleContext.CLOSE_BRACKET };
+            return seekInAlternativesPaths(lookahead, currentDepth, currentMatches, next, isEntryPoint);
+        }
+
         ParserRuleContext nextContext;
         if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK) {
             nextContext = ParserRuleContext.BLOCK_STMT;
@@ -2122,6 +2128,7 @@ public class BallerinaParserErrorHandler {
             case MAPPING_CONSTRUCTOR:
                 return ParserRuleContext.MAPPING_FIELD;
             case LISTENERS_LIST:
+            case LIST_CONSTRUCTOR:
                 return ParserRuleContext.EXPRESSION;
             case ANNOT_ATTACH_POINTS_LIST:
                 return ParserRuleContext.ATTACH_POINT;
@@ -2309,8 +2316,6 @@ public class BallerinaParserErrorHandler {
             case FORK_STMT:
                 endContext(); // end fork-statement
                 return ParserRuleContext.STATEMENT;
-            case LIST_CONSTRUCTOR:
-                return ParserRuleContext.CLOSE_BRACKET;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
