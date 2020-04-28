@@ -1198,7 +1198,7 @@ public class JvmMethodGen {
         }
     }
 
-    public static String cleanupFunctionName(String functionName) {
+    static String cleanupFunctionName(String functionName) {
 
         return functionName.replaceAll("[\\.:/<>]", "_");
     }
@@ -1892,7 +1892,7 @@ public class JvmMethodGen {
                         isObserved, lambdaMetadata);
             }
 
-            errorGen.generateTryCatch(func, funcName, bb, instGen, termGen, labelGen);
+            errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
 
             BIRBasicBlock thenBB = terminator.thenBB;
             if (thenBB != null) {
@@ -1902,7 +1902,7 @@ public class JvmMethodGen {
         }
     }
 
-    public void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName) {
+    void generateLambdaMethod(BIRInstruction ins, ClassWriter cw, String lambdaName) {
 
         BType lhsType;
         String orgName;

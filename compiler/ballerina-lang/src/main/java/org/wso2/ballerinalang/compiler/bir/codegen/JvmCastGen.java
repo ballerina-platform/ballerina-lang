@@ -100,7 +100,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodG
  */
 public class JvmCastGen {
 
-    //todo: fix this
+    //the symbol table is currently set from package gen class
     static SymbolTable symbolTable;
 
     static void generatePlatformCheckCast(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, BType sourceType,

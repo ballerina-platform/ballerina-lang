@@ -24,7 +24,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
  */
 public class JvmConstants {
 
-    // javm values public API classes
+    // jvm values public API classes
     public static final String BXML_QNAME = "org/ballerinalang/jvm/values/api/BXMLQName";
 
     // jvm runtime values related classes

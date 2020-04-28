@@ -139,16 +139,10 @@ public class CodeGenerator {
         Manifest manifest = new Manifest();
         manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
 
-        if (entries.manifestEntries != null) {
-            Map<String, String> manifestEntries = entries.manifestEntries;
-            manifestEntries.forEach((key, value) -> manifest.getMainAttributes().put(new Attributes.Name(key), value));
-        }
+        entries.manifestEntries.forEach((key, value) ->
+                manifest.getMainAttributes().put(new Attributes.Name(key), value));
 
         try (JarOutputStream target = new JarOutputStream(new FileOutputStream(targetPath.toString()), manifest)) {
-            if (entries.pkgEntries == null) {
-                throw new BLangCompilerException("no class file entries found in the record");
-            }
-
             Map<String, byte[]> jarEntries = entries.pkgEntries;
             for (Map.Entry<String, byte[]> keyVal : jarEntries.entrySet()) {
                 byte[] entryContent = keyVal.getValue();
@@ -161,5 +155,4 @@ public class CodeGenerator {
             throw new BLangCompilerException("jar file generation failed: " + e.getMessage(), e);
         }
     }
-
 }

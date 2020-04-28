@@ -709,8 +709,8 @@ class JvmTypeGen {
                 String.format("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE), false);
     }
 
-    public static void duplicateServiceTypeWithAnnots(MethodVisitor mv, BObjectType objectType, String pkgClassName,
-                                                      int strandIndex) {
+    static void duplicateServiceTypeWithAnnots(MethodVisitor mv, BObjectType objectType, String pkgClassName,
+                                               int strandIndex) {
 
         createServiceType(mv, objectType, objectType);
         mv.visitInsn(DUP);
@@ -948,7 +948,7 @@ class JvmTypeGen {
     //              Type loading methods
     // -------------------------------------------------------
 
-    public static void loadExternalType(MethodVisitor mv, PackageID pkgId, String name) {
+    static void loadExternalType(MethodVisitor mv, PackageID pkgId, String name) {
 
         String fieldName = getTypeFieldName(name);
         String externlTypeOwner = typeRefToClassName(pkgId, MODULE_INIT_CLASS_NAME);
@@ -967,7 +967,7 @@ class JvmTypeGen {
      * @param mv    method visitor
      * @param bType type to load
      */
-    public static void loadType(MethodVisitor mv, BType bType) {
+    static void loadType(MethodVisitor mv, BType bType) {
 
         String typeFieldName = "";
         if (bType == null || bType.tag == TypeTags.NIL) {
@@ -1343,7 +1343,7 @@ class JvmTypeGen {
                 String.format("([L%s;L%s;L%s;)V", BTYPE, BTYPE, BTYPE), false);
     }
 
-    public static String getTypeDesc(BType bType) {
+    static String getTypeDesc(BType bType) {
 
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";

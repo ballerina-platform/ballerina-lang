@@ -27,6 +27,6 @@ import java.util.Map;
  */
 public class JarFile {
 
-    public Map<String, String> manifestEntries = new HashMap<>();
-    public Map<String, byte[]> pkgEntries = new HashMap<>();
+    public final Map<String, String> manifestEntries = new HashMap<>();
+    public final Map<String, byte[]> pkgEntries = new HashMap<>();
 }

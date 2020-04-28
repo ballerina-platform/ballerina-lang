@@ -172,7 +172,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
  */
 public class JvmInstructionGen {
 
-    // todo: fix this
+    //this anytype table is currently set from package gen class
     static BType anyType;
     private MethodVisitor mv;
     private BIRVarToJVMIndexMap indexMap;

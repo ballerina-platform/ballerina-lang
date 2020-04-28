@@ -78,7 +78,7 @@ public class JvmErrorGen {
     }
 
     void generateTryCatch(BIRNode.BIRFunction func, String funcName, BIRNode.BIRBasicBlock currentBB,
-                          JvmInstructionGen instGen, JvmTerminatorGen termGen, LabelGenerator labelGen) {
+                          JvmTerminatorGen termGen, LabelGenerator labelGen) {
 
         BIRNode.BIRErrorEntry currentEE = findErrorEntry(func.errorTable, currentBB);
         if (currentEE == null) {

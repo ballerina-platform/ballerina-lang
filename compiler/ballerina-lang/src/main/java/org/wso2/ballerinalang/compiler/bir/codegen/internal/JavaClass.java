@@ -29,8 +29,8 @@ import java.util.List;
  */
 public class JavaClass {
 
-    public String sourceFileName;
-    public List<BIRNode.BIRFunction> functions = new ArrayList<>();
+    public final String sourceFileName;
+    public final List<BIRNode.BIRFunction> functions = new ArrayList<>();
 
     public JavaClass(String sourceFileName) {
 
