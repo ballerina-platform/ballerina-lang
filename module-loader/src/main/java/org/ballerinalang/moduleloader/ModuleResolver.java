@@ -1,4 +1,4 @@
-package org.ballerinalang.packageloader;
+package org.ballerinalang.moduleloader;
 
 
 public interface ModuleResolver {
