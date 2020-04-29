@@ -6864,7 +6864,7 @@ public class BallerinaParser {
      */
     private STNode parseForEachStatement() {
         startContext(ParserRuleContext.FOREACH_STMT);
-        STNode forEachKeyword = parsePanicKeyword();
+        STNode forEachKeyword = parseForEachKeyword();
         STNode type = parseTypeDescriptor();
         STNode varName = parseVariableName();
         STNode inKeyword = parseInKeyword();
