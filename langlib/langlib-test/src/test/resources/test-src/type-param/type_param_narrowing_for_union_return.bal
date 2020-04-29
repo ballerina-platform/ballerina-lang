@@ -81,19 +81,22 @@ function testIntFloatSimpleArrayMapUnionReturnParameterNarrowing() {
     }
 }
 
-type Foo record {
+type StringIdRecord record {
     string id;
 };
 
-type Bar record {
+type IdAndAge record {
+    string id;
+    int age;
+};
+
+type IntIdRecord record {
     int id;
 };
 
-//function testStreamTypeParamNarrowing() {
-//    Foo[] fooList = [{id: "1234"}, {id: "5678"}];
-//    stream<Foo> fooStream = fooList.toStream();
-//    stream<Foo>|stream<Bar> fooBarStream = fooStream;
-//
-//    var res = fooBarStream.next();
-//    Foo|Bar retValue = <Foo|Bar>res;
-//}
+function testUnionOfRecordTypeParamNarrowing() {
+    StringIdRecord|IntIdRecord recordId = <StringIdRecord>{id: "34"};
+    string|int stringOrIntVar = recordId.get("id");
+    assertEqual("34", stringOrIntVar);
+    assertTrue(fbs is string);
+}

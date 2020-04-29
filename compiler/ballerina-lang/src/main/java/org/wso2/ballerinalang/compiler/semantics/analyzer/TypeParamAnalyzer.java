@@ -323,7 +323,7 @@ public class TypeParamAnalyzer {
                     findTypeParamInStream(pos, ((BStreamType) expType), ((BStreamType) actualType), env, resolvedTypes,
                                           result);
                 }
-                // TODO : Handle unions
+                // TODO : Handle unions after - github.com/ballerina-platform/ballerina-lang/issues/22570
                 return;
             case TypeTags.TUPLE:
                 if (actualType.tag == TypeTags.TUPLE) {
@@ -335,6 +335,10 @@ public class TypeParamAnalyzer {
                 if (actualType.tag == TypeTags.RECORD) {
                     findTypeParamInRecord(pos, (BRecordType) expType, (BRecordType) actualType, env, resolvedTypes,
                                           result);
+                }
+                if (actualType.tag == TypeTags.UNION) {
+                    findTypeParamInUnion(pos, expType, (BUnionType) actualType, env,
+                                         resolvedTypes, result);
                 }
                 return;
             case TypeTags.INVOKABLE:
@@ -419,6 +423,11 @@ public class TypeParamAnalyzer {
             }
             if (type.tag == TypeTags.MAP) {
                 members.add(((BMapType) type).constraint);
+            }
+            if (type.tag == TypeTags.RECORD) {
+                for (BField field : ((BRecordType) type).getFields()) {
+                    members.add(field.type);
+                }
             }
         }
         BUnionType tupleElementType = BUnionType.create(null, members);
