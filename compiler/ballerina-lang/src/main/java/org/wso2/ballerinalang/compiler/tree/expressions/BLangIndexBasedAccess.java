@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 public class BLangIndexBasedAccess extends BLangAccessExpression implements IndexBasedAccessNode {
 
     public BLangExpression indexExpr;
-    public BLangTableMultiKeyExpr multiKeyExpr;
 
     // Only used at Desugar and after.
     public boolean isStoreOnCreation = false;
@@ -49,16 +48,7 @@ public class BLangIndexBasedAccess extends BLangAccessExpression implements Inde
 
     @Override
     public String toString() {
-        if (indexExpr != null) {
-            return String.valueOf(expr) + "[" + String.valueOf(indexExpr) + "]";
-        } else {
-            return String.valueOf(expr) + "[" + multiKeyExpr.toString();
-        }
-    }
-
-    @Override
-    public BLangTableMultiKeyExpr getMultiKeyExpr() {
-        return this.multiKeyExpr;
+        return String.valueOf(expr) + "[" + String.valueOf(indexExpr) + "]";
     }
 
     @Override

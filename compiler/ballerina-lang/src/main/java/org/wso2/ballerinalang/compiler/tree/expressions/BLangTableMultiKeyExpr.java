@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Represents an expression which can hold expressions related to table member access.
+ *
  * @since 1.3.0
  */
 public class BLangTableMultiKeyExpr extends BLangAccessExpression implements TableMultiKeyExpressionNode {

@@ -93,3 +93,37 @@ function getKeysFromKeyLessTbl() returns boolean {
     ];
     return keyless.keys().length() == 0;
 }
+
+function getValueFromTable() {
+    table<Person> tab = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+
+    Person person = tab.get("Chiran");
+    int value = person["age"];
+}
+
+function removeWithInvalidKey() returns boolean {
+    table<Person> tab = table [
+      { name: "Chiran", age: 33 },
+      { name: "Mohan", age: 37 },
+      { name: "Gima", age: 38 },
+      { name: "Granier", age: 34 }
+    ];
+
+    Person removedPerson = tab.remove("Chiran");
+    return removedPerson.name == "Chiran";
+}
+
+function removeIfHasKey() returns boolean {
+    table<Person> tbl = table [{ name: "Chiran", age: 33 },
+    { name: "Mohan", age: 37 },
+    { name: "Gima", age: 38 },
+    { name: "Granier", age: 34 }];
+    Person? removedPerson1 = tbl.removeIfHasKey("AAA");
+    Person? removedPerson2 = tbl.removeIfHasKey("Chiran");
+    return removedPerson1 == () && removedPerson2?.name == "Chiran";
+}

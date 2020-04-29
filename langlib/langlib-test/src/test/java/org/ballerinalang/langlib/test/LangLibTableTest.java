@@ -154,18 +154,27 @@ public class LangLibTableTest {
 
     @Test
     public void testCompilerNegativeCases() {
-        validateError(negativeResult, 0, "incompatible types: expected 'table<Employee> " +
+        assertEquals(negativeResult.getErrorCount(), 9);
+        int index = 0;
+        validateError(negativeResult, index++, "incompatible types: expected 'table<Employee> " +
                 "key(name)', found 'table<Person> key<string>'", 66, 36);
-        validateError(negativeResult, 1, "incompatible types: expected 'Employee', " +
+        validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
                 "found 'Person'", 66, 47);
-        validateError(negativeResult, 2, "incompatible types: expected " +
+        validateError(negativeResult, index++, "incompatible types: expected " +
                         "'object { public function next () returns (record {| Employee value; |}?); }', found " +
                         "'object { public function next () returns (record {| Person value; |}?); }'",
                 75, 92);
-        validateError(negativeResult, 3, "incompatible types: expected 'table<(any|error)> " +
+        validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
                 "key<int>', found 'table<Person> key(name)'", 82, 12);
-        validateError(negativeResult, 4, "incompatible types: expected 'table<(any|error)> " +
+        validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
                 "key<anydata>', found 'table<Person>'", 94, 12);
-        assertEquals(negativeResult.getErrorCount(), 5);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
+                "key<anydata>', found 'table<Person>'", 105, 21);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
+                "key<anydata>', found 'table<Person>'", 117, 28);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
+                "key<anydata>', found 'table<Person>'", 126, 30);
+        validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
+                "key<anydata>', found 'table<Person>'", 127, 30);
     }
 }

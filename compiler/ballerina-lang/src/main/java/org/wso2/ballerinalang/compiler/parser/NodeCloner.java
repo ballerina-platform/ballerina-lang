@@ -307,7 +307,6 @@ public class NodeCloner extends BLangNodeVisitor {
     private void cloneBLangIndexBasedAccess(BLangIndexBasedAccess source, BLangIndexBasedAccess clone) {
 
         clone.indexExpr = clone(source.indexExpr);
-        clone.multiKeyExpr = clone(source.multiKeyExpr);
         cloneBLangAccessExpression(source, clone);
     }
 

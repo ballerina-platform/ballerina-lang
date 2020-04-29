@@ -749,7 +749,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         analyzeNode(indexAccessExpr.expr, env);
         analyzeNode(indexAccessExpr.indexExpr, env);
-        analyzeNode(indexAccessExpr.multiKeyExpr, env);
     }
 
     @Override

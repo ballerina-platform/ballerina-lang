@@ -1996,7 +1996,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
-        analyzeExpr(indexAccessExpr.multiKeyExpr);
     }
 
     public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {

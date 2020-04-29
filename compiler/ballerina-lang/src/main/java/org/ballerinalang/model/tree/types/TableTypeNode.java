@@ -21,9 +21,9 @@ import org.ballerinalang.model.tree.TableKeySpecifierNode;
 import org.ballerinalang.model.tree.TableKeyTypeConstraintNode;
 
 /**
- * table&lt;Person&gt; key(...);.
+ * {@code TableTypeNode} represents a table type node in Ballerina.
  *
- * @since 1.2.0
+ * @since 1.3.0
  */
 public interface TableTypeNode extends TypeNode {
 
