@@ -10,6 +10,9 @@
 import ballerina/java;{{/if}}
 
 # Ballerina object mapping for the {{#if isInterface}}Java interface{{else}}{{#if isAbstract}}Java abstract class{{else}}Java class{{/if}}{{/if}} `{{className}}`.
+#
+# + _{{shortClassName}} - The field that represents this Ballerina object, which is used for Java subtyping.{{#each superClasses}}
+# + _{{this}} - The field that represents the superclass object `{{this}}`.{{/each}}
 public type {{shortClassName}} object {
 
     *JObject;
@@ -60,8 +63,7 @@ public type {{shortClassName}} object {
     }{{/if}}{{/unless}}{{/fieldList}}
 };
 {{#initFunctionList}}
-        public function new{{shortClassName}}{{constructorName}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) returns {{shortClassName}}{{#if hasException}}{{#if handleException}}|{{exceptionName}}{{/if}}{{#if returnError}}|error{{/if}}{{/if}} {
-
+public function new{{shortClassName}}{{constructorName}}({{#parameters}}{{shortTypeName}} {{fieldName}}{{#if hasNext}}, {{/if}}{{/parameters}}) returns {{shortClassName}}{{#if hasException}}{{#if handleException}}|{{exceptionName}}{{/if}}{{#if returnError}}|error{{/if}}{{/if}} {
     handle{{#if handleException}}|error{{/if}} obj = {{prefix}}_{{externalFunctionName}}({{#parameters}}{{#getParams this ""}}{{/getParams}}{{/parameters}});{{#if handleException}}
     if (obj is error) {
         {{exceptionName}} e = {{exceptionName}}(message = obj.reason(), cause = obj);
