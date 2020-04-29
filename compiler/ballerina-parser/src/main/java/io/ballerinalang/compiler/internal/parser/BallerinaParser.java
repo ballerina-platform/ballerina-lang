@@ -6920,8 +6920,7 @@ public class BallerinaParser {
 
     /**
      * Parse foreach statement.
-     * <code>foreach-stmt :=
-     foreach typed-binding-pattern in action-or-expr block-stmt</code>
+     * <code>foreach-stmt := foreach typed-binding-pattern in action-or-expr block-stmt</code>
      *
      * @return foreach statement
      */
@@ -6935,11 +6934,11 @@ public class BallerinaParser {
         STNode blockStatement = parseBlockNode();
         endContext();
         return STNodeFactory.createForEachStatementNode(forEachKeyword,
-                type,
-                varName,
-                inKeyword,
-                actionOrExpr,
-                blockStatement);
+                                                        type,
+                                                        varName,
+                                                        inKeyword,
+                                                        actionOrExpr,
+                                                        blockStatement);
     }
 
     /**
