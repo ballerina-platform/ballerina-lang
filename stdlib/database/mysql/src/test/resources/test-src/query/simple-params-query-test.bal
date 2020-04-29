@@ -803,8 +803,7 @@ function getTextColumnChannel() returns @untainted io:ReadableCharacterChannel|e
 function queryMysqlClient(@untainted string|sql:ParameterizedString sqlQuery, typedesc<record {}>? resultType = ())
 returns @tainted record {}|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
-    stream
-    <record {}, error> streamData = dbClient->query(sqlQuery, resultType);
+    stream<record {}, error> streamData = dbClient->query(sqlQuery, resultType);
     record {|record {} value;|}? data = check streamData.next();
     check streamData.close();
     record {}? value = data?.value;
