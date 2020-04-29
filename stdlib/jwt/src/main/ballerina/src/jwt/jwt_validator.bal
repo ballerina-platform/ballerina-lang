@@ -350,7 +350,7 @@ function validateSignatureByJwks(string jwt, string kid, JwtSigningAlgorithm alg
     }
     string modulus = <string>jwk.n;
     string exponent = <string>jwk.e;
-    crypto:PublicKey|crypto:Error publicKey = crypto:generatePublicKey(modulus, exponent);
+    crypto:PublicKey|crypto:Error publicKey = crypto:buildRsaPublicKey(modulus, exponent);
     if (publicKey is crypto:Error) {
        return prepareError("Public key generation failed.", publicKey);
     }
