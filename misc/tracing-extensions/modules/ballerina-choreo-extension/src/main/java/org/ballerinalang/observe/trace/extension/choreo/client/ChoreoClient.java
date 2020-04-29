@@ -38,8 +38,8 @@ import java.util.concurrent.TimeUnit;
 public class ChoreoClient implements AutoCloseable {
     private static final Logger LOGGER = LogFactory.getLogger();
 
-    private static final int MESSAGE_SIZE_BUFFER = 200 * 1024; // Buffer for the rest of the content in the message
-    private static final int SERVER_MAX_FRAME_SIZE = 4 * 1024 * 1024 - MESSAGE_SIZE_BUFFER;
+    private static final int MESSAGE_SIZE_BUFFER_BYTES = 200 * 1024; // Buffer for the rest of the content
+    private static final int SERVER_MAX_FRAME_SIZE_BYTES = 4 * 1024 * 1024 - MESSAGE_SIZE_BUFFER_BYTES;
 
     private String id;      // ID received from the handshake
     private String instanceId;
@@ -94,7 +94,7 @@ public class ChoreoClient implements AutoCloseable {
             TelemetryOuterClass.MetricsPublishRequest.Builder requestBuilder =
                     TelemetryOuterClass.MetricsPublishRequest.newBuilder();
             int messageSize = 0;
-            while (i < metrics.length && messageSize < SERVER_MAX_FRAME_SIZE) {
+            while (i < metrics.length && messageSize < SERVER_MAX_FRAME_SIZE_BYTES) {
                 ChoreoMetric metric = metrics[i];
                 TelemetryOuterClass.Metric metricMessage = TelemetryOuterClass.Metric.newBuilder()
                         .setTimestamp(metric.getTimestamp())
@@ -104,14 +104,14 @@ public class ChoreoClient implements AutoCloseable {
                         .build();
 
                 int currentMessageSize = metricMessage.getSerializedSize();
-                if (currentMessageSize >= SERVER_MAX_FRAME_SIZE) {
+                if (currentMessageSize >= SERVER_MAX_FRAME_SIZE_BYTES) {
                     LOGGER.error("Dropping metric with size %d larger than gRPC frame limit %d",
-                            currentMessageSize, SERVER_MAX_FRAME_SIZE);
+                            currentMessageSize, SERVER_MAX_FRAME_SIZE_BYTES);
                     i++;
                     continue;
                 }
                 messageSize += currentMessageSize;
-                if (messageSize < SERVER_MAX_FRAME_SIZE) {
+                if (messageSize < SERVER_MAX_FRAME_SIZE_BYTES) {
                     requestBuilder.addMetrics(metricMessage);
                     i++;
                 }
@@ -129,7 +129,7 @@ public class ChoreoClient implements AutoCloseable {
             TelemetryOuterClass.TracesPublishRequest.Builder requestBuilder =
                     TelemetryOuterClass.TracesPublishRequest.newBuilder();
             int messageSize = 0;
-            while (i < traceSpans.length && messageSize < SERVER_MAX_FRAME_SIZE) {
+            while (i < traceSpans.length && messageSize < SERVER_MAX_FRAME_SIZE_BYTES) {
                 ChoreoTraceSpan traceSpan = traceSpans[i];
                 TelemetryOuterClass.TraceSpan.Builder traceSpanBuilder = TelemetryOuterClass.TraceSpan.newBuilder()
                         .setTraceId(traceSpan.getTraceId())
@@ -150,14 +150,14 @@ public class ChoreoClient implements AutoCloseable {
 
                 TelemetryOuterClass.TraceSpan traceSpanMessage = traceSpanBuilder.build();
                 int currentMessageSize = traceSpanMessage.getSerializedSize();
-                if (currentMessageSize >= SERVER_MAX_FRAME_SIZE) {
+                if (currentMessageSize >= SERVER_MAX_FRAME_SIZE_BYTES) {
                     LOGGER.error("Dropping trace span with size %d larger than gRPC frame limit %d",
-                            currentMessageSize, SERVER_MAX_FRAME_SIZE);
+                            currentMessageSize, SERVER_MAX_FRAME_SIZE_BYTES);
                     i++;
                     continue;
                 }
                 messageSize += currentMessageSize;
-                if (messageSize < SERVER_MAX_FRAME_SIZE) {
+                if (messageSize < SERVER_MAX_FRAME_SIZE_BYTES) {
                     requestBuilder.addSpans(traceSpanMessage);
                     i++;
                 }

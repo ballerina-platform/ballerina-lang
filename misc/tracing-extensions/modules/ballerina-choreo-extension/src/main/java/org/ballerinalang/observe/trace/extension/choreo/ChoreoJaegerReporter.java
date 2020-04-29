@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
  * Custom Jaeger tracing reporter for publishing stats to Choreo cloud.
  */
 public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
-    private static final int PUBLISH_INTERVAL = 10;
+    private static final int PUBLISH_INTERVAL_SECS = 10;
     private static final Logger LOGGER = LogFactory.getLogger();
 
     private ScheduledExecutorService executorService;
@@ -57,7 +57,7 @@ public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
         this.maxQueueSize = maxQueueSize;
         executorService = new ScheduledThreadPoolExecutor(1);
         task = new Task(choreoClient);
-        executorService.scheduleAtFixedRate(task, PUBLISH_INTERVAL, PUBLISH_INTERVAL, TimeUnit.SECONDS);
+        executorService.scheduleAtFixedRate(task, PUBLISH_INTERVAL_SECS, PUBLISH_INTERVAL_SECS, TimeUnit.SECONDS);
         LOGGER.info("started publishing traces to Choreo");
     }
 

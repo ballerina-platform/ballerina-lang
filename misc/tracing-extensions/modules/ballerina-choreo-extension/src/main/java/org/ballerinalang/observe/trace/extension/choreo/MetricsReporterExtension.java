@@ -52,7 +52,7 @@ import static org.ballerinalang.observe.trace.extension.choreo.Constants.EXTENSI
 public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
     private static final Logger LOGGER = LogFactory.getLogger();
 
-    private static final int PUBLISH_INTERVAL = 10;
+    private static final int PUBLISH_INTERVAL_SECS = 10;
     private static final String UP_METRIC_NAME = "up";
     private static final String TIME_WINDOW_TAG_KEY = "timeWindow";
     private static final String PERCENTILE_TAG_KEY = "percentile";
@@ -73,7 +73,7 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
 
         executorService = new ScheduledThreadPoolExecutor(1);
         task = new Task(choreoClient);
-        executorService.scheduleWithFixedDelay(task, 0, PUBLISH_INTERVAL, TimeUnit.SECONDS);
+        executorService.scheduleWithFixedDelay(task, 0, PUBLISH_INTERVAL_SECS, TimeUnit.SECONDS);
         LOGGER.info("started publishing metrics to Choreo");
     }
 

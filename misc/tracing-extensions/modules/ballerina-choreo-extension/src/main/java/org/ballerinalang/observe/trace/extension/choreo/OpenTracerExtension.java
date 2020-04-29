@@ -33,7 +33,7 @@ import static org.ballerinalang.observe.trace.extension.choreo.Constants.EXTENSI
  * This is the open tracing extension class for {@link OpenTracer}.
  */
 public class OpenTracerExtension implements OpenTracer {
-    private static Reporter reporterInstance;
+    private static volatile Reporter reporterInstance;
     private ChoreoClient choreoClient;
 
     @Override
