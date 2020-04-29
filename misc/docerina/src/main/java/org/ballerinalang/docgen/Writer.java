@@ -167,7 +167,7 @@ public class Writer {
             label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
                     + "</span>";
         } else if ("builtin".equals(type.category) || "lang.annotations".equals(type.moduleName)
-                || !type.generateUserDefinedTypeLink) {
+                || !type.generateUserDefinedTypeLink || "UNKNOWN".equals(type.category)) {
             label = "<span class=\"builtin-type\">" + type.name + getSuffixes(type) + "</span>";
         } else {
             label = getHtmlLink(type, root);
