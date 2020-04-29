@@ -306,6 +306,4 @@ public class ComplexTypesQueryTest {
             Assert.fail("Parsing the returned date/time/timestamp value has failed", e);
         }
     }
-	
-    
 }
