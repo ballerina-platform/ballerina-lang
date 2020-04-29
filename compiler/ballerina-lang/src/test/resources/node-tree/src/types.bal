@@ -23,8 +23,8 @@ function testTypes() {
     () f = ();
     io:println(f);
 
-    xml g = xml `<a></a>`; //xml-xpr not supported yet
-    io:println(g);
+    //xml g = xml `<a></a>`; //xml-xpr not supported yet
+    //io:println(g);
 
     json h = {foo : 1};
     json h2 = null;

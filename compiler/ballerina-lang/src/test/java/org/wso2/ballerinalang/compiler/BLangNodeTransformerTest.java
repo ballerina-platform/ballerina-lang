@@ -108,8 +108,8 @@ public class BLangNodeTransformerTest {
 
         // Fix test cases replacing expected using responses
 //        if (!expJsonObj.equals(actualJsonObj)) {
-//            java.nio.file.Files.write(RES_DIR.resolve(configName),
-//                                      actualJsonObj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+//        java.nio.file.Files.write(RES_DIR.resolve(configName),
+//                                  actualJsonObj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
 //        }
         Assert.assertEquals(actualJsonObj, expJsonObj);
     }
@@ -183,14 +183,13 @@ public class BLangNodeTransformerTest {
             builder.append("null");
             return builder.toString();
         } else if (ClassUtils.isPrimitiveOrWrapper(objVal.getClass()) || objVal instanceof String) {
-            boolean isString = objVal instanceof String;
             // Value is a builtin type
-            if (isString) {
+            if (objVal instanceof String) {
                 builder.append("\"");
-            }
-            builder.append(objVal);
-            if (isString) {
+                builder.append(objVal.toString().replaceAll("\"", "\\\\\""));
                 builder.append("\"");
+            } else {
+                builder.append(objVal);
             }
             return builder.toString();
         } else {
