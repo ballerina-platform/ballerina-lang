@@ -23,3 +23,11 @@ function basicTupleAssignmentNegative() returns string {
 function testTupleInUnionReturn() returns [string, int, boolean]|string {
     return ["", 5, true, false]; // this should fail
 }
+
+function testTupleToTupleAssignmentWithIncompatibleMemCount() {
+    [int] i = [1];
+    [int, int, string...] j = i;
+
+    [int, float, string...] k = [2, 3];
+    [int, float, string, string...] l = k;
+}
