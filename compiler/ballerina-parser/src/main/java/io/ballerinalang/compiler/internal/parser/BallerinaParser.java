@@ -3608,13 +3608,13 @@ public class BallerinaParser {
         STToken secondToken = peek(2);
         switch (secondToken.kind) {
             case EQUAL_TOKEN:
-                STNode argNameOrVarRef = consume();
+                STNode argNameOrVarRef = STNodeFactory.createSimpleNameReferenceNode(consume());
                 STNode equal = parseAssignOp();
                 STNode expr = parseExpression();
                 return STNodeFactory.createNamedArgumentNode(leadingComma, argNameOrVarRef, equal, expr);
             case COMMA_TOKEN:
             case CLOSE_PAREN_TOKEN:
-                argNameOrVarRef = consume();
+                argNameOrVarRef = STNodeFactory.createSimpleNameReferenceNode(consume());
                 return STNodeFactory.createPositionalArgumentNode(leadingComma, argNameOrVarRef);
 
             // Treat everything else as a single expression. If something is missing,
