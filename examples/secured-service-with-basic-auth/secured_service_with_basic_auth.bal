@@ -19,7 +19,8 @@ listener http:Listener ep = new (9090, config = {
     // The secure hello world sample uses HTTPS.
     secureSocket: {
         keyStore: {
-            path: config:getAsString("b7a.home") + "bre/security/ballerinaKeystore.p12",
+            path: config:getAsString("b7a.home") +
+                  "/bre/security/ballerinaKeystore.p12",
             password: "ballerina"
         }
     }

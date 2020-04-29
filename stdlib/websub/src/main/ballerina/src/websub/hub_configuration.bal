@@ -40,7 +40,7 @@ http:ClientConfiguration? hubClientConfig = ();
 HubPersistenceStore? hubPersistenceStoreImpl = ();
 boolean hubPersistenceEnabled = false;
 
-# Function to attach and start the Ballerina WebSub Hub service.
+# Attaches and starts the Ballerina WebSub Hub service.
 #
 # + hubServiceListener - The `http:Listener` to which the service is attached
 function startHubService(http:Listener hubServiceListener) {
@@ -49,16 +49,16 @@ function startHubService(http:Listener hubServiceListener) {
     checkpanic hubServiceListener.__start();
 }
 
-# Function to retrieve if persistence is enabled for the Hub.
+# Retrieves if persistence is enabled for the Hub.
 #
-# + return - True if persistence is enabled, false if not
+# + return - `true` if persistence is enabled or else `false` otherwise
 function isHubPersistenceEnabled() returns boolean {
     return hubPersistenceEnabled;
 }
 
-# Function to retrieve if topics need to be registered at the Hub prior to publishing/subscribing.
+# Retrieves if topics need to be registered at the Hub prior to publishing/subscribing.
 #
-# + return - True if persistence is enabled, false if not
+# + return - `true` if persistence is enabled or else `false` otherwise
 function isHubTopicRegistrationRequired() returns boolean {
     return hubTopicRegistrationRequired;
 }

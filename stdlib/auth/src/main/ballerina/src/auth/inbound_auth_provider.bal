@@ -14,13 +14,15 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the inbound Auth provider. Any type of implementation such as JWT, OAuth2, LDAP, JDBC, file-based etc.
-# should be object-wise similar.
+# Represents the inbound Auth provider, which could be used to authenticate endpoints. The `auth:InboundAuthProvider` acts
+# as the interface for all the inbound authentication providers. Any type of implementation such as JWT, OAuth2,
+# LDAP, JDBC, file-based etc. should be object-wise similar.
 public type InboundAuthProvider abstract object {
 
-    # Authenticate with credential value passed.
+    # Authenticates the user based on the user credentials (i.e., the username/password) or a token such as JWT or
+    # OAuth2.
     #
-    # + credential - Credential value
-    # + return - True if authentication is a success, else false or `Error` if any error occurred
+    # + credential - The `string` credential value
+    # + return - `true` if the authentication is successful, `false` otherwise, or else an `auth:Error` in case of an error
     public function authenticate(string credential) returns boolean|Error;
 };

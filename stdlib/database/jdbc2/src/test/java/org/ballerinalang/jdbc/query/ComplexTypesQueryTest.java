@@ -42,6 +42,8 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
+import static org.ballerinalang.test.util.BAssertUtil.validateError;
+
 /**
  * This test class handles the complex sql types to ballerina type conversion for query operation.
  *
@@ -50,6 +52,7 @@ import java.util.TimeZone;
 public class ComplexTypesQueryTest {
 
     private CompileResult result;
+    private CompileResult negativeResult;
     private static final String DB_NAME = "TEST_SQL_COMPLEX_QUERY";
     private static final String JDBC_URL = "jdbc:h2:file:" + SQLDBUtils.DB_DIR + DB_NAME;
     private BValue[] args = {new BString(JDBC_URL), new BString(SQLDBUtils.DB_USER),
@@ -58,6 +61,8 @@ public class ComplexTypesQueryTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query", "complex-query-test.bal"));
+        negativeResult = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query",
+                "complex-query-negative-test.bal"));
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,
                 SQLDBUtils.getSQLResourceDir("query", "complex-test-data.sql"));
@@ -296,5 +301,13 @@ public class ComplexTypesQueryTest {
         } catch (ParseException e) {
             Assert.fail("Parsing the returned date/time/timestamp value has failed", e);
         }
+    }
+    @Test(description = "Test string representation of stream type")
+    public void testErrorInStringRepresentation() {
+        validateError(negativeResult, 0,
+                "incompatible types: expected 'stream<Student," +
+                        "(ballerina/sql:DatabaseError|ballerina/sql:ApplicationError)>', " +
+                        "found 'stream<record {| anydata...; |}," +
+                        "(ballerina/sql:DatabaseError|ballerina/sql:ApplicationError)>'", 25, 41);
     }
 }

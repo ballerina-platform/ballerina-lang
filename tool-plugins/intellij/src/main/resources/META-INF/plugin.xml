@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.2.1</version>
+    <version>1.2.2</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -13,9 +13,7 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li> Fixed invalid cursor placement after ballerina strings being hard wrapped while typing. </li>
-        <li> Fixed potential NPE when working with ballerina documentation in some contexts. </li>
-        <li> Improved error notifications on language server startup failures. </li>
+        <li> Fixed compatibility issues with IntelliJ IDEA 2020.1 platform. </li>
       </ul>
     ]]>
     </change-notes>
