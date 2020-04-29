@@ -424,6 +424,10 @@ public class ParserTestUtils {
                 return SyntaxKind.FORK_KEYWORD;
             case "TRAP_KEYWORD":
                 return SyntaxKind.TRAP_KEYWORD;
+            case "FOREACH_KEYWORD":
+                return SyntaxKind.FOREACH_KEYWORD;
+            case "IN_KEYWORD":
+                return SyntaxKind.IN_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -600,6 +604,8 @@ public class ParserTestUtils {
                 return SyntaxKind.LOCK_STATEMENT;
             case "FORK_STATEMENT":
                 return SyntaxKind.FORK_STATEMENT;
+            case "FOREACH_STATEMENT":
+                return SyntaxKind.FOREACH_STATEMENT;
 
             // Types
             case "TYPE_DESC":

@@ -569,6 +569,37 @@
             ]
         },
         {
+            "name": "ForEachStatementNode",
+            "base": "StatementNode",
+            "kind": "FOREACH_STATEMENT",
+            "attributes": [
+                {
+                    "name": "forEachKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typeDescriptor",
+                    "type": "Node"
+                },
+                {
+                    "name": "variableName",
+                    "type": "Token"
+                },
+                {
+                    "name": "inKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "ActionOrExpressionNode",
+                    "type": "Node"
+                },
+                {
+                    "name": "blockStatement",
+                    "type": "StatementNode"
+                }
+            ]
+        },
+        {
             "name": "ExpressionNode",
             "base": "Node",
             "isAbstract": true

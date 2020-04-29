@@ -65,6 +65,8 @@ public enum SyntaxKind {
     LOCK_KEYWORD(216, "lock"),
     FORK_KEYWORD(217, "fork"),
     TRAP_KEYWORD(218,"trap"),
+    IN_KEYWORD(219,"in"),
+    FOREACH_KEYWORD(220,"foreach"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -169,6 +171,7 @@ public enum SyntaxKind {
     LOCK_STATEMENT(1214),
     NAMED_WORKER_DECLARATION(1215),
     FORK_STATEMENT(1216),
+    FOREACH_STATEMENT(1217),
 
     // Expressions
     BINARY_EXPRESSION(1300),

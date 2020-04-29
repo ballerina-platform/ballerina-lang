@@ -146,6 +146,7 @@ public enum ParserRuleContext {
     LOCK_STMT("lock-stmt"),
     NAMED_WORKER_DECL("named-worker-decl"),
     FORK_STMT("fork-stmt"),
+    FOREACH_STMT("foreach-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -188,6 +189,8 @@ public enum ParserRuleContext {
     WORKER_KEYWORD("worker"),
     FORK_KEYWORD("fork"),
     TRAP_KEYWORD("trap"),
+    IN_KEYWORD("in"),
+    FOREACH_KEYWORD("foreach"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
