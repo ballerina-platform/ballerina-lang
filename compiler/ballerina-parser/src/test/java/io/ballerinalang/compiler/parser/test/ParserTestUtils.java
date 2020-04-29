@@ -556,6 +556,8 @@ public class ParserTestUtils {
                 return SyntaxKind.TRAP_EXPRESSION;
             case "LIST_CONSTRUCTOR":
                 return SyntaxKind.LIST_CONSTRUCTOR;
+            case "TYPE_CAST_EXPRESSION":
+                return SyntaxKind.TYPE_CAST_EXPRESSION;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -702,6 +704,8 @@ public class ParserTestUtils {
                 return SyntaxKind.DOCUMENTATION_STRING;
             case "DOCUMENTATION_LINE":
                 return SyntaxKind.DOCUMENTATION_LINE;
+            case "TYPE_CAST_PARAM":
+                return SyntaxKind.TYPE_CAST_PARAM;
 
             // Trivia
             case "EOF_TOKEN":
