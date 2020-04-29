@@ -77,6 +77,8 @@ public class CodeGenerator {
 
     public void generate(BIRNode.BIRPackage entryMod, Path target, Set<Path> moduleDependencies) {
 
+        jvmPackageGen.clearPackageGenInfoMaps();
+
         if (compiledPkgCache.containsValue(entryMod)) {
             return;
         }

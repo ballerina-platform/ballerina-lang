@@ -142,6 +142,8 @@ public class JvmPackageGen {
 
     private JvmPackageGen(CompilerContext compilerContext) {
 
+        compilerContext.put(JVM_PACKAGE_GEN_CHECKER_KEY, this);
+
         birFunctionMap = new HashMap<>();
         globalVarClassNames = new HashMap<>();
         externalMapCache = new HashMap<>();
@@ -803,6 +805,14 @@ public class JvmPackageGen {
         }
 
         return result;
+    }
+
+    void clearPackageGenInfoMaps() {
+
+        birFunctionMap.clear();
+        globalVarClassNames.clear();
+        externalMapCache.clear();
+        dependentModules.clear();
     }
 
 }
