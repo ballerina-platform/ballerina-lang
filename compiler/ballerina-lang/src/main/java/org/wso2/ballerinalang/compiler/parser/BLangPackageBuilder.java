@@ -388,7 +388,7 @@ public class BLangPackageBuilder {
         if (rhsTypeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
             intersectionTypeNode = (BLangIntersectionTypeNode) rhsTypeNode;
             intersectionTypeNode.constituentTypeNodes.add(0, lhsTypeNode);
-        } else if (lhsTypeNode.getKind() == NodeKind.UNION_TYPE_NODE) {
+        } else if (lhsTypeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
             intersectionTypeNode = (BLangIntersectionTypeNode) lhsTypeNode;
             intersectionTypeNode.constituentTypeNodes.add(rhsTypeNode);
         } else {
