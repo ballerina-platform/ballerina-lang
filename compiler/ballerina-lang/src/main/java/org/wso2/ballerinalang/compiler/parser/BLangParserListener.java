@@ -2753,6 +2753,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitOnConflictClause(BallerinaParser.OnConflictClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createOnConflictClause(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitDoClause(BallerinaParser.DoClauseContext ctx) {
         if (isInErrorState) {
             return;

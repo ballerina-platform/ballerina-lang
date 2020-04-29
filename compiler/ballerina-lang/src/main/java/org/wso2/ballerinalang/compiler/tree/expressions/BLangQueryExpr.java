@@ -17,17 +17,11 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.ballerinalang.model.clauses.FromClauseNode;
-import org.ballerinalang.model.clauses.LetClauseNode;
-import org.ballerinalang.model.clauses.SelectClauseNode;
-import org.ballerinalang.model.clauses.WhereClauseNode;
+import org.ballerinalang.model.clauses.*;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +38,7 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     public BLangSelectClause selectClause;
     public List<BLangWhereClause> whereClauseList = new ArrayList<>();
     public List<BLangLetClause> letClausesList = new ArrayList<>();
+    public BLangOnConflictClause onConflictClause;
 
     @Override
     public List<? extends FromClauseNode> getFromClauseNodes() {
@@ -63,6 +58,14 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     @Override
     public void setSelectClauseNode(SelectClauseNode selectClauseNode) {
         this.selectClause = (BLangSelectClause) selectClauseNode;
+    }
+
+    @Override
+    public OnConflictClauseNode getOnConflictClauseNode() { return onConflictClause; }
+
+    @Override
+    public void setOnConflictClauseNode(OnConflictClauseNode onConflictClauseNode) {
+        this.onConflictClause = (BLangOnConflictClause) onConflictClauseNode;
     }
 
     @Override
@@ -102,6 +105,8 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
                 + "\n" +
                 whereClauseList.stream().map(BLangWhereClause::toString).collect(Collectors.joining("\n"))
                 + "\n" +
-                selectClause.toString();
+                selectClause.toString()
+                + "\n" +
+                onConflictClause.toString();
     }
 }

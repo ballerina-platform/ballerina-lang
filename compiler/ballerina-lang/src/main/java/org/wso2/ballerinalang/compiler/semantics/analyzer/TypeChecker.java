@@ -75,11 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
-import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.*;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -3010,6 +3006,10 @@ public class TypeChecker extends BLangNodeVisitor {
             parentEnv = typeCheckLetClause((BLangLetClause) letClauseNode, parentEnv);
         }
         BLangSelectClause selectClause = queryExpr.selectClause;
+        BLangOnConflictClause onConflictClause = queryExpr.onConflictClause;
+        if(onConflictClause != null){
+            typeCheckOnConflictClause(onConflictClause, parentEnv);
+        }
         SymbolEnv whereEnv = parentEnv;
         for (WhereClauseNode whereClauseNode : whereClauseList) {
             whereEnv = typeCheckWhereClause((BLangWhereClause) whereClauseNode, selectClause, parentEnv);
@@ -3152,6 +3152,16 @@ public class TypeChecker extends BLangNodeVisitor {
                        symTable.booleanType, actualType);
         }
         return typeNarrower.evaluateTruth(whereClause.expression, selectClause, parentEnv);
+    }
+
+    private SymbolEnv typeCheckOnConflictClause(BLangOnConflictClause onConflictClause, SymbolEnv parentEnv){
+
+        BType exprType = checkExpr(onConflictClause.expression, parentEnv, symTable.errorType);
+        if(!types.isAssignable(exprType, symTable.errorType)){
+            dlog.error(onConflictClause.expression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED,
+                    symTable.errorType, exprType);
+        }
+        return parentEnv;
     }
 
     private void handleFromClauseVariables(BLangFromClause fromClause, SymbolEnv blockEnv) {

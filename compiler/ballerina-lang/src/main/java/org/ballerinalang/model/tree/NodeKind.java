@@ -169,6 +169,7 @@ public enum NodeKind {
     WHERE,
     DO,
     LET_CLAUSE,
+    ON_CONFLICT,
 
     /* Types */
     ARRAY_TYPE,
