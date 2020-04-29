@@ -17,14 +17,13 @@ package org.ballerinalang.observe.trace.extension.choreo;
 
 import io.jaegertracing.internal.JaegerTracer;
 import io.jaegertracing.internal.samplers.GuaranteedThroughputSampler;
+import io.jaegertracing.spi.Reporter;
 import io.opentracing.Tracer;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.observability.tracer.OpenTracer;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClient;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClientHolder;
-import org.ballerinalang.observe.trace.extension.choreo.logging.LogFactory;
-import org.ballerinalang.observe.trace.extension.choreo.logging.Logger;
 
 import java.util.Objects;
 
@@ -34,8 +33,7 @@ import static org.ballerinalang.observe.trace.extension.choreo.Constants.EXTENSI
  * This is the open tracing extension class for {@link OpenTracer}.
  */
 public class OpenTracerExtension implements OpenTracer {
-    private static final Logger LOGGER = LogFactory.getLogger();
-
+    private static volatile Reporter reporterInstance;
     private ChoreoClient choreoClient;
 
     @Override
@@ -46,7 +44,6 @@ public class OpenTracerExtension implements OpenTracer {
                     StringUtils.fromString("Choreo client is not initialized. Please check Ballerina configurations."),
                     null);
         }
-        LOGGER.info("started publishing traces to Choreo");
     }
 
     @Override
@@ -57,9 +54,16 @@ public class OpenTracerExtension implements OpenTracer {
                     null);
         }
 
+        if (reporterInstance == null) { // Singleton instance is used since getTracer can get called multiple times
+            synchronized (this) {
+                if (reporterInstance == null) {
+                    reporterInstance = new ChoreoJaegerReporter(2000);
+                }
+            }
+        }
         return new JaegerTracer.Builder(serviceName)
                 .withSampler(new GuaranteedThroughputSampler(0.01, 0.5))
-                .withReporter(new ChoreoJaegerReporter(2000))
+                .withReporter(reporterInstance)
                 .build();
     }
 

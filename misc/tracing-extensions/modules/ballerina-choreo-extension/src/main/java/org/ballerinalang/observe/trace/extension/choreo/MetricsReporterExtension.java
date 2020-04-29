@@ -39,8 +39,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static org.ballerinalang.observe.trace.extension.choreo.Constants.EXTENSION_NAME;
 
@@ -50,7 +52,7 @@ import static org.ballerinalang.observe.trace.extension.choreo.Constants.EXTENSI
 public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
     private static final Logger LOGGER = LogFactory.getLogger();
 
-    private static final int PUBLISH_INTERVAL = 10 * 1000;
+    private static final int PUBLISH_INTERVAL_SECS = 10;
     private static final String UP_METRIC_NAME = "up";
     private static final String TIME_WINDOW_TAG_KEY = "timeWindow";
     private static final String PERCENTILE_TAG_KEY = "percentile";
@@ -59,6 +61,7 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
     private static final String METRIC_MIN_POSTFIX = "_min";
     private static final String METRIC_STD_DEV_POSTFIX = "_stdDev";
 
+    private ScheduledExecutorService executorService;
     private Task task;
 
     @Override
@@ -68,10 +71,9 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
             throw BValueCreator.createErrorValue(StringUtils.fromString("Choreo client is not initialized"), null);
         }
 
+        executorService = new ScheduledThreadPoolExecutor(1);
         task = new Task(choreoClient);
-
-        Timer time = new Timer("com.wso2.choreo.MetricsReporter-FlushTimer", true);
-        time.schedule(task, 0, PUBLISH_INTERVAL);
+        executorService.scheduleWithFixedDelay(task, 0, PUBLISH_INTERVAL_SECS, TimeUnit.SECONDS);
         LOGGER.info("started publishing metrics to Choreo");
     }
 
@@ -83,7 +85,13 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
     @Override
     public void close() throws Exception {
         LOGGER.info("sending metrics to Choreo");
-        task.report();
+        executorService.execute(task);
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            LOGGER.error("failed to wait for publishing metrics to complete due to " + e.getMessage());
+        }
     }
 
     /**
@@ -100,10 +108,6 @@ public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
 
         @Override
         public void run() {
-            this.report();
-        }
-
-        public void report() {
             List<ChoreoMetric> choreoMetrics = new ArrayList<>();
             long currentTimestamp = System.currentTimeMillis();
             Metric[] metrics = DefaultMetricRegistry.getInstance().getAllMetrics();
