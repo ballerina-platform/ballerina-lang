@@ -110,6 +110,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -368,6 +369,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangLock lock) {
         lock.body = rewrite(lock.body);
         result = lock;
+    }
+
+    @Override
+    public void visit(BLangBlock blockNode) {
+        blockNode.body = rewrite(blockNode.body);
+        result = blockNode;
     }
 
     @Override

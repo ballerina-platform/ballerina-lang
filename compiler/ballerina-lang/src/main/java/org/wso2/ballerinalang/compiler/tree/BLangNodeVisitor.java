@@ -122,6 +122,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock.BLangUnLockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
@@ -341,6 +342,8 @@ public abstract class BLangNodeVisitor {
     public void visit(BLangWhile whileNode) {
         throw new AssertionError();
     }
+
+    public void visit(BLangBlock blockNode) { throw new AssertionError(); }
 
     public void visit(BLangLock lockNode) {
         throw new AssertionError();

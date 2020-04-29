@@ -137,6 +137,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
@@ -518,6 +519,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 this.uninitializedVars.put(symbol, InitStatus.PARTIAL_INIT);
             }
         }
+    }
+
+    @Override
+    public void visit(BLangBlock blockNode) {
+        analyzeNode(blockNode.body, this.env);
     }
 
     @Override
