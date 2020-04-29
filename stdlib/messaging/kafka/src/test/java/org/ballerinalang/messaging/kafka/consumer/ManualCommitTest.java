@@ -38,17 +38,17 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCluster;
 
 /**
  * Test cases for ballerina.net.kafka consumer ( with manual commit enabled ) manual offset commit
  * using commit() native function.
  */
-public class KafkaConsumerManualCommitTest {
+public class ManualCommitTest {
     private CompileResult result;
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
@@ -61,7 +61,7 @@ public class KafkaConsumerManualCommitTest {
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-manual-commit-test");
         kafkaCluster = createKafkaCluster(dataDir, 14002, 14102).addBrokers(1).startup();
         result = BCompileUtil.compileOffline(
-                getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_manual_commit.bal")));
+                getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "manual_commit.bal")));
     }
 
     // This test has to be a large single method to maintain the state of the consumer.

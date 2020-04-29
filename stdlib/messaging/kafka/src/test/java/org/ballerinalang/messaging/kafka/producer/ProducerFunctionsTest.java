@@ -40,15 +40,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_PRODUCER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_PRODUCER;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
 
 /**
  * Test cases for ballerina.net.kafka producer connector.
  */
-public class KafkaProducerTest {
+public class ProducerFunctionsTest {
 
     private CompileResult result;
     private static File dataDir;
@@ -56,7 +56,7 @@ public class KafkaProducerTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        result = BCompileUtil.compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_PRODUCER, "kafka_producer.bal")));
+        result = BCompileUtil.compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_PRODUCER, "producer_functions.bal")));
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-producer-test");
         kafkaCluster = createKafkaCluster(dataDir, 14009, 14109).addBrokers(1).startup();
     }

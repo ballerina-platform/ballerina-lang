@@ -38,15 +38,15 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_TRANSACTIONS;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_TRANSACTIONS;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
 
 /**
  * Test cases for Kafka abortTransaction method on kafka producer.
  */
-public class KafkaProducerTransactionsTest {
+public class TransactionalProducerTest {
 
     private static File dataDir;
     protected static KafkaCluster kafkaCluster;
@@ -61,7 +61,7 @@ public class KafkaProducerTransactionsTest {
     @Test(description = "Test Kafka producer send function within transaction")
     public void testKafkaSend() {
         result = BCompileUtil.compileOffline(getFilePath(
-                Paths.get(TEST_SRC, TEST_TRANSACTIONS, "kafka_transactions_send.bal")));
+                Paths.get(TEST_SRC, TEST_TRANSACTIONS, "transactional_send.bal")));
         BValue[] inputBValues = {};
         BValue[] returnBValues = BRunUtil.invoke(result, "funcKafkaTransactionSendTest", inputBValues);
 
@@ -79,7 +79,7 @@ public class KafkaProducerTransactionsTest {
     @Test(description = "Test kafka producer commitConsumerOffsets() function")
     public void testKafkaCommitConsumerOffsetsTest() {
         result = BCompileUtil.compileOffline(getFilePath(
-                Paths.get(TEST_SRC, TEST_TRANSACTIONS, "kafka_transactions_commit_consumer_offsets.bal")));
+                Paths.get(TEST_SRC, TEST_TRANSACTIONS, "commit_consumer_offsets.bal")));
         BValue[] inputBValues = {};
         BRunUtil.invoke(result, "funcTestKafkaProduce", inputBValues);
         try {
@@ -108,7 +108,7 @@ public class KafkaProducerTransactionsTest {
     @Test(description = "Test producer commit consumer functionality")
     public void testKafkaCommitConsumerTest() {
         result = BCompileUtil.compileOffline(getFilePath(
-                Paths.get(TEST_SRC, TEST_TRANSACTIONS, "kafka_transactions_commit_consumer.bal")));
+                Paths.get(TEST_SRC, TEST_TRANSACTIONS, "commit_consumer.bal")));
         BRunUtil.invoke(result, "funcTestKafkaProduce");
         try {
             await().atMost(10000, TimeUnit.MILLISECONDS).until(() -> {

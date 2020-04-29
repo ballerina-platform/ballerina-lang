@@ -30,9 +30,9 @@ import java.util.concurrent.CountDownLatch;
 /**
  * Constants used in Ballerina Kafka tests.
  */
-public class KafkaTestUtils {
+public class TestUtils {
 
-    private KafkaTestUtils() {
+    private TestUtils() {
     }
 
     private static final Path TEST_PATH = Paths.get("src", "test", "resources");
@@ -42,7 +42,7 @@ public class KafkaTestUtils {
     public static final String TEST_SERVICES = "services";
     public static final String TEST_SERDES = "serdes";
     public static final String TEST_COMPILER = "compiler-validation";
-    public static final String TEST_SSL = "ssl";
+    public static final String TEST_SECURITY = "security";
     public static final String TEST_TRANSACTIONS = "transactions";
 
     public static String getFilePath(Path filePath) {
