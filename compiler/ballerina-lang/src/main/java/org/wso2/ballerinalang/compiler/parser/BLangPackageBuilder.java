@@ -283,8 +283,8 @@ public class BLangPackageBuilder {
     private Stack<BLangLetClause> letClauseNodeStack = new Stack<>();
 
     private Stack<BLangSelectClause> selectClauseNodeStack = new Stack<>();
-	
-	private Stack<BLangOnConflictClause> onConflictNodeStack = new Stack<>();
+
+    private Stack<BLangOnConflictClause> onConflictNodeStack = new Stack<>();
 
     private Stack<BLangWhereClause> whereClauseNodeStack = new Stack<>();
 
@@ -1932,7 +1932,7 @@ public class BLangPackageBuilder {
         while (whereClauseNodeStack.size() > 0) {
             queryExpr.addWhereClauseNode(whereClauseNodeStack.pop());
         }
-		if (onConflictNodeStack.size() > 0){
+        if (onConflictNodeStack.size() > 0){
             queryExpr.setOnConflictClauseNode(onConflictNodeStack.pop());
         }
         addExpressionNode(queryExpr);
@@ -2017,8 +2017,8 @@ public class BLangPackageBuilder {
         selectClause.expression = (BLangExpression) this.exprNodeStack.pop();
         selectClauseNodeStack.push(selectClause);
     }
-	
-	void createOnConflictClause(DiagnosticPos pos, Set<Whitespace> ws) {
+
+    void createOnConflictClause(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangOnConflictClause onConflictClause = (BLangOnConflictClause) TreeBuilder.createOnConflictClauseNode();
         onConflictClause.addWS(ws);
         onConflictClause.pos = pos;

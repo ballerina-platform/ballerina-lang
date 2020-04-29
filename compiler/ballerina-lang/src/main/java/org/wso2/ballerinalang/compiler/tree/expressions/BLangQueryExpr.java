@@ -67,8 +67,8 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
     public void setSelectClauseNode(SelectClauseNode selectClauseNode) {
         this.selectClause = (BLangSelectClause) selectClauseNode;
     }
-	
-	@Override
+
+    @Override
     public OnConflictClauseNode getOnConflictClauseNode() { return onConflictClause; }
 
     @Override
@@ -114,7 +114,7 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
                 whereClauseList.stream().map(BLangWhereClause::toString).collect(Collectors.joining("\n"))
                 + "\n" +
                 selectClause.toString()
-				+ "\n" +
+                + "\n" +
                 onConflictClause.toString();
     }
 }

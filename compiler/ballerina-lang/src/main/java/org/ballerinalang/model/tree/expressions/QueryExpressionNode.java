@@ -38,8 +38,8 @@ public interface QueryExpressionNode extends ExpressionNode {
     SelectClauseNode getSelectClauseNode();
 
     void setSelectClauseNode(SelectClauseNode selectClauseNode);
-	
-	OnConflictClauseNode getOnConflictClauseNode();
+
+    OnConflictClauseNode getOnConflictClauseNode();
 
     void setOnConflictClauseNode(OnConflictClauseNode onConflictClauseNode);
 
