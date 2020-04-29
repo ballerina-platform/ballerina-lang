@@ -51,7 +51,6 @@ dependencies {
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     testCompile project(path: ':ballerina-test-common', configuration: 'tests')
-    testCompile project(':ballerina-jvm')
     testCompile 'org.testng:testng'
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
 
