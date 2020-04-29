@@ -1538,7 +1538,8 @@ public class Types {
                 && (actualType.tag == TypeTags.UNION
                 && isAllErrorMembers((BUnionType) actualType))) {
             return true;
-
+        } else if (targetType.tag == TypeTags.STRING && actualType.tag == TypeTags.XML_TEXT) {
+            return true;
         }
         return false;
     }
