@@ -35,18 +35,18 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCluster;
 
 /**
  * Test cases for ballerina.net.kafka consumer for get list of available topics
  * using getAvailableTopics() native function.
  */
 @Test(singleThreaded = true)
-public class KafkaConsumerTopicsTest {
+public class TopicsTest {
     private CompileResult result;
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
@@ -58,7 +58,7 @@ public class KafkaConsumerTopicsTest {
     @BeforeClass
     public void setup() throws IOException {
         result = BCompileUtil
-                .compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_topics.bal")));
+                .compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "topics.bal")));
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-get-available-topics-test");
         kafkaCluster = createKafkaCluster(dataDir, 14008, 14108).addBrokers(1).startup();
     }

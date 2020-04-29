@@ -39,17 +39,17 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.produceToKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.produceToKafkaCluster;
 
 /**
  * Test cases for ballerina.kafka consumer native functions.
  */
 @Test(singleThreaded = true)
-public class KafkaConsumerTest {
+public class ConsumerFunctionsTest {
 
     private CompileResult result;
     private static File dataDir;
@@ -63,7 +63,7 @@ public class KafkaConsumerTest {
         dataDir = Testing.Files.createTestingDirectory("cluster-kafka-consumer-test");
         kafkaCluster = createKafkaCluster(dataDir, 14007, 14107).addBrokers(1).startup();
         kafkaCluster.createTopic(TOPIC, 1, 1);
-        result = BCompileUtil.compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer.bal")));
+        result = BCompileUtil.compileOffline(getFilePath(Paths.get(TEST_SRC, TEST_CONSUMER, "consumer_functions.bal")));
     }
 
     @Test(description = "Checks Kafka consumer creation")

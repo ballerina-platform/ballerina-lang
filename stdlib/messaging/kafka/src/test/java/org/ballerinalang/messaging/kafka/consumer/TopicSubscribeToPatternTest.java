@@ -36,15 +36,15 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import static org.awaitility.Awaitility.await;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_CONSUMER;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.TEST_SRC;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.createKafkaCluster;
-import static org.ballerinalang.messaging.kafka.utils.KafkaTestUtils.getFilePath;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_CONSUMER;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.TEST_SRC;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.createKafkaCluster;
+import static org.ballerinalang.messaging.kafka.utils.TestUtils.getFilePath;
 
 /**
  * Tests for ballerina kafka subscribeToPattern function.
  */
-public class KafkaConsumerSubscribeToPatternTest {
+public class TopicSubscribeToPatternTest {
     private CompileResult result;
     private static File dataDir;
     private static KafkaCluster kafkaCluster;
@@ -58,7 +58,7 @@ public class KafkaConsumerSubscribeToPatternTest {
     @Test(description = "Test functionality of getAvailableTopics() function")
     public void testKafkaConsumerSubscribeToPattern() {
         result = BCompileUtil.compileOffline(getFilePath(
-                Paths.get(TEST_SRC, TEST_CONSUMER, "kafka_consumer_subscribe_to_pattern.bal")));
+                Paths.get(TEST_SRC, TEST_CONSUMER, "topic_subscribe_to_pattern.bal")));
         await().atMost(15000, TimeUnit.MILLISECONDS).until(() -> {
             // Unsubscribe from topics first
             BValue[] returnBValuesUnsubscribe = BRunUtil.invoke(result, "funcKafkaTestUnsubscribe");
