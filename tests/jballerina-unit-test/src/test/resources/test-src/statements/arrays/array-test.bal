@@ -201,3 +201,18 @@ function assertArrayLengthPanic(int expected, any[] arr, string message = "Array
         panic error(message + " Expected : " + expected.toString() + " Actual : " + actual.toString());
     }
 }
+
+function testUpdatingJsonTupleViaArrayTypedVar() {
+    [json...] a = [];
+    json[] b = a;
+
+    b[0] = {hello: "world"};
+    b[1] = 2;
+
+    assertArrayLengthPanic(2, b);
+
+    if a[0] == <map<json>> {hello: "world"} && a[1] == 2 {
+        return;
+    }
+    panic error("AssertionError", message = "expected 'hello=world 2', found '" + a.toString() +"'");
+}

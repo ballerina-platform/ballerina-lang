@@ -216,4 +216,9 @@ public class ArrayTest {
     public void testObjectDynamicArrayFilling() {
         BRunUtil.invokeFunction(compileResult, "testObjectDynamicArrayFilling");
     }
+
+    @Test
+    public void testUpdatingJsonTupleViaArrayTypedVar() {
+        BRunUtil.invokeFunction(compileResult, "testUpdatingJsonTupleViaArrayTypedVar");
+    }
 }

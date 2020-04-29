@@ -1253,13 +1253,6 @@ public class JvmInstructionGen {
 
             BType valueType = inst.rhsOp.variableDcl.type;
             BType varRefType = inst.lhsOp.variableDcl.type;
-            if (varRefType.tag == TypeTags.JSON ||
-                    (varRefType.tag == TypeTags.ARRAY && ((BArrayType) varRefType).eType instanceof BJSONType)) {
-                addBoxInsn(this.mv, valueType);
-                this.mv.visitMethodInsn(INVOKESTATIC, JSON_UTILS, "setArrayElement",
-                        String.format("(L%s;JL%s;)V", OBJECT, OBJECT), false);
-                return;
-            }
 
             if (TypeTags.isIntegerTypeTag(valueType.tag)) {
                 this.mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "add", "(JJ)V", true);
