@@ -1,4 +1,4 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from C:\Users\Dell\Desktop\TableImpl\ballerina-lang\compiler\ballerina-lang\src\main\resources\grammar\BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -2565,6 +2565,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitShiftExprPredicate(BallerinaParser.ShiftExprPredicateContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#onConflictClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterOnConflictClause(BallerinaParser.OnConflictClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#onConflictClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitOnConflictClause(BallerinaParser.OnConflictClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#selectClause}.
 	 * @param ctx the parse tree
